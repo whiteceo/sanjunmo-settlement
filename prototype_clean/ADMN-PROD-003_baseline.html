@@ -696,6 +696,7 @@ code, pre, kbd, samp,
                   <option value="산업안전기사">산업안전기사</option>
                   <option value="건설안전기사">건설안전기사</option>
                   <option value="산업안전지도사">산업안전지도사</option>
+                  <option value="위험물산업기사">위험물산업기사</option>
                 </select>
               </div>
               <div class="filter-field">
@@ -715,6 +716,10 @@ code, pre, kbd, samp,
                   <option value="이건설">이건설 (RH-0046)</option>
                   <option value="박보건">박보건 (RH-0047)</option>
                   <option value="최지도">최지도 (RH-0048)</option>
+                  <option value="정종대">정종대 (RH-0025)</option>
+                  <option value="산준교육">산준교육 (RH-0012)</option>
+                  <option value="이전기">이전기 (RH-0015)</option>
+                  <option value="엘캠퍼스">엘캠퍼스 자사 (RH-INTERNAL)</option>
                 </select>
               </div>
               <div class="filter-field">
@@ -862,8 +867,8 @@ code, pre, kbd, samp,
                   <th>정산 1계층 매핑 상태</th>
                   <td colspan="3">
                     <div id="d-settlement-box" class="settlement-gate-box ok" style="padding:10px 14px;">
-                      <div>
-                        <strong>[ADMN-SETT-001 검증 통과]</strong> 1계층 권리자 지분 합계 <strong>100.00%</strong> (김안전 강사 단독 100.00% · 적용 계약 <code>RH-0019</code> R/S 요율 35%)
+                      <div id="d-settlement-text">
+                        <strong>[ADMN-SETT-001 검증 통과]</strong> 1계층 권리자 지분 합계 <strong>100.00%</strong> (김안전 강사 단독 100.00% · 적용 계약 <code>CT-2026-0715</code> R/S 요율 50%)
                       </div>
                       <a href="ADMN-SETT-001_baseline.html" class="btn btn-outline btn-sm">매핑 원장 열기</a>
                     </div>
@@ -1003,6 +1008,7 @@ code, pre, kbd, samp,
                         <option value="산업안전기사">산업안전기사</option>
                         <option value="건설안전기사">건설안전기사</option>
                         <option value="산업안전지도사">산업안전지도사</option>
+                        <option value="위험물산업기사">위험물산업기사</option>
                       </select>
                       <select id="f-cat2" class="form-select" style="width:190px;">
                         <option value="필기 단과">필기 단과</option>
@@ -1018,7 +1024,11 @@ code, pre, kbd, samp,
                       <option value="김안전">김안전 (RH-0019 · 계약 정상)</option>
                       <option value="이건설">이건설 (RH-0046 · 계약 정상)</option>
                       <option value="박보건">박보건 (RH-0047 · 계약 정상)</option>
-                      <option value="최지도">최지도 (RH-0048 · 지분 미완성)</option>
+                      <option value="최지도">최지도 (RH-0048 · 계약 정상)</option>
+                      <option value="정종대">정종대 (RH-0025 · 계약 정상)</option>
+                      <option value="산준교육">산준교육 (RH-0012 · 계약 만료일 2026-10-14)</option>
+                      <option value="이전기">이전기 (RH-0015 · 계약 해지 2026-10-05)</option>
+                      <option value="엘캠퍼스">엘캠퍼스 자사 제작 (RH-INTERNAL)</option>
                     </select>
                     <div class="field-hint">ADMN-INST-001(권리자 계약 원장)에 등록된 강사 마스터와 연동됩니다.</div>
                   </td>
@@ -1152,7 +1162,7 @@ code, pre, kbd, samp,
                       <div>
                         <strong id="f-settlement-title">[검증 통과] 1계층 지분 합계 100.00%</strong>
                         <div style="font-size:12px; margin-top:2px;" id="f-settlement-desc">
-                          김안전(RH-0019) 1계층 권리자 지분 100.00% 매핑 완료 (적용 계약 R/S 35%). [판매중] 상태 설정이 가능합니다.
+                          김안전(RH-0019) 1계층 권리자 지분 100.00% 매핑 완료 (적용 계약 R/S 50%). [판매중] 상태 설정이 가능합니다.
                         </div>
                       </div>
                       <a href="ADMN-SETT-001_baseline.html" class="btn btn-outline btn-sm">ADMN-SETT-001 지분 편집 →</a>
@@ -1378,7 +1388,9 @@ code, pre, kbd, samp,
       { sku: "PROD-BK-1011", role: "주교재", title: "2026 산준모 산업안전기사 필기 한권완성 이론+빈출", isbn: "979-11-98765-01-2", price: 38000, stock: 420 },
       { sku: "PROD-BK-1012", role: "부교재", title: "2026 산업안전기사 필기 10개년 과년도 빈출해설집", isbn: "979-11-98765-02-9", price: 29000, stock: 185 },
       { sku: "PROD-BK-1005", role: "주교재", title: "2026 산준모 산업안전기사 실기 필답형 모범답안집", isbn: "979-11-98765-03-6", price: 34000, stock: 310 },
-      { sku: "PROD-BK-3003", role: "부교재", title: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출", isbn: "979-11-98765-04-3", price: 18000, stock: 95 }
+      { sku: "PROD-BK-3003", role: "부교재", title: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출", isbn: "979-11-98765-04-3", price: 25000, stock: 0 },
+      { sku: "PROD-BK-1007", role: "주교재", title: "2026 산업안전지도사 1차 산업안전일반 핵심요약집", isbn: "979-11-98765-07-9", price: 20000, stock: 180 },
+      { sku: "PROD-BK-1006", role: "주교재", title: "2026 정종대 산업안전기사 필기 기본서", isbn: "979-11-89210-01-4", price: 20000, stock: 240 }
     ];
 
     let coursesData = [
@@ -1481,8 +1493,165 @@ code, pre, kbd, samp,
         saleStatus: "판매종료",
         displayYn: "N",
         createdAt: "2025-09-18"
+      },
+      {
+        code: "CRS-2605",
+        cat1: "산업안전기사",
+        cat2: "실기 작업형",
+        title: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반",
+        summary: "2026년 작업형 동영상 출제 장면별 위험요인 · 안전대책 답안 훈련 (CRS-2519 후속 과정)",
+        instructor: "박보건",
+        periodType: "DAYS",
+        periodDays: 60,
+        periodEndDate: "",
+        listPrice: 150000,
+        discountType: "AMOUNT",
+        discountVal: 25000,
+        salePrice: 125000,
+        lectureCount: 3,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-03-02"
+      },
+      {
+        code: "CRS-2606",
+        cat1: "산업안전지도사",
+        cat2: "필기 단과",
+        title: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과",
+        summary: "산업안전일반 과목 핵심이론 + 연계 교재(핵심요약집) 기반 문제풀이",
+        instructor: "최지도",
+        periodType: "DAYS",
+        periodDays: 120,
+        periodEndDate: "",
+        listPrice: 200000,
+        discountType: "NONE",
+        discountVal: 0,
+        salePrice: 200000,
+        lectureCount: 3,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-04-10"
+      },
+      {
+        code: "CRS-1002",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "정종대 산업안전 실전 빈출특강",
+        summary: "빈출 핵심 문제풀이 2부작 (정종대 기본서 연계)",
+        instructor: "정종대",
+        periodType: "DAYS",
+        periodDays: 90,
+        periodEndDate: "",
+        listPrice: 150000,
+        discountType: "NONE",
+        discountVal: 0,
+        salePrice: 150000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-01-05"
+      },
+      /* [v6.63 W4] 판매 근거 보강 강좌 — ADMN-SETT-001 매핑 · INST-001 계약 상품과 같은 코드 */
+      {
+        code: "CRS-1004",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반",
+        summary: "합격 시 강좌 실결제액 환급(교재 제외) · 판매가 이력: 2026-02 오픈 특가 240,000 → 2026-03 410,000 → 2026-06 막차 특가 180,000 · 2026-06-30 판매종료",
+        instructor: "정종대",
+        periodType: "FIXED_DATE",
+        periodDays: 0,
+        periodEndDate: "2026-12-31",
+        listPrice: 450000,
+        discountType: "AMOUNT",
+        discountVal: 40000,
+        salePrice: 410000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매종료",
+        displayYn: "N",
+        createdAt: "2026-01-20"
+      },
+      {
+        code: "CRS-1001",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "산업안전기사 필기 핵심이론 패키지",
+        summary: "산준교육 콘텐츠 제작 필기 핵심이론 3부작 (계약 만료일 2026-10-14 · 3강 매핑 10-10 종료)",
+        instructor: "산준교육",
+        periodType: "DAYS",
+        periodDays: 90,
+        periodEndDate: "",
+        listPrice: 180000,
+        discountType: "AMOUNT",
+        discountVal: 30000,
+        salePrice: 150000,
+        lectureCount: 3,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2024-10-15"
+      },
+      {
+        code: "CRS-1012",
+        cat1: "위험물산업기사",
+        cat2: "실기 작업형",
+        title: "2026 위험물산업기사 실기 시뮬레이션 특강",
+        summary: "3D 시뮬레이션 공동제작 강좌 (자사 100% · 기여자 최그래픽 매출연동 지원금 5%)",
+        instructor: "엘캠퍼스",
+        periodType: "DAYS",
+        periodDays: 90,
+        periodEndDate: "",
+        listPrice: 150000,
+        discountType: "RATE",
+        discountVal: 20,
+        salePrice: 120000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-05-10"
+      },
+      {
+        code: "CRS-2509",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "2026 산업안전기사 필기 전기위험방지기술 집중 특강",
+        summary: "전기위험방지기술 과목 집중 특강 (강사 계약 2026-10-05 해지 → 판매중지 · 기존 수강생은 수강기간까지 유지)",
+        instructor: "이전기",
+        periodType: "DAYS",
+        periodDays: 60,
+        periodEndDate: "",
+        listPrice: 120000,
+        discountType: "AMOUNT",
+        discountVal: 20000,
+        salePrice: 100000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매중지",
+        displayYn: "N",
+        createdAt: "2025-09-20"
       }
     ];
+
+    /* [v6.60] 정산 1계층 지분 구성 — ADMN-SETT-001 매핑과 같은 값(상세 화면 표시용) */
+    const COURSE_SHARE_TEXT = {
+      "CRS-2601": "김안전 강사 단독 100.00% · 적용 계약 <code>CT-2026-0715</code> R/S 요율 50% · 2계층 수취인 분할 70:30",
+      "CRS-2602": "김안전 강사 단독 100.00% · 적용 계약 <code>CT-2026-0715</code> R/S 요율 50%",
+      "CRS-2603": "이건설 강사 60.00% + 자사 40.00% · 적용 계약 <code>CT-2026-0712</code> R/S 요율 50% · 개발지원금 10%",
+      "CRS-2604": "최지도 강사 70.00%만 입력 · 30.00% 미배분 · 적용 계약 <code>CT-2026-0405</code>",
+      "CRS-2519": "박보건 강사 단독 100.00% · 적용 계약 <code>CT-2024-1101</code>",
+      "CRS-2605": "박보건 강사 단독 100.00% · 적용 계약 <code>CT-2024-1101</code> R/S 요율 50%",
+      "CRS-2606": "최지도 강사 단독 100.00% · 적용 계약 <code>CT-2026-0405</code> R/S 요율 50%",
+      "CRS-1002": "정종대 강사 70.00% + 자사 30.00% · 적용 계약 <code>CT-2026-0501</code> R/S 요율 50% · 개발지원금 15%",
+      "CRS-1004": "정종대 강사 단독 100.00% · 적용 계약 <code>CT-2026-0501</code> R/S 요율 50% · 합격환급 원거래(2026-02~06 결제분) 스냅샷 지분",
+      "CRS-1001": "산준교육 콘텐츠 80.00% + 자사 20.00% · 적용 계약 <code>CT-2026-0412</code> R/S 요율 50% · 3강 매핑 종료일 10-10(계약 종료일 10-14와 불일치)",
+      "CRS-1012": "자사 100.00% (<code>CT-INTERNAL-000</code>) · 기여자 최그래픽 매출연동 개발지원금 5% (<code>SFA-2026-012</code> · 계약 <code>CT-2026-0702</code>)",
+      "CRS-2509": "이전기 강사 단독 100.00% · 적용 계약 <code>CT-2025-0911</code> R/S 요율 50% · 2026-10-05 해지(해지일까지 결제분만 정산)"
+    };
 
     // 커리큘럼 섹션 상태 (등록/수정 및 상세 공유)
     let curriculumSections = [
@@ -1567,7 +1736,10 @@ code, pre, kbd, samp,
     const COURSE_BOOKS = {
       "CRS-2601": [{ sku: "PROD-BK-1011", role: "주교재" }, { sku: "PROD-BK-1012", role: "부교재" }],
       "CRS-2602": [{ sku: "PROD-BK-1005", role: "주교재" }],
-      "CRS-2603": [{ sku: "PROD-BK-3003", role: "부교재" }]
+      "CRS-2603": [{ sku: "PROD-BK-3003", role: "부교재" }],
+      "CRS-2606": [{ sku: "PROD-BK-1007", role: "주교재" }],
+      "CRS-1002": [{ sku: "PROD-BK-1006", role: "주교재" }],
+      "CRS-1004": [{ sku: "PROD-BK-1006", role: "주교재" }]
     };
     function bkItems(code) {
       return (COURSE_BOOKS[code] || []).map(m => {
@@ -1917,6 +2089,12 @@ code, pre, kbd, samp,
       document.getElementById("d-instructor").textContent = `${c.instructor} (권리자 원장 ADMN-INST-001 연동)`;
       document.getElementById("d-pricing").innerHTML = `정가 ${formatNumber(c.listPrice)}원 → <strong style="color:var(--primary);">판매가 ${formatNumber(c.salePrice)}원</strong>`;
       document.getElementById("d-status-display").textContent = `${c.saleStatus} / 프론트 노출 (${c.displayYn})`;
+      const shareText = COURSE_SHARE_TEXT[c.code];
+      if (shareText) {
+        const done = c.settlementShare === 100;
+        document.getElementById("d-settlement-box").className = `settlement-gate-box ${done ? "ok" : "locked"}`;
+        document.getElementById("d-settlement-text").innerHTML = `<strong>${done ? "[ADMN-SETT-001 검증 통과]" : "[ADMN-SETT-001 지분 미완성 — 판매중 전환 차단]"}</strong> 1계층 권리자 지분 합계 <strong>${c.settlementShare}.00%</strong> (${shareText})`;
+      }
       bkRenderDetail(c);
 
       let totalLectures = 0;
@@ -2324,7 +2502,8 @@ code, pre, kbd, samp,
 
       const codeVal = document.getElementById("f-code").value;
       const isNew = codeVal.includes("AUTO");
-      const finalCode = isNew ? `CRS-260${coursesData.length + 1}` : codeVal;
+      const nextNo = Math.max(0, ...coursesData.map(c => (/^CRS-26(\d{2})$/.exec(c.code) || [0, 0])[1] * 1)) + 1;
+      const finalCode = isNew ? `CRS-26${String(nextNo).padStart(2, "0")}` : codeVal;
 
       const listPrice = Number(document.getElementById("f-list-price").value || 0);
       const discType = document.getElementById("f-discount-type").value;

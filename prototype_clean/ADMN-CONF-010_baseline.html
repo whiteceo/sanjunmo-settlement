@@ -789,15 +789,15 @@ code, pre, kbd, samp,
       cat: "FINANCE",
       screenCode: "ADMN-SETT-005",
       screenFile: "ADMN-SETT-005_baseline.html",
-      eventName: "계약 중도해지 지원금 이행률 정산(PRO_RATA) 수동 조정 승인",
-      targetId: "ADJ-202610-04 (산준교육 콘텐츠 주식회사 · SFA-2026-003)",
-      reason: "완강 목표 50강 중 32강 검수 완료(이행률 64.0%) 기준으로 비례 인정액 3,200,000원 산출 후 기지급 차액 +640,000원 당월 반영 승인",
-      actor: "최재무 (2차 승인 완료)",
+      eventName: "계약 중도해지 지원금 이행률 정산(PRO_RATA) 수동 조정 반려",
+      targetId: "ADJ-202610-04 (산준교육 콘텐츠 주식회사 · SFA-2026-001)",
+      reason: "같은 약정 SFA-2026-001은 종료 처리 정책 LUMP_SETTLE에 따라 종료 일시정산 MS-2026-006(1,800,000원)으로 이미 정산됨 — 이행률 정산 +640,000원은 같은 약정의 중복 조정이라 반려(10월 정산 미반영)",
+      actor: "최재무 (반려)",
       ip: "10.20.11.05",
       hash: "SHA256:6c19d820a3310f44b71829ec0019a215",
       beforeJson: {
-        agreement_id: "SFA-2026-003",
-        on_termination_policy: "PRO_RATA (이행률 정산)",
+        agreement_id: "SFA-2026-001",
+        on_termination_policy: "LUMP_SETTLE (MS-2026-006 종료 일시정산 승인)",
         paid_cumulative: 2560000,
         status: "TERMINATED_PENDING_SETTLE"
       },
@@ -807,8 +807,8 @@ code, pre, kbd, samp,
         applied_month: "2026-10",
         pro_rata_ratio: "64.0% (32/50강)",
         recognized_amount: 3200000,
-        adjustment_delta: 640000,
-        evidence_channel: "채널 1 (수정/당월 전자세금계산서 연동)"
+        adjustment_delta: 0,
+        status: "REJECTED (중복 조정)"
       }
     },
     {

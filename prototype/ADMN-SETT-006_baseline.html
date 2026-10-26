@@ -458,10 +458,10 @@
         <div>
           <div class="alert-title">
             <span>⚠️ 월 최저보장금(MMG) 약정 강사 환급 차감 안내</span>
-            <span class="badge badge-warn">김안전 강사 1건 해당</span>
+            <span class="badge badge-warn">김안전 강사 1건 · 2026-11 반영 대기</span>
           </div>
           <div class="alert-desc">
-            당월(2026-10) <strong>김안전 강사(CT-2026-0715)</strong> 계약에서 <strong>월 최저보장 보전금(+1,200,000원)</strong>과 <strong>합격환급 차감(-200,000원)</strong>이 함께 발생했습니다. 정산 기준에 따라 최저보장 보전금을 먼저 산정한 뒤 합격환급 분담금을 별도 차감합니다.
+            <strong>김안전 강사(CT-2026-0715 · 월 최저보장 1,500,000원)</strong>의 합격환급 <strong>HRF-202610-02(옵션 C · 차감 -200,000원)</strong>은 정산 반영월이 <strong>2026-11</strong>입니다. 2026-10은 당월 신규 강사료 2,000,000원이 최저보장액 이상이라 <strong>보전금 0원 · 환급 차감 없음</strong>입니다. 11월 반영 시 최저보장 판정을 먼저 한 뒤 합격환급 분담금을 별도 차감합니다.
           </div>
         </div>
         <button type="button" class="btn btn-sm" onclick="filterByKpi('MMG_OVERLAP')">해당 건만 보기</button>
@@ -471,7 +471,7 @@
       <section class="kpi-grid">
         <div class="kpi-card active" data-filter="ALL" onclick="filterByKpi('ALL')">
           <div class="k-title">당월 환급 정산 대상</div>
-          <div class="k-num" id="kpiTotalCnt">5건</div>
+          <div class="k-num" id="kpiTotalCnt">4건</div>
           <div class="k-sub">원 결제월 소급 금지 · 승인월 귀속</div>
         </div>
         <div class="kpi-card" data-filter="PENDING" onclick="filterByKpi('PENDING')">
@@ -481,17 +481,17 @@
         </div>
         <div class="kpi-card" data-filter="OPT_BC" onclick="filterByKpi('OPT_BC')">
           <div class="k-title">🔻 강사 분담 대상 (옵션 B · C)</div>
-          <div class="k-num" style="color:var(--danger);">3건 (-395,500원)</div>
+          <div class="k-num" style="color:var(--danger);" id="kpiOptBcCnt">3건 (-382,800원)</div>
           <div class="k-sub">원 결제 시점 정산율 기준 차감</div>
         </div>
         <div class="kpi-card" data-filter="OPT_A" onclick="filterByKpi('OPT_A')">
           <div class="k-title">🛡️ 플랫폼 전액 부담 (옵션 A)</div>
-          <div class="k-num" style="color:var(--primary);">2건 (0원 차감)</div>
+          <div class="k-num" style="color:var(--primary);" id="kpiOptACnt">1건 (0원 차감)</div>
           <div class="k-sub">강사 정산 차감 없음 (당사 마케팅비)</div>
         </div>
         <div class="kpi-card" data-filter="MMG_OVERLAP" onclick="filterByKpi('MMG_OVERLAP')">
           <div class="k-title">📌 최저보장(MMG) 적용 강사 건</div>
-          <div class="k-num" style="color:var(--purple);">1건</div>
+          <div class="k-num" style="color:var(--purple);" id="kpiMmgCnt">1건</div>
           <div class="k-sub">최저보장 보전금 산정 후 별도 차감</div>
         </div>
       </section>
@@ -612,7 +612,7 @@
       <section id="tabRules" class="tab-panel hidden">
         <div class="card" style="margin-bottom:16px;">
           <div class="card-header">
-            <div class="card-title">📌 1. 월 최저보장금(MMG) 약정 강사의 합격환급 차감 순서 기준 (김안전 강사 사례)</div>
+            <div class="card-title">📌 1. 월 최저보장금(MMG) 약정 강사의 합격환급 차감 순서 기준 (예시 — 신규 강사료가 최저보장액 1,500,000원에 못 미치는 달)</div>
           </div>
           <div class="table-wrap">
             <table class="data-table">
@@ -653,7 +653,7 @@
 
         <div class="card">
           <div class="card-header">
-            <div class="card-title">📌 2. 개발지원금 환급분 차감 및 약정 잔여 한도 복원 기준 (정종대 강사 사례)</div>
+            <div class="card-title">📌 2. 개발지원금 환급분 차감 및 약정 잔여 한도 복원 기준 (이건설 강사 사례 · D-9 규칙)</div>
           </div>
           <div class="table-wrap">
             <table class="data-table">
@@ -661,24 +661,24 @@
                 <tr>
                   <th style="width:160px;">계산 순서</th>
                   <th>계산 방식 설명</th>
-                  <th style="width:320px;">정종대 강사 (SFA-2026-009) 당월 적용 값</th>
+                  <th style="width:320px;">이건설 강사 (SFA-2026-015 · HRF-202610-04) 당월 적용 값</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
                   <td><strong>Step 1. 지원금 환급 차감 산출</strong></td>
-                  <td>원 결제 시점에 지급 확정되었던 지원금 배분액에 계약 분담비율(옵션 B 50%)을 곱하여 당월 차감액 산출</td>
-                  <td>원거래 지원금 30,000원 × 50% = <strong style="color:var(--danger);">-15,000원 차감</strong></td>
+                  <td>원 결제 시점에 지급 확정되었던 지원금 배분액에 계약 분담비율을 곱하여 당월 차감액 산출 (원 주문 강좌가 지원금 대상이 아니면 0원 — 정종대 HRF-01 · 03의 환급반 CRS-1004는 자사 지분 0%라 차감 0원)</td>
+                  <td>원거래 확정 지원금 14,450원(144,500원 × 10%) × 분담 100% → <strong style="color:var(--danger);">-14,450원 차감</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Step 2. 약정 잔여 한도 복원</strong></td>
                   <td>강사가 반납(차감)한 지원금만큼 총 약정 한도에서 소진되었던 한도를 다시 복원 (`총한도 − 기존 소진액 + 당월 차감 복원액`)</td>
-                  <td>15,000,000 − 4,850,000 + 15,000 = <strong style="color:var(--primary);">10,165,000원 (한도 복원)</strong></td>
+                  <td>3,000,000 − 2,850,000 + 14,450 = <strong style="color:var(--primary);">164,450원 (복원 후 사용가능 한도)</strong></td>
                 </tr>
                 <tr>
                   <td><strong>Step 3. 당월 최종 지원금 확정</strong></td>
                   <td>복원된 잔여 한도 내에서 당월 신규 발생 지원금을 확정한 뒤, Step 1의 환급 차감액을 공제하여 최종 지급</td>
-                  <td>당월 신규 450,000원 − 환급차감 15,000원 = <strong>435,000원 확정</strong></td>
+                  <td>당월 신규 400,000원 → 한도 164,450원으로 캡(초과 235,550원 소멸) − 환급차감 14,450원 = <strong>150,000원 확정</strong> (잔여 한도 0 · 약정 종결)</td>
                 </tr>
               </tbody>
             </table>
@@ -764,12 +764,13 @@
       {
         id: "HRF-202610-01",
         rfdApproveId: "PASS-2026-0041",
-        orderId: "ORD-202603-112",
+        orderId: "SJM20260309-0112",
         originPaidMonth: "2026-03",
         studentName: "홍길동",
         studentUid: "hong88",
         examNo: "26-01-09821",
-        courseName: "[환급반] 2026 산업안전기사 100% 환급반 (총결제 450,000원 / 교재 40,000원 제외)",
+        courseName: "[환급반] CRS-1004 2026 산업안전기사 필기+실기 100% 합격 환급반 (총결제 450,000원 / 교재 PROD-BK-1006 ×2 40,000원 제외)",
+        productId: "CRS-1004",
         rightsHolderId: "RH-0025",
         rightsHolderName: "정종대 (개인 면세사업자)",
         contractId: "CT-2026-0501",
@@ -779,11 +780,14 @@
         studentRefundAmount: 410000,
         withholdingTax22: 90200,
         netPayoutToStudent: 319800,
+        snapshotShare: 100,
         snapshotRsRate: 50,
-        snapshotSupportRate: 15,
-        deductBasicRs: 102500,
-        deductSupport: 15000,
-        capRestoreYn: true,
+        snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 50,
+        deductBasicRs: 205000,
+        deductSupport: 0,
+        capRestoreYn: false,
         mmgOverlapFlag: false,
         progressRate: "92.4% (기준 90% 충족)",
         certImageFile: "합격증사본_국가기술자격_홍길동_2026.jpg",
@@ -793,18 +797,19 @@
         bankNameTier1: "KB국민은행 (시중 1금융권)",
         bankAccountRealName: "123-45-****-890 (예금주: 홍길동 · 실명 일치)",
         appliedMonth: "2026-10",
-        status: "PENDING",
-        memo: "올패스 환급 심사에서 4대 제출자료(합격증 사본·산준모 카페 합격수기 아웃링크·통장사본·1금융권 실명계좌) 확인 완료. 당월 정산 차감 반영 대기 중"
+        status: "APPROVED",
+        memo: "옵션 B — 환급금 410,000원 × 원거래 지분 100% × 요율 50% = 강사료 차감 205,000원. 원 주문 강좌 CRS-1004는 정종대 지분 100%(자사 0%)라 개발지원금 대상이 아니어서(SFA-2026-009 대상은 CRS-1002 · PROD-BK-1004) 원거래 지원금 0원 → 지원금 차감 0원 · 한도 복원 없음. 2026-10-26 승인"
       },
       {
         id: "HRF-202610-02",
         rfdApproveId: "PASS-2026-0039",
-        orderId: "ORD-202604-309",
+        orderId: "SJM20260411-0309",
         originPaidMonth: "2026-04",
         studentName: "최안전",
         studentUid: "safe_choi",
         examNo: "26-01-44120",
         courseName: "[환급반] 김안전 산업안전 핵심이론 패스 (강좌 실결제 400,000원)",
+        productId: "",
         rightsHolderId: "RH-0019",
         rightsHolderName: "김안전 (개인 프리랜서)",
         contractId: "CT-2026-0715",
@@ -814,8 +819,11 @@
         studentRefundAmount: 400000,
         withholdingTax22: 88000,
         netPayoutToStudent: 312000,
+        snapshotShare: 100,
         snapshotRsRate: 50,
         snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 0,
         deductBasicRs: 200000,
         deductSupport: 0,
         capRestoreYn: false,
@@ -827,33 +835,37 @@
         bankbookCopyFile: "통장사본_신한은행_최안전.jpg",
         bankNameTier1: "신한은행 (시중 1금융권)",
         bankAccountRealName: "110-382-****91 (예금주: 최안전 · 실명 일치)",
-        appliedMonth: "2026-10",
-        status: "APPROVED",
-        memo: "월 최저보장금(150만원)을 먼저 산정한 뒤 합격환급 분담금(200,000원)을 별도 차감 완료 (최저보장 약정 강사 동시 발생 건)"
+        appliedMonth: "2026-11",
+        status: "PENDING",
+        memo: "4대 제출자료 확인 완료. 정산 반영월 2026-11 지정(10월 정산 제외) — 11월 정산서에서 월 최저보장금(MMG 1,500,000원) 판정을 먼저 한 뒤 매출 취소 차감(환급금 400,000원 × 지분 100% × 요율 50% = 200,000원)을 별도 반영"
       },
       {
         id: "HRF-202610-03",
         rfdApproveId: "PASS-2026-0035",
-        orderId: "ORD-202602-055",
+        orderId: "SJM20260214-0055",
         originPaidMonth: "2026-02",
         studentName: "이수석",
         studentUid: "top_lee",
         examNo: "26-01-10294",
-        courseName: "[초단기환급] 산업안전 필기+실기 올인원 (강좌 실결제 240,000원 / 교재 72,000원 제외)",
+        courseName: "[환급반] CRS-1004 2026 산업안전기사 필기+실기 100% 합격 환급반 (2026-02 오픈 특가 · 강좌 실결제 240,000원 / 교재 PROD-BK-1006 ×2 40,000원 제외)",
+        productId: "CRS-1004",
         rightsHolderId: "RH-0025",
         rightsHolderName: "정종대 (개인 면세사업자)",
         contractId: "CT-2026-0501",
         burdenType: "OPTION_B",
-        totalPaidAmount: 312000,
-        excludedBookAmount: 72000,
+        totalPaidAmount: 280000,
+        excludedBookAmount: 40000,
         studentRefundAmount: 240000,
         withholdingTax22: 52800,
         netPayoutToStudent: 187200,
+        snapshotShare: 100,
         snapshotRsRate: 50,
-        snapshotSupportRate: 15,
-        deductBasicRs: 60000,
-        deductSupport: 18000,
-        capRestoreYn: true,
+        snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 50,
+        deductBasicRs: 120000,
+        deductSupport: 0,
+        capRestoreYn: false,
         mmgOverlapFlag: false,
         progressRate: "95.2% (기준 90% 충족)",
         certImageFile: "합격증사본_산업안전기사_이수석.jpg",
@@ -864,31 +876,36 @@
         bankAccountRealName: "1002-841-****12 (예금주: 이수석 · 실명 일치)",
         appliedMonth: "2026-10",
         status: "APPROVED",
-        memo: "원 결제월(2026-02) 정산율을 적용하여 당월(2026-10) 강사료 차감(-60,000원) 및 개발지원금 차감·잔여한도 복원(+18,000원) 완료"
+        memo: "원 결제월(2026-02) 스냅샷 적용 — 환급금 240,000원 × 지분 100% × 요율 50% = 강사료 차감 120,000원. 원 주문 강좌 CRS-1004는 자사 지분 0%라 개발지원금 대상이 아니어서 원거래 지원금 0원 → 지원금 차감 0원 · 한도 복원 없음"
       },
       {
         id: "HRF-202610-04",
         rfdApproveId: "PASS-2026-0029",
-        orderId: "ORD-202605-210",
+        orderId: "SJM20260512-0210",
         originPaidMonth: "2026-05",
         studentName: "최유진",
         studentUid: "yj_choi",
         examNo: "26-01-07119",
-        courseName: "[환급반] 건설안전기사 필기+실기 패스 (강좌 실결제 300,000원)",
+        courseName: "[합격환급 대상] CRS-2603 2026 건설안전기사 필기 핵심이론 + 계산문제 특강 (강좌 실결제 144,500원 / 교재 PROD-BK-3003 ×2 50,000원 제외) · D-9 규칙(복원 한도 당월 사용) 시연",
+        productId: "CRS-2603",
         rightsHolderId: "RH-0046",
         rightsHolderName: "이건설 (개인 프리랜서)",
         contractId: "CT-2026-0712",
-        burdenType: "OPTION_A",
-        totalPaidAmount: 338000,
-        excludedBookAmount: 38000,
-        studentRefundAmount: 300000,
-        withholdingTax22: 66000,
-        netPayoutToStudent: 234000,
-        snapshotRsRate: 40,
-        snapshotSupportRate: 0,
-        deductBasicRs: 0,
-        deductSupport: 0,
-        capRestoreYn: false,
+        burdenType: "OPTION_B",
+        totalPaidAmount: 194500,
+        excludedBookAmount: 50000,
+        studentRefundAmount: 144500,
+        withholdingTax22: 31790,
+        netPayoutToStudent: 112710,
+        snapshotShare: 60,
+        snapshotRsRate: 50,
+        snapshotSupportRate: 10,
+        snapshotSupportAlloc: 14450,
+        supportBurdenRatio: 100,
+        rsNote: "= 환급금 144,500원 × 지분 60% × 요율 50% (원 단위 미만 내림)",
+        deductBasicRs: 43350,
+        deductSupport: 14450,
+        capRestoreYn: true,
         mmgOverlapFlag: false,
         progressRate: "91.8% (기준 90% 충족)",
         certImageFile: "합격증사본_건설안전기사_최유진.jpg",
@@ -899,28 +916,32 @@
         bankAccountRealName: "391-910***-**107 (예금주: 최유진 · 실명 일치)",
         appliedMonth: "2026-10",
         status: "APPROVED",
-        memo: "계약 옵션 A(플랫폼 100% 부담 · 마케팅비 처리) 적용 — 강사 정산 차감 0원 확정"
+        memo: "옵션 B — 강사료 차감 43,350원 = 환급금 144,500원 × 원거래 지분 60% × 요율 50%(내림), 원거래 확정 지원금 14,450원(= 144,500원 × 10% 내림) × 분담 100% = 개발지원금 차감 14,450원 · 잔여 한도 +14,450원 복원(SFA-2026-015). D-9 규칙(복원 한도 당월 사용) 시연 — 복원 한도는 같은 달 지원금 확정에 사용. 2026-10-25 승인"
       },
       {
         id: "HRF-202610-05",
         rfdApproveId: "PASS-2026-0044",
-        orderId: "ORD-202606-088",
+        orderId: "SJM20260603-0088",
         originPaidMonth: "2026-06",
         studentName: "정하늘",
         studentUid: "sky_jung",
         examNo: "26-01-55210",
-        courseName: "[환급반] 산업안전기사 실기 단기완성 환급패스 (강좌 실결제 180,000원)",
+        courseName: "[환급반] CRS-1004 2026 산업안전기사 필기+실기 100% 합격 환급반 (2026-06 막차 특가 · 강좌 실결제 180,000원 / 교재 PROD-BK-1006 ×2 40,000원 제외)",
+        productId: "CRS-1004",
         rightsHolderId: "RH-0025",
         rightsHolderName: "정종대 (개인 면세사업자)",
         contractId: "CT-2026-0501",
         burdenType: "OPTION_A",
-        totalPaidAmount: 212000,
-        excludedBookAmount: 32000,
+        totalPaidAmount: 220000,
+        excludedBookAmount: 40000,
         studentRefundAmount: 180000,
         withholdingTax22: 39600,
         netPayoutToStudent: 140400,
+        snapshotShare: 100,
         snapshotRsRate: 50,
         snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 0,
         deductBasicRs: 0,
         deductSupport: 0,
         capRestoreYn: false,
@@ -933,17 +954,41 @@
         bankNameTier1: "IBK기업은행 (시중 1금융권)",
         bankAccountRealName: "221-08****-01-011 (예금주: 정하늘 · 실명 일치)",
         appliedMonth: "2026-10",
-        status: "PENDING",
-        memo: "특강 프로모션 옵션 A(플랫폼 부담) 적용 대상 — 4대 제출 증빙 확인 완료, 정산 반영 승인 대기"
+        status: "APPROVED",
+        memo: "6월 막차 특가 프로모션 옵션 A(플랫폼 부담) — 강사 정산 차감 0원. 4대 제출 증빙 확인 후 2026-10-26 승인"
       }
     ],
     auditLogs: [
       {
-        time: "2026-10-13 16:40:00",
+        time: "2026-10-26 10:05:00",
         actor: "재무팀장 (조정식)",
+        targetId: "HRF-202610-05",
+        burden: "옵션 A / 정종대",
+        action: "플랫폼 전액 부담(옵션 A) 확정 — 강사 정산 차감 0원",
+        basis: "합격증 사본·카페 수기 링크·IBK기업은행 통장사본·실명계좌 4종 검증 완료"
+      },
+      {
+        time: "2026-10-26 10:00:00",
+        actor: "재무팀장 (조정식)",
+        targetId: "HRF-202610-01",
+        burden: "옵션 B / 정종대",
+        action: "강사료 차감(-205,000원 = 410,000원 × 지분 100% × 요율 50%) 확정 · 개발지원금 차감 0원(원 주문 강좌 CRS-1004 자사 지분 0% — 지원금 대상 아님)",
+        basis: "합격증 사본·카페 합격수기 링크·KB국민은행 통장사본·실명계좌 4종 검증 완료 (원결제 2026-03 기준)"
+      },
+      {
+        time: "2026-10-25 16:30:00",
+        actor: "재무팀장 (조정식)",
+        targetId: "HRF-202610-04",
+        burden: "옵션 B / 이건설",
+        action: "강사료 차감(-43,350원 = 144,500원 × 지분 60% × 요율 50%) 및 개발지원금 차감(-14,450원 = 원거래 확정 지원금 14,450원 × 분담 100%) · 잔여 지원금 한도 복원(+14,450원 · 복원 한도는 같은 달 사용) 확정",
+        basis: "합격증 사본·카페 수기 링크·하나은행 통장사본·실명계좌 검증 완료 (원결제 2026-05 기준, 제세공과금 22% 공제 후 112,710원 지급)"
+      },
+      {
+        time: "2026-10-13 16:40:00",
+        actor: "CS담당자 (김검수)",
         targetId: "HRF-202610-02",
         burden: "옵션 C / 김안전",
-        action: "합격환급 강사료 차감 확정 (-200,000원) · 최저보장(MMG) 보전금 산정 후 별도 차감",
+        action: "4대 증빙 확인 완료 · 정산 반영월 2026-11 지정 (매출 취소 차감 200,000원은 11월 정산서에서 최저보장(MMG) 판정 후 별도 반영)",
         basis: "합격증 사본·산준모 카페 수기 링크·신한은행 통장사본·실명계좌 4종 대조 완료"
       },
       {
@@ -951,16 +996,8 @@
         actor: "재무팀장 (조정식)",
         targetId: "HRF-202610-03",
         burden: "옵션 B / 정종대",
-        action: "강사료 차감(-60,000원) 및 개발지원금 차감(-18,000원) · 잔여 지원금 한도 복원(+18,000원) 확정",
+        action: "강사료 차감(-120,000원 = 240,000원 × 지분 100% × 요율 50%) 확정 · 개발지원금 차감 0원(원 주문 강좌 CRS-1004 자사 지분 0% — 지원금 대상 아님)",
         basis: "합격증 사본·카페 합격수기 링크·우리은행 통장사본·실명계좌 4종 검증 완료 (원결제 2026-02 기준)"
-      },
-      {
-        time: "2026-10-10 14:15:00",
-        actor: "CS담당자 (김검수)",
-        targetId: "HRF-202610-04",
-        burden: "옵션 A / 이건설",
-        action: "플랫폼 전액 부담(옵션 A) 확정 — 강사 정산 차감 0원 처리",
-        basis: "합격증 사본·카페 수기 링크·하나은행 통장사본·실명계좌 검증 완료 (제세공과금 22% 공제 후 234,000원 지급)"
       }
     ]
   };
@@ -1076,7 +1113,7 @@
             ${item.deductSupport > 0 ? "-" + fmt(item.deductSupport) : "0원"}
             ${item.capRestoreYn ? `<div style="font-size:11px; color:var(--primary);">+한도복원 ${fmt(item.deductSupport)}</div>` : ""}
           </td>
-          <td>${statusBadge}</td>
+          <td>${statusBadge}${item.appliedMonth !== curMonth() ? `<div style="margin-top:4px;"><span class="badge badge-neutral">정산 반영월 ${item.appliedMonth}</span></div>` : ""}</td>
           <td style="text-align:center;" onclick="event.stopPropagation();">
             <button type="button" class="btn btn-sm ${item.status === "PENDING" ? "btn-primary" : ""}" onclick="openSett006DetailModal('${item.id}')">
               ${item.status === "PENDING" ? "상세 · 승인" : "상세 보기"}
@@ -1160,12 +1197,16 @@
             <span style="color:var(--text-sub);">수강생 실입금액 (제세공과금 22% 차감)</span>
             <span>기타소득세·지방세 -${fmt(item.withholdingTax22)} 공제 → <strong style="color:var(--success);">${fmt(item.netPayoutToStudent)}</strong></span>
           </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub);">원거래 스냅샷 (원 결제일 기준)</span>
+            <span>귀속 지분 <strong>${item.snapshotShare}%</strong> · 강의 R/S 요율 <strong>${item.snapshotRsRate}%</strong>${item.snapshotSupportAlloc ? ` · 확정 지원금 <strong>${fmt(item.snapshotSupportAlloc)}</strong> (요율 ${item.snapshotSupportRate}%)` : ""}</span>
+          </div>
           <div class="info-row" style="background:#fef2f2; padding:8px 10px; border-radius:6px; margin-top:4px;">
-            <span style="color:#991b1b; font-weight:700;">강사료(R/S) 환급분 차감액 (정산율 ${item.snapshotRsRate}%)</span>
-            <strong style="color:var(--danger); font-size:13.5px;">${item.deductBasicRs > 0 ? "-" + fmt(item.deductBasicRs) : "0원 (플랫폼 전액 부담)"}</strong>
+            <span style="color:#991b1b; font-weight:700;">강사료(R/S) 환급분 차감액${item.burdenType === "OPTION_A" ? "" : (item.rsNote ? ` <span style="font-weight:500;">(${item.rsNote})</span>` : ` <span style="font-weight:500;">= 환급금 ${fmt(item.studentRefundAmount)} × 지분 ${item.snapshotShare}% × 요율 ${item.snapshotRsRate}%</span>`)}</span>
+            <strong style="color:var(--danger); font-size:13.5px;">${item.deductBasicRs > 0 ? "-" + fmt(item.deductBasicRs) : (item.burdenType === "OPTION_A" ? "0원 (플랫폼 전액 부담)" : "0원")}</strong>
           </div>
           <div class="info-row" style="background:#eff6ff; padding:8px 10px; border-radius:6px; margin-top:4px;">
-            <span style="color:#1e40af; font-weight:700;">개발지원금 차감 및 잔여 한도 복원액</span>
+            <span style="color:#1e40af; font-weight:700;">개발지원금 차감 및 잔여 한도 복원액${item.deductSupport > 0 ? ` <span style="font-weight:500;">= 원거래 확정 지원금 ${fmt(item.snapshotSupportAlloc)} × 분담 ${item.supportBurdenRatio}%</span>` : ""}</span>
             <strong style="color:var(--primary); font-size:13px;">${item.deductSupport > 0 ? "-" + fmt(item.deductSupport) + " (잔여 한도 +" + fmt(item.deductSupport) + " 복원)" : "0원"}</strong>
           </div>
         </div>
@@ -1333,15 +1374,29 @@
     `).join("");
   }
 
+  function curMonth() {
+    return document.getElementById("topMonthSelect")?.value || "2026-10";
+  }
+
   function updateFooterSummary() {
     const el = document.getElementById("footerSummary");
     const pendingEl = document.getElementById("kpiPendingCnt");
-    const totalBasic = state.items.reduce((acc, x) => acc + x.deductBasicRs, 0);
-    const totalSup = state.items.reduce((acc, x) => acc + x.deductSupport, 0);
+    const month = curMonth();
+    const cur = state.items.filter(x => x.appliedMonth === month);
+    const later = state.items.filter(x => x.appliedMonth > month);
+    const totalBasic = cur.reduce((acc, x) => acc + x.deductBasicRs, 0);
+    const totalSup = cur.reduce((acc, x) => acc + x.deductSupport, 0);
     const pendingCnt = state.items.filter(x => x.status === "PENDING").length;
+    const bc = cur.filter(x => x.burdenType === "OPTION_B" || x.burdenType === "OPTION_C");
+    const bcSum = bc.reduce((acc, x) => acc + x.deductBasicRs + x.deductSupport, 0);
+    const setText = (id, v) => { const n = document.getElementById(id); if (n) n.textContent = v; };
+    setText("kpiTotalCnt", `${cur.length}건`);
+    setText("kpiOptBcCnt", `${bc.length}건 (-${bcSum.toLocaleString("ko-KR")}원)`);
+    setText("kpiOptACnt", `${cur.filter(x => x.burdenType === "OPTION_A").length}건 (0원 차감)`);
+    setText("kpiMmgCnt", `${state.items.filter(x => x.mmgOverlapFlag).length}건`);
     if (pendingEl) pendingEl.textContent = `${pendingCnt}건`;
     if (el) {
-      el.innerHTML = `당월 대상 <strong>${state.items.length}건</strong> (승인 대기 <strong>${pendingCnt}건</strong>) · 강사료 총 차감액: <strong style="color:#fca5a5;">-${fmt(totalBasic)}</strong> · 개발지원금 차감(잔여한도 복원): <strong style="color:#93c5fd;">-${fmt(totalSup)}</strong>`;
+      el.innerHTML = `${month} 반영 <strong>${cur.length}건</strong>${later.length ? ` (익월 이후 반영 <strong>${later.length}건</strong> 별도)` : ""} · 승인 대기 <strong>${pendingCnt}건</strong> · 강사료 총 차감액: <strong style="color:#fca5a5;">-${fmt(totalBasic)}</strong> · 개발지원금 차감(잔여한도 복원): <strong style="color:#93c5fd;">-${fmt(totalSup)}</strong>`;
     }
   }
 

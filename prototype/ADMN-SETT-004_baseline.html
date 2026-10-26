@@ -510,11 +510,11 @@ code, pre, kbd, samp,
             <span id="gateBadgeRH" class="badge badge-danger">차단 중</span>
           </div>
           <div class="gate-card-desc">
-            미분류(<code>원인 미분류 불일치 (UNKNOWN_MISMATCH)</code>) 상태의 거래가 1건이라도 존재하면 금액(1원 여부)과 무관하게 해당 거래 귀속 권리자의 정산 마감을 차단합니다.
+            미분류(<code>원인 미분류 불일치 (UNKNOWN_MISMATCH)</code>) 상태의 거래가 1건이라도 존재하면 금액(1원 여부)과 무관하게 해당 거래 귀속 권리자의 정산 마감을 차단합니다. 귀속 권리자는 결제일 기준 1계층 지분 매핑(위탁 도서는 위탁자)이며, 한 결제가 여러 권리자에게 귀속되면 외부 권리자 전원을 보류합니다. 주문과 매칭되지 않는 미분류는 Gate 2(전사 총액)로만 판단합니다.
           </div>
           <div class="gate-metrics">
             <span>현재 미분류 건수: <strong id="metricUnclassifiedCount" style="color:var(--danger);">2건</strong> (허용: 0건)</span>
-            <span>마감 차단 권리자: <strong id="metricBlockedHolders">정종대 (RH-0025), 한국소방학회 (RH-0051)</strong></span>
+            <span>마감 차단 권리자: <strong id="metricBlockedHolders">산준교육 콘텐츠 주식회사 (RH-0012), 이안전 (RH-0031), 안전기술출판 (위탁자 · CT-2026-0705) (RH-0044)</strong></span>
           </div>
         </div>
 
@@ -530,8 +530,8 @@ code, pre, kbd, samp,
             미소명 상태인 전사 대사 차액 절대값 합계가 <code>1,000원</code>을 초과하면 전체 마감을 차단합니다. 원인 코드를 지정하고 소명 승인된 차이는 차단 모수에서 제외됩니다.
           </div>
           <div class="gate-metrics">
-            <span>미소명 차액 절대값 합계: <strong id="metricUnresolvedDiff" style="color:var(--danger);">135,020원</strong></span>
-            <span>소명 승인 완료 차액: <strong id="metricApprovedDiff" style="color:var(--success);">48,000원</strong></span>
+            <span>미소명 차액 절대값 합계: <strong id="metricUnresolvedDiff" style="color:var(--danger);">128,520원</strong></span>
+            <span>소명 승인 완료 차액: <strong id="metricApprovedDiff" style="color:var(--success);">11,000원</strong></span>
           </div>
         </div>
       </section>
@@ -549,7 +549,7 @@ code, pre, kbd, samp,
       <section class="kpi-grid">
         <div class="kpi-card active" data-filter="ALL">
           <div class="k-title">전체 대사 거래 건수 (샘플)</div>
-          <div class="k-num" id="kpiAll">7건</div>
+          <div class="k-num" id="kpiAll">12건</div>
           <div class="k-sub">PG 원장 ↔ 자체 DB 교차 대사</div>
         </div>
         <div class="kpi-card" data-filter="UNKNOWN_MISMATCH">
@@ -569,7 +569,7 @@ code, pre, kbd, samp,
         </div>
         <div class="kpi-card" data-filter="MATCHED">
           <div class="k-title">🟢 1:1 완전 일치 (정상)</div>
-          <div class="k-num" id="kpiMatched" style="color:var(--success);">2건</div>
+          <div class="k-num" id="kpiMatched" style="color:var(--success);">6건</div>
           <div class="k-sub">차액 0원 · 과면세 분할 일치</div>
         </div>
       </section>
@@ -668,52 +668,41 @@ code, pre, kbd, samp,
               </thead>
               <tbody>
                 <tr>
-                  <td class="mono">ORD-202610-001<br><strong>OI-9001-1</strong></td>
-                  <td>산업안전기사 필기 패키지 (강좌 1)<br><span class="badge badge-neutral">LECTURE</span></td>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-1</strong></td>
+                  <td>정종대 산업안전 실전 빈출특강 <code>CRS-1002</code><br><span class="badge badge-neutral">LECTURE</span></td>
                   <td class="mono">SERVICE (용역)</td>
                   <td class="mono">EDU (교육용역)</td>
                   <td><span class="badge badge-primary">면세</span> 부가세법 제26조 제1항 제6호</td>
                   <td class="num">150,000원</td>
-                  <td class="num" style="color:var(--danger);">-16,666원</td>
-                  <td class="num"><strong>133,334원</strong></td>
-                  <td>Pipeline 1.1 (정종대 외)</td>
+                  <td class="num">0원 (쿠폰·포인트 미사용)</td>
+                  <td class="num"><strong>150,000원</strong></td>
+                  <td>강좌 수익배분 (정종대 70% · 자사 30%)</td>
                 </tr>
                 <tr>
-                  <td class="mono">ORD-202610-001<br><strong>OI-9001-2</strong></td>
-                  <td>산업안전기사 실기 특강 (강좌 2 · 잔여배정)<br><span class="badge badge-neutral">LECTURE</span></td>
-                  <td class="mono">SERVICE (용역)</td>
-                  <td class="mono">EDU (교육용역)</td>
-                  <td><span class="badge badge-primary">면세</span> 부가세법 제26조 제1항 제6호</td>
-                  <td class="num">120,000원</td>
-                  <td class="num" style="color:var(--danger);">-13,334원<br><span style="font-size:10px; color:var(--text-muted);">(잔여 1원 배정)</span></td>
-                  <td class="num"><strong>106,666원</strong></td>
-                  <td>Pipeline 1.1 (정종대)</td>
-                </tr>
-                <tr>
-                  <td class="mono">ORD-202610-001<br><strong>OI-9001-3</strong></td>
-                  <td>[자사저작권] 산준모 산업안전 실기 빈출문제집<br><span class="badge badge-neutral">BOOK (OWN_PUBLISHED)</span></td>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-2</strong></td>
+                  <td>2026 정종대 산업안전기사 필기 기본서 <code>PROD-BK-1006</code> ×1<br><span class="badge badge-neutral">BOOK (OWN_PUBLISHED)</span></td>
                   <td class="mono">GOODS (재화)</td>
                   <td class="mono">BOOK (도서)</td>
                   <td><span class="badge badge-primary">면세</span> 부가세법 제26조 제1항 제8호</td>
-                  <td class="num">35,000원</td>
+                  <td class="num">20,000원</td>
                   <td class="num">0원 (할인차단 0%)</td>
-                  <td class="num"><strong>35,000원</strong></td>
-                  <td>인세 Bypass → 개발지원금 모수</td>
+                  <td class="num"><strong>20,000원</strong></td>
+                  <td>자사 발행 도서 인세 (정종대 100%)</td>
                 </tr>
                 <tr>
-                  <td class="mono">ORD-202610-001<br><strong>OI-9001-4</strong></td>
-                  <td>산준모 합격 타이머 스톱워치<br><span class="badge badge-neutral">GOODS_ITEM</span></td>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-3</strong></td>
+                  <td>산준모 공학용 계산기 &amp; 안전모 실기 키트 <code>GOODS-2026-001</code> ×1<br><span class="badge badge-neutral">GOODS_ITEM</span></td>
                   <td class="mono">GOODS (재화)</td>
                   <td class="mono">GENERAL (일반소비재)</td>
                   <td><span class="badge badge-warn">과세 10%</span> (공급가 10,000 / 세액 1,000)</td>
                   <td class="num">11,000원</td>
                   <td class="num">0원</td>
                   <td class="num"><strong>11,000원</strong></td>
-                  <td>Pipeline 2.3 (자사 매출 전용)</td>
+                  <td>일반상품 매출 (자사 매출 전용)</td>
                 </tr>
                 <tr>
-                  <td class="mono">ORD-202610-001<br><strong>OI-9001-5</strong></td>
-                  <td>도서·굿즈 묶음 배송비<br><span class="badge badge-neutral">SHIPPING_FEE</span></td>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-4</strong></td>
+                  <td>제주 · 도서산간 추가 배송비<br><span class="badge badge-neutral">SHIPPING_FEE</span></td>
                   <td class="mono">SERVICE (부수용역)</td>
                   <td class="mono">BOOK 부수 / 혼합</td>
                   <td><span class="badge badge-neutral">플랫폼 물류비 귀속</span> (제14조 부수공급)</td>
@@ -754,7 +743,7 @@ code, pre, kbd, samp,
               </thead>
               <tbody>
                 <tr>
-                  <td class="mono">ORD-202609-998<br>PG-VB-20260930-01</td>
+                  <td class="mono">SJM20260930-0998<br>PG-VB-20260930-01</td>
                   <td>가상계좌 (24h 이내 입금)</td>
                   <td>2026-09-30 22:15:00</td>
                   <td>2026-10-01 09:12:40</td>
@@ -763,12 +752,12 @@ code, pre, kbd, samp,
                   <td>9월 미결제 대기 스냅샷 → 10월 웹훅 승인 정상 이관</td>
                 </tr>
                 <tr>
-                  <td class="mono">ORD-202610-412<br>PG-TR-20261031-09</td>
+                  <td class="mono">SJM20260930-0412<br>PG-TR-20260930-09</td>
                   <td>실시간 계좌이체 (망취소 복구)</td>
-                  <td>2026-10-31 23:58:10</td>
-                  <td>2026-11-01 00:04:12 (복구 전문)</td>
-                  <td><span class="badge badge-warn">2026-10</span></td>
-                  <td><span class="badge badge-primary">2026-10 (TIMING_GAP 소명)</span></td>
+                  <td>2026-09-30 23:58:10</td>
+                  <td>2026-10-01 00:04:12 (복구 전문)</td>
+                  <td><span class="badge badge-warn">2026-09</span></td>
+                  <td><span class="badge badge-primary">2026-09 (TIMING_GAP 소명)</span></td>
                   <td>PG 익영업일 정산 원장 시차 발생 → 기간귀속차 소명 대상</td>
                 </tr>
               </tbody>
@@ -840,19 +829,27 @@ code, pre, kbd, samp,
     records: [
       {
         id: "REC-01",
-        pgTid: "PG-INI-20261014-001",
-        orderId: "ORD-202610-108",
+        pgTid: "PG-INI-20261002-017",
+        orderId: "SJM20261002-0017",
         method: "CARD",
-        paidAt: "2026-10-14 14:22:10",
-        dbAmount: 285000,
-        pgAmount: 250000,
-        diff: -35000, // 절대값 35,000원
+        paidAt: "2026-10-02 14:22:10",
+        dbAmount: 56000,
+        pgAmount: 28000,
+        diff: -28000, // 절대값 28,000원 — 원인 미상
         reasonCode: "UNKNOWN_MISMATCH",
         approvalStatus: "UNRESOLVED", // UNRESOLVED | PENDING_APPROVAL | APPROVED | MATCHED
-        rightsHolderId: "RH-0025",
-        rightsHolderName: "정종대 (개인 면세사업자)",
-        pipeline: "Pipeline 1.1 / 5.1",
-        taxSummary: "MIXED (교육면세 250,000 + 도서면세 35,000)",
+        rightsHolderId: "RH-0012",
+        rightsHolderName: "산준교육 콘텐츠 주식회사 외 1명 (공동저자)",
+        pipeline: "Pipeline 2.1 (교재 인세 · 공동저자 지분)",
+        taxSummary: "BOOK 면세 56,000원",
+        lines: [
+          { productId: "PROD-BK-1001", name: "산업안전 핵심 이론 교재 (공동저자) ×2", amount: 56000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-1001", holderId: "RH-0012", holderName: "산준교육 콘텐츠 주식회사", share: 50, internal: false },
+          { productId: "PROD-BK-1001", holderId: "RH-0031", holderName: "이안전", share: 30, internal: false },
+          { productId: "PROD-BK-1001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 20, internal: true }
+        ],
         memo: "",
         approvedBy: null,
         approvedAt: null
@@ -860,7 +857,7 @@ code, pre, kbd, samp,
       {
         id: "REC-02",
         pgTid: "PG-INI-20261018-042",
-        orderId: "ORD-202610-219",
+        orderId: "SJM20261018-0042",
         method: "BANK_TR",
         paidAt: "2026-10-18 23:59:04",
         dbAmount: 100000,
@@ -868,10 +865,16 @@ code, pre, kbd, samp,
         diff: -100000, // 절대값 100,000원
         reasonCode: "UNKNOWN_MISMATCH",
         approvalStatus: "UNRESOLVED",
-        rightsHolderId: "RH-0051",
-        rightsHolderName: "한국소방학회 (도서 위탁)",
+        rightsHolderId: "RH-0044",
+        rightsHolderName: "안전기술출판 (도서 위탁)",
         pipeline: "Pipeline 2.2 (위탁 도서)",
         taxSummary: "BOOK 면세 100,000원",
+        lines: [
+          { productId: "PROD-BK-3003", name: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁) ×4", amount: 100000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-3003", holderId: "RH-0044", holderName: "안전기술출판 (위탁자 · CT-2026-0705)", share: 100, internal: false }
+        ],
         memo: "",
         approvedBy: null,
         approvedAt: null
@@ -879,75 +882,105 @@ code, pre, kbd, samp,
       {
         id: "REC-03",
         pgTid: "PG-INI-20261020-088",
-        orderId: "ORD-202610-305",
+        orderId: "SJM20261020-0305",
         method: "CARD",
         paidAt: "2026-10-20 11:05:30",
-        dbAmount: 180000,
-        pgAmount: 180015,
+        dbAmount: 144000,
+        pgAmount: 144015,
         diff: 15, // 절대값 15원 (PG 수수료 단수차)
         reasonCode: "PG_FEE_DIFF",
         approvalStatus: "PENDING_APPROVAL",
         rightsHolderId: "RH-0019",
         rightsHolderName: "김안전 (강사)",
         pipeline: "Pipeline 1.1 (온라인 강좌)",
-        taxSummary: "EDU 면세 180,000원",
+        taxSummary: "EDU 면세 144,000원",
+        lines: [
+          { productId: "CRS-2601", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", amount: 144000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2601", holderId: "RH-0019", holderName: "김안전", share: 100, internal: false }
+        ],
         memo: "PG사 복합결제 수수료 원단위 절사 차이 15원 발생",
         approvedBy: null,
         approvedAt: null
       },
       {
         id: "REC-04",
-        pgTid: "PG-VB-20261025-019",
-        orderId: "ORD-202610-411",
+        pgTid: "PG-VB-20261015-019",
+        orderId: "SJM20261015-0411",
         method: "VBANK",
-        paidAt: "2026-10-25 18:40:00",
-        dbAmount: 95000,
-        pgAmount: 94995,
+        paidAt: "2026-10-15 18:40:00",
+        dbAmount: 40000,
+        pgAmount: 39995,
         diff: -5, // 절대값 5원
         reasonCode: "PG_FEE_DIFF",
         approvalStatus: "PENDING_APPROVAL",
         rightsHolderId: "RH-0025",
         rightsHolderName: "정종대 (개인 면세사업자)",
         pipeline: "Pipeline 2.1 (자사발행 도서)",
-        taxSummary: "BOOK 면세 95,000원",
+        taxSummary: "BOOK 면세 40,000원",
+        lines: [
+          { productId: "PROD-BK-1006", name: "2026 정종대 산업안전기사 필기 기본서 ×2", amount: 40000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-1006", holderId: "RH-0025", holderName: "정종대", share: 100, internal: false }
+        ],
         memo: "가상계좌 정산 수수료 원단위 단수 오차 (-5원)",
         approvedBy: null,
         approvedAt: null
       },
       {
         id: "REC-05",
-        pgTid: "PG-INI-20261027-112",
-        orderId: "ORD-202610-502",
+        pgTid: "PG-INI-20261020-112",
+        orderId: "SJM20261020-0502",
         method: "CARD",
-        paidAt: "2026-10-27 16:10:00",
-        dbAmount: 192000,
-        pgAmount: 240000,
-        diff: 48000,
+        paidAt: "2026-10-20 16:10:00",
+        dbAmount: 33000,
+        pgAmount: 44000,
+        diff: 11000,
         reasonCode: "REFUND_TIMING_DIFF",
         approvalStatus: "APPROVED",
-        rightsHolderId: "RH-0019",
-        rightsHolderName: "김안전 (강사)",
-        pipeline: "Pipeline 1.1 (온라인 강좌)",
-        taxSummary: "EDU 면세 192,000원 (부분환불 -48,000원 반영)",
-        memo: "10/27 주문 품목(OI-502-2) 48,000원 부분취소 완료되었으나 PG 정산원장은 익영업일 차감 반영됨을 확인함.",
+        rightsHolderId: "RH-INTERNAL",
+        rightsHolderName: "엘캠퍼스 자사 (일반 소비재)",
+        pipeline: "일반상품 매출 (자사 매출 전용)",
+        taxSummary: "과세 33,000원 (부분취소 -11,000원 반영 · 공급가 30,000 / 세액 3,000)",
+        lines: [
+          { productId: "GOODS-2026-001", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×3 (1개 부분취소)", amount: 33000 }
+        ],
+        attributedHolders: [
+          { productId: "GOODS-2026-001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 100, internal: true }
+        ],
+        memo: "10/21 주문 품목 1개(11,000원) 부분취소 완료되었으나 PG 정산원장은 익영업일 차감 반영됨을 확인함.",
         approvedBy: "재무팀장 (박정산)",
-        approvedAt: "2026-10-28 10:15:22"
+        approvedAt: "2026-10-26 10:15:22"
       },
       {
         id: "REC-06",
         pgTid: "PG-INI-20261005-004",
-        orderId: "ORD-202610-001",
+        orderId: "SJM20261005-0001",
         method: "CARD",
         paidAt: "2026-10-05 09:30:00",
-        dbAmount: 289000,
-        pgAmount: 289000,
+        dbAmount: 184000,
+        pgAmount: 184000,
         diff: 0,
         reasonCode: "NONE",
         approvalStatus: "MATCHED",
         rightsHolderId: "RH-0025",
-        rightsHolderName: "정종대 외 1명",
-        pipeline: "Pipeline 1.1 / 5.1 / 2.3",
-        taxSummary: "MIXED (면세 275,000 + 과세 11,000 + 배송비 3,000)",
+        rightsHolderName: "정종대 (개인 면세사업자) · 자사",
+        pipeline: "Pipeline 1.1 / 2.1 / 일반상품",
+        taxSummary: "MIXED (면세 170,000 + 과세 11,000 + 배송비 3,000)",
+        lines: [
+          { productId: "CRS-1002", name: "정종대 산업안전 실전 빈출특강", amount: 150000 },
+          { productId: "PROD-BK-1006", name: "2026 정종대 산업안전기사 필기 기본서 ×1", amount: 20000 },
+          { productId: "GOODS-2026-001", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×1", amount: 11000 },
+          { productId: "SHIPPING", name: "제주 · 도서산간 추가 배송비", amount: 3000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-1002", holderId: "RH-0025", holderName: "정종대", share: 70, internal: false },
+          { productId: "CRS-1002", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 30, internal: true },
+          { productId: "PROD-BK-1006", holderId: "RH-0025", holderName: "정종대", share: 100, internal: false },
+          { productId: "GOODS-2026-001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 100, internal: true }
+        ],
         memo: "3계층 과·면세 분할 승인 및 도서정가제 안분 100% 일치",
         approvedBy: "SYSTEM_AUTO",
         approvedAt: "2026-10-05 09:30:05"
@@ -955,38 +988,167 @@ code, pre, kbd, samp,
       {
         id: "REC-07",
         pgTid: "PG-INI-20261011-055",
-        orderId: "ORD-202610-089",
+        orderId: "SJM20261011-0089",
         method: "CARD",
         paidAt: "2026-10-11 20:14:11",
-        dbAmount: 42000,
-        pgAmount: 42000,
+        dbAmount: 36000,
+        pgAmount: 36000,
         diff: 0,
         reasonCode: "NONE",
         approvalStatus: "MATCHED",
         rightsHolderId: "RH-INTERNAL",
         rightsHolderName: "엘캠퍼스 자사 (사입도서)",
         pipeline: "비인입 (PURCHASED_RESALE)",
-        taxSummary: "BOOK 면세 42,000원 (권리자 정산 비인입 · 회계 AP 경로)",
+        taxSummary: "BOOK 면세 36,000원 (권리자 정산 비인입 · 회계 AP 경로)",
+        lines: [
+          { productId: "PROD-BK-2001", name: "2026 건설안전기사 필기 총정리 (매입 재판매) ×2", amount: 36000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-2001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 100, internal: true }
+        ],
         memo: "사입 도서 판매 대사 일치 (정산서 총액 제외 정상)",
         approvedBy: "SYSTEM_AUTO",
         approvedAt: "2026-10-11 20:14:15"
+      },
+      {
+        id: "REC-08",
+        pgTid: "PG-INI-20261019-901",
+        orderId: "",
+        unmatched: true, // 주문과 매칭되지 않는 PG 단독 결제 — 귀속 권리자 특정 불가(02권 8.2)
+        method: "CARD",
+        paidAt: "2026-10-19 08:12:44",
+        dbAmount: 0,
+        pgAmount: 500,
+        diff: 500,
+        reasonCode: "UNKNOWN_MISMATCH",
+        approvalStatus: "UNRESOLVED",
+        rightsHolderId: "",
+        rightsHolderName: "귀속 권리자 없음 (주문 매칭 불가)",
+        pipeline: "미분류 — 권리자 정산 비인입",
+        taxSummary: "구분 불가 (자체 DB 주문 없음)",
+        lines: [],
+        attributedHolders: [],
+        memo: "",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "REC-09",
+        pgTid: "PG-INI-20261003-012",
+        orderId: "SJM20261003-0012",
+        method: "CARD",
+        paidAt: "2026-10-03 10:02:31",
+        dbAmount: 125000,
+        pgAmount: 125000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0047",
+        rightsHolderName: "박보건 (강사)",
+        pipeline: "Pipeline 1.1 (온라인 강좌)",
+        taxSummary: "EDU 면세 125,000원",
+        lines: [
+          { productId: "CRS-2605", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", amount: 125000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2605", holderId: "RH-0047", holderName: "박보건", share: 100, internal: false }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-03 10:02:35"
+      },
+      {
+        id: "REC-10",
+        pgTid: "PG-INI-20261006-031",
+        orderId: "SJM20261006-0031",
+        method: "CARD",
+        paidAt: "2026-10-06 13:45:09",
+        dbAmount: 200000,
+        pgAmount: 200000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0048",
+        rightsHolderName: "최지도 (강사 · 저자)",
+        pipeline: "Pipeline 1.1 (온라인 강좌)",
+        taxSummary: "EDU 면세 200,000원",
+        lines: [
+          { productId: "CRS-2606", name: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", amount: 200000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2606", holderId: "RH-0048", holderName: "최지도", share: 100, internal: false }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-06 13:45:12"
+      },
+      {
+        id: "REC-11",
+        pgTid: "PG-INI-20261006-035",
+        orderId: "SJM20261006-0035",
+        method: "CARD",
+        paidAt: "2026-10-06 15:20:40",
+        dbAmount: 40000,
+        pgAmount: 40000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0048",
+        rightsHolderName: "최지도 (강사 · 저자)",
+        pipeline: "Pipeline 2.1 (자사발행 도서)",
+        taxSummary: "BOOK 면세 40,000원",
+        lines: [
+          { productId: "PROD-BK-1007", name: "2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2", amount: 40000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-1007", holderId: "RH-0048", holderName: "최지도", share: 100, internal: false }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-06 15:20:44"
+      },
+      {
+        id: "REC-12",
+        pgTid: "PG-INI-20261015-147",
+        orderId: "SJM20261015-0147",
+        method: "CARD",
+        paidAt: "2026-10-15 19:08:02",
+        dbAmount: 98500,
+        pgAmount: 98500,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0046",
+        rightsHolderName: "이건설 (강사) · 자사",
+        pipeline: "Pipeline 1.1 / 5.1 (강좌 · 개발지원금 모수)",
+        taxSummary: "EDU 면세 98,500원 (판매가 144,500 − 쿠폰 46,000)",
+        lines: [
+          { productId: "CRS-2603", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강 (쿠폰 -46,000)", amount: 98500 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2603", holderId: "RH-0046", holderName: "이건설", share: 60, internal: false },
+          { productId: "CRS-2603", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 40, internal: true }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-15 19:08:06"
       }
     ],
     auditLogs: [
       {
-        time: "2026-10-28 10:15:22",
+        time: "2026-10-26 10:15:22",
         actor: "재무팀장 (박정산)",
-        pgTid: "PG-INI-20261027-112",
+        pgTid: "PG-INI-20261020-112",
         action: "차이 원인 분류 및 소명 승인",
         change: "UNKNOWN_MISMATCH → REFUND_TIMING_DIFF (APPROVED)",
-        reason: "10/27 주문 품목(OI-502-2) 48,000원 부분취소 완료되었으나 PG 정산원장은 익영업일 차감 반영됨을 확인함."
+        reason: "10/21 주문 품목 1개(11,000원) 부분취소 완료되었으나 PG 정산원장은 익영업일 차감 반영됨을 확인함."
       },
       {
-        time: "2026-10-28 09:00:02",
+        time: "2026-10-26 09:00:02",
         actor: "SYSTEM_BATCH",
         pgTid: "ALL (2026-10)",
         action: "PG 정산 원장 1:1 교차 대사 배치 실행",
-        change: "총 7건 대사 → 일치 2건, 차액 발생 5건 검출",
+        change: "총 12건 대사 → 일치 6건, 차액 발생 6건 검출 (주문 매칭 불가 1건 포함)",
         reason: "월 마감 사전 검증 스케줄러 자동 실행"
       }
     ]
@@ -1013,8 +1175,15 @@ code, pre, kbd, samp,
   // 상단 2단 마감 통제 게이트 및 KPI 업데이트
   function updateGatesAndKpi() {
     const all = state.records;
-    const unknownList = all.filter(r => r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH");
+    // 권리자 단위 차단 = 주문과 매칭된 미분류만. 주문 매칭 불가 미분류는 Gate 2(전사 총액)로만 판단(02권 8.2)
+    const unknownList = all.filter(r => r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH" && !r.unmatched);
+    const unmatchedList = all.filter(r => r.unmatched && r.diff !== 0 && r.approvalStatus !== "APPROVED");
     const pendingList = all.filter(r => r.diff !== 0 && r.reasonCode !== "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED");
+    const blockingHolders = r => {
+      const ext = (r.attributedHolders || []).filter(h => !h.internal);
+      if (!ext.length) return [`${r.rightsHolderName} (${r.rightsHolderId})`];
+      return [...new Map(ext.map(h => [h.holderId, `${h.holderName} (${h.holderId})`])).values()];
+    };
     const approvedList = all.filter(r => r.diff !== 0 && r.approvalStatus === "APPROVED");
     const matchedList = all.filter(r => r.diff === 0);
 
@@ -1027,7 +1196,7 @@ code, pre, kbd, samp,
 
     // KPI 숫자 갱신
     document.getElementById("kpiAll").textContent = `${all.length}건`;
-    document.getElementById("kpiUnknown").textContent = `${unknownList.length}건`;
+    document.getElementById("kpiUnknown").textContent = `${unknownList.length}건` + (unmatchedList.length ? ` + 매칭 불가 ${unmatchedList.length}건` : "");
     document.getElementById("kpiPending").textContent = `${pendingList.length}건`;
     document.getElementById("kpiApproved").textContent = `${approvedList.length}건`;
     document.getElementById("kpiMatched").textContent = `${matchedList.length}건`;
@@ -1035,7 +1204,7 @@ code, pre, kbd, samp,
     // Gate 1: 권리자 단위 미분류 한도 (0건)
     const gateRHCard = document.getElementById("gateCardRightsHolder");
     const gateRHBadge = document.getElementById("gateBadgeRH");
-    const blockedHolders = [...new Set(unknownList.map(r => `${r.rightsHolderName}`))];
+    const blockedHolders = [...new Set(unknownList.flatMap(blockingHolders))];
 
     document.getElementById("metricUnclassifiedCount").textContent = `${unknownList.length}건`;
     document.getElementById("metricBlockedHolders").textContent =
@@ -1086,6 +1255,51 @@ code, pre, kbd, samp,
     }
   }
 
+  // 귀속 권리자 표시 — 결제일 기준 1계층 지분 매핑(위탁 도서는 위탁자). 외부 권리자가 여러 명이면 모두 표시
+  function externalHolders(r) {
+    const seen = new Map();
+    (r.attributedHolders || []).filter(h => !h.internal).forEach(h => { if (!seen.has(h.holderId)) seen.set(h.holderId, h); });
+    return [...seen.values()];
+  }
+
+  function holderSummary(r) {
+    if (r.unmatched) return "귀속 권리자 없음";
+    const ext = externalHolders(r);
+    if (!ext.length) return r.rightsHolderName;
+    return ext.length === 1 ? ext[0].holderName : `${ext.map(h => h.holderName).join(" · ")} (외부 ${ext.length}명)`;
+  }
+
+  function holderDetail(r) {
+    if (r.unmatched) {
+      return `<strong>특정 불가</strong> — 주문과 매칭되지 않아 권리자 단위 차단 대상이 아닙니다. 전사 총액 기준(허용 1,000원)으로만 판단하며, 기준 이내 차액은 단수 차액 조정 계정으로 대체합니다.`;
+    }
+    const ext = externalHolders(r);
+    if (!ext.length) return `<strong>${r.rightsHolderName}</strong> <span class="mono">(${r.rightsHolderId})</span>`;
+    const chips = ext.map(h => `<span class="badge badge-neutral" style="margin:0 4px 4px 0;">${h.holderName} <span class="mono">${h.holderId}</span></span>`).join("");
+    const hold = r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED";
+    return `${chips}${ext.length > 1 ? `<div style="font-size:11.5px; color:${hold ? "var(--danger)" : "var(--text-muted)"}; margin-top:2px;">${hold ? `외부 권리자 ${ext.length}명 모두 마감 보류` : `외부 권리자 ${ext.length}명`}</div>` : (hold ? `<div style="font-size:11.5px; color:var(--danger); margin-top:2px;">마감 보류</div>` : "")}`;
+  }
+
+  function linesTable(r) {
+    if (!r.lines || !r.lines.length) {
+      return `<div style="font-size:12px; color:var(--text-muted); background:var(--surface-alt); border:1px dashed var(--border); border-radius:6px; padding:8px 10px;">주문 품목 없음 — PG 원장에만 있는 결제입니다. 미분류(전사 총액 기준) · 단수 차액 조정 대상입니다.</div>`;
+    }
+    const rows = r.lines.map(l => {
+      const hs = (r.attributedHolders || []).filter(h => h.productId === l.productId);
+      const hTxt = l.productId === "SHIPPING" ? `<span style="color:var(--text-muted);">권리자 정산 제외</span>`
+        : hs.map(h => `${h.holderName} ${h.share}%`).join(" · ");
+      return `<tr><td class="mono" style="padding:5px 6px;">${l.productId}</td><td style="padding:5px 6px;">${l.name}</td><td class="num" style="padding:5px 6px;">${l.amount.toLocaleString()}원</td><td style="padding:5px 6px;">${hTxt}</td></tr>`;
+    }).join("");
+    return `
+      <div>
+        <div class="form-label" style="margin-bottom:4px;">주문 품목 · 귀속 권리자 (결제일 기준 지분 매핑 · ADMN-SETT-001)</div>
+        <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+          <thead><tr style="background:var(--surface-alt);"><th style="text-align:left; padding:5px 6px;">상품 코드</th><th style="text-align:left; padding:5px 6px;">품목</th><th class="num" style="padding:5px 6px;">결제 배분액</th><th style="text-align:left; padding:5px 6px;">귀속 (지분)</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
   function renderTable() {
     const tbody = document.getElementById("reconTableBody");
     const q = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -1093,7 +1307,7 @@ code, pre, kbd, samp,
     const mFilter = document.getElementById("methodFilter").value;
 
     const filtered = state.records.filter(r => {
-      if (state.kpiFilter === "UNKNOWN_MISMATCH" && !(r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH")) return false;
+      if (state.kpiFilter === "UNKNOWN_MISMATCH" && !(r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED")) return false;
       if (state.kpiFilter === "PENDING_APPROVAL" && !(r.diff !== 0 && r.reasonCode !== "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED")) return false;
       if (state.kpiFilter === "APPROVED_DIFF" && !(r.diff !== 0 && r.approvalStatus === "APPROVED")) return false;
       if (state.kpiFilter === "MATCHED" && r.diff !== 0) return false;
@@ -1101,7 +1315,7 @@ code, pre, kbd, samp,
       if (rFilter !== "ALL" && r.reasonCode !== rFilter) return false;
       if (mFilter !== "ALL" && r.method !== mFilter) return false;
       if (q) {
-        const hay = `${r.pgTid} ${r.orderId} ${r.rightsHolderName} ${r.rightsHolderId}`.toLowerCase();
+        const hay = `${r.pgTid} ${r.orderId} ${r.rightsHolderName} ${r.rightsHolderId} ${(r.lines || []).map(l => l.productId + " " + l.name).join(" ")} ${(r.attributedHolders || []).map(h => h.holderId + " " + h.holderName).join(" ")}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -1112,6 +1326,10 @@ code, pre, kbd, samp,
       let statusBadge = "";
       if (r.diff === 0) {
         statusBadge = `<span class="badge badge-success">일치 (정상)</span>`;
+      } else if (r.unmatched) {
+        statusBadge = r.approvalStatus === "APPROVED"
+          ? `<span class="badge badge-primary">단수 차액 조정 완료</span>`
+          : `<span class="badge badge-neutral">미분류 · 매칭 불가</span><div style="font-size:10.5px; color:var(--text-muted); margin-top:2px;">전사 총액 기준</div>`;
       } else if (r.reasonCode === "UNKNOWN_MISMATCH") {
         statusBadge = `<span class="badge badge-danger">권리자 마감 차단</span>`;
       } else if (r.approvalStatus === "APPROVED") {
@@ -1126,7 +1344,7 @@ code, pre, kbd, samp,
         <tr class="${isSel}" onclick="selectRecord('${r.id}')" style="cursor:pointer;">
           <td>
             <div class="mono" style="font-weight:700;">${r.pgTid}</div>
-            <div style="font-size:11px; color:var(--text-muted);">${r.orderId} · ${r.rightsHolderName}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${r.orderId || "주문 매칭 불가"} · ${holderSummary(r)}</div>
           </td>
           <td>
             <div>${r.method}</div>
@@ -1155,6 +1373,9 @@ code, pre, kbd, samp,
     if (r.diff === 0) {
       badge.className = "badge badge-success";
       badge.textContent = "1:1 완전 일치";
+    } else if (r.unmatched) {
+      badge.className = r.approvalStatus === "APPROVED" ? "badge badge-primary" : "badge badge-neutral";
+      badge.textContent = r.approvalStatus === "APPROVED" ? "단수 차액 조정 완료" : "미분류 · 주문 매칭 불가 (전사 총액 기준)";
     } else if (r.approvalStatus === "APPROVED") {
       badge.className = "badge badge-primary";
       badge.textContent = "소명 승인 완료 (차단 해제)";
@@ -1173,9 +1394,9 @@ code, pre, kbd, samp,
         <div class="kv-label">PG 승인번호(TID)</div>
         <div class="mono"><strong>${r.pgTid}</strong></div>
         <div class="kv-label">자체 주문번호</div>
-        <div class="mono">${r.orderId} (${r.method})</div>
+        <div class="mono">${r.orderId ? `${r.orderId} (${r.method})` : `없음 — 자체 DB에 매칭되는 주문 없음 (${r.method})`} <span style="color:var(--text-muted);">· 결제일 ${r.paidAt.slice(0, 10)}</span></div>
         <div class="kv-label">귀속 권리자</div>
-        <div><strong>${r.rightsHolderName}</strong> <span class="mono">(${r.rightsHolderId})</span></div>
+        <div>${holderDetail(r)}</div>
         <div class="kv-label">연결 파이프라인</div>
         <div>${r.pipeline}</div>
         <div class="kv-label">3계층 과·면세 구성</div>
@@ -1188,6 +1409,8 @@ code, pre, kbd, samp,
           </strong>
         </div>
       </div>
+
+      ${linesTable(r)}
 
       <hr style="border:none; border-top:1px solid var(--border); margin:4px 0;" />
 
@@ -1310,10 +1533,10 @@ code, pre, kbd, samp,
   // 1,000원 이내 단수 차액 자동 대체 버튼 (8.2절)
   document.getElementById("btnAutoPenny").addEventListener("click", () => {
     const targets = state.records.filter(
-      r => r.diff !== 0 && Math.abs(r.diff) <= 1000 && r.reasonCode === "PG_FEE_DIFF" && r.approvalStatus !== "APPROVED"
+      r => r.diff !== 0 && Math.abs(r.diff) <= 1000 && (r.reasonCode === "PG_FEE_DIFF" || r.unmatched) && r.approvalStatus !== "APPROVED"
     );
     if (targets.length === 0) {
-      showToast("현재 자동 대체 대상인 1,000원 이내 PG_FEE_DIFF 미승인 건이 없습니다.");
+      showToast("현재 자동 대체 대상인 1,000원 이내 PG_FEE_DIFF · 주문 매칭 불가 미승인 건이 없습니다.");
       return;
     }
     targets.forEach(r => {
@@ -1325,8 +1548,8 @@ code, pre, kbd, samp,
         actor: "재무담당자 (white)",
         pgTid: r.pgTid,
         action: "임계값(1,000원) 이내 단수차액 조정계정 자동 대체",
-        change: `PG_FEE_DIFF (PENDING) → APPROVED (${fmtNum(r.diff)})`,
-        reason: r.memo || "전사 허용 오차(1,000원) 이내 PG 수수료 단수 차액 자동 대체 승인"
+        change: r.unmatched ? `UNKNOWN_MISMATCH (주문 매칭 불가) → 단수 차액 조정 (${fmtNum(r.diff)})` : `PG_FEE_DIFF (PENDING) → APPROVED (${fmtNum(r.diff)})`,
+        reason: r.unmatched ? "주문 매칭 불가 미분류 — 귀속 권리자 특정 불가, 전사 허용 오차(1,000원) 이내라 단수 차액 조정 계정으로 대체" : (r.memo || "전사 허용 오차(1,000원) 이내 PG 수수료 단수 차액 자동 대체 승인")
       });
     });
     updateGatesAndKpi();

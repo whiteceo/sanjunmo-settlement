@@ -165,12 +165,15 @@ def load_relation_base(base):
     pa = array_after(raw, r"\bconst\s+products")
     if pa is None:
         return None, None
-    prods = {}
+    prods, consign = {}, {}
     for blk in top_objects(pa):
         head = blk.split("lessons", 1)[0]
         pid = strs(head, "id")
         if pid:
             prods[pid] = (strs(head, "kind"), strs(head, "name"), re.findall(r"""id\s*:\s*["'](LSN-[^"']+)["']""", blk))
+            con = strs(head, "consignorHolderId")
+            if con:  # 위탁 도서: 지분 매핑 대상이 아니라 위탁자 100% 귀속(02권 8.2)
+                consign[pid] = con
     maps = {}
     mm = re.search(r"\bmappings\s*:\s*\{", raw)
     if mm:
@@ -186,6 +189,9 @@ def load_relation_base(base):
                 if hid:
                     rows.append((hid, num(o, "share"), strs(o, "start"), strs(o, "end")))
             maps[k.group(1)] = rows
+    for pid, con in consign.items():
+        if not maps.get(pid):
+            maps[pid] = [(con, 100.0, None, None)]
     return prods, maps
 
 
@@ -259,6 +265,70 @@ def relation_check(base, folder_files):
             rh = strs(top, "rightsHolderId")
             if rh and rh != INTERNAL_ID and ext and rh not in ext:
                 errs.append(("관계: rightsHolderId가 귀속 외부 권리자에 없음", f"{scr} {rid}", f"`{rh}` ∉ {{{', '.join(sorted(ext))}}}"))
+    return errs, notes, checked
+
+
+ORDER_BASE = "ADMN-ORD-001_baseline.html"
+ORDER_REF_SCREENS = ["ADMN-SETT-004_baseline.html", "ADMN-SETT-006_baseline.html", "ADMN-RFD-002_baseline.html"]
+ORDER_FMT = r"SJM\d{8}-\d{4}"
+ORDER_ANY = r"\b(?:SJM-?\d{8}-\d{4,6}|ORD-\d{6,8}-\d{3,4})\b"
+ORDER_EXAMPLE = {"SJM20260818-0999"}  # ORD-001 직권 부여 예시 번호
+SCENARIO_AMOUNTS = os.path.join(ROOT, "engine", "samples", "scenario", "scenario_amounts.json")
+STMT_SCREEN = "ADMN-SETT-002_baseline.html"
+
+
+def order_ref_check(base, folder_files):
+    """주문 참조 대조 → (오류, 참고). ORD-001 주문번호 집합을 기준으로 PG 대사 · 합격환급 · 환불 화면의 주문번호가 형식 · 존재 모두 맞는지"""
+    errs, notes = [], []
+    if ORDER_BASE not in folder_files:
+        return [], [("주문 참조 건너뜀", ORDER_BASE, "주문 화면 없음")]
+    raw = open(os.path.join(base, ORDER_BASE), encoding="utf-8").read()
+    orders = set(re.findall(r"""\borderNo\s*:\s*["'](""" + ORDER_FMT + r""")["']""", raw)) - ORDER_EXAMPLE
+    for scr in ORDER_REF_SCREENS:
+        if scr not in folder_files:
+            notes.append(("주문 참조 건너뜀", scr, "화면 파일 없음"))
+            continue
+        txt = open(os.path.join(base, scr), encoding="utf-8").read()
+        refs = sorted(set(re.findall(ORDER_ANY, txt)))
+        for o in refs:
+            if not re.fullmatch(ORDER_FMT, o):
+                errs.append(("주문번호 형식", scr, f"`{o}` — 형식은 SJM + 주문일 8자리 + -4자리"))
+            elif o not in orders:
+                errs.append(("주문번호가 ORD-001에 없음", scr, f"`{o}`"))
+    return errs, notes
+
+
+def amount_check(base, folder_files):
+    """정산서 금액 대조 → (오류, 참고, 대조한 값 수). 계산기 출력(scenario_amounts.json)의 sett002 값과 SETT-002 정산서 필드를 권리자 단위로 비교"""
+    errs, notes, checked = [], [], 0
+    if not os.path.exists(SCENARIO_AMOUNTS):
+        return [], [("금액 대조 건너뜀", os.path.relpath(SCENARIO_AMOUNTS, ROOT), "계산기 출력 없음")], 0
+    if STMT_SCREEN not in folder_files:
+        return [], [("금액 대조 건너뜀", STMT_SCREEN, "화면 파일 없음")], 0
+    import json
+    data = json.load(open(SCENARIO_AMOUNTS, encoding="utf-8"))
+    raw = open(os.path.join(base, STMT_SCREEN), encoding="utf-8").read()
+    body = array_after(raw, r"\bstatements")
+    stmts = {}
+    for o in top_objects(body or ""):
+        pid = strs(o, "payeeId")
+        if pid:
+            stmts.setdefault(pid, o)
+    for h in data.get("holders", []):
+        hid, exp = h.get("holderId"), h.get("sett002")
+        if not exp:
+            continue
+        o = stmts.get(hid)
+        if o is None:
+            errs.append(("정산서 없음", hid, f"계산기 출력에 있는 권리자({h.get('case', '')})의 SETT-002 정산서가 없다"))
+            continue
+        for k, v in exp.items():
+            checked += 1
+            got = strs(o, k) if isinstance(v, str) else num(o, k)
+            if got is None:
+                errs.append(("정산서 필드 없음", hid, f"`{k}`"))
+            elif (got != v) if isinstance(v, str) else (abs(got - float(v)) > 0.5):
+                errs.append(("정산서 금액 ≠ 계산기", hid, f"`{k}` 화면 {got:,.0f} · 계산기 {float(v):,.0f}" if not isinstance(v, str) else f"`{k}` 화면 {got} · 계산기 {v}"))
     return errs, notes, checked
 
 
@@ -377,6 +447,10 @@ def main():
             notes.append(("한 도서 코드 · 여러 도서명(약칭 여부 확인)", code, fmt(titles)))
 
     rel_err, rel_note, rel_n = relation_check(os.path.join(ROOT, args.folder), files)
+    ord_err, ord_note = order_ref_check(os.path.join(ROOT, args.folder), files)
+    amt_err, amt_note, amt_n = amount_check(os.path.join(ROOT, args.folder), files)
+    rel_err += ord_err + amt_err
+    rel_note += ord_note + amt_note
 
     L = ["# CROSS DATA CHECK REPORT — 화면 간 권리자 · 계약 · 도서 데이터 대조", "",
          f"- 생성: {datetime.datetime.now():%Y-%m-%d %H:%M}",
@@ -392,7 +466,9 @@ def main():
             L.append("없음")
         L.append("")
     L += [f"## 관계 대조 (오류 {len(rel_err)}건 · 참고 {len(rel_note)}건)", "",
-          f"- 기준: `{RELATION_BASE}` 상품 · 매핑 / 대상 화면: {', '.join(RELATION_SCREENS)} / 대조한 상품 줄 {rel_n}건", ""]
+          f"- 기준: `{RELATION_BASE}` 상품 · 매핑 / 대상 화면: {', '.join(RELATION_SCREENS)} / 대조한 상품 줄 {rel_n}건",
+          f"- 주문 참조: `{ORDER_BASE}` 주문번호 기준 / 대상 화면: {', '.join(ORDER_REF_SCREENS)} (오류 {len(ord_err)}건)",
+          f"- 정산서 금액: `{os.path.relpath(SCENARIO_AMOUNTS, ROOT)}` sett002 ↔ `{STMT_SCREEN}` (대조 값 {amt_n}개 · 오류 {len(amt_err)}건)", ""]
     for title, rows in (("관계 오류", rel_err), ("관계 참고", rel_note)):
         L += [f"### {title} ({len(rows)}건)", ""]
         if rows:

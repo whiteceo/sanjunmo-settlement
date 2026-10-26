@@ -791,6 +791,26 @@ code, pre, kbd, samp,
                   <td><code>false</code> (저자 정종대)</td>
                   <td><strong>도서 인세</strong> (자사발행 도서 인세)</td>
                   <td>인세율 <code>10.00%</code> · 1계층 정종대 100% (<code>CT-2026-0501</code>)</td>
+                  <td class="text-right"><strong>20,000원</strong></td>
+                  <td><span class="badge badge-end">🔒 출고발생 변경잠금</span></td>
+                </tr>
+                <tr>
+                  <td><span class="code-pill">PROD-BK-1007</span></td>
+                  <td><strong>2026 산업안전지도사 1차 산업안전일반 핵심요약집</strong></td>
+                  <td><span class="badge badge-sale">OWN_PUBLISHED (자사발행)</span></td>
+                  <td><code>false</code> (저자 최지도)</td>
+                  <td><strong>도서 인세</strong> (자사발행 도서 인세)</td>
+                  <td>인세율 <code>10.00%</code> (실결제액 기준) · 1계층 최지도 100% (<code>CT-2026-0405</code>)</td>
+                  <td class="text-right"><strong>20,000원</strong></td>
+                  <td><span class="badge badge-end">🔒 출고발생 변경잠금</span></td>
+                </tr>
+                <tr>
+                  <td><span class="code-pill">PROD-BK-1008</span></td>
+                  <td><strong>2026 산업위생관리기사 필기 핵심정리</strong></td>
+                  <td><span class="badge badge-sale">OWN_PUBLISHED (자사발행)</span></td>
+                  <td><code>false</code> (저자 고 박위생 · 상속 승계)</td>
+                  <td><strong>도서 인세</strong> (자사발행 도서 인세)</td>
+                  <td>인세율 <code>10.00%</code> (정가 기준) · 1계층 고 박위생 100% (<code>CT-2025-1102</code>) → 상속인 분할 60 : 40</td>
                   <td class="text-right"><strong>30,000원</strong></td>
                   <td><span class="badge badge-end">🔒 출고발생 변경잠금</span></td>
                 </tr>
@@ -820,8 +840,8 @@ code, pre, kbd, samp,
                   <td><span class="badge badge-warn">PURCHASED_RESALE (사입)</span></td>
                   <td><code>false</code> (외부 출판사)</td>
                   <td>외부 권리자 정산 제외 → <strong>ADMN-SETT-009(자사매출) &amp; SETT-011(매입대사)</strong></td>
-                  <td>매입처: 한국자격교재총판(<code>SUP-0003</code>) · 매입공급률 65% · 1계층 자사 100% 자동귀속</td>
-                  <td class="text-right"><strong>32,000원</strong></td>
+                  <td>매입처: 한국자격교재총판(<code>SUP-0003</code>) · 매입가 12,000원(매입공급률 66.7%) · 1계층 자사 100% 자동귀속</td>
+                  <td class="text-right"><strong>18,000원</strong></td>
                   <td><span class="badge badge-end">🔒 출고발생 변경잠금</span></td>
                 </tr>
                 <tr>
@@ -868,7 +888,7 @@ code, pre, kbd, samp,
                   <td><code>PROD-BK-1006</code> (정종대 산업안전기사 필기 기본서)</td>
                   <td>2025-01-01</td>
                   <td>2025-12-31</td>
-                  <td class="text-right">28,000원</td>
+                  <td class="text-right">18,000원</td>
                   <td>2025년 초판 정가 (종료 스냅샷 보존 · 2025년 결제건 반품 시 적용)</td>
                 </tr>
                 <tr>
@@ -876,7 +896,7 @@ code, pre, kbd, samp,
                   <td><code>PROD-BK-1006</code> (정종대 산업안전기사 필기 기본서)</td>
                   <td>2026-01-01</td>
                   <td>2099-12-31</td>
-                  <td class="text-right"><strong>30,000원</strong></td>
+                  <td class="text-right"><strong>20,000원</strong></td>
                   <td><span class="badge badge-sale">현재 유효</span> 2026년 개정판 정가 인상</td>
                 </tr>
                 <tr>
@@ -1428,9 +1448,9 @@ code, pre, kbd, samp,
         supplier: "안전기술출판",
         author: "이건설 (RH-0046)",
         supplyType: "위탁판매",
-        price: 36000,
-        supplyRate: 65,
-        supplyCost: 23400,
+        price: 25000,
+        supplyRate: 75,
+        supplyCost: 18750,
         royaltyRate: 0,
         costConfirmed: true,
         step1Ok: false,
@@ -1458,6 +1478,48 @@ code, pre, kbd, samp,
         step3Ok: false,
         step4Ok: false,
         prodStatus: "판매대기 (원가미입력)"
+      },
+      {
+        sku: "PROD-BK-1007",
+        hasSales: true,
+        ownCopyright: false,
+        tempCode: "BK-REQ-2026-0007",
+        originMode: "INST_TEMP",
+        title: "2026 산업안전지도사 1차 산업안전일반 핵심요약집",
+        isbn: "979-11-98765-07-9",
+        supplier: "산준모북스",
+        author: "최지도 (RH-0048)",
+        supplyType: "자체출판(인세)",
+        price: 20000,
+        supplyRate: 30,
+        supplyCost: 6000,
+        royaltyRate: 10,
+        costConfirmed: true,
+        step1Ok: true,
+        step3Ok: true,
+        step4Ok: true,
+        prodStatus: "판매중 (180권)"
+      },
+      {
+        sku: "PROD-BK-1008",
+        hasSales: true,
+        ownCopyright: false,
+        tempCode: "BK-REQ-2025-0018",
+        originMode: "INST_TEMP",
+        title: "2026 산업위생관리기사 필기 핵심정리",
+        isbn: "979-11-89210-08-3",
+        supplier: "산준모북스",
+        author: "고 박위생 (RH-0018 · 상속 승계 CT-2025-1102)",
+        supplyType: "자체출판(인세)",
+        price: 30000,
+        supplyRate: 30,
+        supplyCost: 9000,
+        royaltyRate: 10,
+        costConfirmed: true,
+        step1Ok: true,
+        step3Ok: true,
+        step4Ok: true,
+        prodStatus: "판매중 (180권)"
       }
     ];
 

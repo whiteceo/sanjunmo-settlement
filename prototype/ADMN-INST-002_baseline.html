@@ -486,7 +486,7 @@ code, pre, kbd, samp,
       <section class="kpi-grid">
         <div class="kpi-card active" data-filter="ALL">
           <div class="k-title">전체 검수 대상 (마일스톤+R/S약정)</div>
-          <div class="k-num" id="kpiAll">6건</div>
+          <div class="k-num" id="kpiAll">9건</div>
           <div class="k-sub">7단계 이관 + 개발지원금 약정</div>
         </div>
         <div class="kpi-card" data-filter="GATE_BLOCKED">
@@ -496,17 +496,17 @@ code, pre, kbd, samp,
         </div>
         <div class="kpi-card" data-filter="READY_TO_APPROVE">
           <div class="k-title">⚠️ 검수 대기 (즉시 승인 가능)</div>
-          <div class="k-num" id="kpiReady" style="color:var(--warn);">1건</div>
+          <div class="k-num" id="kpiReady" style="color:var(--warn);">0건</div>
           <div class="k-sub">3대 게이트 충족 · 검수 의견 대기</div>
         </div>
         <div class="kpi-card" data-filter="RS_AGREEMENT">
           <div class="k-title">🟣 매출연동(R/S) 지원금 1회 검수</div>
-          <div class="k-num" id="kpiRs" style="color:var(--purple);">2건</div>
+          <div class="k-num" id="kpiRs" style="color:var(--purple);">4건</div>
           <div class="k-sub">약정 체결 최초 1회 필수값 게이트</div>
         </div>
         <div class="kpi-card" data-filter="APPROVED">
           <div class="k-title">✅ 검수 승인 · 정산서 이관 완료</div>
-          <div class="k-num" id="kpiApproved" style="color:var(--success);">2건</div>
+          <div class="k-num" id="kpiApproved" style="color:var(--success);">6건</div>
           <div class="k-sub">ADMN-SETT-002 수당/지원금 반영됨</div>
         </div>
       </section>
@@ -598,10 +598,10 @@ code, pre, kbd, samp,
                   <td class="mono">CT-2025-0911<br>(EXC-2025-01)</td>
                   <td>이전기 (강사)</td>
                   <td>
-                    <code>반환액 = 내림( 세후 실지급액 9,670,000원 × (잔여 의무일수 180일 / 총 복무일수 365일) )</code><br>
+                    <code>반환액 = 내림( 세후 실지급액 × (잔여 의무일수 / 총 복무일수) ) → 반환 확정 3,000,000원 (세후 · 반환 상계 동의)</code><br>
                     <span style="font-size:11px; color:var(--text-muted);">* 총 복무일수 = 의무 종료일 − 의무 시작일 + 1 (해지일 당일은 복무 일수 포함) / 반환 상당 과세표준 역산 후 수정신고(채널 3-a) 연동</span>
                   </td>
-                  <td class="num" style="color:var(--danger); font-weight:700;">-4,768,767원</td>
+                  <td class="num" style="color:var(--danger); font-weight:700;">-3,000,000원</td>
                   <td>7단계 차감 금지 → <strong>10단계(CLAIM) 세후 1회 차감</strong></td>
                 </tr>
                 <tr>
@@ -770,7 +770,8 @@ code, pre, kbd, samp,
         capType: "CAPPED",
         totalCapAmount: 15000000,
         settlementScope: "PIPELINE_1_1_2_1",
-        targetCount: 2, // CRS-1001, PROD-BK-1004 (자사 저작권 보유 자사지분 100%)
+        targetCount: 2, // CRS-1002 (자사지분 30%), PROD-BK-1004 (자사 저작권 보유 자사지분 100%)
+        targetCodes: ["CRS-1002", "PROD-BK-1004"],
         endBasis: "CONTRACT_LINKED",
         onTerminationPolicy: "FORFEIT",
         // Gate A: 소득 구분
@@ -779,15 +780,44 @@ code, pre, kbd, samp,
         payeeIsAuthor: false, // 자사 저작권 도서의 기여 강사
         mainWorkExternalLabor: false,
         taxThresholdUnitKey: "CT-2026-0501::SFA-2026-009",
+        // Gate C: 승인 당시 국세청 상태 확인 통과 (90일 경과 차단 시연은 MS-2026-007로 옮김)
+        ntsStatus: "계속사업자 (면세사업자)",
+        ntsCheckedDaysAgo: 2,
+        ntsPass: true,
+        inspectionMode: "EVIDENCE_FILE",
+        evidenceFileName: "정종대_개발지원금_부속정산조건표_날인본.pdf",
+        targetMonth: "2025-01",
+        status: "APPROVED",
+        memo: "자사 저작권 도서(PROD-BK-1004, 자사지분 100%) 및 강좌(CRS-1002, 자사지분 30%) 대상 매출연동 15% 지원금 약정 체결 1회 검수 승인(계약 개시 2025-01). 2026-09 마감까지 확정 · 소진 누계 4,850,000원 → 2026-10 정산에서 CRS-1002 실결제 3,000,000원 × 15% = 450,000원 발생 · 확정(소진 누계 5,300,000원 · 잔여 한도 9,700,000원). 합격환급반 CRS-1004는 자사 지분 0%라 대상 아님.",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2025-01-06 10:20:00"
+      },
+      {
+        id: "MS-2026-007",
+        contractId: "CT-2026-0501",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자 · RH-0025)",
+        isBusinessEntity: true,
+        category: "SUPPORT_LUMP_INST",
+        categoryLabel: "개발지원금 (분할형 INSTALLMENT · 1회차)",
+        title: "[신규 신청] 2027 산업안전기사 실기 기본서 집필 지원금 (1/2회차 · 원고 계약 마일스톤)",
+        amount: 1000000,
+        paymentMethod: "INSTALLMENT",
+        offsetType: "CONDITIONAL",
+        incomeCategory: "OTHER",
+        incomeClause: "C19", // 일시적 인적용역 (MS-2026-004와 같은 구분)
+        payeeIsAuthor: true,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0501::MS-2026-007",
         // Gate C: 국세청 90일 경과 시연! (7.2절 사업자 상태 확인 게이트)
         ntsStatus: "계속사업자 (면세사업자)",
         ntsCheckedDaysAgo: 96, // 90일 초과 → 차단!
         ntsPass: false,
         inspectionMode: "EVIDENCE_FILE",
-        evidenceFileName: "정종대_개발지원금_부속정산조건표_날인본.pdf",
-        targetMonth: "2026-10",
+        evidenceFileName: "정종대_2027실기기본서_원고계약서_날인본.pdf",
+        targetMonth: "2026-11",
         status: "PENDING",
-        memo: "자사 저작권 도서(PROD-BK-1004, 자사지분 100%) 및 강좌(CRS-1001) 대상 매출연동 15% 지원금 약정 체결 1회 검수",
+        memo: "",
         approvedBy: null,
         approvedAt: null
       },
@@ -799,12 +829,49 @@ code, pre, kbd, samp,
         isBusinessEntity: false,
         category: "SUPPORT_RS_ONCE",
         categoryLabel: "개발지원금 (매출연동 R/S · 무한도형 UNLIMITED)",
-        title: "산업안전 실기 3D 시뮬레이션 기여 매출연동 지원금 (무한도형)",
+        title: "위험물산업기사 실기 3D 시뮬레이션 특강(CRS-1012) 기여 매출연동 지원금 (무한도형)",
         amount: 0,
         rateText: "지원금 요율 5.00% (rate_type=SUPPORT, 기준모수 SAME_AS_BASIC)",
         paymentMethod: "REVENUE_SHARE",
         offsetType: "CONDITIONAL",
-        // Gate B: UNLIMITED 검증 시연 (약정 대상 0건 미지정 상태 → 차단 시연)
+        // [v6.63 W4] 최그래픽의 유효 약정 — 대상 CRS-1012(자사지분 100%) 1건 · 2026-05 귀속 승인. 대상 0건 차단 시연은 SFA-2026-016으로 분리
+        capType: "UNLIMITED",
+        totalCapAmount: null, // UNLIMITED는 NULL 필수
+        settlementScope: "PIPELINE_1_1_ONLY",
+        targetCount: 1, // CRS-1012 (자사지분 100%)
+        targetCodes: ["CRS-1012"],
+        endBasis: "CONTRACT_LINKED",
+        onTerminationPolicy: "NONE", // UNLIMITED는 NONE 고정
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: false,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0702::SFA-2026-012",
+        ntsStatus: "N/A (개인 프리랜서)",
+        ntsCheckedDaysAgo: 0,
+        ntsPass: true,
+        inspectionMode: "MANUAL_NOTE",
+        evidenceFileName: "",
+        targetMonth: "2026-05",
+        status: "APPROVED",
+        memo: "공동제작 강좌 CRS-1012(자사 100%) 런칭 확인 · 대상 1건 매핑 후 약정 체결 1회 검수. 2026-10 대상 매출 1,440,000원 × 5% = 지원금 72,000원 발생(ADMN-SETT-002).",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-05-12 15:30:00"
+      },
+      {
+        id: "SFA-2026-016",
+        contractId: "CT-2026-0702",
+        rightsHolderId: "RH-0042",
+        rightsHolderName: "최그래픽 (개인 프리랜서 · 기여자 · RH-0042)",
+        isBusinessEntity: false,
+        category: "SUPPORT_RS_ONCE",
+        categoryLabel: "개발지원금 (매출연동 R/S · 무한도형 UNLIMITED)",
+        title: "[추가 약정 신청] 2027 소방설비기사 실기 3D 시뮬레이션 기여 매출연동 지원금 (무한도형 · 대상 강좌 미등록)",
+        amount: 0,
+        rateText: "지원금 요율 5.00% (rate_type=SUPPORT, 기준모수 SAME_AS_BASIC)",
+        paymentMethod: "REVENUE_SHARE",
+        offsetType: "CONDITIONAL",
+        // Gate B: UNLIMITED 검증 시연 (약정 대상 0건 미지정 상태 → 차단 시연) — 유효 약정 SFA-2026-012와 별개 신청
         capType: "UNLIMITED",
         totalCapAmount: null, // UNLIMITED는 NULL 필수
         settlementScope: "PIPELINE_1_1_ONLY",
@@ -815,7 +882,7 @@ code, pre, kbd, samp,
         incomeClause: "NONE",
         payeeIsAuthor: false,
         mainWorkExternalLabor: false,
-        taxThresholdUnitKey: "CT-2026-0702::SFA-2026-012",
+        taxThresholdUnitKey: "CT-2026-0702::SFA-2026-016",
         ntsStatus: "N/A (개인 프리랜서)",
         ntsCheckedDaysAgo: 0,
         ntsPass: true,
@@ -850,10 +917,11 @@ code, pre, kbd, samp,
         inspectionMode: "MANUAL_NOTE", // 담당자 수기 소명형 시연
         evidenceFileName: "",
         targetMonth: "2026-10",
-        status: "PENDING",
-        memo: "2026-10-10 필기 빈출 해설 강의 45강 전 차시 런칭 및 LMS 업로드 완료 내부 확인함.",
-        approvedBy: null,
-        approvedAt: null
+        status: "APPROVED",
+        memo: "2026-10-10 필기 빈출 해설 강의 45강 전 차시 런칭 및 LMS 업로드 완료 내부 확인함. 2026-10 정산서 7단계(LUMPSUM_ADD) 이관 완료.",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-10-13 10:20:00",
+        bankReceiptLinked: "이체확인증 대기 (SETT-002 대량이체 결과 대사 후 자동 바인딩)"
       },
       {
         id: "MS-2026-005",
@@ -912,6 +980,42 @@ code, pre, kbd, samp,
         approvedBy: "재무책임자 (박정산)",
         approvedAt: "2026-10-14 09:40:11",
         bankReceiptLinked: "이체확인증 대기 (SETT-002 대량이체 결과 대사 후 자동 바인딩)"
+      },
+      {
+        id: "SFA-2026-015",
+        contractId: "CT-2026-0712",
+        rightsHolderId: "RH-0046",
+        rightsHolderName: "이건설 (개인 프리랜서 · RH-0046)",
+        isBusinessEntity: false,
+        category: "SUPPORT_RS_ONCE",
+        categoryLabel: "개발지원금 (R/S형 REVENUE_SHARE 약정 체결 1회 검수)",
+        title: "건설안전기사 필기 특강(CRS-2603) R/S형 개발지원금 (한도형 · 비상계)",
+        amount: 0,
+        rateText: "지원금 요율 10.00% (rate_type=SUPPORT, 기준모수 SAME_AS_BASIC)",
+        paymentMethod: "REVENUE_SHARE",
+        offsetType: "NON_OFFSET",
+        capType: "CAPPED",
+        totalCapAmount: 3000000,
+        settlementScope: "PIPELINE_1_1_ONLY",
+        targetCount: 1, // CRS-2603 (자사지분 40%)
+        targetCodes: ["CRS-2603"],
+        endBasis: "CONTRACT_LINKED",
+        onTerminationPolicy: "FORFEIT",
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: false,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0712::SFA-2026-015",
+        ntsStatus: "N/A (개인 프리랜서)",
+        ntsCheckedDaysAgo: 0,
+        ntsPass: true,
+        inspectionMode: "EVIDENCE_FILE",
+        evidenceFileName: "이건설_개발지원금_부속정산조건표_날인본.pdf",
+        targetMonth: "2026-01",
+        status: "APPROVED",
+        memo: "R/S형 10% · 한도 3,000,000원 · 환불 시 한도 복원 약정 체결 1회 검수. 2026-10 정산에서 한도 소진(누계 3,000,000원) → 약정 종결(COMPLETED).",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-01-06 14:10:00"
       }
     ],
     auditLogs: [
@@ -930,6 +1034,30 @@ code, pre, kbd, samp,
         mode: "증빙 첨부 검수",
         action: "전속계약금 5,000,000원 검수 승인 → 2026-10 이관",
         reason: "정종대_전속계약서_날인원본_2026.pdf 확인 및 2026-10 정산서 수당 라인 이관"
+      },
+      {
+        time: "2026-10-13 10:20:00",
+        actor: "재무책임자 (박정산)",
+        targetId: "MS-2026-004 (CT-2026-0501)",
+        mode: "수기 검수(내부확인)",
+        action: "약정금 2,000,000원 검수 승인 → 2026-10 정산서 7단계(LUMPSUM_ADD) 이관",
+        reason: "2026-10-10 필기 빈출 해설 강의 45강 전 차시 런칭 및 LMS 업로드 완료 내부 확인 (기타소득 C19 · 상계 허용)"
+      },
+      {
+        time: "2026-05-12 15:30:00",
+        actor: "재무책임자 (박정산)",
+        targetId: "SFA-2026-012 (CT-2026-0702)",
+        mode: "수기 검수(내부확인)",
+        action: "매출연동 지원금(무한도형 5%) 약정 체결 1회 검수 승인 → 2026-05 귀속",
+        reason: "공동제작 강좌 CRS-1012(자사 지분 100%) 대상 1건 매핑 확인 · 총 한도 NULL · 종료 정책 NONE (Gate B 통과)"
+      },
+      {
+        time: "2025-01-06 10:20:00",
+        actor: "재무책임자 (박정산)",
+        targetId: "SFA-2026-009 (CT-2026-0501)",
+        mode: "증빙 첨부 검수",
+        action: "매출연동 지원금(한도형 15% · 한도 15,000,000원) 약정 체결 1회 검수 승인 → 2025-01 귀속",
+        reason: "정종대_개발지원금_부속정산조건표_날인본.pdf 확인 · 대상 CRS-1002(자사 지분 30%) · PROD-BK-1004(자사 100%) 2건 매핑 · 국세청 상태 계속사업자(면세) 확인"
       }
     ]
   };
@@ -1012,13 +1140,14 @@ code, pre, kbd, samp,
     document.getElementById("kpiRs").textContent = `${rsOnce.length}건`;
     document.getElementById("kpiApproved").textContent = `${approved.length}건`;
 
-    const lumpSumApproved = approved
+    const approvedOct = approved.filter(x => x.targetMonth === "2026-10");
+    const lumpSumApproved = approvedOct
       .filter(x => x.category !== "SUPPORT_RS_ONCE")
       .reduce((acc, c) => acc + c.amount, 0);
-    const rsApprovedCount = approved.filter(x => x.category === "SUPPORT_RS_ONCE").length;
+    const rsApprovedCount = approvedOct.filter(x => x.category === "SUPPORT_RS_ONCE").length;
 
     document.getElementById("footerSummaryText").innerHTML =
-      `2026-10 귀속월 이관 승인 완료: <strong>${approved.length}건</strong> (7단계 비정기 가산금 합계 <strong>${lumpSumApproved.toLocaleString()}원</strong> + 매출연동 지원금 약정 활성화 <strong>${rsApprovedCount}건</strong>)`;
+      `2026-10 귀속월 이관 승인 완료: <strong>${approvedOct.length}건</strong> (7단계 비정기 가산금 합계 <strong>${lumpSumApproved.toLocaleString()}원</strong> + 매출연동 지원금 약정 활성화 <strong>${rsApprovedCount}건</strong>)`;
   }
 
   function renderTable() {
@@ -1139,7 +1268,7 @@ code, pre, kbd, samp,
           <div class="kv-label">지원금 요율 / 모수</div>
           <div>${item.rateText}</div>
           <div class="kv-label">정산 범위 / 대상 수</div>
-          <div class="mono">${item.settlementScope} / 매핑 대상: <strong style="color:${item.targetCount > 0 ? 'var(--success)' : 'var(--danger)'};">${item.targetCount}건</strong></div>
+          <div class="mono">${item.settlementScope} / 매핑 대상: <strong style="color:${item.targetCount > 0 ? 'var(--success)' : 'var(--danger)'};">${item.targetCount}건</strong>${item.targetCodes && item.targetCount > 0 ? ` (${item.targetCodes.join(" · ")})` : ""}</div>
           <div class="kv-label">종료 기준 / 종료 정책</div>
           <div class="mono">end_basis = ${item.endBasis} / on_termination_policy = <strong>${item.onTerminationPolicy}</strong></div>
         </div>
@@ -1228,6 +1357,7 @@ code, pre, kbd, samp,
         <div class="form-group">
           <label class="form-label">정산 반영 귀속월 (target_month)</label>
           <select id="editTargetMonth" class="select" ${isApproved ? "disabled" : ""}>
+            ${["2026-10", "2026-11", "2026-09"].includes(item.targetMonth) ? "" : `<option value="${item.targetMonth}" selected>${item.targetMonth} (승인 완료 귀속월)</option>`}
             <option value="2026-10" ${item.targetMonth === "2026-10" ? "selected" : ""}>2026-10 (미마감 · 정산 배치 실행됨 → 승인 시 정산서 자동 재연산)</option>
             <option value="2026-11" ${item.targetMonth === "2026-11" ? "selected" : ""}>2026-11 (차월 예정)</option>
             <option value="2026-09" ${item.targetMonth === "2026-09" ? "selected" : ""}>2026-09 (마감 완료 Locked=True · 선택 시 차단)</option>

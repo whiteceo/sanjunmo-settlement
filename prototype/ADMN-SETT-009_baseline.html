@@ -309,18 +309,18 @@ code, pre, kbd, samp,
       <div class="kpi-grid">
         <div class="kpi-card active" id="kpi-ALL" onclick="setPipelineFilter('ALL')">
           <div class="k-title"><span>전사 확정 매출 총액 (공급대가)</span><span class="badge b-pri">전체</span></div>
-          <div class="k-num" id="kpiTotalSales">63,080,000원</div>
+          <div class="k-num" id="kpiTotalSales">66,890,000원</div>
           <div class="k-sub">강좌 · 도서(인세/사입/위탁) · 일반 소비재 합산</div>
         </div>
         <div class="kpi-card" id="kpi-EXTERNAL" onclick="setPipelineFilter('EXTERNAL')">
           <div class="k-title"><span>외부 권리자·위탁자 정산 총액</span><span class="badge b-pur">외부 귀속</span></div>
-          <div class="k-num" style="color:var(--purple);" id="kpiExtPayout">18,470,000원</div>
-          <div class="k-sub">P1.1 수익배분 + P2.1 인세 + P2.2 위탁 + P5.1 지원금</div>
+          <div class="k-num" style="color:var(--purple);" id="kpiExtPayout">18,491,600원</div>
+          <div class="k-sub">강좌 R/S + 도서 인세 + 위탁 정산 + 개발지원금 (상품 매출 귀속분 · 약정금 · 최저보장 제외)</div>
         </div>
         <div class="kpi-card" id="kpi-SUPPORT" onclick="setPipelineFilter('P5_1')">
           <div class="k-title"><span>개발지원금 자사 지분 차감액</span><span class="badge b-warn">Pipeline 5.1</span></div>
-          <div class="k-num" style="color:var(--warn);" id="kpiSupportDeduct">-1,880,000원</div>
-          <div class="k-sub">자사 초기 몫(46,490,000원) 내 100% 차감 완결</div>
+          <div class="k-num" style="color:var(--warn);" id="kpiSupportDeduct">-222,000원</div>
+          <div class="k-sub" id="kpiSupportSub">자사 초기 몫(33,570,400원) 내 100% 차감 완결</div>
         </div>
         <div class="kpi-card" id="kpi-GOODS" onclick="setPipelineFilter('P2_3')">
           <div class="k-title"><span>일반 소비재 매출 (일반상품 매출)</span><span class="badge b-teal">TX-13 과세</span></div>
@@ -329,7 +329,7 @@ code, pre, kbd, samp,
         </div>
         <div class="kpi-card" id="kpi-INTERNAL" onclick="setPipelineFilter('INTERNAL')">
           <div class="k-title"><span>자사 최종 잔여 귀속 순액</span><span class="badge b-ok">Bypass 확정</span></div>
-          <div class="k-num" style="color:var(--ok);" id="kpiInternalNet">44,610,000원</div>
+          <div class="k-num" style="color:var(--ok);" id="kpiInternalNet">48,398,400원</div>
           <div class="k-sub">외부 집행(대량이체·증빙 발행 요청) 제외 · 당사 손익 귀속</div>
         </div>
       </div>
@@ -394,51 +394,51 @@ code, pre, kbd, samp,
             <div class="split-grid" style="margin-bottom:16px;">
               <div class="wf-box">
                 <div style="font-weight:800; font-size:13.5px; color:var(--pri);">
-                  📌 [규격 검증 1] 부록 D-15 · 자사 저작권 도서(`자사 저작권 보유`) 외부 강사 지원금 차감
+                  📌 [규격 검증 1] 공동권리 강좌의 R/S형 개발지원금 — 외부 강사 1계층 R/S 보호
                 </div>
                 <div style="font-size:12.5px; color:var(--muted);">
-                  정종대 강사 집필 <strong>[자사저작권] 산업안전 실기 빈출문제집(PROD-BK-1004)</strong>은 저작권이 당사에 귀속되어 <code>book_authors</code>에 자사(<code>RH-INTERNAL</code>) 100.00%로 매핑됩니다. 인세(도서 인세) 외부 지급은 0원으로 Bypass하되, 약정된 매출연동 개발지원금(15%, 상계 허용 <code>상계 허용 (CONDITIONAL)</code>)은 자사 도서 매출 몫에서 정상 차감하여 정종대 강사 정산서로 인입합니다.
+                  <strong>2026 건설안전기사 필기 핵심이론 + 계산문제 특강(CRS-2603)</strong>은 이건설 강사(<code>RH-0046</code>) 60%와 자사 40%가 지분을 가집니다. 이건설 강사의 R/S형 개발지원금(<code>SFA-2026-015</code> · 10% · 한도 3,000,000원 · 비상계)은 <strong>이건설 강사의 1계층 R/S를 줄이지 않고</strong> 자사 귀속 몫에서만 차감합니다.
                 </div>
                 <div class="wf-row">
-                  <span>도서 확정 판매 기준금 (400권 × 30,000원)</span>
-                  <span class="num">12,000,000원</span>
+                  <span>강좌 순매출 기준금 (28건 · 쿠폰 차감 후 실결제)</span>
+                  <span class="num">4,000,000원</span>
                 </div>
                 <div class="wf-row">
-                  <span>외부 저자 인세 (Pipeline 2.1 · <code>자사 저작권 보유</code>)</span>
-                  <span class="num" style="color:var(--muted);">0원 (Bypass)</span>
+                  <span>이건설 1계층 R/S (기준금 × 요율 50% × 지분 60%)</span>
+                  <span class="num" style="color:var(--pri);">1,200,000원 (침해 없음)</span>
                 </div>
                 <div class="wf-row" style="border-color:var(--warn-line); background:var(--warn-soft);">
-                  <span><strong>정종대 개발지원금 차감 (Pipeline 5.1 · 요율 15%)</strong></span>
-                  <span class="num" style="color:var(--warn);">-1,800,000원 (정종대 지급 인입)</span>
+                  <span><strong>이건설 지원금 확정 (발생 400,000 → 한도 캡 · 합격환급 옵션 B 공제 후)</strong></span>
+                  <span class="num" style="color:var(--warn);">-150,000원 (자사 몫에서 차감)</span>
                 </div>
                 <div class="wf-row" style="border-color:var(--ok-line); background:var(--ok-soft);">
-                  <span><strong>당사(엘캠퍼스) 최종 도서 잔여 귀속액</strong></span>
-                  <span class="num" style="color:var(--ok);">10,200,000원 (외부 유출 제외)</span>
+                  <span><strong>당사(엘캠퍼스) 최종 강좌 잔여 귀속액 (2,800,000 - 150,000)</strong></span>
+                  <span class="num" style="color:var(--ok);">2,650,000원 (외부 유출 제외)</span>
                 </div>
               </div>
 
               <div class="wf-box">
                 <div style="font-weight:800; font-size:13.5px; color:var(--purple);">
-                  📌 [규격 검증 2] 부록 D-16 · 공동권리 강좌에서 제3자(기여자) 지원금 차감 시 외부 강사 지분 보호
+                  📌 [규격 검증 2] 자사 100% 강좌에서 제3자(기여자) 지원금 차감
                 </div>
                 <div style="font-size:12.5px; color:var(--muted);">
-                  <strong>위험물산업기사 실기 특강(CRS-1012)</strong>은 주강사 김안전(60% · 요율 50%)과 자사(40%)가 공동 지분을 가집니다. 외부 기여자 최그래픽(<code>RH-0042</code>)에게 지급하는 무한도형 개발지원금(5%)은 <strong>김안전 강사의 1계층 수익배분(R/S)을 1원도 차감하지 않고</strong> 오직 자사 지분 귀속액에서만 차감합니다.
+                  <strong>위험물산업기사 실기 시뮬레이션 특강(CRS-1012)</strong>은 자사 100% 강좌입니다. 3D 시뮬레이션 기여자 최그래픽(<code>RH-0042</code>)에게 지급하는 무한도형 개발지원금(5%)은 자사 귀속액에서만 차감하며, 당월 72,000원은 최소 지급 기준 미달로 세전 이월됩니다.
                 </div>
                 <div class="wf-row">
                   <span>강좌 순매출 기준금 (환불 공제 후)</span>
-                  <span class="num">1,600,000원</span>
+                  <span class="num">1,440,000원</span>
                 </div>
                 <div class="wf-row">
-                  <span>주강사 김안전 1계층 R/S (기준금 × 요율 50% × 지분 60%)</span>
-                  <span class="num" style="color:var(--pri);">480,000원 (침해 없음)</span>
+                  <span>외부 강사 1계층 R/S</span>
+                  <span class="num" style="color:var(--muted);">0원 (자사 100%)</span>
                 </div>
                 <div class="wf-row" style="border-color:var(--warn-line); background:var(--warn-soft);">
-                  <span><strong>기여자 최그래픽 지원금 차감 (Pipeline 5.1 · 기준금 × 5% · 지분율 미곱)</strong></span>
-                  <span class="num" style="color:var(--warn);">-80,000원 (자사 몫에서 차감)</span>
+                  <span><strong>기여자 최그래픽 지원금 차감 (기준금 × 5%)</strong></span>
+                  <span class="num" style="color:var(--warn);">-72,000원 (자사 몫에서 차감)</span>
                 </div>
                 <div class="wf-row" style="border-color:var(--ok-line); background:var(--ok-soft);">
-                  <span><strong>당사(엘캠퍼스) 최종 강좌 잔여 귀속액 (1,120,000 - 80,000)</strong></span>
-                  <span class="num" style="color:var(--ok);">1,040,000원 (외부 유출 제외)</span>
+                  <span><strong>당사(엘캠퍼스) 최종 강좌 잔여 귀속액 (1,440,000 - 72,000)</strong></span>
+                  <span class="num" style="color:var(--ok);">1,368,000원 (외부 유출 제외)</span>
                 </div>
               </div>
             </div>
@@ -454,31 +454,42 @@ code, pre, kbd, samp,
                   <th class="num">자사 초기 몫</th>
                   <th class="num">지원금 확정 차감액</th>
                   <th class="num">차감 후 자사 잔여액</th>
-                  <th>재원 충족 판정</th>
+                  <th>재원 충족 판정 </th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td class="code">SFA-2026-009</td>
-                  <td><strong>정종대</strong> <span class="code">(RH-0025)</span></td>
-                  <td><span class="badge b-pri">한도형 (CAPPED)</span> <span class="badge b-ok">상계 허용 (CONDITIONAL)</span></td>
-                  <td>[자사저작권] 산준모 산업안전 실기 빈출문제집 <span class="badge b-gray">Pipeline 2.1 모수</span></td>
-                  <td class="num">12,000,000원</td>
-                  <td class="num">12,000,000원 (100%)</td>
-                  <td class="num" style="color:var(--warn);">-1,800,000원 (15%)</td>
-                  <td class="num" style="color:var(--ok);">10,200,000원</td>
-                  <td><span class="badge b-ok">정상 (자사지분 100% ≥ 요율 15%)</span></td>
+                  <td class="code">SFA-2026-015</td>
+                  <td><strong>이건설</strong> <span class="code">(RH-0046)</span></td>
+                  <td><span class="badge b-pri">한도형 (CAPPED)</span> <span class="badge b-gray">비상계 (NON_OFFSET)</span></td>
+                  <td>2026 건설안전기사 필기 핵심이론 + 계산문제 특강 (CRS-2603) <span class="badge b-gray">강좌 수익배분 모수</span></td>
+                  <td class="num">4,000,000원</td>
+                  <td class="num">2,800,000원 (70%)</td>
+                  <td class="num" style="color:var(--warn);">-150,000원 (10% · 한도 캡)</td>
+                  <td class="num" style="color:var(--ok);">2,650,000원</td>
+                  <td><span class="badge b-ok">정상 (자사몫 70% ≥ 요율 10%) · 한도 소진 종결</span></td>
                 </tr>
                 <tr>
                   <td class="code">SFA-2026-012</td>
                   <td><strong>최그래픽</strong> <span class="code">(RH-0042)</span></td>
                   <td><span class="badge b-pur">무한도형 (UNLIMITED)</span> <span class="badge b-ok">상계 허용 (CONDITIONAL)</span></td>
-                  <td>2026 위험물산업기사 실기 시뮬레이션 특강 <span class="badge b-gray">Pipeline 1.1 모수</span></td>
-                  <td class="num">1,600,000원</td>
-                  <td class="num">1,120,000원 (70%)</td>
-                  <td class="num" style="color:var(--warn);">-80,000원 (5%)</td>
-                  <td class="num" style="color:var(--ok);">1,040,000원</td>
-                  <td><span class="badge b-ok">정상 (자사몫 70% ≥ 요율 5%)</span></td>
+                  <td>2026 위험물산업기사 실기 시뮬레이션 특강 (CRS-1012) <span class="badge b-gray">강좌 수익배분 모수</span></td>
+                  <td class="num">1,440,000원</td>
+                  <td class="num">1,440,000원 (100%)</td>
+                  <td class="num" style="color:var(--warn);">-72,000원 (5%)</td>
+                  <td class="num" style="color:var(--ok);">1,368,000원</td>
+                  <td><span class="badge b-ok">정상 (자사몫 100% ≥ 요율 5%)</span></td>
+                </tr>
+                <tr>
+                  <td class="code">SFA-2026-009</td>
+                  <td><strong>정종대</strong> <span class="code">(RH-0025)</span></td>
+                  <td><span class="badge b-pri">한도형 (CAPPED)</span> <span class="badge b-ok">상계 허용 (CONDITIONAL)</span></td>
+                  <td>정종대 산업안전 실전 빈출특강 (CRS-1002) <span class="badge b-gray">강좌 수익배분 모수</span> · PROD-BK-1004 10월 매출 없음</td>
+                  <td class="num">3,000,000원</td>
+                  <td class="num">900,000원 (30%)</td>
+                  <td class="num" style="color:var(--warn);">-450,000원 (15% · 한도 내)</td>
+                  <td class="num" style="color:var(--ok);">450,000원</td>
+                  <td><span class="badge b-ok">정상 (자사몫 30% ≥ 요율 15%) · 잔여 한도 9,700,000원</span></td>
                 </tr>
               </tbody>
             </table>
@@ -587,42 +598,42 @@ code, pre, kbd, samp,
                   <td><strong>1. 원천징수이행상황신고서 기초 자료</strong></td>
                   <td><code>taxable_base IS NOT NULL</code> 및 원천징수 사건 성립(<code>payment_event_date IS NOT NULL</code>) 확정 라인만 집계. 지급 하한 미달 보류(<code>PRE_TAX</code>), 보류 음수(<code>pending_negative_base</code>), 재화 공급(<code>TX-11·12·13</code>) 자동 배제</td>
                   <td>지급월 다음 달 10일<br><span class="code">(2026-11-10)</span></td>
-                  <td>사업소득 3명 / 기타소득 1명<br>소득세 446,500원 · 지방소득세 44,650원<br><span style="font-size:11px; color:var(--muted);">사업소득분 286,500 · 28,650 + 기타소득분 160,000 · 16,000</span></td>
+                  <td>사업소득 7명 / 기타소득 4명 (정종대 사업 · 기타 중복)<br>소득세 923,049원 · 지방소득세 92,304원<br><span style="font-size:11px; color:var(--muted);">사업소득분 423,049 · 42,304(청구 정산서 이전기 15,000 · 1,500 포함) + 기타소득분 500,000 · 50,000 (지급 보류 이월 2건 제외)</span></td>
                   <td><button class="btn btn-sm" onclick="downloadTaxFile('원천징수이행상황신고서_기초자료_202610.csv')">⬇ CSV 추출</button></td>
                 </tr>
                 <tr>
                   <td><strong>2. 거주자 사업소득 간이지급명세서 (전산매체)</strong></td>
                   <td>원천징수 대상 사업소득(<code>BUSINESS</code>) 전 라인. 업종코드 학원강사(<code>940903</code>) / 저술가(<code>940100</code>) 자동 매핑 (소득세법 제164조의3 제1항 제2호)</td>
                   <td>지급월 다음 달 말일<br><span class="code">(2026-11-30)</span></td>
-                  <td>대상 3명 · 과세표준 합계 9,550,000원</td>
+                  <td>대상 7명 · 과세표준 합계 14,101,650원 (청구 정산서 이전기 500,000원 포함)</td>
                   <td><button class="btn btn-sm btn-pri" onclick="downloadTaxFile('사업소득_간이지급명세서_홈택스전산매체_202610.txt')">⬇ 홈택스 TXT 추출</button></td>
                 </tr>
                 <tr>
                   <td><strong>3. 거주자 기타소득 간이지급명세서 (C19 한정)</strong></td>
                   <td>기타소득 중 <strong>인적용역 일시 제공(<code>income_clause = C19</code>) 라인만 한정 추출</strong>. 원고료·인세(<code>C15</code>), 저작권 승계(<code>C05</code>), 사례금(<code>C17</code>)은 법령상 월별 간이명세서 제외 (연간 명세서에만 포함)</td>
                   <td>지급월 다음 달 말일<br><span class="code">(2026-11-30)</span></td>
-                  <td>C19 대상 1건 (정종대 분할형 지원금 2,000,000원)</td>
+                  <td>C19 대상 2건 (정종대 분할형 지원금 2,000,000원 · 한도해 마일스톤 약정금 500,000원)</td>
                   <td><button class="btn btn-sm btn-pri" onclick="downloadTaxFile('기타소득_C19_간이지급명세서_202610.txt')">⬇ 홈택스 TXT 추출</button></td>
                 </tr>
                 <tr>
                   <td><strong>4. 과세표준 · 실지급액 차액 검증 명세</strong></td>
                   <td>대여금 방식 선급금 상계(<code>LOAN</code>), 세후 지급대기 이월(<code>POST_TAX</code>) 합산, 지급 하한 미달 보류(<code>PRE_TAX</code>), 전속계약금 세후 반환, <strong>재화 공급(원천징수 비대상)</strong> 사유별 차액 대사 시트</td>
                   <td>월 정산 마감 시 상시</td>
-                  <td>차액 발생 4건 (사유별 100% 소명 일치)</td>
+                  <td>차액 발생 14건 (정산서 전 건 · 사유별 100% 소명 일치)</td>
                   <td><button class="btn btn-sm" onclick="downloadTaxFile('과세표준_실지급액_차액검증명세_202610.csv')">⬇ CSV 추출</button></td>
                 </tr>
                 <tr>
                   <td><strong>5. 면세 매출 3계통 및 과세 매출 분리 명세</strong></td>
                   <td>주문 품목(<code>order_item_id</code>) 기준 [1] 교육용역 면세(제26조 제1항 제6호), [2] 도서 재화 면세(제26조 제1항 제8호), [3] 저작권 인적용역 면세(제15호 계통, 정산 라인 별도 원천) 분리 집계</td>
                   <td>부가가치세/면세사업자 신고 시</td>
-                  <td>교육면세 42,600,000원 / 도서면세 17,180,000원 / 과세(P2.3) 3,300,000원</td>
+                  <td>교육면세 37,390,000원 / 도서면세 26,200,000원 / 과세(일반상품) 3,300,000원</td>
                   <td><button class="btn btn-sm" onclick="downloadTaxFile('면세3계통_및_과세매출_분리명세_202610.csv')">⬇ CSV 추출</button></td>
                 </tr>
                 <tr>
                   <td><strong>6. 위탁 거래 및 매입 계산서 수취 대사 명세</strong></td>
                   <td>위탁 총 판매대금, 당사 위탁 수수료 과세 매출(세금계산서 발행분), 위탁자·사입 매입처 전자계산서 수취(채널 4) 적격증빙 점검표</td>
                   <td>매월 10일 (계산서 합계표)</td>
-                  <td>위탁수수료 공급가액 500,000원 (부가세 50,000원) / 매입계산서 수취 2건</td>
+                  <td>위탁수수료 공급가액 1,500,000원 (부가세 150,000원) / 매입계산서 수취 3건 (위탁자 2 · 사입 매입처 1)<br><span style="font-size:11px; color:var(--muted);">별도: 한국소방학회 9월 수수료 정정 −200,000원 (부가세 −20,000원 · SETT-005 ADJ-202610-05 수정 세금계산서)</span></td>
                   <td><button class="btn btn-sm" onclick="downloadTaxFile('위탁수수료_및_매입계산서_수취명세_202610.csv')">⬇ CSV 추출</button></td>
                 </tr>
               </tbody>
@@ -642,7 +653,7 @@ code, pre, kbd, samp,
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <span style="font-family:var(--mono); font-size:12px; color:#93c5fd;">
-          검증 등식: 전사 매출(63,080,000) = 외부 정산 귀속(18,470,000) + 자사 최종 귀속(44,610,000) ✔ 일치
+          <span id="footerEquation">검증 등식: 전사 매출(66,890,000) = 외부 정산 귀속(18,491,600) + 자사 최종 귀속(48,398,400) ✔ 일치</span>
         </span>
       </div>
     </footer>
@@ -655,22 +666,175 @@ code, pre, kbd, samp,
 
 
 </div></div><script>
+  // 2026-10 상품별 매출 — 시나리오 상품 코드 · 월 실결제 합계(scripts/qa/reports/review/scenario_codes.md 3절)와 정산서(SETT-002) 귀속액 기준
   const LEDGER_ROWS = [
     {
       pipeCode: "P1_1",
       pipeName: "온라인 강좌 수익배분",
-      sku: "CRS-1011",
-      title: "2026 산업안전기사 필기+실기 올인원 패스",
+      sku: "CRS-2605",
+      title: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반 (박보건 · Case 1)",
       taxBadge: "교육용역 면세 (부가세 0원)",
-      salesTotal: 32000000,
-      salesSupply: 32000000,
+      salesTotal: 5000000,
+      salesSupply: 5000000,
       salesVat: 0,
-      extBasic: 14400000,
-      extBasicDesc: "정종대 외 1명 R/S (45%)",
-      internalInit: 17600000,
+      extBasic: 2500000,
+      extBasicDesc: "박보건 R/S (지분 100% × 요율 50%)",
+      internalInit: 2500000,
       supportDeduct: 0,
       supportDesc: "-",
-      internalNet: 17600000,
+      internalNet: 2500000,
+      bypassText: "외부 지분만 SETT-002 집행 / 자사 몫 Bypass",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-2606",
+      title: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과 (최지도 · Case 2)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 2000000,
+      salesSupply: 2000000,
+      salesVat: 0,
+      extBasic: 1000000,
+      extBasicDesc: "최지도 R/S (지분 100% × 요율 50%)",
+      internalInit: 1000000,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 1000000,
+      bypassText: "외부 지분만 SETT-002 집행 / 자사 몫 Bypass",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-2601",
+      title: "2026 산업안전기사 필기 한권완성 개념+빈출 단과 (김안전 · Case 7)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 4000000,
+      salesSupply: 4000000,
+      salesVat: 0,
+      extBasic: 2000000,
+      extBasicDesc: "김안전 R/S (100% × 50%) → 수취인 분할 70 : 30",
+      internalInit: 2000000,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 2000000,
+      bypassText: "외부 지분만 SETT-002 집행 / 자사 몫 Bypass",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-2603",
+      title: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강 (이건설 · Case 9)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 4000000,
+      salesSupply: 4000000,
+      salesVat: 0,
+      extBasic: 1200000,
+      extBasicDesc: "이건설 1계층 R/S (요율 50% × 지분 60%)",
+      internalInit: 2800000,
+      supportDeduct: 150000,
+      supportDesc: "이건설 R/S형 지원금 SFA-2026-015 확정 (자사몫 차감)",
+      internalNet: 2650000,
+      bypassText: "이건설 R/S · 지원금 집행 / 자사 2,650,000원 Bypass",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-1002",
+      title: "정종대 산업안전 실전 빈출특강 (정종대 지분 70%)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 3000000,
+      salesSupply: 3000000,
+      salesVat: 0,
+      extBasic: 1050000,
+      extBasicDesc: "정종대 1계층 R/S (요율 50% × 지분 70%)",
+      internalInit: 1950000,
+      supportDeduct: 450000,
+      supportDesc: "정종대 매출연동 지원금 SFA-2026-009 15% (자사몫 30%에서 차감)",
+      internalNet: 1500000,
+      bypassText: "외부 지분만 SETT-002 집행 / 자사 몫 Bypass",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-1001",
+      title: "산업안전기사 필기 핵심이론 패키지 (산준교육 지분 80% · 10월 1~10일 결제분)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 7500000,
+      salesSupply: 7500000,
+      salesVat: 0,
+      extBasic: 3000000,
+      extBasicDesc: "산준교육 1계층 R/S (요율 50% × 지분 80%)",
+      internalInit: 4500000,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 4500000,
+      bypassText: "외부 지분만 SETT-002 집행 / 자사 몫 Bypass",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-2509",
+      title: "2026 산업안전기사 필기 전기위험방지기술 집중 특강 (이전기 지분 100% · 해지일 10-05까지 결제분)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 1000000,
+      salesSupply: 1000000,
+      salesVat: 0,
+      extBasic: 500000,
+      extBasicDesc: "이전기 R/S (지분 100% × 요율 50%) — 전속계약금 반환과 상계 후 청구(SETT-002 STMT-05)",
+      internalInit: 500000,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 500000,
+      bypassText: "외부 지분만 SETT-002 집행 / 자사 몫 Bypass",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-1004",
+      title: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반 (정종대 지분 100% · 2026-06-30 판매종료)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 0,
+      salesSupply: 0,
+      salesVat: 0,
+      extBasic: 0,
+      extBasicDesc: "10월 매출 없음 — 합격환급 HRF-01 · 03 · 05 원 주문 강좌(강의 R/S 분담은 SETT-006 · SETT-002 4단계)",
+      internalInit: 0,
+      supportDeduct: 0,
+      supportDesc: "지원금 대상 아님 (자사 지분 0%)",
+      internalNet: 0,
+      bypassText: "10월 매출 없음 (판매종료)",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P1_1",
+      pipeName: "온라인 강좌 수익배분",
+      sku: "CRS-2026-055",
+      title: "[단과] 전기산업기사 회로이론 핵심완성 (이중도 · 해지일 이전 결제분)",
+      taxBadge: "교육용역 면세 (부가세 0원)",
+      salesTotal: 450000,
+      salesSupply: 450000,
+      salesVat: 0,
+      extBasic: 180000,
+      extBasicDesc: "이중도 R/S (지분 100% × 요율 40%)",
+      internalInit: 270000,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 270000,
       bypassText: "외부 지분만 SETT-002 집행 / 자사 몫 Bypass",
       hasInternal: true,
       hasExternal: true
@@ -679,18 +843,18 @@ code, pre, kbd, samp,
       pipeCode: "P1_1",
       pipeName: "온라인 강좌 수익배분",
       sku: "CRS-1012",
-      title: "2026 위험물산업기사 실기 시뮬레이션 특강 (D-16)",
+      title: "2026 위험물산업기사 실기 시뮬레이션 특강 (자사 100% · 기여자 지원금)",
       taxBadge: "교육용역 면세 (부가세 0원)",
-      salesTotal: 1600000,
-      salesSupply: 1600000,
+      salesTotal: 1440000,
+      salesSupply: 1440000,
       salesVat: 0,
-      extBasic: 480000,
-      extBasicDesc: "김안전 1계층 R/S (요율50%×지분60%)",
-      internalInit: 1120000,
-      supportDeduct: 80000,
-      supportDesc: "최그래픽 P5.1 지원금 (5% · 자사몫 차감)",
-      internalNet: 1040000,
-      bypassText: "김안전·최그래픽 집행 / 자사 1,040,000원 Bypass",
+      extBasic: 0,
+      extBasicDesc: "외부 R/S 없음 (자사 100%) · 기여자 지원금만 지급",
+      internalInit: 1440000,
+      supportDeduct: 72000,
+      supportDesc: "최그래픽 P5.1 지원금 (5% · 자사몫 차감 · 하한 미달 이월)",
+      internalNet: 1368000,
+      bypassText: "최그래픽 지원금만 집행 대상 / 자사 1,368,000원 Bypass",
       hasInternal: true,
       hasExternal: true
     },
@@ -716,46 +880,84 @@ code, pre, kbd, samp,
     {
       pipeCode: "P2_1",
       pipeName: "자사 발행 도서 인세",
-      sku: "PROD-BK-1001",
-      title: "산업안전 핵심 이론 교재 (인세 10%)",
-      taxBadge: "도서 재화 면세 / 인세 TX-03·TX-09",
-      salesTotal: 2100000,
-      salesSupply: 2100000,
+      sku: "PROD-BK-1007",
+      title: "2026 산업안전지도사 1차 산업안전일반 핵심요약집 (최지도 인세 10%)",
+      taxBadge: "도서 재화 면세 / 인세 TX-03",
+      salesTotal: 2000000,
+      salesSupply: 2000000,
       salesVat: 0,
-      extBasic: 210000,
-      extBasicDesc: "산준교육 외 공동저자 인세 (10%)",
-      internalInit: 1890000,
+      extBasic: 200000,
+      extBasicDesc: "최지도 인세 (100권 × 20,000 × 10%)",
+      internalInit: 1800000,
       supportDeduct: 0,
       supportDesc: "-",
-      internalNet: 1890000,
+      internalNet: 1800000,
       bypassText: "저자 인세만 집행 / 출판 잔여수익 자사 귀속",
       hasInternal: true,
       hasExternal: true
     },
     {
-      pipeCode: "P5_1",
-      pipeName: "자사저작권 도서 + 개발지원금 (Pipeline 2.1 / 5.1)",
-      sku: "PROD-BK-1004",
-      title: "[자사저작권] 산준모 산업안전 실기 빈출문제집 (D-15)",
-      taxBadge: "자사 저작권 보유 (TX-01 자사 귀속)",
-      salesTotal: 12000000,
-      salesSupply: 12000000,
+      pipeCode: "P2_1",
+      pipeName: "자사 발행 도서 인세",
+      sku: "PROD-BK-1006",
+      title: "2026 정종대 산업안전기사 필기 기본서 (정종대 인세 10%)",
+      taxBadge: "도서 재화 면세 / 인세 TX-08",
+      salesTotal: 1000000,
+      salesSupply: 1000000,
       salesVat: 0,
-      extBasic: 0,
-      extBasicDesc: "인세 0원 (자사 저작권 100% Bypass)",
-      internalInit: 12000000,
-      supportDeduct: 1800000,
-      supportDesc: "정종대 P5.1 지원금 15% (CONDITIONAL)",
-      internalNet: 10200000,
-      bypassText: "지원금 180만원만 정종대 정산서 인입 / 1,020만원 자사 귀속",
+      extBasic: 100000,
+      extBasicDesc: "정종대 인세 (50권 × 20,000 × 10%)",
+      internalInit: 900000,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 900000,
+      bypassText: "저자 인세만 집행 / 출판 잔여수익 자사 귀속",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P2_1",
+      pipeName: "자사 발행 도서 인세",
+      sku: "PROD-BK-1008",
+      title: "2026 산업위생관리기사 필기 핵심정리 (고 박위생 인세 10% · 정가 기준)",
+      taxBadge: "도서 재화 면세 / 인세 상속인 기타소득 C05",
+      salesTotal: 15000000,
+      salesSupply: 15000000,
+      salesVat: 0,
+      extBasic: 1500000,
+      extBasicDesc: "고 박위생 인세 (500권 × 30,000 × 10%) → 상속인 분할 60 : 40",
+      internalInit: 13500000,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 13500000,
+      bypassText: "저자 인세만 집행 / 출판 잔여수익 자사 귀속",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P2_1",
+      pipeName: "자사 발행 도서 인세",
+      sku: "PROD-BK-1001",
+      title: "산업안전 핵심 이론 교재 (공동저자 · 인세 10%)",
+      taxBadge: "도서 재화 면세 / 인세 TX-09·TX-03",
+      salesTotal: 1120000,
+      salesSupply: 1120000,
+      salesVat: 0,
+      extBasic: 89600,
+      extBasicDesc: "산준교육 56,000 + 이안전 33,600 (지분 50 · 30)",
+      internalInit: 1030400,
+      supportDeduct: 0,
+      supportDesc: "-",
+      internalNet: 1030400,
+      bypassText: "저자 인세만 집행 / 출판 잔여수익 자사 귀속",
       hasInternal: true,
       hasExternal: true
     },
     {
       pipeCode: "P2_2",
       pipeName: "위탁 도서 판매대금 정산",
-      sku: "PROD-BK-3001",
-      title: "2026 소방설비기사 위탁 수험서 세트 (한국소방학회 위탁)",
+      sku: "PROD-BK-3003",
+      title: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (안전기술출판 위탁 · Case 10)",
       taxBadge: "위탁 도서 면세 (TX-11) / 수수료 25%",
       salesTotal: 2000000,
       salesSupply: 2000000,
@@ -767,6 +969,25 @@ code, pre, kbd, samp,
       supportDesc: "지원금 모수 제외",
       internalNet: 500000,
       bypassText: "당사 위탁수수료 매출 500,000원 (부가세 50,000원 별도)",
+      hasInternal: true,
+      hasExternal: true
+    },
+    {
+      pipeCode: "P2_2",
+      pipeName: "위탁 도서 판매대금 정산",
+      sku: "PROD-BK-3001",
+      title: "2026 소방설비기사 위탁 수험서 세트 (한국소방학회 위탁)",
+      taxBadge: "위탁 도서 면세 (TX-11) / 수수료 25%",
+      salesTotal: 4000000,
+      salesSupply: 4000000,
+      salesVat: 0,
+      extBasic: 3000000,
+      extBasicDesc: "위탁 정산순액 300만원 (10월분 실지급 290만원·수수료VAT 차감 · 9월 수수료 정정 22만원은 SETT-005 정정으로 별도 지급)",
+      internalInit: 1000000,
+      supportDeduct: 0,
+      supportDesc: "지원금 모수 제외",
+      internalNet: 1000000,
+      bypassText: "당사 위탁수수료 매출 1,000,000원 (부가세 100,000원 별도)",
       hasInternal: true,
       hasExternal: true
     },
@@ -855,7 +1076,8 @@ code, pre, kbd, samp,
     const filtered = LEDGER_ROWS.filter(r => {
       if (currentFilter === "INTERNAL" && !r.hasInternal) return false;
       if (currentFilter === "EXTERNAL" && !r.hasExternal) return false;
-      if (["P1_1", "P2_1", "P2_2", "P2_3", "P5_1"].includes(currentFilter) && r.pipeCode !== currentFilter) return false;
+      if (currentFilter === "P5_1" && !(r.pipeCode === "P5_1" || r.supportDeduct > 0)) return false;
+      if (["P1_1", "P2_1", "P2_2", "P2_3"].includes(currentFilter) && r.pipeCode !== currentFilter) return false;
       if (kw && !(r.sku.toLowerCase().includes(kw) || r.title.toLowerCase().includes(kw) || r.pipeName.toLowerCase().includes(kw) || r.extBasicDesc.toLowerCase().includes(kw))) {
         return false;
       }
@@ -915,6 +1137,21 @@ code, pre, kbd, samp,
     `;
   }
 
+  // KPI · 하단 검증 등식 — 원장 전체(필터와 무관)에서 다시 계산
+  function renderLedgerKpis() {
+    const sum = k => LEDGER_ROWS.reduce((a, r) => a + r[k], 0);
+    const sales = sum("salesTotal"), ext = sum("extBasic"), sup = sum("supportDeduct"), init = sum("internalInit"), net = sum("internalNet");
+    const goods = LEDGER_ROWS.filter(r => r.pipeCode === "P2_3").reduce((a, r) => a + r.salesTotal, 0);
+    document.getElementById("kpiTotalSales").textContent = fmt(sales);
+    document.getElementById("kpiExtPayout").textContent = fmt(ext + sup);
+    document.getElementById("kpiSupportDeduct").textContent = "-" + fmt(sup);
+    document.getElementById("kpiSupportSub").textContent = `자사 초기 몫(${fmt(init)}) 내 100% 차감 완결`;
+    document.getElementById("kpiGoodsSales").textContent = fmt(goods);
+    document.getElementById("kpiInternalNet").textContent = fmt(net);
+    const ok = sales === ext + sup + net;
+    document.getElementById("footerEquation").textContent = `검증 등식: 전사 매출(${sales.toLocaleString("ko-KR")}) = 외부 정산 귀속(${(ext + sup).toLocaleString("ko-KR")}) + 자사 최종 귀속(${net.toLocaleString("ko-KR")}) ${ok ? "✔ 일치" : "✖ 불일치"}`;
+  }
+
   function changeMonth(m) {
     const badgeEl = document.getElementById("lockStatusBadge");
     if (m === "2026-09") {
@@ -934,6 +1171,7 @@ code, pre, kbd, samp,
     showToast(`[제14장 14.1절 산출물] '${filename}' 파일을 생성하여 다운로드했습니다.`);
   }
 
+  renderLedgerKpis();
   renderOverviewTable();
   // ?view=taxreport(업무플로우 링크는 tax-report)로 들어오면 세무 신고 기초 산출물 탭을 연다
   (function () {

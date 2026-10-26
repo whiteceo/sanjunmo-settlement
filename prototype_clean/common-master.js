@@ -156,7 +156,9 @@
       terms: { outFee: "2000", returnFee: "4000", storage: "300000", cycle: "월 1회 (익월 초 명세서)" }, contact: "031-940-1100", since: "2025-11-01" }
   ];
 
-  // 권리자 원장 요약 — 원천은 권리자 계약 원장(ADMN-INST-001)의 현행 계약(해지 · 종료 계약 제외). 외부 계정의 소속(본인 데이터 범위) 지정에 쓴다.
+  // 권리자 원장 요약 — 원천은 권리자 계약 원장(ADMN-INST-001)의 계약 당사자. 외부 계정의 소속(본인 데이터 범위) 지정에 쓴다.
+  // 해지 · 종료 계약(contracts[].status = "TERMINATED")만 있는 권리자도 정산 · 청구가 남아 있으면 원장에 둔다(v6.60 RH-0015 · 0049 · 0055).
+  //   list()(외부 계정 소속 후보)는 현행 계약이 하나라도 있는 권리자만 돌려주고, get() · all()은 모두 돌려준다.
   // 강사 · 저자 · 위탁사 같은 구분은 고정 분류가 아니라 계약 유형(정산 입력 구분)에서 나온다
   // caseLabel = 화면에서 이름 뒤에 붙이는 케이스 표기(소속 형태 · 세무 유형, INST-001 계약 기준). 화면마다 다르게 쓰지 않는다
   var RIGHTS_HOLDER_SEED = [
@@ -165,14 +167,17 @@
     { id: "RH-0019", name: "김안전 강사", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-0715", types: ["강의 수익배분", "월 최저보장", "문항 매절", "교재 인세"] }] },
     { id: "RH-0025", name: "정종대 강사 (정종대 안전연구소)", caseLabel: "개인 면세사업자", contracts: [{ no: "CT-2026-0501", types: ["강의 수익배분", "교재 인세", "개발지원금"] }] },
     { id: "RH-0031", name: "이안전 저자", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-0610", types: ["교재 인세"] }] },
-    { id: "RH-0046", name: "이건설 강사", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-0712", types: ["강의 수익배분", "교재 인세"] }] },
+    { id: "RH-0046", name: "이건설 강사", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-0712", types: ["강의 수익배분", "교재 인세", "개발지원금", "월 최저보장"] }] },
     { id: "RH-0047", name: "박보건 강사", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2024-1101", types: ["강의 수익배분"] }] },
     { id: "RH-0048", name: "최지도 강사 · 저자", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-0405", types: ["교재 인세", "강의 수익배분"] }] },
     { id: "RH-0042", name: "최그래픽 (기여자)", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-0702", types: ["개발지원금", "공동제작"] }] },
     { id: "RH-0044", name: "안전기술출판 (위탁사)", caseLabel: "도서 위탁", contracts: [{ no: "CT-2026-0705", types: ["도서 위탁"] }] },
     { id: "RH-0051", name: "사단법인 한국소방학회", caseLabel: "도서 위탁", contracts: [{ no: "CT-2026-0801", types: ["도서 위탁"] }] },
     { id: "RH-0063", name: "한도해 작가", caseLabel: "일시 삽화·자문 · 기타소득", contracts: [{ no: "CT-2026-0919", types: ["일시 용역 (삽화 · 자문)"] }] },
-    { id: "RH-0088", name: "최신규 강사 (신규 영입)", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-NEW", types: ["강의 수익배분", "개발지원금"] }] }
+    { id: "RH-0088", name: "최신규 강사 (신규 영입)", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-NEW", types: ["강의 수익배분", "개발지원금"] }] },
+    { id: "RH-0049", name: "정기계 강사", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2025-0115", types: ["강의 수익배분"], status: "TERMINATED" }] },
+    { id: "RH-0055", name: "이중도 강사", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2026-0322", types: ["강의 수익배분", "월 최저보장"], status: "TERMINATED" }] },
+    { id: "RH-0015", name: "이전기 강사", caseLabel: "개인 프리랜서", contracts: [{ no: "CT-2025-0911", types: ["강의 수익배분", "전속계약금"], status: "TERMINATED" }] }
   ];
 
   var roleStore = store("sjm.master.roleGroups.v1", ROLE_SEED);
@@ -304,6 +309,23 @@
       payeeOf: [{ contract: "CT-2025-1102", holderId: "RH-0018", holderName: "고(故) 박위생", role: "법정 상속인 · 자녀", kind: "SUCCESSOR", since: "2026-09-01", ratio: 40 }] }
   ];
   var holderStore = store("sjm.master.rightsHolders.v1", RIGHTS_HOLDER_SEED.concat(PAYEE_HOLDER_SEED));
+  // v6.60 시드 보충 — 이전 버전이 저장한 원장에 없는 권리자 · 계약 유형 · 계약 상태를 최초값에서 채운다(저장된 값은 지우거나 바꾸지 않음)
+  (function () {
+    var cur = holderStore.get(), byId = {}, changed = false;
+    cur.forEach(function (h) { byId[h.id] = h; });
+    RIGHTS_HOLDER_SEED.concat(PAYEE_HOLDER_SEED).forEach(function (s) {
+      var h = byId[s.id];
+      if (!h) { cur.push(clone(s)); changed = true; return; }
+      (s.contracts || []).forEach(function (sc) {
+        (h.contracts || []).forEach(function (hc) {
+          if (hc.no !== sc.no) return;
+          sc.types.forEach(function (t) { if (hc.types.indexOf(t) === -1) { hc.types.push(t); changed = true; } });
+          if (sc.status && !hc.status) { hc.status = sc.status; changed = true; }
+        });
+      });
+    });
+    if (changed) holderStore.set(cur);
+  })();
 
   function findHolder(id) {
     var list = holderStore.get();
@@ -313,8 +335,8 @@
 
   var rightsHolders = {
     all: function () { return clone(holderStore.get()); },
-    // 계약 당사자(본인 계약이 있는 권리자) — 외부 계정 소속의 '계약 당사자' 묶음
-    list: function () { return clone(holderStore.get().filter(function (h) { return h.contracts && h.contracts.length; })); },
+    // 계약 당사자(현행 계약이 있는 권리자) — 외부 계정 소속의 '계약 당사자' 묶음. 해지 · 종료 계약만 남은 권리자는 뺀다
+    list: function () { return clone(holderStore.get().filter(function (h) { return h.contracts && h.contracts.some(function (c) { return c.status !== "TERMINATED"; }); })); },
     get: function (id) { var h = findHolder(id); return h ? clone(h) : null; },
     // 계약 유형 합집합 — 이 권리자가 어떤 성격의 파트너인지는 계약 유형으로 판단한다
     types: function (id) {

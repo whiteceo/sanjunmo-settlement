@@ -1037,27 +1037,27 @@ code, pre, kbd, samp,
       <section class="kpi-grid">
         <div class="kpi-card active" data-filter="ALL">
           <div class="k-title">당월 정산 대상 수취인</div>
-          <div class="k-num" id="kpiAll">7명(곳)</div>
+          <div class="k-num" id="kpiAll">14명(곳)</div>
           <div class="k-sub">강사 · 저자 · 위탁출판사 (사입 AP 제외)</div>
         </div>
         <div class="kpi-card" data-filter="PAYOUT_TARGET">
           <div class="k-title">💸 당월 실지급 대상 (≥10만원/강제)</div>
-          <div class="k-num" id="kpiPayout" style="color:var(--primary);">5건 (15,543,740원)</div>
+          <div class="k-num" id="kpiPayout" style="color:var(--primary);">11건 (18,961,422원)</div>
           <div class="k-sub">11단계 지급 판정 통과 · 대량이체 대상</div>
         </div>
         <div class="kpi-card" data-filter="CARRYOVER_HOLD">
           <div class="k-title">⏸️ 지급 보류 · 차월 이월 적재</div>
-          <div class="k-num" id="kpiCarry" style="color:var(--warn);">1건 (72,000원)</div>
+          <div class="k-num" id="kpiCarry" style="color:var(--warn);">2건 (105,600원)</div>
           <div class="k-sub">최소 지급 기준(10만원) 미달 → 세전 이월</div>
         </div>
         <div class="kpi-card" data-filter="CLAIM_ISSUED">
           <div class="k-title">🚨 마이너스 청구서 발행 (10단계)</div>
-          <div class="k-num" id="kpiClaim" style="color:var(--danger);">1건 (-4,818,767원)</div>
-          <div class="k-sub">전속계약금 일할반환 + 만료 미상계 선급금</div>
+          <div class="k-num" id="kpiClaim" style="color:var(--danger);">1건 (-2,516,500원)</div>
+          <div class="k-sub">전속계약금 반환 · 해지 미상계 선급금 (10단계 청구)</div>
         </div>
         <div class="kpi-card" data-filter="INVOICE_PENDING">
           <div class="k-title">📄 2채널 증빙 제출·수취 대기</div>
-          <div class="k-num" id="kpiInvoice" style="color:var(--purple);">2건</div>
+          <div class="k-num" id="kpiInvoice" style="color:var(--purple);">4건</div>
           <div class="k-sub">익월 10일 지연발급 가산세 기한 통제</div>
         </div>
       </section>
@@ -1163,12 +1163,12 @@ code, pre, kbd, samp,
                     <span class="badge badge-warn" style="margin-top:3px;">상계 허용 (CONDITIONAL)</span>
                   </td>
                   <td class="num">15,000,000원</td>
-                  <td class="num">발생: +450,000원<br><span style="color:var(--danger);">공제: -15,000원 (복원)</span></td>
-                  <td class="num"><strong>435,000원</strong></td>
-                  <td class="num">5,285,000원</td>
-                  <td class="num" style="color:var(--primary); font-weight:700;">5,285,000원<br><span style="font-size:10px; color:var(--text-muted);">(6단계 상계 무관 차감)</span></td>
-                  <td class="num">3,120,000원<br><span style="font-size:10px; color:var(--text-muted);">(선급금 상계분 제외 현금)</span></td>
-                  <td class="num"><strong>9,715,000원</strong></td>
+                  <td class="num">발생: +450,000원<br><span style="color:var(--text-muted);">공제: 0원 (합격환급 원 주문 CRS-1004는 자사 지분 0% · 지원금 대상 아님)</span></td>
+                  <td class="num"><strong>450,000원</strong></td>
+                  <td class="num">5,300,000원</td>
+                  <td class="num" style="color:var(--primary); font-weight:700;">5,300,000원<br><span style="font-size:10px; color:var(--text-muted);">(전월 4,850,000 + 당월 확정 450,000)</span></td>
+                  <td class="num">4,715,065원<br><span style="font-size:10px; color:var(--text-muted);">(전월 4,699,950 + 당월 확정분 15,115 — 선급금 상계 · 원천세 차감 후)</span></td>
+                  <td class="num"><strong>9,700,000원</strong></td>
                   <td><span class="badge badge-success">유효 진행중 (ACTIVE)</span></td>
                 </tr>
                 <tr>
@@ -1183,11 +1183,29 @@ code, pre, kbd, samp,
                   <td class="num">해당 없음 (NULL)</td>
                   <td class="num">발생: +72,000원<br>공제: 0원</td>
                   <td class="num"><strong>72,000원</strong></td>
-                  <td class="num">212,000원</td>
+                  <td class="num">72,000원</td>
                   <td class="num">해당 없음 (NULL)</td>
-                  <td class="num">140,000원<br><span style="font-size:10px; color:var(--text-muted);">(당월 7.2만 하한미달 이월)</span></td>
+                  <td class="num">0원<br><span style="font-size:10px; color:var(--text-muted);">(당월 7.2만 하한미달 이월)</span></td>
                   <td class="num">해당 없음 (NULL)</td>
                   <td><span class="badge badge-success">유효 진행중 (ACTIVE)</span></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="mono"><strong>SFA-2026-015</strong></div>
+                    <div>이건설 (CT-2026-0712)</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-primary">한도형 (CAPPED)</span><br>
+                    <span class="badge badge-neutral" style="margin-top:3px;">비상계 (NON_OFFSET)</span>
+                  </td>
+                  <td class="num">3,000,000원</td>
+                  <td class="num">발생: +400,000원<br><span style="color:var(--danger);">공제: -14,450원 (합격환급 옵션 B HRF-04 · 복원)</span></td>
+                  <td class="num"><strong>150,000원</strong></td>
+                  <td class="num">3,000,000원</td>
+                  <td class="num" style="color:var(--primary); font-weight:700;">3,000,000원<br><span style="font-size:10px; color:var(--text-muted);">(복원 후 한도 164,450 · 초과 235,550 소멸)</span></td>
+                  <td class="num">2,901,000원<br><span style="font-size:10px; color:var(--text-muted);">(전월 2,755,950 + 당월 확정분 145,050 — 원천세 차감 후)</span></td>
+                  <td class="num"><strong>0원</strong></td>
+                  <td><span class="badge badge-neutral">한도 소진 종결 (ACTIVE → COMPLETED)</span></td>
                 </tr>
               </tbody>
             </table>
@@ -1243,8 +1261,8 @@ code, pre, kbd, samp,
             </div>
             <div style="display:flex; gap:8px;">
               <button class="btn btn-sm" onclick="simulateBankFailure()">🧪 [QA D-13 시연] 은행 계좌오류 송금 실패 시뮬레이션</button>
-              <button class="btn btn-sm btn-primary" onclick="showToast('📤 은행 이체 결과 파일을 지급 지시 식별자로 대조했습니다: 성공 5건 · 실패 0건 (실패 행은 예약 해제 후 세전 이월로 적재)')">📤 은행 이체 결과 파일 등록 · 대사</button>
-              <button class="btn btn-sm btn-primary" onclick="showToast('📥 은행 대량이체 업로드 엑셀(5건, 15,543,740원)을 내려받았습니다. 인터넷뱅킹에 올려 이체한 뒤 결과 파일을 등록하세요.')">📥 대량이체 엑셀 다운로드 (은행 양식)</button>
+              <button class="btn btn-sm btn-primary" onclick="showFirmbankingToast('result')">📤 은행 이체 결과 파일 등록 · 대사</button>
+              <button class="btn btn-sm btn-primary" onclick="showFirmbankingToast('download')">📥 대량이체 엑셀 다운로드 (은행 양식)</button>
             </div>
           </div>
           <div class="table-wrap">
@@ -1271,7 +1289,7 @@ code, pre, kbd, samp,
       <div class="savebar-status">
         <span id="footerLockBadge" class="badge badge-warn">마감 전 (Unlocked)</span>
         <span id="footerSummaryText">
-          2026-10 통합 연산 완료: 당월 실지급 총액 <strong>15,543,740원 (5건)</strong> / 지급보류 세전이월 <strong>72,000원 (1건)</strong> / 공식 청구서 <strong>-4,818,767원 (1건)</strong>
+          2026-10 통합 연산 완료: 당월 실지급 총액 <strong>18,961,422원 (11건)</strong> / 지급보류 세전이월 <strong>105,600원 (2건)</strong> / 공식 청구서 <strong>-2,516,500원 (1건)</strong>
         </span>
       </div>
       <div style="display:flex; gap:8px;">
@@ -1361,7 +1379,7 @@ code, pre, kbd, samp,
               </td>
               <td style="padding:12px;">
                 <span class="badge badge-success">통과 (등식 100% 일치)</span>
-                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">세전 이월 1,420,000원 / 세후 보류 0원 / 위탁 잔액 0원 (차액 0원 일치)</div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">세전 이월 신규 105,600원(이안전 33,600 · 최그래픽 72,000) / 세후 보류 45,000원 → 0원(한도해 10월 합산 지급) / 위탁 잔액 0원 (차액 0원 일치)</div>
               </td>
               <td style="padding:12px;">
                 <span style="color:var(--text-muted); font-size:12px;">오차 0원 일치 확인됨</span>
@@ -1403,31 +1421,32 @@ code, pre, kbd, samp,
         payeeId: "RH-0025",
         payeeName: "정종대 (개인 면세사업자)",
         contractId: "CT-2026-0501",
-        matrixCase: "면세사업자 계산서(권리자 발행) + 사업소득 원천징수 (TX-08)",
+        matrixCase: "면세사업자 계산서(권리자 발행) + 원천징수 (TX-08 · 샘플 전제: 원천징수 적용)",
         pipelines: ["P1_1", "P2_1", "P5_1"],
-        pipelineText: "강좌(1.1) + 인세(2.1) + 지원금(5.1) + 전속계약금(7단계)",
-        step1PreTaxCarry: -120000,
+        pipelineText: "강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계)",
+        step1PreTaxCarry: 0,
         step1PostTaxWait: 0,
-        step2LectureRs: 7130000,
-        step2BookRoyalty: 870000,
-        step2SupportAccrued: 1170000,
+        step2LectureRs: 1050000,
+        step2BookRoyalty: 100000,
+        step2SupportAccrued: 450000,
         step3MmgSubsidy: 0,
-        step4LectureDeduct: -581250,
-        step4SupportDeduct: -325000,
-        step5SupportConfirmed: 720000,
-        step6PrepayEligible: 8138750,
-        step6PrepayOffset: -3500000,
-        step7LumpSumAdd: 5000000,
-        step8TaxableBaseSum: 13018750,
+        step4LectureDeduct: -325000,
+        step4SupportDeduct: 0,
+        step5SupportConfirmed: 450000,
+        step6PrepayEligible: 3275000,
+        step6PrepayOffset: -3056925,
+        step7LumpSumAdd: 7000000,
+        step8TaxableBaseSum: 8275000,
         step9VatAmount: 0,
-        step9WithholdingTax: 429610,
+        step9WithholdingTax: 383075,
         step10PostTaxAdjust: 0,
-        step11NetPayout: 9089140,
+        step11NetPayout: 4835000,
         payoutCategory: "PAYOUT_TARGET",
         payoutStatusLabel: "실지급 확정 (≥10만원)",
         bankInfo: "신한은행 110-428-****** (예금주: 정종대 일치)",
         bankTransferStatus: "지급 대기 (마감 확정 후 이체 예약)",
-        diffReasonNote: "과세표준 합계(13,018,750원, 전속계약금 5,000,000원 포함)와 실지급액(9,089,140원)의 차이는 [6단계 선급금 상계(-3,500,000원) — 상계 가능액(7,870,180원)이 잔액보다 커서 잔액 전부를 상계, 선급금 원장 종결] 및 [9단계 원천징수(-429,610원)]입니다.",
+        invoicePending: false,
+        diffReasonNote: "과세표준 합계(8,275,000원 = 강좌 725,000(R/S 1,050,000 − 합격환급 옵션 B 강의 R/S 분담 325,000) + 인세 100,000 + 개발지원금 확정 450,000 + 약정금 MS-2026-004 2,000,000 + 전속계약금 MS-2026-005 5,000,000)와 실지급액(4,835,000원)의 차이는 [6단계 선급금 상계(-3,056,925원) — 상계 대상 3,275,000원 − 예상 원천세 218,075원 = 상계 가능액이 잔액 3,500,000원보다 작아 가능액만 상계, 잔액 443,075원은 차월로] 및 [9단계 원천징수(-383,075원 = 사업소득 3.3% 207,075 + MS-2026-004 기타소득 C19 176,000)]입니다. 합격환급 HRF-01 · 03의 원 주문 강좌 CRS-1004는 자사 지분 0%라 지원금 공제가 없습니다."
       },
       {
         id: "STMT-02",
@@ -1435,31 +1454,33 @@ code, pre, kbd, samp,
         payeeId: "RH-0012",
         payeeName: "산준교육 콘텐츠 주식회사 (법인 · 일반과세)",
         contractId: "CT-2026-0412",
-        matrixCase: "법인 일반과세자 세금계산서(권리자 발행) (TX-07)",
-        pipelines: ["P1_1"],
-        pipelineText: "강좌(1.1) + 지원금 종료 일시정산(LUMP_SETTLE, 7단계)",
+        matrixCase: "법인 일반과세자 세금계산서(권리자 발행) (TX-07 강좌 · 정산금 / TX-09 인세)",
+        pipelines: ["P1_1", "P2_1"],
+        pipelineText: "강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계)",
         step1PreTaxCarry: 0,
         step1PostTaxWait: 0,
         step2LectureRs: 3000000,
-        step2BookRoyalty: 0,
+        step2BookRoyalty: 56000,
         step2SupportAccrued: 0,
         step3MmgSubsidy: 0,
         step4LectureDeduct: 0,
         step4SupportDeduct: 0,
         step5SupportConfirmed: 0,
-        step6PrepayEligible: 3000000,
-        step6PrepayOffset: -3000000,
+        step6PrepayEligible: 3056000,
+        step6PrepayOffset: -3056000,
         step7LumpSumAdd: 1800000,
-        step8TaxableBaseSum: 4800000,
-        step9VatAmount: 480000,
+        step8TaxableBaseSum: 4856000,
+        step9VatAmount: 485600,
         step9WithholdingTax: 0,
         step10PostTaxAdjust: 0,
-        step11NetPayout: 2280000,
+        step11NetPayout: 2285600,
         payoutCategory: "PAYOUT_TARGET",
-        payoutStatusLabel: "실지급 확정 (세금계산서 제출 대기 · 지급 보류 아님)",
+        payoutStatusLabel: "마감 보류 (PG 대사 미분류 · 금액 산출 완료)",
         bankInfo: "국민은행 042-81-******* (예금주: 산준교육(주) 일치)",
-        bankTransferStatus: "지급 대기 (세금계산서 제출 대기)",
-        diffReasonNote: "공급대가 총액(5,280,000원) 대비 실지급액(2,280,000원) 차이는 [6단계 선급금 상계(-3,000,000원)] 반영 결과입니다. 상계 대상은 강좌 수익배분 3,000,000원 전액(법인 · 원천세 없음)이며, 지원금 종료 일시정산 1,800,000원은 비상계(NON_OFFSET) 약정이라 상계하지 않습니다.",
+        bankTransferStatus: "지급 보류 (마감 보류 해제 전 이체 예약 안 함) · SETT-004 REC-01 소명 대기",
+        closeHold: "PG 대사 미분류로 마감 보류 — 원인 소명 · 승인 후 해제 (SETT-004 REC-01)",
+        invoicePending: true,
+        diffReasonNote: "공급대가 총액(5,341,600원 = 공급가액 4,856,000 + 부가세 485,600) 대비 실지급액(2,285,600원) 차이는 [6단계 선급금 상계(-3,056,000원)] 반영 결과입니다. 상계 대상은 강좌 수익배분 3,000,000원 + 공동저자 인세 56,000원(법인 · 원천세 없음)이며, 지원금 종료 일시정산 1,800,000원은 비상계(NON_OFFSET) 약정이라 상계하지 않습니다. 부가세는 상계 전 공급가액 기준입니다."
       },
       {
         id: "STMT-03",
@@ -1469,7 +1490,7 @@ code, pre, kbd, samp,
         contractId: "CT-2026-0801",
         matrixCase: "도서 재화 공급 면세 계산서 수취 + 위탁수수료 과세 (TX-11)",
         pipelines: ["P2_2"],
-        pipelineText: "위탁 도서 판매대금 정산 (수수료 차감지급)",
+        pipelineText: "위탁 도서 판매대금 정산 (수수료 차감지급) + 9월 수수료 정정 환급(10단계)",
         step1PreTaxCarry: 0,
         step1PostTaxWait: 0,
         step2LectureRs: 0,
@@ -1486,23 +1507,24 @@ code, pre, kbd, samp,
         step8TaxableBaseSum: 0,
         step9VatAmount: -100000,
         step9WithholdingTax: 0,
-        step10PostTaxAdjust: 0,
-        step11NetPayout: 2900000,
+        step10PostTaxAdjust: 220000,
+        step11NetPayout: 3120000,
         payoutCategory: "PAYOUT_TARGET",
         payoutStatusLabel: "실지급 확정 (위탁 정산)",
         bankInfo: "우리은행 1005-801-****** (예금주: 한국소방학회 일치)",
         bankTransferStatus: "지급 대기 (수취 계산서 확인 병행)",
-        diffReasonNote: "위탁 도서 판매대금은 원천징수 비대상이며, 수수료 차감 후 지급(NET_DEDUCT) 방식에 따라 당사 위탁 수수료 공급가액(1,000,000원)과 수수료 부가세(100,000원)를 차감한 실정산액을 지급합니다."
+        invoicePending: true,
+        diffReasonNote: "위탁 도서 판매대금은 원천징수 비대상이며, 수수료 차감 후 지급(NET_DEDUCT) 방식에 따라 당사 위탁 수수료 공급가액(1,000,000원)과 수수료 부가세(100,000원)를 차감한 10월분 실정산액 2,900,000원에, 9월 수수료율 과다 차감(30% → 계약 25%) 정정분 220,000원(수수료 200,000 + 수수료 부가세 20,000 · ADMN-SETT-005 ADJ-202610-05)을 10단계 세후 조정으로 더해 3,120,000원을 지급합니다."
       },
       {
         id: "STMT-04",
-        refOriginStmtId: "STMT-202610-001",
+        refOriginStmtId: "STMT-202610-004",
         payeeId: "RH-0042",
         payeeName: "최그래픽 (개인 프리랜서 · 기여자)",
         contractId: "CT-2026-0702",
         matrixCase: "개인 프리랜서 사업소득 원천징수 3.3% (TX-02)",
         pipelines: ["P5_1"],
-        pipelineText: "매출연동 개발지원금 단독 (Pipeline 5.1 · 무한도형)",
+        pipelineText: "매출연동 개발지원금 단독 (무한도형)",
         step1PreTaxCarry: 0,
         step1PostTaxWait: 0,
         step2LectureRs: 0,
@@ -1512,7 +1534,7 @@ code, pre, kbd, samp,
         step4LectureDeduct: 0,
         step4SupportDeduct: 0,
         step5SupportConfirmed: 72000,
-        step6PrepayEligible: 72000,
+        step6PrepayEligible: 0,
         step6PrepayOffset: 0,
         step7LumpSumAdd: 0,
         step8TaxableBaseSum: 72000,
@@ -1524,20 +1546,21 @@ code, pre, kbd, samp,
         payoutStatusLabel: "지급 보류 → 세전 이월 (PRE_TAX 72,000원)",
         bankInfo: "카카오뱅크 3333-02-******* (예금주: 최그래픽 일치)",
         bankTransferStatus: "이체 비대상 (최소 지급 기준 100,000원 미달)",
-        diffReasonNote: "11단계 실지급 판정액(69,624원)이 최소 정산 지급 기준액(100,000원) 미만이므로 원천징수를 실행하지 않고 원천징수 전 기초금액(72,000원)을 세전 계정(PRE_TAX, 개발지원금 전용 구분)으로 차월 이월합니다."
+        invoicePending: false,
+        diffReasonNote: "11단계 실지급 판정액(69,624원)이 최소 정산 지급 기준액(100,000원) 미만이므로 원천징수를 실행하지 않고 원천징수 전 기초금액(72,000원)을 세전 계정(PRE_TAX, 개발지원금 전용 구분)으로 차월 이월합니다. 선급금 약정이 없어 6단계 상계 대상은 0원입니다."
       },
       {
         id: "STMT-05",
-        refOriginStmtId: "STMT-202609-022",
+        refOriginStmtId: "STMT-202610-005",
         payeeId: "RH-0015",
-        payeeName: "이전기 (해지 강사 · 강제 청구)",
+        payeeName: "이전기 (해지 강사 · 청구)",
         contractId: "CT-2025-0911",
-        matrixCase: "계약 해지 · 강제 청구 트리거 발동 (10단계 CLAIM )",
+        matrixCase: "계약 해지 · 전속계약금 반환 청구 (TX-04 · 10단계 CLAIM)",
         pipelines: ["P1_1"],
-        pipelineText: "전속계약금 세후 일할반환 + 해지 미상계 선급금 강제청구",
+        pipelineText: "강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계)",
         step1PreTaxCarry: 0,
         step1PostTaxWait: 0,
-        step2LectureRs: 0,
+        step2LectureRs: 500000,
         step2BookRoyalty: 0,
         step2SupportAccrued: 0,
         step3MmgSubsidy: 0,
@@ -1547,16 +1570,17 @@ code, pre, kbd, samp,
         step6PrepayEligible: 0,
         step6PrepayOffset: 0,
         step7LumpSumAdd: 0,
-        step8TaxableBaseSum: 0,
+        step8TaxableBaseSum: 500000,
         step9VatAmount: 0,
-        step9WithholdingTax: 0,
-        step10PostTaxAdjust: -4818767,
-        step11NetPayout: -4818767,
+        step9WithholdingTax: 16500,
+        step10PostTaxAdjust: -3000000,
+        step11NetPayout: -2516500,
         payoutCategory: "CLAIM_ISSUED",
         payoutStatusLabel: "공식 마이너스 청구서 발행 (CLAIM)",
         bankInfo: "회수 가상계좌 발급 완료",
-        bankTransferStatus: "미수 채권 확정 (채널 3-a 원천세 수정신고 이관)",
-        diffReasonNote: "계약 해지 확정 주기에 해당하여 최소 청구 기준액(-100,000원)과 무관하게 소액 미상계 선급금(-50,000원) 및 전속계약금 세후 일할 반환액(-4,768,767원) 전액을 10단계(CLAIM) 공식 청구서로 발행했습니다."
+        bankTransferStatus: "미수 채권 확정 (청구서 CLM-202610-02 · 회수 가상계좌 안내)",
+        invoicePending: false,
+        diffReasonNote: "해지 확정 주기 — 당월 강좌 R/S 500,000원(과세표준) − 원천세 16,500원 = 9단계 실정산 483,500원에서 전속계약금 세후 반환 확정액 3,000,000원(반환 상계 동의)을 10단계에서 1회 차감하여 -2,516,500원을 공식 청구서로 발행했습니다. 해지 미상계 선급금은 0원이며, 위약금은 정산 엔진 밖에서 별도로 청구합니다."
       },
       {
         id: "STMT-06",
@@ -1572,23 +1596,24 @@ code, pre, kbd, samp,
         step2LectureRs: 180000,
         step2BookRoyalty: 0,
         step2SupportAccrued: 0,
-        step3MmgSubsidy: 800000,
+        step3MmgSubsidy: 770000,
         step4LectureDeduct: -30000,
         step4SupportDeduct: 0,
         step5SupportConfirmed: 0,
         step6PrepayEligible: 150000,
         step6PrepayOffset: -145050,
         step7LumpSumAdd: 0,
-        step8TaxableBaseSum: 950000,
+        step8TaxableBaseSum: 920000,
         step9VatAmount: 0,
-        step9WithholdingTax: 31350,
+        step9WithholdingTax: 30360,
         step10PostTaxAdjust: 0,
-        step11NetPayout: 773600,
+        step11NetPayout: 744590,
         payoutCategory: "PAYOUT_TARGET",
         payoutStatusLabel: "실지급 확정 (비상계 MMG 보호분 · 선급금 환수청구 분리)",
         bankInfo: "하나은행 392-910283-***** (예금주: 이중도 일치)",
         bankTransferStatus: "지급 대기 (환수청구서 CLM-202610-01 별도 발행)",
-        diffReasonNote: "순수 강좌 R/S 150,000원에서 예상 원천세 4,950원을 뺀 145,050원만 6단계에서 상계하고(대여금 방식), 비상계 보호 MMG 보전금 800,000원은 상계하지 않습니다. 세전 잔액 804,950원 − 원천세(과세표준 950,000원 × 3.3% = 31,350원) = 773,600원 지급. 미상계 선급금 잔액 1,204,950원은 교차상계 없이 별도 환수청구서로 분리합니다.",
+        invoicePending: false,
+        diffReasonNote: "순수 강좌 R/S 180,000원 − 환불 공제 30,000원 = 150,000원에서 예상 원천세 4,950원을 뺀 145,050원만 6단계에서 상계하고(대여금 방식), 비상계 보호 MMG 보전금 770,000원(월 보장액 950,000 − 2단계 순수 신규 R/S 180,000)은 상계하지 않습니다. 과세표준 920,000원 − 상계 145,050원 − 원천세 30,360원(920,000 × 3.3%) = 744,590원 지급. 미상계 선급금 잔액 1,204,950원은 교차상계 없이 별도 환수청구서로 분리합니다."
       },
       {
         id: "STMT-07",
@@ -1614,13 +1639,256 @@ code, pre, kbd, samp,
         step8TaxableBaseSum: 500000,
         step9VatAmount: 0,
         step9WithholdingTax: 44000,
-        step10PostTaxAdjust: 45000,
+        step10PostTaxAdjust: 0,
         step11NetPayout: 501000,
         payoutCategory: "PAYOUT_TARGET",
         payoutStatusLabel: "실지급 확정 (≥10만원)",
         bankInfo: "카카오뱅크 3333-04-******* (예금주: 한도해 일치)",
         bankTransferStatus: "지급 대기 (마감 확정 후 이체 예약)",
-        diffReasonNote: "마일스톤 약정금 500,000원에서 기타소득 원천세 44,000원(필요경비 60% 공제 후 소득금액 200,000원 × 22%)을 빼고, 9월 계좌오류로 미입금된 세후 이월 45,000원을 11단계에서 그대로 더한 금액입니다."
+        invoicePending: false,
+        diffReasonNote: "마일스톤 약정금 500,000원에서 기타소득 원천세 44,000원(필요경비 60% 공제 후 소득금액 200,000원 × 22%)을 빼고, 9월 계좌오류로 미입금된 세후 이월 45,000원(1단계 세후 지급대기)을 11단계에서 그대로 더한 금액입니다."
+      },
+      {
+        id: "STMT-08",
+        refOriginStmtId: "STMT-202610-008",
+        payeeId: "RH-0047",
+        payeeName: "박보건 (개인 프리랜서 · 강사)",
+        contractId: "CT-2024-1101",
+        matrixCase: "개인 프리랜서 사업소득 원천징수 3.3% (TX-02)",
+        pipelines: ["P1_1"],
+        pipelineText: "강좌(1.1) + 대여금 선급금 상계(6단계)",
+        step1PreTaxCarry: 0,
+        step1PostTaxWait: 0,
+        step2LectureRs: 2500000,
+        step2BookRoyalty: 0,
+        step2SupportAccrued: 0,
+        step3MmgSubsidy: 0,
+        step4LectureDeduct: 0,
+        step4SupportDeduct: 0,
+        step5SupportConfirmed: 0,
+        step6PrepayEligible: 2500000,
+        step6PrepayOffset: -1500000,
+        step7LumpSumAdd: 0,
+        step8TaxableBaseSum: 2500000,
+        step9VatAmount: 0,
+        step9WithholdingTax: 82500,
+        step10PostTaxAdjust: 0,
+        step11NetPayout: 917500,
+        payoutCategory: "PAYOUT_TARGET",
+        payoutStatusLabel: "실지급 확정 (≥10만원)",
+        bankInfo: "국민은행 612-21-****** (예금주: 박보건 일치)",
+        bankTransferStatus: "지급 대기 (마감 확정 후 이체 예약)",
+        invoicePending: false,
+        diffReasonNote: "과세표준 2,500,000원(강좌 CRS-2605 실결제 5,000,000 × 지분 100% × R/S 50%)과 실지급액 917,500원의 차이는 [6단계 대여금 선급금 상계(-1,500,000원) — 상계 가능액 2,417,500원(2,500,000 − 예상 원천세 82,500)이 잔액보다 커서 잔액 전부 상계, 선급금 원장 종결] 및 [9단계 원천징수(-82,500원)]입니다."
+      },
+      {
+        id: "STMT-09",
+        refOriginStmtId: "STMT-202610-009",
+        payeeId: "RH-0048",
+        payeeName: "최지도 (개인 프리랜서 · 강사 겸 저자)",
+        contractId: "CT-2026-0405",
+        matrixCase: "개인 사업소득 원천징수 3.3% (TX-02 강의 / TX-03 인세 · 저작자 본인)",
+        pipelines: ["P1_1", "P2_1"],
+        pipelineText: "강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계",
+        step1PreTaxCarry: 0,
+        step1PostTaxWait: 0,
+        step2LectureRs: 1000000,
+        step2BookRoyalty: 200000,
+        step2SupportAccrued: 0,
+        step3MmgSubsidy: 0,
+        step4LectureDeduct: 0,
+        step4SupportDeduct: 0,
+        step5SupportConfirmed: 0,
+        step6PrepayEligible: 1200000,
+        step6PrepayOffset: -500000,
+        step7LumpSumAdd: 0,
+        step8TaxableBaseSum: 1200000,
+        step9VatAmount: 0,
+        step9WithholdingTax: 39600,
+        step10PostTaxAdjust: 0,
+        step11NetPayout: 660400,
+        payoutCategory: "PAYOUT_TARGET",
+        payoutStatusLabel: "실지급 확정 (≥10만원)",
+        bankInfo: "신한은행 110-048-****** (예금주: 최지도 일치)",
+        bankTransferStatus: "지급 대기 (마감 확정 후 이체 예약)",
+        invoicePending: false,
+        diffReasonNote: "과세표준 1,200,000원(강좌 CRS-2606 실결제 2,000,000 × R/S 50% = 1,000,000 + 교재 PROD-BK-1007 100권 × 20,000 × 인세 10% = 200,000)과 실지급액 660,400원의 차이는 [6단계 대여금 선급금 상계(-500,000원, 잔액 전부 · 강좌 416,667 · 인세 83,333 비례 안분)] 및 [9단계 원천징수(-39,600원)]입니다."
+      },
+      {
+        id: "STMT-10",
+        refOriginStmtId: "STMT-202609-022",
+        payeeId: "RH-0019",
+        payeeName: "김안전 (개인 프리랜서 · 수취인 분할 70 : 30)",
+        contractId: "CT-2026-0715",
+        matrixCase: "2계층 수취인 분할 — 김안전 70% 사업소득 3.3% (TX-02) · (주)스타에듀매니지먼트 30% 세금계산서 (TX-07)",
+        pipelines: ["P1_1"],
+        pipelineText: "강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30)",
+        step1PreTaxCarry: 0,
+        step1PostTaxWait: 0,
+        step2LectureRs: 2000000,
+        step2BookRoyalty: 0,
+        step2SupportAccrued: 0,
+        step3MmgSubsidy: 0,
+        step4LectureDeduct: 0,
+        step4SupportDeduct: 0,
+        step5SupportConfirmed: 0,
+        step6PrepayEligible: 0,
+        step6PrepayOffset: 0,
+        step7LumpSumAdd: 0,
+        step8TaxableBaseSum: 2000000,
+        step9VatAmount: 60000,
+        step9WithholdingTax: 46200,
+        step10PostTaxAdjust: 0,
+        step11NetPayout: 2013800,
+        payoutCategory: "PAYOUT_TARGET",
+        payoutStatusLabel: "실지급 확정 (수취인 2명 분리 이체)",
+        bankInfo: "수취인별 계좌 2건 (김안전 · (주)스타에듀매니지먼트 — 대량이체 탭에서 분리)",
+        bankTransferStatus: "지급 대기 (수취인별 분리 이체 예약)",
+        invoicePending: true,
+        payeeTransfers: [
+          { payeeId: "RH-0019", name: "김안전", ratio: 70, taxCase: "TX-02", taxBase: 1400000, vat: 0, withholding: 46200, amount: 1353800, bankInfo: "카카오뱅크 3333-19-******* (예금주: 김안전 일치)" },
+          { payeeId: "RH-0071", name: "(주)스타에듀매니지먼트", ratio: 30, taxCase: "TX-07", taxBase: 600000, vat: 60000, withholding: 0, amount: 660000, bankInfo: "기업은행 106-055210-**-*** (예금주: (주)스타에듀매니지먼트 일치)" }
+        ],
+        diffReasonNote: "강좌 R/S 2,000,000원(CRS-2601 실결제 4,000,000 × R/S 50%)을 8단계에서 70 : 30으로 분할 — 김안전 1,400,000원 − 원천세 46,200원 = 1,353,800원, (주)스타에듀매니지먼트 600,000원 + 부가세 60,000원 = 660,000원(세금계산서 권리자 발행). 합계 실지급 2,013,800원. 당월 R/S가 월 최저보장(1,500,000원)보다 커 보전금은 0원입니다."
+      },
+      {
+        id: "STMT-11",
+        refOriginStmtId: "STMT-202610-011",
+        payeeId: "RH-0046",
+        payeeName: "이건설 (개인 프리랜서 · 강사)",
+        contractId: "CT-2026-0712",
+        matrixCase: "개인 프리랜서 사업소득 원천징수 3.3% (TX-02)",
+        pipelines: ["P1_1", "P5_1"],
+        pipelineText: "강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 강의 R/S 분담 · 지원금 공제 · 한도 복원",
+        step1PreTaxCarry: 0,
+        step1PostTaxWait: 0,
+        step2LectureRs: 1200000,
+        step2BookRoyalty: 0,
+        step2SupportAccrued: 400000,
+        step3MmgSubsidy: 0,
+        step4LectureDeduct: -43350,
+        step4SupportDeduct: -14450,
+        step5SupportConfirmed: 150000,
+        step6PrepayEligible: 0,
+        step6PrepayOffset: 0,
+        step7LumpSumAdd: 0,
+        step8TaxableBaseSum: 1306650,
+        step9VatAmount: 0,
+        step9WithholdingTax: 43118,
+        step10PostTaxAdjust: 0,
+        step11NetPayout: 1263532,
+        payoutCategory: "PAYOUT_TARGET",
+        payoutStatusLabel: "실지급 확정 (≥10만원)",
+        bankInfo: "농협은행 302-0046-****-** (예금주: 이건설 일치)",
+        bankTransferStatus: "지급 대기 (마감 확정 후 이체 예약)",
+        invoicePending: false,
+        diffReasonNote: "과세표준 1,306,650원 = 강좌 R/S 1,200,000원(CRS-2603 실결제 4,000,000 × 지분 60% × R/S 50%, 월 최저보장 1,000,000원을 넘어 보전 0) − 합격환급 HRF-202610-04 옵션 B 강의 R/S 분담 43,350원(원 주문 144,500 × 60% × 50%) + 개발지원금 확정 150,000원(발생 400,000 → 복원 후 사용가능 한도 164,450(잔여 150,000 + 복원 14,450)으로 캡 · 초과 235,550 소멸 → 옵션 B 지원금 공제 14,450 차감 · 잔여 한도 0 · 약정 종결). 실지급 1,263,532원 = 1,306,650 − 원천세 43,118원(선급금 없음)."
+      },
+      {
+        id: "STMT-12",
+        refOriginStmtId: "STMT-202610-012",
+        payeeId: "RH-0044",
+        payeeName: "안전기술출판 (도서 위탁 · 개인 면세사업자)",
+        contractId: "CT-2026-0705",
+        matrixCase: "도서 재화 공급 면세 계산서 수취 + 위탁수수료 과세 (TX-11)",
+        pipelines: ["P2_2"],
+        pipelineText: "위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급)",
+        step1PreTaxCarry: 0,
+        step1PostTaxWait: 0,
+        step2LectureRs: 0,
+        step2BookRoyalty: 0,
+        step2SupportAccrued: 0,
+        step2ConsignGross: 2000000,
+        step3MmgSubsidy: 0,
+        step4LectureDeduct: -500000,
+        step4SupportDeduct: 0,
+        step5SupportConfirmed: 0,
+        step6PrepayEligible: 0,
+        step6PrepayOffset: 0,
+        step7LumpSumAdd: 0,
+        step8TaxableBaseSum: 0,
+        step9VatAmount: -50000,
+        step9WithholdingTax: 0,
+        step10PostTaxAdjust: 0,
+        step11NetPayout: 1450000,
+        payoutCategory: "PAYOUT_TARGET",
+        payoutStatusLabel: "마감 보류 (PG 대사 미분류 · 금액 산출 완료)",
+        bankInfo: "하나은행 267-910044-***** (예금주: 안전기술출판 일치)",
+        bankTransferStatus: "지급 보류 (마감 보류 해제 전 이체 예약 안 함) · SETT-004 REC-02 소명 대기",
+        closeHold: "PG 대사 미분류로 마감 보류 — 원인 소명 · 승인 후 해제 (SETT-004 REC-02)",
+        invoicePending: true,
+        diffReasonNote: "위탁 도서 판매대금(PROD-BK-3003 80권 × 위탁 판매가 25,000원 = 2,000,000원, 반품 0)은 원천징수 비대상이며, 수수료 차감 후 지급(NET_DEDUCT) 방식에 따라 당사 위탁 수수료 공급가액 500,000원(25%)과 수수료 부가세 50,000원을 차감한 1,450,000원을 지급합니다."
+      },
+      {
+        id: "STMT-13",
+        refOriginStmtId: "STMT-202610-013",
+        payeeId: "RH-0031",
+        payeeName: "이안전 (개인 프리랜서 · 공동저자)",
+        contractId: "CT-2026-0610",
+        matrixCase: "개인 저자 사업소득 원천징수 3.3% (TX-03)",
+        pipelines: ["P2_1"],
+        pipelineText: "공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%)",
+        step1PreTaxCarry: 0,
+        step1PostTaxWait: 0,
+        step2LectureRs: 0,
+        step2BookRoyalty: 33600,
+        step2SupportAccrued: 0,
+        step3MmgSubsidy: 0,
+        step4LectureDeduct: 0,
+        step4SupportDeduct: 0,
+        step5SupportConfirmed: 0,
+        step6PrepayEligible: 0,
+        step6PrepayOffset: 0,
+        step7LumpSumAdd: 0,
+        step8TaxableBaseSum: 33600,
+        step9VatAmount: 0,
+        step9WithholdingTax: 1108,
+        step10PostTaxAdjust: 0,
+        step11NetPayout: 32492,
+        payoutCategory: "CARRYOVER_HOLD",
+        payoutStatusLabel: "지급 보류 → 세전 이월 (PRE_TAX 33,600원) · PG 대사 마감 보류",
+        bankInfo: "우리은행 1002-***-****** (예금주: 이안전 일치)",
+        bankTransferStatus: "이체 비대상 (최소 지급 기준 100,000원 미달) · SETT-004 REC-01 소명 대기",
+        closeHold: "PG 대사 미분류로 마감 보류 — 원인 소명 · 승인 후 해제 (SETT-004 REC-01)",
+        invoicePending: false,
+        diffReasonNote: "11단계 실지급 판정액(32,492원 = 33,600 − 원천세 1,108 가정)이 최소 정산 지급 기준액(100,000원) 미만이므로 원천징수를 실행하지 않고 원천징수 전 기초금액(33,600원 = PROD-BK-1001 40권 × 28,000 × 인세 10% × 지분 30%)을 세전 계정(PRE_TAX)으로 차월 이월합니다."
+      },
+      {
+        id: "STMT-14",
+        refOriginStmtId: "STMT-202610-014",
+        payeeId: "RH-0018",
+        payeeName: "고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40)",
+        contractId: "CT-2025-1102",
+        matrixCase: "상속인 기타소득 C05 원천징수 22% (TX-03 · 필요경비 0%)",
+        pipelines: ["P2_1"],
+        pipelineText: "교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40)",
+        step1PreTaxCarry: 0,
+        step1PostTaxWait: 0,
+        step2LectureRs: 0,
+        step2BookRoyalty: 1500000,
+        step2SupportAccrued: 0,
+        step3MmgSubsidy: 0,
+        step4LectureDeduct: 0,
+        step4SupportDeduct: 0,
+        step5SupportConfirmed: 0,
+        step6PrepayEligible: 0,
+        step6PrepayOffset: 0,
+        step7LumpSumAdd: 0,
+        step8TaxableBaseSum: 1500000,
+        step9VatAmount: 0,
+        step9WithholdingTax: 330000,
+        step10PostTaxAdjust: 0,
+        step11NetPayout: 1170000,
+        payoutCategory: "PAYOUT_TARGET",
+        payoutStatusLabel: "실지급 확정 (상속인 2명 분리 이체)",
+        bankInfo: "상속인별 계좌 2건 (박승계 · 박자녀 — 대량이체 탭에서 분리)",
+        bankTransferStatus: "지급 대기 (상속인별 분리 이체 예약)",
+        invoicePending: false,
+        payeeTransfers: [
+          { payeeId: "RH-0076", name: "박승계", ratio: 60, taxCase: "TX-03", taxBase: 900000, vat: 0, withholding: 198000, amount: 702000, bankInfo: "신한은행 110-076-****** (예금주: 박승계 일치)" },
+          { payeeId: "RH-0077", name: "박자녀", ratio: 40, taxCase: "TX-03", taxBase: 600000, vat: 0, withholding: 132000, amount: 468000, bankInfo: "국민은행 077-21-****** (예금주: 박자녀 일치)" }
+        ],
+        diffReasonNote: "교재 인세 1,500,000원(SETT-007 분할 기준금)을 8단계에서 상속인 60 : 40으로 분할 — 박승계 900,000원 − 기타소득세 198,000원(소득세 180,000 + 지방세 18,000) = 702,000원, 박자녀 600,000원 − 132,000원 = 468,000원. 상속 승계분은 원작자가 아니므로 필요경비 0%(기타소득 C05) · 22%가 적용됩니다."
       }
     ]
   };
@@ -1649,7 +1917,7 @@ code, pre, kbd, samp,
       if (state.kpiFilter === "PAYOUT_TARGET" && s.payoutCategory !== "PAYOUT_TARGET") return false;
       if (state.kpiFilter === "CARRYOVER_HOLD" && s.payoutCategory !== "CARRYOVER_HOLD") return false;
       if (state.kpiFilter === "CLAIM_ISSUED" && s.payoutCategory !== "CLAIM_ISSUED") return false;
-      if (state.kpiFilter === "INVOICE_PENDING" && !(s.id === "STMT-02" || s.id === "STMT-03")) return false;
+      if (state.kpiFilter === "INVOICE_PENDING" && !s.invoicePending) return false;
 
       if (pFilter !== "ALL" && !s.pipelines.includes(pFilter)) return false;
       if (q) {
@@ -1686,7 +1954,7 @@ code, pre, kbd, samp,
           <td class="num" style="font-weight:800; color:${netColor};">
             ${s.step11NetPayout.toLocaleString()}원
           </td>
-          <td>${badgeHtml}</td>
+          <td>${badgeHtml}${s.closeHold ? '<br><span class="badge badge-warn" style="margin-top:3px;">PG 대사 마감 보류</span>' : ""}</td>
           <td>
             <button class="btn btn-sm" onclick="goToManualAdjustment(event, '${s.refOriginStmtId}')">
               🔧 수동 조정
@@ -1728,6 +1996,7 @@ code, pre, kbd, samp,
           <span><strong>9단계 부가세:</strong> ${s.step9VatAmount.toLocaleString()}원</span>
           <span><strong>9단계 원천징수세액:</strong> -${s.step9WithholdingTax.toLocaleString()}원</span>
         </div>
+        ${s.closeHold ? `<div style="background:#fff7ed; border:1px solid #fdba74; border-radius:7px; padding:8px 12px; font-size:12px; color:#9a3412; margin-bottom:8px;"><strong>⏸️ ${s.closeHold}</strong> — 금액은 계산 결과 그대로이며, 대사 소명 · 승인 전에는 마감 · 이체 예약을 하지 않습니다. <a href="ADMN-SETT-004_baseline.html">PG 대사 화면 ↗</a></div>` : ""}
         <div class="diff-reason-box">
           <strong>💡 [과세표준 ↔ 실지급액 차액 사유 자동 명시]</strong><br>
           ${s.diffReasonNote}
@@ -1783,6 +2052,12 @@ code, pre, kbd, samp,
         </div>
       </div>
 
+      ${s.payeeTransfers && s.payeeTransfers.length ? `
+      <div style="font-size:12px; background:var(--surface-alt); padding:9px 12px; border-radius:7px; border:1px solid var(--border);">
+        <div style="font-weight:700; margin-bottom:4px;">🤝 8단계 수취인 분할 (ADMN-SETT-007)</div>
+        ${s.payeeTransfers.map(p => `<div style="display:flex; justify-content:space-between; gap:8px;"><span>${p.name} (${p.payeeId} · ${p.ratio}% · ${p.taxCase}) — 과세표준 ${p.taxBase.toLocaleString()}원${p.vat ? ` · 부가세 +${p.vat.toLocaleString()}원` : ""}${p.withholding ? ` · 원천세 -${p.withholding.toLocaleString()}원` : ""}</span><strong class="mono">${p.amount.toLocaleString()}원</strong></div>`).join("")}
+      </div>` : ""}
+
       <div style="font-size:12px; color:var(--text-sub); display:flex; justify-content:space-between; background:var(--surface-alt); padding:9px 12px; border-radius:7px; border:1px solid var(--border);">
         <span>🏦 <strong>입금 계좌 검증:</strong> ${s.bankInfo}</span>
         <span><strong>집행 상태:</strong> ${s.bankTransferStatus}</span>
@@ -1790,26 +2065,63 @@ code, pre, kbd, samp,
     `;
   }
 
+  // 대량이체 지급 지시 행 — 수취인 분할 정산서는 수취인별로 나눠 이체한다(8단계 PAYEE_SPLIT)
+  function firmbankingLines() {
+    const lines = [];
+    state.statements.filter(s => s.payoutCategory === "PAYOUT_TARGET").forEach(s => {
+      if (s.payeeTransfers && s.payeeTransfers.length) {
+        s.payeeTransfers.forEach(p => lines.push({ s, hold: !!s.closeHold, name: `${p.name} (${p.payeeId} · 분할 ${p.ratio}%)`, sub: `${s.payeeName} 정산서 · ${p.taxCase}`, bank: p.bankInfo, amount: p.amount, withholding: p.withholding, offset: 0 }));
+      } else {
+        lines.push({ s, hold: !!s.closeHold, name: s.payeeName, sub: s.pipelineText, bank: s.bankInfo, amount: s.step11NetPayout, withholding: s.step9WithholdingTax, offset: s.step6PrepayOffset });
+      }
+    });
+    return lines;
+  }
+
   function renderFirmbanking() {
     const tbody = document.getElementById("firmbankingTableBody");
-    const payoutList = state.statements.filter(s => s.payoutCategory === "PAYOUT_TARGET");
-    tbody.innerHTML = payoutList.map((s, idx) => `
+    tbody.innerHTML = firmbankingLines().map((l, idx) => `
       <tr>
-        <td class="mono"><strong>FB-202610-00${idx + 1}</strong><br>(${s.id})</td>
-        <td><strong>${s.payeeName}</strong><br><span style="font-size:11px; color:var(--text-muted);">${s.pipelineText}</span></td>
-        <td class="mono">${s.bankInfo}</td>
-        <td class="num" style="font-weight:800; color:var(--primary);">${s.step11NetPayout.toLocaleString()}원</td>
+        <td class="mono"><strong>FB-202610-${String(idx + 1).padStart(3, "0")}</strong><br>(${l.s.id})</td>
+        <td><strong>${l.name}</strong><br><span style="font-size:11px; color:var(--text-muted);">${l.sub}</span></td>
+        <td class="mono">${l.bank}</td>
+        <td class="num" style="font-weight:800; color:var(--primary);">${l.amount.toLocaleString()}원</td>
         <td style="font-size:11.5px;">
-          ${s.step6PrepayOffset < 0 ? `<span class="badge badge-warn">적법 상계 ${Math.abs(s.step6PrepayOffset).toLocaleString()}원 성립 기록</span><br>` : ""}
-          <span>은행 지급 + 원천징수(${s.step9WithholdingTax.toLocaleString()}원) 단일 이력 연결</span>
+          ${l.offset < 0 ? `<span class="badge badge-warn">적법 상계 ${Math.abs(l.offset).toLocaleString()}원 성립 기록</span><br>` : ""}
+          <span>은행 지급 + 원천징수(${l.withholding.toLocaleString()}원) 단일 이력 연결</span>
         </td>
         <td>
-          <span class="badge ${state.isLocked ? 'badge-primary' : 'badge-neutral'}">
-            ${s.bankTransferStatus}
+          <span class="badge ${l.hold ? 'badge-warn' : (state.isLocked ? 'badge-primary' : 'badge-neutral')}">
+            ${l.s.bankTransferStatus}
           </span>
         </td>
       </tr>
     `).join("");
+  }
+
+  function showFirmbankingToast(kind) {
+    const all = firmbankingLines();
+    const lines = all.filter(l => !l.hold);
+    const held = all.length - lines.length;
+    const sum = lines.reduce((a, l) => a + l.amount, 0);
+    showToast(kind === "result"
+      ? `📤 은행 이체 결과 파일을 지급 지시 식별자로 대조했습니다: 성공 ${lines.length}건 · 실패 0건 (실패 행은 예약 해제 후 세전 이월로 적재)${held ? ` · PG 대사 마감 보류 ${held}건 제외` : ""}`
+      : `📥 은행 대량이체 업로드 엑셀(${lines.length}건, ${sum.toLocaleString()}원)을 내려받았습니다.${held ? ` PG 대사 마감 보류 ${held}건은 제외했습니다.` : ""} 인터넷뱅킹에 올려 이체한 뒤 결과 파일을 등록하세요.`);
+  }
+
+  // KPI · 하단 요약 — 정산서 목록(state.statements)에서 다시 계산
+  function renderKpis() {
+    const by = c => state.statements.filter(s => s.payoutCategory === c);
+    const pay = by("PAYOUT_TARGET"), carry = by("CARRYOVER_HOLD"), claim = by("CLAIM_ISSUED");
+    const paySum = pay.reduce((a, s) => a + s.step11NetPayout, 0);
+    const carrySum = carry.reduce((a, s) => a + s.step8TaxableBaseSum, 0);
+    const claimSum = claim.reduce((a, s) => a + s.step11NetPayout, 0);
+    document.getElementById("kpiAll").textContent = `${state.statements.length}명(곳)`;
+    document.getElementById("kpiPayout").textContent = `${pay.length}건 (${paySum.toLocaleString()}원)`;
+    document.getElementById("kpiCarry").textContent = `${carry.length}건 (${carrySum.toLocaleString()}원)`;
+    document.getElementById("kpiClaim").textContent = `${claim.length}건 (${claimSum.toLocaleString()}원)`;
+    document.getElementById("kpiInvoice").textContent = `${state.statements.filter(s => s.invoicePending).length}건`;
+    document.getElementById("footerSummaryText").innerHTML = `2026-10 통합 연산 완료: 당월 실지급 총액 <strong>${paySum.toLocaleString()}원 (${pay.length}건)</strong> / 지급보류 세전이월 <strong>${carrySum.toLocaleString()}원 (${carry.length}건)</strong> / 공식 청구서 <strong>${claimSum.toLocaleString()}원 (${claim.length}건)</strong>${state.statements.some(s => s.closeHold) ? ` / PG 대사 마감 보류 <strong>${state.statements.filter(s => s.closeHold).length}건</strong>` : ""}`;
   }
 
   function selectStatement(id) {
@@ -1845,11 +2157,11 @@ code, pre, kbd, samp,
     const btnLock = document.getElementById("btnGateConfirmLock");
 
     if (currentGateCase === 'A') {
-      g1Status.innerHTML = '<span class="badge badge-danger">미통과 (UNKNOWN_MISMATCH 2건 미소명)</span>';
+      g1Status.innerHTML = '<span class="badge badge-danger">미통과 (UNKNOWN_MISMATCH 2건 미소명)</span><div style="font-size:11px; color:var(--danger); margin-top:2px;">SETT-004 REC-01 · REC-02 — 산준교육 · 이안전 · 안전기술출판 마감 보류</div>';
       g1Action.innerHTML = '<a href="ADMN-SETT-004_baseline.html" class="btn btn-sm btn-outline">ADMN-SETT-004 대사 화면으로 이동 ↗</a>';
-      g2Status.innerHTML = '<span class="badge badge-danger">미통과 (PENDING_REVIEW 1건)</span><div style="font-size:11px; color:var(--danger); margin-top:2px;">사단법인 한국소방안전학회 TX-09/TX-07 미확정</div>';
-      g2Action.innerHTML = '<a href="ADMN-SETT-008_baseline.html" class="btn btn-sm btn-outline">ADMN-SETT-008 확인 이력으로 이동 ↗</a>';
-      alertBox.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px; margin-top:14px; font-size:12.5px; color:#991b1b;"><strong>🚨 [마감 차단 하드락 작동]</strong> Gate 1(PG 불일치 2건) 및 Gate 2(세무보류 1건) 미통과 항목이 존재하므로 비가역 마감 확정(Locked=True)이 시스템적으로 차단되었습니다. 관련 화면에서 미소명/미확정 건을 해결한 후 마감을 진행하십시오.</div>';
+      g2Status.innerHTML = '<span class="badge badge-success">통과 (PENDING_REVIEW 0건, 전 수취인 DECIDED)</span><div style="font-size:11px; color:var(--text-muted); margin-top:2px;">한국소방학회 위탁 도서 라인은 재화 공급 TX-11 확정</div>';
+      g2Action.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">전 수취인 DECIDED 완료</span>';
+      alertBox.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px; margin-top:14px; font-size:12.5px; color:#991b1b;"><strong>🚨 [마감 차단 하드락 작동]</strong> Gate 1(PG 원인 미분류 불일치 2건) 미통과 항목이 존재하므로 비가역 마감 확정(Locked=True)이 시스템적으로 차단되었습니다. 관련 화면에서 미소명/미확정 건을 해결한 후 마감을 진행하십시오.</div>';
       btnLock.disabled = true;
       btnLock.style.opacity = "0.5";
       btnLock.style.cursor = "not-allowed";
@@ -1875,7 +2187,7 @@ code, pre, kbd, samp,
     document.getElementById("btnRunEngine").disabled = true;
 
     state.statements.forEach(s => {
-      if (s.payoutCategory === "PAYOUT_TARGET") {
+      if (s.payoutCategory === "PAYOUT_TARGET" && !s.closeHold) {
         s.bankTransferStatus = "지급 예약 완료 (RESERVED · 대량이체 대기)";
       }
     });
@@ -1945,11 +2257,12 @@ code, pre, kbd, samp,
   renderTable();
   renderDetail();
   renderFirmbanking();
+  renderKpis();
 </script>
 <!-- =====================================================================
      [Step 1~3 통합 정합성 패치본]
      - ADMN-SETT-002-P1: 이월 잔액 및 누적 발생 내역 모달 (운영자 S1 · 권리자 S2 겸용, 부호 역전 해소)
-     - ADMN-SETT-002-S1: 운영자용 통합 정산서 상세 · 마감 워크스페이스 (메인 목록 7건 100% 수치 일치)
+     - ADMN-SETT-002-S1: 운영자용 통합 정산서 상세 · 마감 워크스페이스 (메인 목록 정산서와 수치 일치)
      - ADMN-SETT-002-S2: 권리자 제공 정산서 (운영자 발송 프리뷰 vs 파트너 로그인 격리 모드 분리)
      ===================================================================== -->
 
@@ -1979,13 +2292,20 @@ code, pre, kbd, samp,
             <label style="font-size:12px; font-weight:700; color:#334155;">조회 대상 수취인:</label>
             <select id="selP1Holder" class="select" style="min-width:290px;" onchange="renderCarryoverModalP1()">
               <option value="ALL">전체 수취인 (당월 이월 발생·해소 전 건)</option>
-              <option value="RH-0025">정종대 (RH-0025 · 강좌+도서인세+지원금+선급금 상계)</option>
-              <option value="RH-0012">산준교육 콘텐츠 주식회사 (RH-0012 · 법인 강좌 + 지원금 종료 일시정산 + 선급금 상계)</option>
-              <option value="RH-0051">한국소방학회 (RH-0051 · 위탁 도서 Pipeline 2.2)</option>
-              <option value="RH-0042">최그래픽 (RH-0042 · 매출연동 지원금 · 최소 지급 미달 세전 이월)</option>
-              <option value="RH-0055">이중도 (RH-0055 · 중도해지 미상계 선급금 강제청구)</option>
-              <option value="RH-0015">이전기 (RH-0015 · 중도해지 전속계약금 일할반환 + 강제청구)</option>
-              <option value="RH-0063">한도해 (RH-0063 · 기타소득 C19 + 전월 세후이월 합산)</option>
+              <option value="RH-0025">정종대 (개인 면세사업자) (RH-0025 · 강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계))</option>
+              <option value="RH-0012">산준교육 콘텐츠 주식회사 (법인 · 일반과세) (RH-0012 · 강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계))</option>
+              <option value="RH-0051">한국소방학회 (도서 위탁) (RH-0051 · 위탁 도서 판매대금 정산 (수수료 차감지급))</option>
+              <option value="RH-0042">최그래픽 (개인 프리랜서 · 기여자) (RH-0042 · 매출연동 개발지원금 단독 (무한도형))</option>
+              <option value="RH-0015">이전기 (해지 강사 · 청구) (RH-0015 · 강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계))</option>
+              <option value="RH-0055">이중도 (중도해지 강사) (RH-0055 · 강좌(1.1) + 최저보장 MMG 보전(비상계 보호) + 해지 미상계 선급금 강제청구 분리)</option>
+              <option value="RH-0063">한도해 (일시 삽화·자문 · 기타소득) (RH-0063 · 마일스톤 약정금(7단계) + 전월 세후 이월 합산)</option>
+              <option value="RH-0047">박보건 (개인 프리랜서 · 강사) (RH-0047 · 강좌(1.1) + 대여금 선급금 상계(6단계))</option>
+              <option value="RH-0048">최지도 (개인 프리랜서 · 강사 겸 저자) (RH-0048 · 강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계)</option>
+              <option value="RH-0019">김안전 (개인 프리랜서 · 수취인 분할 70 : 30) (RH-0019 · 강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30))</option>
+              <option value="RH-0046">이건설 (개인 프리랜서 · 강사) (RH-0046 · 강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 지원금 공제 · 한도 복원)</option>
+              <option value="RH-0044">안전기술출판 (도서 위탁 · 개인 면세사업자) (RH-0044 · 위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급))</option>
+              <option value="RH-0031">이안전 (개인 프리랜서 · 공동저자) (RH-0031 · 공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%))</option>
+              <option value="RH-0018">고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40) (RH-0018 · 교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40))</option>
             </select>
           </div>
           <div id="p1PartnerFixedHolderLabel" style="display:none; font-size:12.5px; font-weight:800; color:#1e40af;"></div>
@@ -2070,13 +2390,20 @@ code, pre, kbd, samp,
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
         <label style="font-size:12px; color:#cbd5e1; font-weight:600;">수취인 선택 (메인 목록 동기화):</label>
         <select id="selS1Holder" class="select" style="background:#1e293b; color:#fff; border-color:#475569; min-width:300px;" onchange="renderStatementModalS1()">
-          <option value="RH-0025">정종대 (RH-0025 · 강좌+도서인세+지원금+선급금+이월)</option>
-          <option value="RH-0012">산준교육 콘텐츠 주식회사 (RH-0012 · 법인 강좌 + 지원금 종료 일시정산 + 선급금 상계)</option>
-          <option value="RH-0051">한국소방학회 (RH-0051 · 위탁 도서 Pipeline 2.2)</option>
-          <option value="RH-0042">최그래픽 (RH-0042 · 매출연동 지원금 · 최소 지급 미달 세전 이월)</option>
-          <option value="RH-0055">이중도 (RH-0055 · 중도해지 미상계 선급금 강제청구 + MMG 보호)</option>
-          <option value="RH-0015">이전기 (RH-0015 · 중도해지 전속계약금 일할반환 + 강제청구)</option>
-          <option value="RH-0063">한도해 (RH-0063 · 기타소득 C19 + 전월 세후이월 합산)</option>
+          <option value="RH-0025">정종대 (개인 면세사업자) (RH-0025 · 강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계))</option>
+          <option value="RH-0012">산준교육 콘텐츠 주식회사 (법인 · 일반과세) (RH-0012 · 강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계))</option>
+          <option value="RH-0051">한국소방학회 (도서 위탁) (RH-0051 · 위탁 도서 판매대금 정산 (수수료 차감지급))</option>
+          <option value="RH-0042">최그래픽 (개인 프리랜서 · 기여자) (RH-0042 · 매출연동 개발지원금 단독 (무한도형))</option>
+          <option value="RH-0015">이전기 (해지 강사 · 청구) (RH-0015 · 강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계))</option>
+          <option value="RH-0055">이중도 (중도해지 강사) (RH-0055 · 강좌(1.1) + 최저보장 MMG 보전(비상계 보호) + 해지 미상계 선급금 강제청구 분리)</option>
+          <option value="RH-0063">한도해 (일시 삽화·자문 · 기타소득) (RH-0063 · 마일스톤 약정금(7단계) + 전월 세후 이월 합산)</option>
+          <option value="RH-0047">박보건 (개인 프리랜서 · 강사) (RH-0047 · 강좌(1.1) + 대여금 선급금 상계(6단계))</option>
+          <option value="RH-0048">최지도 (개인 프리랜서 · 강사 겸 저자) (RH-0048 · 강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계)</option>
+          <option value="RH-0019">김안전 (개인 프리랜서 · 수취인 분할 70 : 30) (RH-0019 · 강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30))</option>
+          <option value="RH-0046">이건설 (개인 프리랜서 · 강사) (RH-0046 · 강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 지원금 공제 · 한도 복원)</option>
+          <option value="RH-0044">안전기술출판 (도서 위탁 · 개인 면세사업자) (RH-0044 · 위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급))</option>
+          <option value="RH-0031">이안전 (개인 프리랜서 · 공동저자) (RH-0031 · 공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%))</option>
+          <option value="RH-0018">고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40) (RH-0018 · 교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40))</option>
         </select>
         <label style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#e2e8f0; cursor:pointer; background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:6px;">
           <input type="checkbox" id="chkS1ShowAllTables" onchange="renderStatementModalS1()" />
@@ -2198,13 +2525,20 @@ code, pre, kbd, samp,
         <div id="s2OperatorHolderSelectWrap" style="display:flex; align-items:center; gap:8px;">
           <label style="font-size:12px; color:#cbd5e1; font-weight:600;">발송 대상 권리자 선택:</label>
           <select id="selS2Holder" class="select" style="background:#0f172a; color:#fff; border-color:#475569; min-width:270px;" onchange="renderStatementModalS2()">
-            <option value="RH-0025">정종대 강사/저자 (RH-0025 · 강좌+인세+지원금+선급금)</option>
-            <option value="RH-0012">산준교육 콘텐츠 주식회사 (RH-0012 · 법인 강좌 + 지원금 종료 일시정산 + 선급금 상계)</option>
-            <option value="RH-0051">한국소방학회 (RH-0051 · 위탁 도서 정산서)</option>
-            <option value="RH-0042">최그래픽 (RH-0042 · 매출연동 지원금 · 최소 지급 미달 세전 이월)</option>
-            <option value="RH-0055">이중도 강사 (RH-0055 · 해지 정산 및 MMG 보장)</option>
-            <option value="RH-0015">이전기 (RH-0015 · 중도해지 전속계약금 일할반환 + 강제청구)</option>
-            <option value="RH-0063">한도해 (RH-0063 · 기타소득 C19 + 전월 세후이월 합산)</option>
+            <option value="RH-0025">정종대 (개인 면세사업자) (RH-0025 · 강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계))</option>
+            <option value="RH-0012">산준교육 콘텐츠 주식회사 (법인 · 일반과세) (RH-0012 · 강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계))</option>
+            <option value="RH-0051">한국소방학회 (도서 위탁) (RH-0051 · 위탁 도서 판매대금 정산 (수수료 차감지급))</option>
+            <option value="RH-0042">최그래픽 (개인 프리랜서 · 기여자) (RH-0042 · 매출연동 개발지원금 단독 (무한도형))</option>
+            <option value="RH-0015">이전기 (해지 강사 · 청구) (RH-0015 · 강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계))</option>
+            <option value="RH-0055">이중도 (중도해지 강사) (RH-0055 · 강좌(1.1) + 최저보장 MMG 보전(비상계 보호) + 해지 미상계 선급금 강제청구 분리)</option>
+            <option value="RH-0063">한도해 (일시 삽화·자문 · 기타소득) (RH-0063 · 마일스톤 약정금(7단계) + 전월 세후 이월 합산)</option>
+            <option value="RH-0047">박보건 (개인 프리랜서 · 강사) (RH-0047 · 강좌(1.1) + 대여금 선급금 상계(6단계))</option>
+            <option value="RH-0048">최지도 (개인 프리랜서 · 강사 겸 저자) (RH-0048 · 강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계)</option>
+            <option value="RH-0019">김안전 (개인 프리랜서 · 수취인 분할 70 : 30) (RH-0019 · 강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30))</option>
+            <option value="RH-0046">이건설 (개인 프리랜서 · 강사) (RH-0046 · 강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 지원금 공제 · 한도 복원)</option>
+            <option value="RH-0044">안전기술출판 (도서 위탁 · 개인 면세사업자) (RH-0044 · 위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급))</option>
+            <option value="RH-0031">이안전 (개인 프리랜서 · 공동저자) (RH-0031 · 공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%))</option>
+            <option value="RH-0018">고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40) (RH-0018 · 교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40))</option>
           </select>
         </div>
         <!-- 파트너 로그인 세션일 때 노출되는 본인 계정 고정 배지 및 로그아웃 버튼 -->
@@ -2284,16 +2618,16 @@ code, pre, kbd, samp,
 <script>
   // === [통합 헬퍼] 메인 목록(state.selectedStmt / state.selectedId)과 모달 키를 100% 일치시키는 매퍼 ===
   function normalizePayeeKey(rawKey) {
+    const cases = window.S1_STATEMENT_CASES || {};
     if (!rawKey) return "RH-0025";
     const k = String(rawKey).trim();
-    if (k === "RH-0025" || k === "STMT-202610-01" || k === "STMT-01" || k === "RH-0025") return "RH-0025";
-    if (k === "RH-0012" || k === "STMT-202610-02" || k === "STMT-02" || k === "RH-0012") return "RH-0012";
-    if (k === "RH-0051" || k === "STMT-202610-03" || k === "STMT-03" || k === "RH-0051") return "RH-0051";
-    if (k === "RH-0042" || k === "STMT-202610-04" || k === "STMT-04" || k === "RH-0042") return "RH-0042";
-    if (k === "RH-0015" || k === "STMT-202610-05" || k === "STMT-05" || k === "RH-0015") return "RH-0015";
-    if (k === "RH-0055" || k === "STMT-202610-06" || k === "STMT-06" || k === "RH-0055") return "RH-0055";
-    if (k === "RH-0063" || k === "STMT-202610-07" || k === "STMT-07" || k === "RH-0063") return "RH-0063";
-    return window.S1_STATEMENT_CASES && window.S1_STATEMENT_CASES[k] ? k : "RH-0025";
+    if (cases[k]) return k;
+    // 정산서 ID(STMT-01 · STMT-202610-01 · STMT-202610-001)로 들어오면 메인 목록에서 권리자를 찾는다
+    const m = k.match(/^STMT-202610-0?(\d{2})$/);
+    const stmtId = m ? "STMT-" + m[1] : k;
+    const list = (typeof state !== "undefined" && state.statements) ? state.statements : [];
+    const found = list.find(s => s.id === stmtId);
+    return found && cases[found.payeeId] ? found.payeeId : "RH-0025";
   }
 
   function getSelectedPayeeKey() {
@@ -2310,29 +2644,8 @@ code, pre, kbd, samp,
     return "RH-0025";
   }
 
-  // === [Step 1 정합화] 이월 원장 데이터셋 (메인 목록 7명 + 누적 이월 이력 100% 동기화) ===
+  // === [Step 1 정합화] 이월 원장 데이터셋 (메인 목록 정산서 + 누적 이월 이력 동기화) ===
   window.CARRYOVER_LEDGER_P1 = [
-    {
-      ledgerId: "CL-202609-001",
-      holderId: "RH-0025",
-      holderName: "정종대 (원 권리자 100%)",
-      contractId: "CT-2026-0501 (산업안전 통합계약)",
-      originMonth: "2026-09",
-      pipeline: "Pipeline 1.1 (온라인 강좌 수익배분)",
-      accountType: "PRE_TAX",
-      accountLabel: "세전 음수 이월 (PRE_TAX)",
-      operatorReason: "9월 마감 후 수강 취소·환불 차감액 초과로 발생한 세전 음수 이월분(-120,000원) → 10월 1단계(CARRY_IN)에서 자동 상쇄",
-      partnerReason: "2026년 09월 수강 환불 차감으로 발생한 마이너스 이월금(-120,000원)이 10월 정산금에서 상쇄(차감) 반영됨",
-      sourceRef: "STMT-202609-01 / RFD-202609-104",
-      offsetScope: "CONTRACT_INTERNAL (동일 계약 내 1단계 상쇄)",
-      openingAmt: -120000,
-      currentDelta: 120000,       // 원장 잔액 변동: -120,000 + 120,000 = 0
-      stmtImpactAmt: -120000,     // 당월 정산서 반영(가감)액: -120,000원 차감
-      newAddedAmt: 0,
-      closingAmt: 0,
-      reservationStatus: "SETTLED (당월 1단계 전액 상쇄완료)",
-      partnerStatus: "2026-10 정산에서 상쇄 완료"
-    },
     {
       ledgerId: "CL-202608-009",
       holderId: "RH-0025",
@@ -2363,7 +2676,7 @@ code, pre, kbd, samp,
       pipeline: "Pipeline 2.2 (위탁 도서 판매대금)",
       accountType: "CONSIGNMENT_BAL",
       accountLabel: "위탁 전용 잔액 (CONSIGNMENT_BAL)",
-      operatorReason: "10월 위탁 도서 정산 확정액(2,900,000원) 중 수취인 측 면세 계산서 수취 확인 대기 상태로 지급 예약(RESERVED) 관리",
+      operatorReason: "10월 위탁 도서 정산 확정액(3,120,000원 = 10월분 2,900,000 + 9월 수수료 정정 220,000) 중 수취인 측 면세 계산서 수취 확인 대기 상태로 지급 예약(RESERVED) 관리",
       partnerReason: "2026년 10월 위탁 도서 정산금 (면세 계산서 발행 확인 즉시 입금 집행 예정)",
       sourceRef: "STMT-202610-03",
       offsetScope: "CONSIGNMENT_ISOLATED (위탁 파이프라인 전용 격리)",
@@ -2406,7 +2719,7 @@ code, pre, kbd, samp,
       accountType: "PRE_TAX",
       accountLabel: "해지 강제청구 종결 (CLAIMED)",
       operatorReason: "계약 중도해지(2026-10-20)로 미상계 선급금 잔액(-1,204,950원)을 차월 이월하지 않고 10단계(CLAIM)에서 즉시 강제 환수 청구 전환하여 선급금 원장 종결 (비상계 MMG 보전금과 교차상계 차단)",
-      partnerReason: "계약 해지(2026-10-20)에 따라 미상계 선급금 잔액(1,204,950원)은 차월 이월 없이 별도 반환 청구서로 확정됨 (비상계 MMG 800,000원은 정상 지급)",
+      partnerReason: "계약 해지(2026-10-20)에 따라 미상계 선급금 잔액(1,204,950원)은 차월 이월 없이 별도 반환 청구서로 확정됨 (비상계 MMG 770,000원은 정상 지급)",
       sourceRef: "STMT-202610-06 / CLM-202610-01",
       offsetScope: "TERMINATION_CLAIM_ISOLATED (비상계 MMG와 교차상계 차단)",
       openingAmt: 0,
@@ -2437,10 +2750,31 @@ code, pre, kbd, samp,
       closingAmt: 72000,
       reservationStatus: "NONE (차월 합산 대기)",
       partnerStatus: "2026-11 정산에 합산 예정"
+    },
+    {
+      ledgerId: "CL-202610-031",
+      holderId: "RH-0031",
+      holderName: "이안전 (개인 프리랜서 · 공동저자)",
+      contractId: "CT-2026-0610 (공동저자 교재 인세 계약)",
+      originMonth: "2026-10 (당월 신규)",
+      pipeline: "Pipeline 2.1 (자사 발행 도서 인세)",
+      accountType: "PRE_TAX",
+      accountLabel: "세전 양수 이월 (PRE_TAX)",
+      operatorReason: "10월 공동저자 인세 33,600원(PROD-BK-1001 지분 30%)이 최소 지급 기준액(100,000원) 미달 → 원천징수 없이 세전(PRE_TAX) 이월, 11월 1단계(CARRY_IN)에서 합산",
+      partnerReason: "2026년 10월 교재 인세(33,600원)는 최소 지급 기준 미달로 다음 달 정산에 합산 지급됩니다",
+      sourceRef: "STMT-202610-13",
+      offsetScope: "CONTRACT_INTERNAL (동일 계약 내 차월 합산)",
+      openingAmt: 0,
+      currentDelta: 33600,
+      stmtImpactAmt: 0,
+      newAddedAmt: 33600,
+      closingAmt: 33600,
+      reservationStatus: "NONE (차월 합산 대기)",
+      partnerStatus: "2026-11 정산에 합산 예정"
     }
   ];
 
-  // === [Step 2 & Step 3 정합화] 메인 목록(state.statements) 7명과 1원 단위까지 일치하는 상세 데이터 ===
+  // === [Step 2 & Step 3 정합화] 메인 목록(state.statements)과 1원 단위까지 일치하는 상세 데이터 (계산기 scenario_amounts.json sett002 기준) ===
   window.S1_unmasked = false;
   window.S1_monthIdx = 2;
   window.S2_monthIdx = 2;
@@ -2450,113 +2784,113 @@ code, pre, kbd, samp,
   window.S1_STATEMENT_CASES = {
     "RH-0025": {
       holderId: "RH-0025",
-      holderName: "정종대 (원 권리자 · 단독 100%)",
-      entityType: "개인 면세사업자 (단독 수취 · 원천징수 3.3% + 계산서 권리자 발행)",
-      taxCode: "TX-08 (면세사업자 원천징수 3.3% + 면세 계산서 권리자 발행 · 제출)",
+      holderName: "정종대 (원 권리자 · 단독 수취)",
+      entityType: "개인 면세사업자 (단독 수취 · 원천징수 + 계산서 권리자 발행)",
+      taxCode: "TX-08 (면세사업자 · 샘플 전제: 원천징수 적용 — 사업소득 3.3% + 약정금 MS-2026-004 기타소득 C19)",
       lockStatus: "READY (검증 통과 · 마감 가능)",
       ssnMasked: "214-19-***** (주민 680412-1******)",
       ssnRaw: "214-19-99881 (주민 680412-1482910)",
       bankMasked: "신한은행 110-428-****** (예금주: 정종대)",
       bankRaw: "신한은행 110-428-991024 (예금주: 정종대)",
-      contractSummary: "CT-2026-0501 | 1계층 단독 100% · 수취인 분할 없음 (미상계 선급금 잔액이 있는 계약은 분할 불가)",
-      prepaySummary: "당월 상계 -3,500,000원(잔액 전부) 원 권리자 귀속 (기초 잔액 3,500,000원 → 기말 0원 · 선급금 원장 종결)",
+      contractSummary: "CT-2026-0501 | 강좌 CRS-1002 지분 70%(자사 30%) · 교재 PROD-BK-1006 100% · 지원금 SFA-2026-009 15%(대상 CRS-1002 · PROD-BK-1004) · 수취인 분할 없음 (미상계 선급금 잔액이 있는 계약은 분할 불가)",
+      prepaySummary: "당월 상계 -3,056,925원 원 권리자 귀속 (기초 잔액 3,500,000원 → 기말 잔액 443,075원 차월 이월)",
       limitsSummary: "최소지급 100,000원 / 최소청구 -100,000원",
       batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
       scores: {
-        carryInPre: -120000,
-        grossGenerated: 14170000,
-        deductions: -1031250,
-        taxBase: 13018750,
-        prepayAndPostCarry: -3500000,
-        taxAmount: -429610,
-        finalPayout: 9089140
+        carryInPre: 0,
+        grossGenerated: 8600000,
+        deductions: -325000,
+        taxBase: 8275000,
+        prepayAndPostCarry: -3056925,
+        taxAmount: -383075,
+        finalPayout: 4835000
       },
-      diffEquation: "수취인 분할 없음(원 권리자 100%) — 과세표준 13,018,750원(권리자 발행 계산서 금액, 전속계약금 5,000,000원 포함) − 선급금 상계 3,500,000원(잔액 전부) − 원천징수세액(3.3%) 429,610원 = 최종 실지급액 9,089,140원 (차액 3,929,610원 = 선급금 상계 + 원천세)",
-      carryoverRows: [
-        { type: "PRE_TAX (세전 음수이월)", origin: "2026-09", pipeline: "Pipeline 1.1 (강좌 수익배분)", opening: -120000, delta: 120000, stmtImpact: -120000, newAdd: 0, closing: 0, note: "9월 환불 초과 세전 음수이월(-120,000원) 당월 1단계 상쇄 완료" }
-      ],
+      diffEquation: "수취인 분할 없음(원 권리자 100%) — 과세표준 8,275,000원(강좌 725,000 + 인세 100,000 + 개발지원금 450,000 + 약정금 MS-2026-004 2,000,000 + 전속계약금 MS-2026-005 5,000,000) − 선급금 상계 3,056,925원 − 원천징수세액 383,075원 = 최종 실지급액 4,835,000원 ([5]칸 = 선급금 상계 −3,056,925)",
+      carryoverRows: [],
       lectureRows: [
-        { prodCode: "CRS-2026-001", prodName: "[단과] 2026 산업안전기사 필기 핵심이론", pkgType: "단과 직접결제", count: 95, allocBase: "9,500,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -310000, calcRaw: "4,440,000.0000", finalFloor: 4440000 },
-        { prodCode: "PKG-2026-004", prodName: "[합격환급반] 산업안전 필기+실기 올인원 패키지 (강좌 안분)", pkgType: "패키지 안분 (75.00%)", count: 48, allocBase: "4,760,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -271250, calcRaw: "2,108,750.0000", finalFloor: 2108750 }
+        { prodCode: "CRS-1002", prodName: "정종대 산업안전 실전 빈출특강", pkgType: "단과 직접결제", count: 20, allocBase: "3,000,000.0000", shareRatio: "70.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "1,050,000.0000", finalFloor: 1050000 },
+        { prodCode: "HRF-202610-01 · 03", prodName: "합격환급반 옵션 B 환급 — 강의 R/S 분담 공제 (원 주문 강좌 CRS-1004 · 원거래 지분 × 요율 · SETT-006)", pkgType: "4단계 공제 (옵션 B)", count: 2, allocBase: "650,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -325000, calcRaw: "-325,000.0000", finalFloor: -325000 }
       ],
       bookRows: [
-        { sku: "PROD-BK-1006", title: "2026 정종대 산업안전기사 필기 기본서", supplyType: "OWN_PUBLISHED (자사발행 인세 · Pipeline 2.1)", shipQty: 300, returnQty: 10, netQty: 290, listPrice: 30000, rate: "10.00%", shareRatio: "100.00%", finalFloor: 870000 }
+        { sku: "PROD-BK-1006", title: "2026 정종대 산업안전기사 필기 기본서", supplyType: "OWN_PUBLISHED (자사발행 인세 · Pipeline 2.1)", shipQty: 50, returnQty: 0, netQty: 50, listPrice: 20000, rate: "10.00%", shareRatio: "100.00%", finalFloor: 100000 }
       ],
       supportRows: [
-        { type: "매출연동 개발지원금", capTotal: 10000000, usedBefore: 9280000, calcCurrent: 1170000, capApplied: 720000, offsetRule: "CONDITIONAL (상계 허용 · v4.0.0)", remainCap: 0, note: "4단계 옵션B 지원금 차감(-325,000원) 후 845,000원 → 5단계 잔여 한도 720,000원으로 캡(-125,000원)" },
+        { type: "매출연동 개발지원금 (SFA-2026-009 · 한도형)", capTotal: 15000000, usedBefore: 4850000, calcCurrent: 450000, capApplied: 450000, offsetRule: "CONDITIONAL (상계 허용)", remainCap: 9700000, note: "대상 CRS-1002 10월 실결제 3,000,000원 × 15% = 450,000원 발생 · 한도 내 전액 확정(PROD-BK-1004 10월 매출 0). 합격환급 HRF-01 · 03의 원 주문 강좌 CRS-1004는 자사 지분 0%라 지원금 대상이 아니어서 지원금 공제 0원 · 한도 복원 없음 → 소진 누계 5,300,000원 · 잔여 한도 9,700,000원" },
+        { type: "분할형 지원금 2회차 (7단계 LUMPSUM_ADD · ADMN-INST-002 MS-2026-004)", capTotal: 2000000, usedBefore: 0, calcCurrent: 2000000, capApplied: 2000000, offsetRule: "CONDITIONAL (상계 허용)", remainCap: 0, note: "10월 승인분 · 기타소득 C19(필요경비 60% 의제) — 6단계 상계 대상에 포함" },
         { type: "전속계약금 (7단계 LUMPSUM_ADD · ADMN-INST-002 MS-2026-005)", capTotal: 5000000, usedBefore: 0, calcCurrent: 5000000, capApplied: 5000000, offsetRule: "NON_OFFSET (일회성 비상계)", remainCap: 0, note: "2년 전속 체결 계약금 10월 승인분 일시 지급 (선급금 상계 대상 아님)" }
       ],
       prepayRows: [
-        { prepayId: "PP-2026-001", totalLoan: 5000000, openingBal: 3500000, eligiblePreTax: 8138750, offsetApplied: -3500000, closingBal: 0, allocDetail: "상계 대상 8,138,750원(강좌 6,548,750 + 인세 870,000 + 상계 허용 지원금 720,000) − 예상 원천세 268,570원 = 상계 가능액 7,870,180원 ≥ 잔액 → 잔액 3,500,000원 전부 상계, 원 권리자(정종대) 단독 귀속" }
+        { prepayId: "PP-2026-001", totalLoan: 5000000, openingBal: 3500000, eligiblePreTax: 3275000, offsetApplied: -3056925, closingBal: 443075, allocDetail: "상계 대상 3,275,000원(강좌 725,000 + 인세 100,000 + 개발지원금 450,000 + 상계 허용 약정금 MS-2026-004 2,000,000) − 예상 원천세 218,075원 = 상계 가능액 3,056,925원 < 잔액 3,500,000원 → 3,056,925원 상계(강좌 676,723 · 인세 93,341 · 지원금 420,035 · MS-2026-004 1,866,826 비례 안분), 잔액 443,075원 차월 이월" }
       ],
       payeeSplitRows: [
-        { payeeId: "RH-0025", name: "정종대 (원 권리자 · 저자 겸 강사)", role: "원 권리자 (단독 수취)", ratio: "100.00%", preTaxSplit: 13018750, prepaySplit: -3500000, note: "분할 없음 — 미상계 선급금 잔액 계약 (과세표준 13,018,750원 / 선급금상계 -3,500,000원)" }
+        { payeeId: "RH-0025", name: "정종대 (원 권리자 · 저자 겸 강사)", role: "원 권리자 (단독 수취)", ratio: "100.00%", preTaxSplit: 8275000, prepaySplit: -3056925, note: "분할 없음 — 미상계 선급금 잔액 계약 (과세표준 8,275,000원 / 선급금상계 -3,056,925원)" }
       ],
       waterfall: [
-        { step: "1단계 (CARRY_IN)", title: "전월 세전 음수 이월금 상쇄", rule: "9월 수강환불 초과 세전 음수이월 -120,000원 반영", delta: -120000, bal: -120000 },
-        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) + 도서인세(2.1) + 개발지원금(5.1) 발생", rule: "강좌 7,130,000 + 인세 870,000 + 지원금 1,170,000 = 9,170,000원", delta: 9170000, bal: 9050000 },
-        { step: "3단계 (MMG_ADJ)", title: "최저보장 정산금(MMG) 보전", rule: "당월 실적 > MMG 기준액 (보전금 0원)", delta: 0, bal: 9050000 },
-        { step: "4단계 (DEDUCT)", title: "수강환불 · 합격환급반(옵션 B) 공제", rule: "일반환불 -581,250원 + 옵션 B 지원금 비례공제 -325,000원", delta: -906250, bal: 8143750 },
-        { step: "5단계 (SUPPORT_CAP)", title: "개발지원금 누적 한도 캡 통제", rule: "지원금 845,000원 → 잔여 한도 720,000원 (초과 -125,000원 차감)", delta: -125000, bal: 8018750 },
-        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계 (-3,500,000원 · 잔액 전부)", rule: "상계 대상 8,138,750원 − 예상 원천세 268,570원 = 상계 가능 7,870,180원 ≥ 잔액 3,500,000원 → 잔액 전부 상계 (강좌·도서·상계 허용 지원금 비례 안분)", delta: -3500000, bal: 4518750 },
-        { step: "7단계 (LUMPSUM_ADD)", title: "비정기 약정금 합산 (ADMN-INST-002)", rule: "MS-2026-005 전속계약금 +5,000,000원 (일회성 비상계 · 10월 승인)", delta: 5000000, bal: 9518750 },
-        { step: "8단계 (PAYEE_SPLIT)", title: "2계층 수취인 분할 없음 (원 권리자 100.00% 단독 귀속)", rule: "미상계 선급금 잔액이 있는 계약은 분할 불가 → 과세표준 13,018,750원 · 상계 후 잔액 9,518,750원 전액 정종대 귀속", delta: 0, bal: 9518750 },
-        { step: "9단계 (TAX)", title: "면세사업자 원천징수세액(3.3%) 산출 (TX-08)", rule: "과세표준 13,018,750원 기준 → 소득세 Floor(390,560) + 지방세 Floor(39,050) = -429,610원", delta: -429610, bal: 9089140 },
-        { step: "10단계 (CLAIM)", title: "최소지급 기준액(100,000원) 판정", rule: "9,089,140원 ≥ 100,000원 (정상 지급 적격)", delta: 0, bal: 9089140 },
-        { step: "11단계 (PAYOUT)", title: "최종 실지급액 확정 (대량이체 대기)", rule: "세후 이월(POST_TAX) 0원 합산 → 최종 9,089,140원", delta: 0, bal: 9089140 }
+        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) + 도서인세(2.1) + 개발지원금(5.1) 발생", rule: "강좌 1,050,000(CRS-1002 3,000,000 × 지분 70% × R/S 50%) + 인세 100,000(PROD-BK-1006 50권 × 20,000 × 10%) + 지원금 450,000(CRS-1002 3,000,000 × 15%) = 1,600,000원", delta: 1600000, bal: 1600000 },
+        { step: "3단계 (MMG_ADJ)", title: "최저보장 정산금(MMG) 보전", rule: "최저보장 약정 없음 (보전금 0원)", delta: 0, bal: 1600000 },
+        { step: "4단계 (DEDUCT)", title: "합격환급반(옵션 B) 공제", rule: "강의 R/S 분담 -325,000원(HRF-01 -205,000 · HRF-03 -120,000 = 환급금 × 원거래 지분 100% × 요율 50%) + 지원금 공제 0원(원 주문 강좌 CRS-1004 자사 지분 0% — 지원금 대상 아님)", delta: -325000, bal: 1275000 },
+        { step: "5단계 (SUPPORT_CAP)", title: "개발지원금 누적 한도 캡 통제", rule: "신규 발생 450,000원 ≤ 잔여 한도 10,150,000원 → 확정 450,000원 (복원 0 · 소진 누계 5,300,000원 · 잔여 한도 9,700,000원)", delta: 0, bal: 1275000 },
+        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계 (-3,056,925원 · 상계 가능액만)", rule: "상계 대상 3,275,000원(7단계 MS-2026-004 2,000,000원 포함 — 상계 허용 약정) − 예상 원천세 218,075원(사업소득 1,275,000 × 3.3% 42,075 + C19 176,000) = 3,056,925원 < 잔액 3,500,000원", delta: -3056925, bal: -1781925 },
+        { step: "7단계 (LUMPSUM_ADD)", title: "비정기 약정금 합산 (ADMN-INST-002)", rule: "MS-2026-004 분할형 지원금 +2,000,000원(10월 승인) + MS-2026-005 전속계약금 +5,000,000원(비상계)", delta: 7000000, bal: 5218075 },
+        { step: "8단계 (PAYEE_SPLIT)", title: "2계층 수취인 분할 없음 (원 권리자 100.00% 단독 귀속)", rule: "미상계 선급금 잔액이 있는 계약은 분할 불가 → 과세표준 8,275,000원 · 세전 지급액 5,218,075원 전액 정종대 귀속", delta: 0, bal: 5218075 },
+        { step: "9단계 (TAX)", title: "원천징수세액 산출 (TX-08 · 샘플 전제 원천징수 적용)", rule: "사업소득 3.3%(과세표준 6,275,000원 = 강좌 725,000 + 인세 100,000 + 지원금 450,000 + 전속계약금 5,000,000): 소득세 188,250 + 지방세 18,825 / 기타소득 C19(MS-2026-004 2,000,000원 · 필요경비 60%): 소득세 160,000 + 지방세 16,000 → 합계 -383,075원", delta: -383075, bal: 4835000 },
+        { step: "10단계 (CLAIM)", title: "최소지급 기준액(100,000원) 판정", rule: "4,835,000원 ≥ 100,000원 (정상 지급 적격)", delta: 0, bal: 4835000 },
+        { step: "11단계 (PAYOUT)", title: "최종 실지급액 확정 (대량이체 대기)", rule: "세후 이월(POST_TAX) 0원 합산 → 최종 4,835,000원", delta: 0, bal: 4835000 }
       ],
-      evidenceInfo: "복합 증빙(TX-08): [1] 면세 계산서(권리자 발행) 공급가액 13,018,750원 제출 · 홈택스 대사 완료 + [2] 사업소득 원천징수(3.3%, 429,610원) 동시 수행 (채널 2 + 3-a)",
+      evidenceInfo: "복합 증빙(TX-08): [1] 면세 계산서(권리자 발행) 공급가액 6,275,000원 — 사업 공급분(강좌 725,000 + 인세 100,000 + 개발지원금 450,000 + 전속계약금 5,000,000)만 기재, 약정금 MS-2026-004 기타소득(C19) 2,000,000원은 계산서에서 빼고 원천징수영수증으로 별도 처리 · 제출 완료 · 홈택스 대사 대기 + [2] 사업소득 원천징수(3.3%, 207,075원) + [3] 약정금 MS-2026-004 기타소득(C19) 원천징수 176,000원 (채널 2 + 3-a)",
       auditMemos: [
-        "[2026-10-31 19:05] 재무팀 김회계: 정종대 단독 100% 귀속(미상계 선급금 계약 · 수취인 분할 차단) 및 선급금 잔액 350만원 전부 상계(원장 종결) 검증 완료."
+        "[2026-10-31 19:05] 재무팀 김회계: 정종대 단독 100% 귀속(미상계 선급금 계약 · 수취인 분할 차단), 선급금 3,056,925원 상계 후 잔액 443,075원 차월 이월 검증 완료."
       ]
     },
     "RH-0012": {
       holderId: "RH-0012",
       holderName: "산준교육 콘텐츠 주식회사 (법인 · 원 권리자 단독 100%)",
-      entityType: "법인사업자 (일반과세자 · 강좌 수익배분 + 지원금 종료 일시정산)",
-      taxCode: "TX-07 (법인 일반과세 · 세금계산서 권리자 발행 · VAT 10% 별도)",
-      lockStatus: "WAIT_SUBMIT (세금계산서 제출 대기)",
+      entityType: "법인사업자 (일반과세자 · 강좌 수익배분 + 공동저자 인세 + 지원금 종료 일시정산)",
+      taxCode: "TX-07 / TX-09 (법인 일반과세 · 세금계산서 권리자 발행 · VAT 10% 별도)",
+      lockStatus: "HOLD (PG 대사 미분류 · 마감 보류 — SETT-004 REC-01 소명 대기)",
       ssnMasked: "120-88-*****",
       ssnRaw: "120-88-00001",
       bankMasked: "국민은행 042-81-******* (예금주: 산준교육(주))",
       bankRaw: "국민은행 042-81-0039127 (예금주: 산준교육(주))",
-      contractSummary: "CT-2026-0412 | 1계층 단독 100% · 수취인 분할 없음 (미상계 선급금 잔액이 있는 계약은 분할 불가)",
-      prepaySummary: "당월 상계 -3,000,000원 원 권리자 귀속 (기초 잔액 8,500,000원 → 기말 잔액 5,500,000원) · 지원금 종료 일시정산은 비상계 약정이라 상계 제외",
+      contractSummary: "CT-2026-0412 | 강좌 CRS-1001 지분 80%(자사 20%) · 공동저자 교재 PROD-BK-1001 지분 50%(이안전 30 · 자사 20) · 수취인 분할 없음",
+      prepaySummary: "당월 상계 -3,056,000원 원 권리자 귀속 (기초 잔액 8,500,000원 → 기말 잔액 5,444,000원) · 지원금 종료 일시정산은 비상계 약정이라 상계 제외",
       limitsSummary: "최소지급 100,000원 (VAT 포함 기준)",
       batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
       scores: {
         carryInPre: 0,
-        grossGenerated: 4800000,
+        grossGenerated: 4856000,
         deductions: 0,
-        taxBase: 4800000,
-        prepayAndPostCarry: -3000000,
-        taxAmount: 480000,
-        finalPayout: 2280000
+        taxBase: 4856000,
+        prepayAndPostCarry: -3056000,
+        taxAmount: 485600,
+        finalPayout: 2285600
       },
-      diffEquation: "공급가액(과세표준) 4,800,000원(강좌 수익배분 3,000,000원 + 지원금 종료 일시정산 1,800,000원) + 부가가치세(10%) 480,000원(세금계산서 합계 5,280,000원) − 선급금 상계 3,000,000원 = 최종 실지급액 2,280,000원",
+      diffEquation: "공급가액(과세표준) 4,856,000원(강좌 수익배분 3,000,000원 + 공동저자 인세 56,000원 + 지원금 종료 일시정산 1,800,000원) + 부가가치세(10%, 상계 전 공급가액 기준) 485,600원(세금계산서 합계 5,341,600원) − 선급금 상계 3,056,000원 = 최종 실지급액 2,285,600원",
       carryoverRows: [],
       lectureRows: [
-        { prodCode: "CT-2026-0412-LEC", prodName: "[법인 계약] 산업안전 온라인 강좌 수익배분 합계", pkgType: "단과 직접결제", count: 60, allocBase: "6,000,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "3,000,000.0000", finalFloor: 3000000 }
+        { prodCode: "CRS-1001", prodName: "산업안전기사 필기 핵심이론 패키지 (10-01~10-10 결제분 · 계약 10-14 종료)", pkgType: "단과 직접결제", count: 50, allocBase: "7,500,000.0000", shareRatio: "80.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "3,000,000.0000", finalFloor: 3000000 }
       ],
-      bookRows: [],
+      bookRows: [
+        { sku: "PROD-BK-1001", title: "산업안전 핵심 이론 교재 (공동저자)", supplyType: "OWN_PUBLISHED (자사발행 인세 · Pipeline 2.1)", shipQty: 40, returnQty: 0, netQty: 40, listPrice: 28000, rate: "10.00%", shareRatio: "50.00%", finalFloor: 56000 }
+      ],
       supportRows: [
-        { type: "지원금 종료 일시정산 (7단계 LUMPSUM_ADD · ADMN-INST-002 MS-2026-006)", capTotal: 1800000, usedBefore: 0, calcCurrent: 1800000, capApplied: 1800000, offsetRule: "CONDITIONAL (상계 허용)", remainCap: 0, note: "지원금 약정 종료에 따른 일시정산액 당월 7단계 인입" }
+        { type: "지원금 종료 일시정산 (7단계 LUMPSUM_ADD · ADMN-INST-002 MS-2026-006)", capTotal: 1800000, usedBefore: 0, calcCurrent: 1800000, capApplied: 1800000, offsetRule: "NON_OFFSET (비상계)", remainCap: 0, note: "지원금 약정(SFA-2026-001) 종료에 따른 일시정산액 당월 7단계 인입 — 선급금 상계 제외" }
       ],
       prepayRows: [
-        { prepayId: "PP-2026-0412", totalLoan: 8500000, openingBal: 8500000, eligiblePreTax: 3000000, offsetApplied: -3000000, closingBal: 5500000, allocDetail: "상계 대상 = 강좌 수익배분 3,000,000원(법인 · 예상 원천세 0원) — 지원금 종료 일시정산 1,800,000원은 비상계(NON_OFFSET) 약정이라 제외 → 3,000,000원 상계" }
+        { prepayId: "PP-2026-0412", totalLoan: 8500000, openingBal: 8500000, eligiblePreTax: 3056000, offsetApplied: -3056000, closingBal: 5444000, allocDetail: "상계 대상 = 강좌 수익배분 3,000,000원 + 공동저자 인세 56,000원(법인 · 예상 원천세 0원) — 지원금 종료 일시정산 1,800,000원은 비상계(NON_OFFSET) 약정이라 제외 → 3,056,000원 상계" }
       ],
       payeeSplitRows: [
-        { payeeId: "RH-0012", name: "산준교육 콘텐츠 주식회사 (본사)", role: "원 권리자 법인 (단독 수취)", ratio: "100.00%", preTaxSplit: 4800000, prepaySplit: -3000000, note: "분할 없음 — 미상계 선급금 잔액 계약" }
+        { payeeId: "RH-0012", name: "산준교육 콘텐츠 주식회사 (본사)", role: "원 권리자 법인 (단독 수취)", ratio: "100.00%", preTaxSplit: 4856000, prepaySplit: -3056000, note: "분할 없음 — 미상계 선급금 잔액 계약" }
       ],
       waterfall: [
-        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) 수익배분 발생", rule: "법인 계약 강좌 수익배분 3,000,000원", delta: 3000000, bal: 3000000 },
-        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계", rule: "상계 대상 강좌 3,000,000원 − 예상 원천세 0원(법인) = 3,000,000원 ≤ 잔액 8,500,000원 → 3,000,000원 상계 (기말 잔액 5,500,000원)", delta: -3000000, bal: 0 },
+        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) 수익배분 + 공동저자 인세(2.1) 발생", rule: "강좌 수익배분 3,000,000원(CRS-1001 실결제 7,500,000 × 지분 80% × R/S 50%) + PROD-BK-1001 40권 × 28,000 × 10% × 지분 50% = 56,000원", delta: 3056000, bal: 3056000 },
+        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계", rule: "상계 대상 3,056,000원 − 예상 원천세 0원(법인) = 3,056,000원 ≤ 잔액 8,500,000원 → 3,056,000원 상계 (기말 잔액 5,444,000원)", delta: -3056000, bal: 0 },
         { step: "7단계 (LUMPSUM_ADD)", title: "지원금 종료 일시정산 합산 (ADMN-INST-002)", rule: "MS-2026-006 지원금 종료 일시정산 +1,800,000원 (비상계 NON_OFFSET 약정 → 상계 제외)", delta: 1800000, bal: 1800000 },
         { step: "8단계 (PAYEE_SPLIT)", title: "2계층 수취인 분할 없음 (원 권리자 100.00% 단독 귀속)", rule: "미상계 선급금 잔액이 있는 계약은 분할 불가", delta: 0, bal: 1800000 },
-        { step: "9단계 (TAX)", title: "법인 일반과세 부가가치세(10%) 가산 (TX-07)", rule: "공급가액 4,800,000원 × 10% = +480,000원 (원천징수 비대상)", delta: 480000, bal: 2280000 },
-        { step: "11단계 (PAYOUT)", title: "최종 실지급액 확정 (세금계산서 제출 대기 · 지급 보류 아님)", rule: "공급대가 5,280,000원 − 선급금 상계 3,000,000원 = 2,280,000원", delta: 0, bal: 2280000 }
+        { step: "9단계 (TAX)", title: "법인 일반과세 부가가치세(10%) 가산 (TX-07 / TX-09)", rule: "공급가액 4,856,000원(상계 전) × 10% = +485,600원 (원천징수 비대상)", delta: 485600, bal: 2285600 },
+        { step: "11단계 (PAYOUT)", title: "최종 실지급액 확정 (세금계산서 제출 대기 · 지급 보류 아님)", rule: "공급대가 5,341,600원 − 선급금 상계 3,056,000원 = 2,285,600원", delta: 0, bal: 2285600 }
       ],
-      evidenceInfo: "전자세금계산서(TX-07 · 권리자 발행): 공급가액 4,800,000원 / 부가세 480,000원 (합계 5,280,000원) — 발행 요청 후 제출 대기 중",
+      evidenceInfo: "전자세금계산서(TX-07 / TX-09 · 권리자 발행): 공급가액 4,856,000원 / 부가세 485,600원 (합계 5,341,600원) — 발행 요청 후 제출 대기 중",
       auditMemos: [
         "[2026-10-31 19:10] 재무팀 박세무: 산준교육(주) 세금계산서 발행 · 제출 리마인드 알림톡 발송 완료."
       ]
@@ -2566,7 +2900,7 @@ code, pre, kbd, samp,
       holderName: "한국소방학회 (도서 위탁)",
       entityType: "법인 면세사업자 (위탁자 CONSIGNOR · 도서 위탁 판매)",
       taxCode: "TX-11 / TX-12 (위탁 도서 면세 계산서 수취 + 위탁수수료 과세 세금계산서 매출발행)",
-      lockStatus: "READY (위탁 대사 완료)",
+      lockStatus: "READY (위탁 대사 완료 · 세무 판정 TX-11 확정)",
       ssnMasked: "110-82-*****",
       ssnRaw: "110-82-04912",
       bankMasked: "우리은행 1005-801-****** (예금주: 사단법인한국소방학회)",
@@ -2578,13 +2912,13 @@ code, pre, kbd, samp,
       scores: {
         carryInPre: 0,
         grossGenerated: 4000000,
-        deductions: -1100000,
-        taxBase: 2900000,
-        prepayAndPostCarry: 0,
-        taxAmount: 0,
-        finalPayout: 2900000
+        deductions: -1000000,
+        taxBase: 3000000,
+        prepayAndPostCarry: 220000,
+        taxAmount: -100000,
+        finalPayout: 3120000
       },
-      diffEquation: "위탁 도서 총 판매대금 4,000,000원(확정 100부 × 정가 40,000원) − 당사 위탁수수료(공급가액 1,000,000원 + 부가세 100,000원 = 1,100,000원) = 위탁 순정산 실지급액 2,900,000원 (6.6절 품목별 구성요소 등식 일치)",
+      diffEquation: "위탁 도서 총 판매대금 4,000,000원(확정 100부 × 정가 40,000원) − 당사 위탁수수료 공급가액 1,000,000원 = 위탁 정산 입력액 3,000,000원 − 수수료 부가세 100,000원 = 10월분 실정산 2,900,000원 + 9월 수수료 정정 환급 220,000원(수수료 200,000 + 부가세 20,000 · ADMN-SETT-005 ADJ-202610-05, 10단계 세후 조정) = 실지급액 3,120,000원 ([4]칸은 과세표준이 아니라 위탁 정산 입력액 · 원천징수 비대상)",
       carryoverRows: [],
       lectureRows: [],
       bookRows: [
@@ -2597,7 +2931,8 @@ code, pre, kbd, samp,
         { step: "2단계 (ACCRUAL)", title: "위탁 도서 판매대금 확정 (위탁도서 정산)", rule: "출고 105부 − 반품 5부 = 확정 100부 × 40,000원 = 4,000,000원", delta: 4000000, bal: 4000000 },
         { step: "4단계 (DEDUCT)", title: "당사 위탁수수료 공급가액 차감 (NET_DEDUCT)", rule: "판매대금 4,000,000원 × 25% = -1,000,000원", delta: -1000000, bal: 3000000 },
         { step: "9단계 (TAX)", title: "재화 공급 면세 판정 · 수수료 부가세 차감 (TX-11/TX-12)", rule: "도서 재화 공급이므로 원천징수 0원 / 위탁수수료 부가세 -100,000원 차감 (당사 과세 세금계산서 정발행)", delta: -100000, bal: 2900000 },
-        { step: "11단계 (PAYOUT)", title: "위탁 정산대금 최종 실지급액 확정", rule: "수수료 차감지급(NET_DEDUCT) 방식 → 2,900,000원 지급", delta: 0, bal: 2900000 }
+        { step: "10단계 (CLAIM)", title: "세후 조정 — 9월 위탁 수수료 정정 환급 (ADMN-SETT-005 ADJ-202610-05)", rule: "9월 수수료율 30% 과다 차감분(계약 25%) 200,000원 + 같이 과다 차감한 수수료 부가세 20,000원 = +220,000원 (원귀속 2026-09 · 반영 2026-10)", delta: 220000, bal: 3120000 },
+        { step: "11단계 (PAYOUT)", title: "위탁 정산대금 최종 실지급액 확정", rule: "수수료 차감지급(NET_DEDUCT) 10월분 2,900,000원 + 9월 정정 220,000원 → 3,120,000원 지급", delta: 0, bal: 3120000 }
       ],
       evidenceInfo: "양방향 증빙(TX-11/TX-12): [1] 당사→한국소방학회 위탁수수료 과세 세금계산서(공급가 1,000,000 / 세액 100,000) 정발행 완료 | [2] 한국소방학회→당사 도서 면세 계산서(4,000,000원) 수취 대기",
       auditMemos: [
@@ -2634,12 +2969,12 @@ code, pre, kbd, samp,
       lectureRows: [],
       bookRows: [],
       supportRows: [
-        { type: "매출연동 개발지원금 (무한도형 UNLIMITED · SFA-2026-012)", capTotal: 0, usedBefore: 0, calcCurrent: 72000, capApplied: 72000, offsetRule: "CONDITIONAL (상계 허용)", remainCap: 0, note: "한도 없는 무한도형 · 당월 확정 72,000원" }
+        { type: "매출연동 개발지원금 (무한도형 UNLIMITED · SFA-2026-012)", capTotal: 0, usedBefore: 0, calcCurrent: 72000, capApplied: 72000, offsetRule: "CONDITIONAL (상계 허용)", remainCap: 0, note: "한도 없는 무한도형 · 대상 강좌 CRS-1012(자사 100%) 10월 실결제 1,440,000원 × 5% = 72,000원 확정" }
       ],
       prepayRows: [],
       payeeSplitRows: [],
       waterfall: [
-        { step: "2단계 (ACCRUAL)", title: "매출연동 개발지원금 발생", rule: "무한도형 약정 당월 매출연동 확정 +72,000원", delta: 72000, bal: 72000 },
+        { step: "2단계 (ACCRUAL)", title: "매출연동 개발지원금 발생", rule: "무한도형 약정 대상 CRS-1012(위험물산업기사 실기 시뮬레이션 특강 · 자사 100%) 실결제 1,440,000원 × 5% = +72,000원", delta: 72000, bal: 72000 },
         { step: "5단계 (SUPPORT_CAP)", title: "개발지원금 한도 캡 통제", rule: "무한도형(UNLIMITED) — 한도 차감 없음", delta: 0, bal: 72000 },
         { step: "10단계 (CLAIM)", title: "최소 지급 기준액(100,000원) 판정", rule: "판정액 69,624원(원천세 2,376원 차감 가정) < 100,000원 → 지급 보류 · 원천징수 미실행 · 세전 이월 72,000원", delta: -72000, bal: 0 },
         { step: "11단계 (PAYOUT)", title: "당월 실지급 없음 (이체 비대상)", rule: "세전 이월 72,000원은 차월 정산 1단계(CARRY_IN)에 합산", delta: 0, bal: 0 }
@@ -2659,86 +2994,88 @@ code, pre, kbd, samp,
       ssnRaw: "810219-1239841",
       bankMasked: "하나은행 392-910283-***** (예금주: 이중도)",
       bankRaw: "하나은행 392-910283-41902 (예금주: 이중도)",
-      contractSummary: "CT-2026-0322 (2026-10-20 해지) | 비상계 MMG 보전 800,000원 / 미상계 선급금 1,204,950원 강제청구",
+      contractSummary: "CT-2026-0322 (2026-10-20 해지) | 비상계 MMG 보전 770,000원 / 미상계 선급금 1,204,950원 강제청구",
       prepaySummary: "기초 미상계 1,350,000원 → 6단계 순수 R/S 150,000원 − 예상 원천세 4,950원 = 145,050원 상계 → 잔액 1,204,950원 해지 강제청구(CLAIMED_ON_TERMINATION)",
-      limitsSummary: "C-02·C-03 가드레일: 3단계 MMG 보전금(800,000원)은 선급금 상계 모수 유입 및 10단계 교차상계 절대 금지",
+      limitsSummary: "C-02·C-03 가드레일: 3단계 MMG 보전금(770,000원)은 선급금 상계 모수 유입 및 10단계 교차상계 절대 금지",
       batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
       scores: {
         carryInPre: 0,
-        grossGenerated: 980000,
+        grossGenerated: 950000,
         deductions: -30000,
-        taxBase: 950000,
+        taxBase: 920000,
         prepayAndPostCarry: -145050,
-        taxAmount: -31350,
-        finalPayout: 773600
+        taxAmount: -30360,
+        finalPayout: 744590
       },
-      diffEquation: "순수 강좌 R/S 150,000원 중 145,050원(예상 원천세 4,950원 제외) 6단계 상계 + 비상계 보호 MMG 보전금 800,000원(상계 차단) = 세전 잔액 804,950원 − 원천세(과세표준 950,000원 × 3.3% = 31,350원) = 실지급액 773,600원 (※ 미상계 선급금 잔액 -1,204,950원은 10단계 별도 환수 청구서 발행)",
+      diffEquation: "과세표준 920,000원(강좌 R/S 180,000 + MMG 보전 770,000 − 환불 공제 30,000) − 6단계 상계 145,050원(순수 R/S 150,000 − 예상 원천세 4,950 · MMG 보호) − 원천세 30,360원(920,000 × 3.3%) = 실지급액 744,590원 (※ 미상계 선급금 잔액 -1,204,950원은 10단계 별도 환수 청구서 발행)",
       carryoverRows: [],
       lectureRows: [
         { prodCode: "CRS-2026-055", prodName: "[단과] 전기산업기사 회로이론 핵심완성 (해지일 이전 결제분)", pkgType: "단과 직접결제", count: 9, allocBase: "450,000.0000", shareRatio: "100.00%", rsRate: "40.00%", refundDeduct: -30000, calcRaw: "150,000.0000", finalFloor: 150000 }
       ],
       bookRows: [],
       supportRows: [
-        { type: "최저보장 정산금 보전 (3단계 MMG_ADJ · 비상계 보호)", capTotal: 950000, usedBefore: 150000, calcCurrent: 800000, capApplied: 800000, offsetRule: "NON_OFFSET (선급금 상계 절대 금지 · C-02/C-03)", remainCap: 0, note: "보장액 대비 부족분 800,000원 보전 (6단계 선급금 상계 모수에서 제외되어 전액 보호)" }
+        { type: "최저보장 정산금 보전 (3단계 MMG_ADJ · 비상계 보호)", capTotal: 950000, usedBefore: 180000, calcCurrent: 770000, capApplied: 770000, offsetRule: "NON_OFFSET (선급금 상계 절대 금지 · C-02/C-03)", remainCap: 0, note: "월 보장액 950,000원 − 2단계 순수 신규 R/S 180,000원(환불 공제 전) = 보전금 770,000원 (6단계 선급금 상계 모수에서 제외되어 전액 보호)" }
       ],
       prepayRows: [
-        { prepayId: "PP-2026-055", totalLoan: 2000000, openingBal: 1350000, eligiblePreTax: 150000, offsetApplied: -145050, closingBal: 0, allocDetail: "6단계 순수 강좌 R/S 150,000원 − 예상 원천세 4,950원 = 145,050원 상계 후, 미상계 잔액 1,204,950원은 10단계 해지 강제청구(CLAIM) 전환으로 원장 잔액 0원 종결" }
+        { prepayId: "PP-2026-055", totalLoan: 2000000, openingBal: 1350000, eligiblePreTax: 150000, offsetApplied: -145050, closingBal: 0, allocDetail: "6단계 순수 강좌 R/S 150,000원(180,000 − 환불 30,000) − 예상 원천세 4,950원 = 145,050원 상계 후, 미상계 잔액 1,204,950원은 10단계 해지 강제청구(CLAIM) 전환으로 원장 잔액 0원 종결" }
       ],
       payeeSplitRows: [],
       waterfall: [
-        { step: "2단계 (ACCRUAL)", title: "당월 강좌 R/S 발생", rule: "해지일 이전 결제 강좌 R/S +180,000원", delta: 180000, bal: 180000 },
-        { step: "3단계 (MMG_ADJ)", title: "최저보장 정산금(MMG) 보전 (비상계 보호)", rule: "최저보장 보전금 +800,000원 가산 (6단계 상계 모수 유입 차단)", delta: 800000, bal: 980000 },
-        { step: "4단계 (DEDUCT)", title: "당월 수강환불 차감", rule: "중도환불 분담금 -30,000원", delta: -30000, bal: 950000 },
-        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계 (상계 가능액 145,050원)", rule: "Max(0, 2단계 180,000 − 4단계 30,000) = 150,000원 − 예상 원천세 4,950원 = 145,050원 상계 (MMG 800,000원 보호)", delta: -145050, bal: 804950 },
-        { step: "9단계 (TAX)", title: "사업소득(3.3%) 원천징수세액 산출 (TX-02)", rule: "과세표준 950,000원 × 3.3% = 소득세 28,500 + 지방세 2,850 = -31,350원", delta: -31350, bal: 773600 },
-        { step: "10단계 (CLAIM)", title: "중도해지 미상계 선급금 강제 환수청구 분리 발행 (C-03·C-04)", rule: "미상계 선급금 잔액 -1,204,950원 별도 청구서 발행 (비상계 보호 실지급액 773,600원과 교차상계 차단)", delta: 0, bal: 773600 },
-        { step: "11단계 (PAYOUT)", title: "비상계 보호 금액 실지급 확정", rule: "실지급액 773,600원 이체 확정 + 환수청구액 1,204,950원 채권 원장 이관", delta: 0, bal: 773600 }
+        { step: "2단계 (ACCRUAL)", title: "당월 강좌 R/S 발생", rule: "해지일 이전 결제 강좌 R/S +180,000원 (450,000 × 40%)", delta: 180000, bal: 180000 },
+        { step: "3단계 (MMG_ADJ)", title: "최저보장 정산금(MMG) 보전 (비상계 보호)", rule: "월 보장액 950,000원 − 순수 신규 R/S 180,000원 = +770,000원 (6단계 상계 모수 유입 차단)", delta: 770000, bal: 950000 },
+        { step: "4단계 (DEDUCT)", title: "당월 수강환불 차감", rule: "중도환불 분담금 -30,000원", delta: -30000, bal: 920000 },
+        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계 (상계 가능액 145,050원)", rule: "Max(0, 2단계 180,000 − 4단계 30,000) = 150,000원 − 예상 원천세 4,950원 = 145,050원 상계 (MMG 770,000원 보호)", delta: -145050, bal: 774950 },
+        { step: "9단계 (TAX)", title: "사업소득(3.3%) 원천징수세액 산출 (TX-02)", rule: "과세표준 920,000원 × 3.3% = 소득세 27,600 + 지방세 2,760 = -30,360원", delta: -30360, bal: 744590 },
+        { step: "10단계 (CLAIM)", title: "중도해지 미상계 선급금 강제 환수청구 분리 발행 (C-03·C-04)", rule: "미상계 선급금 잔액 -1,204,950원 별도 청구서 발행 (비상계 보호 실지급액 744,590원과 교차상계 차단)", delta: 0, bal: 744590 },
+        { step: "11단계 (PAYOUT)", title: "비상계 보호 금액 실지급 확정", rule: "실지급액 744,590원 이체 확정 + 환수청구액 1,204,950원 채권 원장 이관", delta: 0, bal: 744590 }
       ],
-      evidenceInfo: "사업소득 원천징수(과세표준 950,000원 / 세액 31,350원) | 계약 해지에 따른 미상계 선급금 1,204,950원 반환 청구서(CLM-202610-01) 별도 발행 완료",
+      evidenceInfo: "사업소득 원천징수(과세표준 920,000원 / 세액 30,360원) | 계약 해지에 따른 미상계 선급금 1,204,950원 반환 청구서(CLM-202610-01) 별도 발행 완료",
       auditMemos: [
-        "[2026-10-31 19:30] 법무·재무 합동검토: v4.0.0 C-02/C-03 가드레일에 따라 비상계 MMG(80만원)는 선급금과 상계하지 않고 지급하며, 미상계 선급금(1,204,950원)은 해지 강제청구로 분리 확정."
+        "[2026-10-31 19:30] 법무·재무 합동검토: v4.0.0 C-02/C-03 가드레일에 따라 비상계 MMG(77만원)는 선급금과 상계하지 않고 지급하며, 미상계 선급금(1,204,950원)은 해지 강제청구로 분리 확정."
       ]
     },
     "RH-0015": {
       holderId: "RH-0015",
-      holderName: "이전기 (중도해지 강사 · 강제 청구)",
-      entityType: "개인 프리랜서 (사업소득 3.3% · 2026-10-05 중도해지)",
-      taxCode: "TX-02 (사업소득 3.3% · 전속계약금 세후 일할반환 + 수정신고 채널 3-a)",
+      holderName: "이전기 (해지 강사 · 청구)",
+      entityType: "개인 프리랜서 (사업소득 3.3% · 2026-10-05 해지)",
+      taxCode: "TX-04 (해지 정산 · 강의 R/S 사업소득 3.3% + 전속계약금 세후 반환 10단계 차감)",
       lockStatus: "CLAIM_ISSUED (공식 마이너스 청구서 발행)",
       ssnMasked: "790623-1******",
       ssnRaw: "790623-1520418",
       bankMasked: "회수 가상계좌 농협 790-0154-****",
       bankRaw: "회수 가상계좌 농협 790-0154-338201",
-      contractSummary: "CT-2025-0911 (2026-10-05 해지) | 전속계약금 세후 일할반환 4,768,767원 + 해지 미상계 선급금 50,000원 강제청구 (위약금 20,000,000원은 정산 엔진 밖 별도 청구)",
-      prepaySummary: "해지 미상계 선급금 50,000원 → 10단계 강제청구 전환 (CLAIMED_ON_TERMINATION)",
+      contractSummary: "CT-2025-0911 (2026-10-05 해지) | 전속계약금 세후 반환 확정 3,000,000원 (반환 상계 동의) · 해지 미상계 선급금 0원 (위약금은 정산 엔진 밖 별도 청구)",
+      prepaySummary: "선급금 잔액 0원 (해지 강제청구 대상 없음)",
       limitsSummary: "해지 확정 주기 — 최소 청구 기준액(-100,000원)과 무관하게 전액 청구",
       batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
       scores: {
         carryInPre: 0,
-        grossGenerated: 0,
+        grossGenerated: 500000,
         deductions: 0,
-        taxBase: 0,
-        prepayAndPostCarry: -4818767,
-        taxAmount: 0,
-        finalPayout: -4818767
+        taxBase: 500000,
+        prepayAndPostCarry: -3000000,
+        taxAmount: -16500,
+        finalPayout: -2516500
       },
-      diffEquation: "당월 발생 정산액 0원 − 전속계약금 세후 일할반환 4,768,767원(= 내림(세후 실지급 9,670,000원 × 잔여 의무 180일 / 총 365일)) − 해지 미상계 선급금 50,000원 = 10단계 공식 마이너스 청구액 -4,818,767원 (위약금 20,000,000원은 별도 손해배상 청구로 엔진 배제)",
+      diffEquation: "당월 강좌 R/S 500,000원(과세표준) − 원천세 16,500원 = 9단계 실정산 483,500원 − 전속계약금 세후 반환 확정액 3,000,000원(10단계 1회 차감) = 공식 마이너스 청구액 -2,516,500원 (해지 미상계 선급금 0원 · 위약금은 별도 손해배상 청구로 엔진 배제)",
       carryoverRows: [],
-      lectureRows: [],
+      lectureRows: [
+        { prodCode: "CRS-2509", prodName: "2026 산업안전기사 필기 전기위험방지기술 집중 특강 (해지일 10-05 이전 결제분)", pkgType: "단과 직접결제", count: 10, allocBase: "1,000,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "500,000.0000", finalFloor: 500000 }
+      ],
       bookRows: [],
       supportRows: [],
-      prepayRows: [
-        { prepayId: "PP-2025-0911", totalLoan: 1000000, openingBal: 50000, eligiblePreTax: 0, offsetApplied: 0, closingBal: 0, allocDetail: "당월 상계 재원 없음 → 미상계 잔액 50,000원 10단계 해지 강제청구 전환 후 원장 종결" }
-      ],
+      prepayRows: [],
       payeeSplitRows: [],
       waterfall: [
-        { step: "7단계 (LUMPSUM_ADD)", title: "전속계약금 반환은 7단계 차감 금지", rule: "세후 일할반환은 10단계(CLAIM)에서 1회 차감", delta: 0, bal: 0 },
-        { step: "10단계 (CLAIM)", title: "해지 강제 청구 (전속계약금 일할반환 + 미상계 선급금)", rule: "전속계약금 세후 일할반환 -4,768,767원 + 미상계 선급금 -50,000원", delta: -4818767, bal: -4818767 },
-        { step: "11단계 (PAYOUT)", title: "실지급 없음 → 공식 마이너스 청구서 발행", rule: "회수 가상계좌 발급 · 원천세 수정신고(채널 3-a) 이관", delta: 0, bal: -4818767 }
+        { step: "2단계 (ACCRUAL)", title: "해지일 이전 결제분 강좌 R/S 발생", rule: "CRS-2509 10월 1~5일 실결제 1,000,000원 × 지분 100% × R/S 50% = +500,000원", delta: 500000, bal: 500000 },
+        { step: "7단계 (LUMPSUM_ADD)", title: "전속계약금 반환은 7단계 차감 금지", rule: "세후 반환은 10단계(CLAIM)에서 1회 차감", delta: 0, bal: 500000 },
+        { step: "9단계 (TAX)", title: "사업소득(3.3%) 원천징수세액 산출", rule: "과세표준 500,000원 → 소득세 15,000 + 지방세 1,500 = -16,500원", delta: -16500, bal: 483500 },
+        { step: "10단계 (CLAIM)", title: "전속계약금 세후 반환 차감 및 청구 판정", rule: "반환 확정액 -3,000,000원(반환 상계 동의) → 9단계 실정산 483,500원 − 3,000,000원 = -2,516,500원", delta: -3000000, bal: -2516500 },
+        { step: "11단계 (PAYOUT)", title: "실지급 없음 → 공식 마이너스 청구서 발행", rule: "회수 가상계좌 발급 · 청구서 CLM-202610-02", delta: 0, bal: -2516500 }
       ],
-      evidenceInfo: "반환 상당 과세표준 역산 후 원천세 수정신고(채널 3-a) 이관 | 마이너스 청구서(CLM-202610-02) 발행 · 회수 가상계좌 안내",
+      evidenceInfo: "강의 R/S 사업소득 원천징수(과세표준 500,000원 / 세액 16,500원) | 전속계약금 세후 반환 3,000,000원 반영 · 마이너스 청구서(CLM-202610-02) 발행 · 회수 가상계좌 안내",
       auditMemos: [
-        "[2026-10-31 19:35] 법무·재무 합동검토: 이전기 해지(2026-10-05) 전속계약금 일할반환 및 미상계 선급금 청구 확정, 위약금 20,000,000원은 정산 엔진 밖 별도 청구."
+        "[2026-10-31 19:35] 법무·재무 합동검토: 이전기 해지(2026-10-05) 전속계약금 세후 반환 3,000,000원 청구 확정(선급금 잔액 0원), 위약금은 정산 엔진 밖 별도 청구."
       ]
     },
     "RH-0063": {
@@ -2783,6 +3120,329 @@ code, pre, kbd, samp,
       evidenceInfo: "기타소득 원천징수영수증(C19): 지급총액 500,000원 / 필요경비 300,000원 / 소득금액 200,000원 / 원천징수세액 44,000원 (9월 세후이월 45,000원은 9월분 신고 완료)",
       auditMemos: [
         "[2026-10-31 19:22] 재무팀 김회계: 한도해 계좌번호 변경(카카오뱅크) 실명조회 완료 및 9월 미송금 세후이월분(45,000원) 합산 확인."
+      ]
+    },
+    "RH-0047": {
+      holderId: "RH-0047",
+      holderName: "박보건 (개인 프리랜서 · 강사)",
+      entityType: "개인 프리랜서 (사업소득 3.3%)",
+      taxCode: "TX-02 (사업소득 3.3%)",
+      lockStatus: "READY (검증 통과 · 마감 가능)",
+      ssnMasked: "750314-1******",
+      ssnRaw: "750314-1420387",
+      bankMasked: "국민은행 612-21-****** (예금주: 박보건)",
+      bankRaw: "국민은행 612-21-047311 (예금주: 박보건)",
+      contractSummary: "CT-2024-1101 (~2026-10-31) | 강좌 CRS-2605 지분 100% · R/S 50% · 대여금 선급금 1,500,000원",
+      prepaySummary: "당월 상계 -1,500,000원(잔액 전부) — 기초 잔액 1,500,000원 → 기말 0원 · 선급금 원장 종결",
+      limitsSummary: "최소지급 100,000원 / 최소청구 -100,000원",
+      batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
+      scores: {
+        carryInPre: 0,
+        grossGenerated: 2500000,
+        deductions: 0,
+        taxBase: 2500000,
+        prepayAndPostCarry: -1500000,
+        taxAmount: -82500,
+        finalPayout: 917500
+      },
+      diffEquation: "과세표준 2,500,000원 − 선급금 상계 1,500,000원(잔액 전부) − 원천징수세액(3.3%) 82,500원 = 최종 실지급액 917,500원",
+      carryoverRows: [],
+      lectureRows: [
+        { prodCode: "CRS-2605", prodName: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", pkgType: "단과 직접결제", count: 40, allocBase: "5,000,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "2,500,000.0000", finalFloor: 2500000 }
+      ],
+      bookRows: [],
+      supportRows: [],
+      prepayRows: [
+        { prepayId: "PP-2024-1101", totalLoan: 1500000, openingBal: 1500000, eligiblePreTax: 2500000, offsetApplied: -1500000, closingBal: 0, allocDetail: "상계 대상 2,500,000원 − 예상 원천세 82,500원 = 상계 가능액 2,417,500원 ≥ 잔액 1,500,000원 → 잔액 전부 상계 (대여금 방식 · 과세표준 불변), 선급금 원장 종결" }
+      ],
+      payeeSplitRows: [],
+      waterfall: [
+        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) R/S 발생", rule: "CRS-2605 실결제 5,000,000원 × 지분 100% × R/S 50% = 2,500,000원", delta: 2500000, bal: 2500000 },
+        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계 (-1,500,000원 · 잔액 전부)", rule: "상계 가능액 2,417,500원 ≥ 잔액 1,500,000원 → 잔액 전부 상계", delta: -1500000, bal: 1000000 },
+        { step: "9단계 (TAX)", title: "사업소득(3.3%) 원천징수세액 산출 (TX-02)", rule: "과세표준 2,500,000원 → 소득세 75,000 + 지방세 7,500 = -82,500원", delta: -82500, bal: 917500 },
+        { step: "11단계 (PAYOUT)", title: "최종 실지급액 확정 (대량이체 대기)", rule: "917,500원 ≥ 100,000원 → 지급 확정", delta: 0, bal: 917500 }
+      ],
+      evidenceInfo: "사업소득 원천징수영수증(과세표준 2,500,000원 / 세액 82,500원) — 별도 증빙 제출 없음",
+      auditMemos: [
+        "[2026-10-31 19:12] 재무팀 김회계: 박보건 대여금 선급금 1,500,000원 전액 상계 · 원장 종결 확인."
+      ]
+    },
+    "RH-0048": {
+      holderId: "RH-0048",
+      holderName: "최지도 (개인 프리랜서 · 강사 겸 저자)",
+      entityType: "개인 프리랜서 (사업소득 3.3% · 강의 + 자사 발행 교재 저작자 본인)",
+      taxCode: "TX-02 / TX-03 (강의 사업소득 3.3% · 인세 사업소득 3.3%)",
+      lockStatus: "READY (검증 통과 · 마감 가능)",
+      ssnMasked: "820707-2******",
+      ssnRaw: "820707-2381140",
+      bankMasked: "신한은행 110-048-****** (예금주: 최지도)",
+      bankRaw: "신한은행 110-048-552019 (예금주: 최지도)",
+      contractSummary: "CT-2026-0405 | 강좌 CRS-2606 지분 100% · R/S 50% / 교재 PROD-BK-1007 인세 10%(실구매가 기준) · 대여금 선급금 500,000원",
+      prepaySummary: "당월 상계 -500,000원(잔액 전부) — 기초 잔액 500,000원 → 기말 0원 · 선급금 원장 종결",
+      limitsSummary: "최소지급 100,000원 / 최소청구 -100,000원",
+      batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
+      scores: {
+        carryInPre: 0,
+        grossGenerated: 1200000,
+        deductions: 0,
+        taxBase: 1200000,
+        prepayAndPostCarry: -500000,
+        taxAmount: -39600,
+        finalPayout: 660400
+      },
+      diffEquation: "과세표준 1,200,000원(강좌 1,000,000 + 인세 200,000) − 선급금 상계 500,000원(잔액 전부) − 원천징수세액(3.3%) 39,600원 = 최종 실지급액 660,400원",
+      carryoverRows: [],
+      lectureRows: [
+        { prodCode: "CRS-2606", prodName: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", pkgType: "단과 직접결제", count: 10, allocBase: "2,000,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "1,000,000.0000", finalFloor: 1000000 }
+      ],
+      bookRows: [
+        { sku: "PROD-BK-1007", title: "2026 산업안전지도사 1차 산업안전일반 핵심요약집", supplyType: "OWN_PUBLISHED (자사발행 인세 · Pipeline 2.1)", shipQty: 100, returnQty: 0, netQty: 100, listPrice: 20000, rate: "10.00%", shareRatio: "100.00%", finalFloor: 200000 }
+      ],
+      supportRows: [],
+      prepayRows: [
+        { prepayId: "PP-2026-0405", totalLoan: 500000, openingBal: 500000, eligiblePreTax: 1200000, offsetApplied: -500000, closingBal: 0, allocDetail: "상계 대상 1,200,000원 − 예상 원천세 39,600원 = 상계 가능액 1,160,400원 ≥ 잔액 500,000원 → 잔액 전부 상계 (강좌 416,667 · 인세 83,333 비례 안분), 선급금 원장 종결" }
+      ],
+      payeeSplitRows: [],
+      waterfall: [
+        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) + 교재 인세(2.1) 발생", rule: "강좌 CRS-2606 2,000,000 × 50% = 1,000,000 + 인세 PROD-BK-1007 100권 × 20,000 × 10% = 200,000 → 1,200,000원", delta: 1200000, bal: 1200000 },
+        { step: "6단계 (PREPAY_OFFSET)", title: "선급금 자동 상계 (-500,000원 · 잔액 전부)", rule: "상계 가능액 1,160,400원 ≥ 잔액 500,000원 → 잔액 전부 상계", delta: -500000, bal: 700000 },
+        { step: "9단계 (TAX)", title: "사업소득(3.3%) 원천징수세액 산출 (TX-02 / TX-03)", rule: "과세표준 1,200,000원 → 소득세 36,000 + 지방세 3,600 = -39,600원", delta: -39600, bal: 660400 },
+        { step: "11단계 (PAYOUT)", title: "최종 실지급액 확정 (대량이체 대기)", rule: "660,400원 ≥ 100,000원 → 지급 확정", delta: 0, bal: 660400 }
+      ],
+      evidenceInfo: "사업소득 원천징수영수증(과세표준 1,200,000원 / 세액 39,600원 — 강의 1,000,000 · 인세 200,000) — 별도 증빙 제출 없음",
+      auditMemos: [
+        "[2026-10-31 19:14] 재무팀 김회계: 최지도 교재 인세는 도서 정가 결제(할인 없음) 실구매가 기준 확인, 대여금 선급금 500,000원 전액 상계."
+      ]
+    },
+    "RH-0019": {
+      holderId: "RH-0019",
+      holderName: "김안전 (원 권리자 · 수취인 분할 70 : 30)",
+      entityType: "개인 프리랜서 (사업소득 3.3%) + 공동서명 소속사 (주)스타에듀매니지먼트 (법인 일반과세)",
+      taxCode: "TX-02 (김안전 70% · 사업소득 3.3%) / TX-07 ((주)스타에듀매니지먼트 30% · 세금계산서 권리자 발행 · VAT 10%)",
+      lockStatus: "WAIT_SUBMIT (수취인 (주)스타에듀매니지먼트 세금계산서 제출 대기)",
+      ssnMasked: "800521-1****** / 106-81-*****",
+      ssnRaw: "800521-1293014 / 106-81-55210",
+      bankMasked: "카카오뱅크 3333-19-******* (김안전) · 기업은행 106-055210-**-*** ((주)스타에듀매니지먼트)",
+      bankRaw: "카카오뱅크 3333-19-4410287 (김안전) · 기업은행 106-055210-01-018 ((주)스타에듀매니지먼트)",
+      contractSummary: "CT-2026-0715 | 강좌 CRS-2601 지분 100% · R/S 50% · 월 최저보장 1,500,000원 · 2계층 수취인 분할 70 : 30 (ADMN-SETT-007 · 2026-01-01 적용)",
+      prepaySummary: "해당 없음 (선급금 약정 없음 — 수취인 분할 계약)",
+      limitsSummary: "최소지급 100,000원 (수취인별 판정)",
+      batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
+      scores: {
+        carryInPre: 0,
+        grossGenerated: 2000000,
+        deductions: 0,
+        taxBase: 2000000,
+        prepayAndPostCarry: 0,
+        taxAmount: 13800,
+        finalPayout: 2013800
+      },
+      diffEquation: "강좌 R/S 2,000,000원을 8단계에서 70 : 30 분할 — 김안전 1,400,000원 − 원천세 46,200원 = 1,353,800원 / (주)스타에듀매니지먼트 600,000원 + 부가세 60,000원 = 660,000원 → 합계 2,013,800원 (세액 칸 = 부가세 +60,000 − 원천세 46,200)",
+      carryoverRows: [],
+      lectureRows: [
+        { prodCode: "CRS-2601", prodName: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", pkgType: "단과 직접결제 (쿠폰 차감 후)", count: 28, allocBase: "4,000,000.0000", shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "2,000,000.0000", finalFloor: 2000000 }
+      ],
+      bookRows: [],
+      supportRows: [
+        { type: "월 최저보장 (3단계 MMG_ADJ)", capTotal: 1500000, usedBefore: 2000000, calcCurrent: 0, capApplied: 0, offsetRule: "NON_OFFSET (비상계 보호)", remainCap: 0, note: "당월 순수 신규 R/S 2,000,000원 ≥ 보장액 1,500,000원 → 보전금 0원" }
+      ],
+      prepayRows: [],
+      payeeSplitRows: [
+        { payeeId: "RH-0019", name: "김안전 (원 권리자 · 강사)", role: "원 권리자 (TX-02)", ratio: "70.00%", preTaxSplit: 1400000, prepaySplit: 0, note: "원천세 46,200원(소득세 42,000 + 지방세 4,200) → 실지급 1,353,800원" },
+        { payeeId: "RH-0071", name: "(주)스타에듀매니지먼트", role: "공동서명 소속사 (TX-07)", ratio: "30.00%", preTaxSplit: 600000, prepaySplit: 0, note: "부가세 60,000원 가산 → 실지급 660,000원 (세금계산서 권리자 발행)" }
+      ],
+      waterfall: [
+        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) R/S 발생", rule: "CRS-2601 실결제 4,000,000원(판매가 − 쿠폰) × 지분 100% × R/S 50% = 2,000,000원", delta: 2000000, bal: 2000000 },
+        { step: "3단계 (MMG_ADJ)", title: "최저보장 정산금(MMG) 보전", rule: "순수 신규 R/S 2,000,000원 ≥ 월 보장액 1,500,000원 (보전금 0원)", delta: 0, bal: 2000000 },
+        { step: "8단계 (PAYEE_SPLIT)", title: "2계층 수취인 분할 70 : 30 (ADMN-SETT-007)", rule: "김안전 1,400,000원 · (주)스타에듀매니지먼트 600,000원 (마지막 수취인 총액 역산)", delta: 0, bal: 2000000 },
+        { step: "9단계 (TAX)", title: "수취인별 세무 매트릭스 적용", rule: "김안전 TX-02 원천세 -46,200원 / (주)스타에듀매니지먼트 TX-07 부가세 +60,000원", delta: 13800, bal: 2013800 },
+        { step: "11단계 (PAYOUT)", title: "수취인별 실지급액 확정 (분리 이체)", rule: "김안전 1,353,800원 + (주)스타에듀매니지먼트 660,000원 = 2,013,800원", delta: 0, bal: 2013800 }
+      ],
+      evidenceInfo: "수취인별 증빙: [1] 김안전 사업소득 원천징수영수증(과세표준 1,400,000원 / 세액 46,200원) + [2] (주)스타에듀매니지먼트 전자세금계산서(권리자 발행 · 공급가액 600,000원 / 세액 60,000원) 제출 대기",
+      auditMemos: [
+        "[2026-10-31 19:18] 재무팀 박세무: 김안전 계약 수취인 분할(70 : 30) SETT-007 등록값 대조 및 RH-0071 세금계산서 발행 요청 발송."
+      ]
+    },
+    "RH-0046": {
+      holderId: "RH-0046",
+      holderName: "이건설 (개인 프리랜서 · 강사)",
+      entityType: "개인 프리랜서 (사업소득 3.3%)",
+      taxCode: "TX-02 (사업소득 3.3% · 강의 R/S + R/S형 개발지원금)",
+      lockStatus: "READY (검증 통과 · 마감 가능)",
+      ssnMasked: "830118-1******",
+      ssnRaw: "830118-1556720",
+      bankMasked: "농협은행 302-0046-****-** (예금주: 이건설)",
+      bankRaw: "농협은행 302-0046-5512-31 (예금주: 이건설)",
+      contractSummary: "CT-2026-0712 | 강좌 CRS-2603 지분 60%(자사 40%) · R/S 50% · 월 최저보장 1,000,000원 · R/S형 개발지원금 SFA-2026-015 10%(한도 3,000,000원 · 비상계)",
+      prepaySummary: "해당 없음 (선급금 약정 없음)",
+      limitsSummary: "최소지급 100,000원 / 최소청구 -100,000원",
+      batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
+      scores: {
+        carryInPre: 0,
+        grossGenerated: 1600000,
+        deductions: -293350,
+        taxBase: 1306650,
+        prepayAndPostCarry: 0,
+        taxAmount: -43118,
+        finalPayout: 1263532
+      },
+      diffEquation: "강좌 R/S 1,200,000원 − 합격환급 옵션 B 강의 R/S 분담 43,350원 + 지원금 확정 150,000원(발생 400,000 − 한도 초과 소멸 235,550 − 합격환급 옵션 B 지원금 공제 14,450) = 과세표준 1,306,650원 − 원천징수세액(3.3%) 43,118원 = 최종 실지급액 1,263,532원",
+      carryoverRows: [],
+      lectureRows: [
+        { prodCode: "CRS-2603", prodName: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", pkgType: "단과 직접결제 (쿠폰 차감 후)", count: 28, allocBase: "4,000,000.0000", shareRatio: "60.00%", rsRate: "50.00%", refundDeduct: 0, calcRaw: "1,200,000.0000", finalFloor: 1200000 },
+        { prodCode: "HRF-202610-04", prodName: "합격환급반 옵션 B 환급 — 강의 R/S 분담 공제 (원 주문 SJM20260512-0210 CRS-2603 · 원거래 지분 × 요율 · SETT-006)", pkgType: "4단계 공제 (옵션 B)", count: 1, allocBase: "144,500.0000", shareRatio: "60.00%", rsRate: "50.00%", refundDeduct: -43350, calcRaw: "-43,350.0000", finalFloor: -43350 }
+      ],
+      bookRows: [],
+      supportRows: [
+        { type: "R/S형 개발지원금 (SFA-2026-015 · 한도형 · 비상계)", capTotal: 3000000, usedBefore: 2850000, calcCurrent: 400000, capApplied: 150000, offsetRule: "NON_OFFSET (비상계)", remainCap: 0, note: "발생 400,000원(4,000,000 × 10%) → 복원 후 사용가능 한도 164,450원(잔여 150,000 + 합격환급 HRF-04 복원 14,450)으로 캡 · 초과 235,550원 소멸 → 합격환급 옵션 B 지원금 공제 14,450원 차감 → 확정 150,000원 · 잔여 한도 0 · 약정 종결(COMPLETED)" },
+        { type: "월 최저보장 (3단계 MMG_ADJ)", capTotal: 1000000, usedBefore: 1200000, calcCurrent: 0, capApplied: 0, offsetRule: "NON_OFFSET (비상계 보호)", remainCap: 0, note: "당월 순수 신규 R/S 1,200,000원 ≥ 보장액 1,000,000원 → 보전금 0원" }
+      ],
+      prepayRows: [],
+      payeeSplitRows: [],
+      waterfall: [
+        { step: "2단계 (ACCRUAL)", title: "당월 강좌(1.1) R/S + R/S형 지원금(5.1) 발생", rule: "CRS-2603 실결제 4,000,000원 × 지분 60% × R/S 50% = 1,200,000 + 지원금 4,000,000 × 10% = 400,000 → 1,600,000원", delta: 1600000, bal: 1600000 },
+        { step: "3단계 (MMG_ADJ)", title: "최저보장 정산금(MMG) 보전", rule: "R/S 1,200,000원 ≥ 월 보장액 1,000,000원 (보전금 0원)", delta: 0, bal: 1600000 },
+        { step: "4단계 (DEDUCT)", title: "합격환급반(옵션 B) 강의 R/S 분담 · 지원금 공제", rule: "HRF-202610-04(원 주문 CRS-2603 144,500원): 강의 R/S 분담 내림(144,500 × 지분 60% × 요율 50%) = -43,350원 + 원거래 확정 지원금 14,450원(144,500 × 10%) × 분담 100% = -14,450원 (한도 14,450원 복원)", delta: -57800, bal: 1542200 },
+        { step: "5단계 (SUPPORT_CAP)", title: "개발지원금 누적 한도 캡 통제", rule: "발생 400,000원 → 복원 후 사용가능 한도 164,450원(잔여 150,000 + 복원 14,450) (초과 -235,550원 소멸) → 공제 후 확정 150,000원 · 잔여 한도 0", delta: -235550, bal: 1306650 },
+        { step: "9단계 (TAX)", title: "사업소득(3.3%) 원천징수세액 산출 (TX-02)", rule: "과세표준 1,306,650원(강의 1,156,650 · 지원금 150,000) → 소득세 39,199 + 지방세 3,919 = -43,118원", delta: -43118, bal: 1263532 },
+        { step: "11단계 (PAYOUT)", title: "최종 실지급액 확정 (대량이체 대기)", rule: "1,263,532원 ≥ 100,000원 → 지급 확정", delta: 0, bal: 1263532 }
+      ],
+      evidenceInfo: "사업소득 원천징수영수증(과세표준 1,306,650원 / 세액 43,118원 — 강의 1,156,650 · 지원금 150,000) — 별도 증빙 제출 없음",
+      auditMemos: [
+        "[2026-10-31 19:20] 재무팀 김회계: 이건설 SFA-2026-015 한도 3,000,000원 소진 → 약정 COMPLETED 전이 확인 (합격환급 옵션 B 복원분 같은 달 사용)."
+      ]
+    },
+    "RH-0044": {
+      holderId: "RH-0044",
+      holderName: "안전기술출판 (도서 위탁)",
+      entityType: "개인 면세사업자 (위탁자 CONSIGNOR · 도서 위탁 판매)",
+      taxCode: "TX-11 / TX-12 (위탁 도서 면세 계산서 수취 + 위탁수수료 과세 세금계산서 매출발행)",
+      lockStatus: "HOLD (PG 대사 미분류 · 마감 보류 — SETT-004 REC-02 소명 대기)",
+      ssnMasked: "214-90-*****",
+      ssnRaw: "214-90-04417",
+      bankMasked: "하나은행 267-910044-***** (예금주: 안전기술출판)",
+      bankRaw: "하나은행 267-910044-30217 (예금주: 안전기술출판)",
+      contractSummary: "CT-2026-0705 (~2026-11-10) | 위탁 도서 PROD-BK-3003 수수료 차감지급(NET_DEDUCT, 수수료율 25% · 부가세 별도)",
+      prepaySummary: "해당 없음 (위탁 도서 전용 파이프라인 격리)",
+      limitsSummary: "최소지급 100,000원",
+      batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
+      scores: {
+        carryInPre: 0,
+        grossGenerated: 2000000,
+        deductions: -500000,
+        taxBase: 1500000,
+        prepayAndPostCarry: 0,
+        taxAmount: -50000,
+        finalPayout: 1450000
+      },
+      diffEquation: "위탁 도서 총 판매대금 2,000,000원(80권 × 위탁 판매가 25,000원 · 반품 0) − 당사 위탁수수료 공급가액 500,000원 = 위탁 정산 입력액 1,500,000원 − 수수료 부가세 50,000원 = 위탁 순정산 실지급액 1,450,000원 ([4]칸은 과세표준이 아니라 위탁 정산 입력액 · 원천징수 비대상)",
+      carryoverRows: [],
+      lectureRows: [],
+      bookRows: [
+        { sku: "PROD-BK-3003", title: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁)", supplyType: "CONSIGNMENT (위탁도서 · Pipeline 2.2 · NET_DEDUCT)", shipQty: 80, returnQty: 0, netQty: 80, listPrice: 25000, rate: "72.50% (수수료 25% + 부가세 차감)", shareRatio: "100.00%", finalFloor: 1450000 }
+      ],
+      supportRows: [],
+      prepayRows: [],
+      payeeSplitRows: [],
+      waterfall: [
+        { step: "2단계 (ACCRUAL)", title: "위탁 도서 판매대금 확정 (위탁도서 정산)", rule: "확정 80권(반품 0) × 위탁 판매가 25,000원 = 2,000,000원", delta: 2000000, bal: 2000000 },
+        { step: "4단계 (DEDUCT)", title: "당사 위탁수수료 공급가액 차감 (NET_DEDUCT)", rule: "판매대금 2,000,000원 × 25% = -500,000원", delta: -500000, bal: 1500000 },
+        { step: "9단계 (TAX)", title: "재화 공급 면세 판정 · 수수료 부가세 차감 (TX-11/TX-12)", rule: "도서 재화 공급이므로 원천징수 0원 / 위탁수수료 부가세 -50,000원 차감 (당사 과세 세금계산서 정발행)", delta: -50000, bal: 1450000 },
+        { step: "11단계 (PAYOUT)", title: "위탁 정산대금 최종 실지급액 확정", rule: "수수료 차감지급(NET_DEDUCT) 방식 → 1,450,000원 지급", delta: 0, bal: 1450000 }
+      ],
+      evidenceInfo: "양방향 증빙(TX-11/TX-12): [1] 당사→안전기술출판 위탁수수료 과세 세금계산서(공급가 500,000 / 세액 50,000) 정발행 | [2] 안전기술출판→당사 도서 면세 계산서(2,000,000원) 수취 대기",
+      auditMemos: [
+        "[2026-10-31 19:16] 재무팀 박세무: 안전기술출판 위탁 판매 80권 확정(반품 0 · 재고 0) 및 수수료 세금계산서 정발행, 도서 면세 계산서 수취 확인 후 이체."
+      ]
+    },
+    "RH-0031": {
+      holderId: "RH-0031",
+      holderName: "이안전 (개인 프리랜서 · 공동저자)",
+      entityType: "개인 프리랜서 (사업소득 3.3% · 공동저자 지분 30%)",
+      taxCode: "TX-03 (저자 사업소득 3.3%)",
+      lockStatus: "HOLD (최소 지급 기준 미달 · 세전 이월 · PG 대사 마감 보류 — SETT-004 REC-01)",
+      ssnMasked: "760915-1******",
+      ssnRaw: "760915-1374402",
+      bankMasked: "우리은행 1002-***-****** (예금주: 이안전)",
+      bankRaw: "우리은행 1002-731-554180 (예금주: 이안전)",
+      contractSummary: "CT-2026-0610 | 공동저자 교재 PROD-BK-1001 지분 30%(산준교육 50 · 자사 20 · 매핑 2026-10-14까지) · 인세 10%",
+      prepaySummary: "해당 없음 (선급금 약정 없음)",
+      limitsSummary: "최소지급 100,000원 (미달 시 원천징수 없이 세전 이월)",
+      batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
+      scores: {
+        carryInPre: 0,
+        grossGenerated: 33600,
+        deductions: 0,
+        taxBase: 33600,
+        prepayAndPostCarry: -33600,
+        taxAmount: 0,
+        finalPayout: 0
+      },
+      diffEquation: "공동저자 인세 33,600원(40권 × 28,000 × 10% × 지분 30%) → 11단계 실지급 판정액 32,492원(원천세 1,108원 차감 가정)이 최소 지급 기준액(100,000원) 미만 → 원천징수 미실행, 세전 계정(PRE_TAX)에 33,600원 이월 → 당월 실지급 0원",
+      carryoverRows: [
+        { type: "PRE_TAX (세전 양수이월)", origin: "2026-10", pipeline: "Pipeline 2.1 (교재 인세)", opening: 0, delta: 33600, stmtImpact: 0, newAdd: 33600, closing: 33600, note: "최소 지급 기준 미달로 당월 신규 세전 이월 (차월 정산에 합산)" }
+      ],
+      lectureRows: [],
+      bookRows: [
+        { sku: "PROD-BK-1001", title: "산업안전 핵심 이론 교재 (공동저자)", supplyType: "OWN_PUBLISHED (자사발행 인세 · Pipeline 2.1)", shipQty: 40, returnQty: 0, netQty: 40, listPrice: 28000, rate: "10.00%", shareRatio: "30.00%", finalFloor: 33600 }
+      ],
+      supportRows: [],
+      prepayRows: [],
+      payeeSplitRows: [],
+      waterfall: [
+        { step: "2단계 (ACCRUAL)", title: "공동저자 교재 인세 발생", rule: "PROD-BK-1001 40권(구매확정 10-10 · 매핑 종료 10-14 이전) × 28,000 × 10% × 지분 30% = 33,600원", delta: 33600, bal: 33600 },
+        { step: "10단계 (CLAIM)", title: "최소 지급 기준액(100,000원) 판정", rule: "판정액 32,492원(원천세 1,108원 차감 가정) < 100,000원 → 지급 보류 · 원천징수 미실행 · 세전 이월 33,600원", delta: -33600, bal: 0 },
+        { step: "11단계 (PAYOUT)", title: "당월 실지급 없음 (이체 비대상)", rule: "세전 이월 33,600원은 차월 정산 1단계(CARRY_IN)에 합산", delta: 0, bal: 0 }
+      ],
+      evidenceInfo: "증빙 발행 없음 — 지급 보류로 원천징수 미실행 (세전 이월 33,600원은 차월 지급 시 원천징수)",
+      auditMemos: [
+        "[2026-10-31 19:24] 재무팀 김회계: 이안전 공동저자 인세 33,600원 최소 지급 기준 미달 → 세전 이월(PRE_TAX) 적재 확인."
+      ]
+    },
+    "RH-0018": {
+      holderId: "RH-0018",
+      holderName: "고(故) 박위생 (상속 승계 → 박승계 60 · 박자녀 40)",
+      entityType: "상속 승계 계약 — 상속인 개인 비사업자 2명 (기타소득 C05)",
+      taxCode: "TX-03 (상속인 기타소득 C05 · 필요경비 0% · 22%)",
+      lockStatus: "READY (검증 통과 · 마감 가능)",
+      ssnMasked: "박승계 590302-2****** / 박자녀 880619-1******",
+      ssnRaw: "박승계 590302-2104418 / 박자녀 880619-1228813",
+      bankMasked: "신한은행 110-076-****** (박승계) · 국민은행 077-21-****** (박자녀)",
+      bankRaw: "신한은행 110-076-330218 (박승계) · 국민은행 077-21-904415 (박자녀)",
+      contractSummary: "CT-2025-1102 | 상속 승계(2026-09-01부터) — 수취인 박승계 RH-0076 60% · 박자녀 RH-0077 40% (ADMN-SETT-007)",
+      prepaySummary: "해당 없음 (선급금 약정 없음)",
+      limitsSummary: "최소지급 100,000원 (상속인별 판정)",
+      batchTimestamp: "2026-10-31 18:40:12 (Batch #202610-04)",
+      scores: {
+        carryInPre: 0,
+        grossGenerated: 1500000,
+        deductions: 0,
+        taxBase: 1500000,
+        prepayAndPostCarry: 0,
+        taxAmount: -330000,
+        finalPayout: 1170000
+      },
+      diffEquation: "교재 인세 1,500,000원을 상속인 60 : 40 분할 — 박승계 900,000원 − 기타소득세 198,000원 = 702,000원 / 박자녀 600,000원 − 132,000원 = 468,000원 → 합계 1,170,000원 (상속 승계분 필요경비 0% · 22%)",
+      carryoverRows: [],
+      lectureRows: [],
+      bookRows: [
+        { sku: "PROD-BK-1008", title: "2026 산업위생관리기사 필기 핵심정리 (고 박위생 저 · 상속 승계)", supplyType: "OWN_PUBLISHED (자사발행 인세 · Pipeline 2.1)", shipQty: 500, returnQty: 0, netQty: 500, listPrice: 30000, rate: "10.00% (정가 기준)", shareRatio: "100.00%", finalFloor: 1500000 }
+      ],
+      supportRows: [],
+      prepayRows: [],
+      payeeSplitRows: [
+        { payeeId: "RH-0076", name: "박승계 (법정 상속인 · 배우자)", role: "상속인 (TX-03 · 기타소득 C05)", ratio: "60.00%", preTaxSplit: 900000, prepaySplit: 0, note: "소득세 180,000 + 지방세 18,000 = 198,000원 → 실지급 702,000원" },
+        { payeeId: "RH-0077", name: "박자녀 (법정 상속인 · 자녀)", role: "상속인 (TX-03 · 기타소득 C05)", ratio: "40.00%", preTaxSplit: 600000, prepaySplit: 0, note: "소득세 120,000 + 지방세 12,000 = 132,000원 → 실지급 468,000원" }
+      ],
+      waterfall: [
+        { step: "2단계 (ACCRUAL)", title: "당월 교재 인세 발생", rule: "PROD-BK-1008 500권 × 정가 30,000원 × 인세 10% = 1,500,000원 (상속 승계 계약 CT-2025-1102)", delta: 1500000, bal: 1500000 },
+        { step: "8단계 (PAYEE_SPLIT)", title: "상속인 분할 60 : 40 (ADMN-SETT-007)", rule: "박승계 900,000원 · 박자녀 600,000원 (마지막 수취인 총액 역산)", delta: 0, bal: 1500000 },
+        { step: "9단계 (TAX)", title: "상속인 기타소득(C05) 원천징수 (필요경비 0% · 22%)", rule: "박승계 -198,000원 + 박자녀 -132,000원 = -330,000원", delta: -330000, bal: 1170000 },
+        { step: "11단계 (PAYOUT)", title: "상속인별 실지급액 확정 (분리 이체)", rule: "박승계 702,000원 + 박자녀 468,000원 = 1,170,000원", delta: 0, bal: 1170000 }
+      ],
+      evidenceInfo: "상속인별 기타소득 원천징수영수증(C05): 박승계 지급 900,000원 / 세액 198,000원 · 박자녀 지급 600,000원 / 세액 132,000원",
+      auditMemos: [
+        "[2026-10-31 19:26] 재무팀 박세무: 고 박위생 계약 상속인 분할(60 : 40, 2026-09-01 적용) SETT-007 등록값과 대조 완료."
       ]
     }
   };
@@ -3129,7 +3789,7 @@ code, pre, kbd, samp,
                 <tr style="border-top:1px solid #e2e8f0;">
                   <td style="padding:8px 12px;"><strong>${r.prodCode}</strong> · ${r.prodName}</td>
                   <td style="padding:8px 12px;"><span class="badge badge-primary">${r.pkgType}</span></td>
-                  <td style="padding:8px 12px; text-align:right;">${r.count}건</td>
+                  <td style="padding:8px 12px; text-align:right;">${r.count == null ? "-" : r.count + "건"}</td>
                   <td style="padding:8px 12px; text-align:right; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;">${r.allocBase}원</td>
                   <td style="padding:8px 12px; text-align:right;">${r.shareRatio}</td>
                   <td style="padding:8px 12px; text-align:right; font-weight:700;">${r.rsRate}</td>
@@ -3169,8 +3829,8 @@ code, pre, kbd, samp,
                 <tr style="border-top:1px solid #e2e8f0;">
                   <td style="padding:8px 12px;"><strong>${r.sku}</strong> · ${r.title}</td>
                   <td style="padding:8px 12px;"><span class="badge badge-warn">${r.supplyType}</span></td>
-                  <td style="padding:8px 12px; text-align:right;">출고 ${r.shipQty} − 반품 ${r.returnQty} = <strong>${r.netQty}부</strong></td>
-                  <td style="padding:8px 12px; text-align:right;">${fmt(r.listPrice)}</td>
+                  <td style="padding:8px 12px; text-align:right;">${r.shipQty == null ? "합계 기준 (수량 미연결)" : `출고 ${r.shipQty} − 반품 ${r.returnQty} = <strong>${r.netQty}부</strong>`}</td>
+                  <td style="padding:8px 12px; text-align:right;">${r.listPrice == null ? "-" : fmt(r.listPrice)}</td>
                   <td style="padding:8px 12px; text-align:right; font-weight:700;">${r.rate}</td>
                   <td style="padding:8px 12px; text-align:right;">${r.shareRatio}</td>
                   <td style="padding:8px 12px; text-align:right; font-weight:800; color:#0f172a;">${fmt(r.finalFloor)}</td>
@@ -3500,7 +4160,7 @@ code, pre, kbd, samp,
                 <tr>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1;"><strong>${r.prodName}</strong> (${r.prodCode})</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1;">${r.pkgType}</td>
-                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${r.count}건</td>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${r.count == null ? "-" : r.count + "건"}</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${Math.floor(Number(r.allocBase.replace(/,/g, ''))).toLocaleString('ko-KR')}원</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${r.shareRatio}</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${r.rsRate}</td>
@@ -3537,8 +4197,8 @@ code, pre, kbd, samp,
               ${c.bookRows.map(r => `
                 <tr>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1;"><strong>${r.title}</strong> (${r.sku})</td>
-                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">출고 ${r.shipQty} − 반품 ${r.returnQty} = <strong>${r.netQty}부</strong></td>
-                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${fmt(r.listPrice)}</td>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${r.shipQty == null ? "합계 기준 (수량 미연결)" : `출고 ${r.shipQty} − 반품 ${r.returnQty} = <strong>${r.netQty}부</strong>`}</td>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${r.listPrice == null ? "-" : fmt(r.listPrice)}</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${r.rate}</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${r.shareRatio}</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right; font-weight:800;">${fmt(r.finalFloor)}</td>
@@ -3610,6 +4270,40 @@ code, pre, kbd, samp,
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right; font-weight:800; color:#dc2626;">${fmt(r.offsetApplied)}</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right; font-weight:800; color:#b45309;">${fmt(r.closingBal)}</td>
                   <td style="padding:8px 10px; border:1px solid #cbd5e1;">${r.allocDetail}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `);
+    }
+
+    // (6) 수취인 분할 내역 (2계층 분할 · 상속인 분할 계약일 때만)
+    if (c.payeeSplitRows && c.payeeSplitRows.length > 1) {
+      secHtml.push(`
+        <div>
+          <div class="s2-sec-title">
+            <span>${secNo++}. 수취인별 분할 · 지급 내역</span>
+            <span style="font-size:11.5px; color:#64748b;">※ 계약에 등록된 수취인 분할 비율 기준 (수취인별 세무 · 이체)</span>
+          </div>
+          <table class="table" style="width:100%; border-collapse:collapse; font-size:12px; border:1px solid #cbd5e1;">
+            <thead>
+              <tr style="background:#f8fafc;">
+                <th style="padding:8px 10px; border:1px solid #cbd5e1;">수취인</th>
+                <th style="padding:8px 10px; border:1px solid #cbd5e1;">수취 구분</th>
+                <th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">분할 비율</th>
+                <th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">분할 후 세전 정산금</th>
+                <th style="padding:8px 10px; border:1px solid #cbd5e1;">세액 · 실지급 안내</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${c.payeeSplitRows.map(r => `
+                <tr>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1; font-weight:700;">${r.name} (${r.payeeId})</td>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1;">${r.role}</td>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right;">${r.ratio}</td>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1; text-align:right; font-weight:800;">${fmt(r.preTaxSplit)}</td>
+                  <td style="padding:8px 10px; border:1px solid #cbd5e1;">${r.note}</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -3753,8 +4447,14 @@ code, pre, kbd, samp,
 <script>
   // 권리자 발행 증빙: 발행 요청 → 제출(권리자 · 운영자 대리) → 홈택스 매입 내역 대사 (제2권 9.1 · 9.4절)
   window.TAX_DOCS = [
-    { key: "RH-0025", holder: "정종대 (개인 면세사업자)", matrix: "면세사업자 (TX-08)", kind: "전자계산서", kindLabel: "[발행 요청] 전자계산서 (면세 · 권리자 발행)", supply: 13018750, vat: 0, deadline: "2026-11-10", status: "SUBMITTED", approvalNo: "20261103-41000000-00012345", by: "권리자 제출" },
-    { key: "RH-0012", holder: "산준교육 콘텐츠 주식회사 (법인 · 일반과세)", matrix: "일반과세자 (TX-07 / TX-09)", kind: "전자세금계산서", kindLabel: "[발행 요청] 전자세금계산서 (과세 10% · 권리자 발행)", supply: 4800000, vat: 480000, deadline: "2026-11-10", status: "REQUESTED", approvalNo: "", by: "" }
+    { key: "RH-0025", holder: "정종대 (개인 면세사업자)", matrix: "면세사업자 (TX-08)", kind: "전자계산서", kindLabel: "[발행 요청] 전자계산서 (면세 · 권리자 발행)", supply: 6275000, vat: 0, deadline: "2026-11-10", status: "SUBMITTED", approvalNo: "20261103-41000000-00012345", by: "권리자 제출", note: "사업 공급분만 기재(강좌 725,000 + 인세 100,000 + 개발지원금 450,000 + 전속계약금 5,000,000) — 약정금 MS-2026-004 기타소득 2,000,000원은 계산서에서 빼고 원천징수영수증으로 별도 처리" },
+    { key: "RH-0012", holder: "산준교육 콘텐츠 주식회사 (법인 · 일반과세)", matrix: "일반과세자 (TX-07 / TX-09)", kind: "전자세금계산서", kindLabel: "[발행 요청] 전자세금계산서 (과세 10% · 권리자 발행)", supply: 4856000, vat: 485600, deadline: "2026-11-10", status: "REQUESTED", approvalNo: "", by: "" },
+    { key: "RH-0019", holder: "(주)스타에듀매니지먼트 · RH-0071 — 김안전 계약 수취인 30%", matrix: "일반과세자 (TX-07)", kind: "전자세금계산서", kindLabel: "[발행 요청] 전자세금계산서 (과세 10% · 수취인 발행)", supply: 600000, vat: 60000, deadline: "2026-11-10", status: "REQUESTED", approvalNo: "", by: "" }
+  ];
+  // 위탁 도서 수취 계산서 · 당사 수수료 세금계산서 (정산서 STMT-03 · STMT-12와 같은 값)
+  window.CONSIGN_DOCS = [
+    { holder: "한국소방학회 (도서 위탁)", gross: 4000000, fee: 1000000, feeVat: 100000, net: 3120000, note: "9월 수수료 정정 환급 220,000원(수수료 200,000 + 부가세 20,000 · ADJ-202610-05) 포함" },
+    { holder: "안전기술출판 (도서 위탁)", gross: 2000000, fee: 500000, feeVat: 50000, net: 1450000 }
   ];
   window.TAX_RECEIVE_DONE = false;
   window.taxSubmitMode = "OPERATOR";
@@ -3771,24 +4471,24 @@ code, pre, kbd, samp,
     body.innerHTML = window.TAX_DOCS.map(d => `
       <tr>
         <td><strong>${d.holder}</strong><br><span class="mono">${d.matrix}</span></td>
-        <td>${d.kindLabel}</td>
+        <td>${d.kindLabel}${d.note ? '<div style="font-size:11px; color:var(--text-muted); margin-top:3px;">' + d.note + '</div>' : ''}</td>
         <td>권리자 홈택스 발행 · 제출 → 홈택스 매입 내역 엑셀 대사</td>
         <td class="num">${taxWon(d.supply)}</td>
         <td class="num">${taxWon(d.vat)}</td>
         <td class="num"><strong>${taxWon(d.supply + d.vat)}</strong></td>
         <td>${d.status === "REQUESTED" ? '<span class="badge badge-warn">' + d.deadline + ' 기한 (미제출)</span>' : d.deadline + ' 기한'}</td>
         <td>${TAX_STATUS[d.status]}${d.approvalNo ? '<div style="font-size:11px; color:var(--text-muted); margin-top:3px;">승인번호 ' + d.approvalNo + ' · ' + d.by + '</div>' : ''}</td>
-      </tr>`).join("") + `
+      </tr>`).join("") + window.CONSIGN_DOCS.map(c => `
       <tr>
-        <td><strong>한국소방학회 (도서 위탁)</strong><br><span class="mono">도서 재화 공급 (TX-11)</span></td>
+        <td><strong>${c.holder}</strong><br><span class="mono">도서 재화 공급 (TX-11)</span></td>
         <td>[1] [수취] 도서 판매대금 면세 계산서<br>[2] [당사 발행] 위탁 수수료 과세 세금계산서</td>
         <td>[수취] 홈택스 매입 내역 대사 / [발행] 당사 발행</td>
-        <td class="num">도서: 4,000,000원<br>수수료: 1,000,000원</td>
-        <td class="num">도서: 0원<br>수수료: 100,000원</td>
-        <td class="num"><strong>위탁 실지급: 2,900,000원</strong><br><span style="font-size:10px; color:var(--text-muted);">(수수료 차감지급 NET_DEDUCT)</span></td>
+        <td class="num">도서: ${taxWon(c.gross)}<br>수수료: ${taxWon(c.fee)}</td>
+        <td class="num">도서: 0원<br>수수료: ${taxWon(c.feeVat)}</td>
+        <td class="num"><strong>위탁 실지급: ${taxWon(c.net)}</strong><br><span style="font-size:10px; color:var(--text-muted);">(수수료 차감지급 NET_DEDUCT${c.note ? ' · ' + c.note : ''})</span></td>
         <td>지급 후 10일 내 수취 확인</td>
         <td>${window.TAX_RECEIVE_DONE ? '<span class="badge badge-success">수수료 발행완료 · 계산서 수취 완료</span>' : '<span class="badge badge-primary">수수료 발행완료 · 계산서 수취대기</span>'}</td>
-      </tr>`;
+      </tr>`).join("");
   }
   function remindTaxSubmit() {
     const n = window.TAX_DOCS.filter(d => d.status === "REQUESTED").length;
@@ -3803,7 +4503,7 @@ code, pre, kbd, samp,
     window.TAX_RECEIVE_DONE = true;
     const open = window.TAX_DOCS.filter(d => d.status === "REQUESTED").length;
     renderTaxDocs();
-    showToast(`📥 홈택스 매입 내역 대사: 일치 ${matched}건 · 불일치 ${mismatch}건 · 미제출 ${open}건 · 위탁 수취 계산서 1건 수취 완료`);
+    showToast(`📥 홈택스 매입 내역 대사: 일치 ${matched}건 · 불일치 ${mismatch}건 · 미제출 ${open}건 · 위탁 수취 계산서 ${window.CONSIGN_DOCS.length}건 수취 완료`);
   }
   function openTaxSubmitModal(mode) {
     window.taxSubmitMode = mode;
@@ -3828,7 +4528,7 @@ code, pre, kbd, samp,
   function fillTaxSubmitGuide() {
     const d = window.TAX_DOCS.find(x => x.key === document.getElementById("tiTarget").value);
     if (!d) return;
-    document.getElementById("tiGuide").innerHTML = `<strong>발행 안내</strong> — ${d.kind} · 공급받는 자: 주식회사 엘캠퍼스(산준모닷컴)<br>공급가액 <strong>${taxWon(d.supply)}</strong> · 세액 <strong>${taxWon(d.vat)}</strong> · 작성일자는 공급시기(정산 귀속월 말일) · 발행 기한 ${d.deadline}`;
+    document.getElementById("tiGuide").innerHTML = `<strong>발행 안내</strong> — ${d.kind} · 공급받는 자: 주식회사 엘캠퍼스(산준모닷컴)<br>공급가액 <strong>${taxWon(d.supply)}</strong> · 세액 <strong>${taxWon(d.vat)}</strong> · 작성일자는 공급시기(정산 귀속월 말일) · 발행 기한 ${d.deadline}${d.note ? '<br>' + d.note : ''}`;
     document.getElementById("tiSupply").value = d.supply;
     document.getElementById("tiVat").value = d.vat;
   }

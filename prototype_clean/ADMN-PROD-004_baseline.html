@@ -806,6 +806,7 @@ code, pre, kbd, samp,
                   <option value="산업안전기사">산업안전기사</option>
                   <option value="건설안전기사">건설안전기사</option>
                   <option value="산업안전지도사">산업안전지도사</option>
+                  <option value="산업위생관리기사">산업위생관리기사</option>
                 </select>
               </div>
               <div class="filter-field">
@@ -1126,6 +1127,7 @@ code, pre, kbd, samp,
                       <option value="산업안전기사">산업안전기사</option>
                       <option value="건설안전기사">건설안전기사</option>
                       <option value="산업안전지도사">산업안전지도사</option>
+                      <option value="산업위생관리기사">산업위생관리기사</option>
                     </select>
                   </td>
                   <th>출간일 <span class="req-star">*</span></th>
@@ -1221,7 +1223,7 @@ code, pre, kbd, samp,
                         <option value="">공급 형태 선택 (SKU 채번 앞자리 결정)</option>
                         <option value="자체출판(인세)">[자사] 산준모북스 — 자사 발행 (SKU 1xxx · 저자 인세 10% 정산)</option>
                         <option value="사입판매">사입판매 (SKU 2xxx · 매입처는 거래처 원장에서 선택)</option>
-                        <option value="위탁판매">[RH-0044] 안전기술출판 — 위탁판매 (SKU 3xxx · 공급률 65%)</option>
+                        <option value="위탁판매">[RH-0044] 안전기술출판 — 위탁판매 (SKU 3xxx · 공급률 75% · 수수료 25%)</option>
                         <option value="비매품(번들)">[자사] 비매품 — 강좌 번들 출고 전용 (SKU 4xxx · 정산기준금 0원)</option>
                         <option value="미등록(후속입력)">[미등록] 공급 형태 미확정 — 기존 선등록 SKU 전용</option>
                       </select>
@@ -1452,7 +1454,7 @@ code, pre, kbd, samp,
           <tbody>
             <tr>
               <td><span class="code-pill">PROD-BK-3004</span></td>
-              <td><span class="badge badge-info">위탁판매 (65%)</span></td>
+              <td><span class="badge badge-info">위탁판매 (75%)</span></td>
               <td style="font-weight:700;">2026 인간공학기사 필기 빈출문제 7개년 총정리</td>
               <td>안전기술출판</td>
               <td class="text-right">32,000원</td>
@@ -1636,10 +1638,10 @@ code, pre, kbd, samp,
         publisher: "안전기술출판",
         isbn: "979-11-98765-04-3",
         pubDate: "2026-02-14",
-        price: 36000,
+        price: 25000,
         supplyType: "위탁판매",
-        supplyCost: 23400,
-        supplyRateLabel: "위탁공급률 65%",
+        supplyCost: 18750,
+        supplyRateLabel: "위탁공급률 75% (수수료 25% 차감 지급 · NET_DEDUCT)",
         step1Ok: false,
         step2Ok: true,
         step3Ok: true,
@@ -1676,6 +1678,165 @@ code, pre, kbd, samp,
         status: "판매대기",
         displayYn: "N",
         createdAt: "2026-10-02"
+      },
+      /* [v6.60] 샘플 시나리오 교재 — 코드 · 가격은 ADMN-PROD-003 · ADMN-SETT-001과 같다(scripts/qa/reports/review/scenario_codes.md) */
+      {
+        sku: "PROD-BK-1007",
+        tempCode: "BK-REQ-2026-0007",
+        originMode: "INST_TEMP",
+        cat: "산업안전지도사",
+        title: "2026 산업안전지도사 1차 산업안전일반 핵심요약집",
+        subtitle: "최지도 강사 단과(CRS-2606) 공식 주교재 · 저자 인세 10%(실결제액 기준)",
+        author: "최지도",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-07-9",
+        pubDate: "2026-04-10",
+        price: 20000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 6000,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 180,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-04-03"
+      },
+      {
+        sku: "PROD-BK-1006",
+        tempCode: "BK-REQ-2025-0006",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "2026 정종대 산업안전기사 필기 기본서",
+        subtitle: "정종대 강사 특강(CRS-1002) 공식 주교재 · 저자 인세 10%",
+        author: "정종대",
+        publisher: "산준모북스",
+        isbn: "979-11-89210-01-4",
+        pubDate: "2025-12-15",
+        price: 20000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 6000,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 240,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-12-01"
+      },
+      {
+        sku: "PROD-BK-1001",
+        tempCode: "BK-REQ-2026-0001",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "산업안전 핵심 이론 교재",
+        subtitle: "공동저자 교재 (산준교육 콘텐츠 50% · 이안전 30% · 자사 20%) · 인세 10%",
+        author: "산준교육 콘텐츠 · 이안전",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-08-6",
+        pubDate: "2024-10-20",
+        price: 28000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 8400,
+        supplyRateLabel: "제조원가 30% + 공동저자 인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 150,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2024-10-15"
+      },
+      {
+        sku: "PROD-BK-1005",
+        tempCode: "BK-REQ-2026-0005",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "2026 산준모 산업안전기사 실기 필답형 모범답안집",
+        subtitle: "실기 필답형 전략반(CRS-2602) · 합격 환급반(PKG-2601 · 2602) 공식 주교재",
+        author: "김안전",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-03-6",
+        pubDate: "2026-01-20",
+        price: 34000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 10200,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 310,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-01-15"
+      },
+      {
+        sku: "PROD-BK-2001",
+        tempCode: "-",
+        originMode: "BOOK_LEDGER",
+        cat: "건설안전기사",
+        title: "2026 건설안전기사 필기 총정리",
+        subtitle: "외부 출판사 도서 매입 재판매 (정산 비인입 · 자사 100% 자동 귀속)",
+        author: "외부저자팀",
+        publisher: "한국자격교재총판",
+        isbn: "979-11-90312-21-9",
+        pubDate: "2025-12-20",
+        price: 18000,
+        supplyType: "사입판매",
+        supplyCost: 12000,
+        supplyRateLabel: "매입가 12,000원 (매입처 한국자격교재총판 SUP-0003)",
+        supplyVendor: "SUP-0003",
+        step1Ok: false,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 140,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-02-01"
+      },
+      /* [v6.63 W4] 고 박위생 저서 — 상속 승계 계약 CT-2025-1102 · 인세 10%(정가 기준) · 10월 판매 500권 */
+      {
+        sku: "PROD-BK-1008",
+        tempCode: "BK-REQ-2025-0018",
+        originMode: "INST_TEMP",
+        cat: "산업위생관리기사",
+        title: "2026 산업위생관리기사 필기 핵심정리",
+        subtitle: "고(故) 박위생 저 · 저자 인세 10%(정가 기준) · 상속인 수취인 분할 60:40 (ADMN-SETT-007)",
+        author: "박위생",
+        publisher: "산준모북스",
+        isbn: "979-11-89210-08-3",
+        pubDate: "2025-11-20",
+        price: 30000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 9000,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 180,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-11-15"
       }
     ];
 
@@ -2180,6 +2341,13 @@ code, pre, kbd, samp,
       ],
       "PROD-BK-3003": [
         { type: "단과 강좌", code: "CRS-2603", title: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", role: "부교재" }
+      ],
+      "PROD-BK-1007": [
+        { type: "단과 강좌", code: "CRS-2606", title: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", role: "주교재" }
+      ],
+      "PROD-BK-1006": [
+        { type: "단과 강좌", code: "CRS-1002", title: "정종대 산업안전 실전 빈출특강", role: "주교재" },
+        { type: "단과 강좌", code: "CRS-1004", title: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반 (판매종료)", role: "주교재" }
       ]
     };
     function recordBookStatus(b) {

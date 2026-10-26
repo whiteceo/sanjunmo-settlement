@@ -407,54 +407,51 @@
       "2026-10": {
         status: "READY", statusLabel: "마감 검증 완료 · 지급 대기",
         docNo: "STMT-EXT-202610-RH-0025",
-        scores: { carryInPre: -120000, grossGenerated: 14170000, deductions: -1031250, taxBase: 13018750, prepayAndPostCarry: -3500000, taxAmount: -429610, finalPayout: 9089140 },
-        diffEquation: "세전 정산금 13,018,750원(계산서 발행 금액, 전속계약금 5,000,000원 포함) − 선급금 차감 3,500,000원(잔액 전부) − 원천징수세액(3.3%) 429,610원 = 세후 지급액 9,089,140원",
-        carryoverRows: [
-          { origin: "2026-09", pipeline: "온라인 강좌 수익배분", opening: -120000, stmtImpact: -120000, newAdd: 0, closing: 0, note: "9월 환불 초과로 넘어온 세전 음수 이월(-120,000원)을 이번 달 정산에서 상쇄" }
-        ],
+        scores: { carryInPre: 0, grossGenerated: 8600000, deductions: -325000, taxBase: 8275000, prepayAndPostCarry: -3056925, taxAmount: -383075, finalPayout: 4835000 },
+        diffEquation: "세전 정산금 8,275,000원(강좌 725,000 + 인세 100,000 + 개발지원금 450,000 + 약정금 2,000,000 + 전속계약금 5,000,000) − 선급금 차감 3,056,925원 − 원천징수세액 383,075원(사업소득 3.3% 207,075 + 약정금 기타소득 176,000) = 세후 지급액 4,835,000원",
+        carryoverRows: [],
         lectureRows: [
-          { prodCode: "CRS-2026-001", prodName: "[단과] 2026 산업안전기사 필기 핵심이론", pkgType: "단과 직접결제", count: 95, allocBase: 9500000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -310000, finalFloor: 4440000 },
-          { prodCode: "PKG-2026-004", prodName: "[합격환급반] 산업안전 필기+실기 올인원 패키지 (강좌 안분)", pkgType: "패키지 안분 (75.00%)", count: 48, allocBase: 4760000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -271250, finalFloor: 2108750 }
+          { prodCode: "CRS-1002", prodName: "정종대 산업안전 실전 빈출특강", pkgType: "단과 직접결제", count: 20, allocBase: 3000000, shareRatio: "70.00%", rsRate: "50.00%", refundDeduct: 0, finalFloor: 1050000 },
+          { prodCode: "HRF-202610-01 · 03", prodName: "합격환급반 옵션 B 환급 — 강의 정산금 분담 공제 (환급반 CRS-1004)", pkgType: "합격 환급 공제", count: 2, allocBase: 650000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -325000, finalFloor: -325000 }
         ],
         bookRows: [
-          { sku: "PROD-BK-1006", title: "2026 정종대 산업안전기사 필기 기본서", shipQty: 300, returnQty: 10, netQty: 290, listPrice: 30000, rate: "10.00%", shareRatio: "100.00%", finalFloor: 870000 }
+          { sku: "PROD-BK-1006", title: "2026 정종대 산업안전기사 필기 기본서", shipQty: 50, returnQty: 0, netQty: 50, listPrice: 20000, rate: "10.00%", shareRatio: "100.00%", finalFloor: 100000 }
         ],
         supportRows: [
-          { type: "매출연동 개발지원금", capTotal: 10000000, usedBefore: 9280000, capApplied: 720000, note: "합격환급반 환급 분담(-325,000원) 차감 후 845,000원 → 잔여 한도 720,000원까지 반영(-125,000원)" },
+          { type: "매출연동 개발지원금", capTotal: 15000000, usedBefore: 4850000, capApplied: 450000, note: "대상 강좌 CRS-1002 이번 달 실결제 3,000,000원 × 15% = 450,000원 (합격환급반 CRS-1004 환급은 지원금 대상 강좌가 아니라 지원금 공제 없음 · 남은 한도 9,700,000원)" },
+          { type: "분할형 지원금 2회차 (비정기 약정금)", capTotal: 2000000, usedBefore: 0, capApplied: 2000000, note: "10월 승인분 · 기타소득(일시적 인적용역) — 선급금 차감 대상" },
           { type: "전속계약금 (비정기 약정금)", capTotal: 5000000, usedBefore: 0, capApplied: 5000000, note: "2년 전속 계약금 10월 승인분 일시 지급 (선급금 차감 대상 아님)" }
         ],
         prepayRows: [
-          { prepayId: "PP-2026-001", totalLoan: 5000000, openingBal: 3500000, offsetApplied: -3500000, closingBal: 0, allocDetail: "차감 대상 8,138,750원(강좌 6,548,750 + 인세 870,000 + 지원금 720,000) − 예상 원천세 268,570원 = 차감 가능액 7,870,180원 ≥ 잔액 → 잔액 3,500,000원 전부 차감 (선급금 종결)" }
+          { prepayId: "PP-2026-001", totalLoan: 5000000, openingBal: 3500000, offsetApplied: -3056925, closingBal: 443075, allocDetail: "차감 대상 3,275,000원(강좌 725,000 + 인세 100,000 + 개발지원금 450,000 + 약정금 2,000,000) − 예상 원천세 218,075원 = 차감 가능액 3,056,925원 < 잔액 → 3,056,925원 차감, 잔액 443,075원은 다음 정산으로" }
         ]
       },
       "2026-09": {
-        status: "CARRY", statusLabel: "지급액 없음 · 세전 음수 이월",
+        status: "ZERO", statusLabel: "지급액 없음 · 이월 없음",
         docNo: "STMT-EXT-202609-RH-0025",
-        scores: { carryInPre: 0, grossGenerated: 300000, deductions: -420000, taxBase: -120000, prepayAndPostCarry: 0, taxAmount: 0, finalPayout: 0 },
-        diffEquation: "당월 정산금 300,000원 − 환불 차감 420,000원 = -120,000원 → 지급액 없이 다음 달로 세전 음수 이월 (10월 정산에서 상쇄)",
-        carryoverRows: [
-          { origin: "2026-09", pipeline: "온라인 강좌 수익배분", opening: 0, stmtImpact: 0, newAdd: -120000, closing: -120000, note: "환불이 당월 정산금보다 많아 생긴 음수 금액을 다음 달 정산으로 넘김" }
-        ],
+        scores: { carryInPre: 0, grossGenerated: 300000, deductions: -300000, taxBase: 0, prepayAndPostCarry: 0, taxAmount: 0, finalPayout: 0 },
+        diffEquation: "당월 정산금 300,000원 − 환불 차감 300,000원 = 0원 → 지급 · 이월 · 선급금 차감 없음",
+        carryoverRows: [],
         lectureRows: [
-          { prodCode: "CRS-2026-001", prodName: "[단과] 2026 산업안전기사 필기 핵심이론", pkgType: "단과 직접결제", count: 6, allocBase: 600000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -420000, finalFloor: -120000 }
+          { prodCode: "CRS-2026-001", prodName: "[단과] 2026 산업안전기사 필기 핵심이론", pkgType: "단과 직접결제", count: 6, allocBase: 600000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: -300000, finalFloor: 0 }
         ],
         bookRows: [], supportRows: [], prepayRows: []
       },
       "2026-08": {
         status: "PAID", statusLabel: "지급 완료",
         docNo: "STMT-EXT-202608-RH-0025",
-        scores: { carryInPre: 0, grossGenerated: 6921000, deductions: 0, taxBase: 6921000, prepayAndPostCarry: -1500000, taxAmount: -228393, finalPayout: 5192607 },
-        diffEquation: "세전 정산금 6,921,000원 − 선급금 차감 1,500,000원 − 원천징수세액(3.3%) 228,393원 = 세후 지급액 5,192,607원",
+        scores: { carryInPre: 0, grossGenerated: 6674000, deductions: 0, taxBase: 6674000, prepayAndPostCarry: -1500000, taxAmount: -220242, finalPayout: 4953758 },
+        diffEquation: "세전 정산금 6,674,000원 − 선급금 차감 1,500,000원 − 원천징수세액(3.3%) 220,242원 = 세후 지급액 4,953,758원",
         carryoverRows: [],
         lectureRows: [
           { prodCode: "CRS-2026-001", prodName: "[단과] 2026 산업안전기사 필기 핵심이론", pkgType: "단과 직접결제", count: 82, allocBase: 8200000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, finalFloor: 4100000 },
           { prodCode: "PKG-2026-004", prodName: "[합격환급반] 산업안전 필기+실기 올인원 패키지 (강좌 안분)", pkgType: "패키지 안분 (75.00%)", count: 30, allocBase: 2800000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, finalFloor: 1400000 }
         ],
         bookRows: [
-          { sku: "PROD-BK-1006", title: "2026 정종대 산업안전기사 필기 기본서", shipQty: 250, returnQty: 3, netQty: 247, listPrice: 30000, rate: "10.00%", shareRatio: "100.00%", finalFloor: 741000 }
+          { sku: "PROD-BK-1006", title: "2026 정종대 산업안전기사 필기 기본서", shipQty: 250, returnQty: 3, netQty: 247, listPrice: 20000, rate: "10.00%", shareRatio: "100.00%", finalFloor: 494000 }
         ],
         supportRows: [
-          { type: "매출연동 개발지원금", capTotal: 10000000, usedBefore: 8600000, capApplied: 680000, note: "당월 매출 연동 지원금 680,000원 반영 (누적 9,280,000원)" }
+          { type: "매출연동 개발지원금", capTotal: 15000000, usedBefore: 4170000, capApplied: 680000, note: "당월 매출 연동 지원금 680,000원 반영 (누적 4,850,000원)" }
         ],
         prepayRows: [
           { prepayId: "PP-2026-001", totalLoan: 5000000, openingBal: 5000000, offsetApplied: -1500000, closingBal: 3500000, allocDetail: "8월 정산금에서 1,500,000원 차감 (잔액 3,500,000원은 다음 정산으로)" }
@@ -463,20 +460,22 @@
     },
     "RH-0012": {
       "2026-10": {
-        status: "READY", statusLabel: "마감 검증 완료 · 지급 대기",
+        status: "HOLD", statusLabel: "결제 대사 확인 중 · 마감 보류 (확인 후 지급)",
         docNo: "STMT-EXT-202610-RH-0012",
-        scores: { carryInPre: 0, grossGenerated: 4800000, deductions: 0, taxBase: 4800000, prepayAndPostCarry: -3000000, taxAmount: 480000, finalPayout: 2280000 },
-        diffEquation: "공급가액 4,800,000원(강좌 수익배분 3,000,000원 + 지원금 종료 일시정산 1,800,000원) + 부가가치세(10%) 480,000원(세금계산서 합계 5,280,000원) − 선급금 차감 3,000,000원 = 세후 지급액 2,280,000원",
+        scores: { carryInPre: 0, grossGenerated: 4856000, deductions: 0, taxBase: 4856000, prepayAndPostCarry: -3056000, taxAmount: 485600, finalPayout: 2285600 },
+        diffEquation: "공급가액 4,856,000원(강좌 수익배분 3,000,000원 + 공동저자 인세 56,000원 + 지원금 종료 일시정산 1,800,000원) + 부가가치세(10%) 485,600원(세금계산서 합계 5,341,600원) − 선급금 차감 3,056,000원 = 세후 지급액 2,285,600원",
         carryoverRows: [],
         lectureRows: [
-          { prodCode: "CT-2026-0412-LEC", prodName: "[법인 계약] 산업안전 온라인 강좌 수익배분 합계", pkgType: "단과 직접결제", count: 60, allocBase: 6000000, shareRatio: "100.00%", rsRate: "50.00%", refundDeduct: 0, finalFloor: 3000000 }
+          { prodCode: "CRS-1001", prodName: "산업안전기사 필기 핵심이론 패키지 (10월 1~10일 결제분)", pkgType: "단과 직접결제", count: 50, allocBase: 7500000, shareRatio: "80.00%", rsRate: "50.00%", refundDeduct: 0, finalFloor: 3000000 }
         ],
-        bookRows: [],
+        bookRows: [
+          { sku: "PROD-BK-1001", title: "산업안전 핵심 이론 교재", shipQty: 40, returnQty: 0, netQty: 40, listPrice: 28000, rate: "10.00%", shareRatio: "50.00%", finalFloor: 56000 }
+        ],
         supportRows: [
-          { type: "지원금 종료 일시정산 (비정기 약정금)", capTotal: 1800000, usedBefore: 0, capApplied: 1800000, note: "지원금 약정 종료에 따른 일시정산액 이번 달 반영" }
+          { type: "지원금 종료 일시정산 (비정기 약정금)", capTotal: 1800000, usedBefore: 0, capApplied: 1800000, note: "지원금 약정 종료에 따른 일시정산액 이번 달 반영 (선급금 차감 대상 아님)" }
         ],
         prepayRows: [
-          { prepayId: "PP-2026-0412", totalLoan: 8500000, openingBal: 8500000, offsetApplied: -3000000, closingBal: 5500000, allocDetail: "차감 대상 = 강좌 수익배분 3,000,000원 — 지원금 종료 일시정산 1,800,000원은 차감하지 않는 약정이라 제외" }
+          { prepayId: "PP-2026-0412", totalLoan: 8500000, openingBal: 8500000, offsetApplied: -3056000, closingBal: 5444000, allocDetail: "차감 대상 = 강좌 수익배분 3,000,000원 + 공동저자 인세 56,000원 — 지원금 종료 일시정산 1,800,000원은 차감하지 않는 약정이라 제외" }
         ]
       },
       "2026-09": {
@@ -504,30 +503,28 @@
     },
     "RH-0031": {
       "2026-10": {
-        status: "READY", statusLabel: "마감 검증 완료 · 지급 대기",
+        status: "CARRY", statusLabel: "최소 지급액 미달 · 다음 달 이월 (결제 대사 확인 중 · 마감 보류)",
         docNo: "STMT-EXT-202610-RH-0031",
-        scores: { carryInPre: 84000, grossGenerated: 336000, deductions: 0, taxBase: 420000, prepayAndPostCarry: 0, taxAmount: -13860, finalPayout: 406140 },
-        diffEquation: "9월 이월 84,000원 + 당월 인세 336,000원 = 세전 정산금 420,000원 − 원천징수세액(3.3%) 13,860원 = 세후 지급액 406,140원",
+        scores: { carryInPre: 0, grossGenerated: 33600, deductions: 0, taxBase: 33600, prepayAndPostCarry: -33600, taxAmount: 0, finalPayout: 0 },
+        diffEquation: "당월 인세 33,600원이 최소 지급액 100,000원에 못 미쳐 지급하지 않고 다음 달로 세전 이월",
         carryoverRows: [
-          { origin: "2026-09", pipeline: "교재 인세", opening: 84000, stmtImpact: 84000, newAdd: 0, closing: 0, note: "9월 최소 지급액(100,000원) 미달로 넘어온 84,000원을 이번 달에 합산 지급" }
+          { origin: "2026-10", pipeline: "교재 인세", opening: 0, stmtImpact: 0, newAdd: 33600, closing: 33600, note: "최소 지급액(100,000원) 미달 — 다음 달 정산에 합산" }
         ],
         lectureRows: [],
         bookRows: [
-          { sku: "PROD-BK-1001", title: "산업안전 핵심 이론 교재", shipQty: 420, returnQty: 20, netQty: 400, listPrice: 28000, rate: "10.00%", shareRatio: "30.00%", finalFloor: 336000 }
+          { sku: "PROD-BK-1001", title: "산업안전 핵심 이론 교재", shipQty: 40, returnQty: 0, netQty: 40, listPrice: 28000, rate: "10.00%", shareRatio: "30.00%", finalFloor: 33600 }
         ],
         supportRows: [], prepayRows: []
       },
       "2026-09": {
-        status: "CARRY", statusLabel: "최소 지급액 미달 · 다음 달 이월",
+        status: "PAID", statusLabel: "지급 완료",
         docNo: "STMT-EXT-202609-RH-0031",
-        scores: { carryInPre: 0, grossGenerated: 84000, deductions: 0, taxBase: 84000, prepayAndPostCarry: -84000, taxAmount: 0, finalPayout: 0 },
-        diffEquation: "당월 인세 84,000원이 최소 지급액 100,000원에 못 미쳐 지급하지 않고 다음 달로 세전 이월",
-        carryoverRows: [
-          { origin: "2026-09", pipeline: "교재 인세", opening: 0, stmtImpact: 0, newAdd: 84000, closing: 84000, note: "최소 지급액(100,000원) 미달 — 다음 달 정산에 합산" }
-        ],
+        scores: { carryInPre: 0, grossGenerated: 105000, deductions: 0, taxBase: 105000, prepayAndPostCarry: 0, taxAmount: -3465, finalPayout: 101535 },
+        diffEquation: "당월 인세 105,000원 − 원천징수세액(3.3%) 3,465원 = 세후 지급액 101,535원",
+        carryoverRows: [],
         lectureRows: [],
         bookRows: [
-          { sku: "PROD-BK-1001", title: "산업안전 핵심 이론 교재", shipQty: 105, returnQty: 5, netQty: 100, listPrice: 28000, rate: "10.00%", shareRatio: "30.00%", finalFloor: 84000 }
+          { sku: "PROD-BK-1001", title: "산업안전 핵심 이론 교재", shipQty: 130, returnQty: 5, netQty: 125, listPrice: 28000, rate: "10.00%", shareRatio: "30.00%", finalFloor: 105000 }
         ],
         supportRows: [], prepayRows: []
       },
@@ -548,9 +545,9 @@
 
   // 권리자 발행 증빙 — ADMN-SETT-002 TAX_DOCS와 같은 값(10월분). 1차 운영: 권리자가 홈택스에서 직접 발행 → 승인번호 · PDF 제출 → 재무팀 홈택스 매입 내역 대사
   var PTNR_TAX_DOCS = [
-    { holder: "RH-0025", month: "2026-10", kind: "전자계산서 (면세)", supply: 13018750, vat: 0, deadline: "2026-11-10", status: "SUBMITTED", approvalNo: "20261103-41000000-00012345" },
-    { holder: "RH-0025", month: "2026-08", kind: "전자계산서 (면세)", supply: 6921000, vat: 0, deadline: "2026-09-10", status: "MATCHED", approvalNo: "20260904-41000000-00007731" },
-    { holder: "RH-0012", month: "2026-10", kind: "전자세금계산서 (과세 10%)", supply: 4800000, vat: 480000, deadline: "2026-11-10", status: "REQUESTED", approvalNo: "" },
+    { holder: "RH-0025", month: "2026-10", kind: "전자계산서 (면세)", supply: 6275000, vat: 0, deadline: "2026-11-10", status: "SUBMITTED", approvalNo: "20261103-41000000-00012345", note: "사업 공급분만 기재(강좌 · 인세 · 개발지원금 · 전속계약금). 약정금 기타소득 2,000,000원은 계산서에 넣지 않고 원천징수영수증으로 따로 처리됩니다." },
+    { holder: "RH-0025", month: "2026-08", kind: "전자계산서 (면세)", supply: 6674000, vat: 0, deadline: "2026-09-10", status: "MATCHED", approvalNo: "20260904-41000000-00007731" },
+    { holder: "RH-0012", month: "2026-10", kind: "전자세금계산서 (과세 10%)", supply: 4856000, vat: 485600, deadline: "2026-11-10", status: "REQUESTED", approvalNo: "" },
     { holder: "RH-0012", month: "2026-09", kind: "전자세금계산서 (과세 10%)", supply: 2800000, vat: 280000, deadline: "2026-10-10", status: "MATCHED", approvalNo: "20261006-10000000-00031822" },
     { holder: "RH-0012", month: "2026-08", kind: "전자세금계산서 (과세 10%)", supply: 2500000, vat: 250000, deadline: "2026-09-10", status: "MATCHED", approvalNo: "20260908-10000000-00027140" }
   ];
@@ -874,7 +871,7 @@
     if (PTNR.isBiz) {
       var doc = holderTaxDocs().filter(function (d) { return d.month === m; })[0];
       if (doc) {
-        html.push('<div class="ptnr-notice is-blue"><div><strong>' + ptnrEsc(doc.kind) + '</strong> — 공급가액 ' + ptnrWon(doc.supply) + ' · 세액 ' + ptnrWon(doc.vat) + ' · 합계 ' + ptnrWon(doc.supply + doc.vat) + ' · 발행 기한 ' + doc.deadline + '<br>상태: ' + PTNR_TAX_STATUS[doc.status] + (doc.approvalNo ? ' 승인번호 ' + doc.approvalNo : '') + '<br>홈택스에서 직접 발행한 뒤 승인번호 · 증빙 PDF를 제출해 주세요. 미제출이어도 지급은 보류되지 않습니다.</div>'
+        html.push('<div class="ptnr-notice is-blue"><div><strong>' + ptnrEsc(doc.kind) + '</strong> — 공급가액 ' + ptnrWon(doc.supply) + ' · 세액 ' + ptnrWon(doc.vat) + ' · 합계 ' + ptnrWon(doc.supply + doc.vat) + ' · 발행 기한 ' + doc.deadline + (doc.note ? '<br>' + ptnrEsc(doc.note) : '') + '<br>상태: ' + PTNR_TAX_STATUS[doc.status] + (doc.approvalNo ? ' 승인번호 ' + doc.approvalNo : '') + '<br>홈택스에서 직접 발행한 뒤 승인번호 · 증빙 PDF를 제출해 주세요. 미제출이어도 지급은 보류되지 않습니다.</div>'
           + (doc.status === "REQUESTED" || doc.status === "MISMATCH" ? '<button type="button" class="btn btn-sm btn-green" onclick="switchPtnrTab(\'tax\'); openTaxForm(\'' + doc.month + '\')">제출하기</button>' : '') + '</div>');
       } else {
         html.push('<div class="ptnr-notice is-gray"><div>이 달은 발행할 세금계산서 · 계산서가 없습니다 (지급액 없음).</div></div>');
@@ -1010,7 +1007,7 @@
     var docs = holderTaxDocs().slice().sort(function (a, b) { return b.month.localeCompare(a.month); });
     body.innerHTML = docs.map(function (d) {
       var canSubmit = d.status === "REQUESTED" || d.status === "MISMATCH";
-      return '<tr><td><strong>' + PTNR_MONTH_LABEL[d.month] + '</strong></td><td>' + ptnrEsc(d.kind) + '</td>'
+      return '<tr><td><strong>' + PTNR_MONTH_LABEL[d.month] + '</strong></td><td>' + ptnrEsc(d.kind) + (d.note ? '<div style="font-size:11px; color:#64748B; margin-top:3px;">' + ptnrEsc(d.note) + '</div>' : '') + '</td>'
         + '<td class="num">' + ptnrWon(d.supply) + '</td><td class="num">' + ptnrWon(d.vat) + '</td><td class="num"><strong>' + ptnrWon(d.supply + d.vat) + '</strong></td>'
         + '<td>' + d.deadline + '</td>'
         + '<td>' + PTNR_TAX_STATUS[d.status] + (d.approvalNo ? '<div style="font-size:11px; color:#64748B; margin-top:3px;">승인번호 ' + d.approvalNo + '</div>' : '') + '</td>'
@@ -1023,7 +1020,7 @@
     if (!d) return;
     PTNR.taxFormKey = month;
     document.getElementById("taxFormTitle").textContent = PTNR_MONTH_LABEL[month] + " " + d.kind + " 제출";
-    document.getElementById("taxFormGuide").innerHTML = '<div><strong>발행 안내</strong> — ' + ptnrEsc(d.kind) + ' · 공급받는 자: 주식회사 엘캠퍼스(산준모닷컴) 120-88-00000<br>공급가액 <strong>' + ptnrWon(d.supply) + '</strong> · 세액 <strong>' + ptnrWon(d.vat) + '</strong> · 작성일자는 공급 시기(정산 귀속월 말일 ' + PTNR_MONTH_END[month] + ') · 발행 기한 ' + d.deadline + '</div>';
+    document.getElementById("taxFormGuide").innerHTML = '<div><strong>발행 안내</strong> — ' + ptnrEsc(d.kind) + ' · 공급받는 자: 주식회사 엘캠퍼스(산준모닷컴) 120-88-00000<br>공급가액 <strong>' + ptnrWon(d.supply) + '</strong> · 세액 <strong>' + ptnrWon(d.vat) + '</strong> · 작성일자는 공급 시기(정산 귀속월 말일 ' + PTNR_MONTH_END[month] + ') · 발행 기한 ' + d.deadline + (d.note ? '<br>' + ptnrEsc(d.note) : '') + '</div>';
     document.getElementById("tiApproval").value = "";
     document.getElementById("tiDate").value = PTNR_MONTH_END[month];
     document.getElementById("tiSupply").value = d.supply;

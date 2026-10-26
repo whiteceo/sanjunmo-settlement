@@ -280,6 +280,7 @@ code, pre, kbd, samp,
                 <option value="ALL">전체 (온라인 강좌 + 실물 도서)</option>
                 <option value="COURSE">온라인 강좌 (강좌 수익배분)</option>
                 <option value="BOOK">실물 도서 SKU (Pipeline 2.1 / 5.1)</option>
+                <option value="GOODS">일반 상품 (자사 매출 · 정산 비대상)</option>
               </select>
             </div>
             <div>
@@ -438,14 +439,31 @@ const holders = [
   {id:"RH-INTERNAL", name:"엘캠퍼스 (자사 권리자 · INTERNAL)", isInternal:true},
   {id:"RH-0012", name:"산준교육 콘텐츠 (김예시 강사)", isInternal:false},
   {id:"RH-0025", name:"정종대 강사 (개인 면세사업자)", isInternal:false},
-  {id:"RH-0031", name:"이안전 저자 (공동저자)", isInternal:false}
+  {id:"RH-0031", name:"이안전 저자 (공동저자)", isInternal:false},
+  {id:"RH-0047", name:"박보건 강사 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0048", name:"최지도 강사 · 저자 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0019", name:"김안전 강사 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0046", name:"이건설 강사 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0044", name:"안전기술출판 (위탁사 · 개인 면세사업자)", isInternal:false},
+  {id:"RH-0051", name:"사단법인 한국소방학회 (위탁사)", isInternal:false},
+  /* [v6.63 W4] 판매 근거 보강 — 이전기(해지) · 고 박위생(상속 승계) */
+  {id:"RH-0015", name:"이전기 강사 (2026-10-05 해지)", isInternal:false},
+  {id:"RH-0018", name:"고(故) 박위생 (상속 승계)", isInternal:false}
 ];
 
 const activeContracts = [
   {id:"CT-INTERNAL-000", holderId:"RH-INTERNAL", title:"자사 기본 귀속 원장 (상시 유효)", start:"2020-01-01", currentEnd:"2099-12-31"},
   {id:"CT-2026-0412", holderId:"RH-0012", title:"산준교육 온라인·교재 기본계약", start:"2024-10-15", currentEnd:"2026-10-14"},
   {id:"CT-2026-0501", holderId:"RH-0025", title:"정종대 강사 온라인 R/S 및 개발지원금 통합계약", start:"2025-01-01", currentEnd:"2027-12-31"},
-  {id:"CT-2026-0610", holderId:"RH-0031", title:"이안전 교재 공동저작 인세 계약", start:"2025-03-01", currentEnd:"2027-02-28"}
+  {id:"CT-2026-0610", holderId:"RH-0031", title:"이안전 교재 공동저작 인세 계약", start:"2025-03-01", currentEnd:"2027-02-28"},
+  {id:"CT-2024-1101", holderId:"RH-0047", title:"박보건 강사 온라인 R/S 계약", start:"2024-11-01", currentEnd:"2026-10-31"},
+  {id:"CT-2026-0405", holderId:"RH-0048", title:"최지도 강사 온라인 R/S 및 교재 인세 계약", start:"2026-04-01", currentEnd:"2028-03-31"},
+  {id:"CT-2026-0715", holderId:"RH-0019", title:"김안전 강사 온라인 R/S 공동 매니지먼트 계약 (수취인 분할 70:30)", start:"2026-01-01", currentEnd:"2027-12-31"},
+  {id:"CT-2026-0712", holderId:"RH-0046", title:"이건설 강사 온라인 R/S 및 R/S형 개발지원금 계약", start:"2025-07-01", currentEnd:"2027-06-30"},
+  {id:"CT-2026-0705", holderId:"RH-0044", title:"안전기술출판 도서 위탁 판매 계약", start:"2025-05-01", currentEnd:"2026-11-10"},
+  {id:"CT-2026-0801", holderId:"RH-0051", title:"한국소방학회 도서 위탁 판매 계약", start:"2026-08-01", currentEnd:"2027-07-31"},
+  {id:"CT-2025-0911", holderId:"RH-0015", title:"이전기 강사 온라인 R/S 및 전속 계약 (2026-10-05 해지)", start:"2025-09-11", currentEnd:"2026-10-05"},
+  {id:"CT-2025-1102", holderId:"RH-0018", title:"고 박위생 교재 인세 계약 (상속 승계 · 수취인 분할 60:40)", start:"2025-11-01", currentEnd:"2026-12-31"}
 ];
 
 const getHolder = id => holders.find(h => h.id === id);
@@ -480,12 +498,13 @@ const products = [
     kind:"COURSE",
     name:"산업안전기사 필기 핵심이론 패키지",
     pipeline:"온라인 강좌 수익배분",
+    price:150000,
     registeredDate:"2024-10-15",
     supportAgreements:[{agreementId:"SFA-2026-001", beneficiary:"산준교육 콘텐츠", rate:15, start:"2026-10-01", end:"2026-10-14"}],
     lessons:[
       {id:"LSN-1001-01", title:"1강. 안전관리론 핵심체계", runtime:2400},
       {id:"LSN-1001-02", title:"2강. 인간공학 및 시스템안전", runtime:2100},
-      {id:"LSN-1001-03", title:"3강. 기계위험방지기술 (계약기간 불일치)", runtime:2700}
+      {id:"LSN-1001-03", title:"3강. 기계위험방지기술 (매핑 종료일 10-10 · 계약 종료일 불일치)", runtime:2700}
     ]
   },
   {
@@ -493,6 +512,7 @@ const products = [
     kind:"COURSE",
     name:"정종대 산업안전 실전 빈출특강",
     pipeline:"온라인 강좌 수익배분",
+    price:150000,
     registeredDate:"2025-01-05",
     supportAgreements:[{agreementId:"SFA-2026-009", beneficiary:"정종대 강사", rate:15, start:"2025-01-01", end:"2027-12-31"}],
     lessons:[
@@ -507,6 +527,7 @@ const products = [
     pipeline:"자사 발행 도서 인세",
     supplyType:"OWN_PUBLISHED",
     ownCopyright:false,
+    price:28000,
     registeredDate:"2024-10-20",
     supportAgreements:[{agreementId:"SFA-2026-001", beneficiary:"산준교육 콘텐츠", rate:15, start:"2026-10-01", end:"2026-10-14"}]
   },
@@ -527,6 +548,7 @@ const products = [
     pipeline:"매입 재판매 (정산 비대상 · AP 분리)",
     supplyType:"PURCHASED_RESALE",
     ownCopyright:false,
+    price:18000,
     registeredDate:"2025-02-01",
     supportAgreements:[]
   },
@@ -537,6 +559,8 @@ const products = [
     pipeline:"위탁 도서 판매대금 정산",
     supplyType:"CONSIGNMENT",
     ownCopyright:false,
+    consignorHolderId:"RH-0051",
+    consignContractId:"CT-2026-0801",
     registeredDate:"2025-03-10",
     supportAgreements:[]
   },
@@ -549,11 +573,166 @@ const products = [
     ownCopyright:true,
     registeredDate:"2025-03-15",
     supportAgreements:[]
+  },
+  /* [v6.60] 샘플 시나리오 상품 — 코드 · 가격은 ADMN-PROD-003 · 004와 같다(scripts/qa/reports/review/scenario_codes.md) */
+  {
+    id:"CRS-2605",
+    kind:"COURSE",
+    name:"2026 산업안전기사 실기 작업형 동영상 빈출 마스터반",
+    pipeline:"온라인 강좌 수익배분",
+    price:125000,
+    registeredDate:"2026-03-02",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2605-01", title:"1강. 작업형 동영상 출제 유형과 답안 키워드", runtime:2500},
+      {id:"LSN-2605-02", title:"2강. 위험요인 · 안전대책 빈출 장면 30선", runtime:2700},
+      {id:"LSN-2605-03", title:"3강. 보호구 · 방호장치 식별 실전", runtime:2300}
+    ]
+  },
+  {
+    id:"CRS-2606",
+    kind:"COURSE",
+    name:"2026 산업안전지도사 1차 산업안전일반 핵심이론 단과",
+    pipeline:"온라인 강좌 수익배분",
+    price:200000,
+    registeredDate:"2026-04-10",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2606-01", title:"1강. 산업안전일반 출제 경향과 학습 전략", runtime:2400},
+      {id:"LSN-2606-02", title:"2강. 안전관리 조직과 안전보건관리체제", runtime:2600},
+      {id:"LSN-2606-03", title:"3강. 위험성평가 실무와 사례", runtime:2800}
+    ]
+  },
+  {
+    id:"CRS-2601",
+    kind:"COURSE",
+    name:"2026 산업안전기사 필기 한권완성 개념+빈출 단과",
+    pipeline:"온라인 강좌 수익배분",
+    price:144000,
+    registeredDate:"2026-01-12",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2601-01", title:"1강. 안전관리론 핵심 개념 및 재해발생 메커니즘", runtime:2550},
+      {id:"LSN-2601-02", title:"2강. 하인리히 & 버드 재해연쇄성 이론과 빈출 계산문제", runtime:2820},
+      {id:"LSN-2601-03", title:"3강. 인간공학 및 시스템안전공학 FTA/ETA 위험성평가", runtime:2460},
+      {id:"LSN-2601-04", title:"4강. 기계위험방지기술 프레스·전단기·크레인 방호장치", runtime:2610},
+      {id:"LSN-2601-05", title:"5강. 전기 및 화학설비 위험방지 폭발한계 계산 특강", runtime:2310}
+    ]
+  },
+  {
+    id:"CRS-2603",
+    kind:"COURSE",
+    name:"2026 건설안전기사 필기 핵심이론 + 계산문제 특강",
+    pipeline:"온라인 강좌 수익배분",
+    price:144500,
+    registeredDate:"2026-02-04",
+    supportAgreements:[{agreementId:"SFA-2026-015", beneficiary:"이건설 강사 (R/S형 · 비상계 NON_OFFSET)", rate:10, start:"2026-02-04", end:"2027-06-30"}],
+    lessons:[
+      {id:"LSN-2603-01", title:"1강. 건설시공학 · 건설재료학 핵심이론", runtime:2900},
+      {id:"LSN-2603-02", title:"2강. 가설공사 · 비계 · 거푸집 동바리 안전기준", runtime:2700}
+    ]
+  },
+  {
+    id:"PROD-BK-1006",
+    kind:"BOOK",
+    name:"2026 정종대 산업안전기사 필기 기본서",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    price:20000,
+    registeredDate:"2025-12-15",
+    supportAgreements:[]
+  },
+  {
+    id:"PROD-BK-1007",
+    kind:"BOOK",
+    name:"2026 산업안전지도사 1차 산업안전일반 핵심요약집",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    price:20000,
+    registeredDate:"2026-04-10",
+    supportAgreements:[]
+  },
+  {
+    id:"PROD-BK-3003",
+    kind:"BOOK",
+    name:"2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁 판매)",
+    pipeline:"위탁 도서 판매대금 정산",
+    supplyType:"CONSIGNMENT",
+    ownCopyright:false,
+    consignorHolderId:"RH-0044",
+    consignContractId:"CT-2026-0705",
+    price:25000,
+    registeredDate:"2026-02-01",
+    supportAgreements:[]
+  },
+  {
+    id:"GOODS-2026-001",
+    kind:"GOODS",
+    name:"산준모 공학용 계산기 & 안전모 실기 키트",
+    pipeline:"일반 상품 판매매출 (정산 비대상 · 자사 매출 집계)",
+    supplyType:"PURCHASED_RESALE",
+    ownCopyright:false,
+    price:11000,
+    registeredDate:"2026-03-01",
+    supportAgreements:[]
+  },
+  /* [v6.63 W4] 판매 근거 보강 상품 — 코드 · 가격은 ADMN-PROD-003 · 004 · INST-001과 같다(scenario_codes.md) */
+  {
+    id:"CRS-1004",
+    kind:"COURSE",
+    name:"[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반",
+    pipeline:"온라인 강좌 수익배분 (합격환급 조건부 · 2026-06-30 판매종료)",
+    price:410000,
+    registeredDate:"2026-01-20",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-1004-01", title:"1강. 필기 4과목 합격 전략과 빈출 개념", runtime:3300},
+      {id:"LSN-1004-02", title:"2강. 실기 필답형 · 작업형 합격 답안 훈련", runtime:3100}
+    ]
+  },
+  {
+    id:"CRS-1012",
+    kind:"COURSE",
+    name:"2026 위험물산업기사 실기 시뮬레이션 특강",
+    pipeline:"온라인 강좌 수익배분 (자사 100% · 공동제작 기여자 매출연동 지원금 모수)",
+    price:120000,
+    registeredDate:"2026-05-10",
+    supportAgreements:[{agreementId:"SFA-2026-012", beneficiary:"최그래픽 기여자 (매출연동 · 무한도형)", rate:5, start:"2026-05-01", end:"2027-04-30"}],
+    lessons:[
+      {id:"LSN-1012-01", title:"1강. 위험물 취급 공정 3D 시뮬레이션 실습", runtime:2600},
+      {id:"LSN-1012-02", title:"2강. 저장 · 운반 기준 작업형 시뮬레이션", runtime:2400}
+    ]
+  },
+  {
+    id:"CRS-2509",
+    kind:"COURSE",
+    name:"2026 산업안전기사 필기 전기위험방지기술 집중 특강",
+    pipeline:"온라인 강좌 수익배분 (계약 해지 2026-10-05 · 해지 후 판매중지)",
+    price:100000,
+    registeredDate:"2025-09-20",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2509-01", title:"1강. 감전 재해 · 전기설비 방호 핵심", runtime:2500},
+      {id:"LSN-2509-02", title:"2강. 정전기 · 방폭 전기설비 빈출 계산", runtime:2300}
+    ]
+  },
+  {
+    id:"PROD-BK-1008",
+    kind:"BOOK",
+    name:"2026 산업위생관리기사 필기 핵심정리",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    price:30000,
+    registeredDate:"2025-11-15",
+    supportAgreements:[]
   }
 ];
 
 const state = {
-  seq:300,
+  seq:500, // 새 매핑 행 번호(MAP-501~) — 샘플 MAP-1xx~4xx와 겹치지 않게
   activeTab:"list",
   selectedProductId:"CRS-1003", // 기본 선택을 미매핑 1순위 상품으로 설정
   selectedLessonId:"LSN-1003-01",
@@ -580,8 +759,8 @@ const state = {
       {id:"MAP-104", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:20.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-14", reason:"자사 기획·제작 지분 20%", locked:false}
     ],
     "LSN-1001-03":[
-      {id:"MAP-105", holderId:"RH-0012", contractId:"CT-2026-0412", share:80.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-09-30", reason:"종료일 불일치 시연 데이터", locked:false},
-      {id:"MAP-106", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:20.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-09-30", reason:"종료일 불일치 시연 데이터", locked:false}
+      {id:"MAP-105", holderId:"RH-0012", contractId:"CT-2026-0412", share:80.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-10", reason:"종료일 불일치 시연 데이터 (매핑 10-10 종료 · 계약 10-14 종료 — 10월 1~10일 결제분은 유효)", locked:false},
+      {id:"MAP-106", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:20.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-10", reason:"종료일 불일치 시연 데이터 (매핑 10-10 종료)", locked:false}
     ],
 
     /* 정상 매핑 완료 강좌 (CRS-1002) */
@@ -608,7 +787,85 @@ const state = {
     "PROD-BK-2001":[
       {id:"MAP-205", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2025-01-01", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"매입 재판매(PURCHASED_RESALE) 도서 자사 100% 자동 매핑", locked:true}
     ],
-    "PROD-BK-3001":[]
+    "PROD-BK-3001":[],
+    /* [v6.60] 샘플 시나리오 강좌 — Case 1 박보건 · Case 2 최지도 · Case 7 김안전 · Case 9 이건설(60 · 자사 40) */
+    "LSN-2605-01":[
+      {id:"MAP-401", holderId:"RH-0047", contractId:"CT-2024-1101", share:100.00, start:"2026-03-02", endBasis:"CONTRACT_LINKED", end:"2026-10-31", reason:"박보건 강사 단독 100% (Case 1)", locked:false}
+    ],
+    "LSN-2605-02":[
+      {id:"MAP-402", holderId:"RH-0047", contractId:"CT-2024-1101", share:100.00, start:"2026-03-02", endBasis:"CONTRACT_LINKED", end:"2026-10-31", reason:"박보건 강사 단독 100% (Case 1)", locked:false}
+    ],
+    "LSN-2605-03":[
+      {id:"MAP-403", holderId:"RH-0047", contractId:"CT-2024-1101", share:100.00, start:"2026-03-02", endBasis:"CONTRACT_LINKED", end:"2026-10-31", reason:"박보건 강사 단독 100% (Case 1)", locked:false}
+    ],
+    "LSN-2606-01":[
+      {id:"MAP-404", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 강사 단독 100% (Case 2)", locked:false}
+    ],
+    "LSN-2606-02":[
+      {id:"MAP-405", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 강사 단독 100% (Case 2)", locked:false}
+    ],
+    "LSN-2606-03":[
+      {id:"MAP-406", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 강사 단독 100% (Case 2)", locked:false}
+    ],
+    "LSN-2601-01":[
+      {id:"MAP-407", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-02":[
+      {id:"MAP-408", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-03":[
+      {id:"MAP-409", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-04":[
+      {id:"MAP-410", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-05":[
+      {id:"MAP-411", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2603-01":[
+      {id:"MAP-412", holderId:"RH-0046", contractId:"CT-2026-0712", share:60.00, start:"2026-02-04", endBasis:"CONTRACT_LINKED", end:"2027-06-30", reason:"이건설 강사 지분 60% (Case 9)", locked:false},
+      {id:"MAP-413", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:40.00, start:"2026-02-04", endBasis:"FIXED_DATE", end:"2027-06-30", reason:"자사 지분 40% (이건설 지원금 10% 재원 충족)", locked:false}
+    ],
+    "LSN-2603-02":[
+      {id:"MAP-414", holderId:"RH-0046", contractId:"CT-2026-0712", share:60.00, start:"2026-02-04", endBasis:"CONTRACT_LINKED", end:"2027-06-30", reason:"이건설 강사 지분 60% (Case 9)", locked:false},
+      {id:"MAP-415", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:40.00, start:"2026-02-04", endBasis:"FIXED_DATE", end:"2027-06-30", reason:"자사 지분 40% (이건설 지원금 10% 재원 충족)", locked:false}
+    ],
+    /* [v6.60] 샘플 시나리오 도서 · 일반 상품 */
+    "PROD-BK-1006":[
+      {id:"MAP-207", holderId:"RH-0025", contractId:"CT-2026-0501", share:100.00, start:"2025-12-15", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 저자 단독 100% (인세 10%)", locked:false}
+    ],
+    "PROD-BK-1007":[
+      {id:"MAP-208", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 저자 단독 100% (인세 10% · Case 2)", locked:false}
+    ],
+    "PROD-BK-3003":[],
+    "GOODS-2026-001":[
+      {id:"MAP-206", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2025-01-01", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"일반 소비재(매입 재판매) 자사 100% 자동 매핑 (Case 12)", locked:true}
+    ],
+    /* [v6.63 W4] 정종대 환급반 (합격환급 원 주문 2026-02~06 결제분 귀속 · 지분 100%) */
+    "LSN-1004-01":[
+      {id:"MAP-416", holderId:"RH-0025", contractId:"CT-2026-0501", share:100.00, start:"2026-01-20", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 강사 단독 100% (환급반 · 합격환급 원거래 스냅샷 지분)", locked:false}
+    ],
+    "LSN-1004-02":[
+      {id:"MAP-417", holderId:"RH-0025", contractId:"CT-2026-0501", share:100.00, start:"2026-01-20", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 강사 단독 100% (환급반 · 합격환급 원거래 스냅샷 지분)", locked:false}
+    ],
+    /* [v6.63 W4] 자사 100% 공동제작 강좌 — 최그래픽 매출연동 지원금(SFA-2026-012 · 5%) 모수 */
+    "LSN-1012-01":[
+      {id:"MAP-418", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2026-05-10", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"자사 100% (3D 시뮬레이션 기여자 최그래픽은 지분 없이 지원금 5%만)", locked:false}
+    ],
+    "LSN-1012-02":[
+      {id:"MAP-419", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2026-05-10", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"자사 100% (3D 시뮬레이션 기여자 최그래픽은 지분 없이 지원금 5%만)", locked:false}
+    ],
+    /* [v6.63 W4] 이전기 강좌 — 계약 종료일(해지일 2026-10-05) 동기화 */
+    "LSN-2509-01":[
+      {id:"MAP-420", holderId:"RH-0015", contractId:"CT-2025-0911", share:100.00, start:"2025-09-20", endBasis:"CONTRACT_LINKED", end:"2026-10-05", reason:"이전기 강사 단독 100% (해지일 2026-10-05까지 결제분)", locked:false}
+    ],
+    "LSN-2509-02":[
+      {id:"MAP-421", holderId:"RH-0015", contractId:"CT-2025-0911", share:100.00, start:"2025-09-20", endBasis:"CONTRACT_LINKED", end:"2026-10-05", reason:"이전기 강사 단독 100% (해지일 2026-10-05까지 결제분)", locked:false}
+    ],
+    /* [v6.63 W4] 고 박위생 저서 — 상속 승계 계약(수취인 분할 60:40은 ADMN-SETT-007) */
+    "PROD-BK-1008":[
+      {id:"MAP-209", holderId:"RH-0018", contractId:"CT-2025-1102", share:100.00, start:"2025-11-15", endBasis:"CONTRACT_LINKED", end:"2026-12-31", reason:"고 박위생 저자 단독 100% (인세 10% · 상속인 분할 60:40)", locked:false}
+    ]
   },
   audit:[
     {time:"2026. 10. 14. 오전 09:30", actor:"시스템", target:"CRS-1003 / PROD-BK-1002", event:"신규 상품 등록 및 판매 차단 배지 부여", detail:"1계층 권리자 매핑 미완료 상태로 신규 결제 차단"}
@@ -661,7 +918,7 @@ function analyzeUnit(unitKey, supportAgreements = [], productObj = null){
   if(productObj && productObj.kind === "BOOK" && productObj.supplyType === "CONSIGNMENT"){
     return {slices:[], errors:[], warnings:["위탁 도서(CONSIGNMENT)는 1계층 인세 지분 매핑 대상이 아니며 위탁 판매대금으로 별도 정산합니다."], mismatchCount:0, isAuto:true, currentSum:0};
   }
-  if(productObj && productObj.kind === "BOOK" && (productObj.ownCopyright || productObj.supplyType === "PURCHASED_RESALE")){
+  if(productObj && productObj.kind !== "COURSE" && (productObj.ownCopyright || productObj.supplyType === "PURCHASED_RESALE")){
     return {slices:[{start:"2025-01-01", end:"2099-12-31", totalShare:100, internalShare:100, supportRateSum:supportAgreements[0]?.rate||0, status:"OK", count:1}], errors:[], warnings:[], mismatchCount:0, isAuto:true, currentSum:100};
   }
 
@@ -741,10 +998,12 @@ function evaluateProduct(p){
     const summaryText = p.supplyType === "CONSIGNMENT" ? "위탁정산 분리"
       : p.supplyType === "BUNDLED" ? "자사 100% 자동 고정 (비매품)"
       : p.ownCopyright ? "자사저작권 100% + 지원금 15%"
+      : p.kind === "GOODS" ? "일반 상품 자사 100% 고정"
       : p.supplyType === "PURCHASED_RESALE" ? "사입 도서 자사 100% 고정"
       : (res.errors.length ? `미매핑 (${pct(res.currentSum)})` : "100.00% 매핑 완료");
     const holderNames = (state.mappings[p.id]||[]).map(r => `${getHolder(r.holderId)?.name?.split(" ")[0]}(${r.share}%)`);
-    return {status, summaryText, holderSummary: holderNames.join(" + ") || (p.supplyType==="CONSIGNMENT"?"위탁자 직접귀속":(p.supplyType==="BUNDLED"?"엘캠퍼스(100%) 자동 고정":"미지정")), canSell: res.errors.length === 0, unitRes:res};
+    const consignor = p.consignorHolderId ? getHolder(p.consignorHolderId) : null;
+    return {status, summaryText, holderSummary: holderNames.join(" + ") || (p.supplyType==="CONSIGNMENT"?"위탁자 직접귀속"+(consignor?` · ${consignor.name}`:""):(p.supplyType==="BUNDLED"?"엘캠퍼스(100%) 자동 고정":"미지정")), canSell: res.errors.length === 0, unitRes:res};
   }
 }
 
@@ -859,8 +1118,8 @@ function renderListView(){
 
       return `<tr class="row-hover ${ev.status==="UNMAPPED"?"row-unmapped":""}" data-open-product="${esc(p.id)}">
         <td>${statusBadge}</td>
-        <td><span class="chip">${p.kind==="COURSE"?"온라인 강좌":"실물 도서"}</span></td>
-        <td><b>${esc(p.name)}</b><div class="note">${esc(p.id)} · 등록일 ${esc(p.registeredDate)}</div></td>
+        <td><span class="chip">${p.kind==="COURSE"?"온라인 강좌":p.kind==="GOODS"?"일반 상품":"실물 도서"}</span></td>
+        <td><b>${esc(p.name)}</b><div class="note">${esc(p.id)} · 등록일 ${esc(p.registeredDate)}${p.price?` · ${p.kind==="BOOK"?"정가":"판매가"} ${Number(p.price).toLocaleString("ko-KR")}원`:""}</div></td>
         <td>${esc(p.pipeline)}</td>
         <td><b>${esc(ev.summaryText)}</b></td>
         <td>${esc(ev.holderSummary)}</td>
@@ -927,7 +1186,7 @@ function renderDetailView(){
     $("editorUnitSub").textContent = `강의(lesson) 행 단위 트랜잭션 저장`;
   } else {
     $("editorUnitTitle").textContent = `[${p.id}] ${p.name}`;
-    $("editorUnitSub").textContent = `도서 상품(SKU) 단위 트랜잭션 저장`;
+    $("editorUnitSub").textContent = p.kind === "GOODS" ? `일반 상품 단위 (자사 100% 자동 고정)` : `도서 상품(SKU) 단위 트랜잭션 저장`;
   }
 
   /* 자동 고정 도서 안내 */
@@ -946,9 +1205,11 @@ function renderDetailView(){
     $("autoLockBanner").innerHTML = `<b>[v4.0.0 자사 저작권 보유 도서 (자사 저작권 보유)]</b> 저작권이 당사(엘캠퍼스)에 있으므로 1계층 도서 권리자 지분은 자사 100.00%로 자동 고정됩니다. 단, 외부 수취인(<b>정종대 강사</b>)의 매출연동 개발지원금(<code>Pipeline 5.1</code>, 요율 15%, <code>상계 허용 CONDITIONAL</code>) 약정이 연결되어 있어 도서 판매 기준금이 1·2단계에서 Bypass되지 않고 지원금 모수로 정상 인입됩니다.`;
   } else if(!isCourse && (p.supplyType === "PURCHASED_RESALE" || p.supplyType === "CONSIGNMENT")){
     $("autoLockBanner").hidden = false;
-    $("autoLockBanner").textContent = p.supplyType === "PURCHASED_RESALE"
+    $("autoLockBanner").textContent = p.kind === "GOODS"
+      ? "일반 상품(소비재)은 자사 100.00%로 자동 고정되며 권리자 정산에 인입되지 않습니다. 매출은 일반 상품 판매매출로 자사 마감 집계(ADMN-SETT-009)에 둡니다."
+      : p.supplyType === "PURCHASED_RESALE"
       ? "매입 재판매(PURCHASED_RESALE) 도서는 자사 100.00%로 자동 고정되며 인세 정산 엔진에 인입되지 않습니다."
-      : "위탁 판매(CONSIGNMENT) 도서는 1계층 지분 매핑 대상이 아니며 위탁 정산으로 직접 처리됩니다.";
+      : `위탁 판매(CONSIGNMENT) 도서는 1계층 지분 매핑 대상이 아니며 위탁 정산으로 직접 처리됩니다.${p.consignorHolderId ? ` 위탁자: ${getHolder(p.consignorHolderId)?.name || p.consignorHolderId} (${p.consignContractId})` : ""}`;
   } else {
     $("autoLockBanner").hidden = true;
   }

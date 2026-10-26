@@ -658,9 +658,9 @@ code, pre, kbd, samp,
                           <option value="SHIP_AT">출고일시</option>
                           <option value="REFUND_AT">환불완료일시</option>
                         </select>
-                        <input type="date" class="form-input" value="2026-08-01" style="width:135px;" />
+                        <input type="date" class="form-input" value="2026-02-01" style="width:135px;" />
                         <span>~</span>
-                        <input type="date" class="form-input" value="2026-08-18" style="width:135px;" />
+                        <input type="date" class="form-input" value="2026-10-26" style="width:135px;" />
                         <div class="chip-group" style="margin-left:4px;">
                           <button type="button" class="filter-chip" onclick="selectQuickDate(this)">오늘</button>
                           <button type="button" class="filter-chip" onclick="selectQuickDate(this)">7일</button>
@@ -750,7 +750,7 @@ code, pre, kbd, samp,
             <div class="card-body">
               <div class="toolbar">
                 <div class="toolbar-left">
-                  <span style="font-size:13px;">전체 <b id="ordListCount">7</b>건 <span style="color:var(--text-muted);font-weight:400;">(2026.08.01~08.18 · 실결제 <code>payment.paid_amount</code> 기준 · 주문 라인 분리 표기)</span></span>
+                  <span style="font-size:13px;">전체 <b id="ordListCount">35</b>건 <span style="color:var(--text-muted);font-weight:400;">(2026.02.01~10.26 · 실결제 <code>payment.paid_amount</code> 기준 · 주문 라인 분리 표기)</span></span>
                 </div>
                 <div class="toolbar-right">
                   <select class="form-select" style="width:105px;">
@@ -919,7 +919,7 @@ code, pre, kbd, samp,
               <!-- [ADMN-ORD-002-S3 전용] 반품 창고 입고 수동 검수 입력 패널 (피드백 #460) -->
               <div id="returnInspectPanel" class="card" style="display:none;margin-top:14px;border:1.5px solid var(--primary);background:#F8FAFC;">
                 <div class="card-header" style="background:#EFF6FF;">
-                  <h4 class="card-title" id="inspectPanelTitle">🔍 반품 수거 실물 검수 판정 입력 — 선택한 건: SJM20260809-0044 #2 (정하늘 · 2026 산업안전기사 필기 기본서 ×1)</h4>
+                  <h4 class="card-title" id="inspectPanelTitle">🔍 반품 수거 실물 검수 판정 입력 — 선택한 건: SJM20260809-0044 #2 (홍길동 · 2026 정종대 산업안전기사 필기 기본서 ×1)</h4>
                   <span class="badge b-blue">저장 시 ADMN-RFD-002 환불 연산기로 즉시 전달</span>
                 </div>
                 <div class="card-body">
@@ -1254,7 +1254,7 @@ code, pre, kbd, samp,
                     <tr>
                       <th>환불 / 반품 연동</th>
                       <td>
-                        <span style="color:var(--text-muted);">진행 중인 환불 요청 없음</span>
+                        <span style="color:var(--text-muted);" id="dtRefundLink">진행 중인 환불 요청 없음</span>
                         <a href="ADMN-RFD-002_baseline.html" class="btn btn-sm btn-danger" style="margin-left:6px;text-decoration:none;">환불 심사 화면 이동 (ADMN-RFD-002)</a>
                       </td>
                     </tr>
@@ -1520,7 +1520,7 @@ code, pre, kbd, samp,
               <div class="kakao-preview">[산준모닷컴] 주문하신 교재가 출고되었습니다.
 홍길동님, 주문하신 교재가 출고되었습니다.
 ▶ 주문번호: SJM20260818-0021 (#2)
-▶ 상품: 정종대 (RH-0025) 2026 산업안전기사 필기 기본서 1권
+▶ 상품: 정종대 (RH-0025) 2026 산업안전기사 필기 기본서 2권
 ▶ 택배사: CJ대한통운 (운송장: 641233879021)</div>
             </div>
           </div>
@@ -1553,7 +1553,7 @@ code, pre, kbd, samp,
             </tr>
             <tr>
               <th>수령인 / 교재</th>
-              <td colspan="3" id="p2ItemDesc">홍길동 · 정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1 (🔒 출고지시 <code>2026.08.18 14:02</code> · <code>BATCH-20260818-01</code>)</td>
+              <td colspan="3" id="p2ItemDesc">홍길동 · 정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×2 (🔒 출고지시 <code>2026.08.18 14:02</code> · <code>BATCH-20260818-01</code>)</td>
             </tr>
           </tbody>
         </table>
@@ -1889,17 +1889,25 @@ code, pre, kbd, samp,
         type: "복합",
         hasDelivery: true,
         lines: [
-          { tag: "강좌", cls: "b-blue", name: "산업안전기사 필기 올패스(2026)", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0%" },
-          { tag: "교재", cls: "b-teal", name: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 쿠폰·포인트 불가" }
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 웰컴 쿠폰 10% 강좌 배분", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 15000, linePaid: 135000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
         ],
-        deliverySub: "수령인 홍길동 · 경기 성남시 분당구 판교역로 235 / 배송비 0원(3만원↑ 무료)",
-        paidAmt: "189,000원",
-        priceNote: "정가 219,000 / 쿠폰 -30,000",
+        deliverySub: "수령인 홍길동 · 경기 성남시 분당구 판교역로 235 / 배송비 0원(교재 3만원↑ 무료)",
+        paidAmt: "175,000원",
+        priceNote: "정가 190,000 / 쿠폰 -15,000",
         payMethod: "신용/체크카드",
         paySub: "신한카드 · 일시불",
         status: "배송준비중",
         shipLocked: true,
-        presetKey: "SJM20260818-0021"
+        presetKey: "SJM20260818-0021",
+        paidAtFull: "2026.08.18 10:24:11",
+        pgTid: "tvivarepublica20260818102411",
+        listTotal: 190000,
+        couponAmt: 15000,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 175000,
+        refs: []
       },
       {
         orderNo: "SJM20260818-0019",
@@ -1911,7 +1919,7 @@ code, pre, kbd, samp,
         type: "교재",
         hasDelivery: true,
         lines: [
-          { tag: "교재", cls: "b-teal", name: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×2", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 쿠폰·포인트 불가" }
+          { tag: "교재", cls: "b-teal", name: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×2", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 쿠폰·포인트 불가 (코드표 밖 도서)", productId: "", itemType: "BOOK", qty: 2, unitPrice: 32000, discount: 0, linePaid: 64000, holder: "정종대 (인세)" }
         ],
         deliverySub: "수령인 김수현 · 경기 성남시 분당구 대왕판교로 660 / 배송비 0원(3만원↑ 무료)",
         paidAmt: "64,000원",
@@ -1920,7 +1928,15 @@ code, pre, kbd, samp,
         paySub: "카카오페이 (토스PG)",
         status: "배송준비중",
         shipLocked: false,
-        presetKey: "SJM20260818-0019"
+        presetKey: "SJM20260818-0019",
+        paidAtFull: "2026.08.18 09:52:40",
+        pgTid: "tvivarepublica20260818095240",
+        listTotal: 64000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 64000,
+        refs: []
       },
       {
         orderNo: "SJM20260818-0007",
@@ -1932,16 +1948,25 @@ code, pre, kbd, samp,
         type: "교재",
         hasDelivery: true,
         lines: [
-          { tag: "교재", cls: "b-teal", name: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 쿠폰·포인트 불가" }
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" },
+          { tag: "배송비", cls: "b-gray", name: "제주 · 도서산간 추가 배송비", status: "부과", sCls: "b-gray", sub: "권리자 정산 제외", productId: "SHIPPING", itemType: "SHIPPING_FEE", qty: 1, unitPrice: 3000, discount: 0, linePaid: 3000, holder: "플랫폼 물류비" }
         ],
         deliverySub: "🏝️ 제주 제주시 첨단로 242 / 기본 0원 + 도서산간·제주 추가배송비 3,000원",
-        paidAmt: "35,000원",
-        priceNote: "교재 32,000(면세) + 제주배송 3,000",
+        paidAmt: "43,000원",
+        priceNote: "정가 40,000 / 배송 3,000",
         payMethod: "간편결제",
         paySub: "네이버페이 (토스PG)",
         status: "배송준비중",
         shipLocked: false,
-        presetKey: "SJM20260818-0019"
+        presetKey: "SJM20260818-0007",
+        paidAtFull: "2026.08.18 08:15:02",
+        pgTid: "tvivarepublica20260818081502",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 3000,
+        paidAmount: 43000,
+        refs: []
       },
       {
         orderNo: "SJM20260817-0148",
@@ -1953,16 +1978,24 @@ code, pre, kbd, samp,
         type: "인강",
         hasDelivery: false,
         lines: [
-          { tag: "강좌", cls: "b-blue", name: "산업안전기사 실기 실전 300제", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% (면세 공급가 129,000원)" }
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% (면세 공급가 125,000원) · 환불 신청(휴대폰 익월)", productId: "CRS-2605", itemType: "LECTURE", qty: 1, unitPrice: 125000, discount: 0, linePaid: 125000, holder: "박보건 100%" }
         ],
         deliverySub: "배송 대상 아님 — 배송지 정보 없음",
-        paidAmt: "129,000원",
-        priceNote: "정가 129,000원",
+        paidAmt: "125,000원",
+        priceNote: "정가 125,000",
         payMethod: "휴대폰결제",
         paySub: "SKT 소액결제 (디지털)",
         status: "결제완료",
         shipLocked: false,
-        presetKey: "SJM20260818-0021"
+        presetKey: "SJM20260818-0021",
+        paidAtFull: "2026.08.17 21:03:18",
+        pgTid: "tvivarepublica20260817210318",
+        listTotal: 125000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 125000,
+        refs: ["환불 상세 케이스 4 (ADMN-RFD-002)"]
       },
       {
         orderNo: "SJM20260817-0132",
@@ -1974,17 +2007,25 @@ code, pre, kbd, samp,
         type: "복합",
         hasDelivery: true,
         lines: [
-          { tag: "강좌", cls: "b-gray", name: "산업안전기사 필기+실기 올패스", status: "입금대기", sCls: "b-gray", sub: "입금 웹훅 수신 시 수강 부여" },
-          { tag: "교재", cls: "b-gray", name: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", status: "입금대기", sCls: "b-gray", sub: "입금 시 배송준비중 자동전이" }
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "입금대기", sCls: "b-gray", sub: "입금 웹훅 수신 시 수강 부여", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "입금대기", sCls: "b-gray", sub: "입금 시 배송준비중 자동전이", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
         ],
         deliverySub: "국민은행 가상계좌 · 입금 기한 2026.08.18 18:41 (발급 후 24h)",
-        paidAmt: "249,000원",
+        paidAmt: "190,000원",
         priceNote: "미입금 (정산 미산입)",
         payMethod: "가상계좌",
-        paySub: "국민은행 · 기한 08.18 18:41",
+        paySub: "국민은행 · 입금 완료",
         status: "결제대기",
         shipLocked: false,
-        presetKey: "SJM20260817-0132"
+        presetKey: "SJM20260817-0132",
+        paidAtFull: "2026.08.17 18:41:00",
+        pgTid: "tvivarepublica20260817184100",
+        listTotal: 190000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 190000,
+        refs: []
       },
       {
         orderNo: "SJM20260814-0077",
@@ -1996,38 +2037,877 @@ code, pre, kbd, samp,
         type: "교재",
         hasDelivery: true,
         lines: [
-          { tag: "교재", cls: "b-teal", name: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", status: "배송중", sCls: "b-blue", sub: "CJ대한통운 641233879021 · 출고 08.15" }
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송중", sCls: "b-blue", sub: "CJ대한통운 641233879021 · 출고 08.15", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
         ],
         deliverySub: "수령인 최유진 · 서울 중구 세종대로 110",
-        paidAmt: "32,000원",
+        paidAmt: "40,000원",
         priceNote: "쿠폰·포인트 사용 불가",
         payMethod: "계좌이체",
         paySub: "실시간 계좌이체 (우리)",
         status: "배송중",
         shipLocked: true,
-        presetKey: "SJM20260818-0021"
+        presetKey: "SJM20260814-0077",
+        paidAtFull: "2026.08.14 13:12:09",
+        pgTid: "tvivarepublica20260814131209",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 40000,
+        refs: []
       },
       {
         orderNo: "SJM20260809-0044",
         basis: "교육·도서 통합면세 (VAT 0%)",
         paidAt: "08.09 11:37",
+        buyer: "홍길동",
+        receiver: "홍길동",
+        phone: "010-1234-5678",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "환불심사", sCls: "b-red", sub: "ADMN-RFD-002 심사중 (RFD-2026-001173)", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×1", status: "반품수거중", sCls: "b-red", sub: "3PL 창고 입고 · 검수 대기", productId: "PROD-BK-1006", itemType: "BOOK", qty: 1, unitPrice: 20000, discount: 0, linePaid: 20000, holder: "정종대 100% (인세)" },
+          { tag: "배송비", cls: "b-gray", name: "배송비 (교재 3만원 미만)", status: "부과", sCls: "b-gray", sub: "권리자 정산 제외", productId: "SHIPPING", itemType: "SHIPPING_FEE", qty: 1, unitPrice: 3000, discount: 0, linePaid: 3000, holder: "플랫폼 물류비" }
+        ],
+        deliverySub: "수거 운송장 641299001122 · 창고 입고일 2026.08.18 · 환불 전(10월 정산 영향 없음)",
+        paidAmt: "173,000원",
+        priceNote: "환불 심사 진행 건",
+        payMethod: "간편결제",
+        paySub: "토스페이 (토스PG)",
+        status: "반품수거중",
+        shipLocked: true,
+        presetKey: "SJM20260818-0021",
+        paidAtFull: "2026.08.09 11:37:25",
+        pgTid: "tvivarepublica20260809113725",
+        listTotal: 170000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 3000,
+        paidAmount: 173000,
+        refs: ["환불 RFD-2026-001173 (ADMN-RFD-002)"]
+      },
+      {
+        orderNo: "SJM20261003-0012",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.03 10:02",
+        buyer: "윤도현",
+        receiver: "— (배송 없음)",
+        phone: "010-2020-3141",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 150,000 → 판매가 125,000", productId: "CRS-2605", itemType: "LECTURE", qty: 1, unitPrice: 125000, discount: 0, linePaid: 125000, holder: "박보건 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "125,000원",
+        priceNote: "정가 125,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261003-0012",
+        paidAtFull: "2026.10.03 10:02:31",
+        pgTid: "tvivarepublica20261003100231",
+        listTotal: 125000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 125000,
+        refs: ["PG 대사 REC-09 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261006-0031",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.06 13:45",
+        buyer: "서하윤",
+        receiver: "— (배송 없음)",
+        phone: "010-3030-4152",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0%", productId: "CRS-2606", itemType: "LECTURE", qty: 1, unitPrice: 200000, discount: 0, linePaid: 200000, holder: "최지도 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "200,000원",
+        priceNote: "정가 200,000",
+        payMethod: "신용/체크카드",
+        paySub: "국민카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261006-0031",
+        paidAtFull: "2026.10.06 13:45:09",
+        pgTid: "tvivarepublica20261006134509",
+        listTotal: 200000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 200000,
+        refs: ["PG 대사 REC-10 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261006-0035",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.06 15:20",
+        buyer: "서하윤",
+        receiver: "서하윤",
+        phone: "010-3030-4152",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 정가 결제(할인 없음)", productId: "PROD-BK-1007", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "최지도 100% (인세)" }
+        ],
+        deliverySub: "수령인 서하윤 · 서울 마포구 월드컵북로 21 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "40,000원",
+        priceNote: "정가 40,000",
+        payMethod: "신용/체크카드",
+        paySub: "국민카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261006-0035",
+        paidAtFull: "2026.10.06 15:20:40",
+        pgTid: "tvivarepublica20261006152040",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 40000,
+        refs: ["PG 대사 REC-11 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261009-0063",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.09 09:12",
+        buyer: "한지민",
+        receiver: "— (배송 없음)",
+        phone: "010-4040-5263",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 재수강 쿠폰 32,000 (실결제 = 판매가 − 쿠폰)", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 32000, linePaid: 112000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "112,000원",
+        priceNote: "정가 144,000 / 쿠폰 -32,000",
+        payMethod: "간편결제",
+        paySub: "카카오페이 (토스PG)",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261009-0063",
+        paidAtFull: "2026.10.09 09:12:55",
+        pgTid: "tvivarepublica20261009091255",
+        listTotal: 144000,
+        couponAmt: 32000,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 112000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261020-0305",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.20 11:05",
+        buyer: "오세훈",
+        receiver: "— (배송 없음)",
+        phone: "010-5050-6374",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 180,000 → 판매가 144,000", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 0, linePaid: 144000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,000원",
+        priceNote: "정가 144,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261020-0305",
+        paidAtFull: "2026.10.20 11:05:30",
+        pgTid: "tvivarepublica20261020110530",
+        listTotal: 144000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144000,
+        refs: ["PG 대사 REC-03 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261008-0120",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.08 20:31",
+        buyer: "배수지",
+        receiver: "— (배송 없음)",
+        phone: "010-6060-7485",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 170,000 → 판매가 144,500", productId: "CRS-2603", itemType: "LECTURE", qty: 1, unitPrice: 144500, discount: 0, linePaid: 144500, holder: "이건설 60% · 자사 40%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,500원",
+        priceNote: "정가 144,500",
+        payMethod: "신용/체크카드",
+        paySub: "현대카드 · 3개월 무이자",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261008-0120",
+        paidAtFull: "2026.10.08 20:31:47",
+        pgTid: "tvivarepublica20261008203147",
+        listTotal: 144500,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144500,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261015-0147",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.15 19:08",
+        buyer: "임재범",
+        receiver: "— (배송 없음)",
+        phone: "010-7070-8596",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 제휴 쿠폰 46,000 (실결제 = 판매가 − 쿠폰)", productId: "CRS-2603", itemType: "LECTURE", qty: 1, unitPrice: 144500, discount: 46000, linePaid: 98500, holder: "이건설 60% · 자사 40%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "98,500원",
+        priceNote: "정가 144,500 / 쿠폰 -46,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261015-0147",
+        paidAtFull: "2026.10.15 19:08:02",
+        pgTid: "tvivarepublica20261015190802",
+        listTotal: 144500,
+        couponAmt: 46000,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 98500,
+        refs: ["PG 대사 REC-12 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261018-0042",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.18 23:59",
+        buyer: "문가영",
+        receiver: "문가영",
+        phone: "010-8080-9607",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁) ×4", status: "배송완료", sCls: "b-green", sub: "면세 0% · 위탁 판매 · 쿠폰·포인트 불가", productId: "PROD-BK-3003", itemType: "BOOK", qty: 4, unitPrice: 25000, discount: 0, linePaid: 100000, holder: "위탁자 안전기술출판 100%" }
+        ],
+        deliverySub: "수령인 문가영 · 인천 연수구 송도과학로 32 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "100,000원",
+        priceNote: "정가 100,000",
+        payMethod: "계좌이체",
+        paySub: "실시간 계좌이체 (우리)",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261018-0042",
+        paidAtFull: "2026.10.18 23:59:04",
+        pgTid: "tvivarepublica20261018235904",
+        listTotal: 100000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 100000,
+        refs: ["PG 대사 REC-02 (ADMN-SETT-004) · 원인 미상 차액"]
+      },
+      {
+        orderNo: "SJM20261005-0001",
+        basis: "과·면세 혼합 (면세 + 과세 10%)",
+        paidAt: "10.05 09:30",
+        buyer: "강하늘",
+        receiver: "강하늘",
+        phone: "010-9191-1010",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0%", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×1", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 1, unitPrice: 20000, discount: 0, linePaid: 20000, holder: "정종대 100% (인세)" },
+          { tag: "일반상품", cls: "b-purple", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×1", status: "배송완료", sCls: "b-green", sub: "과세 10% (공급가 10,000 / 세액 1,000)", productId: "GOODS-2026-001", itemType: "GOODS_ITEM", qty: 1, unitPrice: 11000, discount: 0, linePaid: 11000, holder: "자사 100%" },
+          { tag: "배송비", cls: "b-gray", name: "제주 · 도서산간 추가 배송비", status: "부과", sCls: "b-gray", sub: "권리자 정산 제외", productId: "SHIPPING", itemType: "SHIPPING_FEE", qty: 1, unitPrice: 3000, discount: 0, linePaid: 3000, holder: "플랫폼 물류비" }
+        ],
+        deliverySub: "🏝️ 제주 서귀포시 중앙로 48 / 기본 0원(교재·상품 3만원↑) + 제주 추가배송비 3,000원",
+        paidAmt: "184,000원",
+        priceNote: "정가 181,000 / 배송 3,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261005-0001",
+        paidAtFull: "2026.10.05 09:30:00",
+        pgTid: "tvivarepublica20261005093000",
+        listTotal: 181000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 3000,
+        paidAmount: 184000,
+        refs: ["PG 대사 REC-06 (ADMN-SETT-004) · 3계층 과·면세 분할"]
+      },
+      {
+        orderNo: "SJM20261015-0411",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.15 18:40",
+        buyer: "남주혁",
+        receiver: "남주혁",
+        phone: "010-1212-2323",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송중", sCls: "b-blue", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 남주혁 · 대전 서구 둔산로 100 / 가상계좌 입금 10.15 18:40",
+        paidAmt: "40,000원",
+        priceNote: "정가 40,000",
+        payMethod: "가상계좌",
+        paySub: "국민은행 · 입금 완료",
+        status: "배송중",
+        shipLocked: false,
+        presetKey: "SJM20261015-0411",
+        paidAtFull: "2026.10.15 18:40:00",
+        pgTid: "tvivarepublica20261015184000",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 40000,
+        refs: ["PG 대사 REC-04 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261002-0017",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.02 14:22",
+        buyer: "남궁민",
+        receiver: "남궁민",
+        phone: "010-1313-2424",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "산업안전 핵심 이론 교재 (공동저자) ×2", status: "구매확정", sCls: "b-green", sub: "면세 0% · 구매확정 2026.10.08 (지분 매핑 종료 10.14 이전)", productId: "PROD-BK-1001", itemType: "BOOK", qty: 2, unitPrice: 28000, discount: 0, linePaid: 56000, holder: "산준교육 50% · 이안전 30% · 자사 20%" }
+        ],
+        deliverySub: "수령인 남궁민 · 광주 서구 상무중앙로 7 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "56,000원",
+        priceNote: "정가 56,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261002-0017",
+        paidAtFull: "2026.10.02 14:22:10",
+        pgTid: "tvivarepublica20261002142210",
+        listTotal: 56000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 56000,
+        refs: ["PG 대사 REC-01 (ADMN-SETT-004) · 원인 미상 차액 · 공동저자 2명 마감 보류"]
+      },
+      {
+        orderNo: "SJM20261011-0089",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.11 20:14",
+        buyer: "류준열",
+        receiver: "류준열",
+        phone: "010-1414-2525",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 총정리 (매입 재판매) ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 매입 재판매(정산 비인입)", productId: "PROD-BK-2001", itemType: "BOOK", qty: 2, unitPrice: 18000, discount: 0, linePaid: 36000, holder: "자사 100%" }
+        ],
+        deliverySub: "수령인 류준열 · 울산 남구 삼산로 200 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "36,000원",
+        priceNote: "정가 36,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261011-0089",
+        paidAtFull: "2026.10.11 20:14:11",
+        pgTid: "tvivarepublica20261011201411",
+        listTotal: 36000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 36000,
+        refs: ["PG 대사 REC-07 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261020-0502",
+        basis: "일반상품 과세 (VAT 10%)",
+        paidAt: "10.20 16:10",
+        buyer: "김태리",
+        receiver: "김태리",
+        phone: "010-1515-2626",
+        type: "일반상품",
+        hasDelivery: true,
+        lines: [
+          { tag: "일반상품", cls: "b-purple", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×3", status: "배송완료", sCls: "b-green", sub: "과세 10% · 4개 결제 중 1개 부분취소(10.21)", productId: "GOODS-2026-001", itemType: "GOODS_ITEM", qty: 3, unitPrice: 11000, discount: 0, linePaid: 33000, holder: "자사 100%" }
+        ],
+        deliverySub: "수령인 김태리 · 경기 수원시 영통구 광교로 145 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "33,000원",
+        priceNote: "정가 33,000 · 결제 44,000 / 부분취소 -11,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261020-0502",
+        paidAtFull: "2026.10.20 16:10:00",
+        pgTid: "tvivarepublica20261020161000",
+        listTotal: 33000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 33000,
+        refs: ["PG 대사 REC-05 (ADMN-SETT-004) · 환불 처리 시차"]
+      },
+      /* [v6.63 W4] 판매 근거 보강 대표 주문 — 산준교육 CRS-1001 · 이전기 CRS-2509 · 고 박위생 PROD-BK-1008 · 자사 CRS-1012 */
+      {
+        orderNo: "SJM20261007-0071",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.07 11:18",
+        buyer: "한서연",
+        receiver: "— (배송 없음)",
+        phone: "010-6161-7272",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "산업안전기사 필기 핵심이론 패키지", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 180,000 → 판매가 150,000 · 계약 만료(10-14) · 3강 매핑 종료(10-10) 전 결제", productId: "CRS-1001", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "산준교육 80.00% · 자사 20.00%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "150,000원",
+        priceNote: "정가 150,000",
+        payMethod: "신용/체크카드",
+        paySub: "국민카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261007-0071",
+        paidAtFull: "2026.10.07 11:18:42",
+        pgTid: "tvivarepublica20261007111842",
+        listTotal: 150000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 150000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261003-0026",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.03 15:40",
+        buyer: "오세훈",
+        receiver: "— (배송 없음)",
+        phone: "010-8282-9393",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 전기위험방지기술 집중 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 120,000 → 판매가 100,000 · 강사 계약 해지(10-05) 전 결제 · 해지 후 판매중지", productId: "CRS-2509", itemType: "LECTURE", qty: 1, unitPrice: 100000, discount: 0, linePaid: 100000, holder: "이전기 100% (2026-10-05 해지)" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "100,000원",
+        priceNote: "정가 100,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261003-0026",
+        paidAtFull: "2026.10.03 15:40:09",
+        pgTid: "tvivarepublica20261003154009",
+        listTotal: 100000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 100000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261012-0118",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.12 09:05",
+        buyer: "문가영",
+        receiver: "문가영",
+        phone: "010-7373-8484",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 산업위생관리기사 필기 핵심정리 ×2", status: "구매확정", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가 · 구매확정 10.19", productId: "PROD-BK-1008", itemType: "BOOK", qty: 2, unitPrice: 30000, discount: 0, linePaid: 60000, holder: "고 박위생 100% (인세 · 상속인 분할 60:40)" }
+        ],
+        deliverySub: "수령인 문가영 · 대전 서구 둔산로 100 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "60,000원",
+        priceNote: "정가 60,000",
+        payMethod: "간편결제",
+        paySub: "카카오페이 (토스PG)",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261012-0118",
+        paidAtFull: "2026.10.12 09:05:27",
+        pgTid: "tvivarepublica20261012090527",
+        listTotal: 60000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 60000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261014-0233",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.14 20:12",
+        buyer: "배수지",
+        receiver: "— (배송 없음)",
+        phone: "010-9494-0505",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 위험물산업기사 실기 시뮬레이션 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 150,000 → 판매가 120,000 (20%) · 기여자 최그래픽 매출연동 지원금 5% 모수", productId: "CRS-1012", itemType: "LECTURE", qty: 1, unitPrice: 120000, discount: 0, linePaid: 120000, holder: "자사 100% (지원금 SFA-2026-012 5%)" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "120,000원",
+        priceNote: "정가 120,000",
+        payMethod: "신용/체크카드",
+        paySub: "현대카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261014-0233",
+        paidAtFull: "2026.10.14 20:12:55",
+        pgTid: "tvivarepublica20261014201255",
+        listTotal: 120000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 120000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20260930-0998",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "09.30 22:15",
+        buyer: "정해인",
+        receiver: "— (배송 없음)",
+        phone: "010-1616-2727",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 가상계좌 입금 10.01 09:12 (10월 귀속)", productId: "CRS-2605", itemType: "LECTURE", qty: 1, unitPrice: 125000, discount: 0, linePaid: 125000, holder: "박보건 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "125,000원",
+        priceNote: "정가 125,000",
+        payMethod: "가상계좌",
+        paySub: "국민은행 · 입금 완료",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20260930-0998",
+        paidAtFull: "2026.09.30 22:15:00",
+        pgTid: "tvivarepublica20260930221500",
+        listTotal: 125000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 125000,
+        refs: ["PG 대사 가상계좌 시차 (ADMN-SETT-004 탭 3)"]
+      },
+      {
+        orderNo: "SJM20260930-0412",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "09.30 23:58",
+        buyer: "손석구",
+        receiver: "손석구",
+        phone: "010-1717-2828",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 총정리 (매입 재판매) ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 매입 재판매(정산 비인입)", productId: "PROD-BK-2001", itemType: "BOOK", qty: 2, unitPrice: 18000, discount: 0, linePaid: 36000, holder: "자사 100%" }
+        ],
+        deliverySub: "수령인 손석구 · 세종 한누리대로 2130 / 계좌이체 망취소 복구 10.01 00:04 (9월 귀속)",
+        paidAmt: "36,000원",
+        priceNote: "정가 36,000",
+        payMethod: "계좌이체",
+        paySub: "실시간 계좌이체 (우리)",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260930-0412",
+        paidAtFull: "2026.09.30 23:58:10",
+        pgTid: "tvivarepublica20260930235810",
+        listTotal: 36000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 36000,
+        refs: ["PG 대사 계좌이체 시차 (ADMN-SETT-004 탭 3)"]
+      },
+      {
+        orderNo: "SJM20261004-0091",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "10.04 16:48",
+        buyer: "김철수",
+        receiver: "김철수",
+        phone: "010-2121-3232",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0%", productId: "CRS-2606", itemType: "LECTURE", qty: 1, unitPrice: 200000, discount: 0, linePaid: 200000, holder: "최지도 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 교재 단독 반품 문의(상담중)", productId: "PROD-BK-1007", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "최지도 100% (인세)" }
+        ],
+        deliverySub: "수령인 김철수 · 서울 송파구 올림픽로 300 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "240,000원",
+        priceNote: "정가 240,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261004-0091",
+        paidAtFull: "2026.10.04 16:48:20",
+        pgTid: "tvivarepublica20261004164820",
+        listTotal: 240000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 240000,
+        refs: ["1:1 문의 INQ-2026-008912 (ADMN-RFD-002)"]
+      },
+      {
+        orderNo: "SJM20260918-0063",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "09.18 12:30",
+        buyer: "최민아",
+        receiver: "— (배송 없음)",
+        phone: "010-2222-4343",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "환불접수", sCls: "b-red", sub: "교육용역 면세 0% · 진도율 50%", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 0, linePaid: 144000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,000원",
+        priceNote: "정가 144,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20260918-0063",
+        paidAtFull: "2026.09.18 12:30:44",
+        pgTid: "tvivarepublica20260918123044",
+        listTotal: 144000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144000,
+        refs: ["환불 RFD-2026-001189 (ADMN-RFD-002)"]
+      },
+      {
+        orderNo: "SJM20260901-0219",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "09.01 08:55",
+        buyer: "박영희",
+        receiver: "— (배송 없음)",
+        phone: "010-2323-5454",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "부분환불", sCls: "b-red", sub: "교육용역 면세 0% · 2026-09 정산 반영(마감)", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 0, linePaid: 144000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,000원",
+        priceNote: "환불 100,800 + 보정 4,800 (2026-09 완료)",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "환불완료",
+        shipLocked: false,
+        presetKey: "SJM20260901-0219",
+        paidAtFull: "2026.09.01 08:55:12",
+        pgTid: "tvivarepublica20260901085512",
+        listTotal: 144000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144000,
+        refs: ["환불 RFD-2026-001120 (ADMN-RFD-003)"]
+      },
+      {
+        orderNo: "SJM20260822-0031",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "08.22 17:05",
+        buyer: "이민호",
+        receiver: "— (배송 없음)",
+        phone: "010-2424-6565",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "환불완료", sCls: "b-red", sub: "교육용역 면세 0% · 현금 환불 0원 (−9,200P 전환)", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "150,000원",
+        priceNote: "환불 2026-09 완료 (원귀속 2026-08)",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "환불완료",
+        shipLocked: false,
+        presetKey: "SJM20260822-0031",
+        paidAtFull: "2026.08.22 17:05:39",
+        pgTid: "tvivarepublica20260822170539",
+        listTotal: 150000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 150000,
+        refs: ["환불 RFD-2026-001098 (ADMN-RFD-003)"]
+      },
+      {
+        orderNo: "SJM20260214-0055",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "02.14 10:11",
+        buyer: "이수석",
+        receiver: "이수석",
+        phone: "010-3131-4242",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 2026-02 오픈 특가 240,000", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 240000, discount: 0, linePaid: 240000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 이수석 · 대구 수성구 달구벌대로 2450",
+        paidAmt: "280,000원",
+        priceNote: "정가 280,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260214-0055",
+        paidAtFull: "2026.02.14 10:11:05",
+        pgTid: "tvivarepublica20260214101105",
+        listTotal: 280000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 280000,
+        refs: ["합격환급 HRF-202610-03 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260309-0112",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "03.09 14:40",
+        buyer: "홍길동",
+        receiver: "홍길동",
+        phone: "010-1234-5678",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 정가 450,000 → 판매가 410,000", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 410000, discount: 0, linePaid: 410000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 홍길동 · 경기 성남시 분당구 판교역로 235",
+        paidAmt: "450,000원",
+        priceNote: "정가 450,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260309-0112",
+        paidAtFull: "2026.03.09 14:40:18",
+        pgTid: "tvivarepublica20260309144018",
+        listTotal: 450000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 450000,
+        refs: ["합격환급 HRF-202610-01 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260411-0309",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "04.11 11:22",
+        buyer: "최안전",
+        receiver: "최안전",
+        phone: "010-3232-5353",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 김안전 산업안전 핵심이론 패스", status: "합격환급", sCls: "b-purple", sub: "환급반 패키지(코드표 밖) · 강사 김안전", productId: "", itemType: "LECTURE", qty: 1, unitPrice: 400000, discount: 0, linePaid: 400000, holder: "김안전 (원거래 스냅샷 100%)" },
+          { tag: "교재", cls: "b-teal", name: "김안전 산업안전 핵심이론 교재 ×1", status: "배송완료", sCls: "b-green", sub: "면세 0% (코드표 밖 도서)", productId: "", itemType: "BOOK", qty: 1, unitPrice: 38000, discount: 0, linePaid: 38000, holder: "김안전 (인세)" }
+        ],
+        deliverySub: "수령인 최안전 · 부산 연제구 중앙대로 1001",
+        paidAmt: "438,000원",
+        priceNote: "정가 438,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260411-0309",
+        paidAtFull: "2026.04.11 11:22:47",
+        pgTid: "tvivarepublica20260411112247",
+        listTotal: 438000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 438000,
+        refs: ["합격환급 HRF-202610-02 (ADMN-SETT-006) · 2026-11 반영 대기"]
+      },
+      {
+        orderNo: "SJM20260512-0210",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "05.12 09:48",
+        buyer: "최유진",
+        receiver: "최유진",
+        phone: "010-5566-1212",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매", productId: "CRS-2603", itemType: "LECTURE", qty: 1, unitPrice: 144500, discount: 0, linePaid: 144500, holder: "이건설 60% · 자사 40%" },
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁) ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 위탁 판매 · 쿠폰·포인트 불가", productId: "PROD-BK-3003", itemType: "BOOK", qty: 2, unitPrice: 25000, discount: 0, linePaid: 50000, holder: "위탁자 안전기술출판 100%" }
+        ],
+        deliverySub: "수령인 최유진 · 서울 중구 세종대로 110",
+        paidAmt: "194,500원",
+        priceNote: "정가 194,500",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260512-0210",
+        paidAtFull: "2026.05.12 09:48:31",
+        pgTid: "tvivarepublica20260512094831",
+        listTotal: 194500,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 194500,
+        refs: ["합격환급 HRF-202610-04 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260603-0088",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "06.03 19:26",
         buyer: "정하늘",
         receiver: "정하늘",
         phone: "010-9090-2323",
         type: "복합",
         hasDelivery: true,
         lines: [
-          { tag: "강좌", cls: "b-blue", name: "산업안전기사 필기 올패스(2026)", status: "환불심사", sCls: "b-red", sub: "ADMN-RFD-002 심사중" },
-          { tag: "교재", cls: "b-teal", name: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", status: "반품수거중", sCls: "b-red", sub: "3PL 창고 입고 · 검수 대기" }
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 2026-06 막차 특가 180,000 (합격환급 플랫폼 부담 프로모션)", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 180000, discount: 0, linePaid: 180000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
         ],
-        deliverySub: "수거 운송장 641299001122 · 창고 입고일 2026.08.18",
-        paidAmt: "189,000원",
-        priceNote: "환불 심사 진행 건",
+        deliverySub: "수령인 정하늘 · 경기 고양시 일산동구 중앙로 1275",
+        paidAmt: "220,000원",
+        priceNote: "정가 220,000",
         payMethod: "간편결제",
         paySub: "토스페이 (토스PG)",
-        status: "반품수거중",
-        shipLocked: true,
-        presetKey: "SJM20260818-0021"
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260603-0088",
+        paidAtFull: "2026.06.03 19:26:03",
+        pgTid: "tvivarepublica20260603192603",
+        listTotal: 220000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 220000,
+        refs: ["합격환급 HRF-202610-05 (ADMN-SETT-006)"]
       }
     ];
 
@@ -2044,7 +2924,7 @@ code, pre, kbd, samp,
         if (curOrdType !== "ALL" && o.type !== curOrdType) return false;
         if (payMethod !== "ALL" && o.payMethod !== payMethod) return false;
         if (onlyDelivery && !o.hasDelivery) return false;
-        if (kw && !(o.orderNo.toLowerCase().includes(kw) || o.buyer.toLowerCase().includes(kw) || o.receiver.toLowerCase().includes(kw) || o.phone.includes(kw))) return false;
+        if (kw && !(o.orderNo.toLowerCase().includes(kw) || o.buyer.toLowerCase().includes(kw) || o.receiver.toLowerCase().includes(kw) || o.phone.includes(kw) || o.lines.some(l => (l.productId || "").toLowerCase().includes(kw)))) return false;
         return true;
       });
 
@@ -2061,6 +2941,7 @@ code, pre, kbd, samp,
         const linesHtml = o.lines.map(l => `
           <div class="order-line-item">
             <span class="badge ${l.cls}">${l.tag}</span>
+            ${l.productId && l.productId !== "SHIPPING" ? `<code style="font-size:10.5px;">${l.productId}</code>` : ""}
             <b>${l.name}</b>
             <span class="badge ${l.sCls}">${l.status}</span>
             <span style="font-size:11px;color:var(--text-muted);">(${l.sub})</span>
@@ -2069,11 +2950,12 @@ code, pre, kbd, samp,
 
         let statusBadge = `<span class="badge b-amber">${o.status}</span>`;
         if (o.status === "결제완료" || o.status === "배송완료") statusBadge = `<span class="badge b-green">${o.status}</span>`;
+        if (o.status === "환불완료") statusBadge = `<span class="badge b-gray">${o.status}</span>`;
         if (o.status === "배송중") statusBadge = `<span class="badge b-blue">${o.status}</span>`;
         if (o.status === "반품수거중") statusBadge = `<span class="badge b-red">${o.status}</span>`;
         if (o.status === "결제대기") statusBadge = `<span class="badge b-purple">결제대기(미입금)</span>`;
 
-        let actionBtn = `<button type="button" class="btn btn-sm btn-outline" onclick="openOrderDetail('${o.presetKey}')">상세</button>`;
+        let actionBtn = `<button type="button" class="btn btn-sm btn-outline" onclick="openOrderDetail('${o.orderNo}')">상세</button>`;
         if (o.status === "결제대기") {
           actionBtn = `<button type="button" class="btn btn-sm btn-warn" onclick="openOrderDetail('SJM20260817-0132')">⏳ 기한연장</button>`;
         } else if (o.status === "반품수거중") {
@@ -2084,7 +2966,7 @@ code, pre, kbd, samp,
           <tr class="${rowCls}">
             <td><input type="checkbox" class="ord-row-cb" /></td>
             <td>
-              <a href="javascript:void(0)" onclick="openOrderDetail('${o.presetKey}')" style="font-weight:800;color:var(--primary);text-decoration:underline;">${o.orderNo}</a><br>
+              <a href="javascript:void(0)" onclick="openOrderDetail('${o.orderNo}')" style="font-weight:800;color:var(--primary);text-decoration:underline;">${o.orderNo}</a><br>
               <span style="font-size:10.5px;color:var(--text-muted);">${o.basis}</span>
             </td>
             <td class="mono">${o.paidAt}</td>
@@ -2182,13 +3064,13 @@ code, pre, kbd, samp,
 
     const SHIP_LINES = {
       READY: [
-        { key: "SJM20260818-0021 #2", checked: true, recv: "홍길동", phone: "010-1234-5678", addr: "13529 경기 성남시 분당구 판교역로 235 에이치스퀘어 N동 7층 · \"경비실에 맡겨주세요\"", island: false, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, fee: "0원", locked: true, lockTime: "08.18 14:02" },
+        { key: "SJM20260818-0021 #2", checked: true, recv: "홍길동", phone: "010-1234-5678", addr: "13529 경기 성남시 분당구 판교역로 235 에이치스퀘어 N동 7층 · \"경비실에 맡겨주세요\"", island: false, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 2, fee: "0원", locked: true, lockTime: "08.18 14:02" },
         { key: "SJM20260818-0019 #1", checked: true, recv: "김수현", phone: "010-2233-4455", addr: "13561 경기 성남시 분당구 대왕판교로 660 유스페이스1 A동 502호", island: false, book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", qty: 2, fee: "0원", locked: false, lockTime: "출고지시 전" },
-        { key: "SJM20260818-0007 #1", checked: false, recv: "강도현", phone: "010-4747-1010", addr: "63309 제주특별자치도 제주시 첨단로 242", island: true, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, fee: "3,000원", locked: false, lockTime: "출고지시 전" },
+        { key: "SJM20260818-0007 #1", checked: false, recv: "강도현", phone: "010-4747-1010", addr: "63309 제주특별자치도 제주시 첨단로 242", island: true, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 2, fee: "3,000원", locked: false, lockTime: "출고지시 전" },
         { key: "SJM20260817-0102 #1", checked: false, recv: "최유진", phone: "010-5566-1212", addr: "04524 서울 중구 세종대로 110", island: false, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, fee: "0원", locked: true, lockTime: "08.17 15:30" }
       ],
       SHIPPING: [
-        { key: "SJM20260814-0077 #1", checked: true, recv: "최유진", phone: "010-5566-1212", addr: "04524 서울 중구 세종대로 110 🔒", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, shipDate: "08.15 (D+3)", waybill: "641233879021", courier: "CJ대한통운", edited: 0 },
+        { key: "SJM20260814-0077 #1", checked: true, recv: "최유진", phone: "010-5566-1212", addr: "04524 서울 중구 세종대로 110 🔒", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 2, shipDate: "08.15 (D+3)", waybill: "641233879021", courier: "CJ대한통운", edited: 0 },
         { key: "SJM20260815-0010 #1", checked: false, recv: "박지훈", phone: "010-3131-7788", addr: "34126 대전 유성구 대학로 99 🔒", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", qty: 1, shipDate: "08.16 (D+2)", waybill: "641233879055", courier: "CJ대한통운", edited: 0 },
         { key: "SJM20260815-0003 #2", checked: false, recv: "한소율", phone: "010-8282-4646", addr: "48058 부산 해운대구 센텀중앙로 79 🔒", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, shipDate: "08.16 (D+2)", waybill: "641233879068", courier: "CJ대한통운", edited: 1 }
       ],
@@ -2198,7 +3080,7 @@ code, pre, kbd, samp,
         { key: "SJM20260809-0011 #2", recv: "장미래", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, shipDate: "08.10", delivDate: "2026.08.12", basis: "수동 보정", bCls: "b-amber", waybill: "641233878702", courier: "CJ대한통운" }
       ],
       RETURN: [
-        { key: "SJM20260809-0044 #2", recv: "정하늘", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299001122", inDate: "2026.08.18", status: "검수 대기", sCls: "b-amber", selectable: true },
+        { key: "SJM20260809-0044 #2", recv: "홍길동", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299001122", inDate: "2026.08.18", status: "검수 대기", sCls: "b-amber", selectable: true },
         { key: "SJM20260805-0012 #1", recv: "서지호", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×1", returnWb: "641288774411", inDate: "2026.08.17", status: "훼손 · 교재비 차감 (환불심사 전달 완료)", sCls: "b-red", selectable: true },
         { key: "SJM20260811-0030 #1", recv: "이도윤", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299004455", inDate: "입고 전", status: "창고 입고 대기", sCls: "b-gray", selectable: false }
       ]
@@ -2510,10 +3392,72 @@ code, pre, kbd, samp,
     // =========================================================================
     let isDetailShipLocked = true;
 
-    function openOrderDetail(presetKey) {
+    function openOrderDetail(orderNo) {
       switchOrdView("ord001s1");
-      document.getElementById("detailPresetSelect").value = presetKey;
-      loadOrderDetailPreset(presetKey);
+      const sel = document.getElementById("detailPresetSelect");
+      if (![...sel.options].some(op => op.value === orderNo)) {
+        const o = ORDERS_DATA.find(x => x.orderNo === orderNo);
+        const op = document.createElement("option");
+        op.value = orderNo;
+        op.textContent = `[주문] ${orderNo} (${o ? o.buyer + " · " + o.type + " · " + o.status : ""})`;
+        sel.appendChild(op);
+      }
+      sel.value = orderNo;
+      loadOrderDetailPreset(orderNo);
+    }
+
+    // 주문 데이터(ORDERS_DATA)로 상세 1 · 2 영역을 채운다 — 품목별 상품 코드 · 귀속 · 금액
+    function renderOrderDetailFromData(src) {
+      // 직권 부여 주문처럼 금액 필드가 없는 주문도 그릴 수 있게 기본값을 채운다
+      const o = Object.assign({ listTotal: 0, couponAmt: 0, pointAmt: 0, shipFee: 0, paidAmount: parseInt(String(src.paidAmt || "0").replace(/[^0-9]/g, ""), 10) || 0, refs: [] }, src);
+      o.lines = (src.lines || []).map(l => Object.assign({ itemType: ({ "강좌": "LECTURE", "교재": "BOOK", "일반상품": "GOODS_ITEM" })[l.tag] || "LECTURE", qty: 1, unitPrice: 0, discount: 0, linePaid: 0, productId: "", holder: "" }, l));
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      const won = n => Number(n || 0).toLocaleString("ko-KR") + "원";
+      const typeLabel = { "인강": "인강 단독", "교재": "교재 단독", "복합": "복합(패키지)", "일반상품": "일반상품" }[o.type] || o.type;
+      set("dtOrderNo", o.orderNo);
+      set("dtOrderType", typeLabel);
+      const stCls = o.status === "결제대기" ? "b-purple" : (o.status === "반품수거중" ? "b-red" : (o.status === "배송중" ? "b-blue" : (o.status === "환불완료" ? "b-gray" : (o.status === "배송준비중" ? "b-amber" : "b-green"))));
+      document.getElementById("dtOrderStatus").innerHTML = `<span class="badge ${stCls}">${o.status}</span>` + (o.shipLocked ? ` <span class="badge b-gray" id="dtLockSubBadge">🔒 출고지시 완료</span>` : "");
+      set("dtBuyerInfo", `${o.buyer} (${o.phone})`);
+      set("dtPaidAt", o.paidAtFull || o.paidAt);
+      set("dtPayMethod", `${o.payMethod} (${o.paySub})`);
+      set("dtPgTid", o.pgTid || "—");
+      const lec = o.lines.filter(l => l.itemType === "LECTURE").reduce((a, l) => a + l.unitPrice * l.qty, 0);
+      const phys = o.lines.filter(l => l.itemType === "BOOK" || l.itemType === "GOODS_ITEM").reduce((a, l) => a + l.unitPrice * l.qty, 0);
+      set("dtListPrice", `${won(o.listTotal)} (강좌 ${won(lec)} + 교재·상품 ${won(phys)})`);
+      set("dtCouponAmt", o.couponAmt ? `−${won(o.couponAmt)} (강좌 라인에만 배분 · 교재 배분 0원)` : "0원");
+      set("dtPointUsed", o.pointAmt ? `${o.pointAmt.toLocaleString("ko-KR")}P` : "0P");
+      document.getElementById("dtShipFee").innerHTML = o.shipFee ? `${won(o.shipFee)} <span style="color:var(--text-muted);font-size:11.5px;">(${o.lines.filter(l => l.itemType === "SHIPPING_FEE").map(l => l.name).join(", ")})</span>`
+        : (o.hasDelivery ? `0원 <span style="color:var(--text-muted);font-size:11.5px;">(교재·상품 3만원↑ 무료배송)</span>` : `0원 <span style="color:var(--text-muted);font-size:11.5px;">(배송 대상 아님)</span>`);
+      set("dtPaidAmt", o.status === "결제대기" ? `${won(o.paidAmount)} (입금 대기중)` : won(o.paidAmount));
+      const lecPaid = o.lines.filter(l => l.itemType === "LECTURE").reduce((a, l) => a + l.linePaid, 0);
+      document.getElementById("dtPointEarnInfo").innerHTML = `적립 예정 <b>${Math.ceil(lecPaid * 0.01).toLocaleString("ko-KR")}P</b> (강좌 라인 실결제액 ${won(lecPaid)} × 1% 올림 · 교재 · 배송비는 적립 0%)`;
+      const badgeOf = { LECTURE: "강좌 (LECTURE)", BOOK: "교재 (BOOK)", GOODS_ITEM: "일반상품 (GOODS_ITEM)", SHIPPING_FEE: "배송비 (SHIPPING_FEE)" };
+      let physIdx = 0;
+      document.getElementById("detailLinesTbody").innerHTML = o.lines.map((l, i) => {
+        const isPhys = l.itemType === "BOOK" || l.itemType === "GOODS_ITEM";
+        const lockId = isPhys && physIdx++ === 0 && o.shipLocked !== undefined && o.status === "배송준비중" ? ` id="line2LockText"` : "";
+        return `
+        <tr>
+          <td><b>#${i + 1}</b><br><span class="mono" style="color:var(--text-muted);">OI-${o.orderNo.slice(-4)}-${i + 1}</span></td>
+          <td><span class="badge ${l.cls}">${badgeOf[l.itemType] || l.tag}</span></td>
+          <td>
+            <b>${l.name}</b><br>
+            <span style="font-size:11.5px;color:var(--text-muted);">${l.productId && l.productId !== "SHIPPING" ? `상품 코드 <code>${l.productId}</code>` : (l.itemType === "SHIPPING_FEE" ? "배송비 라인" : "상품 코드 없음 (코드표 밖 상품)")}${l.holder ? ` · 귀속: ${l.holder}` : ""}</span>
+          </td>
+          <td><span class="badge ${l.cls}">${l.sub}</span></td>
+          <td class="text-right">${won(l.unitPrice * l.qty)}</td>
+          <td>${l.qty}</td>
+          <td class="text-right" style="${l.discount ? "color:var(--danger);font-weight:700;" : ""}">${l.discount ? "−" + won(l.discount) : "0원"}</td>
+          <td class="text-right"><b>${won(l.linePaid)}</b></td>
+          <td><span class="badge ${l.sCls}">${l.status}</span>${lockId ? `<br><span style="font-size:11px;color:var(--text-muted);"${lockId}>🔒 출고지시 완료</span>` : ""}</td>
+        </tr>`;
+      }).join("");
+      const rn = document.getElementById("inpRecvName"), rp = document.getElementById("inpRecvPhone");
+      if (rn && o.hasDelivery) rn.value = o.receiver;
+      if (rp && o.hasDelivery) rp.value = o.phone;
+      const rl = document.getElementById("dtRefundLink");
+      if (rl) rl.textContent = o.refs && o.refs.length ? `연결: ${o.refs.join(" · ")}` : "진행 중인 환불 요청 없음";
     }
 
     function loadOrderDetailPreset(key) {
@@ -2521,6 +3465,15 @@ code, pre, kbd, samp,
       const lockBanner = document.getElementById("detailLockBanner");
       const compareBox = document.getElementById("addrCompareConfirmBox");
       compareBox.style.display = "none";
+      const data = ORDERS_DATA.find(x => x.orderNo === key);
+      if (data) renderOrderDetailFromData(data);
+      if (data && !["SJM20260818-0021", "SJM20260818-0019", "SJM20260817-0132"].includes(key)) {
+        isDetailShipLocked = !!data.shipLocked;
+        vbankBox.style.display = data.status === "결제대기" ? "block" : "none";
+        lockBanner.style.display = data.shipLocked ? "flex" : "none";
+        applyShipLockUiState();
+        return;
+      }
 
       if (key === "SJM20260818-0021") {
         isDetailShipLocked = true;
@@ -2530,7 +3483,6 @@ code, pre, kbd, samp,
         document.getElementById("dtOrderType").textContent = "복합(패키지)";
         document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-amber">배송준비중</span> <span class="badge b-gray" id="dtLockSubBadge">🔒 출고지시 완료</span>`;
         document.getElementById("dtPayMethod").textContent = "신용카드 (신한카드 1234-****-****-5678 / 일시불)";
-        document.getElementById("dtPaidAmt").textContent = "189,000원";
         applyShipLockUiState();
       } else if (key === "SJM20260818-0019") {
         isDetailShipLocked = false;
@@ -2540,7 +3492,6 @@ code, pre, kbd, samp,
         document.getElementById("dtOrderType").textContent = "교재 단독";
         document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-amber">배송준비중</span> <span class="badge b-green">출고지시 전 (주소 수정 가능)</span>`;
         document.getElementById("dtPayMethod").textContent = "간편결제 (카카오페이 · 토스페이먼츠)";
-        document.getElementById("dtPaidAmt").textContent = "64,000원";
         applyShipLockUiState();
       } else if (key === "SJM20260817-0132") {
         isDetailShipLocked = false;
@@ -2550,7 +3501,6 @@ code, pre, kbd, samp,
         document.getElementById("dtOrderType").textContent = "복합(패키지)";
         document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-purple">결제대기 (가상계좌 미입금)</span>`;
         document.getElementById("dtPayMethod").textContent = "가상계좌 (국민은행 012345-67-890123 · 미입금)";
-        document.getElementById("dtPaidAmt").textContent = "249,000원 (입금 대기중)";
         applyShipLockUiState();
       }
     }
