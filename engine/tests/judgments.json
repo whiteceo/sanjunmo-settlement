@@ -3,9 +3,6 @@
   "D-08": {
     "PAYOUT / closing_balance": {"cause": "입력 부족", "issue": "OI-03"}
   },
-  "D-09": {
-    "SUPPORT_CAP": {"cause": "정본 모순", "issue": "OI-01"}
-  },
   "D-14": {
     "TAX": {"cause": "입력 부족", "issue": "OI-02"}
   }

@@ -14,16 +14,17 @@
   "expected": {
     "SUPPORT_CAP": {
       "option_b_deduct_absorbed_by_excess_expiry": false,
-      "excess_expired": 250000,
-      "new_confirmed": 150000,
+      "avail_cap": 250000,
+      "excess_expired": 150000,
+      "new_confirmed": 250000,
       "option_b_deduct": 100000,
-      "payable_confirmed": 50000,
-      "remaining_cap_after_restore": 100000
+      "payable_confirmed": 150000,
+      "remaining_cap_after_restore": 0
     }
   },
   "expected_status": "NUMERIC",
   "verifies": "8.3절 4·5단계, 15.1절",
-  "notes": "산술 검산: 400,000-150,000 = 250,000, 150,000-100,000 = 50,000, 복원 100,000 후 잔여 한도 100,000 일치. 단 '복원 반영 후 잔여 한도 10만'의 산식(cap_consumed 초기값 부재)은 정본에 없다 → 잔여 한도 100,000을 복원 100,000으로 단순 재현만 가능.",
+  "notes": "정본 v4.0.10(white 결정, 02권 8.3절 5단계 방식)으로 기대값 갱신: 복원 후 사용가능 한도 = 잔여 150,000 + 복원 100,000 = 250,000, 신규 확정 = min(400,000, 250,000) = 250,000, 소멸 150,000, 지급 대상 = 250,000 - 100,000 = 150,000, 복원 후 잔여 = 150,000 - 250,000 + 100,000 = 0. (이전 기대값 15만/5만/10만은 OI-01 정본 모순으로 판정되어 정정됨)",
   "_meta": {
     "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
     "percent_unit": "rate_value는 % 정수",
