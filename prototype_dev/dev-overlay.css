@@ -1,0 +1,24 @@
+/* prototype_dev 전용 — 개발 매핑 표시(dev-overlay.js). 화면 디자인에는 손대지 않는다 */
+.devx-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 100000; padding: 8px 14px; border-radius: 18px; border: 1px solid #0F766E; background: #fff; color: #0F766E; font: 700 12px/1 Pretendard, sans-serif; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.devx-on .devx-toggle { background: #0F766E; color: #fff; }
+.devx-panel { display: none; position: fixed; right: 16px; bottom: 56px; z-index: 100000; width: 340px; max-height: 60vh; overflow: auto; padding: 12px 14px; border-radius: 10px; border: 1px solid #CBD5E1; background: #fff; color: #1E293B; font: 12px/1.6 Pretendard, sans-serif; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.devx-panel ul { margin: 2px 0 0 16px; padding: 0; }
+.devx-h { font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+.devx-row { margin-top: 4px; }
+.devx-sub { color: #64748B; }
+.devx-key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+.devx-key-dev { background: #16A34A; }
+.devx-key-proto { background: #EA580C; }
+.devx-tip { display: none; position: fixed; z-index: 100001; max-width: 420px; padding: 6px 9px; border-radius: 6px; background: #0F172A; color: #F8FAFC; font: 12px/1.6 Pretendard, sans-serif; pointer-events: none; }
+.devx-tip code, .devx-panel code { font-family: Consolas, monospace; font-size: 11.5px; }
+.devx-tip code { color: #99F6E4; }
+.devx-c-dev { color: #86EFAC; }
+.devx-c-proto { color: #FDBA74; }
+.devx-on [data-dev-flag="dev-only"] { outline: 2px solid #16A34A !important; outline-offset: 2px; }
+.devx-on [data-dev-flag="proto-only"] { outline: 2px dashed #EA580C !important; outline-offset: 2px; }
+.devx-on [data-dev-route] { box-shadow: inset 0 -2px 0 #0F766E; }
+/* 개발에만 있는 기능은 매핑을 꺼도 보인다(정본 디자인으로 추가한 요소). 표시만 매핑을 켰을 때 */
+.devx-badge { display: none; margin-left: 4px; padding: 0 5px; border-radius: 4px; font-size: 10.5px; font-weight: 700; vertical-align: 1px; }
+.devx-on .devx-badge { display: inline-block; }
+.devx-badge-dev { background: #DCFCE7; color: #166534; }
+.devx-badge-proto { background: #FFEDD5; color: #9A3412; }
