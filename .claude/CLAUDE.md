@@ -65,6 +65,7 @@
 - 두 폴더 수정은 `prototype_clean`을 한 번 고치고 `python scripts/qa/mirror_patch.py --from prototype_clean --to prototype`로 같은 변경을 옮긴다. 건너뛴 hunk(문구가 다른 줄)만 손으로 옮긴다. 마지막에 `python scripts/qa/skill_pair_diff.py`로 두 폴더 로직 · 구조 차이 0을 확인한다.
 - 에이전트 분업: 조사 결과는 파일(`scripts/qa/reports/review/findings/`), 최종 응답은 한 줄. 총괄이 건수는 파일에서 세고 근거는 원문과 대조한 뒤 판정(`decisions.md`). 수정은 파일이 겹치지 않게 나눠 맡기고, E2E · QA는 마지막에 한 번. 진행은 `STATUS.md` 한 줄씩.
 - 개발팀은 이 저장소의 프로토타입과 문서를 기준으로 개발한다(개발 버전과의 동기화는 사람이 오프라인으로 함, 2026-10-26 white). 그래서 기존 값 · 상태 · 코드의 의미를 바꾸기보다 추가를 우선하고, 바꿀 때는 작업 로그와 `SPEC_SYNC.md`에 바뀐 점을 분명히 적는다.
+- 정책(정본에 없는 업무 규칙 · 값의 의미)이 아닌 화면 구성 · 표시 방식 · UX 선택은 목적에 맞게 스스로 정해 구현하고 결과만 보고한다. 묻는 것은 정책 판단뿐(2026-10-26 white).
 - 멀티 세션 · 에이전트는 작업마다 효율(파일 겹침 없음, 맥락을 가진 세션에 배정, 대기 시간)을 따져 필요한 만큼 늘려 처리한다(2026-10-26 white).
 - 같은 폴더를 다른 세션과 함께 쓴다(화면설계서 살펴보기 세션 등): 작업 전 `git pull`, 수정 전 `STATUS.md`에 담당 파일 기록, 공용 파일(`common-*.js` · `common-v84.css` · `PROJECT_STATE.md` · `README.md`)은 작은 단위로 고치고 커밋 직전 다시 pull, 버전 번호는 커밋 직전 `git log`로 확인 후 +1, `stash` · `reset` · 브랜치 전환 금지. 분담은 `scripts/qa/reports/review/HANDOFF.md`.
 

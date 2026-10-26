@@ -248,6 +248,7 @@ code, pre, kbd, samp,
         <div class="form-row"><label>설명</label><div><input class="f-input" id="rf-desc" maxlength="40" style="width:100%;" /></div></div>
         <div class="form-row"><label>노출 순서</label><div><input class="f-input" id="rf-order" type="number" min="1" style="width:100px;" /></div></div>
         <div class="form-row"><label>시작 화면</label><div><select class="f-select" id="rf-start" style="width:100%;"></select><div class="form-help">이 그룹 계정이 로그인한 뒤 처음 열리는 화면입니다. 원래 가려던 화면이 있으면 그 화면이 먼저이고, 첫 로그인 · 임시 비밀번호 계정은 비밀번호 변경이 먼저입니다. 내부 그룹은 SNB 메뉴에서, 외부 그룹은 파트너 화면에서 고릅니다.</div></div></div>
+        <div class="form-row"><label>대시보드 기본 영역</label><div><select class="f-select" id="rf-dash-area" style="width:100%;"></select><div class="form-help">통합 대시보드 홈에서 맨 위에 펼쳐 보여 줄 업무 영역입니다. 나머지 열람 가능한 영역은 아래에 접혀 보이고, 열람 권한이 없는 블록은 표시되지 않습니다. 대시보드를 쓰지 않는 그룹은 '대시보드 사용 안 함'을 고릅니다.</div></div></div>
         <div class="form-row" id="rf-copy-row"><label>권한 시작값</label><div><select class="f-select" id="rf-copy" style="width:100%;"></select><div class="form-help">기존 그룹의 권한을 복사해 시작하거나 권한 없이 시작합니다. 저장 후 권한 매트릭스에서 고칩니다.</div></div></div>
       </div>
       <div class="modal-footer">
@@ -351,6 +352,16 @@ code, pre, kbd, samp,
         : START_INTERNAL.map(g => `<optgroup label="${g.title}">${g.items.map(opt).join('')}</optgroup>`).join('');
       const items = startItems(side);
       sel.value = items.some(i => i.url === curUrl) ? curUrl : items[0].url;
+    }
+    const DASH_AREAS = [
+      { key: 'ALL', name: '전체 영역 (전부 펼침)' }, { key: 'SALES', name: '매출 · 성과' }, { key: 'CS', name: 'CS · 회원' },
+      { key: 'LOGI', name: '물류' }, { key: 'SETTLE', name: '정산' }, { key: 'SYS', name: '시스템 · 보안' }, { key: 'NONE', name: '대시보드 사용 안 함' }
+    ];
+    function dashAreaName(k) { const a = DASH_AREAS.filter(x => x.key === (k || 'NONE'))[0]; return a ? a.name : '대시보드 사용 안 함'; }
+    function renderDashAreaOptions(cur) {
+      const sel = document.getElementById('rf-dash-area');
+      sel.innerHTML = DASH_AREAS.map(a => `<option value="${a.key}">${a.name}</option>`).join('');
+      sel.value = DASH_AREAS.some(a => a.key === cur) ? cur : 'NONE';
     }
     function pickStart(side, url) { return startItems(side).filter(i => i.url === url)[0]; }
     const FLAG_LABEL = { R: '읽기', W: '쓰기', X: '엑셀' };
@@ -531,7 +542,7 @@ code, pre, kbd, samp,
       document.getElementById('rh-name').textContent = g.name;
       document.getElementById('rh-id').textContent = g.id;
       document.getElementById('rh-badges').innerHTML = `<span class="badge ${g.side === 'EXTERNAL' ? 'badge-purple' : 'badge-blue'}">${SIDE_LABEL[g.side]}</span>${g.queue ? '<span class="badge badge-amber">1:1 문의 담당 큐</span>' : ''}<span class="badge ${g.on ? 'badge-green' : 'badge-gray'}">${g.on ? '사용' : '미사용'}</span>`;
-      document.getElementById('rh-desc').textContent = `${g.desc || ''} · 소속 계정 ${accountsOf(g.id).length}개 · 시작 화면 ${g.startScreen ? g.startScreen.label : '운영 현황 대시보드'}`;
+      document.getElementById('rh-desc').textContent = `${g.desc || ''} · 소속 계정 ${accountsOf(g.id).length}개 · 시작 화면 ${g.startScreen ? g.startScreen.label : '운영 현황 대시보드'} · 대시보드 기본 영역 ${dashAreaName(g.dashArea)}`;
       document.getElementById('btn-toggle-role').textContent = g.on ? '미사용으로 변경' : '사용으로 변경';
       document.getElementById('perm-tbody').innerHTML = M.menus.map(m => {
         const v = draftPerms[m.key] || '';
@@ -661,6 +672,7 @@ code, pre, kbd, samp,
       document.getElementById('rf-order').value = g ? g.order : M.roles.list().length + 1;
       document.getElementById('rf-copy-row').style.display = g ? 'none' : '';
       renderStartOptions(g ? g.side : 'INTERNAL', g && g.startScreen ? g.startScreen.url : '');
+      renderDashAreaOptions(g ? g.dashArea : 'ALL');
       document.getElementById('rf-copy').innerHTML = '<option value="">권한 없이 시작</option>' + M.roles.list().map(x => `<option value="${x.id}">${x.name} 권한 복사</option>`).join('');
       openModalEl('modal-role');
     }
@@ -672,6 +684,7 @@ code, pre, kbd, samp,
       const desc = document.getElementById('rf-desc').value.trim();
       const order = parseInt(document.getElementById('rf-order').value, 10) || M.roles.list().length + 1;
       const startScreen = pickStart(side, document.getElementById('rf-start').value);
+      const dashArea = document.getElementById('rf-dash-area').value;
       const err = document.getElementById('role-error');
       const fail = msg => { err.textContent = msg; err.style.display = 'block'; };
       if (!name) return fail('그룹 이름을 입력해 주십시오.');
@@ -680,8 +693,8 @@ code, pre, kbd, samp,
         const copy = document.getElementById('rf-copy').value;
         const id = M.roles.nextId();
         const perms = copy ? Object.assign({}, M.roles.get(copy).perms) : {};
-        M.roles.save(M.roles.list().concat([{ id, name, side, queue, on: true, order, desc, perms, startScreen: Object.assign({}, startScreen) }]));
-        addLog(`${id} ${name}`, `신규 등록 · ${SIDE_LABEL[side]} · 문의 큐 ${queue ? '사용' : '미사용'} · 시작 화면 ${startScreen.label}${copy ? ` · ${M.roles.name(copy)} 권한 복사` : ' · 권한 없음'}`);
+        M.roles.save(M.roles.list().concat([{ id, name, side, queue, on: true, order, desc, perms, dashArea, startScreen: Object.assign({}, startScreen) }]));
+        addLog(`${id} ${name}`, `신규 등록 · ${SIDE_LABEL[side]} · 문의 큐 ${queue ? '사용' : '미사용'} · 시작 화면 ${startScreen.label} · 대시보드 기본 영역 ${dashAreaName(dashArea)}${copy ? ` · ${M.roles.name(copy)} 권한 복사` : ' · 권한 없음'}`);
         closeModal('modal-role');
         draftPerms = null;
         selectedRoleId = id;
@@ -701,6 +714,7 @@ code, pre, kbd, samp,
       if (g.order !== order) changes.push(`노출 순서: ${g.order} → ${order}`);
       const oldStart = g.startScreen ? g.startScreen.label : '운영 현황 대시보드';
       if (!g.startScreen || g.startScreen.url !== startScreen.url) changes.push(`시작 화면: ${oldStart} → ${startScreen.label}`);
+      if ((g.dashArea || 'NONE') !== dashArea) changes.push(`대시보드 기본 영역: ${dashAreaName(g.dashArea)} → ${dashAreaName(dashArea)}`);
       closeModal('modal-role');
       if (!changes.length) return;
       const html = `
@@ -708,7 +722,7 @@ code, pre, kbd, samp,
         <p class="impact-title">이 그룹을 쓰는 곳 — 연결은 그대로이고 표시 이름만 바뀝니다</p>
         <ul class="impact-list"><li>소속 계정 ${accountsOf(g.id).length}개</li><li>1:1 문의 분류 담당 부서 큐 ${cats.length}건</li></ul>`;
       showImpact('역할 그룹 정보 변경 확인', html, '변경 저장', () => {
-        M.roles.save(M.roles.list().map(x => x.id === g.id ? Object.assign({}, x, { name, side, queue, desc, order, startScreen: Object.assign({}, startScreen) }) : x));
+        M.roles.save(M.roles.list().map(x => x.id === g.id ? Object.assign({}, x, { name, side, queue, desc, order, dashArea, startScreen: Object.assign({}, startScreen) }) : x));
         addLog(`${g.id} ${name}`, changes.join(' / '));
         renderAll();
         showToast(`${name} 그룹 정보를 저장했습니다.`);

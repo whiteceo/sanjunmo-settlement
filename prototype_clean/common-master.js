@@ -66,30 +66,31 @@
 
   // 역할 그룹 최초값 — 화면설계서 v12 예시 6종 + README 외부 파트너 2종(2026-10-22). 이름 · 구성 · 권한은 운영 중 바뀐다
   // side: INTERNAL 내부 관리자 / EXTERNAL 외부 계정, queue: 1:1 문의 담당 부서 큐로 선택 가능 여부
+  // dashArea: 대시보드 기본 영역(맨 위에 펼침) — ALL 전체 · SALES 매출 · 성과 · CS CS · 회원 · LOGI 물류 · SETTLE 정산 · SYS 시스템 · 보안 · NONE 대시보드 미사용. CONF-005에서 그룹별로 바꾸는 변수(v6.53)
   // startScreen: 로그인 후 시작 화면(운영자가 CONF-005에서 그룹별로 바꾸는 변수). 착지 순서: 원래 가려던 화면 → 비밀번호 변경 → 시작 화면,
   // aff: 이 그룹을 줄 수 있는 계정 소속 종류(STAFF 내부 직원 / RH 권리자 / VENDOR 거래처) — 없으면 CONF-005가 side로만 검사
   var ROLE_SEED = [
-    { id: "RG-01", name: "최고 관리자", side: "INTERNAL", queue: false, aff: ["STAFF"], on: true, order: 1, startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
+    { id: "RG-01", name: "최고 관리자", side: "INTERNAL", queue: false, aff: ["STAFF"], on: true, order: 1, dashArea: "ALL", startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
       desc: "전 메뉴 · 권한 · 감사 관리", perms: ALL },
-    { id: "RG-02", name: "CS담당자", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 2, startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
+    { id: "RG-02", name: "CS담당자", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 2, dashArea: "CS", startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
       desc: "회원 응대 · 1:1 문의 · 환불 접수",
       perms: { dash: "R", user: "RW", order: "RW", refund: "RW", inquiry: "RW", pqna: "RW", lqna: "R", freecon: "RW", refundpass: "RW", promo: "R", product: "R" } },
-    { id: "RG-03", name: "물류팀", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 3, startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
+    { id: "RG-03", name: "물류팀", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 3, dashArea: "LOGI", startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
       desc: "출고 지시 · 송장 · 반품 검수",
       perms: { dash: "R", order: "RW", shipout: "RWX", refund: "R", inquiry: "RW", pqna: "RW", product: "R" } },
-    { id: "RG-04", name: "재무팀", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 4, startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
+    { id: "RG-04", name: "재무팀", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 4, dashArea: "SETTLE", startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
       desc: "환불 승인 · 지급 · 정산 · 세무",
       perms: { dash: "R", stat: "RX", user: "R", order: "R", refund: "RWX", product: "R", inquiry: "RW", contract: "RWX", vendor: "RWX", presettle: "RWX", refundpass: "RWX", settle: "RWX", privacy: "RW" } },
-    { id: "RG-05", name: "강사", side: "EXTERNAL", queue: true, aff: ["RH"], on: true, order: 5, startScreen: { code: "ADMN-PTNR-001", label: "파트너 센터", url: "ADMN-PTNR-001_baseline.html?role=RG-05" },
+    { id: "RG-05", name: "강사", side: "EXTERNAL", queue: true, aff: ["RH"], on: true, order: 5, dashArea: "NONE", startScreen: { code: "ADMN-PTNR-001", label: "파트너 센터", url: "ADMN-PTNR-001_baseline.html?role=RG-05" },
       desc: "본인 강좌 학습 Q&A 답변 · 본인 정산서 확인",
       perms: { lqna: "RW", statement: "RW" } },
-    { id: "RG-06", name: "조교", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 6, startScreen: { code: "ADMN-BRD-001", label: "학습 Q&A 관리", url: "ADMN-BRD-001_baseline.html?view=qna" },
+    { id: "RG-06", name: "조교", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 6, dashArea: "NONE", startScreen: { code: "ADMN-BRD-001", label: "학습 Q&A 관리", url: "ADMN-BRD-001_baseline.html?view=qna" },
       desc: "소속 강사 강좌 학습 Q&A · 상품 Q&A 내용 오류 답변",
       perms: { lqna: "RW", pqna: "RW", freecon: "RW" } },
-    { id: "RG-07", name: "저작권자", side: "EXTERNAL", queue: false, aff: ["RH"], on: true, order: 7, startScreen: { code: "ADMN-PTNR-001", label: "파트너 센터", url: "ADMN-PTNR-001_baseline.html?role=RG-07" },
+    { id: "RG-07", name: "저작권자", side: "EXTERNAL", queue: false, aff: ["RH"], on: true, order: 7, dashArea: "NONE", startScreen: { code: "ADMN-PTNR-001", label: "파트너 센터", url: "ADMN-PTNR-001_baseline.html?role=RG-07" },
       desc: "본인 도서 인세 정산서 확인 · 세금계산서 제출",
       perms: { statement: "RW" } },
-    { id: "RG-08", name: "외부 3PL", side: "EXTERNAL", queue: false, aff: ["VENDOR"], on: true, order: 8, startScreen: { code: "ADMN-ORD-001", label: "출고 · 송장", url: "ADMN-ORD-001_baseline.html?view=ord002&role=ROLE_PARTNER_3PL" },
+    { id: "RG-08", name: "외부 3PL", side: "EXTERNAL", queue: false, aff: ["VENDOR"], on: true, order: 8, dashArea: "NONE", startScreen: { code: "ADMN-ORD-001", label: "출고 · 송장", url: "ADMN-ORD-001_baseline.html?view=ord002&role=ROLE_PARTNER_3PL" },
       desc: "출고 대상 조회 · 송장 업로드 (금액 비노출)",
       perms: { shipout: "RW" } }
   ];
@@ -186,6 +187,7 @@
         // v6.40 조교는 내부 직원 — 이전에 저장된 외부 · 권리자 소속 값을 내부 · 직원으로 갱신
         if (g.id === "RG-06" && (g.side !== "INTERNAL" || !g.aff || g.aff.join() !== "STAFF")) { g.side = "INTERNAL"; g.aff = ["STAFF"]; changed = true; }
         // v6.49 역할 그룹 시작 화면(로그인 착지 3순위) — 저장된 값에 없으면 최초값으로 보충
+        if (sg.dashArea && !g.dashArea) { g.dashArea = sg.dashArea; changed = true; }
         if (sg.startScreen && !g.startScreen) { g.startScreen = Object.assign({}, sg.startScreen); changed = true; }
         // v6.52 강사 · 저작권자 기본 시작 화면을 파트너 센터로 — 운영자가 바꾸지 않은(옛 기본값 그대로인) 경우만 갱신
         if (sg.startScreen && g.startScreen && g.startScreen.code === "ADMN-SETT-002" && String(g.startScreen.url || "").indexOf("partner-stmt") !== -1 && sg.startScreen.code === "ADMN-PTNR-001") { g.startScreen = Object.assign({}, sg.startScreen); changed = true; }
