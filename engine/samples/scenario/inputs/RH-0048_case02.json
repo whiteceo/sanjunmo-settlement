@@ -47,7 +47,7 @@
  ],
  "lecture_instructors": [
   {
-   "lecture_id": "LEC-0",
+   "lecture_id": "CRS-2606",
    "rights_holder_id": "RH-0048",
    "contract_id": "CT-2026-0405",
    "share_ratio": 100,
@@ -57,7 +57,7 @@
  ],
  "book_authors": [
   {
-   "book_sku_id": "SKU-1",
+   "book_sku_id": "PROD-BK-1007",
    "rights_holder_id": "RH-0048",
    "contract_id": "CT-2026-0405",
    "share_ratio": 100,
@@ -84,13 +84,13 @@
   {
    "order_item_id": "OI-0",
    "item_type": "LECTURE",
-   "product_id": "LEC-0",
+   "product_id": "CRS-2606",
    "paid_amount": 2000000,
    "allocation_applied": true,
    "approved_at": "2026-10-15",
    "lectures": [
     {
-     "lecture_id": "LEC-0",
+     "lecture_id": "CRS-2606",
      "lecture_base_amount": 2000000
     }
    ]
@@ -98,7 +98,7 @@
   {
    "order_item_id": "OI-1",
    "item_type": "BOOK",
-   "book_sku_id": "SKU-1",
+   "book_sku_id": "PROD-BK-1007",
    "book_supply_type_snapshot": "OWN_PUBLISHED",
    "confirmed_qty": 100,
    "royalty_base_price": 20000,

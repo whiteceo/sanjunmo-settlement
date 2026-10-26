@@ -173,19 +173,11 @@
      "rate_type": "BASIC",
      "rate_value": 50,
      "share_ratio": 100,
-     "payment_state": "UNPAID"
-    },
-    {
-     "contract_id": "CT-2026-0501",
-     "rights_holder_id": "RH-0025",
-     "pipeline_id": "1.1",
-     "rate_type": "SUPPORT",
-     "agreement_id": "SFA-2026-009",
-     "confirmed_alloc_amount": 30000,
-     "unrefunded_amount": 30000,
-     "payment_state": "UNPAID"
+     "payment_state": "UNPAID",
+     "settlement_line_id": "SJM20260309-0112/CRS-1004"
     }
-   ]
+   ],
+   "order_item_id": "SJM20260309-0112"
   },
   {
    "pass_refund_id": "HRF-202610-03",
@@ -202,19 +194,11 @@
      "rate_type": "BASIC",
      "rate_value": 50,
      "share_ratio": 100,
-     "payment_state": "UNPAID"
-    },
-    {
-     "contract_id": "CT-2026-0501",
-     "rights_holder_id": "RH-0025",
-     "pipeline_id": "1.1",
-     "rate_type": "SUPPORT",
-     "agreement_id": "SFA-2026-009",
-     "confirmed_alloc_amount": 36000,
-     "unrefunded_amount": 36000,
-     "payment_state": "UNPAID"
+     "payment_state": "UNPAID",
+     "settlement_line_id": "SJM20260214-0055/CRS-1004"
     }
-   ]
+   ],
+   "order_item_id": "SJM20260214-0055"
   },
   {
    "pass_refund_id": "HRF-202610-05",
@@ -231,9 +215,11 @@
      "rate_type": "BASIC",
      "rate_value": 50,
      "share_ratio": 100,
-     "payment_state": "UNPAID"
+     "payment_state": "UNPAID",
+     "settlement_line_id": "SJM20260603-0088/CRS-1004"
     }
-   ]
+   ],
+   "order_item_id": "SJM20260603-0088"
   }
  ],
  "lumpsum_approvals": [

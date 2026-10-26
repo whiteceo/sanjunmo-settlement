@@ -48,7 +48,7 @@
  ],
  "lecture_instructors": [
   {
-   "lecture_id": "LEC-0",
+   "lecture_id": "CRS-2601",
    "rights_holder_id": "RH-0019",
    "contract_id": "CT-2026-0715",
    "share_ratio": 100,
@@ -83,13 +83,13 @@
   {
    "order_item_id": "OI-0",
    "item_type": "LECTURE",
-   "product_id": "LEC-0",
+   "product_id": "CRS-2601",
    "paid_amount": 4000000,
    "allocation_applied": true,
    "approved_at": "2026-10-15",
    "lectures": [
     {
-     "lecture_id": "LEC-0",
+     "lecture_id": "CRS-2601",
      "lecture_base_amount": 4000000
     }
    ]

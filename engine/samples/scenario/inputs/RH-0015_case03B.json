@@ -28,7 +28,7 @@
   {
    "contract_id": "CT-2025-0911",
    "rate_type": "BASIC",
-   "rate_value": 100,
+   "rate_value": 50,
    "mmg_amount": 0,
    "start_date": "2026-01-01",
    "end_basis": "CONTRACT_LINKED"
@@ -36,7 +36,7 @@
  ],
  "lecture_instructors": [
   {
-   "lecture_id": "LEC-0",
+   "lecture_id": "CRS-2509",
    "rights_holder_id": "RH-0015",
    "contract_id": "CT-2025-0911",
    "share_ratio": 100,
@@ -54,14 +54,14 @@
   {
    "order_item_id": "OI-0",
    "item_type": "LECTURE",
-   "product_id": "LEC-0",
-   "paid_amount": 500000,
+   "product_id": "CRS-2509",
+   "paid_amount": 1000000,
    "allocation_applied": true,
-   "approved_at": "2026-10-15",
+   "approved_at": "2026-10-03T10:00:00",
    "lectures": [
     {
-     "lecture_id": "LEC-0",
-     "lecture_base_amount": 500000
+     "lecture_id": "CRS-2509",
+     "lecture_base_amount": 1000000
     }
    ]
   }

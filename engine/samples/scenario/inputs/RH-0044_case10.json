@@ -31,7 +31,7 @@
  "lecture_instructors": [],
  "book_authors": [
   {
-   "book_sku_id": "SKU-0",
+   "book_sku_id": "PROD-BK-3003",
    "rights_holder_id": "RH-0044",
    "contract_id": "CT-2026-0705",
    "share_ratio": 100,
@@ -48,7 +48,7 @@
   {
    "order_item_id": "OI-0",
    "item_type": "BOOK",
-   "book_sku_id": "SKU-0",
+   "book_sku_id": "PROD-BK-3003",
    "book_supply_type_snapshot": "CONSIGNMENT",
    "confirmed_qty": 80,
    "consignment_price": 25000,

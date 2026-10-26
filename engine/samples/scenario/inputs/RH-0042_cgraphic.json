@@ -55,7 +55,7 @@
   {
    "agreement_id": "SFA-2026-012",
    "target_type": "LECTURE",
-   "target_id": "LEC-SFA012",
+   "target_id": "CRS-1012",
    "start_date": "2025-01-01",
    "end_basis": "CONTRACT_LINKED"
   }
@@ -72,13 +72,13 @@
   {
    "order_item_id": "OI-SFA012",
    "item_type": "LECTURE",
-   "product_id": "LEC-SFA012",
+   "product_id": "CRS-1012",
    "paid_amount": 1440000,
    "allocation_applied": true,
    "approved_at": "2026-10-15T10:00:00",
    "lectures": [
     {
-     "lecture_id": "LEC-SFA012",
+     "lecture_id": "CRS-1012",
      "lecture_base_amount": 1440000
     }
    ]

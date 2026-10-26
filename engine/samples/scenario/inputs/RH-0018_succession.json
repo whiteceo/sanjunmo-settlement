@@ -37,7 +37,7 @@
   {
    "contract_id": "CT-2025-1102",
    "rate_type": "BASIC",
-   "rate_value": 100,
+   "rate_value": 10,
    "start_date": "2025-11-01",
    "end_basis": "CONTRACT_LINKED",
    "pipeline_id": "2.1"
@@ -46,7 +46,7 @@
  "lecture_instructors": [],
  "book_authors": [
   {
-   "book_sku_id": "SKU-RH0018",
+   "book_sku_id": "PROD-BK-1008",
    "rights_holder_id": "RH-0018",
    "contract_id": "CT-2025-1102",
    "share_ratio": 100,
@@ -81,13 +81,13 @@
  "prepayments": [],
  "order_items": [
   {
-   "order_item_id": "OI-0018-BK",
+   "order_item_id": "SJM20261012-0118",
    "item_type": "BOOK",
-   "book_sku_id": "SKU-RH0018",
+   "book_sku_id": "PROD-BK-1008",
    "book_supply_type_snapshot": "OWN_PUBLISHED",
-   "confirmed_qty": 1,
-   "royalty_base_price": 1500000,
-   "purchase_confirmed_at": "2026-10-20T00:00:00"
+   "confirmed_qty": 500,
+   "royalty_base_price": 30000,
+   "purchase_confirmed_at": "2026-10-19T00:00:00"
   }
  ],
  "refund_lines": [],

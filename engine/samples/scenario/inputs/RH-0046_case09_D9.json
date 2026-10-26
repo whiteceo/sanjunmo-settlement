@@ -44,7 +44,7 @@
  ],
  "lecture_instructors": [
   {
-   "lecture_id": "LEC-0",
+   "lecture_id": "CRS-2603",
    "rights_holder_id": "RH-0046",
    "contract_id": "CT-2026-0712",
    "share_ratio": 60,
@@ -77,7 +77,7 @@
   {
    "agreement_id": "AGR-RH0046-01",
    "target_type": "LECTURE",
-   "target_id": "LEC-0",
+   "target_id": "CRS-2603",
    "start_date": "2026-01-01",
    "end_basis": "CONTRACT_LINKED",
    "own_share_ratio": 40
@@ -96,13 +96,13 @@
   {
    "order_item_id": "OI-0",
    "item_type": "LECTURE",
-   "product_id": "LEC-0",
+   "product_id": "CRS-2603",
    "paid_amount": 4000000,
    "allocation_applied": true,
    "approved_at": "2026-10-15",
    "lectures": [
     {
-     "lecture_id": "LEC-0",
+     "lecture_id": "CRS-2603",
      "lecture_base_amount": 4000000
     }
    ]
