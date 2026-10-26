@@ -588,7 +588,7 @@ code, pre, kbd, samp,
       <span class="crumb-group">상품 · 강좌 · 교재 관리</span>
       <span class="crumb-sep">›</span>
       <span class="crumb-code" id="header-screen-code">ADMN-PROD-005</span>
-      <h1 class="crumb-title" id="header-screen-title">패키지 · 환급반 상품 관리 (강좌·교재 면세 분리 · 안분 가중치)</h1>
+      <h1 class="crumb-title" id="header-screen-title">패키지 · 환급반 상품 관리 (강좌·교재 면세 분리 · 정가 비율 안분)</h1>
     </div>
     <div class="top-bar-right" id="v4-topbar-right-slot">
       <div class="subview-switcher" role="tablist" aria-label="패키지 관리 서브 화면 전환">
@@ -825,10 +825,10 @@ code, pre, kbd, samp,
         <div class="card">
           <div class="card-header">
             <div class="card-title-group">
-              <h3 class="card-title">2. 패키지 포함 단과 강좌 및 강좌별 매출 안분 가중치 (ADMN-PROD-003 연동)</h3>
-              <span class="card-subtitle">패키지 강좌 결제액(240,000원)을 각 단과 강좌로 안분한 뒤, ADMN-SETT-001의 강사별 RS 지분율을 곱해 정산합니다.</span>
+              <h3 class="card-title">2. 패키지 포함 단과 강좌 및 강좌별 매출 안분 (강좌 정가 비율 · ADMN-PROD-003 연동)</h3>
+              <span class="card-subtitle">패키지 강좌 결제액(240,000원)을 각 단과 강좌의 정가 비율로 자동 안분한 뒤(원 미만 내림, 잔여 차액은 정가 순 마지막 강좌), ADMN-SETT-001의 강사별 RS 지분율을 곱해 정산합니다.</span>
             </div>
-            <span class="badge badge-sale">안분 가중치 합계: 100.00% 검증 완료</span>
+            <span class="badge badge-sale">정가 비율 자동 안분 · 합계 100.00%</span>
           </div>
           <div class="card-body" style="padding:0;">
             <table class="data-table">
@@ -838,8 +838,8 @@ code, pre, kbd, samp,
                   <th style="width:110px;">강좌코드</th>
                   <th>포함 단과 강좌명</th>
                   <th style="width:105px;">담당 강사</th>
-                  <th class="text-right" style="width:115px;">단과 기준 판매가</th>
-                  <th class="text-center" style="width:130px;">매출 안분 가중치(%)</th>
+                  <th class="text-right" style="width:115px;">단과 정가</th>
+                  <th class="text-center" style="width:130px;">정가 비율(%)</th>
                   <th class="text-right" style="width:140px;">패키지 내 안분 매출액</th>
                   <th class="text-center" style="width:130px;">1계층 권리자 매핑</th>
                 </tr>
@@ -978,15 +978,14 @@ code, pre, kbd, samp,
           </div>
         </div>
 
-        <!-- 2. 구성 단과 강좌 매핑 및 매출 안분 가중치 설정 -->
+        <!-- 2. 구성 단과 강좌 매핑 및 정가 비율 자동 안분 (정산 02권 8.1절 · Pipeline 1.1 Step 1 · 13.3절) -->
         <div class="card">
           <div class="card-header">
             <div class="card-title-group">
-              <h3 class="card-title">2. 구성 단과 강좌 매핑 및 강좌별 매출 안분 비율(%) 설정</h3>
-              <span class="card-subtitle">포함된 단과 강좌의 기준 판매가 비율로 자동 계산하거나 수동으로 안분 가중치(합계 100%)를 지정합니다.</span>
+              <h3 class="card-title">2. 구성 단과 강좌 매핑 및 강좌별 매출 안분 (강좌 정가 비율 자동)</h3>
+              <span class="card-subtitle">포함된 단과 강좌의 정가 비율로 자동 안분합니다(수동 조정 없음). 선행 강좌는 원 미만 내림, 잔여 차액은 정가 내림차순 마지막 강좌에 배정합니다.</span>
             </div>
             <div style="display:flex; gap:8px;">
-              <button type="button" class="btn btn-outline btn-sm" onclick="autoDistributeCourseWeights()">단과 기준가 비례 자동 안분 (100%)</button>
               <button type="button" class="btn btn-soft btn-sm" onclick="openCoursePickerModal()">+ 단과 강좌 추가 (ADMN-PROD-003)</button>
             </div>
           </div>
@@ -999,8 +998,7 @@ code, pre, kbd, samp,
                   <th>단과 강좌명</th>
                   <th style="width:95px;">담당 강사</th>
                   <th class="text-right" style="width:120px;">단과 정가</th>
-                  <th class="text-right" style="width:120px;">단과 기준 판매가</th>
-                  <th class="text-center" style="width:155px;">정산 안분 가중치 (%)</th>
+                  <th class="text-center" style="width:155px;">정가 비율 (%)</th>
                   <th class="text-right" style="width:135px;">패키지 내 안분 매출</th>
                   <th class="text-center" style="width:80px;">제외</th>
                 </tr>
@@ -1010,7 +1008,6 @@ code, pre, kbd, samp,
                 <tr style="background:var(--slate-50); font-weight:800;">
                   <td colspan="4" class="text-right">강좌 구성 합계</td>
                   <td class="text-right" id="foot-course-list-sum">340,000원</td>
-                  <td class="text-right" id="foot-course-base-sum">284,000원</td>
                   <td class="text-center" id="foot-weight-sum" style="color:var(--emerald);">100.00%</td>
                   <td class="text-right" id="foot-allocated-sum" style="color:var(--primary);">240,000원</td>
                   <td></td>
@@ -1125,7 +1122,7 @@ code, pre, kbd, samp,
                     </div>
                     <div id="f-pkg-settlement-banner" class="settlement-gate-box ok">
                       <div>
-                        <strong id="f-pkg-settlement-title">[검증 통과] 포함 강좌 1계층 지분 합계 100.00% 및 안분 가중치 100.00% 완료</strong>
+                        <strong id="f-pkg-settlement-title">[검증 통과] 포함 강좌 1계층 지분 합계 100.00% 및 강좌 정가 비율 안분 완료</strong>
                         <div style="font-size:12px; margin-top:2px;" id="f-pkg-settlement-desc">
                           모든 구성 강좌의 권리자 지분이 정상 매핑되어 패키지 [판매중] 전환이 가능합니다.
                         </div>
@@ -1263,7 +1260,7 @@ code, pre, kbd, samp,
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" onclick="closeCoursePickerModal()">취소</button>
-        <button type="button" class="btn btn-primary" onclick="confirmAddCoursesToPkg()">선택 강좌 추가 및 가중치 재계산</button>
+        <button type="button" class="btn btn-primary" onclick="confirmAddCoursesToPkg()">선택 강좌 추가 및 안분 재계산</button>
       </div>
     </div>
   </div>
@@ -1619,8 +1616,8 @@ code, pre, kbd, samp,
     ];
 
     let mappedPkgCourses = [
-      { code: "CRS-2601", title: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", instructor: "김안전", listPrice: 180000, baseSalePrice: 144000, weight: 50.70 },
-      { code: "CRS-2602", title: "2026 산업안전기사 실기 필답형 만점 답안 작성 전략반", instructor: "김안전", listPrice: 160000, baseSalePrice: 140000, weight: 49.30 }
+      { code: "CRS-2601", title: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", instructor: "김안전", listPrice: 180000, baseSalePrice: 144000, weight: 52.94 },
+      { code: "CRS-2602", title: "2026 산업안전기사 실기 필답형 만점 답안 작성 전략반", instructor: "김안전", listPrice: 160000, baseSalePrice: 140000, weight: 47.06 }
     ];
 
     let mappedPkgBooks = [
@@ -1845,16 +1842,18 @@ code, pre, kbd, samp,
       if (rp) rp.textContent = p.refundProgress > 0 ? p.refundProgress : "-";
 
       const courseTbody = document.getElementById("detail-pkg-courses-tbody");
+      const detailAlloc = allocateByListPrice(mappedPkgCourses, p.courseSaleSum);
+      const detailWeights = listPriceWeights(mappedPkgCourses);
       courseTbody.innerHTML = mappedPkgCourses.map((c, idx) => {
-        const allocated = Math.round(p.courseSaleSum * (c.weight / 100));
+        const allocated = detailAlloc[idx];
         return `
           <tr>
             <td class="text-center">${idx + 1}</td>
             <td><span class="code-pill">${c.code}</span></td>
             <td style="font-weight:600;">${c.title}</td>
             <td>${c.instructor}</td>
-            <td class="text-right">${formatNumber(c.baseSalePrice)}원</td>
-            <td class="text-center"><span class="badge badge-info">${c.weight.toFixed(2)}%</span></td>
+            <td class="text-right">${formatNumber(c.listPrice)}원</td>
+            <td class="text-center"><span class="badge badge-info">${detailWeights[idx].toFixed(2)}%</span></td>
             <td class="text-right" style="font-weight:800; color:var(--primary);">${formatNumber(allocated)}원</td>
             <td class="text-center"><span class="badge badge-sale">100.00% 정상</span></td>
           </tr>
@@ -1877,7 +1876,7 @@ code, pre, kbd, samp,
     }
 
     /* =========================================================================
-       6. 등록/수정(ADMN-PROD-005-S1) 복합가격 · 안분 가중치 · 환급반 설정
+       6. 등록/수정(ADMN-PROD-005-S1) 복합가격 · 정가 비율 안분 · 환급반 설정
        ========================================================================= */
     function toggleRefundSection() {
       const selected = document.querySelector('input[name="f-pkg-type"]:checked').value;
@@ -1885,20 +1884,45 @@ code, pre, kbd, samp,
       card.style.display = selected === "환급반" ? "block" : "none";
     }
 
-    function autoDistributeCourseWeights() {
-      const totalBase = mappedPkgCourses.reduce((acc, c) => acc + c.baseSalePrice, 0);
-      if (totalBase <= 0 || mappedPkgCourses.length === 0) return;
+    /* 패키지 강좌 안분 - 정산 02권 8.1절 · 8.3절 Pipeline 1.1 Step 1 · 13.3절: 강좌 정가 비율 자동(수동 조정 없음).
+       정가 내림차순 → 강좌코드 오름차순으로 줄 세워 선행 강좌는 원 미만 내림, 마지막 강좌가 [안분 총액 − 선행 합계]를 받는다. */
+    function listPriceOrder(courses) {
+      return courses.map((c, i) => i).sort((a, b) => (Number(courses[b].listPrice || 0) - Number(courses[a].listPrice || 0)) || String(courses[a].code).localeCompare(String(courses[b].code)));
+    }
 
-      let runningSum = 0;
-      mappedPkgCourses.forEach((c, idx) => {
-        if (idx === mappedPkgCourses.length - 1) {
-          c.weight = Number((100 - runningSum).toFixed(2));
-        } else {
-          const w = Number(((c.baseSalePrice / totalBase) * 100).toFixed(2));
-          c.weight = w;
-          runningSum += w;
-        }
+    function allocateByListPrice(courses, pool) {
+      const listSum = courses.reduce((a, c) => a + Number(c.listPrice || 0), 0);
+      const amounts = courses.map(() => 0);
+      if (!courses.length || listSum <= 0) return amounts;
+      const order = listPriceOrder(courses);
+      let used = 0;
+      order.forEach((i, k) => {
+        if (k === order.length - 1) { amounts[i] = pool - used; return; }
+        amounts[i] = Math.floor(pool * Number(courses[i].listPrice || 0) / listSum);
+        used += amounts[i];
       });
+      return amounts;
+    }
+
+    /* 정가 비율(%) - 표시 전용. 같은 순서로 선행 강좌는 0.01% 미만 내림, 마지막 강좌가 100%와의 차이를 받는다. */
+    function listPriceWeights(courses) {
+      const listSum = courses.reduce((a, c) => a + Number(c.listPrice || 0), 0);
+      const weights = courses.map(() => 0);
+      if (!courses.length || listSum <= 0) return weights;
+      const order = listPriceOrder(courses);
+      let used = 0;
+      order.forEach((i, k) => {
+        if (k === order.length - 1) { weights[i] = Number((100 - used).toFixed(2)); return; }
+        weights[i] = Math.floor(Number(courses[i].listPrice || 0) * 10000 / listSum) / 100;
+        used += weights[i];
+      });
+      return weights;
+    }
+
+    function autoDistributeCourseWeights() {
+      if (mappedPkgCourses.length === 0) return;
+      const weights = listPriceWeights(mappedPkgCourses);
+      mappedPkgCourses.forEach((c, idx) => { c.weight = weights[idx]; });
 
       renderFormCourses();
       recalcPackagePricing();
@@ -1911,21 +1935,7 @@ code, pre, kbd, samp,
       if (btb && typeof BOOK_POOL !== 'undefined') {
         btb.innerHTML = BOOK_POOL.map(b => `<tr><td class="text-center"><input type="checkbox" class="book-pick-chk" value="${b.sku}"/></td><td><span class="code-pill">${b.sku}</span></td><td style="font-weight:600;">${b.title}</td><td>${b.isbn}</td><td class="text-right">${formatNumber(b.price)}원</td></tr>`).join("");
       }
-      showToast("단과 기준 판매가 비례로 정산 안분 가중치(합계 100.00%)가 자동 계산되었습니다.");
-    }
-
-    function updateCourseWeight(idx, val) {
-      mappedPkgCourses[idx].weight = Number(val || 0);
-      recalcPackagePricing();
-      /* Pre-populate picker tables */
-      var ctb = document.getElementById('modal-course-picker-tbody');
-      if (ctb && typeof COURSE_POOL !== 'undefined') {
-        ctb.innerHTML = COURSE_POOL.map(c => `<tr><td class="text-center"><input type="checkbox" class="course-pick-chk" value="${c.code}"/></td><td><span class="code-pill">${c.code}</span></td><td style="font-weight:600;">${c.title}</td><td>${c.instructor}</td><td class="text-right">${formatNumber(c.price)}원</td></tr>`).join("");
-      }
-      var btb = document.getElementById('modal-book-picker-tbody');
-      if (btb && typeof BOOK_POOL !== 'undefined') {
-        btb.innerHTML = BOOK_POOL.map(b => `<tr><td class="text-center"><input type="checkbox" class="book-pick-chk" value="${b.sku}"/></td><td><span class="code-pill">${b.sku}</span></td><td style="font-weight:600;">${b.title}</td><td>${b.isbn}</td><td class="text-right">${formatNumber(b.price)}원</td></tr>`).join("");
-      }
+      showToast("포함 강좌의 정가 비율로 매출 안분을 다시 계산했습니다.");
     }
 
     function removeCourseFromPkg(idx) {
@@ -1942,9 +1952,12 @@ code, pre, kbd, samp,
       const courseDiscount = Number(document.getElementById("f-course-discount").value || 0);
       const originSum = mappedPkgCourses.reduce((a, c) => a + c.listPrice, 0);
       const courseNet = Math.max(0, originSum - courseDiscount);
+      const formAlloc = allocateByListPrice(mappedPkgCourses, courseNet);
+      const formWeights = listPriceWeights(mappedPkgCourses);
 
       tbody.innerHTML = mappedPkgCourses.map((c, idx) => {
-        const allocated = Math.round(courseNet * (c.weight / 100));
+        c.weight = formWeights[idx];
+        const allocated = formAlloc[idx];
         return `
           <tr>
             <td class="text-center">${idx + 1}</td>
@@ -1952,13 +1965,7 @@ code, pre, kbd, samp,
             <td style="font-weight:600;">${c.title}</td>
             <td>${c.instructor}</td>
             <td class="text-right">${formatNumber(c.listPrice)}원</td>
-            <td class="text-right">${formatNumber(c.baseSalePrice)}원</td>
-            <td class="text-center">
-              <div class="input-with-unit" style="justify-content:center;">
-                <input type="number" class="form-input text-right" style="width:82px; height:28px;" step="0.01" value="${c.weight}" oninput="updateCourseWeight(${idx}, this.value)" />
-                <span class="input-unit">%</span>
-              </div>
-            </td>
+            <td class="text-center"><span class="badge badge-info">${formWeights[idx].toFixed(2)}%</span></td>
             <td class="text-right" style="font-weight:800; color:var(--primary);">${formatNumber(allocated)}원</td>
             <td class="text-center">
               <button type="button" class="btn btn-danger-outline btn-sm" onclick="removeCourseFromPkg(${idx})">삭제</button>
@@ -2013,15 +2020,13 @@ code, pre, kbd, samp,
 
     function recalcPackagePricing() {
       const originSum = mappedPkgCourses.reduce((a, c) => a + c.listPrice, 0);
-      const baseSum = mappedPkgCourses.reduce((a, c) => a + c.baseSalePrice, 0);
-      const weightSum = mappedPkgCourses.reduce((a, c) => a + Number(c.weight || 0), 0);
+      const weightSum = listPriceWeights(mappedPkgCourses).reduce((a, w) => a + w, 0);
       const discount = Math.min(originSum, Math.max(0, Number(document.getElementById("f-course-discount").value || 0)));
       const courseNet = originSum - discount;
       const bookNet = mappedPkgBooks.reduce((a, b) => a + (b.sale != null ? b.sale : b.price), 0);
       const totalPkgPrice = courseNet + bookNet;
 
       document.getElementById("foot-course-list-sum").textContent = `${formatNumber(originSum)}원`;
-      document.getElementById("foot-course-base-sum").textContent = `${formatNumber(baseSum)}원`;
       const weightEl = document.getElementById("foot-weight-sum");
       weightEl.textContent = `${weightSum.toFixed(2)}%`;
       weightEl.style.color = Math.abs(weightSum - 100) < 0.01 ? "var(--emerald)" : "var(--rose)";
@@ -2045,7 +2050,7 @@ code, pre, kbd, samp,
 
       if (sim === "100") {
         banner.className = "settlement-gate-box ok";
-        title.textContent = "[검증 통과] 포함 강좌 1계층 지분 합계 100.00% 및 안분 가중치 100.00% 완료";
+        title.textContent = "[검증 통과] 포함 강좌 1계층 지분 합계 100.00% 및 강좌 정가 비율 안분 완료";
         desc.textContent = "모든 구성 강좌의 권리자 지분이 정상 매핑되어 패키지 [판매중] 전환이 가능합니다.";
         radioSale.disabled = false;
       } else {
@@ -2151,9 +2156,9 @@ code, pre, kbd, samp,
         return;
       }
 
-      const weightSum = mappedPkgCourses.reduce((a, c) => a + Number(c.weight || 0), 0);
-      if (Math.abs(weightSum - 100) >= 0.05) {
-        showToast(`강좌별 매출 안분 가중치의 합계가 100.00%여야 저장할 수 있습니다. (현재 ${weightSum.toFixed(2)}%)`);
+      const listSumChk = mappedPkgCourses.reduce((a, c) => a + Number(c.listPrice || 0), 0);
+      if (!mappedPkgCourses.length || listSumChk <= 0) {
+        showToast("매출 안분 기준인 포함 강좌 정가 합계가 0원입니다. 포함 강좌의 정가를 확인해 주세요.");
         return;
       }
 

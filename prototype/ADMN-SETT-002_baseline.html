@@ -1271,6 +1271,15 @@ code, pre, kbd, samp,
                   <input type="text" id="inpS1NewMemo" class="input" style="flex:1;" placeholder="재무 검토 의견 또는 특이사항 메모 입력..." />
                   <button type="button" class="btn btn-sm btn-primary" onclick="saveS1AuditMemo()">메모 등록</button>
                 </div>
+                <div id="s1DisputeBox" style="border-top:1px dashed #e2e8f0; padding-top:10px; margin-top:4px; display:flex; flex-direction:column; gap:6px;">
+                  <div style="font-size:12.5px; font-weight:700; color:#334155;">📮 증빙 이견 접수 기록 <span id="s1DisputeBadge" class="badge badge-neutral" style="margin-left:4px;">이견 없음</span></div>
+                  <div style="font-size:11.5px; color:#64748b;">권리자가 금액 이견 등으로 증빙을 발행하지 않겠다고 알린 경우 그 사유를 기록하면 재무 담당자 검토 대상으로 바뀝니다. 지급은 예정대로 진행하고 증빙은 미완결로 추적합니다. 금액 오류가 확인되면 마감 후 정정(ADMN-SETT-005)으로 처리한 뒤 증빙 발행을 다시 요청합니다.</div>
+                  <div id="s1DisputeHistory" style="font-size:12px; color:#334155;"></div>
+                  <div style="display:flex; gap:8px;">
+                    <input type="text" id="inpS1Dispute" class="input" style="flex:1;" placeholder="권리자가 알린 이견 사유 (예: 강좌 R/S 요율이 계약 원장과 다름)" />
+                    <button type="button" class="btn btn-sm" id="btnS1Dispute" onclick="recordS1Dispute()">이견 접수 기록</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1408,7 +1417,7 @@ code, pre, kbd, samp,
           <span class="badge badge-primary">정산 기준 필수 규격</span>
         </div>
         <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">
-          정산 원장 비가역 마감(Locked=True) 전 3대 선행 조건(PG 미대사 0건, 세무 판정 보류 0건, 이월 등식 일치)을 강제 검증합니다.
+          정산 원장 비가역 마감(Locked=True) 전 3대 선행 조건(PG 대사 — 미분류 0건 · 전사 미소명 차액 1,000원 이내, 세무 판정 보류 0건, 이월 등식 일치)을 강제 검증합니다.
         </div>
       </div>
       <button class="btn btn-sm" onclick="closeSettGateModal()">✕ 닫기</button>
@@ -1441,8 +1450,10 @@ code, pre, kbd, samp,
                 <span class="mono" style="font-size:11px; color:var(--text-muted);">ADMN-SETT-004 연동</span>
               </td>
               <td style="padding:12px;">
-                원인 미분류 불일치<br>
-                <code>UNKNOWN_MISMATCH = 0건</code> (정산 기준)
+                [권리자 단위] 원인 미분류 불일치<br>
+                <code>UNKNOWN_MISMATCH = 0건</code> (초과 시 귀속 권리자 마감 차단)<br>
+                [전사 총액] 미소명 대사 차액 절대값<br>
+                <code>≤ 1,000원</code> (pg_recon_tolerance_company · 초과 시 전체 마감 차단, 이내는 단수 차액 조정 계정 대체)
               </td>
               <td style="padding:12px;" id="gate1StatusCell">
                 <!-- 동적 렌더링 -->
@@ -2155,16 +2166,16 @@ code, pre, kbd, samp,
     const btnLock = document.getElementById("btnGateConfirmLock");
 
     if (currentGateCase === 'A') {
-      g1Status.innerHTML = '<span class="badge badge-danger">미통과 (UNKNOWN_MISMATCH 2건 미소명)</span><div style="font-size:11px; color:var(--danger); margin-top:2px;">SETT-004 REC-01 · REC-02 — 산준교육 · 이안전 · 안전기술출판 마감 보류</div>';
+      g1Status.innerHTML = '<span class="badge badge-danger">미통과 (UNKNOWN_MISMATCH 2건 미소명 · 전사 미소명 차액 135,020원)</span><div style="font-size:11px; color:var(--danger); margin-top:2px;">[권리자 단위] SETT-004 REC-01 · REC-02 — 산준교육 · 이안전 · 안전기술출판 마감 보류</div><div style="font-size:11px; color:var(--danger); margin-top:2px;">[전사 총액] 미소명 차액 135,020원 &gt; 허용 1,000원 — 전체 마감 차단</div>';
       g1Action.innerHTML = '<a href="ADMN-SETT-004_baseline.html" class="btn btn-sm btn-outline">ADMN-SETT-004 대사 화면으로 이동 ↗</a>';
       g2Status.innerHTML = '<span class="badge badge-success">통과 (PENDING_REVIEW 0건, 전 수취인 DECIDED)</span><div style="font-size:11px; color:var(--text-muted); margin-top:2px;">한국소방학회 위탁 도서 라인은 재화 공급 TX-11 확정</div>';
       g2Action.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">전 수취인 DECIDED 완료</span>';
-      alertBox.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px; margin-top:14px; font-size:12.5px; color:#991b1b;"><strong>🚨 [마감 차단 하드락 작동]</strong> Gate 1(PG 원인 미분류 불일치 2건) 미통과 항목이 존재하므로 비가역 마감 확정(Locked=True)이 시스템적으로 차단되었습니다. 관련 화면에서 미소명/미확정 건을 해결한 후 마감을 진행하십시오.</div>';
+      alertBox.innerHTML = '<div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px; margin-top:14px; font-size:12.5px; color:#991b1b;"><strong>🚨 [마감 차단 하드락 작동]</strong> Gate 1(PG 원인 미분류 불일치 2건 · 전사 미소명 차액 135,020원으로 허용 1,000원 초과) 미통과 항목이 존재하므로 비가역 마감 확정(Locked=True)이 시스템적으로 차단되었습니다. 관련 화면에서 미소명/미확정 건을 해결한 후 마감을 진행하십시오.</div>';
       btnLock.disabled = true;
       btnLock.style.opacity = "0.5";
       btnLock.style.cursor = "not-allowed";
     } else {
-      g1Status.innerHTML = '<span class="badge badge-success">통과 (UNKNOWN_MISMATCH 0건)</span>';
+      g1Status.innerHTML = '<span class="badge badge-success">통과 (UNKNOWN_MISMATCH 0건 · 전사 미소명 차액 1,000원 이내)</span><div style="font-size:11px; color:var(--text-muted); margin-top:2px;">허용 오차 이내 차액은 단수 차액 조정 계정으로 대체 · 로그 기록</div>';
       g1Action.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">전수 소명 완료</span>';
       g2Status.innerHTML = '<span class="badge badge-success">통과 (PENDING_REVIEW 0건, 전 수취인 DECIDED)</span>';
       g2Action.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">전 수취인 DECIDED 완료</span>';
@@ -3074,8 +3085,8 @@ code, pre, kbd, samp,
       entityType: "개인 면세사업자 (위탁자 CONSIGNOR · 도서 위탁 판매)",
       taxCode: "TX-11 / TX-12 (위탁 도서 면세 계산서 수취 + 위탁수수료 과세 세금계산서 매출발행)",
       lockStatus: "HOLD (PG 대사 미분류 · 마감 보류 — SETT-004 REC-02 소명 대기)",
-      ssnMasked: "214-90-*****",
-      ssnRaw: "214-90-04417",
+      ssnMasked: "105-90-*****",
+      ssnRaw: "105-90-77221",
       bankMasked: "하나은행 267-910044-***** (예금주: 안전기술출판)",
       bankRaw: "하나은행 267-910044-30217 (예금주: 안전기술출판)",
       contractSummary: "CT-2026-0705 (~2026-11-10) | 위탁 도서 PROD-BK-3003 수수료 차감지급(NET_DEDUCT, 수수료율 25% · 부가세 별도)",
@@ -3751,6 +3762,36 @@ code, pre, kbd, samp,
 
     document.getElementById("s1EvidenceDetailBox").textContent = c.evidenceInfo;
     document.getElementById("s1AuditMemoHistory").innerHTML = c.auditMemos.map(m => `<div>• ${m}</div>`).join("");
+    renderS1Dispute(c);
+  }
+
+  // 증빙 이견 접수 기록 (02권 9.1 상태 '이견 접수' · 9.3) — 지급 보류로 자동 설정하지 않음, 재무 담당자 검토 대상으로만 전환
+  function renderS1Dispute(c) {
+    const list = c.disputes || [];
+    const badge = document.getElementById("s1DisputeBadge");
+    const hist = document.getElementById("s1DisputeHistory");
+    if (!badge || !hist) return;
+    badge.className = list.length ? "badge badge-warn" : "badge badge-neutral";
+    badge.textContent = list.length ? `이견 접수 ${list.length}건 · 재무 담당자 검토 대상` : "이견 없음";
+    hist.innerHTML = list.map(d => `<div>• [${d.at}] ${d.by} 기록 — ${d.reason} <span style="color:#64748b;">(증빙: ${d.docLabel} · 지급은 예정대로)</span></div>`).join("");
+  }
+  function recordS1Dispute() {
+    const inp = document.getElementById("inpS1Dispute");
+    if (!inp || !inp.value.trim()) {
+      alert("권리자가 알린 이견 사유를 입력해 주세요.");
+      return;
+    }
+    const holderId = normalizePayeeKey(document.getElementById("selS1Holder").value);
+    const c = window.S1_STATEMENT_CASES[holderId];
+    if (!c) return;
+    const doc = (window.TAX_DOCS || []).find(d => d.key === holderId);
+    if (doc && doc.status !== "MATCHED") doc.status = "DISPUTED";
+    c.disputes = c.disputes || [];
+    c.disputes.push({ at: "2026-10-31 즉시등록", by: "재무관리자(white)", reason: inp.value.trim(), docLabel: doc ? doc.kind + " 이견 접수" : "발행 요청 건 없음" });
+    inp.value = "";
+    renderS1Dispute(c);
+    if (typeof renderTaxDocs === "function") renderTaxDocs();
+    showToast(`📮 [${c.holderName}] 증빙 이견을 정산서에 기록했습니다. 재무 담당자 검토 대상으로 바뀌었고, 지급은 예정대로 진행합니다.`);
   }
 
   function saveS1AuditMemo() {
@@ -4296,7 +4337,8 @@ code, pre, kbd, samp,
     REQUESTED: '<span class="badge badge-warn">발행 요청 · 제출 대기</span>',
     SUBMITTED: '<span class="badge badge-primary">제출 완료 · 대사 대기</span>',
     MATCHED: '<span class="badge badge-success">홈택스 대사 완료</span>',
-    MISMATCH: '<span class="badge badge-danger">금액 불일치 · 수정 발행 요청</span>'
+    MISMATCH: '<span class="badge badge-danger">금액 불일치 · 수정 발행 요청</span>',
+    DISPUTED: '<span class="badge badge-warn">이견 접수 · 재무 담당자 검토</span>'
   };
   function taxWon(n) { return Number(n).toLocaleString() + "원"; }
   function renderTaxDocs() {

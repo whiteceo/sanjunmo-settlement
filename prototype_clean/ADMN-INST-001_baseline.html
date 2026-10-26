@@ -368,7 +368,7 @@ code, pre, kbd, samp,
         <div class="card" id="inst001ReadonlyMappingCard">
           <div class="cardhead">
             <div>
-              <h2>📌 [읽기 전용] 권리자별 상품(강의 · 도서 SKU) 1계층 매핑 현황 <span id="consignment-base-price-selector" style="display:inline-flex;align-items:center;gap:8px;margin-left:12px;font-size:12px;font-weight:600;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;">📚 도서 정산 모수 정책: 자사발행 인세 = <strong>실결제액(최대 10% 할인가) 기준 고정</strong> · 위탁도서(CONSIGNMENT) 계약 기준가 = <label style="cursor:pointer;"><input type="radio" name="consign_base_type" value="PAID_AMOUNT" checked /> 실결제액 기준(기본)</label> <label style="cursor:pointer;"><input type="radio" name="consign_base_type" value="LIST_PRICE" /> 도서 정가 기준</label></span> (정산 기준)</h2>
+              <h2>📌 [읽기 전용] 권리자별 상품(강의 · 도서 SKU) 1계층 매핑 현황 <span id="consignment-base-price-selector" style="display:inline-flex;align-items:center;gap:8px;margin-left:12px;font-size:12px;font-weight:600;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 10px;border-radius:6px;">📚 도서 정산 모수 정책: 자사발행 인세 = <strong>실결제액(최대 10% 할인가) 기준 고정</strong> · 위탁도서(CONSIGNMENT) 기준가 = <strong>계약별 위탁 조건에서 선택</strong>(실결제액 기준[기본] / 도서 정가 기준)</span> (정산 기준)</h2>
               <div class="note">
                 본 영역은 <strong>조회 전용(Read-Only)</strong>입니다. 상품 기준 합계 <code>100.00%</code> 하드락 검증을 위해 실제 지분 편집 및 적용 계약 지정은 반드시 <strong>상품별 권리자 매핑(ADMN-SETT-001)</strong> 단일 진입점에서만 수행합니다.
               </div>
@@ -844,16 +844,16 @@ code, pre, kbd, samp,
               <label class="lbl" for="taxDecision">세무 판정 상태 · 시연</label>
               <select class="fc" id="taxDecision" data-field="">
                 <option value="PENDING_REVIEW">검토 보류</option>
-                <option value="DECIDED">판정 완료</option>
+                <option value="DECIDED" selected>판정 완료</option>
               </select>
             </div>
             <div>
               <label class="lbl" for="matrixCase">판정 케이스 식별자</label>
-              <input class="fc" id="matrixCase" placeholder="예: 검토 완료한 케이스 ID" maxlength="40" data-field="">
+              <input class="fc" id="matrixCase" value="TX-07 / TX-09" placeholder="예: 검토 완료한 케이스 ID" maxlength="40" data-field="">
             </div>
             <div>
               <label class="lbl" for="taxDecisionReason">판정 근거 / 검토 메모</label>
-              <input class="fc" id="taxDecisionReason" placeholder="실무 검토 근거 입력" maxlength="300" data-field="">
+              <input class="fc" id="taxDecisionReason" value="세무 매트릭스 기준 판정 완료" placeholder="실무 검토 근거 입력" maxlength="300" data-field="">
             </div>
           </div>
           <div class="note">위 판정 입력은 상태 표시를 시연하기 위한 항목이며 세율 자동 판정 기능이 아닙니다. 판정 보류 라인은 정산 마감 대상에서 제외하고, 보류가 남으면 마감을 차단합니다.</div>
@@ -3295,13 +3295,14 @@ const contractCatalog = [
     end:"2026-10-14",
     daysLeft:0,
     pipelines:["온라인 R/S (1.1)","교재 인세 (2.1)","개발지원금 (5.1 · CONDITIONAL)","전속계약금","선급금"],
-    taxDecision:"PENDING_REVIEW",
-    ntsVerified:false,
+    taxDecision:"DECIDED",
+    matrixCase:"TX-07 / TX-09",
+    ntsVerified:true,
     supportMethod:"REVENUE_SHARE",
     supportOffset:"CONDITIONAL",
     advanceBalance:8500000,
     alertType:"ALERT",
-    summaryNote:"오늘 만료일 도래(D-Day) · 국세청 진위 확인 및 세무 판정 확정 필요"
+    summaryNote:"오늘 만료일 도래(D-Day) · 갱신 또는 종료 처리 필요"
   },
   {
     id:"CT-2026-0501",
@@ -3630,7 +3631,7 @@ const contractCatalog = [
     supportOffset:"CONDITIONAL",
     advanceBalance:0,
     alertType:"ALERT",
-    summaryNote:"계약서 날인 및 조건 작성 중 (DRAFT)"
+    summaryNote:"계약서 날인 및 조건 작성 중 (DRAFT) · 세무 판정 확정 전(검토 보류)"
   }
 ];
 

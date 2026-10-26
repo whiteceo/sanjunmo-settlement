@@ -557,12 +557,17 @@ code, pre, kbd, samp,
                 <option value="ALL">전체 조정 사유 구분 (13종)</option>
                 <option value="RATE_ERR">요율 오류 (RATE_ERR)</option>
                 <option value="SHARE_ERR">지분율 오류 (SHARE_ERR)</option>
+                <option value="SPLIT_ERR">수취인 분할 오류 (SPLIT_ERR)</option>
                 <option value="REFUND_OMIT">환불 반영 누락 (REFUND_OMIT)</option>
+                <option value="TARGET_MONTH_ERR">약정금 귀속월 오류 (TARGET_MONTH_ERR)</option>
+                <option value="BUYOUT_INC_ERR">매절 소득 구분 오류 (BUYOUT_INC_ERR)</option>
+                <option value="TAX_TYPE_ERR">과세유형 오인 (TAX_TYPE_ERR)</option>
+                <option value="PG_RECON_ADJ">대사 차이 정정 (PG_RECON_ADJ)</option>
                 <option value="ACCOUNT_TRANSFER">계정 간 대체 (ACCOUNT_TRANSFER)</option>
                 <option value="BOOK_SUPPLY_ERR">도서 공급 형태 오등록 (BOOK_SUPPLY_ERR)</option>
-                <option value="PRO_RATA_SETTLE">지원금 이행률 정산 (PRO_RATA)</option>
+                <option value="SUPPORT_CAP_ERR">지원금 한도 판정 오류 (SUPPORT_CAP_ERR)</option>
                 <option value="CONSIGN_FEE_ERR">위탁 수수료율 오류 (CONSIGN_FEE_ERR)</option>
-                <option value="TAX_TYPE_ERR">과세유형 오인 (TAX_TYPE_ERR)</option>
+                <option value="ETC">기타 (ETC)</option>
               </select>
             </div>
             <div class="table-wrap">
@@ -783,17 +788,17 @@ code, pre, kbd, samp,
           <select id="newReasonCode" class="select" onchange="updateNewModalPreview()">
             <option value="RATE_ERR">요율 오류 (RATE_ERR)</option>
             <option value="SHARE_ERR">지분율 오류 (SHARE_ERR)</option>
+            <option value="SPLIT_ERR">수취인 분할 오류 (SPLIT_ERR)</option>
             <option value="REFUND_OMIT">환불 반영 누락 (REFUND_OMIT)</option>
-            <option value="PREPAY_OFFSET_ERR">선급금 상계액 오류 (PREPAY_OFFSET_ERR)</option>
-            <option value="MMG_CALC_ERR">최저보장 보전금 산출 오류 (MMG_CALC_ERR)</option>
-            <option value="SUPPORT_CAP_ERR">지원금 한도 판정 오류 (SUPPORT_CAP_ERR · 2차승인 필수)</option>
-            <option value="PRO_RATA_SETTLE">지원금 해지 이행률 정산 (PRO_RATA · 2차승인 필수)</option>
-            <option value="ACCOUNT_TRANSFER">세전·세후 계정 간 대체 (ACCOUNT_TRANSFER · 2차승인 필수)</option>
+            <option value="TARGET_MONTH_ERR">약정금 귀속월 오류 (TARGET_MONTH_ERR)</option>
+            <option value="BUYOUT_INC_ERR">매절 소득 구분 오류 (BUYOUT_INC_ERR)</option>
             <option value="TAX_TYPE_ERR">과세유형 오인 (TAX_TYPE_ERR)</option>
-            <option value="WITHHOLDING_RATE_ERR">원천징수 세율 오류 (WITHHOLDING_RATE_ERR)</option>
-            <option value="BOOK_COUNT_DIFF">도서 확정 판매 부수 차이 (BOOK_COUNT_DIFF)</option>
+            <option value="PG_RECON_ADJ">대사 차이 정정 (PG_RECON_ADJ)</option>
+            <option value="ACCOUNT_TRANSFER">세전·세후 계정 간 대체 (ACCOUNT_TRANSFER · 2차승인 필수)</option>
             <option value="BOOK_SUPPLY_ERR">도서 공급 형태 오등록 (BOOK_SUPPLY_ERR)</option>
+            <option value="SUPPORT_CAP_ERR">지원금 한도 판정 오류 (SUPPORT_CAP_ERR · 2차승인 필수 · 이행률 정산 포함)</option>
             <option value="CONSIGN_FEE_ERR">위탁 수수료율 오류 (CONSIGN_FEE_ERR)</option>
+            <option value="ETC">기타 (ETC · 소명 20자 이상에 구체 사유 기재)</option>
           </select>
         </div>
       </div>
@@ -893,20 +898,21 @@ code, pre, kbd, samp,
 
 
 </div></div><script>
+  // 조정 사유 구분 adj_reason_code — 02권 10.2 필수 13종 (지원금 이행률 정산은 조정 유형 PRO_RATA + 사유 SUPPORT_CAP_ERR)
   const REASON_MAP = {
     RATE_ERR: "요율 오류 (RATE_ERR)",
     SHARE_ERR: "지분율 오류 (SHARE_ERR)",
+    SPLIT_ERR: "수취인 분할 오류 (SPLIT_ERR)",
     REFUND_OMIT: "환불 반영 누락 (REFUND_OMIT)",
-    PREPAY_OFFSET_ERR: "선급금 상계액 오류 (PREPAY_OFFSET_ERR)",
-    MMG_CALC_ERR: "최저보장 보전금 산출 오류 (MMG_CALC_ERR)",
-    SUPPORT_CAP_ERR: "지원금 한도 판정 오류 (SUPPORT_CAP_ERR)",
-    PRO_RATA_SETTLE: "지원금 해지 이행률 정산 (PRO_RATA)",
-    ACCOUNT_TRANSFER: "계정 간 대체 전표 (ACCOUNT_TRANSFER)",
+    TARGET_MONTH_ERR: "약정금 귀속월 오류 (TARGET_MONTH_ERR)",
+    BUYOUT_INC_ERR: "매절 소득 구분 오류 (BUYOUT_INC_ERR)",
     TAX_TYPE_ERR: "과세유형 오인 (TAX_TYPE_ERR)",
-    WITHHOLDING_RATE_ERR: "원천징수 세율 오류 (WITHHOLDING_RATE_ERR)",
-    BOOK_COUNT_DIFF: "도서 확정 판매 부수 차이 (BOOK_COUNT_DIFF)",
+    PG_RECON_ADJ: "대사 차이 정정 (PG_RECON_ADJ)",
+    ACCOUNT_TRANSFER: "계정 간 대체 전표 (ACCOUNT_TRANSFER)",
     BOOK_SUPPLY_ERR: "도서 공급 형태 오등록 (BOOK_SUPPLY_ERR)",
-    CONSIGN_FEE_ERR: "위탁 수수료율 오류 (CONSIGN_FEE_ERR)"
+    SUPPORT_CAP_ERR: "지원금 한도 판정 오류 (SUPPORT_CAP_ERR)",
+    CONSIGN_FEE_ERR: "위탁 수수료율 오류 (CONSIGN_FEE_ERR)",
+    ETC: "기타 (ETC)"
   };
 
   // 조정 유형 (03권 16.1 L349 · 02권 10.3 L367) — 계정 간 대체 · 지원금 이행률 정산 · 지원금 한도 수기 조정은 금액과 무관하게 재무 책임자 승인
@@ -1009,8 +1015,8 @@ code, pre, kbd, samp,
         payeeId: "RH-0012",
         payeeName: "산준교육 콘텐츠 주식회사 (법인 · 일반과세)",
         matrixCaseLabel: "법인 일반과세자 세금계산서(권리자 발행) (TX-07)",
-        reasonCode: "PRO_RATA_SETTLE",
-        reasonLabel: "지원금 해지 이행률 정산 (PRO_RATA)",
+        reasonCode: "SUPPORT_CAP_ERR",
+        reasonLabel: "지원금 한도 판정 오류 (SUPPORT_CAP_ERR)",
         adjType: "PRO_RATA",
         originMonth: "2026-10",
         appliedMonth: "2026-10",
@@ -1063,7 +1069,7 @@ code, pre, kbd, samp,
         time: "2026-10-14 11:20:00",
         actor: "재무책임자 (박정산)",
         targetId: "ADJ-202610-04",
-        summary: "지원금 해지 이행률 정산(PRO_RATA) / +640,000원",
+        summary: "지원금 한도 판정 오류 (SUPPORT_CAP_ERR) · 조정 유형 지원금 이행률 정산(PRO_RATA) / +640,000원",
         action: "재무 책임자 2차 승인 단계 반려 — 같은 약정(SFA-2026-001) 종료 정산 중복 (MS-2026-006 LUMP_SETTLE 1,800,000원으로 정산)",
         explanation: "특강 과정 중도 종강 합의에 따라 on_termination_policy = PRO_RATA(이행률 64.0%) 기준으로 산출한 잔여 지원금 640,000원을 승인함."
       },
@@ -1335,7 +1341,6 @@ code, pre, kbd, samp,
       ADJ_TYPE_2ND.includes(adjType) ||
       reasonCode === "ACCOUNT_TRANSFER" ||
       reasonCode === "SUPPORT_CAP_ERR" ||
-      reasonCode === "PRO_RATA_SETTLE" ||
       accType.includes("대체");
 
     const approvalText = isSpecial2nd
@@ -1414,7 +1419,6 @@ code, pre, kbd, samp,
       ADJ_TYPE_2ND.includes(adjType) ||
       reasonCode === "ACCOUNT_TRANSFER" ||
       reasonCode === "SUPPORT_CAP_ERR" ||
-      reasonCode === "PRO_RATA_SETTLE" ||
       accType.includes("대체");
 
     const newId = `ADJ-202610-0${state.items.length + 1}`;

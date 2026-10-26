@@ -1301,13 +1301,14 @@ code, pre, kbd, samp,
                   </td>
                 </tr>
                 <tr id="row-consign-terms" style="display:none;">
-                  <th>위탁 정산 기준가 <span class="req-star">*</span></th>
+                  <th>위탁 정산 기준가 (계약 연동)</th>
                   <td>
-                    <div style="display:flex; gap:14px; flex-wrap:wrap;">
-                      <label class="option-label"><input type="radio" name="f-consign-base" value="PAID_AMOUNT" checked=""><span>실결제액 기준 (기본)</span></label>
-                      <label class="option-label"><input type="radio" name="f-consign-base" value="LIST_PRICE"><span>도서 정가 기준</span></label>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                      <span class="badge badge-end" id="f-consign-base-view">계약 미연결</span>
+                      <span id="f-consign-contract" style="font-size:12px; color:#475569;"></span>
+                      <a class="btn btn-outline btn-sm" id="f-consign-contract-link" href="ADMN-INST-001_baseline.html">계약 원장에서 변경</a>
                     </div>
-                    <div class="field-hint">권리자 계약 원장(ADMN-INST-001) 위탁 계약의 정산 기준가와 같게 둡니다.</div>
+                    <div class="field-hint">위탁 정산 기준가는 권리자 계약 원장(ADMN-INST-001) 위탁 계약에서 정합니다. 이 화면은 계약 값을 읽어 보여 주기만 하며 여기서 바꾸지 않습니다.</div>
                   </td>
                   <th>위탁 재고 회수 조건</th>
                   <td>
@@ -1893,6 +1894,7 @@ code, pre, kbd, samp,
       reqEl.textContent = req ? "정산 대상" : "정산 비대상";
       reqEl.className = "badge " + (req ? "badge-sale" : "badge-end");
       document.getElementById("row-consign-terms").style.display = consign ? "" : "none";
+      if (consign) setConsignBase(document.getElementById("f-sku").value);
       const registered = isRegisteredSku();
       document.getElementById("f-price").readOnly = type === "비매품(번들)" || (consign && registered);
       const stock = document.getElementById("f-init-stock");
@@ -1902,8 +1904,23 @@ code, pre, kbd, samp,
       document.getElementById("f-discount-rate").readOnly = type === "비매품(번들)";
       if (type === "비매품(번들)") document.getElementById("f-discount-rate").value = 0;
     }
-    function setConsignBase(v) {
-      document.querySelectorAll('input[name="f-consign-base"]').forEach(r => { r.checked = (r.value === (v || "PAID_AMOUNT")); });
+    /* 위탁 정산 기준가 — 원본은 권리자 계약 원장(ADMN-INST-001) 위탁 조건(consignment.basePrice, 기본 실결제액).
+       이 화면은 SKU에 연결된 위탁 계약의 값을 읽어 표시만 한다(읽기 전용). 계약이 없는 SKU는 '계약 미연결' */
+    const CONSIGN_CONTRACTS = {
+      "PROD-BK-3003": { contractId: "CT-2026-0705", party: "안전기술출판", basePrice: "PAID_AMOUNT" }
+    };
+    const CONSIGN_BASE_LABEL = { PAID_AMOUNT: "실결제액 기준 (기본)", LIST_PRICE: "도서 정가 기준" };
+    function consignContractOf(sku) { return CONSIGN_CONTRACTS[sku] || null; }
+    function setConsignBase(sku) {
+      const c = consignContractOf(sku);
+      const view = document.getElementById("f-consign-base-view");
+      const info = document.getElementById("f-consign-contract");
+      if (!view || !info) return;
+      view.textContent = c ? CONSIGN_BASE_LABEL[c.basePrice] : "계약 미연결";
+      view.className = "badge " + (c ? "badge-info" : "badge-end");
+      info.innerHTML = c
+        ? `계약 <code>${c.contractId}</code> (${c.party}) 위탁 조건 값`
+        : "권리자 계약 원장에서 이 도서를 위탁 도서로 연결하면 그 계약의 기준가를 따릅니다.";
     }
     function issueNewSkuFromLocked() {
       lockSupplyType(false);
@@ -1947,7 +1964,7 @@ code, pre, kbd, samp,
       document.getElementById("f-supply-rate").value = found.supplyRate || 60;
       document.getElementById("f-royalty-rate").value = found.royaltyRate || 0;
       document.getElementById("f-discount-rate").value = found.discountRate || 0;
-      setConsignBase(found.consignBasePrice);
+      setConsignBase(found.sku);
       document.getElementById("f-return-owner").value = found.returnOwner || "";
       document.getElementById("f-return-days").value = found.returnDays != null ? found.returnDays : 14;
       applySupplyTypeUi(found.supplyType, { keepRate: true });
@@ -2095,7 +2112,7 @@ code, pre, kbd, samp,
         return;
       }
       const supplyTypeNow = currentSupplyType();
-      const consignBase = (document.querySelector('input[name="f-consign-base"]:checked') || {}).value || "PAID_AMOUNT";
+      const consignContract = consignContractOf(finalSku); // 위탁 정산 기준가는 계약 값 스냅샷(계약 미연결이면 null)
 
       const payload = {
         sku: finalSku,
@@ -2116,7 +2133,8 @@ code, pre, kbd, samp,
         salePrice: Math.floor(price * (100 - discountRate) / 100),
         priceOwner: supplyTypeNow === "위탁판매" ? "CONSIGNOR" : "SELF",
         settlementRequired: !!SETTLEMENT_REQUIRED[supplyTypeNow],
-        consignBasePrice: supplyTypeNow === "위탁판매" ? consignBase : null,
+        consignBasePrice: supplyTypeNow === "위탁판매" && consignContract ? consignContract.basePrice : null,
+        consignContractId: supplyTypeNow === "위탁판매" && consignContract ? consignContract.contractId : null,
         returnOwner: supplyTypeNow === "위탁판매" ? document.getElementById("f-return-owner").value.trim() : "",
         returnDays: supplyTypeNow === "위탁판매" ? Number(document.getElementById("f-return-days").value || 0) : null,
         initStock,

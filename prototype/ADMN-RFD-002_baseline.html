@@ -659,7 +659,7 @@ code, pre, kbd, samp,
                   <td><span class="badge badge-blue">인강 (강좌)</span></td>
                   <td><strong id="lec-title">[강좌] 정종대 산업안전 실전 빈출특강</strong></td>
                   <td class="num" id="lec-list">150,000원</td>
-                  <td class="num"><strong id="lec-paid">150,000원</strong></td>
+                  <td class="num"><strong id="lec-paid">150,000원</strong><div id="lec-pt-share" style="font-size:11px; color:var(--text-muted); font-weight:400; margin-top:2px;">포인트 몫 0 P (결제 때 안분 스냅샷)</div></td>
                   <td id="lec-usage">수강 4일 경과 / 진도율 20% (12/60강) · 인정진도율 20%</td>
                   <td><span class="badge badge-amber">부분환불 (위약금 10% + 이용분 공제)</span></td>
                 </tr>
@@ -674,7 +674,7 @@ code, pre, kbd, samp,
                   <td><span class="badge badge-purple">교재 (도서)</span></td>
                   <td><strong id="book-title">[교재] 2026 정종대 산업안전기사 필기 기본서 ×1 (쿠폰/포인트 제외)</strong></td>
                   <td class="num" id="book-list">20,000원</td>
-                  <td class="num"><strong id="book-paid">20,000원</strong></td>
+                  <td class="num"><strong id="book-paid">20,000원</strong><div id="book-pt-share" style="font-size:11px; color:var(--text-muted); font-weight:400; margin-top:2px;">포인트 몫 0 P (도서 포인트 사용 잠금)</div></td>
                   <td>출고완료 ➔ 3PL 반품 입고완료 (배송 완료 D+7 이내)</td>
                   <td><span class="badge badge-green">검수 합격 시 환불 가능</span></td>
                 </tr>
@@ -1254,11 +1254,13 @@ code, pre, kbd, samp,
 
     // 2. 목록에서 행 클릭 시 단일 상세 화면으로 진입 (유입 경로에 따라 좌측 기본 탭만 자동 선택)
     // 케이스별 원 주문(ADMN-ORD-001 ORDERS_DATA와 같은 값) — 상품은 시나리오 코드표 상품
+    // lecPtShare: 결제 때 강좌 라인에 안분해 둔 포인트 몫 스냅샷(통합 S2-05 — 패키지 할인 · 쿠폰 · 포인트는 순수 강좌 결제 풀에서만 차감 후 강좌 정가 비율로 안분).
+    //   부분 환불 때 다시 나누지 않고 이 값을 그대로 쓴다. 교재 라인은 포인트 사용 0% 잠금(S2-04)이라 늘 0. 4건 모두 원 주문 사용 포인트 0P(ADMN-ORD-001 pointAmt).
     const CASE_ORDERS = {
-      HONG: { meta: '주문번호: SJM20260809-0044 · 원 결제월: 2026-08 (마감 Locked) · 귀속 정종대', lecCode: 'OI-0044-1 · CRS-1002', lecTitle: '[강좌] 정종대 산업안전 실전 빈출특강', lecList: 150000, bookCode: 'OI-0044-2 · PROD-BK-1006', bookTitle: '[교재] 2026 정종대 산업안전기사 필기 기본서 ×1 (쿠폰/포인트 제외)', bookList: 20000 },
-      KIM:  { meta: '주문번호: SJM20261004-0091 · 원 결제월: 2026-10 · 귀속 최지도', lecCode: 'OI-0091-1 · CRS-2606', lecTitle: '[강좌] 2026 산업안전지도사 1차 산업안전일반 핵심이론 단과', lecList: 200000, bookCode: 'OI-0091-2 · PROD-BK-1007', bookTitle: '[교재] 2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2 (쿠폰/포인트 제외)', bookList: 40000 },
-      CHOI: { meta: '주문번호: SJM20260918-0063 · 원 결제월: 2026-09 (마감 Locked) · 귀속 김안전', lecCode: 'OI-0063-1 · CRS-2601', lecTitle: '[강좌] 2026 산업안전기사 필기 한권완성 개념+빈출 단과 (정가 180,000 → 판매가 144,000)', lecList: 144000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0 },
-      PARK: { meta: '주문번호: SJM20260817-0148 · 원 결제월: 2026-08 (마감 Locked) · 휴대폰결제 · 귀속 박보건', lecCode: 'OI-0148-1 · CRS-2605', lecTitle: '[강좌] 2026 산업안전기사 실기 작업형 동영상 빈출 마스터반 (정가 150,000 → 판매가 125,000)', lecList: 125000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0 }
+      HONG: { meta: '주문번호: SJM20260809-0044 · 원 결제월: 2026-08 (마감 Locked) · 귀속 정종대', lecCode: 'OI-0044-1 · CRS-1002', lecTitle: '[강좌] 정종대 산업안전 실전 빈출특강', lecList: 150000, bookCode: 'OI-0044-2 · PROD-BK-1006', bookTitle: '[교재] 2026 정종대 산업안전기사 필기 기본서 ×1 (쿠폰/포인트 제외)', bookList: 20000, lecPtShare: 0 },
+      KIM:  { meta: '주문번호: SJM20261004-0091 · 원 결제월: 2026-10 · 귀속 최지도', lecCode: 'OI-0091-1 · CRS-2606', lecTitle: '[강좌] 2026 산업안전지도사 1차 산업안전일반 핵심이론 단과', lecList: 200000, bookCode: 'OI-0091-2 · PROD-BK-1007', bookTitle: '[교재] 2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2 (쿠폰/포인트 제외)', bookList: 40000, lecPtShare: 0 },
+      CHOI: { meta: '주문번호: SJM20260918-0063 · 원 결제월: 2026-09 (마감 Locked) · 귀속 김안전', lecCode: 'OI-0063-1 · CRS-2601', lecTitle: '[강좌] 2026 산업안전기사 필기 한권완성 개념+빈출 단과 (정가 180,000 → 판매가 144,000)', lecList: 144000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0, lecPtShare: 0 },
+      PARK: { meta: '주문번호: SJM20260817-0148 · 원 결제월: 2026-08 (마감 Locked) · 휴대폰결제 · 귀속 박보건', lecCode: 'OI-0148-1 · CRS-2605', lecTitle: '[강좌] 2026 산업안전기사 실기 작업형 동영상 빈출 마스터반 (정가 150,000 → 판매가 125,000)', lecList: 125000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0, lecPtShare: 0 }
     };
 
     function openDetailView(memberKey) {
@@ -1274,6 +1276,8 @@ code, pre, kbd, samp,
       setTxt('book-title', co.bookTitle);
       setTxt('book-list', co.bookList.toLocaleString() + '원');
       setTxt('book-paid', co.bookList.toLocaleString() + '원');
+      setTxt('lec-pt-share', '포인트 몫 ' + (co.lecPtShare || 0).toLocaleString() + ' P (결제 때 안분 스냅샷)');
+      setTxt('book-pt-share', co.bookList ? '포인트 몫 0 P (도서 포인트 사용 잠금)' : '—');
 
       ['hong', 'kim', 'choi', 'park'].forEach(k => {
         const b = document.getElementById('sample-btn-' + k);
@@ -1941,7 +1945,7 @@ code, pre, kbd, samp,
       + kv('자진 탈퇴', d.minusDebt < 0 ? '차단 (부채 잔액 해소 전)' : '제한 없음', d.minusDebt < 0 ? '#DC2626' : '')
       + kv('원 환불 확정 포인트 (불변)', signed(o.origPoint, ' P'))
       + kv('보정 반영 후 포인트 누적', signed(o.cumPoint, ' P'), '#2563EB')
-      + '</div><div class="rfd-done-note">원 주문으로 적립된 적립 P는 보유 가용 포인트(무상 P → 적립 P)에서 먼저 회수하고, 부족분은 현금 환불액에서 선차감, 그래도 남으면 적립 P 원장의 마이너스(−) 부채로 전환합니다.</div>';
+      + '</div><div class="rfd-done-note">사용 포인트 복원 대상은 환불한 강좌 라인의 포인트 몫(결제 때 강좌 정가 비율로 안분해 둔 스냅샷)이며, 환불 시점에 다시 나누지 않습니다. 원 주문으로 적립된 적립 P는 보유 가용 포인트(무상 P → 적립 P)에서 먼저 회수하고, 부족분은 현금 환불액에서 선차감, 그래도 남으면 적립 P 원장의 마이너스(−) 부채로 전환합니다.</div>';
 
     var c3 = '<div class="m3f-sum-grid">'
       + kv('원 결제월 (원귀속)', esc(d.originMonth))

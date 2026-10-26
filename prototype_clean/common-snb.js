@@ -41,7 +41,8 @@
     var els = root.querySelectorAll("code,strong,b,small");
     for (var i = 0; i < els.length; i++) {
       var el = els[i];
-      if (el.classList.contains("raw-keep") || el.children.length) continue;
+      // id가 있는 요소는 스크립트가 값을 채우는 자리라 지우지 않는다(예: LOGIN-001 #lockout-account — v6.75)
+      if (el.classList.contains("raw-keep") || el.children.length || el.id) continue;
       var prev = el.previousSibling, next = el.nextSibling;
       if (!prev || !next || prev.nodeType !== 3 || next.nodeType !== 3) continue;
       if (!/\(\s*$/.test(prev.nodeValue) || !/^\s*\)/.test(next.nodeValue)) continue;
@@ -555,6 +556,10 @@
   "SUPPORT_CAP_ERR": "지원금 한도 판정 오류",
   "WITHHOLDING_RATE_ERR": "원천징수 세율 오류",
   "BOOK_COUNT_DIFF": "도서 확정 판매부수 차이",
+  "SPLIT_ERR": "수취인 분할 오류",
+  "TARGET_MONTH_ERR": "약정금 귀속월 오류",
+  "BUYOUT_INC_ERR": "매절 소득 구분 오류",
+  "PG_RECON_ADJ": "대사 차이 정정",
   "SIMPLIFIED_RECEIPT": "간이과세자(영수증발급)",
   "SIMPLIFIED_INVOICE": "간이과세자(세금계산서발급)",
   "NON_PROFIT_ORG": "비영리·고유번호 단체",
@@ -920,4 +925,30 @@
     if (st && st.sjmPage) show(st.sjmPage, st.params);
     else show('list');
   });
+})();
+
+/* =========================================================================
+   MODAL-OPEN-GUARD (v6.75) — 모달 열기 근본 수정
+   각 화면의 UNIVERSAL-MODAL-CLOSER-HOTFIX는 로드 · 닫기 때 모달 백드롭에 인라인 display:none !important를 건다.
+   화면 코드가 클래스(open · show · active)만 붙이거나 hidden만 떼서 여는 경우 그 인라인 값이 남아 모달이 열리지 않았다.
+   → 백드롭의 클래스가 '열림'으로 바뀌는 순간 인라인 display를 지운다(화면별 수정 불필요).
+   ========================================================================= */
+(function () {
+  if (window.__sjmModalOpenGuard) return;
+  window.__sjmModalOpenGuard = true;
+  var SEL = '.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop';
+  function isOpen(el) { return el.classList.contains('open') || el.classList.contains('show') || el.classList.contains('active'); }
+  function release(el) { if (el.style.display === 'none') el.style.removeProperty('display'); el.removeAttribute('aria-hidden'); }
+  var mo = new MutationObserver(function (list) {
+    list.forEach(function (m) {
+      var el = m.target;
+      if (!el.matches || !el.matches(SEL)) return;
+      var old = ' ' + (m.oldValue || '') + ' ';
+      var wasOpen = /\s(open|show|active)\s/.test(old);
+      var hiddenRemoved = old.indexOf(' hidden ') !== -1 && !el.classList.contains('hidden');
+      if ((isOpen(el) && !wasOpen) || hiddenRemoved) release(el);
+    });
+  });
+  function start() { mo.observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true, subtree: true }); }
+  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
 })();

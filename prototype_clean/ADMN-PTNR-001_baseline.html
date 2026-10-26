@@ -1180,5 +1180,32 @@
   });
 })();
 </script>
+<script>
+/* =========================================================================
+   MODAL-OPEN-GUARD (v6.84 — 파트너 센터는 common-snb.js를 쓰지 않아 같은 블록을 직접 둔다) — 모달 열기 근본 수정
+   각 화면의 UNIVERSAL-MODAL-CLOSER-HOTFIX는 로드 · 닫기 때 모달 백드롭에 인라인 display:none !important를 건다.
+   화면 코드가 클래스(open · show · active)만 붙이거나 hidden만 떼서 여는 경우 그 인라인 값이 남아 모달이 열리지 않았다.
+   → 백드롭의 클래스가 '열림'으로 바뀌는 순간 인라인 display를 지운다(화면별 수정 불필요).
+   ========================================================================= */
+(function () {
+  if (window.__sjmModalOpenGuard) return;
+  window.__sjmModalOpenGuard = true;
+  var SEL = '.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop';
+  function isOpen(el) { return el.classList.contains('open') || el.classList.contains('show') || el.classList.contains('active'); }
+  function release(el) { if (el.style.display === 'none') el.style.removeProperty('display'); el.removeAttribute('aria-hidden'); }
+  var mo = new MutationObserver(function (list) {
+    list.forEach(function (m) {
+      var el = m.target;
+      if (!el.matches || !el.matches(SEL)) return;
+      var old = ' ' + (m.oldValue || '') + ' ';
+      var wasOpen = /\s(open|show|active)\s/.test(old);
+      var hiddenRemoved = old.indexOf(' hidden ') !== -1 && !el.classList.contains('hidden');
+      if ((isOpen(el) && !wasOpen) || hiddenRemoved) release(el);
+    });
+  });
+  function start() { mo.observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true, subtree: true }); }
+  if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+</script>
 </body>
 </html>

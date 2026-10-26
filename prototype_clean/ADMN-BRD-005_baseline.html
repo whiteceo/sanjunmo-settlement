@@ -760,7 +760,7 @@ code, pre, kbd, samp,
 
       <button class="sub-tab-btn" onclick="switchTab('freeLecture')" id="tab-btn-freeLecture">
 
-        🎬 무료특강 및 빈출문제 (ADMN-BRD-010) <span class="cnt" id="cnt-freeLecture">4</span>
+        🎬 무료특강 및 빈출문제 (ADMN-BRD-010) <span class="cnt" id="cnt-freeLecture">5</span>
 
       </button>
 
@@ -853,7 +853,7 @@ code, pre, kbd, samp,
 
       <div class="info-callout">
 
-        <strong>[ADMN-BRD-005-B] 합격수기(Pass Essay) 전용 검수 정책:</strong> 국가기술자격 정기검정 <strong>응시 종목·회차(예: 2026년 제2회 산업안전기사)</strong>, <strong>필기/실기 합격 구분</strong>, <strong>합격인증 증빙 파일(큐넷 자격증 사본/합격확인서)</strong>을 대조 심사합니다. 승인 시 합격수기 게시판 노출 및 합격 축하 포인트가 지급됩니다.
+        <strong>[ADMN-BRD-005-B] 합격수기(Pass Essay) 전용 검수 정책:</strong> 국가기술자격 정기검정 <strong>응시 종목·회차(예: 2026년 제2회 산업안전기사)</strong>, <strong>필기/실기 합격 구분</strong>, <strong>합격인증 증빙 파일(큐넷 자격증 사본/합격확인서)</strong>을 대조 심사합니다. 승인 시 합격수기 게시판 노출 및 합격 축하 포인트가 지급됩니다. 승인된 합격수기 중 우수 수기는 <code>[베스트 합격수기]</code>로 선정해 베스트 후기 보상 포인트를 추가 지급합니다.
 
       </div>
 
@@ -909,6 +909,8 @@ code, pre, kbd, samp,
 
               <th style="width:120px;">검수 상태</th>
 
+              <th style="width:170px;">베스트 선정 / 포인트</th>
+
               <th style="width:150px;">검수 액션</th>
 
             </tr>
@@ -931,7 +933,7 @@ code, pre, kbd, samp,
 
       <div class="info-callout">
 
-        <strong>[ADMN-BRD-010] 무료특강 및 빈출문제 운영 정책:</strong> 사용자 웹 <code>USER-FREE-001 ~ 003</code>에 노출되는 무료 학습 콘텐츠입니다. 콘텐츠 구분은 <strong>[무료특강 영상 (<code>FREE_LECTURE</code>)]</strong>과 <strong>[빈출문제 해설 (<code>FREQ_EXAM</code>)]</strong>로 운영하며, 빈출문제 PDF 시험지/해설지 다운로드 및 플레이어 VOD 연동을 지원합니다.
+        <strong>[ADMN-BRD-010] 무료특강 및 빈출문제 운영 정책:</strong> 사용자 웹 <code>USER-FREE-001 ~ 003</code>에 노출되는 무료 학습 콘텐츠입니다. 콘텐츠 구분은 프론트 무료특강 분류와 같은 <strong>[기본이론]</strong> · <strong>[합격전략]</strong> · <strong>[빈출문제]</strong> · <strong>[개정법령]</strong> 4가지로 운영하며, 빈출문제 PDF 시험지/해설지 다운로드 및 플레이어 VOD 연동을 지원합니다.
 
       </div>
 
@@ -947,9 +949,13 @@ code, pre, kbd, samp,
 
               <option value="ALL">콘텐츠 구분 전체</option>
 
-              <option value="FREE_LECTURE">무료특강 영상 (FREE_LECTURE)</option>
+              <option value="BASIC_THEORY">기본이론</option>
 
-              <option value="FREQ_EXAM">빈출문제 해설 (FREQ_EXAM)</option>
+              <option value="PASS_STRATEGY">합격전략</option>
+
+              <option value="FREQ_EXAM">빈출문제</option>
+
+              <option value="LAW_REVISION">개정법령</option>
 
             </select>
 
@@ -1037,8 +1043,10 @@ code, pre, kbd, samp,
           <div class="form-group">
             <label class="form-label">콘텐츠 구분 *</label>
             <select id="fl-form-type">
-              <option value="FREE_LECTURE">무료특강 영상 (FREE_LECTURE)</option>
-              <option value="FREQ_EXAM">빈출문제 해설 (FREQ_EXAM)</option>
+              <option value="BASIC_THEORY">기본이론</option>
+              <option value="PASS_STRATEGY">합격전략</option>
+              <option value="FREQ_EXAM">빈출문제</option>
+              <option value="LAW_REVISION">개정법령</option>
             </select>
           </div>
           <div class="form-group">
@@ -1150,13 +1158,13 @@ code, pre, kbd, samp,
 
   let PASS_ESSAYS = [
 
-    { id: 'PE-312', cert: '산업안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '직장 병행 3개월 만에 산업안전기사 동차 최종합격 수기입니다!', proofFile: '큐넷_국가기술자격증_사본_박준형.jpg', user: '박준형 (jhpark90)', status: 'PENDING', scoreInfo: '필기 평균 78점 / 실기 81점' },
+    { id: 'PE-312', cert: '산업안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '직장 병행 3개월 만에 산업안전기사 동차 최종합격 수기입니다!', proofFile: '큐넷_국가기술자격증_사본_박준형.jpg', user: '박준형 (jhpark90)', status: 'PENDING', best: false, scoreInfo: '필기 평균 78점 / 실기 81점' },
 
-    { id: 'PE-311', cert: '건설안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '산준모 빈출문제 특강과 필답형 키워드 암기법 덕에 한 번에 붙었습니다.', proofFile: '큐넷_합격확인서_최예린.pdf', user: '최예린 (yerin_c)', status: 'APPROVED', scoreInfo: '필기 평균 74점 / 실기 76점' },
+    { id: 'PE-311', cert: '건설안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '산준모 빈출문제 특강과 필답형 키워드 암기법 덕에 한 번에 붙었습니다.', proofFile: '큐넷_합격확인서_최예린.pdf', user: '최예린 (yerin_c)', status: 'APPROVED', best: true, scoreInfo: '필기 평균 74점 / 실기 76점' },
 
-    { id: 'PE-310', cert: '산업안전기사 / 2026년 정기 기사 제1회', passType: '필기합격', title: '기계·전기·화공 비전공자 필기 4주 단기 합격 공부 루틴 공유', proofFile: '큐넷_필기합격캡처_강동원.png', user: '강동원 (dwkang)', status: 'APPROVED', scoreInfo: '필기 평균 82점' },
+    { id: 'PE-310', cert: '산업안전기사 / 2026년 정기 기사 제1회', passType: '필기합격', title: '기계·전기·화공 비전공자 필기 4주 단기 합격 공부 루틴 공유', proofFile: '큐넷_필기합격캡처_강동원.png', user: '강동원 (dwkang)', status: 'APPROVED', best: false, scoreInfo: '필기 평균 82점' },
 
-    { id: 'PE-309', cert: '위험물산업기사 / 2026년 정기 제2회', passType: '최종합격', title: '화학반응식 기초부터 잡아주셔서 실기까지 무난히 통과했습니다.', proofFile: '증빙이미지_흐림_재업로드요망.jpg', user: '조민수 (mscho)', status: 'REJECTED', scoreInfo: '증빙 수험번호 식별 불가' }
+    { id: 'PE-309', cert: '위험물산업기사 / 2026년 정기 제2회', passType: '최종합격', title: '화학반응식 기초부터 잡아주셔서 실기까지 무난히 통과했습니다.', proofFile: '증빙이미지_흐림_재업로드요망.jpg', user: '조민수 (mscho)', status: 'REJECTED', best: false, scoreInfo: '증빙 수험번호 식별 불가' }
 
   ];
 
@@ -1165,14 +1173,18 @@ code, pre, kbd, samp,
 
 
   // 3. 무료특강 및 빈출문제 (ADMN-BRD-010) - '빈출문제'로 전수 일원화
+  // 콘텐츠 구분 = 프론트 무료특강(USER-FREE-001) 4분류(통합 설계서 Set 4 매핑표). 예전 FREE_LECTURE(무료특강 영상)는 4분류로 나눔, FREQ_EXAM 값은 유지
+  const FL_TYPES = { BASIC_THEORY: ['badge-blue', '📘 기본이론'], PASS_STRATEGY: ['badge-green', '🎯 합격전략'], FREQ_EXAM: ['badge-purple', '📝 빈출문제'], LAW_REVISION: ['badge-amber', '⚖️ 개정법령'] };
 
   let FREE_LECTURES = [
 
+    { id: 'FL-2605', type: 'LAW_REVISION', cert: '산업안전기사', year: '2026 대비', title: '[개정법령] 2026 산업안전보건법령 개정사항 반영 특강', vod: 'VOD-FREE-105 (41분)', pdf: '개정법령요약.pdf', views: 704, visible: true, body: '2026년 시행 산업안전보건법령 개정사항과 시험 반영 범위를 정리한 특강입니다.', versions: [{ ver: 1, date: '2026-10-12', pdf: '개정법령요약.pdf', body: '2026년 시행 산업안전보건법령 개정사항과 시험 반영 범위를 정리한 특강입니다.', note: '최초 등록' }] },
+
     { id: 'FL-2604', type: 'FREQ_EXAM', cert: '산업안전기사', year: '2026 대비', title: '[빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강', vod: 'VOD-FREE-104 (52분)', pdf: '2026_산안기_빈출문제_50선.pdf', views: 2410, visible: true, body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', versions: [{ ver: 1, date: '2026-09-25', pdf: '2026_산안기_빈출문제_50선.pdf', body: '핵심 빈출문제 50선 풀이 특강입니다.', note: '최초 등록' }, { ver: 2, date: '2026-10-12', pdf: '2026_산안기_빈출문제_50선.pdf', body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', note: '본문 수정 (출제 경향 반영)' }] },
 
-    { id: 'FL-2603', type: 'FREE_LECTURE', cert: '산업안전기사', year: '2026 대비', title: '[무료특강] 비전공자를 위한 인간공학·시스템안전 계산공식 기초특강', vod: 'VOD-FREE-103 (38분)', pdf: '계산공식_핵심요약집.pdf', views: 1890, visible: true, body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', versions: [{ ver: 1, date: '2026-09-18', pdf: '계산공식_핵심요약집.pdf', body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', note: '최초 등록' }] },
+    { id: 'FL-2603', type: 'BASIC_THEORY', cert: '산업안전기사', year: '2026 대비', title: '[무료특강] 비전공자를 위한 인간공학·시스템안전 계산공식 기초특강', vod: 'VOD-FREE-103 (38분)', pdf: '계산공식_핵심요약집.pdf', views: 1890, visible: true, body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', versions: [{ ver: 1, date: '2026-09-18', pdf: '계산공식_핵심요약집.pdf', body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2602', type: 'FREQ_EXAM', cert: '건설안전기사', year: '2026 대비', title: '[빈출문제] 건설안전기사 실기 필답형+작업형 최빈출 테마 30선', vod: 'VOD-FREE-102 (64분)', pdf: '2026_건안기_실기_빈출문제30선.pdf', views: 1520, visible: true, body: '건설안전기사 실기 빈출문제 핵심 답안 작성법 해설입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2026_건안기_실기_빈출문제30선.pdf', body: '건설안전기사 실기 빈출문제 핵심 답안 작성법 해설입니다.', note: '최초 등록' }] },
+    { id: 'FL-2602', type: 'PASS_STRATEGY', cert: '건설안전기사', year: '2026 대비', title: '[합격전략] 건설안전기사 실기 필답형+작업형 답안 작성 전략과 시간 배분', vod: 'VOD-FREE-102 (64분)', pdf: '2026_건안기_실기_합격전략.pdf', views: 1520, visible: true, body: '건설안전기사 실기 필답형 · 작업형 답안 작성 순서와 시간 배분 전략 특강입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2026_건안기_실기_합격전략.pdf', body: '건설안전기사 실기 필답형 · 작업형 답안 작성 순서와 시간 배분 전략 특강입니다.', note: '최초 등록' }] },
 
     { id: 'FL-2601', type: 'FREQ_EXAM', cert: '위험물산업기사', year: '2026 대비', title: '[빈출문제] 제1류~제6류 위험물 성상 및 소화방법 빈출문제 총정리', vod: 'VOD-FREE-101 (45분)', pdf: '위험물_빈출문제_요약노트.pdf', views: 980, visible: true, body: '위험물 유별 핵심 빈출문제 해설입니다.', versions: [{ ver: 1, date: '2026-08-20', pdf: '위험물_빈출문제_요약노트.pdf', body: '위험물 유별 핵심 빈출문제 해설입니다.', note: '최초 등록' }] }
 
@@ -1380,6 +1392,17 @@ code, pre, kbd, samp,
 
         <td>
 
+          ${p.status !== 'APPROVED'
+            ? '<span style="font-size:11.5px; color:var(--text-sub);">승인 후 선정 가능</span>'
+            : p.best
+              ? `<span class="badge badge-amber">👑 베스트 합격수기 (+${rewardP(true).toLocaleString()}P)</span><div style="margin-top:4px;"><button class="btn btn-outline btn-sm" onclick="toggleBestPassEssay('${p.id}')">베스트 해제</button></div>`
+              : `<button class="btn btn-outline btn-sm" onclick="toggleBestPassEssay('${p.id}')">👑 베스트 선정</button>`
+          }
+
+        </td>
+
+        <td>
+
           <button class="btn btn-primary btn-sm" onclick="openPassAuditModal('${p.id}')">증빙 대조/심사</button>
 
         </td>
@@ -1465,6 +1488,7 @@ code, pre, kbd, samp,
     if (!p) return;
 
     p.status = decision;
+    if (decision !== 'APPROVED') p.best = false;
 
     closeModal('modal-pass-audit');
 
@@ -1480,8 +1504,18 @@ code, pre, kbd, samp,
 
 
 
-  // 3. 무료특강 및 빈출문제 (ADMN-BRD-010)
+  // 합격수기 베스트 선정 — 보상은 베스트 후기 보상(무상 P, 포인트 정책 PROM-002 운영 설정값). 승인 때 지급한 후기 보상과 별도(통합 설계서 포인트 운영 설정값)
+  function toggleBestPassEssay(id) {
+    const p = PASS_ESSAYS.find(item => item.id === id);
+    if (!p || p.status !== 'APPROVED') return;
+    p.best = !p.best;
+    renderPassEssays();
+    showToast(p.best ? `${id} 합격수기가 베스트로 선정되어 베스트 후기 보상 ${rewardP(true).toLocaleString()}P(무상 P)가 적립되었습니다.` : `${id} 베스트 지정이 해제되었습니다.`);
+  }
 
+
+
+  // 3. 무료특강 및 빈출문제 (ADMN-BRD-010)
   function renderFreeLectures() {
 
     const tp = document.getElementById('fl-type-filter').value;
@@ -1506,9 +1540,9 @@ code, pre, kbd, samp,
 
         <td>
 
-          <span class="badge ${item.type === 'FREQ_EXAM' ? 'badge-purple' : 'badge-blue'}">
+          <span class="badge ${(FL_TYPES[item.type] || ['badge-slate'])[0]}">
 
-            ${item.type === 'FREQ_EXAM' ? '📝 빈출문제 해설' : '🎬 무료특강 영상'}
+            ${(FL_TYPES[item.type] || ['', item.type])[1]}
 
           </span>
 
@@ -1620,7 +1654,7 @@ code, pre, kbd, samp,
 
       FREE_LECTURES.unshift({
 
-        id: 'FL-' + (2605 + FREE_LECTURES.length),
+        id: 'FL-' + (2606 + FREE_LECTURES.length),
 
         type, cert, year, title, vod, pdf, views: 0, visible: true, body,
         versions: [{ ver: 1, date: '2026-10-19', pdf, body, note: '최초 등록' }]

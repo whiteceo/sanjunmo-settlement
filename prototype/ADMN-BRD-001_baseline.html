@@ -831,7 +831,7 @@ code, pre, kbd, samp,
 
         <button class="sub-tab-btn active" onclick="switchTab('notice')" id="tab-btn-notice">
 
-          📢 공지사항 관리 <span class="cnt" id="cnt-notice">4</span>
+          📢 공지사항 관리 <span class="cnt" id="cnt-notice">5</span>
 
         </button>
 
@@ -884,6 +884,8 @@ code, pre, kbd, samp,
               <option value="시험일정">시험일정</option>
 
               <option value="시스템점검">시스템점검</option>
+
+              <option value="정정공지">정정공지</option>
 
               <option value="당첨자발표연동">당첨자발표 연동</option>
 
@@ -1191,7 +1193,7 @@ code, pre, kbd, samp,
 
           <div class="kpi-val" style="color:var(--warning);" id="win-kpi-wait">2명</div>
 
-          <div class="kpi-sub">선택 일괄 지급 또는 송장 등록 가능</div>
+          <div class="kpi-sub">포인트는 포인트 관리로 넘겨 지급 · 기프티콘 발송 · 송장 등록</div>
 
         </div>
 
@@ -1207,7 +1209,7 @@ code, pre, kbd, samp,
 
           [1] <strong>프론트 노출:</strong> 발표글 등록 시 <strong>사용자 웹 [이벤트 &gt; 당첨자 발표 탭(<code>USER-PROM-001</code>)]</strong>에 기본 노출되며, 옵션 선택 시 <strong>[고객센터 &gt; 공지사항(<code>USER-CS-001</code>)] 상단 배너</strong>에 동시 노출됩니다.<br/>
 
-          [2] <strong>경품 지급 연동:</strong> <code>포인트/쿠폰</code>은 <strong>[선택 당첨자 일괄 즉시 지급]</strong> 시 회원 포인트 원장(<code>ADMN-PROM-003</code>)에 즉시 적립되고, <code>기프티콘</code>은 알림톡/MMS 발송, <code>실물 경품</code>은 당첨자 배송지 수집 후 송장번호를 입력합니다.
+          [2] <strong>경품 지급 연동:</strong> <code>포인트</code>는 이 화면에서 지급하지 않고 <strong>[포인트 관리로 넘기기]</strong>로 당첨 회원 명단(회원번호)을 포인트 관리(<code>ADMN-PROM-003</code>)에 넘겨 그곳에서 무상 포인트(유효기간 2년)로 일괄 지급하고, <code>기프티콘</code>은 알림톡/MMS 발송, <code>실물 경품</code>은 당첨자 배송지 수집 후 송장번호를 입력합니다.
 
         </div>
 
@@ -1264,6 +1266,7 @@ code, pre, kbd, samp,
               <option value="일반공지">일반공지</option>
               <option value="시험일정">시험일정</option>
               <option value="시스템점검">시스템점검</option>
+              <option value="정정공지">정정공지</option>
             </select>
           </div>
           <div class="form-group">
@@ -1411,9 +1414,12 @@ code, pre, kbd, samp,
               <option value="COMPLETED">지급완료</option>
             </select>
             <button type="button" class="btn btn-outline btn-sm" onclick="toggleWinnerRowForm(true)">+ 당첨자 개별/엑셀 추가</button>
-            <button type="button" class="btn btn-success btn-sm" onclick="batchGrantSelectedWinners()">⚡ 선택 당첨자 일괄 즉시 지급 (포인트/기프티콘)</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="handoffPointWinners()">💸 포인트 당첨자 → 포인트 관리 일괄 지급으로 넘기기</button>
+            <button type="button" class="btn btn-success btn-sm" onclick="batchGrantSelectedWinners()">⚡ 선택 당첨자 일괄 발송 (기프티콘 · 실물)</button>
           </div>
         </div>
+        <!-- 포인트 당첨자를 포인트 관리(ADMN-PROM-003) 일괄 지급으로 넘긴 명단 — 지급 실행은 포인트 관리(통합 설계서 Flow 1-3) -->
+        <div id="winner-handoff" style="display:none; padding:12px 18px; border-bottom:1px solid var(--border); background:#eff6ff; font-size:12.5px; line-height:1.7;"></div>
         <!-- 당첨자 명단 추가 (자동 마스킹 적용) — 예전 별도 팝업을 페이지 안 입력 영역으로 -->
         <div id="winner-row-form" style="display:none; padding:14px 18px; border-bottom:1px solid var(--border); background:#f8fafc;">
           <div style="font-weight:800; margin-bottom:10px;">+ 당첨자 대상 추가 (자동 마스킹 적용)</div>
@@ -1425,7 +1431,7 @@ code, pre, kbd, samp,
             <div class="form-group">
               <label class="form-label">경품 지급 유형 *</label>
               <select id="winrow-type">
-                <option value="POINT">포인트 즉시 적립 (ADMN-PROM-003 연동)</option>
+                <option value="POINT">무상 포인트 → 포인트 관리(ADMN-PROM-003)에서 일괄 지급</option>
                 <option value="GIFTICON">모바일 기프티콘 (알림톡/MMS 발송)</option>
                 <option value="PHYSICAL">실물 경품 (배송지 수집 / 송장 입력)</option>
               </select>
@@ -1576,7 +1582,7 @@ code, pre, kbd, samp,
           <textarea id="pqna-modal-answer" rows="6" style="width:100%;" placeholder="회원에게 노출될 답변을 입력하세요. 등록 즉시 알림톡이 발송됩니다."></textarea>
         </div>
       </div>
-      <div class="ctx-note" id="pqna-modal-errata" style="display:none; margin-top:12px;">오탈자/내용 오류 문의는 주간 리포트로 담당 강사 · 조교에게 전달되며, 확인된 오류는 공지사항 탭에서 오탈자 정정 공지로 안내합니다.</div>
+      <div class="ctx-note" id="pqna-modal-errata" style="display:none; margin-top:12px;">오탈자/내용 오류 문의는 주간 리포트로 담당 강사 · 조교에게 전달되며, 확인된 오류는 공지사항 탭에서 '정정공지' 분류로 안내합니다.</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="hidePqna()">숨김 처리</button>
@@ -1648,6 +1654,8 @@ code, pre, kbd, samp,
     { id: 104, pinned: true, cat: '시험일정', title: '[필독] 2026년 제3회 산업안전기사·건설안전기사 실기 시험장 유의사항 안내', file: '수험자유의사항.pdf', views: 1842, visible: true, date: '2026-10-18', body: '실기 시험 응시생 여러분께 안내드립니다.' },
 
     { id: 103, pinned: true, cat: '당첨자발표연동', title: '[당첨자 발표] 2026 산준모 합격기원 수강신청 댓글 이벤트 당첨 안내', file: '-', views: 920, visible: true, date: '2026-10-17', body: '이벤트 당첨을 축하드립니다.' },
+
+    { id: 105, pinned: false, cat: '정정공지', title: '[정정] 2026 산업안전기사 실기 필답형 핵심요약 57쪽 법령 조문 번호 정정 안내', file: '-', views: 412, visible: true, date: '2026-10-19', body: '상품 Q&A로 접수된 오탈자 문의를 담당 강사가 확인했습니다. 57쪽 산업안전보건법 조문 번호를 바로잡아 안내드립니다.' },
 
     { id: 102, pinned: false, cat: '일반공지', title: '산업안전보건법령 개정사항 반영 특강 및 정답지 업데이트 안내', file: '개정법령요약.pdf', views: 615, visible: true, date: '2026-10-12', body: '개정 법령 특강이 업로드되었습니다.' },
 
@@ -1782,17 +1790,17 @@ code, pre, kbd, samp,
 
       sendAlimtalk: true,
 
-      body: '안녕하세요, 산준모입니다. 합격기원 댓글 이벤트에 참여해주신 모든 수강생 여러분께 감사드립니다. 아래 당첨자 명단을 확인해주시기 바라며, 포인트는 즉시 적립되었고 실물 경품 당첨자분께는 개별 알림톡이 발송되었습니다.',
+      body: '안녕하세요, 산준모입니다. 합격기원 댓글 이벤트에 참여해주신 모든 수강생 여러분께 감사드립니다. 아래 당첨자 명단을 확인해주시기 바라며, 포인트는 포인트 관리에서 무상 포인트로 일괄 적립되었고 실물 경품 당첨자분께는 개별 알림톡이 발송되었습니다.',
 
       winners: [
 
-        { id: 1, rank: '1등 (실물)', userName: '김민준', userId: 'minjun92', phone: '010-4821-3391', type: 'PHYSICAL', prize: '애플 에어팟 프로 2세대 (1명)', status: 'PENDING', meta: '배송지 수집 완료 (송장 미등록)' },
+        { id: 1, rank: '1등 (실물)', userName: '김민준', userId: 'minjun92', memberNo: '100318', phone: '010-4821-3391', type: 'PHYSICAL', prize: '애플 에어팟 프로 2세대 (1명)', status: 'PENDING', meta: '배송지 수집 완료 (송장 미등록)' },
 
-        { id: 2, rank: '2등 (기프티콘)', userName: '이서윤', userId: 'seoyoon_l', phone: '010-7712-8904', type: 'GIFTICON', prize: '교촌치킨 허니콤보 세트 모바일쿠폰', status: 'COMPLETED', meta: '2026-10-17 15:10 알림톡 발송' },
+        { id: 2, rank: '2등 (기프티콘)', userName: '이서윤', userId: 'seoyoon_l', memberNo: '100327', phone: '010-7712-8904', type: 'GIFTICON', prize: '교촌치킨 허니콤보 세트 모바일쿠폰', status: 'COMPLETED', meta: '2026-10-17 15:10 알림톡 발송' },
 
-        { id: 3, rank: '3등 (포인트)', userName: '박도현', userId: 'dohyun_p', phone: '010-3390-1128', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'COMPLETED', meta: '2026-10-17 15:05 원장 적립' },
+        { id: 3, rank: '3등 (포인트)', userName: '박도현', userId: 'dohyun_p', memberNo: '100335', phone: '010-3390-1128', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'COMPLETED', meta: '2026-10-17 15:05 원장 적립' },
 
-        { id: 4, rank: '3등 (포인트)', userName: '최유진', userId: 'yujin_c', phone: '010-9182-5541', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'PENDING', meta: '즉시 지급 대기' }
+        { id: 4, rank: '3등 (포인트)', userName: '최유진', userId: 'yujin_c', memberNo: '100341', phone: '010-9182-5541', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'PENDING', meta: '포인트 관리 일괄 지급 대기' }
 
       ]
 
@@ -1822,9 +1830,9 @@ code, pre, kbd, samp,
 
       winners: [
 
-        { id: 5, rank: '우수참여상', userName: '정우성', userId: 'wsjung7', phone: '010-6214-0982', type: 'GIFTICON', prize: '스타벅스 아메리카노 T 2매', status: 'COMPLETED', meta: '2026-10-14 16:00 알림톡 발송' },
+        { id: 5, rank: '우수참여상', userName: '정우성', userId: 'wsjung7', memberNo: '100356', phone: '010-6214-0982', type: 'GIFTICON', prize: '스타벅스 아메리카노 T 2매', status: 'COMPLETED', meta: '2026-10-14 16:00 알림톡 발송' },
 
-        { id: 6, rank: '참여상', userName: '강하늘', userId: 'skykang', phone: '010-2091-7743', type: 'POINT', prize: '학습지원 무상 포인트 5,000P', status: 'COMPLETED', meta: '2026-10-14 16:00 원장 적립' }
+        { id: 6, rank: '참여상', userName: '강하늘', userId: 'skykang', memberNo: '100362', phone: '010-2091-7743', type: 'POINT', prize: '학습지원 무상 포인트 5,000P', status: 'COMPLETED', meta: '2026-10-14 16:00 원장 적립' }
 
       ]
 
@@ -1925,7 +1933,7 @@ code, pre, kbd, samp,
 
         <td>${n.pinned ? '<span class="badge badge-red">📌 고정</span>' : '#' + n.id}</td>
 
-        <td><span class="badge ${n.cat === '당첨자발표연동' ? 'badge-purple' : 'badge-slate'}">${n.cat}</span></td>
+        <td><span class="badge ${n.cat === '당첨자발표연동' ? 'badge-purple' : n.cat === '정정공지' ? 'badge-amber' : 'badge-slate'}">${n.cat}</span></td>
 
         <td style="font-weight:700;">${n.title}</td>
 
@@ -2692,7 +2700,7 @@ code, pre, kbd, samp,
     if (!post) return;
     const st = document.getElementById('winner-status-filter').value;
     const list = post.winners.filter(w => st === 'ALL' || w.status === st);
-    const typeLabel = { POINT: '포인트 즉시적립', GIFTICON: '모바일 기프티콘', PHYSICAL: '실물 배송경품' };
+    const typeLabel = { POINT: '무상 포인트', GIFTICON: '모바일 기프티콘', PHYSICAL: '실물 배송경품' };
     const typeBadge = { POINT: 'badge-blue', GIFTICON: 'badge-purple', PHYSICAL: 'badge-amber' };
     const doneCnt = post.winners.filter(w => w.status === 'COMPLETED').length;
     document.getElementById('winner-ledger-sum').textContent = `· ${post.winners.length}명 (지급완료 ${doneCnt}명 · 지급대기 ${post.winners.length - doneCnt}명)`;
@@ -2710,7 +2718,7 @@ code, pre, kbd, samp,
         <td style="font-weight:700;">${w.prize}</td>
         <td>
           <span class="badge ${w.status === 'COMPLETED' ? 'badge-green' : 'badge-amber'}">
-            ${w.status === 'COMPLETED' ? '지급완료' : '지급대기'}
+            ${w.status === 'COMPLETED' ? '지급완료' : w.handoff ? '지급대기 · 포인트 관리로 넘김' : '지급대기'}
           </span>
         </td>
         <td style="font-size:11.5px; color:var(--text-sub);">${w.meta}</td>
@@ -2719,7 +2727,11 @@ code, pre, kbd, samp,
             ? `<button class="btn btn-outline btn-sm" disabled>지급완료됨</button>`
             : w.type === 'PHYSICAL'
               ? `<button class="btn btn-warning btn-sm" onclick="registerTrackingForWinner(${w.id})">🚚 송장번호 등록</button>`
-              : `<button class="btn btn-primary btn-sm" onclick="grantSingleWinner(${w.id})">즉시 지급/발송</button>`
+              : w.type === 'POINT'
+                ? (w.handoff
+                  ? `<a class="btn btn-outline btn-sm" href="${pointHandoffUrl(post, [w])}" target="_blank" rel="noopener">포인트 관리 열기</a>`
+                  : `<button class="btn btn-primary btn-sm" onclick="handoffPointWinners([${w.id}])">포인트 관리로 넘기기</button>`)
+                : `<button class="btn btn-primary btn-sm" onclick="grantSingleWinner(${w.id})">기프티콘 발송</button>`
           }
         </td>
       </tr>
@@ -2744,13 +2756,12 @@ code, pre, kbd, samp,
 
     if (!w) return;
 
+    // 포인트는 이 화면에서 지급하지 않는다 — 포인트 관리(ADMN-PROM-003)로 넘긴다(통합 설계서 Flow 1-3)
+    if (w.type === 'POINT') { handoffPointWinners([w.id]); return; }
+
     w.status = 'COMPLETED';
 
-    w.meta = w.type === 'POINT'
-
-      ? '2026-10-19 포인트 원장(ADMN-PROM-003) 즉시 적립'
-
-      : '2026-10-19 기프티콘 알림톡 발송 완료';
+    w.meta = '2026-10-19 기프티콘 알림톡 발송 완료';
 
     renderWinnerView();
     /* Init FAQ Cat Modal */
@@ -2796,25 +2807,24 @@ code, pre, kbd, samp,
 
     if (!checkedIds.length) {
 
-      alert('일괄 지급할 당첨자를 선택해주세요.');
+      alert('일괄 발송할 당첨자를 선택해주세요.');
 
       return;
 
     }
 
-    let cnt = 0;
+    let cnt = 0, skipped = 0;
 
     post.winners.forEach(w => {
+
+      // 포인트 당첨자는 발송 대상이 아니다 — [포인트 관리로 넘기기]로 처리
+      if (checkedIds.includes(w.id) && w.status !== 'COMPLETED' && w.type === 'POINT') { skipped++; return; }
 
       if (checkedIds.includes(w.id) && w.status !== 'COMPLETED') {
 
         w.status = 'COMPLETED';
 
-        w.meta = w.type === 'POINT'
-
-          ? '2026-10-19 일괄 포인트 원장 적립'
-
-          : w.type === 'GIFTICON'
+        w.meta = w.type === 'GIFTICON'
 
             ? '2026-10-19 일괄 기프티콘 발송'
 
@@ -2830,11 +2840,39 @@ code, pre, kbd, samp,
     /* Init FAQ Cat Modal */
     if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
 
-    showToast(`선택한 당첨자 ${cnt}명에 대한 일괄 경품 지급 및 알림톡 발송이 완료되었습니다.`);
+    showToast(`선택한 당첨자 ${cnt}명에게 경품 발송 · 알림톡 발송을 마쳤습니다.` + (skipped ? ` 포인트 당첨자 ${skipped}명은 제외했습니다 — [포인트 관리로 넘기기]로 넘겨 주세요.` : ''));
 
   }
 
 
+
+  // 포인트 당첨자 → 포인트 관리(ADMN-PROM-003) 일괄 지급으로 넘기기 — 지급 실행은 포인트 관리(통합 설계서 Flow 1-3 Step 3)
+  // 넘기는 값: 발표 번호(post) · 당첨 회원번호(members, 쉼표 구분). 포인트 관리 화면은 아직 이 값을 받지 않아 안내 문구로 수동 지급을 돕는다.
+  function pointHandoffUrl(post, list) {
+    return 'ADMN-PROM-002_baseline.html?view=point&from=ADMN-BRD-009&post=' + encodeURIComponent(post.postId)
+      + '&members=' + list.map(w => w.memberNo).filter(Boolean).join(',');
+  }
+  function handoffPointWinners(ids) {
+    const post = getSelectedWinnerPost();
+    if (!post) return;
+    const picked = ids || Array.from(document.querySelectorAll('.win-row-chk:checked')).map(el => Number(el.value));
+    // 이미 넘긴 당첨자는 다시 넘기지 않는다(이중 지급 방지)
+    let list = post.winners.filter(w => w.type === 'POINT' && w.status !== 'COMPLETED' && !w.handoff);
+    if (picked.length) list = list.filter(w => picked.includes(w.id));
+    if (!list.length) { alert('포인트 관리로 넘길 포인트 당첨자(지급대기)가 없습니다. 이미 넘긴 당첨자는 다시 넘기지 않습니다.'); return; }
+    list.forEach(w => { w.handoff = '2026-10-19'; w.meta = '2026-10-19 포인트 관리(ADMN-PROM-003) 일괄 지급 요청'; });
+    renderWinnerView();
+    showPointHandoff(post, list);
+    showToast(`포인트 당첨자 ${list.length}명을 포인트 관리 일괄 지급으로 넘겼습니다.`);
+  }
+  function showPointHandoff(post, list) {
+    const box = document.getElementById('winner-handoff');
+    box.innerHTML = `<strong>포인트 관리로 넘긴 명단</strong> — ${post.postId} · ${list.length}명 (회원번호 <span id="winner-handoff-members">${list.map(w => w.memberNo).join(', ')}</span>) · `
+      + list.map(w => `${maskName(w.userName)} ${w.prize}`).join(' / ') + '<br/>'
+      + `<span style="color:#92400e;">포인트 관리 화면은 아직 넘긴 명단을 자동으로 불러오지 않습니다. 열린 화면의 수동 지급에서 위 회원번호로 무상 포인트(유효기간 2년)를 지급하고, 지급 결과는 포인트 관리 원장에서 확인합니다.</span>`
+      + `<a class="btn btn-primary btn-sm" id="winner-handoff-link" href="${pointHandoffUrl(post, list)}" target="_blank" rel="noopener" style="margin-left:8px;">포인트 관리 열기 →</a>`;
+    box.style.display = 'block';
+  }
 
   // 당첨자 발표 페이지(S1)로 이동 — 내용 채우기는 fillWinnerPage(SJM_PAGE onShow)
   function openWinnerPage(postId) {
@@ -2870,6 +2908,7 @@ code, pre, kbd, samp,
       insertWinnerTemplateText();
     }
     toggleWinnerRowForm(false);
+    document.getElementById('winner-handoff').style.display = 'none';
     document.getElementById('winner-status-filter').value = 'ALL';
     document.getElementById('winner-ledger').style.display = post ? '' : 'none';
     document.getElementById('winner-ledger-empty').style.display = post ? 'none' : '';
@@ -2888,7 +2927,7 @@ code, pre, kbd, samp,
 
       <ul>
 
-        <li><strong>포인트 당첨자:</strong> 발표와 동시에 마이페이지 &gt; 포인트 내역에 즉시 적립됩니다.</li>
+        <li><strong>포인트 당첨자:</strong> 발표 후 무상 포인트(유효기간 2년)로 일괄 적립되며, 적립되면 안내 문자를 보내 드립니다. 마이페이지 &gt; 포인트 내역에서 확인할 수 있습니다.</li>
 
         <li><strong>기프티콘 당첨자:</strong> 회원정보에 등록된 휴대폰 번호로 카카오 알림톡/문자 쿠폰이 발송됩니다.</li>
 
@@ -2951,7 +2990,8 @@ code, pre, kbd, samp,
     const match = nameRaw.match(/^([^\(]+)\(([^\)]+)\)/);
     const userName = match ? match[1].trim() : nameRaw;
     const userId = match ? match[2].trim() : 'user_' + (Date.now() % 1000);
-    post.winners.push({ id: Date.now(), rank, userName, userId, phone, type, prize, status: 'PENDING', meta: '신규 등록 (지급 대기)' });
+    // 회원번호(memberNo) — 실제는 아이디로 회원 원장을 조회해 얻는다(샘플은 임의 번호). 포인트 관리로 넘길 때 쓴다
+    post.winners.push({ id: Date.now(), rank, userName, userId, memberNo: String(100400 + (Date.now() % 600)), phone, type, prize, status: 'PENDING', meta: '신규 등록 (지급 대기)' });
     toggleWinnerRowForm(false);
     renderWinnerView();
     if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
