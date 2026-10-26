@@ -1,0 +1,65 @@
+{
+ "settlement_month": "2026-09",
+ "run_reason": "월 배치",
+ "rights_holders": [
+  {"rights_holder_id": "H-KIM", "rights_holder_type": "INSTRUCTOR", "is_resident": true, "income_category": "BUSINESS"},
+  {"rights_holder_id": "H-AGENCY", "rights_holder_type": "AGENCY", "is_resident": true, "tax_type_cd": "01", "corp_no": "110111-0000000", "payee_tax_type": "GENERAL", "tax_invoice_eligible_yn": true},
+  {"rights_holder_id": "H-LEE", "rights_holder_type": "AUTHOR", "is_resident": true, "income_category": "OTHER", "payee_is_author": true},
+  {"rights_holder_id": "H-PARK", "rights_holder_type": "INSTRUCTOR", "is_resident": true, "income_category": "BUSINESS"}
+ ],
+ "contracts": [
+  {"contract_id": "C-KIM-01", "rights_holder_id": "H-KIM", "contract_status": "ACTIVE", "start_date": "2026-01-01", "current_end_date": "2027-12-31", "min_payout_limit": 100000, "min_claim_limit": -100000, "vat_treatment": "VAT_EXCLUDED", "refund_promo_burden_type": "A"},
+  {"contract_id": "C-LEE-01", "rights_holder_id": "H-LEE", "contract_status": "ACTIVE", "start_date": "2026-01-01", "current_end_date": "2027-12-31", "min_payout_limit": 100000, "min_claim_limit": -100000},
+  {"contract_id": "C-PARK-01", "rights_holder_id": "H-PARK", "contract_status": "ACTIVE", "start_date": "2026-01-01", "current_end_date": "2027-12-31", "min_payout_limit": 100000, "min_claim_limit": -100000}
+ ],
+ "rate_lines": [
+  {"contract_id": "C-KIM-01", "rate_type": "BASIC", "rate_value": 50, "mmg_amount": 0, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"},
+  {"contract_id": "C-KIM-01", "rate_type": "SUPPORT", "agreement_id": "AGR-KIM-1", "rate_value": 5, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"},
+  {"contract_id": "C-LEE-01", "rate_type": "BASIC", "rate_value": 10, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"},
+  {"contract_id": "C-PARK-01", "rate_type": "BASIC", "rate_value": 40, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"}
+ ],
+ "lecture_instructors": [
+  {"lecture_id": "LEC-A1", "rights_holder_id": "H-KIM", "contract_id": "C-KIM-01", "share_ratio": 100, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"},
+  {"lecture_id": "LEC-A2", "rights_holder_id": "H-KIM", "contract_id": "C-KIM-01", "share_ratio": 100, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"},
+  {"lecture_id": "LEC-B", "rights_holder_id": "H-PARK", "contract_id": "C-PARK-01", "share_ratio": 100, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"}
+ ],
+ "book_authors": [
+  {"book_sku_id": "SKU-LEE-1", "rights_holder_id": "H-LEE", "contract_id": "C-LEE-01", "share_ratio": 100, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED", "income_category": "OTHER", "income_clause": "C15"}
+ ],
+ "payee_splits": [
+  {"contract_id": "C-KIM-01", "rights_holder_id": "H-KIM", "payee_id": "H-KIM", "split_ratio": 70, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"},
+  {"contract_id": "C-KIM-01", "rights_holder_id": "H-KIM", "payee_id": "H-AGENCY", "split_ratio": 30, "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED"}
+ ],
+ "support_fund_agreements": [
+  {"agreement_id": "AGR-KIM-1", "contract_id": "C-KIM-01", "rights_holder_id": "H-KIM", "payment_method": "REVENUE_SHARE", "cap_type": "CAPPED", "total_cap_amount": 1000000, "rate_basis": "SAME_AS_BASIC", "settlement_scope": "PIPELINE_1_1_ONLY", "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED", "offset_type": "NON_OFFSET", "cap_restore_on_refund": true, "on_termination_policy": "FORFEIT", "income_category": "BUSINESS", "status": "ACTIVE"}
+ ],
+ "support_fund_agreement_targets": [
+  {"agreement_id": "AGR-KIM-1", "target_type": "LECTURE", "target_id": "LEC-A1", "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED", "own_share_ratio": 30},
+  {"agreement_id": "AGR-KIM-1", "target_type": "LECTURE", "target_id": "LEC-A2", "start_date": "2026-01-01", "end_basis": "CONTRACT_LINKED", "own_share_ratio": 30}
+ ],
+ "support_fund_ledger_prev": [
+  {"agreement_id": "AGR-KIM-1", "target_month": "2026-08", "confirmed_net_total": 940000, "cap_consumed_amount": 950000, "cash_paid_total": 900000, "remaining_cap": 50000}
+ ],
+ "prepayments": [
+  {"prepayment_id": "PP-PARK-1", "contract_id": "C-PARK-01", "offset_payee_id": "H-PARK", "prepayment_tax_type": "LOAN", "prepay_unoffset_balance": 200000}
+ ],
+ "orders": [{"order_id": "O-1", "discount_total": 100000}],
+ "order_items": [
+  {"order_item_id": "OI-1", "order_id": "O-1", "item_type": "LECTURE", "product_id": "P-KIM-A", "list_price": 1200000, "allocation_applied": false, "approved_at": "2026-09-03T10:00:00",
+   "lectures": [{"lecture_id": "LEC-A1", "runtime_seconds": 3600}, {"lecture_id": "LEC-A2", "runtime_seconds": 0}]},
+  {"order_item_id": "OI-2", "order_id": "O-1", "item_type": "LECTURE", "product_id": "P-PARK-B", "list_price": 600000, "allocation_applied": false, "approved_at": "2026-09-03T10:00:00",
+   "lectures": [{"lecture_id": "LEC-B", "runtime_seconds": 1800}]},
+  {"order_item_id": "OI-3", "item_type": "BOOK", "book_sku_id": "SKU-LEE-1", "book_supply_type_snapshot": "OWN_PUBLISHED", "confirmed_qty": 10, "royalty_base_price": 15000, "purchase_confirmed_at": "2026-09-20T00:00:00"}
+ ],
+ "refund_lines": [
+  {"refund_id": "RF-1", "order_item_id": "OI-OLD-7", "refund_approved_date": "2026-09-22", "refund_amount": 200000, "origin_month": "2026-07",
+   "snapshot": [
+    {"settlement_line_id": "SL-7", "contract_id": "C-KIM-01", "rights_holder_id": "H-KIM", "pipeline_id": "1.1", "rate_type": "BASIC", "rate_value": 50, "share_ratio": 100, "base_amount": 400000, "payment_state": "UNPAID",
+     "payee_splits": [{"payee_id": "H-KIM", "split_ratio": 70}, {"payee_id": "H-AGENCY", "split_ratio": 30}]},
+    {"settlement_line_id": "SL-7S", "contract_id": "C-KIM-01", "rights_holder_id": "H-KIM", "pipeline_id": "1.1", "rate_type": "SUPPORT", "agreement_id": "AGR-KIM-1", "base_amount": 400000, "confirmed_alloc_amount": 20000, "unrefunded_amount": 20000, "payment_state": "UNPAID"}
+   ]}
+ ],
+ "carryover_ledger": [
+  {"ledger_id": "L-KIM-0801", "rights_holder_id": "H-KIM", "payee_id": "H-KIM", "contract_id": "C-KIM-01", "origin_month": "2026-08", "account_type": "PRE_TAX", "pipeline_id": "1.1", "consignment_balance_yn": false, "carryover_reason": "지급 하한 미달", "carryover_amount": 30000, "first_occurred_month": "2026-08", "first_payable_confirmed_month": null, "payout_reservation_status": "NONE", "extinguished_yn": false, "income_category": "BUSINESS"}
+ ]
+}

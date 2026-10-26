@@ -1,0 +1,131 @@
+{
+  "case": "CASE-07",
+  "title": "2계층 수취인 분할과 비분할 귀속 상계",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 7 · L195-211",
+  "input": {
+    "rights_holder_type": "INSTRUCTOR",
+    "payee_is_author": true,
+    "payees": [
+      {
+        "payee_id": "P_INSTRUCTOR",
+        "payee_tax_type": "개인 사업소득 3.3%",
+        "matrix_case_id": "TX-02",
+        "split_ratio": 70
+      },
+      {
+        "payee_id": "P_AGENCY",
+        "payee_tax_type": "일반과세 법인",
+        "matrix_case_id": "TX-07",
+        "split_ratio": 30,
+        "vat_treatment": "VAT_EXCLUDED"
+      }
+    ],
+    "contract": {
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "mmg_amount": 0,
+      "prepay_balance": 0,
+      "payee_split": [
+        {
+          "payee_id": "P_INSTRUCTOR",
+          "split_ratio": 70
+        },
+        {
+          "payee_id": "P_AGENCY",
+          "split_ratio": 30
+        }
+      ],
+      "min_payout_limit": 100000,
+      "support_fund": null
+    },
+    "income_category": "BUSINESS",
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "1.1",
+        "item_type": "ONLINE_COURSE",
+        "paid_amount": 4000000,
+        "refund_amount": 0,
+        "share_ratio": 100
+      }
+    ],
+    "milestones": [],
+    "refund_promo": null
+  },
+  "expected": {
+    "ACCRUAL": {
+      "1.1": {
+        "accrued_amount": 2000000
+      }
+    },
+    "PREPAY_OFFSET": {
+      "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+      "lumpsum": 0,
+      "pre_split_supply": 2000000
+    },
+    "PAYEE_SPLIT": {
+      "payee_split_base": 2000000,
+      "P_INSTRUCTOR": {
+        "split_amount": 1400000,
+        "taxable_base": 1400000
+      },
+      "P_AGENCY": {
+        "split_amount": 600000,
+        "taxable_base": 600000
+      }
+    },
+    "TAX": {
+      "P_INSTRUCTOR": {
+        "income_tax": 42000,
+        "local_income_tax": 4200,
+        "total_withholding": 46200,
+        "net_payable": 1353800,
+        "evidence": "사업소득 원천징수영수증"
+      },
+      "P_AGENCY": {
+        "vat": 60000,
+        "payable_total_incl_vat": 660000,
+        "withholding": 0,
+        "evidence": "전자세금계산서(권리자 발행·제출)"
+      }
+    },
+    "CLAIM": {
+      "excluded": true
+    },
+    "PAYOUT": {
+      "P_INSTRUCTOR": {
+        "payout_amount": 1353800,
+        "payout_confirmed": true
+      },
+      "P_AGENCY": {
+        "payout_amount": 660000,
+        "payout_confirmed": true
+      }
+    }
+  },
+  "variants": [],
+  "expected_status": "CONFIRMED",
+  "notes": "검산 일치(내림 1,400,000 + 역산 600,000). 정본 L211: 수취인 분할 계약에 선급금 원장 등록 시 5.3절 상호 차단으로 저장 거부 - 입력 검증 케이스로도 사용 가능(기대값은 거부 사실만, 값 없음).",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

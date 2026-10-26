@@ -1,0 +1,142 @@
+{
+  "case": "CASE-08",
+  "title": "동일 수취인에 두 과세 라인이 합산 귀속되는 경우",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 8(+8-B, 8-C) · L213-223",
+  "input": {
+    "rights_holder_type": "INSTRUCTOR",
+    "payees": [
+      {
+        "payee_id": "P1",
+        "payee_tax_type": "부가가치세 일반과세자",
+        "matrix_case_id": "TX-07",
+        "split_ratio": 100,
+        "tax_type": "부가가치세 일반과세자",
+        "vat_treatment": "VAT_EXCLUDED",
+        "tax_decision_status": "DECIDED"
+      }
+    ],
+    "contract": {
+      "rate_type": "BASIC",
+      "rate_value": {
+        "1.1": 50,
+        "2.1": 10
+      },
+      "share_ratio": 100,
+      "mmg_amount": 0,
+      "prepay_balance": 0,
+      "payee_split": null,
+      "min_payout_limit": 100000
+    },
+    "income_category": "BUSINESS",
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "1.1",
+        "item_type": "ONLINE_COURSE",
+        "paid_amount": 3000000,
+        "refund_amount": 0,
+        "share_ratio": 100
+      },
+      {
+        "pipeline_id": "2.1",
+        "item_type": "BOOK",
+        "book_supply_type": "OWN_PUBLISHED",
+        "units": 50,
+        "list_price": 20000,
+        "refund_units": 0
+      }
+    ],
+    "milestones": [],
+    "refund_promo": null
+  },
+  "expected": {
+    "ACCRUAL": {
+      "1.1": {
+        "accrued_amount": 1500000
+      },
+      "2.1": {
+        "accrued_amount": 100000
+      },
+      "total_pretax_accrual": 1600000
+    },
+    "PAYEE_SPLIT": {
+      "pretax_payable": 1600000
+    },
+    "TAX": {
+      "vat": 160000,
+      "payable_total_incl_vat": 1760000,
+      "withholding": 0,
+      "invoice": "전자세금계산서 1건 통합 발행 요청(권리자 발행·제출)"
+    },
+    "PAYOUT": {
+      "payout_judgement_amount": 1760000,
+      "payout_confirmed": true
+    }
+  },
+  "variants": [
+    {
+      "code": "CASE-08-B",
+      "title": "8-B: 면세사업자(TX-08)",
+      "input_delta": {
+        "payees[0].matrix_case_id": "TX-08",
+        "payees[0].tax_type": "부가가치세 면세사업자"
+      },
+      "expected": {
+        "TAX": {
+          "vat": 0,
+          "invoice": "전자계산서 1건(정정 시 채널 2)",
+          "withholding": "인적용역 해당 여부에 따라 별도 판정(11.2절 TX-08) - 정본 값 없음"
+        }
+      },
+      "expected_status": "PARTIAL",
+      "notes": "정본 L222. 원천징수 값은 정본에 없음."
+    },
+    {
+      "code": "CASE-08-C",
+      "title": "8-C: 과세·면세 혼재(겸영), 검증용 수치",
+      "input_delta": {
+        "note": "과세 사업 귀속 강의 R/S 1,500,000(VAT 150,000 별도), 면세 사업 귀속 인세 100,000(VAT 0)"
+      },
+      "expected": {
+        "TAX": {
+          "taxable_line": {
+            "pipeline_id": "1.1",
+            "supply": 1500000,
+            "vat": 150000,
+            "invoice": "세금계산서(권리자 발행)"
+          },
+          "exempt_line": {
+            "pipeline_id": "2.1",
+            "supply": 100000,
+            "vat": 0,
+            "invoice": "전자계산서"
+          },
+          "evidence_split_rows": 2
+        }
+      },
+      "expected_status": "PARTIAL",
+      "notes": "정본 L223. 원천징수 여부는 라인별 세무 판정에 따른다고만 기재, 값 없음. 겸영 거래 소득 구분은 실제 계약 사실관계로 확정."
+    }
+  ],
+  "expected_status": "CONFIRMED_WITH_PREMISE",
+  "notes": "정본 L216: TX-07 개인 일반과세사업자의 원천징수 비대상이 세무 자문으로 확정된 이후 시점의 기대값(자문 전에는 11.3절 판정 보류가 우선). 산술 검산 일치: 1,500,000+100,000 = 1,600,000, VAT 160,000, 합계 1,760,000.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

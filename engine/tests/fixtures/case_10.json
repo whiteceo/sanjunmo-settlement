@@ -1,0 +1,155 @@
+{
+  "case": "CASE-10",
+  "title": "위탁 도서 판매 정산",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 10(+10-B, 10-B-2, 10-C) · L243-255",
+  "input": {
+    "rights_holder_type": "CONSIGNOR",
+    "payees": [
+      {
+        "payee_id": "P1",
+        "payee_tax_type": "개인사업자 면세사업자(위탁자 A)",
+        "matrix_case_id": "TX-11",
+        "split_ratio": 100
+      }
+    ],
+    "contract": {
+      "book_supply_type": "CONSIGNMENT",
+      "consignment_fee_rate": 25,
+      "consignment_fee_type": "NET_DEDUCT",
+      "consignment_base_price_type": "PAID_AMOUNT",
+      "min_payout_limit": 100000,
+      "payee_split": null
+    },
+    "income_category": null,
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "2.2",
+        "item_type": "BOOK",
+        "book_supply_type": "CONSIGNMENT",
+        "units": 80,
+        "list_price": 25000,
+        "return_units": 0
+      }
+    ],
+    "milestones": [],
+    "refund_promo": null
+  },
+  "expected": {
+    "ACCRUAL": {
+      "2.2": {
+        "gross_sales": 2000000,
+        "consignment_net_before_fee_vat": 1500000,
+        "fee_supply": 500000,
+        "fee_vat": 50000
+      }
+    },
+    "MMG_ADJ": {
+      "excluded": true
+    },
+    "SUPPORT_CAP": {
+      "excluded": true
+    },
+    "PREPAY_OFFSET": {
+      "excluded": true
+    },
+    "PAYEE_SPLIT": {
+      "consignor_sole": true,
+      "taxable_base": null
+    },
+    "TAX": {
+      "matrix_case_id": "TX-11",
+      "withholding_called": false,
+      "vat": 0,
+      "settlement_input_amount": 1500000,
+      "fee_vat_deduction": 50000,
+      "final_payout": 1450000,
+      "evidence": "위탁자 발행 전자계산서(정산 입력액 1,500,000 기준 전제) + 당사 수수료 전자세금계산서(공급가액 500,000 + 부가세 50,000)"
+    },
+    "CLAIM": {
+      "excluded": true
+    },
+    "PAYOUT": {
+      "payout_judgement_amount": 1450000,
+      "payout_confirmed": true
+    }
+  },
+  "variants": [
+    {
+      "code": "CASE-10-B",
+      "title": "10-B: D+7 경과 후 5권 반품 승인",
+      "input_delta": {
+        "sales_lines[0].return_units": 5,
+        "return_approved_after_d7": true
+      },
+      "expected": {
+        "DEDUCT": {
+          "sales_adjust": -125000,
+          "fee_supply_adjust": -31250,
+          "fee_vat_adjust": -3125,
+          "net_deduct_method_payout_adjust": -90625,
+          "gross_settle_method_sales_adjust": -125000,
+          "gross_settle_method_separate_claim": -34375
+        },
+        "consignment_return_status": "회수 대기"
+      },
+      "expected_status": "CONFIRMED",
+      "notes": "정본 L253. 5 x 25,000 = 125,000, 25% = 31,250, 10% = 3,125, -125,000+31,250+3,125 = -90,625, 31,250+3,125 = 34,375 검산 일치."
+    },
+    {
+      "code": "CASE-10-B-2",
+      "title": "10-B-2: 반품 초과 음수(당월 반품 차감 > 정산액)",
+      "input_delta": {
+        "note": "금액 미제시"
+      },
+      "expected": {
+        "CLAIM": {
+          "claim_judgement": false
+        },
+        "carry": {
+          "account": "CONSIGNMENT_ONLY(Pipeline 2.2 귀속 전용 잔액)",
+          "pre_tax_ledger_load": false,
+          "taxable_base_created": false
+        },
+        "already_paid_part": "위탁자 반환 채권으로 분리"
+      },
+      "expected_status": "PARTIAL",
+      "notes": "정본 L254. 금액 값 없음, 분기 규칙만."
+    },
+    {
+      "code": "CASE-10-C",
+      "title": "10-C: 미등록 개인 위탁자(TX-12)",
+      "input_delta": {
+        "payees[0].matrix_case_id": "TX-12"
+      },
+      "expected": {
+        "validation": {
+          "contract_registration_blocked": true
+        }
+      },
+      "expected_status": "PARTIAL",
+      "notes": "정본 L255. 차단 사실만."
+    }
+  ],
+  "expected_status": "CONFIRMED",
+  "notes": "검산 일치. 정본 L250은 수취 계산서 금액(정산 입력액 1,500,000)을 계약·공급 구조 확인 후 확정한다고 유보. 소득 구분 없음(재화 공급, 원천징수 미호출).",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "case": "D-11",
+  "title": "계약 만료·해지월 미상계 선급금 -5만 + 비상계 일시금 지원금(세후 483,500)",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-11 · L293-293",
+  "input": {
+    "contract_status": "TERMINATED_OR_EXPIRED",
+    "unoffset_prepay": -50000,
+    "min_claim_limit": -100000,
+    "support_fund": {
+      "payment_method": "LUMP_SUM",
+      "offset_type": "NON_OFFSET",
+      "net_payable": 483500
+    }
+  },
+  "expected": {
+    "PAYOUT": {
+      "support_fund_net_payout": 483500,
+      "offset_with_unoffset_prepay": false
+    },
+    "CLAIM": {
+      "unoffset_prepay": -50000,
+      "forced_claim_trigger": true,
+      "carry": false,
+      "negative_invoice_issued_immediately": true,
+      "prepay_ledger_after": 0,
+      "prepay_ledger_status": "CLAIMED_ON_TERMINATION"
+    }
+  },
+  "expected_status": "NUMERIC",
+  "verifies": "5.3절, 7.3절, 8.3절 10단계",
+  "notes": "483,500 = 500,000-16,500로 Case 6와 일치(세전 500,000이나 정본 D-11에는 세전값 미기재). |-50,000| <= |-100,000| 인데도 강제 청구 트리거(해지 예외) - 정본이 명시.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

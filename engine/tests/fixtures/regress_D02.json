@@ -1,0 +1,31 @@
+{
+  "case": "D-02",
+  "title": "양수 신규 라인과 음수 환불 라인이 동일 수취인 그룹에 혼재",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-2 · L284-284",
+  "input": {
+    "description": "양수 신규 라인 + 음수 환불 라인이 같은 수취인 그룹"
+  },
+  "expected": {
+    "PAYEE_SPLIT": {
+      "group_sign_changes_line_attribution": false
+    }
+  },
+  "expected_status": "QUALITATIVE",
+  "verifies": "8.3절 8단계",
+  "notes": "정본 D행에는 입력 금액·기대 금액이 없다(L279: '구체 입력값·원거래 상태·예상 금액은 별도 QA 테스트 명세에서 관리'). 계산기용 수치 입력은 지어내지 않고 비워 둠.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

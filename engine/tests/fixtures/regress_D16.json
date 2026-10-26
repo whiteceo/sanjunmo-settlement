@@ -1,0 +1,41 @@
+{
+  "case": "D-16",
+  "title": "저작자 등록 도서 0건 + 자사 저작권 도서 SKU 지정 개발지원금 약정 등록",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-16 · L298-298",
+  "input": {
+    "book_authors_count": 0,
+    "target_book": {
+      "own_copyright_yn": true,
+      "own_share_ratio": 100
+    },
+    "settlement_scope": [
+      "PIPELINE_2_1_ONLY",
+      "PIPELINE_1_1_2_1"
+    ]
+  },
+  "expected": {
+    "VALIDATION": {
+      "own_share_gt_0": true,
+      "save_blocked": false,
+      "registration_passes": true
+    }
+  },
+  "expected_status": "QUALITATIVE",
+  "verifies": "5.2절, 6.1절",
+  "notes": "등록·검증 케이스(계산 없음).",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

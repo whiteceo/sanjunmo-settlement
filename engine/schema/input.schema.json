@@ -1,0 +1,485 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sanjunmo.local/engine/schema/input.schema.json",
+  "title": "정산엔진 기준 계산기 입력 (한 정산월)",
+  "description": "engine/SPEC.md 기준. 필드 설명의 [03-DD]=03권 데이터 사전, [03-CD]=코드값 사전, [03-B]=부록 B, [01-T]=01권 테이블 컬럼, [02-T]=02권 본문 식별자, [신규 명명]=정본에 snake 식별자가 없는 이름. 금액은 정수(원) 또는 소수 문자열(중간값 4자리)로 받고 엔진은 Decimal로 읽는다(float 금지).",
+  "type": "object",
+  "required": ["settlement_month", "rights_holders", "contracts"],
+  "additionalProperties": false,
+  "$defs": {
+    "money": {
+      "description": "금액. 정수 또는 소수 문자열(예: \"1234.5678\").",
+      "oneOf": [{ "type": "integer" }, { "type": "string", "pattern": "^-?[0-9]+(\\.[0-9]{1,8})?$" }]
+    },
+    "ratio": {
+      "description": "백분율 수치(예: 50 = 50%). 소수 둘째 자리까지(V1 §4.3 L191).",
+      "oneOf": [{ "type": "number" }, { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,4})?$" }]
+    },
+    "month": { "type": "string", "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$" },
+    "date": { "type": "string", "format": "date" },
+    "datetime": { "type": "string", "format": "date-time" },
+    "pipeline_id": {
+      "description": "[03-DD] pipeline_id. 1.1 온라인 강좌 R/S / 2.1 자사 발행 인세 / 2.2 위탁 / 2.3 일반 상품(엔진 비인입) / 5.1 매출연동 지원금 / MIXED(이월 원장 값). LUMPSUM은 7단계 라인용 [신규 명명] 값.",
+      "type": "string",
+      "enum": ["1.1", "2.1", "2.2", "2.3", "5.1", "MIXED", "LUMPSUM"]
+    },
+    "income_keys": {
+      "type": "object",
+      "properties": {
+        "income_category": { "description": "[03-DD] BUSINESS / OTHER. 재화 공급 라인은 null(V2 §2.3 L60).", "type": ["string", "null"], "enum": ["BUSINESS", "OTHER", null] },
+        "income_clause": { "description": "[03-DD] C05/C15/C17/C19. OTHER일 때 필수.", "type": ["string", "null"], "enum": ["C05", "C15", "C17", "C19", null] },
+        "payee_is_author": { "description": "[03-DD]", "type": ["boolean", "null"] },
+        "tax_threshold_unit_key": { "description": "[03-DD] OTHER 과세최저한 판정 단위 키(계약 ID + SKU/강좌 ID 또는 milestone_id).", "type": ["string", "null"] }
+      }
+    },
+    "payee_split_row": {
+      "type": "object",
+      "required": ["payee_id", "split_ratio"],
+      "properties": {
+        "payee_id": { "description": "[03-DD]", "type": "string" },
+        "split_ratio": { "$ref": "#/$defs/ratio", "description": "[03-DD]" }
+      }
+    },
+    "settlement_line_snapshot": {
+      "description": "[01-T] settlement_line_snapshot(V1 §5.1 L211, §15.3 L625). 원 결제 시점 요율 · 지분율 · rate_type · 수취인 분할 · 지원금 확정 배분액 · 지급 상태.",
+      "type": "object",
+      "properties": {
+        "settlement_line_id": { "description": "[03-DD]", "type": "string" },
+        "contract_id": { "type": "string" },
+        "rights_holder_id": { "type": "string" },
+        "pipeline_id": { "$ref": "#/$defs/pipeline_id" },
+        "rate_type": { "description": "[03-DD] BASIC / SUPPORT", "type": "string", "enum": ["BASIC", "SUPPORT"] },
+        "agreement_id": { "type": ["string", "null"] },
+        "rate_value": { "$ref": "#/$defs/ratio", "description": "[03-DD] 당시 요율" },
+        "share_ratio": { "$ref": "#/$defs/ratio", "description": "[01-T] 당시 1계층 지분율" },
+        "base_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 원거래 정산 기준금(강의 기준금 · 부수×기준가 등)" },
+        "confirmed_alloc_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 원거래 확정 배분액(BASIC은 R/S 확정액, SUPPORT는 support_confirmed_alloc)" },
+        "unrefunded_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 원거래 미환불 확정액(공제 · 복원 상한, V2 L201 L207)" },
+        "payee_splits": { "type": "array", "items": { "$ref": "#/$defs/payee_split_row" }, "description": "[01-T] 당시 payee_splits 유효 버전(V1 L211)" },
+        "payment_state": { "description": "[신규 명명] 원거래 지급 상태: UNPAID / PAID / PARTIAL(V2 L197)", "type": "string", "enum": ["UNPAID", "PAID", "PARTIAL"] },
+        "paid_portion_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 지급 · 상계 · 지급 의제 성립분(세전)" },
+        "unpaid_portion_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 미성립분(세전)" },
+        "paid_return_post_tax_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 기지급분 반환채권 세후 금액(Q-10 확정 전 입력값으로 받음)" },
+        "matrix_case_id": { "description": "[03-DD] 원거래 세무 케이스(정정 채널 분기용)", "type": ["string", "null"] },
+        "fee_supply_alloc": { "$ref": "#/$defs/money", "description": "[신규 명명] P2.2 품목 배분 수수료 공급가액" },
+        "fee_vat_alloc": { "$ref": "#/$defs/money", "description": "[신규 명명] P2.2 품목 배분 수수료 부가세" },
+        "consignment_fee_type": { "description": "[03-DD]", "type": ["string", "null"], "enum": ["NET_DEDUCT", "GROSS_SETTLE", null] }
+      }
+    }
+  },
+  "properties": {
+    "settlement_month": { "$ref": "#/$defs/month", "description": "데이터 기준 월(V1 §7.0 L521). '당월'." },
+    "locked": { "description": "[03-DD] Locked. true면 엔진 중단(LOCKED_MONTH, V2 §10.1 L350).", "type": "boolean", "default": false },
+    "run_reason": { "description": "[신규 명명] 재연산 사유(배치 / 약정금 승인 / 합격 환급 확정 등, V2 §10.1 L353).", "type": "string" },
+    "source_event_id": { "description": "[신규 명명] 재연산 원천 건 식별자.", "type": ["string", "null"] },
+    "adjustment_mode": { "description": "[신규 명명] 마감 후 조정 라인 처리(SPEC 15.8, Q-23). hold=계산 제외 · 출력만, provisional=잠정 반영.", "type": "string", "enum": ["hold", "provisional"], "default": "hold" },
+    "params": {
+      "description": "[03-B] 부록 B 파라미터(누락 시 기본값).",
+      "type": "object",
+      "properties": {
+        "default_min_payout_limit": { "$ref": "#/$defs/money", "default": 100000 },
+        "default_min_claim_limit": { "$ref": "#/$defs/money", "default": -100000 },
+        "payout_threshold_basis": { "type": "string", "enum": ["VAT_INCLUDED"], "default": "VAT_INCLUDED" },
+        "default_weight_seconds": { "type": "integer", "default": 60 },
+        "other_income_min_tax_amount": { "$ref": "#/$defs/money", "default": 50000 },
+        "deemed_expense_rate_c15_c19": { "$ref": "#/$defs/ratio", "default": 60 },
+        "deemed_expense_rate_c05_c17": { "$ref": "#/$defs/ratio", "default": 0 },
+        "local_income_tax_rate": { "$ref": "#/$defs/ratio", "default": 10 },
+        "small_amount_exemption_limit": { "$ref": "#/$defs/money", "default": 1000 },
+        "local_tax_small_exemption_apply_yn": { "type": "boolean", "default": false },
+        "carryover_force_settle_month": { "type": "integer", "minimum": 1, "maximum": 12, "default": 12 },
+        "carryover_max_months": { "type": "integer", "default": 6 },
+        "manual_adj_approval_threshold": { "$ref": "#/$defs/money", "default": 1000000 },
+        "support_fund_mmg_include_yn": { "type": "boolean", "const": false, "default": false }
+      },
+      "additionalProperties": true
+    },
+    "rights_holders": {
+      "description": "권리자 원장(V2 §2.1). 2계층 수취인도 권리자로 등록(V1 L179).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["rights_holder_id"],
+        "properties": {
+          "rights_holder_id": { "description": "[03-DD]", "type": "string" },
+          "rights_holder_type": { "description": "[03-DD] INSTRUCTOR / CONSIGNOR 등", "type": "string" },
+          "is_internal": { "description": "[03-DD] 자사 권리자(TX-01)", "type": "boolean", "default": false },
+          "is_resident": { "description": "[03-DD]", "type": "boolean", "default": true },
+          "payee_is_author": { "description": "[03-DD]", "type": "boolean", "default": true },
+          "main_work_external_labor": { "description": "[03-DD]", "type": "boolean", "default": false },
+          "income_category": { "description": "[03-DD] 기본 소득 구분(default_income_category)", "type": "string", "enum": ["BUSINESS", "OTHER"], "default": "BUSINESS" },
+          "payee_tax_type": { "description": "[03-DD] 국세청 API 매핑 과세유형(읽기 전용)", "type": ["string", "null"] },
+          "tax_type_cd": { "description": "[03-DD] 국세청 과세유형 코드", "type": ["string", "null"] },
+          "tax_invoice_eligible_yn": { "description": "[03-DD]", "type": ["boolean", "null"] },
+          "business_status": { "description": "[03-DD] 계속 · 휴업 · 폐업", "type": ["string", "null"] },
+          "business_closed_yn": { "description": "[신규 명명] 당월 국세청 폐업 확인(강제 청구 · 정산 트리거, V1 L565 L568)", "type": "boolean", "default": false },
+          "matrix_case_id_hint": { "description": "[신규 명명] 테스트용 세무 케이스 고정값(없으면 TAX가 판정)", "type": ["string", "null"] }
+        }
+      }
+    },
+    "contracts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_id", "rights_holder_id"],
+        "properties": {
+          "contract_id": { "description": "[03-DD]", "type": "string" },
+          "rights_holder_id": { "description": "[03-DD]", "type": "string" },
+          "contract_status": { "description": "[03-DD] DRAFT는 반영 안 됨(V1 §5.5 L362)", "type": "string", "enum": ["DRAFT", "ACTIVE", "EXPIRED", "TERMINATED"] },
+          "start_date": { "$ref": "#/$defs/date", "description": "[03-DD]" },
+          "current_end_date": { "$ref": "#/$defs/date", "description": "[03-DD]" },
+          "termination_date": { "$ref": "#/$defs/date", "description": "[신규 명명] 중도 해지일" },
+          "successor_transfer_yn": { "description": "[신규 명명] 선급금 잔액을 승계 계약으로 이관했는지(V1 §5.4 L354)", "type": "boolean", "default": false },
+          "min_payout_limit": { "$ref": "#/$defs/money", "description": "[03-DD]" },
+          "min_claim_limit": { "$ref": "#/$defs/money", "description": "[03-DD]" },
+          "vat_treatment": { "description": "[03-DD]", "type": "string", "enum": ["VAT_EXCLUDED", "VAT_INCLUDED"], "default": "VAT_EXCLUDED" },
+          "refund_promo_burden_type": { "description": "[03-DD] A / B / C", "type": "string", "enum": ["A", "B", "C"], "default": "A" },
+          "consignment_fee_type": { "description": "[03-DD]", "type": ["string", "null"], "enum": ["NET_DEDUCT", "GROSS_SETTLE", null] },
+          "consignment_fee_rate": { "$ref": "#/$defs/ratio", "description": "[신규 명명] 위탁 수수료율(부가세 별도, V1 L498)" },
+          "consignment_base_price_type": { "description": "[03-DD]", "type": ["string", "null"], "enum": ["PAID_AMOUNT", "LIST_PRICE", null] },
+          "mmg_annual_cap": { "$ref": "#/$defs/money", "description": "[03-DD]" },
+          "default_weight_seconds": { "type": ["integer", "null"], "description": "[03-DD] 계약별 덮어쓰기" }
+        }
+      }
+    },
+    "rate_lines": {
+      "description": "[01-T] 요율 라인(V1 §5.1 L208~210).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_id", "rate_type", "rate_value", "start_date"],
+        "properties": {
+          "contract_id": { "type": "string" },
+          "rate_type": { "description": "[03-DD] BASIC / SUPPORT", "type": "string", "enum": ["BASIC", "SUPPORT"] },
+          "agreement_id": { "description": "[03-DD] SUPPORT 필수, BASIC null", "type": ["string", "null"] },
+          "rate_value": { "$ref": "#/$defs/ratio", "description": "[03-DD]" },
+          "mmg_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 월 보장액(MMG) 컬럼(V1 L208)" },
+          "start_date": { "$ref": "#/$defs/date" },
+          "end_basis": { "description": "[03-DD]", "type": "string", "enum": ["FIXED_DATE", "CONTRACT_LINKED"] },
+          "end_date": { "description": "[03-DD] CONTRACT_LINKED이면 null", "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+        }
+      }
+    },
+    "lecture_instructors": {
+      "description": "[01-T] 강의–권리자 1계층 매핑(V1 §4.2 L175).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["lecture_id", "rights_holder_id", "contract_id", "share_ratio", "start_date"],
+        "properties": {
+          "lecture_id": { "type": "string" }, "rights_holder_id": { "type": "string" }, "contract_id": { "type": "string" },
+          "share_ratio": { "$ref": "#/$defs/ratio" }, "start_date": { "$ref": "#/$defs/date" },
+          "end_basis": { "type": "string", "enum": ["FIXED_DATE", "CONTRACT_LINKED"] },
+          "end_date": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+        }
+      }
+    },
+    "book_authors": {
+      "description": "[01-T] 도서 저작 지분(V1 §4.2 L176).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["book_sku_id", "rights_holder_id", "contract_id", "share_ratio", "start_date"],
+        "properties": {
+          "book_sku_id": { "type": "string" }, "rights_holder_id": { "type": "string" }, "contract_id": { "type": "string" },
+          "share_ratio": { "$ref": "#/$defs/ratio" }, "start_date": { "$ref": "#/$defs/date" },
+          "end_basis": { "type": "string", "enum": ["FIXED_DATE", "CONTRACT_LINKED"] },
+          "end_date": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+          "income_category": { "type": ["string", "null"], "enum": ["BUSINESS", "OTHER", null] },
+          "income_clause": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "payee_splits": {
+      "description": "[01-T] 2계층 수취인 분할(V1 §4.2 L179). 선급금 원장과 동시 존재 금지(V1 L323).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_id", "rights_holder_id", "payee_id", "split_ratio", "start_date"],
+        "properties": {
+          "contract_id": { "type": "string" }, "rights_holder_id": { "type": "string" }, "payee_id": { "type": "string" },
+          "split_ratio": { "$ref": "#/$defs/ratio" }, "start_date": { "$ref": "#/$defs/date" },
+          "end_basis": { "type": "string", "enum": ["FIXED_DATE", "CONTRACT_LINKED"] },
+          "end_date": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
+        }
+      }
+    },
+    "support_fund_agreements": {
+      "description": "[01-T] support_fund_agreements(V1 L288).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["agreement_id", "contract_id", "rights_holder_id", "payment_method", "status"],
+        "properties": {
+          "agreement_id": { "type": "string" }, "contract_id": { "type": "string" }, "rights_holder_id": { "type": "string" },
+          "payee_id": { "type": ["string", "null"] },
+          "payment_method": { "type": "string", "enum": ["LUMP_SUM", "INSTALLMENT", "REVENUE_SHARE"] },
+          "cap_type": { "type": ["string", "null"], "enum": ["CAPPED", "UNLIMITED", null] },
+          "total_cap_amount": { "oneOf": [{ "$ref": "#/$defs/money" }, { "type": "null" }], "description": "UNLIMITED이면 null(0 금지, V1 L290)" },
+          "rate_basis": { "type": "string", "enum": ["SAME_AS_BASIC"], "default": "SAME_AS_BASIC" },
+          "settlement_scope": { "type": "string", "enum": ["PIPELINE_1_1_ONLY", "PIPELINE_2_1_ONLY", "PIPELINE_1_1_2_1"] },
+          "start_date": { "$ref": "#/$defs/date" },
+          "end_basis": { "type": "string", "enum": ["FIXED_DATE", "CONTRACT_LINKED"] },
+          "end_date": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+          "offset_type": { "type": "string", "enum": ["CONDITIONAL", "NON_OFFSET"], "default": "CONDITIONAL" },
+          "cap_restore_on_refund": { "type": ["boolean", "null"], "default": true },
+          "on_termination_policy": { "type": "string", "enum": ["FORFEIT", "LUMP_SETTLE", "PRO_RATA", "NONE"] },
+          "income_category": { "type": "string", "enum": ["BUSINESS", "OTHER"], "default": "BUSINESS" },
+          "income_clause": { "type": ["string", "null"] },
+          "status": { "description": "전월 말(월초) 상태(SPEC Q-25)", "type": "string", "enum": ["ACTIVE", "COMPLETED", "EXPIRED", "TERMINATED"] }
+        }
+      }
+    },
+    "support_fund_agreement_targets": {
+      "description": "[01-T] V1 L270.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["agreement_id", "target_type", "target_id", "start_date"],
+        "properties": {
+          "agreement_id": { "type": "string" },
+          "target_type": { "type": "string", "enum": ["LECTURE", "BOOK_SKU"] },
+          "target_id": { "type": "string" },
+          "start_date": { "$ref": "#/$defs/date" },
+          "end_basis": { "type": "string", "enum": ["FIXED_DATE", "CONTRACT_LINKED"] },
+          "end_date": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+          "own_share_ratio": { "$ref": "#/$defs/ratio", "description": "[신규 명명] 해당 대상 자사 권리자 1계층 지분율(재원 검증 · 0% 예외)" }
+        }
+      }
+    },
+    "support_fund_ledger_prev": {
+      "description": "[01-T] support_fund_ledger 전월 말 행(재연산 멱등 — 누계의 기초, V2 §10.1 L356).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["agreement_id"],
+        "properties": {
+          "agreement_id": { "type": "string" },
+          "target_month": { "$ref": "#/$defs/month" },
+          "confirmed_net_total": { "$ref": "#/$defs/money" },
+          "cap_consumed_amount": { "oneOf": [{ "$ref": "#/$defs/money" }, { "type": "null" }] },
+          "cash_paid_total": { "$ref": "#/$defs/money" },
+          "remaining_cap": { "oneOf": [{ "$ref": "#/$defs/money" }, { "type": "null" }] }
+        }
+      }
+    },
+    "prepayments": {
+      "description": "선급금 원장(V1 §5.3). 계약당 단일 prepayment_tax_type(혼재 금지 L319).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_id", "prepayment_tax_type", "prepay_unoffset_balance"],
+        "properties": {
+          "prepayment_id": { "type": "string", "description": "[신규 명명]" },
+          "contract_id": { "type": "string" },
+          "offset_payee_id": { "type": "string", "description": "[03-DD] 원 권리자 자동" },
+          "prepayment_tax_type": { "type": "string", "enum": ["EARNED", "LOAN"], "description": "[03-DD]" },
+          "prepay_unoffset_balance": { "$ref": "#/$defs/money", "description": "[신규 명명] 미상계 선급금 잔액(전월 말)" },
+          "earned_unoffset_post_tax_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] EARNED 만료 · 해지 시 세후 미상계 상당액(SPEC Q-18, 산식 없음)" }
+        }
+      }
+    },
+    "order_items": {
+      "description": "P1.1 · P2.1 · P2.2 · P2.3 원천 품목(V2 §8.3 1단계). allocation_applied=true면 paid_amount는 Step 1 안분 후 실결제액.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["order_item_id", "item_type"],
+        "properties": {
+          "order_item_id": { "type": "string", "description": "[03-DD]" },
+          "order_id": { "type": "string" },
+          "item_type": { "type": "string", "enum": ["LECTURE", "BOOK", "GOODS_ITEM", "SHIPPING_FEE"], "description": "[03-CD]" },
+          "product_id": { "type": "string", "description": "[02-T] 패키지 안분 정렬 키" },
+          "book_sku_id": { "type": ["string", "null"] },
+          "list_price": { "$ref": "#/$defs/money", "description": "[03-DD 관련] 강좌 정가 · 도서 정가" },
+          "paid_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 실결제액" },
+          "allocation_applied": { "type": "boolean", "default": true },
+          "approved_at": { "$ref": "#/$defs/datetime", "description": "[신규 명명] 결제 승인 시점(요율 스냅샷 기준)" },
+          "purchase_confirmed_at": { "oneOf": [{ "$ref": "#/$defs/datetime" }, { "type": "null" }], "description": "[신규 명명] 구매확정일시(도서 · 상품 집계월)" },
+          "confirmed_qty": { "type": "integer", "description": "[신규 명명] 확정 부수(D+7 경과)" },
+          "royalty_base_price": { "$ref": "#/$defs/money", "description": "[신규 명명] 인세 기준가(판매 확정일 정가 버전 · sale_price)" },
+          "consignment_price": { "$ref": "#/$defs/money", "description": "[신규 명명] 위탁 판매가(정산 기준가)" },
+          "book_supply_type_snapshot": { "type": ["string", "null"], "enum": ["OWN_PUBLISHED", "CONSIGNMENT", "PURCHASED_RESALE", "BUNDLED", null], "description": "[03-DD]" },
+          "goods_supply_type_snapshot": { "type": ["string", "null"], "enum": ["PURCHASED_RESALE", "DIRECT_SALE", null], "description": "[02-T]" },
+          "lectures": {
+            "description": "Step 2 차시 분할 입력. 또는 lecture_base_amount를 직접 줄 수 있다.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["lecture_id"],
+              "properties": {
+                "lecture_id": { "type": "string" },
+                "runtime_seconds": { "type": "integer", "description": "[신규 명명]" },
+                "lecture_base_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] Step 2 결과(q4)" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "orders": {
+      "description": "Step 1 패키지 혜택 안분 입력(allocation_applied=false인 품목).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["order_id", "discount_total"],
+        "properties": { "order_id": { "type": "string" }, "discount_total": { "$ref": "#/$defs/money", "description": "[신규 명명] 쿠폰 · 포인트 할인 합계" } }
+      }
+    },
+    "refund_lines": {
+      "description": "일반 환불 · 도서 반품 · 위탁 반품(4단계). 원거래 스냅샷 필수.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["refund_id", "order_item_id", "refund_approved_date", "snapshot"],
+        "properties": {
+          "refund_id": { "type": "string", "description": "[신규 명명]" },
+          "order_item_id": { "type": "string", "description": "[03-DD] 원거래" },
+          "refund_approved_date": { "$ref": "#/$defs/date", "description": "[신규 명명] 반품 · 환불 승인일(귀속월)" },
+          "refund_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 환불 기준금(결제액 기준)" },
+          "refund_qty": { "type": ["integer", "null"], "description": "[신규 명명] 도서 반품 부수" },
+          "refund_ratio": { "$ref": "#/$defs/ratio", "description": "[신규 명명] 해당 거래 환불 비율(%)" },
+          "origin_month": { "$ref": "#/$defs/month", "description": "[03-DD]" },
+          "snapshot": { "type": "array", "items": { "$ref": "#/$defs/settlement_line_snapshot" }, "description": "rate_type별 스냅샷 행(BASIC · SUPPORT)" }
+        }
+      }
+    },
+    "pass_refund_deductions": {
+      "description": "합격 환급반 공제(ADMN-SETT-006 확정분, V1 §15). 귀속월 = 환급 승인 확정일 월.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pass_refund_id", "contract_id", "option", "approved_date", "snapshot"],
+        "properties": {
+          "pass_refund_id": { "type": "string", "description": "[신규 명명]" },
+          "contract_id": { "type": "string" },
+          "order_item_id": { "type": "string" },
+          "option": { "type": "string", "enum": ["A", "B", "C"], "description": "[03-DD] refund_promo_burden_type 값" },
+          "approved_date": { "$ref": "#/$defs/date" },
+          "refund_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 수강생 환급금" },
+          "optB_burden_ratio": { "$ref": "#/$defs/ratio", "description": "[신규 명명] 옵션 B 분담 비율" },
+          "optC_cancel_ratio": { "$ref": "#/$defs/ratio", "description": "[신규 명명] 옵션 C 취소 비율" },
+          "snapshot": { "type": "array", "items": { "$ref": "#/$defs/settlement_line_snapshot" } }
+        }
+      }
+    },
+    "lumpsum_approvals": {
+      "description": "7단계 승인 항목(ADMN-INST-002, target_month = 정산월, V1 §7.2 L544). 매절은 buyout_payments 컬럼명을 따른다(V1 L234).",
+      "type": "array",
+      "items": {
+        "allOf": [{ "$ref": "#/$defs/income_keys" }],
+        "type": "object",
+        "required": ["milestone_id", "contract_id", "item_kind", "amount", "target_month"],
+        "properties": {
+          "milestone_id": { "type": "string", "description": "[03-DD] 승인 완료 식별자(중복 가산 방지 키)" },
+          "contract_id": { "type": "string" },
+          "rights_holder_id": { "type": "string" },
+          "payee_id": { "type": ["string", "null"] },
+          "item_kind": { "type": "string", "enum": ["SIGNING_BONUS", "SUPPORT_LUMP_SUM", "SUPPORT_INSTALLMENT", "BUYOUT", "FIXED_FEE", "LUMP_SETTLE"], "description": "[신규 명명] 비정기 가산 항목 구분(V2 L239)" },
+          "agreement_id": { "type": ["string", "null"], "description": "지원금 · LUMP_SETTLE 연결" },
+          "offset_type": { "type": ["string", "null"], "enum": ["CONDITIONAL", "NON_OFFSET", null], "description": "[03-DD] 지원금류만" },
+          "amount": { "$ref": "#/$defs/money" },
+          "target_month": { "$ref": "#/$defs/month", "description": "[03-DD 관련] 귀속월" },
+          "approval_status": { "type": "string", "enum": ["APPROVED"], "default": "APPROVED" },
+          "income_category": { "type": "string" }, "income_clause": { "type": ["string", "null"] },
+          "payee_is_author": { "type": ["boolean", "null"] }, "tax_threshold_unit_key": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "clawbacks": {
+      "description": "전속계약금 일할 반환(V1 §5.2 L247~249). clawback_amount가 있으면 그대로, 없으면 산식으로 계산.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["contract_id", "payee_id"],
+        "properties": {
+          "clawback_id": { "type": "string", "description": "[신규 명명]" },
+          "contract_id": { "type": "string" }, "payee_id": { "type": "string" },
+          "paid_signing_bonus_net": { "$ref": "#/$defs/money", "description": "[신규 명명] 기 지급 전속계약금 실지급액(세후)" },
+          "obligation_start_date": { "$ref": "#/$defs/date", "description": "[신규 명명]" },
+          "obligation_end_date": { "$ref": "#/$defs/date", "description": "[신규 명명]" },
+          "termination_date": { "$ref": "#/$defs/date", "description": "[신규 명명]" },
+          "clawback_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 확정 반환액(세후)" },
+          "clawback_offset_consent_yn": { "type": "boolean", "default": false, "description": "[신규 명명] 반환 상계 동의 연결(V2 L286)" },
+          "matrix_case_id": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "carryover_ledger": {
+      "description": "[01-T] 전월 이월 잔액 원장(V1 §7.4 L580).",
+      "type": "array",
+      "items": {
+        "allOf": [{ "$ref": "#/$defs/income_keys" }],
+        "type": "object",
+        "required": ["ledger_id", "contract_id", "carryover_amount"],
+        "properties": {
+          "ledger_id": { "type": "string" }, "rights_holder_id": { "type": "string" }, "payee_id": { "type": ["string", "null"] },
+          "contract_id": { "type": "string" }, "origin_month": { "$ref": "#/$defs/month" },
+          "account_type": { "type": ["string", "null"], "enum": ["PRE_TAX", "POST_TAX", null] },
+          "pipeline_id": { "$ref": "#/$defs/pipeline_id" },
+          "consignment_balance_yn": { "type": "boolean", "default": false },
+          "carryover_reason": { "type": "string" },
+          "carryover_amount": { "$ref": "#/$defs/money" },
+          "first_occurred_month": { "$ref": "#/$defs/month" },
+          "first_payable_confirmed_month": { "oneOf": [{ "$ref": "#/$defs/month" }, { "type": "null" }] },
+          "payout_reservation_status": { "type": "string", "enum": ["NONE", "RESERVED", "SETTLED"] },
+          "extinguished_yn": { "type": "boolean" },
+          "extinguished_month": { "oneOf": [{ "$ref": "#/$defs/month" }, { "type": "null" }] },
+          "income_category": { "type": ["string", "null"] }, "income_clause": { "type": ["string", "null"] },
+          "tax_threshold_unit_key": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "carryover_prev_end_balances": {
+      "description": "[신규 명명] 연속성 등식의 전월 말 잔액(계정 · 키별). 없으면 carryover_ledger 미소멸 합계로 계산.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "account_type": { "type": "string", "enum": ["PRE_TAX", "POST_TAX", "CONSIGNMENT"] },
+          "key": { "type": "string" },
+          "amount": { "$ref": "#/$defs/money" }
+        }
+      }
+    },
+    "adjustments": {
+      "description": "마감 후 정정 조정 라인(V2 §10.2 L362). 처리는 adjustment_mode(SPEC Q-23).",
+      "type": "array",
+      "items": {
+        "allOf": [{ "$ref": "#/$defs/income_keys" }],
+        "type": "object",
+        "required": ["origin_month", "applied_month", "adj_reason_code", "adj_amount", "payee_id", "account_type"],
+        "properties": {
+          "adj_id": { "type": "string", "description": "[신규 명명]" },
+          "contract_id": { "type": "string" },
+          "origin_month": { "$ref": "#/$defs/month" }, "applied_month": { "$ref": "#/$defs/month" },
+          "adj_reason_code": { "type": "string", "enum": ["RATE_ERR", "SHARE_ERR", "SPLIT_ERR", "REFUND_OMIT", "TARGET_MONTH_ERR", "BUYOUT_INC_ERR", "TAX_TYPE_ERR", "PG_RECON_ADJ", "ACCOUNT_TRANSFER", "BOOK_SUPPLY_ERR", "SUPPORT_CAP_ERR", "CONSIGN_FEE_ERR", "ETC"] },
+          "adj_explanation": { "type": "string", "minLength": 20 },
+          "adj_amount": { "$ref": "#/$defs/money" },
+          "adj_tax_type": { "type": "string", "enum": ["TAXABLE", "EXEMPT"] },
+          "payee_id": { "type": "string" },
+          "account_type": { "type": "string", "enum": ["PRE_TAX", "POST_TAX"] },
+          "pipeline_id": { "$ref": "#/$defs/pipeline_id" },
+          "approver_id": { "type": "string" }, "origin_settlement_id": { "type": "string" },
+          "income_category": { "type": ["string", "null"] }, "income_clause": { "type": ["string", "null"] },
+          "tax_threshold_unit_key": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "payout_results": {
+      "description": "[신규 명명] 마감 후 대량이체 결과(있을 때만 RESERVED→SETTLED/NONE 반영, V1 L589).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "payment_instruction_id": { "type": "string", "description": "[03-DD]" },
+          "payment_result_id": { "type": "string", "description": "[03-DD]" },
+          "payee_id": { "type": "string" },
+          "result": { "type": "string", "enum": ["SUCCESS", "FAILED"] },
+          "payment_event_date": { "$ref": "#/$defs/date", "description": "[03-DD]" },
+          "ledger_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

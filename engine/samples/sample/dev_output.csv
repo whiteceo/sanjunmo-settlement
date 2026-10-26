@@ -1,0 +1,16 @@
+holder_code,contract_code,payee_code,step,item,amount
+H-KIM,C-KIM-01,,2,gross_pretax,623332
+H-KIM,C-KIM-01,,5,support_confirmed,46666
+H-KIM,C-KIM-01,H-KIM,9,tax_withheld,11854
+H-KIM,C-KIM-01,H-KIM,9,net_pay,347478
+H-KIM,C-KIM-01,H-AGENCY,9,net_pay,169400
+H-KIM,C-KIM-01,H-KIM,11,pay_amount,376488
+H-KIM,C-KIM-01,H-AGENCY,11,pay_amount,169400
+H-LEE,C-LEE-01,,2,gross_pretax,15000
+H-LEE,C-LEE-01,H-LEE,9,tax_withheld,1320
+H-LEE,C-LEE-01,H-LEE,11,pay_amount,0
+H-PARK,C-PARK-01,,2,gross_pretax,226666
+H-PARK,C-PARK-01,,6,offset,219188
+H-PARK,C-PARK-01,H-PARK,9,tax_withheld,7478
+H-PARK,C-PARK-01,H-PARK,9,net_pay,0
+H-PARK,C-PARK-01,H-PARK,11,pay_amount,0

@@ -1,0 +1,106 @@
+{
+  "case": "CASE-06",
+  "title": "매출 0원이나 승인 약정금만 존재하는 계약",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 6 · L182-193",
+  "input": {
+    "rights_holder_type": "INSTRUCTOR",
+    "payees": [
+      {
+        "payee_id": "P1",
+        "payee_tax_type": "개인 프리랜서(사업소득 3.3%)",
+        "matrix_case_id": "TX-04",
+        "split_ratio": 100
+      }
+    ],
+    "contract": {
+      "mmg_amount": 0,
+      "prepay_balance": 300000,
+      "prepayment_tax_type": null,
+      "payee_split": null,
+      "min_payout_limit": 100000,
+      "support_fund": {
+        "payment_method": "LUMP_SUM",
+        "offset_type": "NON_OFFSET",
+        "agreed_amount": 500000,
+        "target_type": "LECTURE",
+        "own_share_exists": true
+      }
+    },
+    "income_category": "BUSINESS",
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "1.1",
+        "item_type": "ONLINE_COURSE",
+        "paid_amount": 0,
+        "refund_amount": 0,
+        "share_ratio": 100
+      }
+    ],
+    "milestones": [
+      {
+        "milestone_type": "SUPPORT_FUND_LUMP",
+        "approved_amount": 500000,
+        "approved": true,
+        "offset_type": "NON_OFFSET"
+      }
+    ],
+    "refund_promo": null
+  },
+  "expected": {
+    "ACCRUAL": {
+      "new_pretax": 0
+    },
+    "DEDUCT": {
+      "total_pretax_accrual": 0
+    },
+    "PREPAY_OFFSET": {
+      "offsettable": 0,
+      "executed": false,
+      "prepay_balance_after": 300000
+    },
+    "LUMPSUM_ADD": {
+      "lumpsum": 500000,
+      "pre_split_supply": 500000
+    },
+    "PAYEE_SPLIT": {
+      "taxable_base": 500000,
+      "pretax_payable": 500000
+    },
+    "TAX": {
+      "income_tax": 15000,
+      "local_income_tax": 1500,
+      "total_withholding": 16500,
+      "net_payable": 483500
+    },
+    "CLAIM": {
+      "excluded": true
+    },
+    "PAYOUT": {
+      "payout_confirmed": true,
+      "payout_amount": 483500
+    }
+  },
+  "variants": [],
+  "expected_status": "CONFIRMED",
+  "notes": "검산 일치. 정본은 선급금 대여금/EARNED 구분을 적지 않음(상계 0원이라 무관) → prepayment_tax_type null. 비상계(NON_OFFSET) 약정이라 지원금과 선급금 미상계(부록 D-11 동일 논리).",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

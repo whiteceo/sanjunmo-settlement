@@ -1,0 +1,93 @@
+{
+  "case": "CASE-12",
+  "title": "일반 소비재(자사 매출)의 정산서 집계 처리",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 12(+12-A) · L266-275",
+  "input": {
+    "rights_holder_type": "INTERNAL",
+    "is_internal": true,
+    "payees": [],
+    "contract": {
+      "goods_supply_type": "PURCHASED_RESALE|DIRECT_SALE",
+      "own_share_ratio": 100,
+      "supplier": {
+        "name": "매입처 C",
+        "tax": "일반과세 법인"
+      }
+    },
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "2.3",
+        "item_type": "GOODS",
+        "units": 300,
+        "purchase_unit_cost": 5500,
+        "sale_price_incl_vat": 11000
+      }
+    ],
+    "milestones": [],
+    "refund_promo": null
+  },
+  "expected": {
+    "ACCRUAL": {
+      "2.3": "집계 대상이나 2단계 권리자 지급용 신규 세전 발생액에는 합산하지 않음"
+    },
+    "TAX": {
+      "supply_amount": 3000000,
+      "vat": 300000,
+      "vat_rate": 10,
+      "matrix_case_id": "TX-13",
+      "withholding_called": false
+    },
+    "PAYOUT": {
+      "payout_amount": 0,
+      "bypassed_in_transfer_and_evidence_loop": true
+    },
+    "DISPLAY": {
+      "ADMN_SETT_009": "공급가액·부가세 구분 합계 노출",
+      "ADMN_SETT_002": "외부 지급 라인에 혼입하지 않음"
+    },
+    "EVIDENCE": {
+      "supplier_invoice": "매입처 전자세금계산서 수취",
+      "correction_channel": 1
+    }
+  },
+  "variants": [
+    {
+      "code": "CASE-12-A",
+      "title": "12-A: 구매 후 7일 이내 청약철회",
+      "input_delta": {
+        "cancel_within_7days": true
+      },
+      "expected": {
+        "DEDUCT": {
+          "pipeline": "2.3",
+          "sign": "negative",
+          "reference": "원 판매 스냅샷 대칭 역참조"
+        }
+      },
+      "expected_status": "PARTIAL",
+      "notes": "정본 L275. 금액 없음."
+    }
+  ],
+  "expected_status": "CONFIRMED",
+  "notes": "300 x 10,000 = 3,000,000, 300 x 11,000 = 3,300,000, VAT 300,000 검산 일치. goods_supply_type이 'PURCHASED_RESALE 또는 DIRECT_SALE'로 둘 중 하나 미확정(결과 동일).",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

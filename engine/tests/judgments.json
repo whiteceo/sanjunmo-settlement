@@ -1,0 +1,12 @@
+{
+  "_note": "fixture 불일치 원인 판정(근거는 engine/OPEN_ISSUES.md). 키: 케이스 코드 → '단계 / 경로' 또는 '단계' 또는 '*'. cause = 엔진 오류 | 정본 모순 | 입력 부족",
+  "D-08": {
+    "PAYOUT / closing_balance": {"cause": "입력 부족", "issue": "OI-03"}
+  },
+  "D-09": {
+    "SUPPORT_CAP": {"cause": "정본 모순", "issue": "OI-01"}
+  },
+  "D-14": {
+    "TAX": {"cause": "입력 부족", "issue": "OI-02"}
+  }
+}

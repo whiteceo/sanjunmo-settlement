@@ -1,0 +1,34 @@
+{
+  "case": "D-05",
+  "title": "위탁 수수료 배분 1원 잔여 후 부분 반품",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-5 · L287-287",
+  "input": {
+    "description": "위탁 수수료 배분 시 1원 잔여 발생 후 부분 반품"
+  },
+  "expected": {
+    "ALLOCATION": {
+      "residual_1won_bearer": "정렬 마지막 품목",
+      "refund_basis": "원확정 배분액 역참조 재연산",
+      "residual_shift_by_refund_order": false,
+      "equation": "품목별 판매대금 = 배분된 위탁 순액 + 수수료 공급가액"
+    }
+  },
+  "expected_status": "QUALITATIVE",
+  "verifies": "6.6절, 13.3절",
+  "notes": "정본 D행에는 입력 금액·기대 금액이 없다(L279: '구체 입력값·원거래 상태·예상 금액은 별도 QA 테스트 명세에서 관리'). 계산기용 수치 입력은 지어내지 않고 비워 둠.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "_meta": {
+    "source": "정산 02권 11장(줄 399~538) · 8.3절 9단계(줄 260~284) · 13장(줄 559~598), 03권 17.3절 · 부록 B",
+    "doc": "engine/TAX.md",
+    "rule": "정본에 없는 값은 null 또는 UNDETERMINED. 지어내지 않음. 세율 등은 parameters로만 보관(코드 하드코딩 금지, 02권 줄 537)",
+    "generated": "2026-10-26"
+  },
+  "parameters": {
+    "local_income_tax_rate": 0.10,
+    "other_income_min_tax_amount": 50000,
+    "small_amount_exemption_limit": 1000,
+    "income_tax_rate": { "BUSINESS": 0.03, "OTHER": 0.20 },
+    "deemed_expense_rate": { "C05": 0.0, "C15": 0.60, "C17": 0.0, "C19": 0.60 },
+    "vat_rate": 0.10,
+    "vat_included_divisor": [100, 110],
+    "local_tax_small_exemption_apply_yn": false,
+    "rounding": "FLOOR_ABS_RESTORE_SIGN",
+    "source_refs": { "rates": "8.3절 9단계 줄 274~279", "rounding": "13.1 줄 563~569", "defaults": "03권 부록 B" }
+  },
+  "withholding_order": [
+    "deemed_expense = floor(base * deemed_expense_rate)  (OTHER only)",
+    "other_amount = base - deemed_expense  (OTHER only)",
+    "threshold: other_amount <= 50000 => income_tax = local_income_tax = 0  (OTHER only)",
+    "income_tax = floor(other_amount * 0.20)  |  BUSINESS: floor(base * 0.03)",
+    "local_income_tax = floor(income_tax * 0.10)",
+    "small_amount_exemption (OTHER only): income_tax < 1000 => 0  (BUSINESS excluded)"
+  ],
+  "classification_order": ["is_internal", "goods", "null_hold_conditions", "freelancer(by supply_nature)", "tax_type_cd map", "pending_candidates"],
+  "tax_type_cd_map": {
+    "01": { "payee_tax_type": "GENERAL", "tax_invoice_eligible_yn": true, "case": "TX-07", "corp_book_royalty_case": "TX-09" },
+    "02": { "payee_tax_type": "SIMPLIFIED_RECEIPT", "tax_invoice_eligible_yn": false, "case": "TX-05" },
+    "03": { "case": null, "status": "PENDING_REVIEW", "note": "과세특례자" },
+    "04": { "payee_tax_type": "EXEMPT", "tax_invoice_eligible_yn": false, "case": "TX-08", "corp_taxable_service": { "royalty_buyout": "TX-09", "rs_grant_lump": "TX-07", "status": "PENDING_REVIEW" } },
+    "05": { "case_by_supply": { "royalty_buyout": "TX-09", "rs_lump_grant": "TX-07" }, "status": "PENDING_REVIEW" },
+    "06": { "case_by_supply": { "royalty_buyout": "TX-09", "rs_lump_grant": "TX-07" }, "status": "PENDING_REVIEW" },
+    "07": { "payee_tax_type": "SIMPLIFIED_INVOICE", "tax_invoice_eligible_yn": true, "case": "TX-06" },
+    "empty": { "action": "REGISTRATION_BLOCKED" },
+    "unmapped": { "case": null, "status": "PENDING_REVIEW" }
+  },
+  "null_pending_conditions": [
+    "main_work_external_labor = true",
+    "income_category 미지정(재화 공급 라인 제외)",
+    "income_category = OTHER and income_clause 미지정",
+    "is_resident = false",
+    "국세청 API 결과가 계속사업자 아님(휴 · 폐업)",
+    "book_supply_type 미지정 도서 라인",
+    "tax_type_cd = 03 또는 매핑 불가"
+  ],
+  "cases": {
+    "TX-01": {
+      "name": "자사 권리자(내부 계정)", "target": "is_internal = true",
+      "supply_nature": ["전체 품목"],
+      "income_category": null, "income_clause": null,
+      "withholding": "NONE", "income_tax_rate": null, "local_tax_order": null,
+      "deemed_expense_rate": null, "min_tax_threshold_yn": false, "small_amount_exemption_yn": false,
+      "vat": "NOT_APPLICABLE", "evidence_type": null, "evidence_issuer": null, "correction_channels": [],
+      "bulk_transfer_yn": false, "nts_api_lookup": false,
+      "pending_conditions": [], "source": { "section": "11.2", "lines": "418-423" }
+    },
+    "TX-02": {
+      "name": "개인 프리랜서 · 강의 R/S", "target": "개인(거주자)",
+      "supply_nature": ["온라인 강의 수익 배분(R/S)", "매출연동(R/S)형 개발지원금(Pipeline 5.1)"],
+      "income_category": "BUSINESS", "income_clause": null, "industry_code": "940903(강의) / 940100(도서 대상)",
+      "withholding": "APPLY", "income_tax_rate": 0.03, "local_tax_order": "floor(income_tax) then floor(income_tax * 0.10)",
+      "deemed_expense_rate": null, "min_tax_threshold_yn": false, "small_amount_exemption_yn": false,
+      "local_tax_small_exemption": false,
+      "vat": "EXEMPT_PERSONAL_SERVICE", "vat_exemption_basis": "부가세법 제26조 제1항 제15호 · 시행령 제42조 제1호",
+      "evidence_type": "사업소득 원천징수영수증", "evidence_issuer": "SELF_ISSUE", "correction_channels": ["3-a"],
+      "statement": { "simplified": "매월(지급일 다음 달 말일)", "annual": "다음 해 3월 10일" },
+      "pending_conditions": ["main_work_external_labor = true -> matrix_case_id NULL"],
+      "source": { "section": "11.2", "lines": "424-434" }
+    },
+    "TX-03": {
+      "name": "개인 프리랜서 · 교재 인세 · 매절", "target": "개인(거주자)",
+      "supply_nature": ["자사 발행 도서 저작권 인세", "저작권 양도 매절"],
+      "income_category": "BUSINESS(기본) / OTHER(예외, 일시적 · 우발적 저술 · 재무책임자 승인)",
+      "branches": {
+        "default": { "income_category": "BUSINESS", "income_tax_rate": 0.03, "small_amount_exemption_yn": false },
+        "C15": { "income_category": "OTHER", "income_clause": "C15", "payee_is_author": true, "deemed_expense_rate": 0.60, "income_tax_rate": 0.20, "min_tax_threshold_yn": true, "small_amount_exemption_yn": true, "receipt_issue": "금액 무관 발급", "simplified_statement_yn": false, "annual_statement_deadline": "다음 해 2월 말일" },
+        "C05": { "income_category": "OTHER", "income_clause": "C05", "payee_is_author": false, "deemed_expense_rate": 0.0, "income_tax_rate": 0.20, "min_tax_threshold_yn": true, "small_amount_exemption_yn": true, "simplified_statement_yn": false, "annual_statement_deadline": "다음 해 2월 말일" }
+      },
+      "withholding": "APPLY", "local_tax_order": "floor(income_tax) then floor(income_tax * 0.10)",
+      "vat": "EXEMPT", "vat_exemption_basis": { "royalty": "시행령 제42조 제1호 아목", "buyout": "가목 또는 도서 면세 부수공급 해석(기준선, 개별 계약 자문 확인)" },
+      "evidence_type": "사업소득 원천징수영수증", "evidence_issuer": "SELF_ISSUE", "correction_channels": ["3-a"],
+      "industry_code": "940100(BUSINESS only)",
+      "pending_conditions": ["main_work_external_labor = true", "OTHER and income_clause 미지정"],
+      "source": { "section": "11.2", "lines": "435-448" }
+    },
+    "TX-04": {
+      "name": "개인 프리랜서 · 비정기 약정금", "target": "개인(거주자)",
+      "supply_nature": ["비정기 약정금(전속금 · 개발지원금 · 수당)"],
+      "income_category": "계약 등록 시 지정(BUSINESS 또는 OTHER)",
+      "branches": {
+        "BUSINESS": { "income_tax_rate": 0.03, "small_amount_exemption_yn": false },
+        "C19": { "income_clause": "C19", "deemed_expense_rate": 0.60, "income_tax_rate": 0.20, "min_tax_threshold_yn": true, "small_amount_exemption_yn": true, "simplified_statement_yn": true },
+        "C17": { "income_clause": "C17", "deemed_expense_rate": 0.0, "income_tax_rate": 0.20, "min_tax_threshold_yn": true, "small_amount_exemption_yn": true, "simplified_statement_yn": false }
+      },
+      "withholding": "APPLY", "local_tax_order": "floor(income_tax) then floor(income_tax * 0.10)",
+      "vat": "EXEMPT_PERSONAL_SERVICE", "vat_exemption_basis": "부가세법 제26조 제1항 제15호 · 시행령 제42조 제1호(고용 요건 배제 시 과세 전환)",
+      "evidence_type": "원천징수영수증", "evidence_issuer": "SELF_ISSUE", "correction_channels": ["3-a"],
+      "note": "매출연동(R/S)형 지원금은 TX-02",
+      "pending_conditions": ["income_category 미지정(검수 승인 차단)", "OTHER and income_clause 미지정", "main_work_external_labor = true"],
+      "source": { "section": "11.2", "lines": "449-456" }
+    },
+    "TX-05": {
+      "name": "간이과세자 · 영수증 발급 대상", "target": "tax_type_cd = 02",
+      "supply_nature": ["R/S", "인세", "매절", "비정기 약정금", "개발지원금"],
+      "income_category": null, "income_clause": null,
+      "withholding": "UNDETERMINED", "withholding_note": "소득 성격 · 적용 법령에 따라 별도 판정(기준 미정의)",
+      "income_tax_rate": null, "local_tax_order": null, "deemed_expense_rate": null,
+      "min_tax_threshold_yn": null, "small_amount_exemption_yn": null,
+      "vat": "NOT_ADDED", "vat_treatment_default": "총액 기준", "evidence_type": "영수증(카드 · 현금영수증) 대사 기록", "evidence_issuer": "RECEIVE",
+      "correction_channels": ["3-b", "3-a(원천징수 대상 소득 정정 시)"],
+      "pending_conditions": [], "source": { "section": "11.2", "lines": "457-463" }
+    },
+    "TX-06": {
+      "name": "간이과세자 · 세금계산서 발급사업자", "target": "tax_type_cd = 07",
+      "supply_nature": ["전체 품목"],
+      "income_category": null, "income_clause": null,
+      "withholding": "UNDETERMINED", "withholding_note": "14.3절 자문 확정 전 개인 인적용역 지급분은 PENDING_REVIEW",
+      "income_tax_rate": null, "local_tax_order": null, "deemed_expense_rate": null,
+      "min_tax_threshold_yn": null, "small_amount_exemption_yn": null,
+      "vat": "TAXABLE_10", "vat_branch": { "VAT_EXCLUDED": "vat=floor(supply*0.10), settle=supply+vat", "VAT_INCLUDED": "supply=floor(total*100/110), vat=total-supply" },
+      "evidence_type": "전자세금계산서", "evidence_issuer": "PAYEE_ISSUE", "correction_channels": [1, "3-a(원천징수 병행 시)"],
+      "pending_conditions": ["개인 인적용역 · 인세 · 지원금 라인, 14.3 자문 확정 전(후보 TX-06, PENDING_REVIEW)"],
+      "source": { "section": "11.2", "lines": "464-469" }
+    },
+    "TX-07": {
+      "name": "일반과세자(개인 · 법인사업자)", "target": "tax_type_cd = 01 (또는 법인 · 단체의 강의 R/S · 약정금 · 지원금)",
+      "supply_nature": ["강의 R/S", "비정기 약정금", "개발지원금", "매절(개인사업자)", "도서 인세(개인사업자)"],
+      "income_category": null, "income_clause": null,
+      "withholding": "CORP_NONE / INDIVIDUAL_UNDETERMINED", "withholding_note": "법인 원천징수 대상 아님. 개인은 14.3 자문 확정 전 PENDING_REVIEW 후보 TX-07",
+      "income_tax_rate": null, "local_tax_order": null, "deemed_expense_rate": null,
+      "min_tax_threshold_yn": null, "small_amount_exemption_yn": null,
+      "vat": "TAXABLE_10", "vat_branch": { "VAT_EXCLUDED": "vat=floor(supply*0.10), settle=supply+vat", "VAT_INCLUDED": "supply=floor(total*100/110), vat=total-supply" },
+      "evidence_type": "전자세금계산서", "evidence_issuer": "PAYEE_ISSUE", "correction_channels": [1, "3-a(개인 원천징수 병행 확정 시)"],
+      "pending_conditions": ["개인 일반과세사업자 원천징수 여부 14.3 자문 확정 전", "tax_type_cd = 04 법인 · 05 · 06 후보 케이스 수취"],
+      "source": { "section": "11.2", "lines": "470-476" }
+    },
+    "TX-08": {
+      "name": "면세사업자(개인 저술업 · 면세 학원 등)", "target": "tax_type_cd = 04",
+      "supply_nature": ["강의 R/S", "교재 인세", "매절", "비정기 약정금", "개발지원금"],
+      "income_category": null, "income_clause": null,
+      "withholding": "UNDETERMINED", "withholding_note": "소득 성격 · 적용 법령에 따라 별도 판정",
+      "income_tax_rate": null, "local_tax_order": null, "deemed_expense_rate": null,
+      "min_tax_threshold_yn": null, "small_amount_exemption_yn": null,
+      "vat": "EXEMPT_0", "evidence_type": "전자계산서", "evidence_issuer": "PAYEE_ISSUE", "correction_channels": [2, "3-a(원천세 정정 동반 시)"],
+      "pending_conditions": ["법인(corp_no) + 면세요건 미충족 과세 용역(후보 TX-09 인세 · 매절 / TX-07 강의 R/S · 약정금 · 지원금)"],
+      "source": { "section": "11.2", "lines": "477-483" }
+    },
+    "TX-09": {
+      "name": "법인 · 단체 · 교재 저작권 인세", "target": "법인 · 단체 수취인",
+      "supply_nature": ["실물 도서 저작권 인세", "저작권 양도 매절"],
+      "income_category": null, "income_clause": null,
+      "withholding": "NONE", "income_tax_rate": null, "local_tax_order": null,
+      "deemed_expense_rate": null, "min_tax_threshold_yn": false, "small_amount_exemption_yn": false,
+      "vat": "TAXABLE_10", "vat_branch": { "VAT_EXCLUDED": "vat=floor(supply*0.10), settle=supply+vat", "VAT_INCLUDED": "supply=floor(total*100/110), vat=total-supply" },
+      "evidence_type": "전자세금계산서", "evidence_issuer": "PAYEE_ISSUE", "correction_channels": [1],
+      "pending_conditions": ["tax_type_cd = 05·06 (후보 TX-09/TX-07)", "tax_type_cd = 04 법인 과세 용역(후보 TX-09/TX-07)"],
+      "source": { "section": "11.2", "lines": "484-490" }
+    },
+    "TX-10": {
+      "name": "비거주자 · 외국법인", "target": "is_resident = false",
+      "withholding": "OUT_OF_SCOPE", "treatment": "12장. 1차 오픈 차단 또는 수기 격리. 엔진은 matrix_case_id NULL + PENDING_REVIEW",
+      "pending_conditions": ["is_resident = false"], "source": { "section": "11.2", "lines": "491-493" }
+    },
+    "TX-11": {
+      "name": "도서 재화 공급(위탁자 · 매입처)", "target": "위탁자 · 매입처",
+      "supply_nature": ["위탁 판매 정산금", "도서 매입 대금"], "supply_category": "GOODS",
+      "income_category": null, "income_clause": null, "taxable_base": null,
+      "withholding": "NONE", "income_tax_rate": null, "local_tax_order": null,
+      "deemed_expense_rate": null, "min_tax_threshold_yn": false, "small_amount_exemption_yn": false,
+      "vat": "EXEMPT", "vat_exemption_basis": "부가세법 제26조 제1항 제8호 · 시행령 제38조",
+      "consignment_fee_vat": "floor(순 위탁 수수료 공급가액*0.10); NET_DEDUCT: 위탁 실정산액=4단계 순 위탁 정산액-수수료 부가세; GROSS_SETTLE: 위탁 실정산액=4단계 순 위탁 정산액",
+      "evidence_type": "전자계산서", "evidence_issuer": "RECEIVE", "correction_channels": [4, "1(당사 수수료 세금계산서 정정 동반 시)"],
+      "pending_conditions": ["book_supply_type 미지정(NULL)"],
+      "source": { "section": "11.2", "lines": "494-504" }
+    },
+    "TX-12": {
+      "name": "사업자등록 없는 개인 도서 공급자", "target": "미등록 개인",
+      "supply_nature": ["도서 재화 공급(개인 위탁 · 사입)"], "supply_category": "GOODS",
+      "income_category": null, "withholding": "NONE", "vat": null,
+      "default_action": "계약 원장 등록 차단", "exception": "재무책임자 승인 후 수기 정산 격리 · 증빙불비 소명 기록, 자동 마감 제외",
+      "pending_conditions": ["예외 승인 심사 대기(후보 TX-12, PENDING_REVIEW)"],
+      "source": { "section": "11.2", "lines": "505-510" }
+    },
+    "TX-13": {
+      "name": "일반 과세 재화 공급(소비재)", "target": "상품 마스터 재화 라인(Pipeline 2.3), 수취인 TX-01",
+      "supply_nature": ["일반 상품 판매매출"], "supply_category": "GOODS",
+      "income_category": null, "withholding": "NONE", "taxable_base": null,
+      "vat": "TAXABLE_10", "vat_note": "Pipeline 2.3 인입 공식의 공급가액 · 부가세 그대로 사용(9단계 재계산 안 함)",
+      "evidence_type": "세금계산서(당사 발행)", "evidence_issuer": "SELF_ISSUE", "correction_channels": [1],
+      "payout": 0, "pending_conditions": [],
+      "source": { "section": "11.2", "lines": "511-517" }
+    }
+  },
+  "pseudo_inputs": ["payee_id", "taxable_base", "pending_negative_base", "income_category", "income_clause", "payee_is_author", "tax_threshold_unit_key", "vat_treatment", "is_internal", "tax_type_cd", "payee_tax_type", "tax_invoice_eligible_yn", "is_resident", "main_work_external_labor", "book_supply_type", "business_status", "corp_no"],
+  "pseudo_outputs": ["income_tax(임시명)", "local_income_tax(임시명)", "vat_amount(임시명)", "matrix_case_id", "tax_decision_status", "payee 당월 9단계 실정산액", "원귀속 PRE_TAX 세후 환산액", "pending_negative_base"]
+}

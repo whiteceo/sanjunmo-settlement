@@ -1,0 +1,21 @@
+{
+  "_note": "개발 출력(long 형식 예시) → 계산기 (단계, 필드) 매핑. dev_output.csv는 설명용 가상 개발 결과로, H-PARK 상계액(잔액 한도 미적용)과 H-LEE 원천세(과세최저한 미적용)에 일부러 오류를 넣었다.",
+  "dev_format": "csv",
+  "layout": "long",
+  "keys": {"rights_holder_id": "holder_code", "contract_id": "contract_code", "payee_id": "payee_code", "line_id": null},
+  "long": {
+    "step_code": "step",
+    "field": "item",
+    "value": "amount",
+    "step_alias": {},
+    "field_alias": {
+      "gross_pretax": "accrual_total",
+      "support_confirmed": "confirmed_amount",
+      "offset": "offset_amount",
+      "tax_withheld": "withholding_total",
+      "net_pay": "net_settle_amount",
+      "pay_amount": "payout_amount"
+    }
+  },
+  "tolerance": 0
+}

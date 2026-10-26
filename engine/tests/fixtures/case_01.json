@@ -1,0 +1,222 @@
+{
+  "case": "CASE-01",
+  "title": "개인 강사의 정상 정산 및 대여금 방식 선급금 자동 상계",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 1(+변형 1-B) · L31-51",
+  "input": {
+    "rights_holder_type": "INSTRUCTOR",
+    "payee_is_author": null,
+    "payees": [
+      {
+        "payee_id": "P1",
+        "payee_tax_type": "개인 프리랜서(사업소득 3.3%)",
+        "matrix_case_id": "TX-02",
+        "split_ratio": 100
+      }
+    ],
+    "contract": {
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "mmg_amount": 0,
+      "prepay_balance": 1500000,
+      "prepayment_tax_type": "LOAN",
+      "min_payout_limit": 100000,
+      "min_claim_limit": -100000,
+      "payee_split": null,
+      "support_fund": null
+    },
+    "income_category": "BUSINESS",
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "1.1",
+        "item_type": "ONLINE_COURSE",
+        "paid_amount": 5000000,
+        "refund_amount": 0,
+        "share_ratio": 100
+      }
+    ],
+    "milestones": [],
+    "refund_promo": null
+  },
+  "expected": {
+    "CARRY_IN": {
+      "carry_total": 0
+    },
+    "ACCRUAL": {
+      "1.1": {
+        "accrued_amount": 2500000
+      }
+    },
+    "MMG_ADJ": {
+      "1.1": 2500000,
+      "mmg_subsidy": 0
+    },
+    "DEDUCT": {
+      "deduct_amount": 0,
+      "total_pretax_accrual": 2500000
+    },
+    "SUPPORT_CAP": {
+      "applicable": false
+    },
+    "PREPAY_OFFSET": {
+      "offset_target_pretax": 2500000,
+      "withholding_equivalent": {
+        "income_tax": 75000,
+        "local_income_tax": 7500,
+        "total": 82500
+      },
+      "offsettable": 2417500,
+      "offset_amount": 1500000,
+      "taxable_base_deduct_flag": false
+    },
+    "LUMPSUM_ADD": {
+      "lumpsum": 0,
+      "pre_split_supply": 2500000
+    },
+    "PAYEE_SPLIT": {
+      "split_amount": 2500000,
+      "attributed_offset": 1500000,
+      "pretax_payable": 1000000,
+      "taxable_base": 2500000
+    },
+    "TAX": {
+      "income_tax": 75000,
+      "local_income_tax": 7500,
+      "total_withholding": 82500,
+      "net_payable": 917500
+    },
+    "CLAIM": {
+      "excluded": true
+    },
+    "PAYOUT": {
+      "payout_confirmed": true,
+      "payout_amount": 917500,
+      "prepay_balance_after": 0
+    }
+  },
+  "variants": [
+    {
+      "code": "CASE-01-EARNED",
+      "title": "설계 유의: 선급금이 소득 선지급(EARNED) 방식",
+      "input_delta": {
+        "contract.prepayment_tax_type": "EARNED"
+      },
+      "expected": {
+        "PAYEE_SPLIT": {
+          "taxable_base": 1000000
+        },
+        "TAX": {
+          "income_tax": 30000,
+          "local_income_tax": 3000,
+          "total_withholding": 33000,
+          "net_payable": 967000
+        }
+      },
+      "expected_status": "CONFIRMED",
+      "notes": "정본 L50. 실지급액 967,000 = 1,000,000 - 33,000 검산 일치."
+    },
+    {
+      "code": "CASE-01-B",
+      "title": "변형 1-B: 실결제 1,000,000(상계 가능액 < 잔액), 대여금",
+      "input_delta": {
+        "sales_lines": [
+          {
+            "pipeline_id": "1.1",
+            "item_type": "ONLINE_COURSE",
+            "paid_amount": 1000000,
+            "refund_amount": 0,
+            "share_ratio": 100
+          }
+        ]
+      },
+      "expected": {
+        "ACCRUAL": {
+          "1.1": {
+            "accrued_amount": 500000
+          }
+        },
+        "PREPAY_OFFSET": {
+          "withholding_equivalent": {
+            "income_tax": 15000,
+            "local_income_tax": 1500,
+            "total": 16500
+          },
+          "offsettable": 483500,
+          "offset_amount": 483500
+        },
+        "PAYEE_SPLIT": {
+          "taxable_base": 500000
+        },
+        "TAX": {
+          "total_withholding": 16500,
+          "net_payable": 0
+        },
+        "PAYOUT": {
+          "payout_amount": 0,
+          "carry_load": 0,
+          "prepay_balance_after": 1016500
+        }
+      },
+      "expected_status": "CONFIRMED",
+      "notes": "정본 L51. 실지급 = 500,000-483,500-16,500 = 0 검산 일치. 잔액 1,500,000-483,500 = 1,016,500 일치."
+    },
+    {
+      "code": "CASE-01-B-EARNED",
+      "title": "변형 1-B의 소득 선지급(EARNED) 방식",
+      "input_delta": {
+        "sales_lines": [
+          {
+            "pipeline_id": "1.1",
+            "item_type": "ONLINE_COURSE",
+            "paid_amount": 1000000,
+            "refund_amount": 0,
+            "share_ratio": 100
+          }
+        ],
+        "contract.prepayment_tax_type": "EARNED"
+      },
+      "expected": {
+        "PREPAY_OFFSET": {
+          "offsettable": 500000,
+          "offset_amount": 500000,
+          "taxable_base_deduct_flag": true
+        },
+        "PAYEE_SPLIT": {
+          "taxable_base": 0
+        },
+        "TAX": {
+          "total_withholding": 0,
+          "net_payable": 0
+        },
+        "PAYOUT": {
+          "payout_amount": 0,
+          "prepay_balance_after": 1000000
+        }
+      },
+      "expected_status": "CONFIRMED",
+      "notes": "정본 L51 끝 문장. 과세표준차감 플래그 true는 정본 L29('소득 선지급은 과세표준을 줄인다')에서 추론한 표기이며 L51에는 명시값 없음."
+    }
+  ],
+  "expected_status": "CONFIRMED",
+  "notes": "수식 검산 전부 일치(2,500,000 x 3% = 75,000, 지방세 7,500, 917,500). 정본 L18-27 비교표(150,000 소득선지급 vs 대여금)는 별도 참조 예시로 CASES.md에 기록, fixture화하지 않음.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

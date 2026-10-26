@@ -1,0 +1,188 @@
+{
+  "case": "CASE-02",
+  "title": "강의 R/S와 교재 인세 복합 정산 (사업소득 단일 축)",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 2(+2-B) · L53-81",
+  "input": {
+    "rights_holder_type": "INSTRUCTOR",
+    "payee_is_author": true,
+    "payees": [
+      {
+        "payee_id": "P1",
+        "payee_tax_type": "개인 프리랜서(사업소득 3.3%)",
+        "matrix_case_id": "TX-02/TX-03",
+        "split_ratio": 100
+      }
+    ],
+    "contract": {
+      "rate_type": "BASIC",
+      "rate_value": {
+        "1.1": 50,
+        "2.1": 10
+      },
+      "rate_basis": {
+        "2.1": "PAID_AMOUNT"
+      },
+      "share_ratio": 100,
+      "mmg_amount": 0,
+      "prepay_balance": 500000,
+      "prepayment_tax_type": "LOAN",
+      "min_payout_limit": 100000,
+      "min_claim_limit": -100000,
+      "payee_split": null,
+      "support_fund": null
+    },
+    "income_category": {
+      "1.1": "BUSINESS",
+      "2.1": "BUSINESS"
+    },
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "1.1",
+        "item_type": "ONLINE_COURSE",
+        "paid_amount": 2000000,
+        "refund_amount": 0,
+        "share_ratio": 100
+      },
+      {
+        "pipeline_id": "2.1",
+        "item_type": "BOOK",
+        "book_supply_type": "OWN_PUBLISHED",
+        "units": 100,
+        "list_price": 20000,
+        "refund_units": 0
+      }
+    ],
+    "milestones": [],
+    "refund_promo": null
+  },
+  "expected": {
+    "CARRY_IN": {
+      "carry_total": 0
+    },
+    "ACCRUAL": {
+      "1.1": {
+        "accrued_amount": 1000000
+      },
+      "2.1": {
+        "accrued_amount": 200000
+      },
+      "total_pretax_accrual": 1200000
+    },
+    "DEDUCT": {
+      "total_pretax_accrual": 1200000
+    },
+    "PREPAY_OFFSET": {
+      "offset_target_pretax": 1200000,
+      "withholding_equivalent": {
+        "income_tax": 36000,
+        "local_income_tax": 3600,
+        "total": 39600
+      },
+      "offsettable": 1160400,
+      "offset_amount": 500000,
+      "offset_by_pipeline": {
+        "2.1": 83333,
+        "1.1": 416667
+      },
+      "taxable_base_deduct_flag": false
+    },
+    "LUMPSUM_ADD": {
+      "pre_split_supply": 1200000
+    },
+    "PAYEE_SPLIT": {
+      "taxable_base": {
+        "1.1": 1000000,
+        "2.1": 200000
+      },
+      "pretax_payable": {
+        "1.1": 583333,
+        "2.1": 116667,
+        "total": 700000
+      }
+    },
+    "TAX": {
+      "1.1": {
+        "income_tax": 30000,
+        "local_income_tax": 3000,
+        "total": 33000
+      },
+      "2.1": {
+        "income_tax": 6000,
+        "local_income_tax": 600,
+        "total": 6600
+      },
+      "total_withholding": 39600,
+      "net_payable": 660400
+    },
+    "CLAIM": {
+      "excluded": true
+    },
+    "PAYOUT": {
+      "payout_confirmed": true,
+      "payout_amount": 660400,
+      "prepay_balance_after": 0
+    }
+  },
+  "variants": [
+    {
+      "code": "CASE-02-B",
+      "title": "2-B: 도서 인세가 1회성 기고 → 기타소득(OTHER, C15)",
+      "input_delta": {
+        "income_category": {
+          "1.1": "BUSINESS",
+          "2.1": "OTHER"
+        },
+        "contract.income_clause": {
+          "2.1": "C15"
+        },
+        "payee_is_author": true,
+        "contract.deemed_expense_rate": {
+          "2.1": 60
+        }
+      },
+      "expected": {
+        "TAX": {
+          "2.1": {
+            "taxable_base": 200000,
+            "deemed_expense": 120000,
+            "other_income_amount": 80000,
+            "min_tax_exempt": false,
+            "income_tax": 16000,
+            "local_income_tax": 1600,
+            "total": 17600,
+            "effective_rate_pct": 8.8
+          }
+        },
+        "RECEIPT": {
+          "withholding_receipt_issue": true,
+          "simplified_statement_monthly": false,
+          "annual_statement_due": "다음 연도 2월 말일"
+        }
+      },
+      "expected_status": "CONFIRMED",
+      "notes": "정본 L79-81. 80,000 x 20% = 16,000 / 1,600 / 17,600 검산 일치. 2-B의 6단계 안분·실지급 합계는 정본에 값 없음(원천세 상당액이 17,600으로 바뀌면 상계 가능액도 달라짐: 1,200,000-(33,000+17,600)=1,149,400로 상계액 500,000은 불변이나 정본 미기재)."
+    }
+  ],
+  "expected_status": "CONFIRMED",
+  "notes": "수식 검산 전부 일치. 안분 83,333(= 500,000 x 200,000 / 1,200,000 = 83,333.33 내림), 잔여 416,667을 큰 쪽(1.1)이 수령. 2.1의 환산 'TX-03' 표기와 1.1 'TX-02'가 한 권리자에 병기됨(정본 L55).",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

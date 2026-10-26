@@ -1,0 +1,49 @@
+{
+  "case": "D-15",
+  "title": "자사 저작권 보유 도서(own_copyright_yn=true)에 외부 강사 매출연동 지원금(5.1, CONDITIONAL) + 선급금 보유",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-15 · L297-297",
+  "input": {
+    "book": {
+      "own_copyright_yn": true,
+      "own_share_ratio": 100
+    },
+    "support_fund": {
+      "rate_type": "SUPPORT",
+      "pipeline": "5.1",
+      "offset_type": "CONDITIONAL"
+    },
+    "prepay_balance": "있음(금액 정본 미제시)"
+  },
+  "expected": {
+    "ACCRUAL": {
+      "book_bypassed": false,
+      "5.1_base_inflow": true,
+      "support_fund_computed": true
+    },
+    "PREPAY_OFFSET": {
+      "offset_basis": [
+        "1.1 확정액",
+        "5.1 확정액"
+      ],
+      "offset_on_sum": true
+    }
+  },
+  "expected_status": "QUALITATIVE",
+  "verifies": "5.2절, 5.3절, 6.1절, 8.3절 1·2·6단계",
+  "notes": "정본 D행에는 입력 금액·기대 금액이 없다(L279: '구체 입력값·원거래 상태·예상 금액은 별도 QA 테스트 명세에서 관리'). 계산기용 수치 입력은 지어내지 않고 비워 둠.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "case": "D-10",
+  "title": "MMG 150만 보전 120만 + 환불 120만 달, 선급금 잔액 50만 보유",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-10 · L292-292",
+  "input": {
+    "contract": {
+      "mmg_amount": 1500000,
+      "prepay_balance": 500000
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "1.1",
+        "new_rs_amount": 300000,
+        "refund_deduct_amount": 1200000
+      }
+    ],
+    "mmg_subsidy": 1200000
+  },
+  "expected": {
+    "DEDUCT": {
+      "1.1_net_pretax": 300000
+    },
+    "PREPAY_OFFSET": {
+      "offset_eligible_pretax": 0,
+      "formula": "max(0, 300000-1200000)",
+      "offset_amount": 0
+    }
+  },
+  "expected_status": "NUMERIC",
+  "verifies": "5.3절, 8.3절 6단계",
+  "notes": "Case 3와 같은 숫자 흐름(300,000 -> 1,500,000 -> 1,500,000-1,200,000 = 300,000). 선급금 대여금/소득 선지급 구분과 권리자 세무 케이스는 정본 미제시.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

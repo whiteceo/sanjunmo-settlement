@@ -1,0 +1,70 @@
+{
+  "case": "CASE-05",
+  "title": "소액 음수의 청구 이월 및 차월 상쇄",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 8.3절 후반 Case 5 · L160-180",
+  "input": {
+    "rights_holder_type": "INSTRUCTOR",
+    "payees": [
+      {
+        "payee_id": "P1",
+        "payee_tax_type": "개인 프리랜서(사업소득 3.3%)",
+        "matrix_case_id": "TX-02",
+        "split_ratio": 100
+      }
+    ],
+    "contract": {
+      "min_claim_limit": -100000
+    },
+    "income_category": "BUSINESS",
+    "carry_in": {
+      "PRE_TAX": 0,
+      "POST_TAX": 0,
+      "CONSIGNMENT_ONLY": 0
+    },
+    "sales_lines": [
+      {
+        "pipeline_id": "1.1",
+        "new_rs_amount": 200000,
+        "refund_deduct_amount": 230000,
+        "origin_payment_state": "UNCONFIRMED",
+        "note": "Case 4와 동일 조건. 발생월은 12월이 아님"
+      }
+    ],
+    "milestones": [],
+    "refund_promo": null
+  },
+  "expected": {
+    "ACCRUAL_DEDUCT": {
+      "monthly_net": -30000,
+      "note": "정본이 확정 보류한 비교용 산술 결과"
+    },
+    "CLAIM": {
+      "abs_net_le_min_claim_limit": true,
+      "claim_issued": false,
+      "carryover_type": "청구 이월",
+      "carry_pipeline_id": "1.1",
+      "income_category": "BUSINESS",
+      "carry_amount": -30000
+    },
+    "NEXT_MONTH": {
+      "opening_after_carry": 470000
+    }
+  },
+  "expected_status": "HELD",
+  "notes": "정본 L162: -30,000 이월·차월 470,000은 확정 기대값으로 사용하지 않음. 차월 470,000의 입력(차월 신규 소득)이 Case 5에는 없음(Case 4 예시의 차월 신규 500,000 -500,000-30,000 = 470,000으로만 역산 가능). 정본 L172는 Case 4 검증 예시(200,000 / 700,000 / 36,600)를 본 사례에도 적용하라고 함. 분기별 입력 표(L166-170)는 요구 입력 목록일 뿐 값 없음.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

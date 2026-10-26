@@ -1,0 +1,40 @@
+{
+  "case": "D-06",
+  "title": "자사 도서 인세(2.1)와 CONDITIONAL 개발지원금 적격액 동률 상계",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-6 · L288-288",
+  "input": {
+    "lecture_lines": 0,
+    "pipeline_2_1_eligible": "=",
+    "support_fund_offset_type": "CONDITIONAL",
+    "support_fund_eligible": "=",
+    "amounts": "정본 미제시(동률이라는 조건만)"
+  },
+  "expected": {
+    "PREPAY_OFFSET": {
+      "tie_residual_attribution_order_independent": true,
+      "comparison_order": [
+        "정산 입력 구분",
+        "약정·승인 식별자",
+        "라인 식별자"
+      ]
+    }
+  },
+  "expected_status": "QUALITATIVE",
+  "verifies": "8.3절 6단계, 13.3절",
+  "notes": "정본 D행에는 입력 금액·기대 금액이 없다(L279: '구체 입력값·원거래 상태·예상 금액은 별도 QA 테스트 명세에서 관리'). 계산기용 수치 입력은 지어내지 않고 비워 둠.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}

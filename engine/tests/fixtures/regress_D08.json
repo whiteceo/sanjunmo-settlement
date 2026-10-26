@@ -1,0 +1,33 @@
+{
+  "case": "D-08",
+  "title": "위탁 음수 잔액(-100원) 전액 상쇄",
+  "canon_ref": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md · 부록 D D-8 · L290-290",
+  "input": {
+    "consignment_balance": -100
+  },
+  "expected": {
+    "PAYOUT": {
+      "closing_balance": 0,
+      "offset_and_correction_movement_sign": -100,
+      "sign_basis": "원잔액 부호"
+    }
+  },
+  "expected_status": "NUMERIC_PARTIAL",
+  "verifies": "7.4절",
+  "notes": "금액은 정본 예시(-100원)뿐.",
+  "_meta": {
+    "canon_file": "docs/[산준모 정산시스템]_04_QA_정산케이스스펙_및_회귀테스트_법령근거.md",
+    "percent_unit": "rate_value는 % 정수",
+    "nondictionary_fields": [
+      "share_ratio",
+      "mmg_amount",
+      "prepay_balance",
+      "carry_in",
+      "sales_lines",
+      "milestones",
+      "payees",
+      "payee_tax_case"
+    ],
+    "note": "필드 이름은 03권 데이터 사전 컬럼명 우선. 사전에 없는 항목(nondictionary_fields)은 임시 이름"
+  }
+}
