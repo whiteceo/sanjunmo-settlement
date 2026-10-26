@@ -83,6 +83,8 @@
 | 매입처 SUP-xxxx | book_purchase_costs.publisher(문자열) — suppliers.id 연결 없음 |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 화면 번호 — 개발 DB 코멘트(마이그레이션 2026_09_21_000156)는 물류비 대사를 "ADMN-SETT-009"로 적고 있으나 dev-progress 와 프로토타입은 SETT-011. 코멘트 정리 필요 여부(개발팀 전달).
 - 확인 필요: 불일치 처리 결과(승인 지급 · 차감 요청 · 차월 이월)와 반품 귀책 판정 값을 어디에 저장할지 — 현재 테이블에 칸이 없다.
 

@@ -151,6 +151,8 @@
 | modal-sett-gate 최종 확정 | `#settlementCloseModal` + `confirm_month` |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 개발 보드 상수에 `P2_2`(위탁 도서 판매대금)가 있으나 settlement_lines.pipeline_id 주석에는 P2_2 가 없고 `LUMPSUM` 이 있다(1차 미수집 처리). 프로토타입 표기와 일치 여부.
 - 확인 필요: 이체 리스트 다운로드에 수정 권한까지 요구하는 규칙(ROUTE_PERMISSIONS)을 프로토타입 권한 안내에 반영할지.
 

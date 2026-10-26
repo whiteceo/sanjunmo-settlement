@@ -74,6 +74,11 @@
 | 권리자 파트너 센터 확장 — 계약 상세 열람 · 마일스톤 증빙 제출(INST-002) | 정본 기반 신규(PTNR-001 보강) | INST-001-S2 · INST-002, 정산 03권 | PTNR-001 prototype_dev 끝난 뒤 판단 |
 | 파트너 공통 로그인 · 비밀번호 찾기(외부 소속) | 정본 기반(LOGIN-001 규칙 재사용) | LOGIN-001, README 소속 규칙 | 개발은 관리자 로그인 하나 |
 
+## 정책 질문 정리 (10-27 진행 중)
+- 에이전트 2팀: 상품 · 강사 · 도서 → `dev_spec/_drafts/POLICY_D_PROD.md`(D-P..), 주문 · 정산 · 게시판 · 설정 → `_drafts/POLICY_D_OPS.md`(D-O..). 신규 화면 가정 → `_drafts/POLICY_D_PTNR-002/003.md`.
+- 끝나면 총괄이 표본 대조 후 `scripts/qa/reports/review/findings/POLICY_QUEUE.md`에 D- 절로 합친다.
+- USER-007 명세 에이전트 실행 중. 00_WORKFLOW_GUIDE는 작업 안내 문서라 명세 대상 아님.
+
 ## 신규 화면 진행
 | 코드(규칙) | 화면 | 상태 | 산출물 |
 |---|---|---|---|

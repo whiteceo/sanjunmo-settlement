@@ -83,6 +83,8 @@
 | downloadTaxFile(종류) | `output` withholding · business_income · other_income · base_diff · exempt_sales · consignment |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 개발 settlement_lines.pipeline_id 주석은 `LUMPSUM` 을 쓰는데 이 화면 필터는 `P7_1`(비정기 가산금)을 쓴다 — 같은 값의 두 이름인지.
 - 확인 필요: 프로토타입 상품/SKU 단위 손익 표를 유지할지(개발은 파이프라인 집계).
 

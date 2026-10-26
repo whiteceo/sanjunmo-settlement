@@ -100,6 +100,8 @@
 | `modal-tax-transition` | `#layerNtsReview` |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 프로토타입 트리거 "정산 마감 전 90일"은 개발 trigger_type 에 대응 값이 없다(가까운 값 PERIODIC · MILESTONE_APPROVAL). 반대로 PURCHASE_ORDER · CONSIGNMENT_REG 는 프로토타입에 없다.
 - 확인 필요: 위탁자 · 매입처 전환 승인은 개발 1차 범위 밖(서비스 문구 "2차") — 프로토타입 표시 여부.
 

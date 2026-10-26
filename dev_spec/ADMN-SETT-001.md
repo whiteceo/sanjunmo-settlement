@@ -144,6 +144,8 @@
 | 샘플 권리자 코드 RH-xxxx · 계약 CT-xxxx | rights_holders.code · rights_holder_contracts.code (형식은 권리자 원장 명세 참조) |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 프로토타입 상태 "계약 기간 불일치"는 개발에 목록 필터 값이 없고 저장 시 `PERIOD_RANGE` 차단으로만 다룬다. 목록 상태로 둘지.
 - 확인 필요: "일반 상품(자사 매출)"을 이 화면 대상에 넣을지 — 개발은 강좌 · 도서만 매핑한다.
 

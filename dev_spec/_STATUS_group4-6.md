@@ -6,7 +6,7 @@
 ## 재개 방법 (새 세션)
 - `ls dev_spec/ADMN-*.md` 로 있는 파일을 확인하고, 아래 표에서 "완료"가 아닌 화면만 README 8절 형식으로 쓴다.
 - 파일 하나 = `prototype_clean/<코드>_baseline.html` 하나. 개발 저장소는 읽기 전용, prototype*/ · 공통 파일 · `_STATUS.md` 는 건드리지 않는다.
-- 정책 질문은 각 파일 8절에 쓰고, 다 끝나면 `scripts/qa/reports/review/findings/POLICY_QUEUE.md` 에 white 형식(개요 표 + 항목별 정본 문구 · 현재 상태 · 선택지 장단점 · 권고 근거 · 유사 서비스/법령 사례와 출처)으로 모은다.
+- 정책 질문은 각 파일 8절에 쓰고, `scripts/qa/reports/review/findings/devspec/POLICY_D_*.md` 에만 white 형식(개요 표 + 항목별 정본 문구 · 현재 상태 · 선택지 장단점 · 권고 근거 · 유사 서비스/법령 사례와 출처)으로 모은다.
 
 ## 화면별 상태
 | 그룹 | 파일 | 상태 | 비고 |
@@ -22,5 +22,8 @@
 - 01:30 시작. 01:45 형식을 README 8절로 바꾸라고 에이전트에 전달.
 - 01:42 무렵 사용 한도로 세 에이전트 중단. 02:10 리셋 후 이어서 진행.
 - 02:20 25개 초안 완료. 형식 점검 통과(8절 · 헤더 4줄 · 근거 파일:줄 전부 있음, 인용 라우트 이름 색인 대조 이상 없음).
-- 02:25 8절 정책 질문(약 60건) 정본 대조 · white 형식 정리를 에이전트 3개에 맡김 → `scripts/qa/reports/review/findings/devspec/POLICY_D_{SETT,BRD,CONF}.md`. 끝나면 POLICY_QUEUE.md 끝에 "개발 대조 (D-)" 절로 붙인다.
+- 02:25 8절 정책 질문(약 60건) 정본 대조 · white 형식 정리를 에이전트 3개에 맡김 → `scripts/qa/reports/review/findings/devspec/POLICY_D_{SETT,BRD,CONF}.md`. POLICY_QUEUE.md 는 고치지 않는다(회원관리 스레드가 합침, 코디네이터 지시 02:28). 끝나면 코디네이터에 알린다.
 - (옛) 남은 일: 남은 7개 작성 → 22개 형식 점검(8절 · 헤더 · 근거 `파일:줄`) → 8절 정책 질문을 POLICY_QUEUE.md 로 모으기 → 코디네이터에 보고.
+- 02:28 POLICY_D_BRD 완료: C 4 / A 9 / B 6, 상 = D-BRD-01(무료콘텐츠 구분, 설계서 L222 vs L408 불일치).
+- 02:30 POLICY_D_CONF 완료: C 5(D-CONF-01~05) / A 9 / B 7 / M-02 같음 1, 상 없음.
+- 02:32 POLICY_D_SETT 완료(C 5 / A 15 / B 4). 요약 `findings/devspec/POLICY_D_00_요약.md`(65건 = 정본 근거 33 · UI 17 · M-02 중복 1 · 결정 필요 14, 상 1건 D-BRD-01). dev_spec 25파일 8절에 결과 연결 한 줄 추가. 코디네이터에 보고. 이 그룹 작업 끝.

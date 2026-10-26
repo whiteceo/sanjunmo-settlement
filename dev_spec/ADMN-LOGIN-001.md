@@ -179,6 +179,8 @@
 - MODE 4 이름: 프로토타입 "첫 로그인 · 임시 비밀번호", 개발 `password-change`(첫 로그인 · 90일 공용, 플래그 `must_change_password`).
 
 ## 8. 정책 질문 (white 확인 필요)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 비밀번호 길이 상한: 프로토타입 20자 vs 개발 12자 — 확인 필요.
 - 비밀번호 찾기 인증 순서: 프로토타입은 아이디 + 휴대전화 SMS 1회, 개발은 이메일 인증번호 → 휴대전화 SMS 2단계 — 확인 필요.
 - 파트너(출판사 · 저작권자) 로그인: 프로토타입은 통합 게이트웨이, 개발 역할 코드는 super · cs · logistics · finance · instructor · assistant 뿐 — 확인 필요.

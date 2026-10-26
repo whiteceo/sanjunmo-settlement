@@ -156,6 +156,8 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 상세 화면 표현: `view-detail` 섹션 → 개발 별도 페이지 `admin.inquiries.show`.
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_BRD.md` 의 D-BRD 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 관리자가 문의에 주문번호를 바인딩하는 기능(프로토타입)이 필요한지 확인 필요 — 개발은 회원 접수 시 선택만.
 - "타부서 이관중" 상태를 별도 상태로 둘지 확인 필요 — 개발은 분류 변경 시 assign_board 로 다른 화면 큐로 옮기고 상태는 그대로.
 - 미지정 담당자 필터 · 담당 부서 큐 표시가 필요한지 확인 필요.

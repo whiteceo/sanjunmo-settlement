@@ -135,6 +135,8 @@
 | 신규 등록 페이지(SJM_PAGE) | `admin.settlement.adjustments.show` `/form?id=` |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 프로토타입 사유 "선급금 상계액 오류" · "최저보장 보전금 산출 오류"가 개발 reason_type 에 없다. 반대로 개발의 `ALLOWANCE`(정액 · 건당 수당) 유형은 프로토타입에 없다.
 - 확인 필요: 승인 단계 — 개발은 재무 담당 단독 확정(approved_at · approver1_id, PO 2026-09-22 주석). 프로토타입의 2단계 승인 표시를 유지할지.
 - 확인 필요: settlement_adjustments.status 주석의 `applied`(정산서 반영 완료)는 모델 상수에 없다.

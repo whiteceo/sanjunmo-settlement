@@ -245,6 +245,8 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 화면 단위: 프로토타입 탭 하나 화면 → 개발 메뉴 5개(`notices` · `faqs` · `product-qnas` · `study-qnas` · `winners`).
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_BRD.md` 의 D-BRD 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 공지 분류(일반공지 · 시험일정 · 시스템점검)를 둘지 확인 필요 — 개발은 분류 없이 공지 게시판 하나로 확정(NoticeService::prepare 주석 "ADMN-BRD-001-S1 ① 구분 선택 없음").
 - 당첨자 경품 지급(포인트 · 기프티콘 · 실물 송장)을 BRD-009 에서 처리할지 확인 필요 — 개발은 발표 · 마스킹 명단만, 원본 이름 · 연락처를 저장하지 않는다(PostWinner 주석 · DECISIONS #72).
 - FAQ "자주 찾는 TOP 고정"과 개발 가중치(weight) 정렬의 관계 확인 필요.

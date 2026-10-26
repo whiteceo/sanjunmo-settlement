@@ -117,6 +117,8 @@
 | saveCurrentSplit | PUT `…payee-splits.update` (`reason` + `splits[]`) |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 프로토타입은 공동 서명 수취인을 계약 마스터에서 고르기만 하는데, 개발은 이 화면에서 풀(지위 · 승계 정보)을 직접 등록한다. 공동 서명인 등록 주체(계약 원장 vs 이 화면)를 어디로 둘지.
 - 확인 필요: 분할을 저장해도 1차 정산은 PAYEE_SPLIT 으로 보류된다(DECISIONS 113 ①) — 프로토타입 저장 후 안내 문구에 반영할지.
 

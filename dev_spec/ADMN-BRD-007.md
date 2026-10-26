@@ -109,6 +109,8 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 소분류 명칭 최대 40자(대분류 50자).
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_BRD.md` 의 D-BRD 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 담당 부서 큐 복수 선택(프로토타입 · 설계서)과 개발 단일 저장의 차이 확인 필요 — 스키마에는 inquiry_category_roles(복수)가 있으나 요청 검증은 단일.
 - 분류 변경 이력을 화면에 보여 줄지 확인 필요.
 

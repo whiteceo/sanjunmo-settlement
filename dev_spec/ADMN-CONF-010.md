@@ -116,6 +116,8 @@
 - 기간: `dateFrom` · `dateTo` → `start_date` · `end_date`, 프리셋 → `period`.
 
 ## 8. 정책 질문 (white 확인 필요)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 감사 로그 해시 체인 · 월마감 스냅샷을 1차 범위로 둘지(개발 흔적 없음) — 확인 필요.
 - 조회 기간 상한: 개발 90일, 프로토타입 "전체 기간" — 확인 필요.
 - 화면 코드 CONF-006 → CONF-010 통합을 개발(dev-progress · 메뉴)에도 맞출지 — 확인 필요.

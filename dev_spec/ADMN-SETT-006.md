@@ -88,6 +88,8 @@
 | 강사료(R/S) 차감액 · 개발지원금 차감 | rs_deduct_amount · support_deduct_amount |
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+> 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
+
 - 확인 필요: 프로토타입은 B · C 건도 차감액을 계산해 확정하는 흐름인데, 개발 1차는 B · C 를 HOLD(마감 보류)로 둔다(DECISIONS 113 ②). 프로토타입에 "2차" 표시를 둘지.
 - 확인 필요: 일괄 확정(체크박스) 유지 여부 — 개발은 건별 검수 의견 필수.
 
