@@ -45,15 +45,13 @@
 3. dev_spec은 모든 그룹 병렬(prototype_clean과 무관).
 4. prototype_dev 확장 사본은 prototype_clean 통합 커밋("Prototype check" 세션) 뒤에 만든다.
 
-## 화면별 상태
-| 프로토타입 파일 | dev 기준 커밋 | 원본 prototype_clean 상태 | dev_spec | prototype_dev | 비고 |
-|---|---|---|---|---|---|
-| ADMN-PROD-001~004 | d562524a | (명세만) | 완료(정책 질문 0 · 3 · 4 · 4) | 통합 커밋 대기 | 에이전트 |
-| ADMN-ORD-001 · RFD-002 | d562524a | (명세만) | 완료(정책 질문 4 · 9) | 통합 커밋 대기 | 에이전트 |
-| ADMN-PROD-005~007 · BOOK-001 · INST-001 · 002 | d562524a | (명세만) | 완료(정책 질문 7 · 2 · 5 · 3 · 2 · 5) | 통합 커밋 대기 | INST-001 줄 번호는 미커밋 트리 기준 — 통합 커밋 후 다시 |
-| 그룹 4~6 (25개) | d562524a | (명세만) | 완료(_STATUS_group4-6.md) | 통합 커밋 대기 | SETT-009↔011 물류비 대사 · CONF-007 발송이력↔SENS 템플릿 → D- 정책 |
-| ADMN-USER-007 | d562524a | (명세) | 완료(새 정책 질문 4) | 에이전트 map 작성 중 | |
-| ADMN-USER-001 | d562524a | 38bca64 v6.72 (sha e25f29783c1f) | 완료 | 완료(138항목, 동작 9종 · 콘솔 에러 0 — clean과 동일) | 시범. 통합 커밋 후 apply 다시 |
+## 화면별 상태 (10-27 04시 기준)
+- dev_spec 명세: 프로토타입 화면 38개 전부 + 신규 PTNR-002 · 003 (00_WORKFLOW_GUIDE는 안내 문서라 제외). 기준 dev d562524a.
+- prototype_dev: 38개 전부 + 신규 2개. 모두 `check_dev_screen.py` 통과(clean과 같은 동작 · 오류 0 · onclick 누락 0). 원본 상태는 `prototype_dev/_SOURCES.md`.
+- 원본이 v6.72 이후 다른 세션 미커밋 상태에서 맞춘 화면: BOOK-001 · INST-001(그 세션 커밋 후 apply 다시). SETT-008 · 009 · VEND-001은 v6.72 다음 커밋 기준.
+- clean 원본 결함(코디네이터에 전달, prototype_dev는 clean 따라감 — 고쳐지면 apply 다시): 모달이 안 열림(핫픽스 인라인 display) — SETT-002 modalCarryoverP1 · SETT-008 전환 승인 · PROD-003 강의/교재 선택 · PROD-004 가채번/SKU/재고 · USER-007 파기 결과 · PROM-002 modal-p1/modal-point · BRD-001 modal-faq-cat · PROD-005 · 007 일부(버튼 클릭으로는 열림). LOGIN-001 [5회 실패 잠금 시연] TypeError(문구 치환기가 #lockout-account 괄호 삭제).
+- 일괄 다시 맞추기: `for c in $(ls dev_spec/_maps | sed 's/.py//'); do python dev_spec/_tools/apply_dev_map.py $c; done` 후 `check_dev_screen.py` 전체. 건수 불일치는 그 map만 고친다.
+- 알려진 도구 한계: 원본 줄 끝이 섞인 파일(PROD-004)은 prototype_dev에서 LF로 저장됨(새 파일이라 영향 없음).
 
 ## 결정 기록
 - 2026-10-27 prototype_dev 이름 입히는 방식: 프로토타입 JS가 기대는 것(라디오 name · value, 내부 코드값, JS가 id로 찾는 입력)은 동작을 지키려고 그대로 두고 `data-dev-name` · `data-dev-value`로 개발 이름을 단다. JS가 안 쓰는 입력에는 실제 `name=`을 개발 이름으로 넣고, 모달 id는 개발 레이어 id로 바꾼다(참조 전부). 동작 버튼에는 `data-dev-route` · `data-dev-method` · `data-dev-url` · `data-dev-perm`. 개발에만 있음 = `data-dev-flag="dev-only"`(정본 디자인으로 추가), 프로토타입에만 있음 = `data-dev-flag="proto-only"`. 오른쪽 아래 [개발 매핑] 버튼(`prototype_dev/dev-overlay.js`)으로 겹쳐 본다.
