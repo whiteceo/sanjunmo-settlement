@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[ADMN-CONF-003 · 008] 플레이어/DRM 보안 · 동시접속 · 인증 발송 설정 — 산준모닷컴 백오피스 v8.4 FINAL</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --bg-body: #F3F5F9; --bg-card: #FFFFFF; --bg-subtle: #F8FAFC;
+      --text-main: #0F172A; --text-sub: #475569; --text-muted: #64748B;
+      --border: #E2E8F0; --border-strong: #CBD5E1;
+      --primary: #2563EB; --primary-hover: #1D4ED8;
+      --success: #16A34A; --warning: #D97706; --danger: #DC2626;
+      --radius-md: 8px; --radius-lg: 12px; --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 13px; line-height: 1.5; min-width: 1440px; }
+    #v4-root-shell { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+    .top-bar.v4-gen3-topbar { height: 60px; background: #FFF; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 100; }
+    .crumb-wrap { display: flex; align-items: center; gap: 10px; }
+    .crumb-code { background: #1E293B; color: #F8FAFC; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+    .crumb-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .crumb-sub { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
+    .main-container { padding: 24px 28px 60px; max-width: 1640px; width: 100%; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+    .kpi-card .k-title { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+    .kpi-card .k-num { font-family: "Pretendard", sans-serif; font-size: 22px; font-weight: 800; color: var(--text-main); text-align: left; margin-bottom: 6px; }
+    .kpi-card .k-sub { font-size: 11.5px; color: var(--text-muted); }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #FAFBFD; }
+    .card-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card-body { padding: 18px 20px; }
+
+    .policy-banner { background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 18px; font-size: 12px; color: #1E3A8A; line-height: 1.6; }
+    .f-input, .f-select { height: 34px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 12.5px; font-family: inherit; color: var(--text-main); background: #FFF; }
+    .btn { height: 34px; padding: 0 14px; border-radius: 6px; font-size: 12.5px; font-weight: 700; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-primary { background: var(--primary); color: #FFF; }
+    .btn-outline { background: #FFF; border-color: var(--border-strong); color: var(--text-main); }
+    .btn-danger { background: #FEF2F2; border-color: #FECACA; color: var(--danger); }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+    .badge-green { background: #DCFCE7; color: #15803D; }
+    .badge-amber { background: #FEF3C7; color: #B45309; }
+    .badge-gray { background: #F1F5F9; color: #475569; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th { background: #F8FAFC; color: var(--text-sub); font-weight: 700; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); }
+    .kv-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    .kv-table th { width: 180px; background: var(--bg-subtle); padding: 10px 14px; border: 1px solid var(--border); text-align: left; font-weight: 700; color: var(--text-sub); font-size: 12px; }
+    .kv-table td { padding: 10px 14px; border: 1px solid var(--border); font-size: 12.5px; }
+
+    .inner-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+    .inner-tab { padding: 10px 18px; font-size: 13px; font-weight: 800; color: var(--text-sub); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .inner-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+    #toast-box { position: fixed; bottom: 24px; right: 24px; background: #0F172A; color: #FFF; padding: 12px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 700; display: none; z-index: 2000; }
+    code { background: #F1F5F9; padding: 2px 5px; border-radius: 4px; font-size: 11.5px; }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-003", "devCommit": "d562524a", "progress": "구현(CONF-003 플레이어 설정 · CONF-008 인증 발송 설정). 재마스킹 시간 · 수동 포인트 유효기간 · 학습 Q&A 운영 방식 · IP 급증 감지는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.player-settings.index", "label": "플레이어/DRM 설정 (최고 관리자 전용)"}, {"route": "admin.verify-settings.index", "label": "인증 발송 설정"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="crumb-wrap">
+        <span class="crumb-code" id="top-crumb-code">ADMN-CONF-003</span>
+        <h1 class="crumb-title">플레이어/DRM 보안 · 동시접속 · SMS 인증 발송 설정</h1>
+        <span class="crumb-sub">사이트 · 약관 · 메시지 설정 &gt; StarPlayer+ 워터마크 · 동시접속 1세션 제어(CONF-003) · SMS 본인인증 발송/IP 화이트리스트(CONF-008)</span>
+      </div>
+    </header>
+
+    <div id="v4-page-body" class="main-container">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="k-title"><span>1차 오픈 동시접속 제어 정책</span><span class="badge badge-blue">11/16 오픈 확정</span></div>
+          <div class="k-num">1 세션 (IP)</div>
+          <div class="k-sub">중복 로그인/재생 감지 시 기존 세션 즉시 강제 로그아웃</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-title"><span>StarPlayer+ 동적 워터마크</span><span class="badge badge-green">ON</span></div>
+          <div class="k-num">10초 / 5초</div>
+          <div class="k-sub">10초 주기 랜덤 좌표 이동 · 5초 노출 · 투명도 35%</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-title"><span>24시간 SMS 인증 발송 한도</span><span class="badge badge-amber">ADMN-CONF-008</span></div>
+          <div class="k-num">최대 5 회</div>
+          <div class="k-sub">재발송 쿨다운 30초 · 인증번호 유효시간 3분(180초)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-title"><span>공유기 IP 제한 예외 (Whitelist)</span><span class="badge badge-gray">CIDR 지원</span></div>
+          <div class="k-num" id="kpi-ip-cnt">2 건</div>
+          <div class="k-sub">제휴 독서실 · 사내 테스트망 IP 대역 예외 허용</div>
+        </div>
+      </div>
+
+      <div class="inner-tabs">
+        <button type="button" class="inner-tab active" id="tab-btn-player" data-dev-route="admin.player-settings.index" data-dev-method="GET" data-dev-url="/sj-admin/player-settings" data-dev-perm="조회 + 최고 관리자" onclick="switchConfTab('player')">🎬 플레이어 · 워터마크 · 동시접속 제어 설정 (ADMN-CONF-003)</button>
+        <button type="button" class="inner-tab" id="tab-btn-auth" data-dev-route="admin.verify-settings.index" data-dev-method="GET" data-dev-url="/sj-admin/verify-settings" data-dev-perm="조회" onclick="switchConfTab('auth')">🔐 SMS 본인인증 발송 제한 · 허용 IP 관리 (ADMN-CONF-008)</button>
+      </div>
+
+      <!-- 탭 1: ADMN-CONF-003 플레이어 / DRM 보안 설정 -->
+      <section id="panel-player" class="view-panel active">
+        <div class="policy-banner">
+          <strong>[11월 16일 1차 오픈 스펙 기준 — 플레이어 및 부정수강 통제 원칙]</strong>
+          1차 오픈에서는 수험생 CS 마찰이 큰 물리 단말기 고유번호(UUID) 2대 고정 등록 대신, <strong>계정당 동시접속 1세션(IP/세션 기준) 제한 및 중복 접속 시 기존 세션 강제 로그아웃</strong>을 우선 적용합니다. (단말기 UUID 기기 등록 제어는 2차 고도화 옵션으로 토글 분리)
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>🎬 StarPlayer+ 동적 워터마크 · 재생 제어 · 동시접속 설정 (ADMN-CONF-003)</span></div>
+            <button type="button" class="btn btn-sm btn-outline" data-dev-flag="dev-only" data-dev-note="#playerSettingRestore 기본값 복원" onclick="showToast('기본값을 폼에 채웠습니다. 저장해야 반영됩니다.')">↺ 기본값 복원</button>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.player-settings.update" data-dev-method="PUT" data-dev-url="/sj-admin/player-settings" data-dev-perm="수정 + 최고 관리자" data-dev-note="개발은 저장 전 확인 레이어 #layerPlayerSettingSave(변경 전/후 · 영향 · 재생 중 인원 GET admin.player-settings.playing-count.index)" onclick="savePlayerConfig()">💾 플레이어 보안 설정 저장</button>
+          </div>
+          <div class="card-body">
+            <div style="display:grid; grid-template-columns: 1fr 400px; gap:24px; align-items:start;">
+              <div>
+                <table class="kv-table">
+                  <tbody>
+                    <tr>
+                      <th>동적 워터마크 표기 내용 *</th>
+                      <td>
+                        <select id="pl-wm-text" name="watermark_content" data-dev-value="email (개발 1종 — 프로토 3종 선택지와 다름)" class="f-select" style="width:100%;" onchange="updateWmPreview()">
+                          <option value="hon***@naver.com (121.***.7.90)">회원 이메일 ID + 접속 IP (권장 · 불법 녹화 유출자 즉시 특정)</option>
+                          <option value="hon***@naver.com">회원 이메일 ID 단독 표기</option>
+                          <option value="hon***@naver.com (홍*동)">회원 이메일 ID + 이름</option>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>워터마크 이동 주기 / 노출 시간 *</th>
+                      <td>
+                        이동 주기(<code>positionChangeInterval</code>): <input type="number" id="pl-wm-interval" name="watermark_move_interval" data-dev-note="1~300초" class="f-input" style="width:70px;" value="10" /> 초 &nbsp;·&nbsp;
+                        노출 시간(<code>displayDuration</code>): <input type="number" id="pl-wm-duration" name="watermark_display_duration" data-dev-note="1~300 · ≤ 이동 주기" class="f-input" style="width:70px;" value="5" /> 초
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>투명도 / 글자 크기 *</th>
+                      <td>
+                        투명도: <input type="number" id="pl-wm-opacity" name="watermark_opacity" data-dev-note="1~100 %" class="f-input" style="width:70px;" value="35" onchange="updateWmPreview()" /> % &nbsp;·&nbsp;
+                        글자 크기: <input type="number" id="pl-wm-size" name="watermark_font_size" data-dev-note="8~48 px" class="f-input" style="width:70px;" value="14" onchange="updateWmPreview()" /> px
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>첫 수강 빨리감기 제한<br/>(<code>limitedForward</code>)</th>
+                      <td>
+                        <label style="font-weight:800; margin-right:16px;"><input type="radio" name="pl_fwd" value="ON" data-dev-name="limit_forward" data-dev-value="1" checked onchange="onFwdChange(this)" /> ON (미수강 구간 마우스 드래그 스킵 차단 · 합격환급반 진도율 어뷰징 방지)</label>
+                        <label style="font-weight:700;"><input type="radio" name="pl_fwd" value="OFF" data-dev-note="무료 · 맛보기 예외는 개발 별도 필드 limit_forward_free_off" data-dev-name="limit_forward" data-dev-value="0" onchange="onFwdChange(this)" /> OFF (자유 이동 허용 · 맛보기/무료특강은 자동 OFF)</label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>허용 재생 배속 범위 *</th>
+                      <td>
+                        최소 <select class="f-select" name="speed_min" style="width:90px;" data-dev-flag="dev-only" data-dev-note="PlayerSettingRequest speed_min (배속 단계)"><option value="0.5" selected>0.5x</option><option value="0.75">0.75x</option><option value="1.0">1.0x</option></select> ~ 최대
+                        <select id="pl-max-speed" name="speed_max" data-dev-value="0.5 ~ 2.0 단계 (프로토 2.5x는 개발 단계에 없음 — 정본 결정: 개발에 2.5 추가 권장)" class="f-select" style="width:100px;" onchange="updateSpeedHint()">
+                          <option value="2.0x" selected>2.0x (권장)</option>
+                          <option value="1.5x">1.5x</option>
+                          <option value="2.5x">2.5x</option>
+                        </select>
+                        <span style="font-size:11.5px; color:var(--text-muted); margin-left:6px;">(구간 반복 A↔B 및 10초 앞/뒤 이동 기본 활성)</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>진도 인정 최대 배속<br/>(<code>playbackMaxCreditedSpeed</code>)</th>
+                      <td>
+                        <input type="number" id="pl-credit-speed" name="progress_speed_policy" data-dev-note="개발은 all · limited 2택 — 정본은 진도 인정 최대 배속 숫자(통합설계서 L273). 개발팀 전달 항목이라 프로토 숫자 입력 유지" class="f-input" style="width:80px;" min="0.5" max="4" step="0.25" onchange="updateSpeedHint()" /> 배속까지 진도율 인정
+                        <span id="pl-credit-hint" style="font-size:11.5px; color:var(--text-muted); margin-left:6px;"></span>
+                      </td>
+                    </tr>
+                    <tr data-dev-flag="dev-only" data-dev-note="PlayerSettingRequest resume_use · resume_offset_sec(0~600) · rewind_allow · watermark_mobile_same · limit_forward_free_off">
+                      <th>이어보기 · 되감기 · 모바일</th>
+                      <td>
+                        <label style="margin-right:12px;"><input type="checkbox" name="resume_use" value="1" checked /> 이어보기</label>
+                        <input type="number" class="f-input" name="resume_offset_sec" style="width:65px;" value="5" /> 초 전부터 &nbsp;·&nbsp;
+                        <label style="margin-right:12px;"><input type="checkbox" name="rewind_allow" value="1" checked /> 10초 뒤로 허용</label>
+                        <label style="margin-right:12px;"><input type="checkbox" name="watermark_mobile_same" value="1" checked /> 모바일 앱 동일 적용</label>
+                        <label><input type="checkbox" name="limit_forward_free_off" value="1" checked /> 무료 · 맛보기 건너뛰기 허용</label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>동시접속 세션 제어 (1차 오픈) *</th>
+                      <td>
+                        <span class="badge badge-blue">1계정 = 1세션 (동시 재생·로그인 전면 차단)</span>
+                        <span style="font-size:12px; margin-left:6px;">중복 접속 감지 시 기존 세션을 즉시 강제 로그아웃하고 안내 모달을 노출합니다.</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>24시간 접속 IP 급증 자동 감지</th>
+                      <td>
+                        동일 계정 24시간 내 서로 다른 IP <input type="number" class="f-input" style="width:65px;" value="5" data-dev-flag="proto-only" data-dev-note="24시간 접속 IP 급증 감지 — 개발 미구현" /> 개 초과 접속 시 부정수강 의심 알림 및 계정 보호 잠금(<code>ADMN-USER-005</code>) 연동
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 우측 16:9 플레이어 워터마크 실시간 미리보기 -->
+              <div>
+                <div style="font-size:12.5px; font-weight:800; color:var(--text-sub); margin-bottom:8px;">🖥️ StarPlayer+ 16:9 워터마크 실시간 미리보기</div>
+                <div style="background:#0F172A; border-radius:12px; height:230px; position:relative; overflow:hidden; border:2px solid #334155; display:flex; align-items:center; justify-content:center; color:#94A3B8;">
+                  <div style="text-align:center;">
+                    <div style="font-size:15px; font-weight:800; color:#F8FAFC; margin-bottom:4px;">[2026 산업안전기사 필기] 제1강 안전관리론 핵심정리</div>
+                    <div style="font-size:12px;">재생 중 · 00:14:22 / 00:52:10 (1.25x)</div>
+                  </div>
+                  <div id="wm-preview-chip" style="position:absolute; top:28px; right:32px; color:#FFFFFF; opacity:0.35; font-size:14px; font-weight:800; pointer-events:none; user-select:none;">
+                    hon***@naver.com (121.***.7.90)
+                  </div>
+                </div>
+                <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
+                  ※ 설정 저장 시 현재 재생 중인 세션을 끊지 않고 다음 강의 재생 시점부터 새 파라미터가 적용됩니다.
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <div style="font-size:13px; font-weight:800; margin-bottom:8px;">📋 최근 플레이어 · 보안 설정 변경 이력 <button type="button" class="btn btn-sm btn-outline" data-dev-flag="dev-only" data-dev-route="admin.player-settings.history.index" data-dev-method="GET" data-dev-url="/sj-admin/player-settings/history" data-dev-perm="조회 + 최고 관리자" data-dev-note="admin_logs 원장 · 20건 페이지(history_page)" onclick="showToast('변경 이력 전체 페이지로 이동합니다.')">전체 이력 ↗</button></div>
+              <table class="data-table">
+                <thead>
+                  <tr><th>변경 일시</th><th>변경 관리자</th><th>변경 항목</th><th>변경 전</th><th>변경 후</th></tr>
+                </thead>
+                <tbody id="player-hist-tbody">
+                  <tr><td>2026.10.16 14:20</td><td>최고 관리자 (admin_root)</td><td>동시접속 제어 정책 (11/16 오픈 기준)</td><td>기기 UUID 2대 고정</td><td><strong>동시접속 1세션 제어 (중복 시 기존 세션 강제 로그아웃)</strong></td></tr>
+                  <tr><td>2026.10.11 10:05</td><td>최고 관리자 (admin_kim)</td><td>워터마크 노출 시간 (displayDuration)</td><td>3초</td><td><strong>5초 (이동 주기 10초)</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="card-privacy-display">
+          <div class="card-header">
+            <div class="card-title"><span>🔒 개인정보 표시 설정 (재마스킹 시간)</span></div>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.privacy-settings.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/privacy-settings" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="개발은 MaskingService::UNMASK_TTL_SECONDS=30 상수(정본: 회원 600초 · 권리자 30초 설정값 — 개발팀 전달)" onclick="savePrivacyConfig()">💾 개인정보 표시 설정 저장</button>
+          </div>
+          <div class="card-body">
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>회원 개인정보 재마스킹 시간 *</th>
+                  <td>
+                    회원 상세(<code>ADMN-USER-002</code>)에서 마스킹 해제 후 <input type="number" id="pv-member-sec" name="pii_unmask_ttl_member_sec" data-dev-note="(규칙) site_settings" class="f-input" style="width:90px;" min="1" step="1" /> 초 경과 시 자동 재마스킹
+                    <span id="pv-member-hint" style="font-size:11.5px; color:var(--text-muted); margin-left:6px;"></span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>권리자 민감정보 재마스킹 시간 *</th>
+                  <td>
+                    권리자 민감정보(<code>ADMN-USER-007</code>) 열람 후 <input type="number" id="pv-holder-sec" name="pii_unmask_ttl_holder_sec" data-dev-note="(규칙) site_settings" class="f-input" style="width:90px;" min="1" step="1" /> 초 경과 시 자동 재마스킹
+                    <span id="pv-holder-hint" style="font-size:11.5px; color:var(--text-muted); margin-left:6px;"></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
+              ※ 저장한 값은 다음 열람 시점부터 회원 상세와 권리자 민감정보 화면에 반영됩니다. 이미 열람 중인 건에는 적용되지 않습니다.
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="card-manual-point-expiry">
+          <div class="card-header">
+            <div class="card-title"><span>🎁 수동 무상 포인트 유효기간 선택지</span></div>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.point-settings.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/point-settings" data-dev-perm="수정" data-dev-flag="proto-only" onclick="saveManualPointExpiry()">💾 유효기간 선택지 저장</button>
+          </div>
+          <div class="card-body">
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>선택지 (일) *</th>
+                  <td>
+                    <input type="text" id="mpe-days" name="manual_point_expire_options" data-dev-note="(규칙) site_settings" class="f-input" style="width:180px;" placeholder="30, 90, 180" />
+                    <span style="font-size:11.5px; color:var(--text-muted); margin-left:6px;">쉼표로 구분 · 지급일 기준 일수 · 최대 5개</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>기본 선택 *</th>
+                  <td><select id="mpe-default" name="manual_point_expire_default" data-dev-note="(규칙) site_settings" class="f-select" style="width:120px;"></select></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
+              ※ 회원 상세(<code>ADMN-USER-002</code>) 수동 무상 포인트 지급 팝업의 유효기간은 이 선택지 중에서만 고릅니다(임의 날짜 · 무기한 불가). 이미 지급한 포인트의 만료일은 바뀌지 않습니다.
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="card-lqna-mode" data-dev-flag="proto-only" data-dev-note="학습 Q&amp;A 운영 방식 설정 — 개발 미구현">
+          <div class="card-header">
+            <div class="card-title"><span>💬 학습 Q&amp;A 운영 방식</span></div>
+          </div>
+          <div class="card-body">
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>운영 방식<br/>(<code>lqnaMode</code>)</th>
+                  <td>
+                    <label style="font-weight:800; margin-right:16px;"><input type="radio" name="lqna_mode" value="CAFE" data-dev-note="(규칙) site_settings — 개발 미구현" data-dev-name="study_qna_mode" data-dev-value="cafe" checked onchange="onLqnaModeChange(this)" /> 네이버 카페 아웃링크 (기본)</label>
+                    <label style="font-weight:700;"><input type="radio" name="lqna_mode" value="INTERNAL" data-dev-name="study_qna_mode" data-dev-value="internal" onchange="onLqnaModeChange(this)" /> 자체 학습 Q&amp;A</label>
+                    <span id="lqna-mode-hint" style="font-size:11.5px; color:var(--text-muted); margin-left:6px;"></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
+              ※ 카페 아웃링크 운영 중에는 강사 파트너 센터의 학습 Q&amp;A가 미리보기로만 동작합니다(답변이 수강생에게 발송되지 않음). 자체 학습 Q&amp;A로 전환하면 파트너 센터에서 등록한 답변이 수강생에게 알림으로 발송됩니다.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 2: ADMN-CONF-008 인증 발송 설정 및 허용 IP 화이트리스트 -->
+      <section id="panel-auth" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>🔐 SMS 본인인증 발송 제한 설정 (ADMN-CONF-008)</span></div>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.verify-settings.update" data-dev-method="PUT" data-dev-url="/sj-admin/verify-settings" data-dev-perm="수정" data-dev-note="개발 #verifySaveOpen → #verifySaveLayer 확인 후 저장" onclick="showToast('SMS 본인인증 발송 제한 정책이 저장되었습니다.')">💾 인증 정책 저장</button>
+          </div>
+          <div class="card-body">
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>계정/휴대폰당 24시간 발송 상한 *</th>
+                  <td>24시간 내 최대 <input type="number" class="f-input" style="width:75px;" name="verify_daily_limit" value="5" /> 회 (초과 시 당일 SMS 인증 자동 차단 · 회원 상세 <code>ADMN-USER-002</code>에서 수동 초기화 가능)</td>
+                  <th>동일 IP 24시간 발송 상한 *</th>
+                  <td>동일 공인 IP 기준 24시간 내 최대 <input type="number" class="f-input" style="width:75px;" name="verify_ip_daily_limit" value="20" /> 회 (SMS 폭탄 공격 방어)</td>
+                </tr>
+                <tr>
+                  <th>재발송 쿨다운 시간 *</th>
+                  <td>발송 요청 후 <input type="number" class="f-input" style="width:75px;" value="30" data-dev-name="verify_resend_cooldown_sec" data-dev-note="site_settings 값만 있고 개발 화면 입력 없음" /> 초 경과 후 재발송 버튼 활성화</td>
+                  <th>인증번호 유효 시간 *</th>
+                  <td>발송 시점부터 <input type="number" class="f-input" style="width:75px;" value="3" data-dev-name="verify_code_ttl_sec" data-dev-note="개발은 초 단위(300) · 화면 입력 없음" /> 분 (180초)</td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="VerifySettingRequest verify_session_ttl_user_min(5~60분, 저장은 초 verify_session_ttl_user_sec)">
+                  <th>사용자 인증 유효 시간 *</th>
+                  <td colspan="3">인증 완료 후 <input type="number" class="f-input" style="width:75px;" name="verify_session_ttl_user_min" value="30" /> 분 동안 재인증 없이 진행</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="display:flex; gap:6px; align-items:center; margin:14px 0 0;" data-dev-flag="dev-only" data-dev-note="VerifyCapResetRequest user_id · reason — 조회 쿼리 account">
+              <span style="font-size:12.5px; font-weight:800;">계정 발송 횟수 수동 초기화</span>
+              <input type="text" class="f-input" name="account" style="width:200px;" maxlength="100" placeholder="이메일 또는 회원번호" />
+              <input type="text" class="f-input" name="reason" style="width:240px;" maxlength="200" placeholder="초기화 사유" />
+              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.verify-settings.resets.store" data-dev-method="POST" data-dev-url="/sj-admin/verify-settings/resets" data-dev-perm="등록" onclick="showToast('발송 횟수를 초기화했습니다.')">초기화</button>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:18px 0 10px;">
+              <div style="font-size:13px; font-weight:800;">🌐 IP 제한 예외 허용 목록 (Whitelist — 제휴 학원 · 독서실 · 사내 공인 IP 대역)</div>
+              <div style="display:flex; gap:6px;">
+                <select class="f-select" name="mode" style="width:110px;" data-dev-flag="dev-only" data-dev-note="VerificationIpExceptionRequest mode"><option value="single">단일 IP</option><option value="cidr">IP 대역(CIDR, /16 이상)</option></select>
+                <input type="text" id="new-ip-val" name="ip" data-dev-note="max 45 · mode별 형식" class="f-input" style="width:180px;" placeholder="예: 211.45.30.0/24" />
+                <input type="text" id="new-ip-memo" name="memo" data-dev-note="max 100" class="f-input" style="width:240px;" placeholder="예외 허용 사유 (예: 강남 제휴 스터디카페)" />
+                <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.verify-settings.ip-exceptions.store" data-dev-method="POST" data-dev-url="/sj-admin/verify-settings/ip-exceptions" data-dev-perm="등록" data-dev-note="개발은 #verifyIpLayer 레이어에서 등록" onclick="addWhitelistIp()">+ 허용 IP 추가</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr><th>허용 IP / 대역 (CIDR)</th><th>등록 사유 · 기관명</th><th>등록일</th><th>등록 관리자</th><th style="text-align:right;">관리</th></tr>
+              </thead>
+              <tbody id="ip-whitelist-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast-box"></div>
+
+  <script>
+    let WHITELIST_IPS = [
+      { ip: '203.241.12.0/24', memo: '산준모 본사 및 고객센터 운영망 공인 IP 대역', dt: '2026.09.01', admin: 'admin_root' },
+      { ip: '118.129.44.17', memo: '제휴 노량진 기술자격 전문학원 공용 와이파이 공인 IP', dt: '2026.09.15', admin: 'admin_kim' }
+    ];
+
+    function switchConfTab(tab) {
+      document.getElementById('tab-btn-player').classList.toggle('active', tab === 'player');
+      document.getElementById('tab-btn-auth').classList.toggle('active', tab === 'auth');
+      document.getElementById('panel-player').classList.toggle('active', tab === 'player');
+      document.getElementById('panel-auth').classList.toggle('active', tab === 'auth');
+      document.getElementById('top-crumb-code').textContent = (tab === 'player') ? 'ADMN-CONF-003' : 'ADMN-CONF-008';
+    }
+
+    function updateWmPreview() {
+      const txt = document.getElementById('pl-wm-text').value;
+      const op = parseInt(document.getElementById('pl-wm-opacity').value || '35', 10) / 100;
+      const sz = parseInt(document.getElementById('pl-wm-size').value || '14', 10);
+      const chip = document.getElementById('wm-preview-chip');
+      chip.textContent = txt;
+      chip.style.opacity = String(op);
+      chip.style.fontSize = sz + 'px';
+    }
+
+    function savePlayerConfig() {
+      const tbody = document.getElementById('player-hist-tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>2026.10.18 15:45</td><td>최고 관리자 (admin_root)</td><td>워터마크 · 배속 · 동시접속 정책 갱신</td><td>기존 설정</td><td><strong>${document.getElementById('pl-wm-text').value} / 최대 ${document.getElementById('pl-max-speed').value} / 진도 인정 ${document.getElementById('pl-credit-speed').value}배속</strong></td>`;
+      const cs = parseFloat(document.getElementById('pl-credit-speed').value);
+      if (!(cs >= 0.5 && cs <= 4)) { showToast('진도 인정 최대 배속은 0.5 ~ 4.0 사이로 입력해 주세요.'); return; }
+      sjmSettings().set('playbackMaxCreditedSpeed', cs);
+      tbody.prepend(tr);
+      showToast('플레이어/DRM 및 동시접속 1세션 제어 설정이 저장되었습니다.');
+    }
+
+    // v6.40 전역 설정(SJM_MASTER.settings) 연동 — 재마스킹 시간 · 진도 인정 배속 · 앞으로 건너뛰기 제한
+    function sjmSettings() { return (window.SJM_MASTER && window.SJM_MASTER.settings) || null; }
+    function secLabel(s) { s = Number(s); if (s < 60) return s + '초'; const m = Math.floor(s / 60), r = s % 60; return r ? m + '분 ' + r + '초' : m + '분'; }
+    function updateSpeedHint() {
+      const credit = parseFloat(document.getElementById('pl-credit-speed').value);
+      const maxAllowed = parseFloat(document.getElementById('pl-max-speed').value);
+      const el = document.getElementById('pl-credit-hint');
+      if (!isFinite(credit)) { el.textContent = ''; return; }
+      el.textContent = maxAllowed > credit ? '(' + credit.toFixed(1) + '배속을 넘는 구간은 재생은 되지만 진도 미인정)' : '(허용 배속 전 구간 진도율 인정)';
+    }
+    function updatePrivacyHints() {
+      const m = Number(document.getElementById('pv-member-sec').value), h = Number(document.getElementById('pv-holder-sec').value);
+      document.getElementById('pv-member-hint').textContent = m > 0 ? '(= ' + secLabel(m) + ')' : '';
+      document.getElementById('pv-holder-hint').textContent = h > 0 ? '(= ' + secLabel(h) + ')' : '';
+    }
+    function loadSettingsToForm() {
+      const st = sjmSettings(); if (!st) return;
+      document.getElementById('pv-member-sec').value = st.get('remaskMemberSec');
+      document.getElementById('pv-holder-sec').value = st.get('remaskHolderSec');
+      document.getElementById('pl-credit-speed').value = Number(st.get('playbackMaxCreditedSpeed')).toFixed(1);
+      const on = !!st.get('limitedForward');
+      document.querySelector('input[name="pl_fwd"][value="' + (on ? 'ON' : 'OFF') + '"]').checked = true;
+      window.__fwdPrev = on ? 'ON' : 'OFF';
+      updatePrivacyHints(); updateSpeedHint();
+      const lm = st.get('lqnaMode') || 'CAFE';
+      document.querySelector('input[name="lqna_mode"][value="' + lm + '"]').checked = true;
+      window.__lqnaPrev = lm;
+      updateLqnaHint(lm);
+    }
+    function updateLqnaHint(v) {
+      document.getElementById('lqna-mode-hint').textContent = v === 'INTERNAL' ? '(자체 학습 Q&A 운영 중)' : '(네이버 카페 아웃링크 운영 중)';
+    }
+    function onLqnaModeChange(radio) {
+      const next = radio.value;
+      const msg = next === 'INTERNAL'
+        ? '자체 학습 Q&A로 전환하면 강사 파트너 센터의 학습 Q&A가 활성화되어, 강사가 등록한 답변이 수강생에게 알림으로 발송됩니다. 변경하시겠습니까?'
+        : '네이버 카페 아웃링크로 되돌리면 강사 파트너 센터의 학습 Q&A는 미리보기로만 동작하고 답변이 수강생에게 발송되지 않습니다. 변경하시겠습니까?';
+      if (!window.confirm(msg)) {
+        document.querySelector('input[name="lqna_mode"][value="' + window.__lqnaPrev + '"]').checked = true;
+        return;
+      }
+      window.__lqnaPrev = next;
+      sjmSettings().set('lqnaMode', next);
+      updateLqnaHint(next);
+      showToast('학습 Q&A 운영 방식이 ' + (next === 'INTERNAL' ? '자체 학습 Q&A' : '네이버 카페 아웃링크') + '(으)로 변경되었습니다.');
+    }
+    function onFwdChange(radio) {
+      const next = radio.value;
+      const msg = next === 'OFF'
+        ? '앞으로 건너뛰기 제한을 해제하면 미수강 구간도 자유롭게 이동할 수 있어 진도율 어뷰징 방지가 약해집니다. 변경하시겠습니까?'
+        : '앞으로 건너뛰기 제한을 켜면 미수강 구간으로의 이동이 차단됩니다. 변경하시겠습니까?';
+      if (!window.confirm(msg)) {
+        document.querySelector('input[name="pl_fwd"][value="' + window.__fwdPrev + '"]').checked = true;
+        return;
+      }
+      window.__fwdPrev = next;
+      sjmSettings().set('limitedForward', next === 'ON');
+      showToast('첫 수강 빨리감기 제한이 ' + next + '(으)로 변경되었습니다.');
+    }
+    function savePrivacyConfig() {
+      const m = Number(document.getElementById('pv-member-sec').value), h = Number(document.getElementById('pv-holder-sec').value);
+      if (!Number.isInteger(m) || m < 1 || !Number.isInteger(h) || h < 1) { showToast('재마스킹 시간은 1초 이상의 정수로 입력해 주세요.'); return; }
+      const st = sjmSettings(); const prevM = st.get('remaskMemberSec'), prevH = st.get('remaskHolderSec');
+      st.set('remaskMemberSec', m); st.set('remaskHolderSec', h);
+      updatePrivacyHints();
+      const tbody = document.getElementById('player-hist-tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>2026.10.18 15:50</td><td>최고 관리자 (admin_root)</td><td>개인정보 재마스킹 시간</td><td>회원 ${secLabel(prevM)} / 권리자 ${secLabel(prevH)}</td><td><strong>회원 ${secLabel(m)} / 권리자 ${secLabel(h)}</strong></td>`;
+      tbody.prepend(tr);
+      showToast('개인정보 재마스킹 시간이 저장되었습니다. 다음 열람부터 적용됩니다.');
+    }
+    function parseExpiryDays(text) {
+      const parts = String(text).split(',').map(s => s.trim()).filter(Boolean);
+      const days = parts.map(Number);
+      if (!days.length || days.length > 5 || days.some(d => !Number.isInteger(d) || d < 1 || d > 3650)) return null;
+      return Array.from(new Set(days)).sort((a, b) => a - b);
+    }
+    function fillExpiryDefault(days, selected) {
+      const sel = document.getElementById('mpe-default');
+      sel.innerHTML = days.map(d => `<option value="${d}">지급일 +${d}일</option>`).join('');
+      sel.value = String(days.includes(selected) ? selected : days[0]);
+    }
+    function loadManualPointExpiry() {
+      const st = sjmSettings(); if (!st) return;
+      const days = st.get('manualPointExpiryDays') || [30, 90, 180];
+      document.getElementById('mpe-days').value = days.join(', ');
+      fillExpiryDefault(days, Number(st.get('manualPointExpiryDefault')));
+    }
+    function saveManualPointExpiry() {
+      const days = parseExpiryDays(document.getElementById('mpe-days').value);
+      if (!days) { showToast('선택지는 1~3650 사이 정수를 쉼표로 구분해 1~5개 입력해 주세요.'); return; }
+      const def = Number(document.getElementById('mpe-default').value);
+      const st = sjmSettings(); const prev = (st.get('manualPointExpiryDays') || []).join(' · ');
+      st.set('manualPointExpiryDays', days);
+      st.set('manualPointExpiryDefault', days.includes(def) ? def : days[0]);
+      document.getElementById('mpe-days').value = days.join(', ');
+      fillExpiryDefault(days, st.get('manualPointExpiryDefault'));
+      const tbody = document.getElementById('player-hist-tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>2026.10.18 15:55</td><td>최고 관리자 (admin_root)</td><td>수동 무상 포인트 유효기간 선택지</td><td>${prev || '-'}일</td><td><strong>${days.join(' · ')}일 (기본 +${st.get('manualPointExpiryDefault')}일)</strong></td>`;
+      tbody.prepend(tr);
+      showToast('수동 무상 포인트 유효기간 선택지가 저장되었습니다. 회원 상세 지급 팝업에 바로 반영됩니다.');
+    }
+
+    function renderIpWhitelist() {
+      document.getElementById('kpi-ip-cnt').textContent = WHITELIST_IPS.length + ' 건';
+      document.getElementById('ip-whitelist-tbody').innerHTML = WHITELIST_IPS.map(( row, idx ) => `
+        <tr>
+          <td><code>${row.ip}</code></td>
+          <td><strong>${row.memo}</strong></td>
+          <td>${row.dt}</td>
+          <td>${row.admin}</td>
+          <td style="text-align:right;">
+            <button type="button" class="btn btn-sm btn-danger" data-dev-route="admin.verify-settings.ip-exceptions.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/verify-settings/ip-exceptions/{ipException}" data-dev-perm="삭제" onclick="removeWhitelistIp(${idx})">삭제</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function addWhitelistIp() {
+      const ip = document.getElementById('new-ip-val').value.trim();
+      const memo = document.getElementById('new-ip-memo').value.trim();
+      if (!ip || !memo) {
+        showToast('허용할 IP(또는 CIDR 대역)와 사유를 모두 입력해 주세요.');
+        return;
+      }
+      WHITELIST_IPS.unshift({ ip, memo, dt: '2026.10.18', admin: 'admin_root' });
+      document.getElementById('new-ip-val').value = '';
+      document.getElementById('new-ip-memo').value = '';
+      renderIpWhitelist();
+      showToast(`허용 IP(${ip})가 화이트리스트에 등록되었습니다.`);
+    }
+
+    function removeWhitelistIp(idx) {
+      WHITELIST_IPS.splice(idx, 1);
+      renderIpWhitelist();
+      showToast('허용 IP가 삭제되었습니다.');
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderIpWhitelist();
+      loadSettingsToForm();
+      loadManualPointExpiry();
+      document.getElementById('mpe-days').addEventListener('input', function () { const d = parseExpiryDays(this.value); if (d) fillExpiryDefault(d, Number(document.getElementById('mpe-default').value)); });
+      ['pv-member-sec', 'pv-holder-sec'].forEach(id => document.getElementById(id).addEventListener('input', updatePrivacyHints));
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'auth') switchConfTab('auth');
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

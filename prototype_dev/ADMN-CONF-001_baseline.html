@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>전시 배너 · 띠배너 · 모달 팝업 관리 — 산준모닷컴 백오피스 v8.4 FINAL</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --bg-body: #F3F5F9; --bg-card: #FFFFFF; --bg-subtle: #F8FAFC;
+      --text-main: #0F172A; --text-sub: #475569; --text-muted: #64748B;
+      --border: #E2E8F0; --border-strong: #CBD5E1;
+      --primary: #2563EB; --primary-hover: #1D4ED8; --primary-soft: #EFF6FF;
+      --success: #16A34A; --warning: #D97706; --danger: #DC2626;
+      --radius-md: 8px; --radius-lg: 12px; --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 13px; line-height: 1.5; min-width: 1440px; }
+    #v4-root-shell { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+    .top-bar.v4-gen3-topbar { height: 60px; background: #FFF; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 100; }
+    .crumb-wrap { display: flex; align-items: center; gap: 10px; }
+    .crumb-code { background: #1E293B; color: #F8FAFC; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+    .crumb-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .crumb-sub { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
+    .main-container { padding: 24px 28px 60px; max-width: 1640px; width: 100%; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+    .kpi-card .k-title { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+    .kpi-card .k-num { font-family: "Pretendard", sans-serif; font-size: 22px; font-weight: 800; color: var(--text-main); text-align: left; margin-bottom: 6px; }
+    .kpi-card .k-sub { font-size: 11.5px; color: var(--text-muted); }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #FAFBFD; }
+    .card-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card-body { padding: 18px 20px; }
+
+    .policy-banner { background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 18px; font-size: 12px; color: #1E3A8A; line-height: 1.6; }
+    .f-input, .f-select { height: 34px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 12.5px; font-family: inherit; color: var(--text-main); background: #FFF; }
+    .btn { height: 34px; padding: 0 14px; border-radius: 6px; font-size: 12.5px; font-weight: 700; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; text-decoration: none; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-primary { background: var(--primary); color: #FFF; }
+    .btn-dark { background: #0F172A; color: #FFF; }
+    .btn-outline { background: #FFF; border-color: var(--border-strong); color: var(--text-main); }
+    .btn-danger { background: #FEF2F2; border-color: #FECACA; color: var(--danger); }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+    .badge-green { background: #DCFCE7; color: #15803D; }
+    .badge-amber { background: #FEF3C7; color: #B45309; }
+    .badge-gray { background: #F1F5F9; color: #475569; }
+    .badge-purple { background: #F3E8FF; color: #7E22CE; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th { background: #F8FAFC; color: var(--text-sub); font-weight: 700; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table tbody tr:hover { background: #F8FAFC; cursor: pointer; }
+
+    .kv-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+    .kv-table th { width: 160px; background: var(--bg-subtle); padding: 10px 14px; border: 1px solid var(--border); text-align: left; font-weight: 700; color: var(--text-sub); font-size: 12px; }
+    .kv-table td { padding: 10px 14px; border: 1px solid var(--border); font-size: 12.5px; }
+
+    .inner-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+    .inner-tab { padding: 10px 18px; font-size: 13px; font-weight: 800; color: var(--text-sub); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .inner-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+    #toast-box { position: fixed; bottom: 24px; right: 24px; background: #0F172A; color: #FFF; padding: 12px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 700; display: none; z-index: 2000; }
+    code { background: #F1F5F9; padding: 2px 5px; border-radius: 4px; font-size: 11.5px; }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-001", "devCommit": "d562524a", "progress": "구현(CONF-001 · S1 띠배너 · S2 모달 팝업). 사용자 메인 미리보기(preview_token)는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.display.index", "label": "전시/메뉴 관리 (배너 · 띠배너 · 팝업 공용 권한)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="crumb-wrap">
+        <span class="crumb-code" id="top-crumb-code">ADMN-CONF-001</span>
+        <h1 class="crumb-title" id="top-crumb-title">전시 배너 · 띠배너 · 모달 팝업 관리</h1>
+        <span class="crumb-sub">사이트 · 약관 · 메시지 설정 &gt; 메인 히어로 슬라이드 배너(CONF-001) · 상단 띠배너(CONF-001-S1) · 모달 팝업(CONF-001-S2)</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.display.preview.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/display/preview?preview_token=" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="사용자 메인 미리보기 — 개발은 띠배너 폼 안 미리보기(#stripPreview)만" onclick="showToast('프론트 미리보기 토큰(?preview_token=adm_20261018)으로 예약 배너를 포함한 메인 화면을 새 창에서 검증합니다.')">🖥️ 사용자 메인 미리보기 (?preview_token) ↗</button>
+      </div>
+    </header>
+
+    <div id="v4-page-body" class="main-container">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="k-title"><span>메인 슬라이드 배너 (노출중)</span><span class="badge badge-blue">ADMN-CONF-001</span></div>
+          <div class="k-num" id="kpi-banner-cnt">3 / 5 건</div>
+          <div class="k-sub">최대 5장 롤링 · 자동 롤링 5초 간격</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-title"><span>상단 · 강좌목록 띠배너</span><span class="badge badge-green">ADMN-CONF-001-S1</span></div>
+          <div class="k-num" id="kpi-strip-cnt">2 건</div>
+          <div class="k-sub">위치·대상별 최대 1건 노출 · 명도대비 4.5:1 검증</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-title"><span>모달 팝업 (동시 노출 상한)</span><span class="badge badge-purple">ADMN-CONF-001-S2</span></div>
+          <div class="k-num" id="kpi-popup-cnt">2 / 2 건</div>
+          <div class="k-sub">동시 노출 최대 2건 제한 · 오늘 하루 보지 않기 쿠키</div>
+        </div>
+        <div class="kpi-card">
+          <div class="k-title"><span>예약 대기 중 전시 소재</span><span class="badge badge-amber">RESERVED</span></div>
+          <div class="k-num">2 건</div>
+          <div class="k-sub">지정 시작일시 도래 시 자동 노출 전환</div>
+        </div>
+      </div>
+
+      <!-- 전시 영역 전환 탭 (메인 배너 / 띠배너 / 모달 팝업) -->
+      <div class="inner-tabs">
+        <button type="button" class="inner-tab active" id="tab-domain-banner" data-dev-route="admin.display.index" data-dev-method="GET" data-dev-url="/sj-admin/display?tab=main_slide" data-dev-perm="조회" onclick="switchDomainTab('banner')">🖼️ 메인 슬라이드 배너 (ADMN-CONF-001)</button>
+        <button type="button" class="inner-tab" id="tab-domain-event-list" data-dev-flag="dev-only" data-dev-route="admin.display.index" data-dev-method="GET" data-dev-url="/sj-admin/display?tab=event_list" data-dev-perm="조회" data-dev-note="개발 탭 event_list = 배너 position event_list_top (DisplayController::TABS)" onclick="showToast('이벤트 목록 상단 배너(event_list_top) — 메인 슬라이드 배너와 같은 폼을 씁니다.')">🗂️ 이벤트 목록 상단 배너</button>
+        <button type="button" class="inner-tab" id="tab-domain-strip" data-dev-route="admin.display.index" data-dev-method="GET" data-dev-url="/sj-admin/display?tab=strip" data-dev-perm="조회" onclick="switchDomainTab('strip')">📏 상단 · 서브 띠배너 (ADMN-CONF-001-S1)</button>
+        <button type="button" class="inner-tab" id="tab-domain-popup" data-dev-route="admin.display.index" data-dev-method="GET" data-dev-url="/sj-admin/display?tab=modal" data-dev-perm="조회" onclick="switchDomainTab('popup')">🪟 모달 팝업 관리 (ADMN-CONF-001-S2)</button>
+      </div>
+
+      <!-- ================================================================== -->
+      <!-- 1. 메인 슬라이드 배너 (목록 뷰 <-> 상세 등록/수정 뷰)                 -->
+      <!-- ================================================================== -->
+      <section id="panel-banner-list" class="view-panel active">
+        <div class="policy-banner">
+          <strong>[메인 슬라이드 배너(ADMN-CONF-001) 운영 규칙]</strong>
+          PC 이미지(권장 <code>1920×520px</code>)와 모바일 이미지(권장 <code>750×620px</code>)를 <strong>단일 레코드 한 폼에서 함께 등록</strong>하여 노출 기간·이동 URL 불일치 사고를 원천 차단합니다. 이동 URL은 내부 경로(<code>/</code>로 시작) 또는 외부 보안 프로토콜(<code>https://</code>)만 허용됩니다.
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>🖼️ 메인 슬라이드 배너 목록</span>
+              <span class="badge badge-gray">행을 클릭하면 [배너 상세 등록 · 수정] 화면으로 전환됩니다</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.display.banners.order.update" data-dev-method="PUT" data-dev-url="/sj-admin/banners/order" data-dev-perm="수정" data-dev-note="#reorderForm: orders[n][id] · orders[n][sort_order] · position(hero · event_list_top)" onclick="showToast('변경된 배너 노출 순서가 저장되었습니다.')">↕ 노출 순서 저장</button>
+              <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.display.banners.create" data-dev-method="GET" data-dev-url="/sj-admin/banners/create" data-dev-perm="등록" onclick="openBannerDetail(null)">+ 신규 메인 배너 등록</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div style="display:flex; gap:8px; align-items:center; padding:10px 14px;" data-dev-flag="dev-only" data-dev-note="개발 목록 필터: title · is_active(1/0) · exposure_status(live · reserved · ended · stopped)">
+              <input type="text" class="f-input" name="title" placeholder="배너명 검색" style="width:200px;" />
+              <select class="f-select" name="is_active" style="width:110px;"><option value="">사용 전체</option><option value="1">사용</option><option value="0">미사용</option></select>
+              <select class="f-select" name="exposure_status" style="width:130px;"><option value="">노출 상태 전체</option><option value="live">노출중</option><option value="reserved">예약</option><option value="ended">종료</option><option value="stopped">중지</option></select>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:90px;">노출 순서</th>
+                  <th>PC / 모바일 규격</th>
+                  <th>배너 관리명 (대체 텍스트 alt)</th>
+                  <th>노출 기기</th>
+                  <th>노출 기간</th>
+                  <th>클릭 이동 URL</th>
+                  <th>상태</th>
+                  <th style="text-align:right;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="banner-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-banner-detail" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <button type="button" class="btn btn-sm btn-outline" onclick="switchDomainTab('banner')">← 배너 목록으로 (ADMN-CONF-001)</button>
+              <span id="bd-title" style="margin-left:6px; font-weight:800;">메인 슬라이드 배너 등록 · 수정</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>배너 관리명 *</th>
+                  <td><input type="text" id="bd-name" name="title" class="f-input" style="width:100%;" value="2026 산업안전기사 필기+실기 합격환급반 얼리버드" /></td>
+                  <th>노출 기기 / 순서 *</th>
+                  <td>
+                    <select id="bd-device" name="device" data-dev-value="all · pc · mobile (프로토 값 '공통(PC+MO)' · 'PC 전용' · '모바일 전용')" class="f-select" style="width:140px;">
+                      <option value="공통(PC+MO)">공통 (PC + 모바일)</option>
+                      <option value="PC 전용">PC 전용</option>
+                      <option value="모바일 전용">모바일 전용</option>
+                    </select>
+                    <input type="number" id="bd-order" name="sort_order" class="f-input" style="width:80px; margin-left:6px;" value="1" min="1" max="10" /> 순위
+                  </td>
+                </tr>
+                <tr>
+                  <th>PC 배너 이미지 *<br/><span style="font-size:11px; color:var(--text-muted);">권장 1920×520 · 2MB 이하 (5MB 초과 시 저장 불가)</span></th>
+                  <td>
+                    <input type="text" id="bd-pc-img" name="image" data-dev-note="jpg · jpeg · png · webp 5MB, svg 차단" class="f-input" style="width:100%; margin-bottom:6px;" value="main_allpass_2026_pc.webp (1920×520px · 412KB)" />
+                    <input type="text" id="bd-alt" name="alt_text" class="f-input" style="width:100%;" placeholder="웹접근성 대체 텍스트(alt) 필수 입력 *" value="2026 산업안전기사 합격환급반 수강료 100% 환급 이벤트" />
+                  </td>
+                  <th>모바일 배너 이미지<br/><span style="font-size:11px; color:var(--text-muted);">권장 750×620 · 미등록 시 PC 축소</span></th>
+                  <td>
+                    <input type="text" id="bd-mo-img" name="mobile_image" class="f-input" style="width:100%; margin-bottom:6px;" value="main_allpass_2026_mo.webp (750×620px · 198KB)" />
+                    <input type="text" class="f-input" name="mobile_alt_text" style="width:100%; margin-bottom:6px;" placeholder="모바일 대체 텍스트(선택)" data-dev-flag="dev-only" data-dev-note="BannerRequest mobile_alt_text · 이미지 삭제 체크 delete_image · delete_mobile_image" />
+                    <div style="font-size:11.5px; color:var(--text-muted);">※ 업로드 파일은 S3 저장 시 UUID로 자동 리네임됩니다.</div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>클릭 이동 URL *</th>
+                  <td>
+                    <input type="text" id="bd-url" name="link_url" data-dev-note="DisplayLinkUrl 규칙(/ 또는 https://)" class="f-input" style="width:70%;" value="/course/allpass-2026" oninput="validateBannerUrl()" />
+                    <select id="bd-target" name="link_target" data-dev-value="_self · _blank" class="f-select" style="width:26%; margin-left:4px;">
+                      <option value="_self">현재 창 (_self)</option>
+                      <option value="_blank">새 창 (_blank)</option>
+                    </select>
+                    <div id="bd-url-msg" style="font-size:11.5px; color:var(--success); margin-top:4px; font-weight:700;">✅ 유효한 내부 경로 형식입니다.</div>
+                  </td>
+                  <th>노출 기간 / 사용 여부 *</th>
+                  <td>
+                    <input type="text" id="bd-period" data-dev-note="프로토 문자열 1칸 → 개발 날짜 2칸" data-dev-name="start_at · end_at" class="f-input" style="width:220px;" value="2026.10.01 ~ 2026.11.30" />
+                    <select id="bd-status" name="is_active" data-dev-value="1 사용 / 0 미사용 (노출중 · 예약 · 종료는 기간으로 계산한 exposure_status)" class="f-select" style="width:110px; margin-left:4px;">
+                      <option value="노출중">노출중</option>
+                      <option value="예약">예약</option>
+                      <option value="중지">노출중지</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+              <button type="button" class="btn btn-outline" onclick="switchDomainTab('banner')">취소</button>
+              <button type="button" class="btn btn-primary" id="btn-save-banner" data-dev-route="admin.display.banners.store | admin.display.banners.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/banners | /banners/{banner}" data-dev-perm="등록 | 수정" onclick="saveBannerItem()">💾 배너 저장</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- 2. 상단 · 서브 띠배너 (ADMN-CONF-001-S1: 목록 뷰 <-> 상세 뷰)         -->
+      <!-- ================================================================== -->
+      <section id="panel-strip-list" class="view-panel">
+        <div class="policy-banner">
+          <strong>[띠배너(ADMN-CONF-001-S1) 운영 규칙]</strong>
+          이미지 없이 <strong>텍스트(최대 40자) + 배경색/글자색</strong>으로 렌더링되며, 웹접근성 가독성을 위해 <strong>배경색과 글자색의 명도 대비가 4.5:1 이상</strong>이어야 저장됩니다. 노출 위치(메인 최상단 / 강좌 목록 상단) 및 대상(전체 / 비로그인 / 로그인) 조합별 1건씩 노출됩니다.
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>📏 상단 · 서브 띠배너 목록 (ADMN-CONF-001-S1)</span></div>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.display.strip-banners.create" data-dev-method="GET" data-dev-url="/sj-admin/display/strip-banners/create" data-dev-perm="등록" onclick="openStripDetail(null)">+ 신규 띠배너 등록</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>노출 위치</th>
+                  <th>노출 대상</th>
+                  <th>띠배너 문구 (최대 40자) · 색상 미리보기</th>
+                  <th>배경색 / 글자색</th>
+                  <th>이동 URL</th>
+                  <th>노출 기간</th>
+                  <th>상태</th>
+                  <th style="text-align:right;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="strip-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-strip-detail" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <button type="button" class="btn btn-sm btn-outline" onclick="switchDomainTab('strip')">← 띠배너 목록으로 (ADMN-CONF-001-S1)</button>
+              <span style="margin-left:6px; font-weight:800;">띠배너 등록 · 수정 및 명도 대비(4.5:1) 검증</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- 실시간 띠배너 프리뷰 바 -->
+            <div id="strip-live-preview" style="background:#1E3A8A; color:#FFFFFF; padding:12px 20px; border-radius:8px; font-weight:800; font-size:13.5px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+              <span id="strip-prev-text">🎁 회원가입 즉시 웰컴 5,000P + 전 강좌 10% 할인쿠폰 즉시 지급!</span>
+              <span style="font-size:11.5px; opacity:0.85;">✕ 오늘 하루 닫기 (strip_1)</span>
+            </div>
+
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>노출 위치 *</th>
+                  <td>
+                    <select id="sd-loc" name="position" data-dev-value="event_top · course_list_top (+ 개발 main_slide_bottom)" class="f-select" style="width:100%;">
+                      <option value="메인 최상단 (GNB 위)">메인 최상단 (GNB 위)</option>
+                      <option value="강좌 목록 상단 (USER-LECT-002)">강좌 목록 상단 (USER-LECT-002)</option>
+                      <option value="메인 슬라이드 배너 하단" data-dev-flag="dev-only" data-dev-value="main_slide_bottom">메인 슬라이드 배너 하단</option>
+                    </select>
+                  </td>
+                  <th>노출 대상 *</th>
+                  <td>
+                    <select id="sd-target" name="target" data-dev-value="guest 비로그인 · member 로그인 · all 전체" class="f-select" style="width:100%;">
+                      <option value="비로그인 회원 (가입 유도)">비로그인 회원 (가입 유도)</option>
+                      <option value="로그인 회원">로그인 회원</option>
+                      <option value="전체 회원">전체 회원</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>띠배너 문구 (최대 40자) *</th>
+                  <td>
+                    <input type="text" id="sd-text" name="title" data-dev-note="max 40 (Banner::STRIP_TEXT_MAX)" class="f-input" style="width:100%;" maxlength="40" value="🎁 회원가입 즉시 웰컴 5,000P + 전 강좌 10% 할인쿠폰 즉시 지급!" oninput="updateStripPreview()" />
+                  </td>
+                  <th>배경색 / 글자색 (HEX) *</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <span>배경:</span>
+                      <input type="text" id="sd-bg" name="bg_color" class="f-input" style="width:95px;" value="#1E3A8A" oninput="updateStripPreview()" />
+                      <span>글자:</span>
+                      <input type="text" id="sd-fg" name="text_color" class="f-input" style="width:95px;" value="#FFFFFF" oninput="updateStripPreview()" />
+                      <span id="sd-contrast-badge" data-dev-note="개발 #stripRatio 명도 대비 표시" class="badge badge-green">명도대비 10.4:1 (통과)</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th data-dev-flag="dev-only" data-dev-note="StripBannerRequest devices[] (1개 이상) · link_blank">노출 기기 / 새 창</th>
+                  <td colspan="3" data-dev-flag="dev-only">
+                    <label style="margin-right:12px;"><input type="checkbox" name="devices[]" value="pc" checked /> PC</label>
+                    <label style="margin-right:12px;"><input type="checkbox" name="devices[]" value="mobile" checked /> 모바일</label>
+                    <label><input type="checkbox" name="link_blank" value="1" /> 새 창으로 열기</label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>이동 URL / 노출 기간</th>
+                  <td colspan="3">
+                    <input type="text" id="sd-url" name="link_url" class="f-input" style="width:320px;" value="/join/step1" />
+                    <input type="text" id="sd-period" data-dev-note="'상시 노출' = always=1" data-dev-name="always · start_at · end_at" class="f-input" style="width:240px; margin-left:8px;" value="상시 노출" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+              <button type="button" class="btn btn-outline" onclick="switchDomainTab('strip')">취소</button>
+              <button type="button" class="btn btn-primary" data-dev-route="admin.display.strip-banners.store | admin.display.strip-banners.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/display/strip-banners | /display/strip-banners/{stripBanner}" data-dev-perm="등록 | 수정" onclick="saveStripItem()">💾 띠배너 저장</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================== -->
+      <!-- 3. 모달 팝업 관리 (ADMN-CONF-001-S2: 목록 뷰 <-> 상세 뷰)            -->
+      <!-- ================================================================== -->
+      <section id="panel-popup-list" class="view-panel">
+        <div class="policy-banner">
+          <strong>[모달 팝업(ADMN-CONF-001-S2) 운영 규칙]</strong>
+          메인 진입 시 동시 노출 팝업은 <strong>최대 2건</strong>으로 제한되며(초과 등록 시 경고), <strong>[1] 공지사항/시험일정 게시글 선택 연결</strong> 또는 <strong>[2] 이동 URL 직접 입력</strong> 방식을 지원합니다. 수험생이 <code>[오늘 하루 보지 않기]</code> 클릭 시 <code>popup_{id}</code> 쿠키가 당일 <code>23:59:59</code>까지 유지됩니다.
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span>🪟 모달 팝업 목록 (ADMN-CONF-001-S2)</span></div>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.display.popups.create" data-dev-method="GET" data-dev-url="/sj-admin/popups/create" data-dev-perm="등록" onclick="openPopupDetail(null)">+ 신규 모달 팝업 등록</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:80px;">노출 순서</th>
+                  <th>규격 (PC/MO)</th>
+                  <th>팝업 관리명</th>
+                  <th>연결 방식 (게시글 연동 / URL)</th>
+                  <th>노출 기기</th>
+                  <th>노출 기간</th>
+                  <th>상태</th>
+                  <th style="text-align:right;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="popup-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-popup-detail" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <button type="button" class="btn btn-sm btn-outline" onclick="switchDomainTab('popup')">← 모달 팝업 목록으로 (ADMN-CONF-001-S2)</button>
+              <span style="margin-left:6px; font-weight:800;">모달 팝업 등록 · 수정</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>팝업 관리명 *</th>
+                  <td><input type="text" id="pd-name" name="title" class="f-input" style="width:100%;" value="2026년 제3회 정기검정 실기 시험장 유의사항 및 가답안 오픈 안내" /></td>
+                  <th>노출 기기 / 순서</th>
+                  <td>
+                    <select id="pd-device" name="device" data-dev-value="all · pc · mobile" class="f-select" style="width:150px;">
+                      <option value="공통 (PC+MO)">공통 (PC+MO)</option>
+                      <option value="PC 전용">PC 전용</option>
+                    </select>
+                    <input type="number" id="pd-order" name="sort_order" class="f-input" style="width:70px; margin-left:6px;" value="1" /> 순위
+                  </td>
+                </tr>
+                <tr>
+                  <th>클릭 연결 방식 *</th>
+                  <td colspan="3">
+                    <label style="font-weight:800; margin-right:16px; cursor:pointer;">
+                      <input type="radio" name="pd_link_mode" value="BOARD" data-dev-name="link_type" data-dev-value="post" checked onchange="togglePopupLinkMode()" /> 📌 공지사항 · 무료특강 게시글 선택 연동
+                    </label>
+                    <label style="font-weight:800; cursor:pointer;">
+                      <input type="radio" name="pd_link_mode" value="URL" data-dev-name="link_type" data-dev-value="url" onchange="togglePopupLinkMode()" /> 🔗 이동 URL 직접 입력
+                    </label>
+                    <div id="pd-board-box" style="margin-top:8px;">
+                      <select id="pd-board-sel" name="post_id" data-dev-note="값 = posts.id" class="f-select" style="width:480px;">
+                        <option value="공지사항 #147 · 추석 연휴 3PL 교재 출고 마감 일정 안내">[공지사항 #147] 추석 연휴 3PL 교재 출고 마감 일정 안내 (게시중)</option>
+                        <option value="공지사항 #152 · 2026 제3회 산업안전기사 가답안 오픈 안내">[공지사항 #152] 2026 제3회 산업안전기사 가답안 오픈 안내 (게시중)</option>
+                        <option value="무료특강 #31 · 실기 작업형 빈출 동영상 30선 무료 배포">[무료특강 #31] 실기 작업형 빈출 동영상 30선 무료 배포 (게시중)</option>
+                      </select>
+                    </div>
+                    <div id="pd-url-box" style="display:none; margin-top:8px;">
+                      <input type="text" id="pd-url" name="link_url" class="f-input" style="width:480px;" value="/course/allpass-2026" placeholder="/내부경로 또는 https://외부경로" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th data-dev-flag="dev-only" data-dev-note="PopupRequest position_type(center · custom) · pos_x · pos_y · width · height">위치 / 크기</th>
+                  <td data-dev-flag="dev-only">
+                    <select class="f-select" name="position_type" style="width:120px;"><option value="center">화면 중앙</option><option value="custom">좌표 지정</option></select>
+                    <input type="number" class="f-input" name="pos_x" placeholder="X" style="width:60px;" /> <input type="number" class="f-input" name="pos_y" placeholder="Y" style="width:60px;" />
+                    <input type="number" class="f-input" name="width" placeholder="너비" style="width:70px;" /> <input type="number" class="f-input" name="height" placeholder="높이" style="width:70px;" />
+                  </td>
+                  <th data-dev-flag="dev-only" data-dev-note="use_today_close · use_week_close · use_close_button (boolean 필수)">닫기 옵션</th>
+                  <td data-dev-flag="dev-only">
+                    <label style="margin-right:10px;"><input type="checkbox" name="use_today_close" value="1" checked /> 오늘 하루 보지 않기</label>
+                    <label style="margin-right:10px;"><input type="checkbox" name="use_week_close" value="1" /> 일주일 보지 않기</label>
+                    <label><input type="checkbox" name="use_close_button" value="1" checked /> 닫기 버튼</label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>PC / 모바일 팝업 이미지 *</th>
+                  <td><input type="text" id="pd-img" data-dev-name="image · mobile_image · alt_text" class="f-input" style="width:100%;" value="popup_exam_guide_pc.webp (460×560px) / popup_exam_guide_mo.webp (640×780px)" /></td>
+                  <th>노출 기간 / 상태</th>
+                  <td>
+                    <input type="text" id="pd-period" data-dev-name="start_at · end_at" class="f-input" style="width:200px;" value="2026.10.15 ~ 2026.10.31" />
+                    <select id="pd-status" name="is_active" data-dev-value="1 / 0" class="f-select" style="width:100px; margin-left:4px;">
+                      <option value="노출중">노출중</option>
+                      <option value="예약">예약</option>
+                      <option value="중지">중지</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+              <button type="button" class="btn btn-outline" onclick="switchDomainTab('popup')">취소</button>
+              <button type="button" class="btn btn-primary" data-dev-route="admin.display.popups.store | admin.display.popups.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/popups | /popups/{popup}" data-dev-perm="등록 | 수정" data-dev-note="redirect_from=display" onclick="savePopupItem()">💾 모달 팝업 저장</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div id="toast-box"></div>
+
+  <script>
+    const BANNERS = [
+      { order: 1, spec: 'PC 1920×520 / MO 750×620', name: '2026 산업안전기사 필기+실기 합격환급반 얼리버드', device: '공통(PC+MO)', period: '2026.10.01 ~ 2026.11.30', url: '/course/allpass-2026', status: '노출중' },
+      { order: 2, spec: 'PC 1920×520 / MO 750×620', name: '신규 가입 웰컴 5,000P + 10% 할인쿠폰 즉시 지급', device: '공통(PC+MO)', period: '상시 노출', url: '/join/step1', status: '노출중' },
+      { order: 3, spec: 'PC 1920×520 / MO 750×620', name: '건설안전기사 필기 빈출문제 해설 무료특강 오픈', device: '공통(PC+MO)', period: '2026.10.10 ~ 2026.10.31', url: '/free/lecture/218', status: '노출중' },
+      { order: 4, spec: 'PC 1920×520 / MO 750×620', name: '2026 제3회 실기 시험 D-15 파이널 모의고사 특강', device: '공통(PC+MO)', period: '2026.10.25 ~ 2026.11.15', url: '/board/notice/412', status: '예약' }
+    ];
+
+    const STRIPS = [
+      { loc: '메인 최상단 (GNB 위)', target: '비로그인 회원 (가입 유도)', text: '🎁 회원가입 즉시 웰컴 5,000P + 전 강좌 10% 할인쿠폰 즉시 지급!', bg: '#1E3A8A', fg: '#FFFFFF', url: '/join/step1', period: '상시 노출', status: '노출중' },
+      { loc: '강좌 목록 상단 (USER-LECT-002)', target: '로그인 회원', text: '🔥 2026 산업안전기사 합격환급반 수강료 100% 환급 마감 임박!', bg: '#0F172A', fg: '#FEF08A', url: '/course/allpass-2026', period: '2026.10.01 ~ 2026.11.30', status: '노출중' }
+    ];
+
+    const POPUPS = [
+      { order: 1, spec: 'PC 460×560 / MO 640×780', name: '추석·연휴 3PL 수험 교재 출고 마감 일정 안내', link: '공지사항 #147', device: '공통 (PC+MO)', period: '2026.10.10 ~ 2026.10.25', status: '노출중' },
+      { order: 2, spec: 'PC 460×560 / MO 640×780', name: '2026 합격환급반 얼리버드 40% 할인 특가', link: '직접 입력 (/course/allpass-2026)', device: 'PC 전용', period: '2026.10.01 ~ 2026.11.30', status: '노출중' },
+      { order: 3, spec: 'PC 460×560 / MO 640×780', name: '실기 작업형 빈출 동영상 30선 무료 배포 안내', link: '무료특강 #31', device: '공통 (PC+MO)', period: '2026.11.01 ~ 2026.11.15', status: '예약' }
+    ];
+
+    function renderAllLists() {
+      document.getElementById('banner-tbody').innerHTML = BANNERS.map((b, i) => `
+        <tr onclick="openBannerDetail(${i})">
+          <td><strong>${b.order}</strong> <span style="color:var(--text-muted);">▲▼</span></td>
+          <td><code>${b.spec}</code></td>
+          <td><strong>${b.name}</strong></td>
+          <td>${b.device}</td>
+          <td>${b.period}</td>
+          <td><code>${b.url}</code></td>
+          <td><span class="badge ${b.status === '노출중' ? 'badge-green' : 'badge-amber'}">${b.status}</span></td>
+          <td style="text-align:right;" onclick="event.stopPropagation();">
+            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.display.banners.edit" data-dev-method="GET" data-dev-url="/sj-admin/banners/{banner}/edit" data-dev-perm="수정" onclick="openBannerDetail(${i})">상세 · 수정</button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('strip-tbody').innerHTML = STRIPS.map((s, i) => `
+        <tr onclick="openStripDetail(${i})">
+          <td><strong>${s.loc}</strong></td>
+          <td><span class="badge badge-blue">${s.target}</span></td>
+          <td><span style="display:inline-block; padding:4px 10px; border-radius:6px; background:${s.bg}; color:${s.fg}; font-weight:700;">${s.text}</span></td>
+          <td><code>${s.bg}</code> / <code>${s.fg}</code></td>
+          <td><code>${s.url}</code></td>
+          <td>${s.period}</td>
+          <td><span class="badge badge-green">${s.status}</span></td>
+          <td style="text-align:right;" onclick="event.stopPropagation();">
+            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.display.strip-banners.edit" data-dev-method="GET" data-dev-url="/sj-admin/display/strip-banners/{stripBanner}/edit" data-dev-perm="수정" onclick="openStripDetail(${i})">상세 · 수정</button>
+          </td>
+        </tr>
+      `).join('');
+
+      document.getElementById('popup-tbody').innerHTML = POPUPS.map((p, i) => `
+        <tr onclick="openPopupDetail(${i})">
+          <td><strong>${p.order}</strong></td>
+          <td><code>${p.spec}</code></td>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.link}</td>
+          <td>${p.device}</td>
+          <td>${p.period}</td>
+          <td><span class="badge ${p.status === '노출중' ? 'badge-green' : 'badge-amber'}">${p.status}</span></td>
+          <td style="text-align:right;" onclick="event.stopPropagation();">
+            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.display.popups.edit" data-dev-method="GET" data-dev-url="/sj-admin/popups/{popup}/edit" data-dev-perm="수정" onclick="openPopupDetail(${i})">상세 · 수정</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function switchDomainTab(domain) {
+      ['banner', 'strip', 'popup'].forEach(d => {
+        document.getElementById('tab-domain-' + d).classList.toggle('active', d === domain);
+      });
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById(`panel-${domain}-list`).classList.add('active');
+      const codeMap = { banner: 'ADMN-CONF-001', strip: 'ADMN-CONF-001-S1', popup: 'ADMN-CONF-001-S2' };
+      document.getElementById('top-crumb-code').textContent = codeMap[domain] || 'ADMN-CONF-001';
+      renderAllLists();
+    }
+
+    function openBannerDetail(idx) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-banner-detail').classList.add('active');
+      if (idx !== null && BANNERS[idx]) {
+        const b = BANNERS[idx];
+        document.getElementById('bd-name').value = b.name;
+        document.getElementById('bd-order').value = b.order;
+        document.getElementById('bd-url').value = b.url;
+        document.getElementById('bd-period').value = b.period;
+      }
+    }
+
+    function validateBannerUrl() {
+      const val = document.getElementById('bd-url').value.trim();
+      const msg = document.getElementById('bd-url-msg');
+      const btn = document.getElementById('btn-save-banner');
+      if (!val || val.startsWith('/') || val.startsWith('https://')) {
+        msg.style.color = 'var(--success)';
+        msg.textContent = '✅ 허용된 URL 형식입니다 (내부 / 경로 또는 외부 https://).';
+        btn.disabled = false;
+      } else {
+        msg.style.color = 'var(--danger)';
+        msg.textContent = '🚫 보안 정책 위반: javascript: 또는 http:// 경로는 차단됩니다. / 또는 https://로 입력해 주세요.';
+        btn.disabled = true;
+      }
+    }
+
+    function saveBannerItem() {
+      BANNERS.unshift({
+        order: parseInt(document.getElementById('bd-order').value || '1', 10),
+        spec: 'PC 1920×520 / MO 750×620',
+        name: document.getElementById('bd-name').value.trim(),
+        device: document.getElementById('bd-device').value,
+        period: document.getElementById('bd-period').value,
+        url: document.getElementById('bd-url').value.trim(),
+        status: document.getElementById('bd-status').value
+      });
+      switchDomainTab('banner');
+      showToast('메인 슬라이드 배너가 저장되었으며 시스템 감사 로그(CONF-010)에 기록되었습니다.');
+    }
+
+    function openStripDetail(idx) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-strip-detail').classList.add('active');
+      if (idx !== null && STRIPS[idx]) {
+        const s = STRIPS[idx];
+        document.getElementById('sd-text').value = s.text;
+        document.getElementById('sd-bg').value = s.bg;
+        document.getElementById('sd-fg').value = s.fg;
+        document.getElementById('sd-url').value = s.url;
+        updateStripPreview();
+      }
+    }
+
+    function updateStripPreview() {
+      const txt = document.getElementById('sd-text').value;
+      const bg = document.getElementById('sd-bg').value;
+      const fg = document.getElementById('sd-fg').value;
+      const bar = document.getElementById('strip-live-preview');
+      bar.style.background = bg;
+      bar.style.color = fg;
+      document.getElementById('strip-prev-text').textContent = txt;
+    }
+
+    function saveStripItem() {
+      STRIPS.unshift({
+        loc: document.getElementById('sd-loc').value,
+        target: document.getElementById('sd-target').value,
+        text: document.getElementById('sd-text').value,
+        bg: document.getElementById('sd-bg').value,
+        fg: document.getElementById('sd-fg').value,
+        url: document.getElementById('sd-url').value,
+        period: document.getElementById('sd-period').value,
+        status: '노출중'
+      });
+      switchDomainTab('strip');
+      showToast('띠배너 설정이 저장되었습니다 (동일 위치·대상 기존 배너는 자동 노출 종료 처리).');
+    }
+
+    function openPopupDetail(idx) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-popup-detail').classList.add('active');
+      if (idx !== null && POPUPS[idx]) {
+        document.getElementById('pd-name').value = POPUPS[idx].name;
+      }
+    }
+
+    function togglePopupLinkMode() {
+      const mode = document.querySelector('input[name="pd_link_mode"]:checked').value;
+      document.getElementById('pd-board-box').style.display = (mode === 'BOARD') ? 'block' : 'none';
+      document.getElementById('pd-url-box').style.display = (mode === 'URL') ? 'block' : 'none';
+    }
+
+    function savePopupItem() {
+      const mode = document.querySelector('input[name="pd_link_mode"]:checked').value;
+      const linkStr = mode === 'BOARD' ? document.getElementById('pd-board-sel').value : `직접 입력 (${document.getElementById('pd-url').value})`;
+      POPUPS.unshift({
+        order: parseInt(document.getElementById('pd-order').value || '1', 10),
+        spec: 'PC 460×560 / MO 640×780',
+        name: document.getElementById('pd-name').value,
+        link: linkStr,
+        device: document.getElementById('pd-device').value,
+        period: document.getElementById('pd-period').value,
+        status: document.getElementById('pd-status').value
+      });
+      switchDomainTab('popup');
+      showToast('모달 팝업이 저장되었습니다.');
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAllLists();
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get('view');
+      if (v === 'strip') switchDomainTab('strip');
+      else if (v === 'popup') switchDomainTab('popup');
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

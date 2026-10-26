@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[ADMN-LOGIN-001~003] 관리자 · 파트너 로그인 및 계정 찾기 — 산준모 백오피스</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --success: #059669;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    #v4-root-shell {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-bar.v4-gen3-topbar {
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .screen-id-badge {
+      background: #1e293b;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .main-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+    }
+    .auth-shell {
+      width: 100%;
+      max-width: 980px;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+    .auth-brand-pane {
+      background: linear-gradient(160deg, #1e3a8a 0%, #0f172a 100%);
+      color: #ffffff;
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .brand-pill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.14);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .brand-title { font-size: 24px; font-weight: 800; line-height: 1.35; margin-bottom: 12px; }
+    .brand-desc { font-size: 13px; color: #cbd5e1; line-height: 1.6; }
+    .security-policy-list {
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      font-size: 12px;
+      color: #e2e8f0;
+      line-height: 1.65;
+    }
+
+    .auth-form-pane {
+      padding: 34px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .mode-switcher {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 20px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .mode-btn {
+      flex: 1;
+      padding: 7px 8px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .mode-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text-primary); }
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+    .form-input:focus { outline: 2px solid #93c5fd; border-color: var(--primary); }
+
+    .btn-submit {
+      width: 100%;
+      padding: 11px 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .btn-submit:hover { background: var(--primary-hover); }
+
+    .alert-box {
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+    .alert-danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .alert-ok { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
+    .helper-links {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 12px;
+    }
+    .link-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      font-size: 12px;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-LOGIN-001", "devCommit": "d562524a", "progress": "구현(LOGIN-001 · P1 레이어 · LOGIN-002 아이디 찾기 · LOGIN-003 비밀번호 찾기 · 비밀번호 변경). 시연 버튼 · 역할 프리셋 · 권한 없음 안내는 프로토 전용 — 주황 표시", "menus": [{"route": "admin.login", "label": "관리자 로그인 (메뉴 권한 밖 — admin.ip 허용 IP만)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="screen-id-badge" id="login-screen-badge">ADMN-LOGIN-001</span>
+        <strong style="font-size:15px;" id="login-screen-title">관리자 로그인 — 사내 운영자 및 강사/출판사 파트너 통합 게이트웨이</strong>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="link-btn" style="padding:5px 10px; border:1px solid #cbd5e1; border-radius:6px;" data-dev-flag="proto-only" data-dev-note="시연 버튼 — 개발 대응 불필요" onclick="triggerSessionExpiredBanner()">⏱️ 30분 세션만료 배너 시연</button>
+        <button type="button" class="link-btn" style="padding:5px 10px; border:1px solid #fecaca; color:#dc2626; border-radius:6px;" data-dev-flag="proto-only" data-dev-note="시연 버튼 — 개발 대응 불필요" onclick="triggerLockoutState()">🔒 5회 실패 잠금(ADMN-LOGIN-001-P1) 시연</button>
+      </div>
+    </header>
+
+    <div id="v4-page-body" class="main-container">
+      <div class="auth-shell">
+        <!-- 좌측 브랜드 & 보안 정책 안내 -->
+        <div class="auth-brand-pane">
+          <div>
+            <span class="brand-pill">admin.sanjunmo.com · v4.0.0 SSOT</span>
+            <div class="brand-title">산준모닷컴 백오피스<br/>통합 어드민 &amp; 파트너 센터</div>
+            <div class="brand-desc">
+              사내 운영자(최고 관리자 · CS담당자 · 물류팀 · 재무팀 · 조교 등 역할 그룹)와 외부 계정(강사 · 저작권자 · 외부 3PL 등)가 동일한 게이트웨이로 로그인하며, 부여된 역할(RBAC)에 따라 진입 화면이 자동 분기됩니다.
+            </div>
+            <div class="security-policy-list">
+              <div>• 모든 로그인 성공 · 실패 · 잠금 이력은 보안 감사 로그(<strong>ADMN-CONF-010</strong>)에 자동 기록됩니다.</div>
+              <div>• 비밀번호 <strong>5회 연속 실패 시</strong> 계정이 즉시 잠금 처리됩니다.</div>
+              <div>• SMS 본인인증은 24시간 내 <strong>최대 5회</strong>, 재발송 쿨다운 <strong>30초</strong>, 유효시간 <strong>3분</strong>이 적용됩니다 (<strong>ADMN-CONF-008</strong>).</div>
+              <div>• 계정 발급 · 잠금 해제 문의: 최고 관리자 (운영자 권한 관리 ADMN-CONF-005)</div>
+            </div>
+          </div>
+          <div style="font-size:11px; color:#94a3b8;">
+            ※ 사용자 프론트(sanjunmo.com) 계정은 백오피스에 로그인할 수 없습니다.
+          </div>
+        </div>
+
+        <!-- 우측 폼 영역 -->
+        <div class="auth-form-pane">
+          <div class="mode-switcher">
+            <button type="button" class="mode-btn active" id="mode-btn-login" data-dev-route="admin.login" data-dev-method="GET" data-dev-url="/sj-admin/login" data-dev-perm="로그인 밖" onclick="switchAuthMode('login')">🔐 로그인 (001)</button>
+            <button type="button" class="mode-btn" id="mode-btn-find-id" data-dev-route="admin.find-id.form" data-dev-method="GET" data-dev-url="/sj-admin/find-id?restart=1" data-dev-perm="로그인 밖" onclick="switchAuthMode('find-id')">🔎 아이디 찾기 (002)</button>
+            <button type="button" class="mode-btn" id="mode-btn-reset-pw" data-dev-route="admin.password-reset.form" data-dev-method="GET" data-dev-url="/sj-admin/password-reset?restart=1" data-dev-perm="로그인 밖" onclick="switchAuthMode('reset-pw')">🔑 비밀번호 재설정 (003)</button>
+          </div>
+
+          <!-- 세션 만료 배너 -->
+          <div id="banner-session-expired" data-dev-note="개발 .login__expired — logout_reason idle · session_expired · session_kicked · account_disabled. 만료 1분 전 #layerSessionExpire [연장] POST admin.session.extend" class="alert-box alert-warn" style="display:none;">
+            ⏳ <strong>장시간(30분) 조작이 없어 자동 로그아웃되었습니다.</strong> 다시 로그인해 주세요.
+            <div id="banner-return-line" style="display:none; margin-top:4px; font-size:12px;">로그인하면 원래 가려던 화면으로 이동합니다 (권한이 있는 경우). 주소 파라미터 <code>return=<span id="banner-return-val"></span></code></div>
+          </div>
+          <div id="box-noperm" data-dev-flag="proto-only" data-dev-note="권한 없음 안내 — 개발은 admin_intended 세션 복귀(화면 표시 없음)" class="alert-box alert-warn" style="display:none;"></div>
+
+          <!-- =========================================================
+               MODE 1: 로그인 (ADMN-LOGIN-001 & 001-P1)
+               ========================================================= -->
+          <div id="panel-login" class="view-panel active">
+            <!-- 5회 실패 잠금 안내 (ADMN-LOGIN-001-P1) -->
+            <div id="layerAccountLock" class="alert-box alert-danger" style="display:none;" data-dev-note="개발은 레이어(.layer-pop__overlay) — lock_reason auto_5fail만 P1, admin_block은 공통 Alert. 개발 레이어에 잠금 일시 · 접속 IP(뒤 2옥텟 마스킹) · 계정 상태 · 문의처">
+              <strong>🔒 계정이 잠겼습니다 (비밀번호 5회 연속 불일치 · ADMN-LOGIN-001-P1)</strong><br/>
+              보안 정책에 따라 해당 계정(<strong id="lockTargetId">admin_white</strong>)의 로그인이 차단되었습니다.<br/>
+              • 본인 휴대폰 SMS 인증 후 <strong>[비밀번호 재설정]</strong>을 완료하면 즉시 잠금이 해제됩니다.<br/>
+              • 또는 최고 관리자에게 <strong>운영자 권한 관리(ADMN-CONF-005)</strong>에서 잠금 해제를 요청하세요.
+              <div style="margin-top:8px;" data-dev-flag="dev-only"><button type="button" class="link-btn" data-dev-route="admin.password-reset.from-lock" data-dev-method="POST" data-dev-url="/sj-admin/password-reset/from-lock" data-dev-perm="로그인 밖" data-dev-note="hidden login_id(old) → 비밀번호 찾기로" onclick="switchAuthMode('reset-pw')">비밀번호 재설정하기 →</button></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">접속 역할 프리셋 (시연용 빠른 선택)</label>
+              <select id="sel-demo-account" data-dev-flag="proto-only" data-dev-note="시연용 계정 프리셋" class="form-input" onchange="fillDemoAccount(this.value)">
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">관리자 아이디 *</label>
+              <input type="text" id="inp-login-email" name="login_id" data-dev-note="개발 id #login_id · maxlength 60" class="form-input" value="admin_white" placeholder="발급받은 관리자 · 파트너 계정 ID" autocomplete="username" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">비밀번호 * <span id="lbl-fail-cnt" data-dev-note="개발 .fm__help--count — 비밀번호 오류만 (n/5회)" style="color:var(--danger); font-weight:700; margin-left:6px;"></span></label>
+              <input type="password" id="inp-login-pw" name="password" data-dev-note="개발 id #password · required(개발 min:6 — 정본 결정: 하한 검사 제거 권장)" class="form-input" value="Sanjunmo!2026" onkeyup="checkCapsLock(event)" placeholder="비밀번호 입력 (오류 시연: wrong 입력)" />
+              <button type="button" class="link-btn" data-dev-flag="dev-only" data-dev-note="개발 #passwordToggle (aria-pressed)" aria-pressed="false" onclick="var i=document.getElementById('inp-login-pw'); i.type = i.type === 'password' ? 'text' : 'password'; this.setAttribute('aria-pressed', i.type === 'text');">비밀번호 표시</button>
+              <div id="caps-lock-warn" data-dev-note="개발 #capsLockWarn (.fm__help--warn)" style="display:none; color:var(--warning); font-size:11px; font-weight:700; margin-top:4px;">
+                ⚠️ Caps Lock이 켜져 있습니다.
+              </div>
+            </div>
+
+            <button type="button" class="btn-submit" id="btn-do-login" data-dev-route="admin.login.post" data-dev-method="POST" data-dev-url="/sj-admin/login" data-dev-perm="로그인 밖(분당 10회)" data-dev-note="개발 #loginSubmit · 성공 후 must_change_password → password-change, admin_intended, 역할별 랜딩 순" onclick="handleAdminLogin()">로그인</button>
+
+            <div class="helper-links">
+              <button type="button" class="link-btn" data-dev-route="admin.find-id.form" data-dev-method="GET" data-dev-url="/sj-admin/find-id?restart=1" data-dev-perm="로그인 밖" onclick="switchAuthMode('find-id')">아이디 찾기 (ADMN-LOGIN-002)</button>
+              <button type="button" class="link-btn" data-dev-route="admin.password-reset.form" data-dev-method="GET" data-dev-url="/sj-admin/password-reset?restart=1" data-dev-perm="로그인 밖" onclick="switchAuthMode('reset-pw')">비밀번호 찾기 · 잠금 해제 (ADMN-LOGIN-003)</button>
+            </div>
+          </div>
+
+          <!-- =========================================================
+               MODE 2: 아이디 찾기 (ADMN-LOGIN-002)
+               ========================================================= -->
+          <div id="panel-find-id" class="view-panel">
+            <div class="alert-box alert-warn">
+              운영자 계정 관리(<strong>ADMN-CONF-005</strong>)에 등록된 <strong>이름 + 휴대폰 번호 SMS 본인인증</strong>을 거쳐 로그인 이메일을 조회합니다.
+            </div>
+            <div class="form-group">
+              <label class="form-label">이름 *</label>
+              <input type="text" id="inp-find-name" name="name" data-dev-note="2~20자" class="form-input" value="김산준" placeholder="등록된 실명 입력" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">휴대폰 번호 *</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inp-find-phone" name="phone" data-dev-note="숫자 10~11자리(하이픈 없음)" class="form-input" value="010-2345-6789" placeholder="010-0000-0000" />
+                <button type="button" class="btn-submit" style="width:140px; margin-top:0; font-size:12px;" data-dev-route="admin.find-id.send-code" data-dev-method="POST" data-dev-url="/sj-admin/find-id/send-code" data-dev-perm="로그인 밖" onclick="sendSmsOtp('find')">인증번호 발송</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">SMS 인증번호 (6자리 · 유효시간 <span id="timer-find" style="color:var(--danger);">03:00</span>)</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inp-find-otp" name="code" data-dev-note="digits:6 · 개발 id #code" class="form-input" value="482910" maxlength="6" />
+                <button type="button" class="btn-submit" style="width:140px; margin-top:0; font-size:12px; background:#059669;" data-dev-route="admin.find-id.verify-code" data-dev-method="POST" data-dev-url="/sj-admin/find-id/verify-code" data-dev-perm="로그인 밖" onclick="verifyFindIdOtp()">인증 확인</button>
+              </div>
+            </div>
+            <div id="box-found-id-result" data-dev-note="개발 #findIdResult" class="alert-box alert-ok" style="display:none;">
+              ✅ <strong>본인인증 완료 — 등록된 관리자 아이디</strong><br/>
+              • 전체 이메일: <strong style="font-size:14px;">cs.kim@sanjunmo.com</strong> (CS담당자 · 계정상태: 정상)<br/>
+              <div style="margin-top:8px;">
+                <button type="button" class="link-btn" data-dev-route="admin.find-id.to-login" data-dev-method="POST" data-dev-url="/sj-admin/find-id/to-login" data-dev-perm="로그인 밖" data-dev-note="개발은 POST로 넘김(URL에 아이디 없음) · 비밀번호 찾기로 POST admin.find-id.to-password-reset" onclick="applyFoundEmailAndGoLogin('cs.kim@sanjunmo.com')">→ 이 계정으로 즉시 로그인하기</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- =========================================================
+               MODE 3: 비밀번호 재설정 (ADMN-LOGIN-003)
+               ========================================================= -->
+          <div id="panel-reset-pw" class="view-panel">
+            <div class="alert-box alert-warn">
+              이메일 아이디와 휴대폰 SMS 본인인증 완료 후 화면에서 새 비밀번호를 즉시 설정합니다. 재설정 즉시 <strong>5회 실패 잠금도 자동 해제</strong>됩니다.
+            </div>
+            <div class="form-group">
+              <label class="form-label">관리자 아이디 (이메일) *</label>
+              <input type="email" id="inp-reset-email" name="login_id" data-dev-note="1단계 · max 60" class="form-input" value="cs.kim@sanjunmo.com" />
+            </div>
+            <div class="form-group" data-dev-flag="dev-only" data-dev-note="1단계 이메일 인증번호 — PasswordResetSendCodeRequest · PasswordResetVerifyCodeRequest (정본 L109: 이메일+SMS 인증, 개발이 맞음)">
+              <label class="form-label">이메일 인증번호 (6자리) *</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" class="form-input" name="code" maxlength="6" placeholder="메일로 받은 6자리" />
+                <button type="button" class="btn-submit" style="width:140px; margin-top:0; font-size:12px;" data-dev-route="admin.password-reset.send-code | admin.password-reset.verify-code" data-dev-method="POST" data-dev-url="/sj-admin/password-reset/send-code | /password-reset/verify-code" data-dev-perm="로그인 밖" onclick="sendSmsOtp('reset-email')">메일 발송 · 확인</button>
+              </div>
+            </div>
+            <div class="form-group" data-dev-flag="dev-only" data-dev-note="2단계 PasswordResetSmsSendRequest name (개발 #owner_name)">
+              <label class="form-label">이름 *</label>
+              <input type="text" class="form-input" name="name" placeholder="등록된 실명" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">등록 휴대폰 번호 *</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="inp-reset-phone" name="phone" data-dev-note="2단계 · digits_between:10,11 (개발 #owner_phone)" class="form-input" value="010-2345-6789" />
+                <button type="button" class="btn-submit" style="width:140px; margin-top:0; font-size:12px;" data-dev-route="admin.password-reset.sms.send-code" data-dev-method="POST" data-dev-url="/sj-admin/password-reset/sms/send-code" data-dev-perm="로그인 밖" onclick="sendSmsOtp('reset')">인증번호 발송</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">SMS 인증번호 (6자리) *</label>
+              <input type="text" id="inp-reset-otp" name="code" data-dev-note="2단계 · digits:6 (개발 #sms_code) → POST admin.password-reset.sms.verify-code" class="form-input" value="839104" maxlength="6" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">새 비밀번호 (영문+숫자+특수문자 조합 8~20자) *</label>
+              <input type="password" id="inp-reset-pw1" name="password" data-dev-note="3단계 · 개발 8~12자(프로토 8~20자 — 정책 D-CONF-05)" class="form-input" value="NewSanjun!2026" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">새 비밀번호 확인 *</label>
+              <input type="password" id="inp-reset-pw2" name="password_confirmation" class="form-input" value="NewSanjun!2026" />
+            </div>
+            <button type="button" class="btn-submit" data-dev-route="admin.password-reset.store" data-dev-method="POST" data-dev-url="/sj-admin/password-reset" data-dev-perm="로그인 밖" data-dev-note="개발 #pwResetForm · #pwResetSubmit" onclick="submitPasswordReset()">비밀번호 변경 및 계정 잠금 해제</button>
+          </div>
+
+          <!-- =========================================================
+               MODE 4: 비밀번호 변경 (첫 로그인 · 임시 비밀번호 계정)
+               ========================================================= -->
+          <div id="panel-change-pw" class="view-panel" data-dev-note="개발 password-change 페이지 — 첫 로그인 · 90일 경과 공용(must_change_password)">
+            <div class="alert-box alert-warn">
+              <strong id="chg-account-label"></strong> 계정은 첫 로그인(임시 비밀번호)입니다. 새 비밀번호를 설정해야 업무 화면으로 이동합니다.
+            </div>
+            <div class="form-group">
+              <label class="form-label">임시 비밀번호 *</label>
+              <input type="password" id="inp-chg-cur" name="current_password" class="form-input" value="Temp!2026" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">새 비밀번호 (영문+숫자+특수문자 조합 8~20자) *</label>
+              <input type="password" id="inp-chg-pw1" name="password" data-dev-note="개발 8~12자 · 아이디 · 이름 3자 포함 금지 · 연속 4자 금지 · 최근 3개 재사용 금지" class="form-input" value="NewStaff!2026" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">새 비밀번호 확인 *</label>
+              <input type="password" id="inp-chg-pw2" name="password_confirmation" class="form-input" value="NewStaff!2026" />
+            </div>
+            <div id="chg-msg" style="display:none; font-size:12px; font-weight:700; margin-top:6px;"></div>
+            <button type="button" class="btn-submit" id="btn-change-pw" data-dev-route="admin.password-change.update" data-dev-method="PUT" data-dev-url="/sj-admin/password-change" data-dev-perm="로그인만" onclick="submitChangePw()">비밀번호 변경 후 이동</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let loginFailCount = 0;
+    document.addEventListener("DOMContentLoaded", function () {
+      renderDemoAccountOptions();
+      if (getReturnUrl()) { document.getElementById("banner-session-expired").style.display = "block"; showReturnLine(); }
+    });
+
+    function switchAuthMode(mode) {
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+
+      const badge = document.getElementById("login-screen-badge");
+      const title = document.getElementById("login-screen-title");
+
+      if (mode === "find-id") {
+        document.getElementById("panel-find-id").classList.add("active");
+        document.getElementById("mode-btn-find-id").classList.add("active");
+        badge.textContent = "ADMN-LOGIN-002";
+        title.textContent = "아이디 찾기 — 이름 · 휴대폰 본인인증(SMS) 기반 관리자 계정 조회";
+      } else if (mode === "change-pw") {
+        document.getElementById("panel-change-pw").classList.add("active");
+        badge.textContent = "ADMN-LOGIN-001";
+        title.textContent = "비밀번호 변경 — 첫 로그인 · 임시 비밀번호 계정";
+      } else if (mode === "reset-pw") {
+        document.getElementById("panel-reset-pw").classList.add("active");
+        document.getElementById("mode-btn-reset-pw").classList.add("active");
+        badge.textContent = "ADMN-LOGIN-003";
+        title.textContent = "비밀번호 재설정 — 이메일 · SMS 본인인증 후 화면 내 즉시 변경";
+      } else {
+        document.getElementById("panel-login").classList.add("active");
+        document.getElementById("mode-btn-login").classList.add("active");
+        badge.textContent = "ADMN-LOGIN-001";
+        title.textContent = "관리자 로그인 — 사내 운영자 및 강사/출판사 파트너 통합 게이트웨이";
+      }
+    }
+
+    function fillDemoAccount(val) {
+      const [email] = val.split("|");
+      document.getElementById("inp-login-email").value = email;
+      const acc = findDemoAccount(email);
+      document.getElementById("inp-login-pw").value = acc && acc.tempPw ? acc.tempPw : "Sanjunmo!2026";
+      loginFailCount = 0;
+      document.getElementById("lbl-fail-cnt").textContent = "";
+      document.getElementById("layerAccountLock").style.display = "none";
+      document.getElementById("btn-do-login").disabled = false;
+    }
+
+    function checkCapsLock(e) {
+      const warn = document.getElementById("caps-lock-warn");
+      if (e.getModifierState && e.getModifierState("CapsLock")) {
+        warn.style.display = "block";
+      } else {
+        warn.style.display = "none";
+      }
+    }
+
+    function handleAdminLogin() {
+      const email = document.getElementById("inp-login-email").value.trim();
+      const pw = document.getElementById("inp-login-pw").value;
+
+      if (!email || !pw) {
+        alert("아이디(이메일)와 비밀번호를 모두 입력해 주세요.");
+        return;
+      }
+
+      if (pw === "wrong") {
+        loginFailCount += 1;
+        document.getElementById("lbl-fail-cnt").textContent = `(비밀번호 불일치 ${loginFailCount}/5회)`;
+        if (loginFailCount >= 5) {
+          triggerLockoutState();
+        }
+        return;
+      }
+
+      const acc = findDemoAccount(email);
+      const land = resolveLanding(acc, getReturnUrl());
+      if (land.kind === "changepw") {
+        pendingAcc = acc;
+        document.getElementById("chg-account-label").textContent = acc.id;
+        switchAuthMode("change-pw");
+        return;
+      }
+      goLanding(land);
+    }
+
+    let pendingAcc = null;
+    let demoReturn = null;   // 세션 만료 배너 시연에서 정한 return 값
+
+    function goLanding(land) {
+      window.__lastLanding = land;
+      if (land.rejected) {
+        const box = document.getElementById("box-noperm");
+        box.textContent = "요청한 화면에 권한이 없어 시작 화면으로 이동합니다. (" + land.label + ")";
+        box.style.display = "block";
+        setTimeout(function () { window.location.href = land.url; }, 1800);
+        return;
+      }
+      window.location.href = land.url;
+    }
+
+    function submitChangePw() {
+      const cur = document.getElementById("inp-chg-cur").value;
+      const p1 = document.getElementById("inp-chg-pw1").value;
+      const p2 = document.getElementById("inp-chg-pw2").value;
+      const msg = document.getElementById("chg-msg");
+      const fail = t => { msg.style.color = "var(--danger)"; msg.textContent = t; msg.style.display = "block"; };
+      if (!cur) return fail("임시 비밀번호를 입력해 주세요.");
+      if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,20}$/.test(p1)) return fail("새 비밀번호는 영문+숫자+특수문자 조합 8~20자여야 합니다.");
+      if (p1 !== p2) return fail("새 비밀번호 확인이 일치하지 않습니다.");
+      if (p1 === cur) return fail("임시 비밀번호와 다른 비밀번호를 써야 합니다.");
+      msg.style.color = "var(--success, #059669)";
+      msg.textContent = "비밀번호를 변경했습니다. 시작 화면으로 이동합니다.";
+      msg.style.display = "block";
+      if (pendingAcc) pendingAcc.firstLogin = false;
+      goLanding(resolveLanding(pendingAcc, getReturnUrl(), true));
+    }
+
+    // 시연용 계정 — ADMN-CONF-005 계정 목록(ACCOUNTS)과 같은 ID · 역할 그룹 · 소속. new_staff는 첫 로그인(임시 비밀번호) 시연용으로 이 화면에만 둔다.
+    const DEMO_ACCOUNTS = [
+      { id: "admin_white", roles: ["RG-01"], aff: { kind: "STAFF" } },
+      { id: "fin_manager", roles: ["RG-04"], aff: { kind: "STAFF" } },
+      { id: "cs_lead01", roles: ["RG-02"], aff: { kind: "STAFF" } },
+      { id: "log_choi", roles: ["RG-03", "RG-02"], aff: { kind: "STAFF" } },
+      { id: "inst_jjd", roles: ["RG-05"], aff: { kind: "RH", ref: "RH-0025" } },
+      { id: "ta_jung", roles: ["RG-06"], aff: { kind: "STAFF" } },
+      { id: "author_lee", roles: ["RG-07"], aff: { kind: "RH", ref: "RH-0031" } },
+      { id: "3pl_cjlogis", roles: ["RG-08"], aff: { kind: "VENDOR", ref: "SUP-0020" } },
+      { id: "new_staff", roles: ["RG-02"], aff: { kind: "STAFF" }, firstLogin: true, tempPw: "Temp!2026" }
+    ];
+    const DEMO_RETURN_SAMPLE = "ADMN-BRD-002_baseline.html";
+
+    function findDemoAccount(id) {
+      const key = String(id || "").trim().toLowerCase();
+      return DEMO_ACCOUNTS.filter(a => a.id === key)[0] || null;
+    }
+
+    // return 파라미터: 이 프로토타입 화면 파일명(+쿼리)만 받는다
+    function getReturnUrl() {
+      let v = null;
+      try { v = new URLSearchParams(window.location.search).get("return"); } catch (e) { v = null; }
+      v = v || demoReturn;
+      return v && /^ADMN-[A-Z]+-\d{3}(-[A-Z0-9]+)?_baseline\.html(\?[A-Za-z0-9_=&.%-]*)?$/.test(v) ? v : null;
+    }
+
+    // MENUS의 screens 문자열("USER-001~006", "INST-001 · SETT-001 · 007")을 화면 코드 목록으로 푼다
+    function menuCodes(m) {
+      const out = []; let prefix = "";
+      const rng = (a, b) => { for (let n = parseInt(a, 10); n <= parseInt(b, 10); n++) out.push(prefix + "-" + String(n).padStart(3, "0")); };
+      String(m.screens).replace(/\([^)]*\)/g, "").split("\u00b7").forEach(tok => {
+        tok = tok.trim();
+        let x = /^([A-Z]+)-(\d+)(?:~(\d+))?(-S\d+)?$/.exec(tok);
+        if (x) {
+          prefix = x[1];
+          if (x[4]) out.push(prefix + "-" + x[2] + x[4]); else rng(x[2], x[3] || x[2]);
+          return;
+        }
+        x = /^(\d+)(?:~(\d+))?$/.exec(tok);
+        if (x && prefix) rng(x[1], x[2] || x[1]);
+      });
+      return out;
+    }
+
+    // 계정의 역할 그룹들 중 하나라도 그 화면에 읽기 이상 권한이 있는가 (전 메뉴 RWX인 최고 관리자는 통과)
+    function canOpenScreen(roleIds, url) {
+      const M = window.SJM_MASTER;
+      const m = /^ADMN-([A-Z]+-\d+)_baseline\.html(?:\?(.*))?$/.exec(url || "");
+      if (!M || !m) return false;
+      const view = new URLSearchParams(m[2] || "").get("view");
+      let need = m[1];
+      if (need === "SETT-002" && view === "partner-stmt") need = "SETT-002-S2";
+      const ship = need === "ORD-001" && view === "ord002";
+      return roleIds.some(id => {
+        const g = M.roles.get(id);
+        if (!g || g.on === false) return false;
+        const p = g.perms || {};
+        // 파트너 센터는 본인 정산서(statement) 또는 학습 Q&A(lqna) 권한이 있으면 허용 — common-master MENUS 반영 후 제거 가능
+        if (need === "PTNR-001") return !!(p.statement || p.lqna);
+        if (M.menus.every(mn => p[mn.key] === "RWX")) return true;
+        if (g.startScreen && g.startScreen.url === url) return true;
+        return M.menus.some(mn => p[mn.key] && (mn.key !== "shipout" || ship) && menuCodes(mn).indexOf(need) !== -1);
+      });
+    }
+
+    function withHolder(url, acc) {
+      if (acc && acc.aff && acc.aff.kind === "RH" && acc.aff.ref && url.indexOf("holder=") === -1) url = url + (url.indexOf("?") === -1 ? "?" : "&") + "holder=" + acc.aff.ref;
+      // 파트너 센터는 화면이 강사 · 저작권자를 구분하도록 계정의 첫 역할 그룹 ID를 함께 넘긴다
+      if (acc && acc.roles && acc.roles[0] && /^ADMN-PTNR-001_baseline\.html/.test(url) && !/[?&]role=/.test(url)) url = url + (url.indexOf("?") === -1 ? "?" : "&") + "role=" + acc.roles[0];
+      return url;
+    }
+
+    // 착지 순서: 1) 가려던 화면(return, 권한 있을 때) 2) 첫 로그인 · 임시 비밀번호면 비밀번호 변경 3) 역할 그룹 시작 화면(없으면 대시보드)
+    function resolveLanding(acc, retUrl, skipPw) {
+      const dash = { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" };
+      const M = window.SJM_MASTER;
+      const g = acc && M ? M.roles.get(acc.roles[0]) : null;
+      if (!g) return Object.assign({ kind: "start" }, dash);
+      let rejected = false;
+      if (retUrl) {
+        if (canOpenScreen(acc.roles, retUrl)) {
+          const code = "ADMN-" + /^ADMN-([A-Z]+-\d+)/.exec(retUrl)[1];
+          return { kind: "return", code: code, label: "요청한 화면", url: withHolder(retUrl, acc) };
+        }
+        rejected = true;
+      }
+      const st = g.startScreen && g.startScreen.url ? g.startScreen : dash;
+      const start = { kind: "start", code: st.code, label: st.label, url: withHolder(st.url, acc), rejected: rejected };
+      if (acc.firstLogin && !skipPw) return { kind: "changepw", code: "ADMN-LOGIN-001", label: "비밀번호 변경", url: "", rejected: rejected, next: start };
+      return start;
+    }
+
+    function renderDemoAccountOptions() {
+      const M = window.SJM_MASTER;
+      const sel = document.getElementById("sel-demo-account");
+      if (!sel) return;
+      const keep = sel.value;
+      sel.innerHTML = DEMO_ACCOUNTS.map(a => {
+        const g = M ? M.roles.get(a.roles[0]) : null;
+        const land = resolveLanding(a, getReturnUrl());
+        let to;
+        if (land.kind === "return") to = `요청한 화면 ${land.code} 이동`;
+        else if (land.kind === "changepw") to = `비밀번호 변경 → ${land.next.label} ${land.next.code} 이동`;
+        else to = `${land.label} ${land.code} 이동${land.rejected ? " · 요청 화면 권한 없음" : ""}`;
+        return `<option value="${a.id}">${g ? g.name : a.roles[0]} (${a.id} → ${to})</option>`;
+      }).join("");
+      if (keep) sel.value = keep;
+    }
+
+    function triggerLockoutState() {
+      switchAuthMode("login");
+      loginFailCount = 5;
+      document.getElementById("login-screen-badge").textContent = "ADMN-LOGIN-001-P1";
+      document.getElementById("lbl-fail-cnt").textContent = "(5/5회 실패 · 계정 잠금)";
+      document.getElementById("layerAccountLock").style.display = "block";
+      document.getElementById("lockTargetId").textContent = document.getElementById("inp-login-email").value.trim();
+      document.getElementById("btn-do-login").disabled = true;
+    }
+
+    function triggerSessionExpiredBanner() {
+      const el = document.getElementById("banner-session-expired");
+      const show = el.style.display === "none";
+      el.style.display = show ? "block" : "none";
+      demoReturn = show ? DEMO_RETURN_SAMPLE : null;
+      showReturnLine();
+      renderDemoAccountOptions();
+    }
+
+    // 주소의 return 파라미터(또는 시연 값)가 있으면 배너에 표시
+    function showReturnLine() {
+      const r = getReturnUrl();
+      document.getElementById("banner-return-line").style.display = r ? "block" : "none";
+      document.getElementById("banner-return-val").textContent = (r || "").replace("ADMN-", "ADMN​-");  // 표시용(clean 문구 치환기가 화면 코드를 이름으로 바꾸지 않게)
+    }
+
+    function sendSmsOtp(target) {
+      alert("[SENS SMS 발송] 등록된 휴대폰 번호로 6자리 인증번호가 발송되었습니다. (유효시간 3분 · 일 최대 5회)");
+    }
+
+    function verifyFindIdOtp() {
+      document.getElementById("box-found-id-result").style.display = "block";
+    }
+
+    function applyFoundEmailAndGoLogin(email) {
+      switchAuthMode("login");
+      document.getElementById("inp-login-email").value = email;
+    }
+
+    function submitPasswordReset() {
+      const p1 = document.getElementById("inp-reset-pw1").value;
+      const p2 = document.getElementById("inp-reset-pw2").value;
+      if (p1.length < 8 || p1 !== p2) {
+        alert("새 비밀번호(영문+숫자+특수문자 8~20자)가 일치하지 않습니다.");
+        return;
+      }
+      loginFailCount = 0;
+      document.getElementById("layerAccountLock").style.display = "none";
+      document.getElementById("btn-do-login").disabled = false;
+      document.getElementById("lbl-fail-cnt").textContent = "";
+      alert("[감사 로그 기록 완료] 새 비밀번호 변경 및 계정 잠금 해제가 완료되었습니다. 로그인 화면으로 이동합니다.");
+      switchAuthMode("login");
+    }
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

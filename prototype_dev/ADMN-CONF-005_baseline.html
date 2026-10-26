@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>운영자 권한 관리 — 산준모 백오피스</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --bg-body: #F3F5F9; --bg-card: #FFFFFF; --bg-subtle: #F8FAFC;
+      --text-main: #0F172A; --text-sub: #475569; --text-muted: #64748B;
+      --border: #E2E8F0; --border-strong: #CBD5E1;
+      --primary: #2563EB; --primary-hover: #1D4ED8;
+      --success: #16A34A; --warning: #D97706; --danger: #DC2626;
+      --radius-md: 8px; --radius-lg: 12px; --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 13px; line-height: 1.5; min-width: 1440px; }
+    #v4-root-shell { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+    .top-bar.v4-gen3-topbar { height: 60px; background: #FFF; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 100; }
+    .crumb-wrap { display: flex; align-items: center; gap: 10px; }
+    .crumb-code { background: #1E293B; color: #F8FAFC; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+    .crumb-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .crumb-sub { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
+    .main-container { padding: 24px 28px 60px; max-width: 1640px; width: 100%; }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #FAFBFD; }
+    .card-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card-actions { display: flex; gap: 8px; align-items: center; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .scope-note { background: #F8FAFC; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 18px; font-size: 12px; color: var(--text-sub); line-height: 1.6; }
+    .tabs { display: flex; align-items: center; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+    .tab-btn { padding: 10px 18px; font-size: 13px; font-weight: 800; color: var(--text-sub); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tabs .tab-link { margin-left: auto; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .f-input, .f-select { height: 34px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 12.5px; font-family: inherit; color: var(--text-main); background: #FFF; }
+    .btn { height: 34px; padding: 0 14px; border-radius: 6px; font-size: 12.5px; font-weight: 700; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; text-decoration: none; white-space: nowrap; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-primary { background: var(--primary); color: #FFF; }
+    .btn-outline { background: #FFF; border-color: var(--border-strong); color: var(--text-main); }
+    .btn-danger { background: #FEF2F2; border-color: #FECACA; color: var(--danger); }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; margin: 1px 2px 1px 0; }
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+    .badge-green { background: #DCFCE7; color: #15803D; }
+    .badge-amber { background: #FEF3C7; color: #B45309; }
+    .badge-red { background: #FEE2E2; color: #B91C1C; }
+    .badge-gray { background: #F1F5F9; color: #475569; }
+    .badge-purple { background: #EDE9FE; color: #6D28D9; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th { background: #F8FAFC; color: var(--text-sub); font-weight: 700; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table th.c, .data-table td.c { text-align: center; }
+    .data-table tr.row-off td { color: #94A3B8; background: #FAFAFA; }
+    .data-table tr.row-click { cursor: pointer; }
+    .data-table tr.row-click:hover td { background: #F8FAFC; }
+    .data-table tr.selected td { background: #EFF6FF; }
+    .data-table tr.changed td { background: #FFFBEB; }
+
+    .role-layout { display: grid; grid-template-columns: 420px 1fr; gap: 20px; align-items: start; }
+    .role-head { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .role-head h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .role-head p { font-size: 12px; color: var(--text-sub); }
+    .perm-check { width: 16px; height: 16px; cursor: pointer; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-backdrop.open { display: flex; }
+    .modal-box { background: #FFF; border-radius: var(--radius-lg); width: 100%; max-width: 640px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25); overflow: hidden; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .modal-header h3 { font-size: 15px; font-weight: 800; }
+    .modal-body { padding: 18px 20px; max-height: 70vh; overflow-y: auto; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); background: #FAFBFD; }
+    .form-row { display: grid; grid-template-columns: 130px 1fr; gap: 12px; align-items: start; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+    .form-row:last-child { border-bottom: none; }
+    .form-row > label { font-size: 12px; font-weight: 700; color: var(--text-sub); padding-top: 8px; }
+    .form-help { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+    .check-group { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 7px; }
+    .check-group label { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; }
+    .form-error { display: none; background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+    .impact-list { margin: 6px 0 12px 18px; font-size: 12.5px; line-height: 1.8; }
+    .impact-title { font-size: 12.5px; font-weight: 800; margin-top: 6px; }
+
+    #toast-box { position: fixed; bottom: 24px; right: 24px; background: #0F172A; color: #FFF; padding: 12px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 700; display: none; z-index: 12000; max-width: 560px; }
+    code { background: #F1F5F9; padding: 2px 5px; border-radius: 4px; font-size: 11.5px; }
+
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-005", "devCommit": "d562524a", "progress": "구현(관리자 계정 · 권한 그룹 · 메뉴 관리). 역할 그룹 추가 · 미사용 · 변경 영향 확인 · 변경 이력 · 계정 소속(권리자 · 거래처)은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.admin-users.index", "label": "관리자 계정"}, {"route": "admin.admin-roles.index", "label": "권한 그룹"}, {"route": "admin.admin-menus.index", "label": "메뉴 관리 (개발에만)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="crumb-wrap">
+        <span class="crumb-code" id="top-crumb-code">ADMN-CONF-005</span>
+        <h1 class="crumb-title">운영자 권한 관리</h1>
+        <span class="crumb-sub">권한 · 개인정보 · 보안 감사 &gt; 운영자 권한 관리 (관리자 계정 · 역할 그룹 · 권한 매트릭스)</span>
+      </div>
+    </header>
+
+    <div id="v4-page-body" class="main-container">
+      <div class="scope-note">
+        <strong>역할 그룹</strong>은 계정이 무엇을 할 수 있는지(메뉴별 읽기 · 쓰기 · 엑셀)를 정하는 권한 묶음입니다. 한 계정에 여러 그룹을 줄 수 있고 실효 권한은 부여된 그룹 권한의 합집합입니다.
+        그룹 이름 · 구성 · 권한은 운영하면서 바뀌는 값이며, 1:1 문의 담당 부서 큐 · 대시보드 등 다른 화면은 이 목록을 그대로 씁니다.<br />
+        <strong>소속</strong>은 역할 그룹과 별개로 계정이 누구의 데이터만 보는지를 정합니다 — 내부 직원 / 권리자(권리자 계약 원장의 계약 당사자) / 거래처(거래처 관리).
+        강사 · 저자 · 위탁사 같은 성격은 고정 분류가 아니라 그 권리자의 계약 유형에서 나옵니다.
+      </div>
+
+      <div class="tabs">
+        <button type="button" class="tab-btn active" id="tabBtn-accounts" data-dev-route="admin.admin-users.index" data-dev-method="GET" data-dev-url="/sj-admin/admin-users" data-dev-perm="조회" onclick="switchTab('accounts')">1. 관리자 계정</button>
+        <button type="button" class="tab-btn" id="tabBtn-roles" data-dev-route="admin.admin-roles.index" data-dev-method="GET" data-dev-url="/sj-admin/admin-roles" data-dev-perm="조회" onclick="switchTab('roles')">2. 역할 그룹 · 권한</button>
+        <button type="button" class="btn btn-outline btn-sm" data-dev-flag="dev-only" data-dev-route="admin.admin-menus.index" data-dev-method="GET" data-dev-url="/sj-admin/admin-menus" data-dev-perm="조회" data-dev-note="메뉴 관리(AdminMenuRequest parent_id · name · route_name · url · icon · sort_order · is_active) — 권한 단위 admin_menus.screen_code" onclick="showToast('메뉴 관리 화면(admin-menus)으로 이동합니다.')">3. 메뉴 관리</button>
+        <a class="btn btn-outline btn-sm tab-link" href="ADMN-CONF-010_baseline.html?view=access">운영자 작업 · 보안 감사 로그는 시스템 감사 로그에서 (ADMN-CONF-010) →</a>
+      </div>
+
+      <!-- 1. 관리자 계정 -->
+      <section class="tab-panel active" id="tab-accounts">
+        <div class="card">
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <select class="f-select" id="acc-role-filter" name="admin_role_id" onchange="renderAccounts()"></select>
+              <input class="f-input" id="acc-keyword" name="keyword" data-dev-note="개발 search_field: login_id · name · email · phone (데이터 범위 검색은 개발 없음)" style="width:260px;" placeholder="이름 · 계정 ID · 데이터 범위 검색" oninput="renderAccounts()" />
+              <select class="f-select" name="is_locked" style="width:110px;" data-dev-flag="dev-only" data-dev-note="개발 목록 필터 is_locked · per_page(10 · 20 · 30)"><option value="">상태 전체</option><option value="0">정상</option><option value="1">잠금</option></select>
+              <span id="acc-summary" style="font-weight:700; color:var(--text-sub);"></span>
+            </div>
+            <div class="toolbar-right">
+              <button type="button" class="btn btn-primary btn-sm" data-dev-route="admin.admin-users.create" data-dev-method="GET" data-dev-url="/sj-admin/admin-users/create" data-dev-perm="등록" onclick="openAccountModal(null)">＋ 계정 발급</button>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:140px;">계정 ID</th>
+                <th style="width:200px;">성명 · 소속</th>
+                <th style="width:200px;">역할 그룹</th>
+                <th style="width:300px;" data-dev-flag="proto-only" data-dev-note="개발 목록에 없음 — 계정 소속(내부 · 권리자 · 거래처) 축 미구현">소속 (데이터 범위)</th>
+                <th data-dev-flag="proto-only" data-dev-note="개발 목록에 없음(admin_allowed_ips는 있음)">접속 제한</th>
+                <th style="width:130px;">최근 접속</th>
+                <th style="width:80px;">상태</th>
+                <th style="width:90px;">관리</th>
+              </tr>
+            </thead>
+            <tbody id="acc-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2. 역할 그룹 · 권한 -->
+      <section class="tab-panel" id="tab-roles">
+        <div class="role-layout">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">👥 역할 그룹</div>
+              <button type="button" class="btn btn-primary btn-sm" data-dev-route="admin.admin-roles.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/admin-roles" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="역할 그룹 추가 — 개발 store 라우트 없음(정본: 운영 중 추가 · 미사용 — 개발팀 전달)" onclick="openRoleModal(null)">＋ 역할 그룹 추가</button>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr><th>그룹</th><th style="width:70px;">구분</th><th class="c" style="width:70px;">문의 큐</th><th class="c" style="width:60px;">계정</th><th style="width:70px;">상태</th></tr>
+              </thead>
+              <tbody id="role-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="role-head">
+              <h3><span id="rh-name"></span><code id="rh-id"></code><span id="rh-badges"></span></h3>
+              <p id="rh-desc"></p>
+              <div style="display:flex; gap:8px; margin-top:10px;">
+                <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.admin-roles.edit" data-dev-method="GET" data-dev-url="/sj-admin/admin-roles/{adminRole}/edit" data-dev-perm="수정" data-dev-note="최고관리자(super) 그룹은 최고관리자만 편집" onclick="openRoleModal(selectedRoleId)">그룹 정보 수정</button>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-role" data-dev-route="admin.admin-roles.status.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/admin-roles/{adminRole}/status" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="+ admin_roles.is_active (규칙)" onclick="toggleRoleStatus()">미사용으로 변경</button>
+              </div>
+            </div>
+            <div class="toolbar">
+              <div class="toolbar-left"><strong>메뉴별 접근 권한</strong><span style="font-size:12px; color:var(--text-muted);">쓰기 · 엑셀은 읽기가 있어야 합니다. 엑셀 다운로드는 읽기와 따로 줍니다.</span></div>
+              <div class="toolbar-right">
+                <span id="perm-dirty" style="font-size:12px; color:var(--warning); font-weight:700;"></span>
+                <button type="button" class="btn btn-outline btn-sm" id="btn-perm-cancel" onclick="cancelPermEdit()">변경 취소</button>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-perm-save" data-dev-route="admin.admin-roles.update" data-dev-method="PUT" data-dev-url="/sj-admin/admin-roles/{adminRole}" data-dev-perm="수정" data-dev-note="개발은 변경 영향 확인 모달 없이 바로 저장" onclick="reviewPermChanges()">권한 변경 저장</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr><th>메뉴</th><th style="width:220px;">화면</th><th class="c" style="width:70px;">읽기</th><th class="c" style="width:70px;">쓰기</th><th class="c" style="width:70px;">엑셀</th></tr>
+              </thead>
+              <tbody id="perm-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🕘 역할 그룹 변경 이력</div>
+            <span style="font-size:12px; color:var(--text-muted);">그룹 추가 · 수정 · 상태 · 권한 변경은 변경 전후 값이 시스템 감사 로그에 남습니다.</span>
+          </div>
+          <table class="data-table">
+            <thead><tr><th style="width:150px;">변경 일시</th><th style="width:180px;">관리자</th><th style="width:140px;">대상</th><th>변경 내용 (전 → 후)</th></tr></thead>
+            <tbody id="log-tbody" data-dev-flag="proto-only" data-dev-note="역할 그룹 변경 이력 — 개발은 admin_logs 기록만, 화면 없음"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 역할 그룹 추가 · 수정 -->
+  <div class="modal-backdrop" id="modal-role">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="role-modal-title">역할 그룹 추가</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modal-role')">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-error" id="role-error"></div>
+        <div class="form-row"><label>그룹 이름 *</label><div><input class="f-input" id="rf-name" name="name" data-dev-note="max 100 · 중복 불가" maxlength="20" style="width:100%;" placeholder="예: 운영팀" /><div class="form-help">이름을 바꿔도 계정 · 1:1 문의 담당 부서 큐 연결은 그대로 유지됩니다.</div></div></div>
+        <div class="form-row"><label>그룹 코드</label><div><input class="f-input" id="rf-id" name="code" data-dev-note="^[a-z0-9_]+$ · 개발 6종 super · cs · logistics · finance · instructor · assistant" readonly style="width:140px; background:var(--bg-subtle);" /><div class="form-help">최초 저장 시 자동 채번되며 바꿀 수 없습니다.</div></div></div>
+        <div class="form-row"><label>구분 *</label><div class="check-group"><label><input type="radio" name="rf-side" value="INTERNAL" data-dev-note="(규칙) admin_roles.is_external — 개발 미구현" data-dev-name="is_external" data-dev-value="0" checked onchange="renderStartOptions('INTERNAL')" /> 내부 관리자</label><label><input type="radio" name="rf-side" value="EXTERNAL" data-dev-name="is_external" data-dev-value="1" onchange="renderStartOptions('EXTERNAL')" /> 외부 계정</label></div></div>
+        <div class="form-row"><label>1:1 문의 담당 큐</label><div class="check-group"><label><input type="checkbox" id="rf-queue" data-dev-flag="proto-only" data-dev-note="문의 큐 — 개발은 inquiry_category_roles.role_code" /> 1:1 문의 분류의 담당 부서 큐로 선택할 수 있음</label></div></div>
+        <div class="form-row"><label>설명</label><div><input class="f-input" id="rf-desc" name="description" data-dev-note="max 500" maxlength="40" style="width:100%;" /></div></div>
+        <div class="form-row"><label>노출 순서</label><div><input class="f-input" id="rf-order" name="sort_order" type="number" min="1" style="width:100px;" /></div></div>
+        <div class="form-row"><label>시작 화면</label><div><select class="f-select" id="rf-start" data-dev-name="landing_route" data-dev-flag="proto-only" data-dev-note="(규칙) admin_roles.landing_route — 개발은 config/admin.php landing 상수" style="width:100%;"></select><div class="form-help">이 그룹 계정이 로그인한 뒤 처음 열리는 화면입니다. 원래 가려던 화면이 있으면 그 화면이 먼저이고, 첫 로그인 · 임시 비밀번호 계정은 비밀번호 변경이 먼저입니다. 내부 그룹은 SNB 메뉴에서, 외부 그룹은 파트너 화면에서 고릅니다.</div></div></div>
+        <div class="form-row"><label>대시보드 기본 영역</label><div><select class="f-select" id="rf-dash-area" data-dev-flag="proto-only" data-dev-note="대시보드 기본 영역 — 개발은 DashboardService::VISIBLE 상수" style="width:100%;"></select><div class="form-help">통합 대시보드 홈에서 맨 위에 펼쳐 보여 줄 업무 영역입니다. 나머지 열람 가능한 영역은 아래에 접혀 보이고, 열람 권한이 없는 블록은 표시되지 않습니다. 대시보드를 쓰지 않는 그룹은 '대시보드 사용 안 함'을 고릅니다.</div></div></div>
+        <div class="form-row" id="rf-copy-row"><label>권한 시작값</label><div><select class="f-select" id="rf-copy" data-dev-flag="proto-only" data-dev-note="권한 시작값 복사 — 개발 없음" style="width:100%;"></select><div class="form-help">기존 그룹의 권한을 복사해 시작하거나 권한 없이 시작합니다. 저장 후 권한 매트릭스에서 고칩니다.</div></div></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-role')">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.admin-roles.update | admin.admin-roles.store (규칙)" data-dev-method="PUT | POST" data-dev-url="/sj-admin/admin-roles/{adminRole} | /admin-roles" data-dev-perm="수정 | 등록" onclick="saveRole()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 변경 영향 확인 -->
+  <div class="modal-backdrop" id="modal-impact" data-dev-flag="proto-only" data-dev-note="변경 영향 확인(영향 계정 · 문의 분류) — 개발 없음">
+    <div class="modal-box" style="max-width:680px;">
+      <div class="modal-header">
+        <h3 id="impact-title">변경 영향 확인</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modal-impact')">닫기 ✕</button>
+      </div>
+      <div class="modal-body" id="impact-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-impact')">취소</button>
+        <button type="button" class="btn btn-primary" id="impact-confirm" data-dev-route="admin.admin-roles.update" data-dev-method="PUT" data-dev-url="/sj-admin/admin-roles/{adminRole}" data-dev-perm="수정" onclick="confirmImpact()">변경 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 관리자 계정 발급 · 수정 -->
+  <div class="modal-backdrop" id="modal-account">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="acc-modal-title">계정 발급</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modal-account')">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-error" id="acc-error"></div>
+        <div class="form-row"><label>계정 ID *</label><div><input class="f-input" id="af-id" name="login_id" data-dev-note="max 50 · 중복 불가" style="width:100%;" placeholder="예: cs_park03" /></div></div>
+        <div class="form-row"><label>성명 · 소속 *</label><div><input class="f-input" id="af-name" name="name" data-dev-note="max 50" style="width:100%;" placeholder="예: 박상담" /></div></div>
+        <div class="form-row" data-dev-flag="dev-only" data-dev-note="AdminUserRequest email · phone"><label>이메일 / 전화번호</label><div style="display:flex; gap:6px;"><input class="f-input" name="email" type="email" maxlength="100" style="flex:1;" placeholder="admin@sanjunmo.com" /><input class="f-input" name="phone" maxlength="20" style="width:160px;" placeholder="010-0000-0000" /></div></div>
+        <div class="form-row" data-dev-flag="dev-only" data-dev-note="발급 시 필수 · 수정 시 비우면 유지 · 8~12자 영문+숫자+특수문자(정책 D-CONF-05: 8~64자 권고)"><label>비밀번호</label><div style="display:flex; gap:6px;"><input class="f-input" name="password" type="password" style="flex:1;" placeholder="비밀번호" autocomplete="new-password" /><input class="f-input" name="password_confirmation" type="password" style="flex:1;" placeholder="비밀번호 확인" autocomplete="new-password" /></div></div>
+        <div class="form-row"><label>역할 그룹 *</label><div><div class="check-group" id="af-roles"></div><div class="form-help">겸직자는 계정을 따로 만들지 않고 여러 그룹을 줍니다. 실효 권한은 합집합입니다.</div></div></div>
+        <div class="form-row"><label>소속 *</label><div>
+          <div class="check-group">
+            <label><input type="radio" name="af-kind" value="STAFF" data-dev-note="계정 소속 축 — 개발 미구현. 강사 · 조교 역할은 linked_instructor_id · assistant_instructor_ids[]" data-dev-name="(없음)" onchange="renderAffTarget()" /> 내부 직원</label>
+            <label><input type="radio" name="af-kind" value="RH" data-dev-note="권리자 계정 — 개발 역할 코드 없음" data-dev-name="(없음)" onchange="renderAffTarget()" /> 권리자 (계약 당사자 · 2계층 수취인)</label>
+            <label><input type="radio" name="af-kind" value="VENDOR" data-dev-note="거래처 계정 — 개발 역할 코드 없음" data-dev-name="(없음)" onchange="renderAffTarget()" /> 거래처</label>
+          </div>
+          <div id="af-target" style="margin-top:8px;"></div>
+          <div class="form-help" id="af-scope-preview"></div>
+        </div></div>
+        <div class="form-row"><label>접속 제한</label><div><input class="f-input" id="af-sec" data-dev-flag="proto-only" data-dev-note="접속 제한 — 개발은 admin_allowed_ips 테이블(화면 입력 없음)" style="width:100%;" /></div></div>
+        <div class="form-row"><label>상태</label><div class="check-group"><label><input type="radio" name="af-status" value="ACTIVE" data-dev-name="is_locked" data-dev-value="(체크 해제)" checked /> 정상</label><label><input type="radio" name="af-status" value="LOCKED" data-dev-name="is_locked" data-dev-value="1" /> 잠금 · 중지</label></div></div>
+        <div class="form-row" data-dev-flag="dev-only" data-dev-note="잠긴 계정을 해제할 때 필수 · max 200 (#unlock_reason)"><label>잠금 해제 사유</label><div><input class="f-input" name="unlock_reason" maxlength="200" style="width:100%;" placeholder="잠금 해제 시 입력" /></div></div>
+        <div class="form-row" data-dev-flag="dev-only" data-dev-note="최고관리자에게만 노출(canResetVerifyCap) · reason"><label>인증번호 발송 횟수</label><div><button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.admin-users.reset-verify-cap" data-dev-method="POST" data-dev-url="/sj-admin/admin-users/{adminUser}/reset-verify-cap" data-dev-perm="수정 + 최고관리자" onclick="showToast('인증번호 발송 횟수를 초기화했습니다.')">발송 횟수 초기화</button></div></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-account')">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.admin-users.store | admin.admin-users.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/admin-users | /admin-users/{adminUser}" data-dev-perm="등록 | 수정" data-dev-note="삭제 경로 없음 — 정지(잠금)로만" onclick="saveAccount()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-box"></div>
+
+  <script>
+    const M = window.SJM_MASTER;
+    const NOW = '2026.10.22 11:20';
+    const ADMIN = '김총괄 (admin_white)';
+
+    // 소속(aff): STAFF 내부 직원 / RH 권리자(계약 원장의 계약 당사자) / VENDOR 거래처 — 데이터 범위는 소속에서 나온다
+    let ACCOUNTS = [
+      { id: 'admin_white', name: '김총괄 (기획 · PO)', roles: ['RG-01'], aff: { kind: 'STAFF' }, sec: '사내망 IP', lastLogin: '2026-10-22 09:40', status: 'ACTIVE' },
+      { id: 'fin_manager', name: '이재무', roles: ['RG-04'], aff: { kind: 'STAFF' }, sec: '사내망 IP', lastLogin: '2026-10-22 10:15', status: 'ACTIVE' },
+      { id: 'cs_lead01', name: '최상담', roles: ['RG-02'], aff: { kind: 'STAFF' }, sec: '제한 없음', lastLogin: '2026-10-22 11:05', status: 'ACTIVE' },
+      { id: 'cs_lee02', name: '이지원', roles: ['RG-02'], aff: { kind: 'STAFF' }, sec: '제한 없음', lastLogin: '2026-10-22 10:12', status: 'ACTIVE' },
+      { id: 'log_choi', name: '최민아 (물류 · CS 겸직)', roles: ['RG-03', 'RG-02'], aff: { kind: 'STAFF' }, sec: '제한 없음', lastLogin: '2026-10-22 08:50', status: 'ACTIVE' },
+      { id: 'inst_jjd', name: '정종대', roles: ['RG-05'], aff: { kind: 'RH', ref: 'RH-0025' }, sec: '제한 없음', lastLogin: '2026-10-21 21:10', status: 'ACTIVE' },
+      { id: 'ta_jung', name: '정조교 (내부 직원 · 학습 Q&A 담당)', roles: ['RG-06'], aff: { kind: 'STAFF' }, sec: '제한 없음', lastLogin: '2026-10-21 18:02', status: 'ACTIVE' },
+      { id: 'author_lee', name: '이안전', roles: ['RG-07'], aff: { kind: 'RH', ref: 'RH-0031' }, sec: '제한 없음', lastLogin: '2026-10-21 16:30', status: 'ACTIVE' },
+      { id: 'consign_kas', name: '안전기술출판 (위탁사)', roles: ['RG-07'], aff: { kind: 'RH', ref: 'RH-0044' }, sec: '제한 없음', lastLogin: '2026-10-20 15:12', status: 'ACTIVE' },
+      { id: '3pl_cjlogis', name: '정물류 (CJ대한통운 파주)', roles: ['RG-08'], aff: { kind: 'VENDOR', ref: 'SUP-0020' }, sec: '물류센터 고정 IP', lastLogin: '2026-10-22 08:30', status: 'ACTIVE' }
+    ];
+
+    let LOGS = [
+      { dt: '2026.10.20 15:02', admin: '김총괄 (admin_white)', target: 'RG-03 물류팀', text: '권한: 출고 지시 · 송장 업로드 RW → RWX (출고 마감 엑셀 필요)' },
+      { dt: '2026.10.15 10:30', admin: '김총괄 (admin_white)', target: 'RG-06 조교', text: '신규 등록 · 학습 Q&A RW (종전 강사 그룹에서 분리)' }
+    ];
+
+    let selectedRoleId = 'RG-02';
+    let editingRoleId = null;
+    let editingAccId = null;
+    let draftPerms = null;      // 선택 그룹의 편집 중 권한(저장 전)
+    let pendingAction = null;   // 영향 확인 후 실행할 저장 동작
+
+    const SIDE_LABEL = { INTERNAL: '내부', EXTERNAL: '외부' };
+    // 시작 화면 선택지 — 내부 그룹은 SNB 메뉴(common-snb.js)와 같은 항목, 외부 그룹은 파트너 화면
+    const START_INTERNAL = [{"title": "대시보드 · 통계", "items": [{"code": "ADMN-DASH-001", "label": "통합 대시보드 홈 (현황·큐·연동)", "url": "ADMN-DASH-001_baseline.html?view=dash"}, {"code": "ADMN-STAT-001", "label": "매출 · 상품 통계 (결제·환불·순위)", "url": "ADMN-DASH-001_baseline.html?view=stat-sales"}]}, {"title": "회원 · 수강 관리", "items": [{"code": "ADMN-USER-001", "label": "일반 회원 관리 (목록·상세)", "url": "ADMN-USER-001_baseline.html?view=list"}, {"code": "ADMN-USER-003", "label": "회원 수강 · 기간 · 기기 제어", "url": "ADMN-USER-001_baseline.html?view=course"}, {"code": "ADMN-USER-006", "label": "회원 그룹 · 다중 태그 관리", "url": "ADMN-USER-001_baseline.html?view=tags"}, {"code": "ADMN-USER-005", "label": "블랙리스트 · 부정사용 제재 관리", "url": "ADMN-USER-001_baseline.html?view=blacklist"}]}, {"title": "주문 · 환불 · CS · 프로모션", "items": [{"code": "ADMN-ORD-001", "label": "주문 · 배송 · 3PL 관리", "url": "ADMN-ORD-001_baseline.html"}, {"code": "ADMN-RFD-002", "label": "환불 요청 · 심사 관리", "url": "ADMN-RFD-002_baseline.html"}, {"code": "ADMN-BRD-002", "label": "1:1 문의 관리 (문의 분기 허브)", "url": "ADMN-BRD-002_baseline.html"}, {"code": "ADMN-BRD-007", "label": "1:1 문의 분류 관리", "url": "ADMN-BRD-007_baseline.html"}, {"code": "ADMN-BRD-001", "label": "공지 · FAQ · Q&A · 당첨자 발표", "url": "ADMN-BRD-001_baseline.html?view=notice"}, {"code": "ADMN-BRD-005", "label": "수강·합격수기 · 무료특강(빈출)", "url": "ADMN-BRD-005_baseline.html?view=review"}, {"code": "ADMN-PROM-001", "label": "이벤트 · 기획전 관리 (Slug·특가)", "url": "ADMN-PROM-001_baseline.html"}, {"code": "ADMN-PROM-002", "label": "쿠폰 마스터 등록 · 발급 관리", "url": "ADMN-PROM-002_baseline.html?view=list"}, {"code": "ADMN-PROM-003", "label": "포인트 적립 정책 및 원장 관리", "url": "ADMN-PROM-002_baseline.html?view=point"}]}, {"title": "상품 · 강좌 · 교재 관리", "items": [{"code": "ADMN-PROD-001", "label": "카테고리 관리", "url": "ADMN-PROD-001_baseline.html"}, {"code": "ADMN-PROD-002", "label": "강의 관리 (영상 단품)", "url": "ADMN-PROD-002_baseline.html"}, {"code": "ADMN-PROD-003", "label": "단과 강좌 관리", "url": "ADMN-PROD-003_baseline.html"}, {"code": "ADMN-PROD-004", "label": "교재 관리", "url": "ADMN-PROD-004_baseline.html"}, {"code": "ADMN-PROD-005", "label": "패키지 · 환급반 상품 관리", "url": "ADMN-PROD-005_baseline.html"}, {"code": "ADMN-PROD-006", "label": "강사 노출 정보 관리", "url": "ADMN-PROD-006_baseline.html"}, {"code": "ADMN-PROD-007", "label": "일반상품 관리", "url": "ADMN-PROD-007_baseline.html"}]}, {"title": "권리자 · 거래처 · 지분 매핑", "items": [{"code": "ADMN-INST-001", "label": "권리자 계약 원장", "url": "ADMN-INST-001_baseline.html"}, {"code": "ADMN-SETT-007", "label": "수취인 분할 관리", "url": "ADMN-SETT-007_baseline.html"}, {"code": "ADMN-BOOK-001", "label": "도서 공급 원장", "url": "ADMN-BOOK-001_baseline.html"}, {"code": "ADMN-VEND-001", "label": "거래처 관리", "url": "ADMN-VEND-001_baseline.html"}, {"code": "ADMN-SETT-001", "label": "상품별 권리자 매핑", "url": "ADMN-SETT-001_baseline.html"}]}, {"title": "정산 마감 전 사전 대사", "items": [{"code": "ADMN-SETT-004", "label": "PG 정산 원장 대사", "url": "ADMN-SETT-004_baseline.html"}, {"code": "ADMN-SETT-011", "label": "물류비 대사 (3PL)", "url": "ADMN-SETT-011_baseline.html"}, {"code": "ADMN-INST-002", "label": "약정금 마일스톤 검수", "url": "ADMN-INST-002_baseline.html"}, {"code": "ADMN-SETT-006", "label": "합격 환급반 관리", "url": "ADMN-SETT-006_baseline.html"}, {"code": "ADMN-SETT-008", "label": "사업자등록 확인 이력", "url": "ADMN-SETT-008_baseline.html"}]}, {"title": "월간 정산 · 지급 · 조회", "items": [{"code": "ADMN-SETT-002", "label": "월간 정산 및 집행", "url": "ADMN-SETT-002_baseline.html"}, {"code": "ADMN-SETT-005", "label": "정산 수동 조정", "url": "ADMN-SETT-005_baseline.html"}, {"code": "ADMN-SETT-009", "label": "내부 정산 조회 · 조회 전용", "url": "ADMN-SETT-009_baseline.html"}]}, {"title": "권한 · 개인정보 · 보안 감사", "items": [{"code": "ADMN-CONF-005", "label": "운영자 권한 관리 (계정 · 역할 그룹)", "url": "ADMN-CONF-005_baseline.html"}, {"code": "ADMN-USER-007", "label": "민감 정보 열람 통제", "url": "ADMN-USER-007_baseline.html"}, {"code": "ADMN-CONF-010", "label": "시스템 감사 로그", "url": "ADMN-CONF-010_baseline.html"}]}, {"title": "사이트 · 약관 · 메시지 설정", "items": [{"code": "ADMN-CONF-001", "label": "전시 배너 · 띠배너 · 팝업 관리", "url": "ADMN-CONF-001_baseline.html?view=banner"}, {"code": "ADMN-CONF-002", "label": "약관 · 개인정보처리방침 관리", "url": "ADMN-CONF-002_baseline.html"}, {"code": "ADMN-CONF-003", "label": "플레이어 · 동시접속 · 인증 설정", "url": "ADMN-CONF-003_baseline.html?view=player"}, {"code": "ADMN-CONF-004", "label": "메시지 템플릿 관리 (알림톡·문자·메일)", "url": "ADMN-CONF-004_baseline.html?view=template"}, {"code": "ADMN-CONF-004-S1", "label": "타겟 메시지 발송 · 내역", "url": "ADMN-CONF-004_baseline.html?view=send"}]}];
+    const START_PARTNER = [
+      { code: 'ADMN-PTNR-001', label: '파트너 센터', url: 'ADMN-PTNR-001_baseline.html' },
+      { code: 'ADMN-SETT-002', label: '본인 정산서', url: 'ADMN-SETT-002_baseline.html?view=partner-stmt' },
+      { code: 'ADMN-ORD-001', label: '출고 · 송장', url: 'ADMN-ORD-001_baseline.html?view=ord002&role=ROLE_PARTNER_3PL' }
+    ];
+    function startItems(side) { return side === 'EXTERNAL' ? START_PARTNER : START_INTERNAL.reduce((a, g) => a.concat(g.items), []); }
+    function renderStartOptions(side, curUrl) {
+      const sel = document.getElementById('rf-start');
+      const opt = i => `<option value="${i.url}">${i.label} (${i.code})</option>`;
+      sel.innerHTML = side === 'EXTERNAL' ? START_PARTNER.map(opt).join('')
+        : START_INTERNAL.map(g => `<optgroup label="${g.title}">${g.items.map(opt).join('')}</optgroup>`).join('');
+      const items = startItems(side);
+      sel.value = items.some(i => i.url === curUrl) ? curUrl : items[0].url;
+    }
+    const DASH_AREAS = [
+      { key: 'ALL', name: '전체 영역 (전부 펼침)' }, { key: 'SALES', name: '매출 · 성과' }, { key: 'CS', name: 'CS · 회원' },
+      { key: 'LOGI', name: '물류' }, { key: 'SETTLE', name: '정산' }, { key: 'SYS', name: '시스템 · 보안' }, { key: 'NONE', name: '대시보드 사용 안 함' }
+    ];
+    function dashAreaName(k) { const a = DASH_AREAS.filter(x => x.key === (k || 'NONE'))[0]; return a ? a.name : '대시보드 사용 안 함'; }
+    function renderDashAreaOptions(cur) {
+      const sel = document.getElementById('rf-dash-area');
+      sel.innerHTML = DASH_AREAS.map(a => `<option value="${a.key}">${a.name}</option>`).join('');
+      sel.value = DASH_AREAS.some(a => a.key === cur) ? cur : 'NONE';
+    }
+    function pickStart(side, url) { return startItems(side).filter(i => i.url === url)[0]; }
+    const FLAG_LABEL = { R: '읽기', W: '쓰기', X: '엑셀' };
+
+    function accountsOf(roleId) { return ACCOUNTS.filter(a => a.roles.includes(roleId)); }
+
+    // 소속 표시 — 권리자는 계약 유형(강의 수익배분 · 교재 인세 · 도서 위탁 등)으로 성격을 보여 준다
+    function affHtml(aff) {
+      if (!aff || aff.kind === 'STAFF') return '<span class="badge badge-gray">내부 직원</span><div style="font-size:11px; color:var(--text-muted);">전사 (역할 그룹 권한 범위)</div>';
+      if (aff.kind === 'RH' && M.rightsHolders.isPayeeOnly(aff.ref)) {
+        const p = M.rightsHolders.payee(aff.ref);
+        if (!p) return `<span class="badge badge-red">수취인 ${aff.ref} 없음</span>`;
+        return `<span class="badge badge-blue">권리자</span> ${p.name} <code>${p.id}</code><div style="margin-top:2px;"><span class="badge badge-amber">2계층 ${p.biz ? '사업자' : '개인'} 수취인</span></div><div style="font-size:11px; color:var(--text-muted);">계약 ${p.contract} (1계층 ${p.holderName} ${p.holderId}) 중 본인 수취 몫 ${p.ratio}%만 · 정산서 확인 · ${p.evidence}</div>`;
+      }
+      if (aff.kind === 'RH') {
+        const h = M.rightsHolders.get(aff.ref);
+        if (!h) return `<span class="badge badge-red">권리자 ${aff.ref} 없음</span>`;
+        return `<span class="badge badge-blue">권리자</span> ${h.name} <code>${h.id}</code><div style="margin-top:2px;">${M.rightsHolders.types(h.id).map(x => `<span class="badge badge-amber">${x}</span>`).join('')}</div><div style="font-size:11px; color:var(--text-muted);">본인 계약 ${h.contracts.map(c => c.no).join(' · ')} 데이터만</div>`;
+      }
+      const v = M.vendors.get(aff.ref);
+      if (!v) return `<span class="badge badge-red">거래처 ${aff.ref} 없음</span>`;
+      const vt = M.vendors.type(v.type);
+      return `<span class="badge badge-purple">거래처</span> ${v.name} <code>${v.id}</code><div style="font-size:11px; color:var(--text-muted);">${vt ? vt.name : ''} · 본인 거래처 데이터만${vt && vt.form === 'LOGISTICS' ? ' (출고 대상 · 송장, 금액 비노출)' : ''}</div>`;
+    }
+    function affText(aff) {
+      if (!aff || aff.kind === 'STAFF') return '내부 직원';
+      if (aff.kind === 'RH' && M.rightsHolders.isPayeeOnly(aff.ref)) { const p = M.rightsHolders.payee(aff.ref); return `권리자(2계층 ${p && p.biz ? '사업자' : '개인'} 수취인) ${aff.ref}${p ? ' ' + p.name : ''}`; }
+      if (aff.kind === 'RH') { const h = M.rightsHolders.get(aff.ref); return `권리자 ${aff.ref}${h ? ' ' + h.name : ''}`; }
+      return `거래처 ${aff.ref} ${M.vendors.name(aff.ref)}`;
+    }
+    function roleBadges(ids) {
+      return ids.map(id => {
+        const g = M.roles.get(id);
+        if (!g) return `<span class="badge badge-gray">${id}</span>`;
+        return `<span class="badge ${g.side === 'EXTERNAL' ? 'badge-purple' : 'badge-blue'}${g.on ? '' : ' badge-gray'}">${g.name}${g.on ? '' : ' (미사용)'}</span>`;
+      }).join('');
+    }
+    function addLog(target, text) {
+      LOGS.unshift({ dt: NOW, admin: ADMIN, target, text });
+      renderLogs();
+    }
+
+    // ---------- 관리자 계정 ----------
+    function renderRoleFilter() {
+      const sel = document.getElementById('acc-role-filter');
+      const cur = sel.value || 'ALL';
+      sel.innerHTML = '<option value="ALL">역할 그룹 전체</option>' + M.roles.list().map(g => `<option value="${g.id}">${g.name}${g.on ? '' : ' (미사용)'}</option>`).join('');
+      sel.value = M.roles.get(cur) ? cur : 'ALL';
+    }
+
+    function renderAccounts() {
+      const rf = document.getElementById('acc-role-filter').value;
+      const kw = document.getElementById('acc-keyword').value.trim().toLowerCase();
+      const list = ACCOUNTS.filter(a => (rf === 'ALL' || a.roles.includes(rf)) && (!kw || [a.id, a.name, affText(a.aff)].some(v => v.toLowerCase().includes(kw))));
+      document.getElementById('acc-summary').textContent = `계정 ${ACCOUNTS.length}개 중 ${list.length}개`;
+      document.getElementById('acc-tbody').innerHTML = list.length ? list.map(a => `
+        <tr>
+          <td><strong>${a.id}</strong></td>
+          <td>${a.name}</td>
+          <td>${roleBadges(a.roles)}</td>
+          <td style="font-size:12px;">${affHtml(a.aff)}</td>
+          <td style="font-size:12px;">${a.sec}</td>
+          <td>${a.lastLogin}</td>
+          <td><span class="badge ${a.status === 'ACTIVE' ? 'badge-green' : 'badge-red'}">${a.status === 'ACTIVE' ? '정상' : '잠금'}</span></td>
+          <td><button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.admin-users.edit" data-dev-method="GET" data-dev-url="/sj-admin/admin-users/{adminUser}/edit" data-dev-perm="수정" onclick="openAccountModal('${a.id}')">수정</button></td>
+        </tr>`).join('') : '<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-muted);">조건에 맞는 계정이 없습니다.</td></tr>';
+    }
+
+    function openAccountModal(id) {
+      editingAccId = id;
+      const a = id ? ACCOUNTS.find(x => x.id === id) : null;
+      document.getElementById('acc-modal-title').textContent = a ? `계정 수정 — ${a.id}` : '계정 발급';
+      document.getElementById('acc-error').style.display = 'none';
+      document.getElementById('af-id').value = a ? a.id : '';
+      document.getElementById('af-id').readOnly = !!a;
+      document.getElementById('af-name').value = a ? a.name : '';
+      const aff = a ? a.aff : { kind: 'STAFF' };
+      document.querySelectorAll('input[name="af-kind"]').forEach(r => { r.checked = r.value === aff.kind; });
+      renderAffTarget(aff.ref);
+      document.getElementById('af-sec').value = a ? a.sec : '제한 없음';
+      document.querySelectorAll('input[name="af-status"]').forEach(r => { r.checked = r.value === (a ? a.status : 'ACTIVE'); });
+      // 미사용 그룹은 새로 줄 수 없고, 이미 가진 경우에만 보여 준다
+      document.getElementById('af-roles').innerHTML = M.roles.list().filter(g => g.on || (a && a.roles.includes(g.id))).map(g =>
+        `<label><input type="checkbox" class="af-role" data-dev-name="admin_role_id" data-dev-note="개발 폼은 역할 1개 선택(admin_user_roles 테이블은 다중 가능)" value="${g.id}" ${a && a.roles.includes(g.id) ? 'checked' : ''} ${g.on ? '' : 'disabled'} /> ${g.name}${g.on ? '' : ' (미사용)'}</label>`).join('');
+      openModalEl('modal-account');
+    }
+
+    function renderAffTarget(ref) {
+      const kind = document.querySelector('input[name="af-kind"]:checked').value;
+      const box = document.getElementById('af-target');
+      if (kind === 'STAFF') {
+        box.innerHTML = '';
+      } else if (kind === 'RH') {
+        box.innerHTML = `<select class="f-select" id="af-ref" style="width:100%;" onchange="previewScope()"><optgroup label="계약 당사자 (권리자 계약 원장)">${M.rightsHolders.list().map(h => `<option value="${h.id}" ${h.id === ref ? 'selected' : ''}>${h.name} (${h.id}) — ${M.rightsHolders.types(h.id).join(' · ')}</option>`).join('')}</optgroup><optgroup label="2계층 수취인 (수취인 분할)">${M.rightsHolders.payees().map(p => `<option value="${p.id}" ${p.id === ref ? 'selected' : ''}>${p.name} (${p.id}) — ${p.entity} · ${p.holderName} 계약 ${p.ratio}% 수취</option>`).join('')}</optgroup></select>
+          <div class="form-help">권리자 계약 원장(ADMN-INST-001)의 계약 당사자와, <a href="ADMN-SETT-007_baseline.html">수취인 분할</a>에 현재 몫이 있는 2계층 수취인(권리자 계약 원장에 수취인으로 등록된 권리자)을 고를 수 있습니다. 개인 · 사업자 모두 본인 수취 몫의 정산서를 조회하고, 세금계산서 · 계산서 제출은 사업자 수취인만 합니다. 정산서 PDF 메일은 계정과 관계없이 발송됩니다.</div>`;
+      } else {
+        box.innerHTML = `<select class="f-select" id="af-ref" style="width:100%;" onchange="previewScope()">${M.vendors.list().filter(v => v.on || v.id === ref).map(v => `<option value="${v.id}" ${v.id === ref ? 'selected' : ''}>${v.name} (${v.id}) — ${(M.vendors.type(v.type) || {}).name || ''}</option>`).join('')}</select>
+          <div class="form-help"><a href="ADMN-VEND-001_baseline.html">거래처 관리</a>에 등록된 거래 중 거래처만 고를 수 있습니다.</div>`;
+      }
+      previewScope();
+    }
+
+    function currentAff() {
+      const kind = document.querySelector('input[name="af-kind"]:checked').value;
+      const sel = document.getElementById('af-ref');
+      return kind === 'STAFF' ? { kind } : { kind, ref: sel ? sel.value : '' };
+    }
+
+    function previewScope() {
+      document.getElementById('af-scope-preview').innerHTML = '데이터 범위 → ' + affHtml(currentAff());
+    }
+
+    function saveAccount() {
+      const id = document.getElementById('af-id').value.trim();
+      const name = document.getElementById('af-name').value.trim();
+      const roles = Array.from(document.querySelectorAll('.af-role:checked')).map(c => c.value);
+      const err = document.getElementById('acc-error');
+      const fail = msg => { err.textContent = msg; err.style.display = 'block'; };
+      if (!id || !name) return fail('계정 ID와 성명 · 소속을 입력해 주십시오.');
+      if (!editingAccId && ACCOUNTS.some(a => a.id === id)) return fail('이미 있는 계정 ID입니다.');
+      if (!roles.length) return fail('역할 그룹을 1개 이상 선택해 주십시오.');
+      const aff = currentAff();
+      const external = roles.some(r => (M.roles.get(r) || {}).side === 'EXTERNAL');
+      if (external && aff.kind === 'STAFF') return fail('외부 역할 그룹을 주는 계정은 소속을 권리자 또는 거래처로 정해 본인 데이터만 보게 해야 합니다.');
+      if (!external && aff.kind !== 'STAFF') return fail('권리자 · 거래처 소속 계정에는 외부 역할 그룹만 줄 수 있습니다.');
+      if (aff.kind !== 'STAFF' && !aff.ref) return fail('소속 대상을 선택해 주십시오.');
+      const AFF_KIND_LABEL = { STAFF: '내부 직원', RH: '권리자', VENDOR: '거래처' };
+      for (const r of roles) {
+        const g = M.roles.get(r);
+        if (g && Array.isArray(g.aff) && g.aff.length && !g.aff.includes(aff.kind)) {
+          return fail(`'${g.name}' 그룹은 ${g.aff.map(k => AFF_KIND_LABEL[k] || k).join(' · ')} 소속 계정에만 지정할 수 있습니다. (현재 소속: ${AFF_KIND_LABEL[aff.kind] || aff.kind})`);
+        }
+      }
+      const data = { id, name, roles, aff, sec: document.getElementById('af-sec').value.trim(), status: document.querySelector('input[name="af-status"]:checked').value };
+      if (editingAccId) {
+        const a = ACCOUNTS.find(x => x.id === editingAccId);
+        const before = a.roles.map(M.roles.name).join(' · ');
+        const beforeAff = affText(a.aff);
+        Object.assign(a, data);
+        const changes = [];
+        if (before !== roles.map(M.roles.name).join(' · ')) changes.push(`역할 그룹: ${before} → ${roles.map(M.roles.name).join(' · ')}`);
+        if (beforeAff !== affText(aff)) changes.push(`소속: ${beforeAff} → ${affText(aff)}`);
+        if (changes.length) addLog(`계정 ${id}`, changes.join(' / '));
+      } else {
+        ACCOUNTS.unshift(Object.assign(data, { lastLogin: '신규 발급 (미접속)' }));
+        addLog(`계정 ${id}`, `신규 발급 · 역할 그룹 ${roles.map(M.roles.name).join(' · ')} · 소속 ${affText(aff)}`);
+      }
+      closeModal('modal-account');
+      renderAll();
+      showToast(`계정 ${id}을(를) 저장했습니다.`);
+    }
+
+    // ---------- 역할 그룹 ----------
+    function renderRoles() {
+      document.getElementById('role-tbody').innerHTML = M.roles.list().map(g => `
+        <tr class="row-click ${g.id === selectedRoleId ? 'selected' : ''} ${g.on ? '' : 'row-off'}" data-dev-route="admin.admin-roles.edit" data-dev-method="GET" data-dev-url="/sj-admin/admin-roles/{adminRole}/edit" data-dev-perm="수정" onclick="selectRole('${g.id}')">
+          <td><strong>${g.name}</strong><div style="font-size:11px; color:var(--text-muted);">${g.id} · ${g.desc || ''}</div></td>
+          <td><span class="badge ${g.side === 'EXTERNAL' ? 'badge-purple' : 'badge-blue'}">${SIDE_LABEL[g.side]}</span></td>
+          <td class="c">${g.queue ? '✓' : '—'}</td>
+          <td class="c">${accountsOf(g.id).length}</td>
+          <td><span class="badge ${g.on ? 'badge-green' : 'badge-gray'}">${g.on ? '사용' : '미사용'}</span></td>
+        </tr>`).join('');
+    }
+
+    function selectRole(id) {
+      if (draftPerms && isDirty() && id !== selectedRoleId) {
+        showToast('저장하지 않은 권한 변경이 있습니다. 저장하거나 변경 취소 후 다른 그룹을 선택해 주십시오.');
+        return;
+      }
+      selectedRoleId = id;
+      draftPerms = Object.assign({}, M.roles.get(id).perms);
+      renderRoles();
+      renderRoleDetail();
+    }
+
+    function renderRoleDetail() {
+      const g = M.roles.get(selectedRoleId);
+      document.getElementById('rh-name').textContent = g.name;
+      document.getElementById('rh-id').textContent = g.id;
+      document.getElementById('rh-badges').innerHTML = `<span class="badge ${g.side === 'EXTERNAL' ? 'badge-purple' : 'badge-blue'}">${SIDE_LABEL[g.side]}</span>${g.queue ? '<span class="badge badge-amber">1:1 문의 담당 큐</span>' : ''}<span class="badge ${g.on ? 'badge-green' : 'badge-gray'}">${g.on ? '사용' : '미사용'}</span>`;
+      document.getElementById('rh-desc').textContent = `${g.desc || ''} · 소속 계정 ${accountsOf(g.id).length}개 · 시작 화면 ${g.startScreen ? g.startScreen.label : '운영 현황 대시보드'} · 대시보드 기본 영역 ${dashAreaName(g.dashArea)}`;
+      document.getElementById('btn-toggle-role').textContent = g.on ? '미사용으로 변경' : '사용으로 변경';
+      document.getElementById('perm-tbody').innerHTML = M.menus.map(m => {
+        const v = draftPerms[m.key] || '';
+        const orig = g.perms[m.key] || '';
+        return `<tr class="${v !== orig ? 'changed' : ''}">
+          <td><strong>${m.label}</strong></td>
+          <td style="font-size:12px; color:var(--text-sub);">${m.screens}</td>
+          ${['R', 'W', 'X'].map(f => `<td class="c"><input type="checkbox" class="perm-check" data-dev-name="permissions[{admin_menu_id}][can_view|can_create|can_update|can_delete|can_download]" data-dev-note="개발 5축 — 프로토 R · W · X 3축 유지(정책 M-02)" data-menu="${m.key}" data-flag="${f}" ${v.includes(f) ? 'checked' : ''} onchange="togglePerm('${m.key}', '${f}', this.checked)" /></td>`).join('')}
+        </tr>`;
+      }).join('');
+      const dirty = isDirty();
+      document.getElementById('perm-dirty').textContent = dirty ? `저장 안 된 변경 ${changedMenus().length}건` : '';
+      document.getElementById('btn-perm-save').disabled = !dirty;
+      document.getElementById('btn-perm-cancel').disabled = !dirty;
+    }
+
+    function normalize(v) { return ['R', 'W', 'X'].filter(f => v.includes(f)).join(''); }
+
+    function togglePerm(menu, flag, on) {
+      let v = draftPerms[menu] || '';
+      if (on) {
+        v += flag;
+        if (flag !== 'R' && !v.includes('R')) v += 'R';   // 쓰기 · 엑셀은 읽기가 있어야 한다
+      } else {
+        v = v.replace(flag, '');
+        if (flag === 'R') v = '';                          // 읽기를 빼면 쓰기 · 엑셀도 함께 뺀다
+      }
+      draftPerms[menu] = normalize(v);
+      renderRoleDetail();
+    }
+
+    function changedMenus() {
+      const g = M.roles.get(selectedRoleId);
+      return M.menus.filter(m => (draftPerms[m.key] || '') !== (g.perms[m.key] || ''));
+    }
+    function isDirty() { return changedMenus().length > 0; }
+
+    function cancelPermEdit() {
+      draftPerms = Object.assign({}, M.roles.get(selectedRoleId).perms);
+      renderRoleDetail();
+    }
+
+    function permText(v) { return v ? v.split('').map(f => FLAG_LABEL[f]).join(' · ') : '없음'; }
+
+    function catsUsing(roleId) { return M.inquiry.catsUsingRole(roleId); }
+
+    function showImpact(title, html, confirmLabel, action, blocked) {
+      document.getElementById('impact-title').textContent = title;
+      document.getElementById('impact-body').innerHTML = html;
+      const btn = document.getElementById('impact-confirm');
+      btn.textContent = confirmLabel;
+      btn.style.display = blocked ? 'none' : '';
+      pendingAction = blocked ? null : action;
+      openModalEl('modal-impact');
+    }
+
+    function confirmImpact() {
+      const act = pendingAction;
+      pendingAction = null;
+      closeModal('modal-impact');
+      if (act) act();
+    }
+
+    function accountListHtml(roleId) {
+      const accs = accountsOf(roleId);
+      return accs.length ? `<ul class="impact-list">${accs.map(a => `<li>${a.id} · ${a.name}</li>`).join('')}</ul>` : '<p class="form-help" style="margin:4px 0 10px;">소속 계정 없음</p>';
+    }
+
+    function reviewPermChanges() {
+      const g = M.roles.get(selectedRoleId);
+      const changes = changedMenus();
+      if (!changes.length) return;
+      // 권한 관리 쓰기를 가진 사용 중 그룹이 하나는 남아야 한다
+      const after = Object.assign({}, g.perms, draftPerms);
+      const rbacWriters = M.roles.active().filter(x => (x.id === g.id ? after : x.perms).rbac && (x.id === g.id ? after : x.perms).rbac.includes('W'));
+      if (!rbacWriters.length) {
+        showImpact('저장할 수 없습니다', '<p>운영자 권한 관리(CONF-005) 쓰기 권한을 가진 사용 중 그룹이 하나는 남아야 합니다.</p>', '', null, true);
+        return;
+      }
+      const html = `
+        <p class="impact-title">바뀌는 메뉴 권한 — ${g.name}</p>
+        <ul class="impact-list">${changes.map(m => `<li>${m.label}: ${permText(g.perms[m.key] || '')} → <strong>${permText(draftPerms[m.key] || '')}</strong></li>`).join('')}</ul>
+        <p class="impact-title">영향을 받는 계정 ${accountsOf(g.id).length}개 (저장 즉시 다음 로그인 · 화면 이동부터 적용)</p>
+        ${accountListHtml(g.id)}
+        <p class="form-help">변경 전후 값은 시스템 감사 로그(CONF-010)에 남습니다.</p>`;
+      showImpact('권한 변경 영향 확인', html, '권한 변경 저장', () => {
+        const list = M.roles.list().map(x => x.id === g.id ? Object.assign({}, x, { perms: Object.assign({}, draftPerms) }) : x);
+        M.roles.save(list);
+        addLog(`${g.id} ${g.name}`, '권한: ' + changes.map(m => `${m.label} ${permText(g.perms[m.key] || '')} → ${permText(draftPerms[m.key] || '')}`).join(' / '));
+        draftPerms = Object.assign({}, M.roles.get(g.id).perms);
+        renderAll();
+        showToast(`${g.name} 그룹의 메뉴 권한 ${changes.length}건을 저장했습니다.`);
+      });
+    }
+
+    function toggleRoleStatus() {
+      const g = M.roles.get(selectedRoleId);
+      if (g.on) {
+        const accs = accountsOf(g.id);
+        const cats = catsUsing(g.id);
+        if (accs.length || cats.length) {
+          showImpact('미사용으로 바꿀 수 없습니다', `
+            ${accs.length ? `<p class="impact-title">소속 계정 ${accs.length}개 — 다른 그룹으로 먼저 옮겨 주십시오.</p>${accountListHtml(g.id)}` : ''}
+            ${cats.length ? `<p class="impact-title">이 그룹을 담당 부서 큐로 쓰는 1:1 문의 분류 ${cats.length}건 — <a href="ADMN-BRD-007_baseline.html">1:1 문의 분류 관리</a>에서 먼저 바꿔 주십시오.</p><ul class="impact-list">${cats.map(c => `<li>${c.code} · ${c.name}</li>`).join('')}</ul>` : ''}`, '', null, true);
+          return;
+        }
+      }
+      showImpact(g.on ? '미사용 전환 확인' : '사용 전환 확인', `<p>${g.name} 그룹을 ${g.on ? '미사용으로 바꾸면 계정 발급 · 1:1 문의 담당 큐 선택 목록에서 빠집니다. 변경 이력 보존을 위해 그룹은 삭제하지 않습니다.' : '다시 사용으로 바꾸면 계정 발급 · 담당 큐 선택 목록에 나타납니다.'}</p>`,
+        g.on ? '미사용으로 변경' : '사용으로 변경', () => {
+          M.roles.save(M.roles.list().map(x => x.id === g.id ? Object.assign({}, x, { on: !g.on }) : x));
+          addLog(`${g.id} ${g.name}`, `상태: ${g.on ? '사용 → 미사용' : '미사용 → 사용'}`);
+          renderAll();
+          showToast(`${g.name} 그룹을 ${g.on ? '미사용' : '사용'}으로 바꿨습니다.`);
+        });
+    }
+
+    function openRoleModal(id) {
+      editingRoleId = id;
+      const g = id ? M.roles.get(id) : null;
+      document.getElementById('role-modal-title').textContent = g ? `역할 그룹 수정 — ${g.name}` : '역할 그룹 추가';
+      document.getElementById('role-error').style.display = 'none';
+      document.getElementById('rf-name').value = g ? g.name : '';
+      document.getElementById('rf-id').value = g ? g.id + ' 🔒' : M.roles.nextId() + ' (저장 시 확정)';
+      document.querySelectorAll('input[name="rf-side"]').forEach(r => { r.checked = r.value === (g ? g.side : 'INTERNAL'); });
+      document.getElementById('rf-queue').checked = g ? g.queue : false;
+      document.getElementById('rf-desc').value = g ? (g.desc || '') : '';
+      document.getElementById('rf-order').value = g ? g.order : M.roles.list().length + 1;
+      document.getElementById('rf-copy-row').style.display = g ? 'none' : '';
+      renderStartOptions(g ? g.side : 'INTERNAL', g && g.startScreen ? g.startScreen.url : '');
+      renderDashAreaOptions(g ? g.dashArea : 'ALL');
+      document.getElementById('rf-copy').innerHTML = '<option value="">권한 없이 시작</option>' + M.roles.list().map(x => `<option value="${x.id}">${x.name} 권한 복사</option>`).join('');
+      openModalEl('modal-role');
+    }
+
+    function saveRole() {
+      const name = document.getElementById('rf-name').value.trim();
+      const side = document.querySelector('input[name="rf-side"]:checked').value;
+      const queue = document.getElementById('rf-queue').checked;
+      const desc = document.getElementById('rf-desc').value.trim();
+      const order = parseInt(document.getElementById('rf-order').value, 10) || M.roles.list().length + 1;
+      const startScreen = pickStart(side, document.getElementById('rf-start').value);
+      const dashArea = document.getElementById('rf-dash-area').value;
+      const err = document.getElementById('role-error');
+      const fail = msg => { err.textContent = msg; err.style.display = 'block'; };
+      if (!name) return fail('그룹 이름을 입력해 주십시오.');
+      if (M.roles.list().some(x => x.name === name && x.id !== editingRoleId)) return fail('같은 이름의 역할 그룹이 이미 있습니다.');
+      if (!editingRoleId) {
+        const copy = document.getElementById('rf-copy').value;
+        const id = M.roles.nextId();
+        const perms = copy ? Object.assign({}, M.roles.get(copy).perms) : {};
+        M.roles.save(M.roles.list().concat([{ id, name, side, queue, on: true, order, desc, perms, dashArea, startScreen: Object.assign({}, startScreen) }]));
+        addLog(`${id} ${name}`, `신규 등록 · ${SIDE_LABEL[side]} · 문의 큐 ${queue ? '사용' : '미사용'} · 시작 화면 ${startScreen.label} · 대시보드 기본 영역 ${dashAreaName(dashArea)}${copy ? ` · ${M.roles.name(copy)} 권한 복사` : ' · 권한 없음'}`);
+        closeModal('modal-role');
+        draftPerms = null;
+        selectedRoleId = id;
+        selectRole(id);
+        renderAll();
+        showToast(`${name} 그룹을 추가했습니다. 권한 매트릭스에서 메뉴 권한을 정해 주십시오.`);
+        return;
+      }
+      const g = M.roles.get(editingRoleId);
+      const cats = catsUsing(g.id);
+      if (g.queue && !queue && cats.length) return fail(`이 그룹을 담당 부서 큐로 쓰는 1:1 문의 분류 ${cats.length}건이 있어 문의 큐를 끌 수 없습니다. 1:1 문의 분류 관리에서 먼저 바꿔 주십시오.`);
+      const changes = [];
+      if (g.name !== name) changes.push(`이름: ${g.name} → ${name}`);
+      if (g.side !== side) changes.push(`구분: ${SIDE_LABEL[g.side]} → ${SIDE_LABEL[side]}`);
+      if (g.queue !== queue) changes.push(`문의 큐: ${g.queue ? '사용' : '미사용'} → ${queue ? '사용' : '미사용'}`);
+      if ((g.desc || '') !== desc) changes.push('설명 변경');
+      if (g.order !== order) changes.push(`노출 순서: ${g.order} → ${order}`);
+      const oldStart = g.startScreen ? g.startScreen.label : '운영 현황 대시보드';
+      if (!g.startScreen || g.startScreen.url !== startScreen.url) changes.push(`시작 화면: ${oldStart} → ${startScreen.label}`);
+      if ((g.dashArea || 'NONE') !== dashArea) changes.push(`대시보드 기본 영역: ${dashAreaName(g.dashArea)} → ${dashAreaName(dashArea)}`);
+      closeModal('modal-role');
+      if (!changes.length) return;
+      const html = `
+        <ul class="impact-list">${changes.map(c => `<li>${c}</li>`).join('')}</ul>
+        <p class="impact-title">이 그룹을 쓰는 곳 — 연결은 그대로이고 표시 이름만 바뀝니다</p>
+        <ul class="impact-list"><li>소속 계정 ${accountsOf(g.id).length}개</li><li>1:1 문의 분류 담당 부서 큐 ${cats.length}건</li></ul>`;
+      showImpact('역할 그룹 정보 변경 확인', html, '변경 저장', () => {
+        M.roles.save(M.roles.list().map(x => x.id === g.id ? Object.assign({}, x, { name, side, queue, desc, order, dashArea, startScreen: Object.assign({}, startScreen) }) : x));
+        addLog(`${g.id} ${name}`, changes.join(' / '));
+        renderAll();
+        showToast(`${name} 그룹 정보를 저장했습니다.`);
+      });
+    }
+
+    // ---------- 공통 ----------
+    function renderLogs() {
+      document.getElementById('log-tbody').innerHTML = LOGS.map(l => `<tr><td>${l.dt}</td><td>${l.admin}</td><td>${l.target}</td><td>${l.text}</td></tr>`).join('');
+    }
+
+    function renderAll() {
+      if (!M.roles.get(selectedRoleId)) selectedRoleId = M.roles.list()[0].id;
+      if (!draftPerms) draftPerms = Object.assign({}, M.roles.get(selectedRoleId).perms);
+      renderRoleFilter();
+      renderAccounts();
+      renderRoles();
+      renderRoleDetail();
+      renderLogs();
+    }
+
+    function switchTab(tab) {
+      ['accounts', 'roles'].forEach(t => {
+        document.getElementById('tabBtn-' + t).classList.toggle('active', t === tab);
+        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      });
+    }
+
+    function openModalEl(id) {
+      const el = document.getElementById(id);
+      el.style.removeProperty('display');
+      el.classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const view = new URLSearchParams(window.location.search).get('view');
+      // 구 보안 감사로그 탭(CONF-006) 주소는 시스템 감사 로그로 보낸다
+      if (view === 'ADMN-CONF-006') { window.location.href = 'ADMN-CONF-010_baseline.html?view=access'; return; }
+      renderAll();
+      if (view === 'roles') switchTab('roles');
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

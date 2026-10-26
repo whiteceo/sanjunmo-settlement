@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>약관 및 개인정보처리방침 관리 — 산준모닷컴 백오피스 v8.4 FINAL</title>
+
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <style>
+
+    :root {
+
+      --bg-body: #F3F5F9;
+
+      --bg-card: #FFFFFF;
+
+      --bg-subtle: #F8FAFC;
+
+      --text-main: #0F172A;
+
+      --text-sub: #475569;
+
+      --text-muted: #64748B;
+
+      --border: #E2E8F0;
+
+      --border-strong: #CBD5E1;
+
+      --primary: #2563EB;
+
+      --primary-hover: #1D4ED8;
+
+      --primary-soft: #EFF6FF;
+
+      --success: #16A34A;
+
+      --success-soft: #F0FDF4;
+
+      --warning: #D97706;
+
+      --warning-soft: #FFFBEB;
+
+      --danger: #DC2626;
+
+      --danger-soft: #FEF2F2;
+
+      --radius-md: 8px;
+
+      --radius-lg: 12px;
+
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+
+      background: var(--bg-body);
+
+      color: var(--text-main);
+
+      font-size: 13px;
+
+      line-height: 1.5;
+
+      min-width: 1440px;
+
+    }
+
+    #v4-root-shell { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+
+    .top-bar.v4-gen3-topbar {
+
+      height: 60px; background: #FFFFFF; border-bottom: 1px solid var(--border);
+
+      display: flex; align-items: center; justify-content: space-between; padding: 0 28px;
+
+      position: sticky; top: 0; z-index: 100;
+
+    }
+
+    .crumb-wrap { display: flex; align-items: center; gap: 10px; }
+
+    .crumb-code {
+
+      background: #1E293B; color: #F8FAFC; font-weight: 700; font-size: 11px;
+
+      padding: 3px 8px; border-radius: 4px; letter-spacing: 0.04em;
+
+    }
+
+    .crumb-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+
+    .crumb-sub { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
+
+    .main-container { padding: 24px 28px 60px; max-width: 1640px; width: 100%; }
+
+
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+
+    .kpi-card {
+
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+
+      padding: 18px 20px; box-shadow: var(--shadow-sm);
+
+    }
+
+    .kpi-card .k-title {
+
+      display: flex; align-items: center; justify-content: space-between;
+
+      font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px;
+
+    }
+
+    .kpi-card .k-num {
+
+      font-family: "Pretendard", sans-serif; font-size: 22px; font-weight: 800;
+
+      color: var(--text-main); text-align: left; margin-bottom: 6px;
+
+    }
+
+    .kpi-card .k-sub { font-size: 11.5px; color: var(--text-muted); }
+
+
+
+    .card {
+
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+
+      box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden;
+
+    }
+
+    .card-header {
+
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+
+      display: flex; align-items: center; justify-content: space-between; background: #FAFBFD;
+
+    }
+
+    .card-title { font-size: 14px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+
+    .card-body { padding: 18px 20px; }
+
+
+
+    .policy-banner {
+
+      background: #EFF6FF; border: 1px solid #BFDBFE; border-left: 4px solid var(--primary);
+
+      border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 18px;
+
+      font-size: 12px; color: #1E3A8A; line-height: 1.6;
+
+    }
+
+    .policy-banner strong { font-weight: 800; color: #1E40AF; }
+
+
+
+    .f-input, .f-select, .f-textarea {
+
+      height: 34px; padding: 0 10px; border: 1px solid var(--border-strong);
+
+      border-radius: 6px; font-size: 12.5px; font-family: inherit; color: var(--text-main); background: #FFF;
+
+    }
+
+    .f-textarea { height: auto; padding: 10px; }
+
+    .f-input:focus, .f-select:focus, .f-textarea:focus { outline: none; border-color: var(--primary); }
+
+
+
+    .btn {
+
+      height: 34px; padding: 0 14px; border-radius: 6px; font-size: 12.5px; font-weight: 700;
+
+      border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+
+      font-family: inherit; transition: 0.15s; text-decoration: none;
+
+    }
+
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+    .btn-primary { background: var(--primary); color: #FFF; }
+
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-dark { background: #0F172A; color: #FFF; }
+
+    .btn-outline { background: #FFF; border-color: var(--border-strong); color: var(--text-main); }
+
+    .btn-outline:hover { background: var(--bg-subtle); }
+
+    .btn-danger { background: var(--danger-soft); border-color: #FECACA; color: var(--danger); }
+
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+
+
+    .badge {
+
+      display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+
+      font-size: 11px; font-weight: 700; white-space: nowrap;
+
+    }
+
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+
+    .badge-green { background: #DCFCE7; color: #15803D; }
+
+    .badge-amber { background: #FEF3C7; color: #B45309; }
+
+    .badge-red { background: #FEE2E2; color: #B91C1C; }
+
+    .badge-gray { background: #F1F5F9; color: #475569; }
+
+    .badge-purple { background: #F3E8FF; color: #7E22CE; }
+
+
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+
+    .data-table th {
+
+      background: #F8FAFC; color: var(--text-sub); font-weight: 700; text-align: left;
+
+      padding: 10px 12px; border-bottom: 1px solid var(--border); white-space: nowrap;
+
+    }
+
+    .data-table td {
+
+      padding: 11px 12px; border-bottom: 1px solid var(--border); color: var(--text-main); vertical-align: middle;
+
+    }
+
+    .data-table tbody tr:hover { background: #F8FAFC; cursor: pointer; }
+
+    .data-table tbody tr.selected-row { background: #EFF6FF; }
+
+
+
+    .kv-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+
+    .kv-table th {
+
+      width: 150px; background: var(--bg-subtle); padding: 10px 14px;
+
+      border: 1px solid var(--border); text-align: left; font-weight: 700; color: var(--text-sub); font-size: 12px;
+
+    }
+
+    .kv-table td { padding: 10px 14px; border: 1px solid var(--border); font-size: 12.5px; }
+
+
+
+    .view-panel { display: none; }
+
+    .view-panel.active { display: block; }
+
+
+
+    .inner-tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+
+    .inner-tab {
+
+      padding: 10px 18px; font-size: 13px; font-weight: 800; color: var(--text-sub);
+
+      border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px;
+
+    }
+
+    .inner-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+
+
+    .editor-toolbar {
+
+      display: flex; gap: 6px; padding: 8px 12px; background: #F8FAFC;
+
+      border: 1px solid var(--border-strong); border-bottom: none; border-radius: 8px 8px 0 0; align-items: center;
+
+    }
+
+    .editor-area {
+
+      width: 100%; min-height: 300px; padding: 14px; border: 1px solid var(--border-strong);
+
+      border-radius: 0 0 8px 8px; font-family: "Pretendard", monospace; font-size: 13px; line-height: 1.7; resize: vertical;
+
+    }
+
+
+
+    .modal-backdrop {
+
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+
+      display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+
+    }
+
+    .modal-backdrop.show { display: flex; }
+
+    .modal-box {
+
+      background: #FFF; border-radius: 12px; width: 100%; max-width: 780px;
+
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22); overflow: hidden;
+
+    }
+
+    .modal-head {
+
+      padding: 16px 20px; background: #0F172A; color: #FFF;
+
+      display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 14px;
+
+    }
+
+    .modal-body { padding: 20px; max-height: 75vh; overflow-y: auto; }
+
+    .modal-foot {
+
+      padding: 14px 20px; background: #F8FAFC; border-top: 1px solid var(--border);
+
+      display: flex; justify-content: flex-end; gap: 8px;
+
+    }
+
+
+
+    #toast-box {
+
+      position: fixed; bottom: 24px; right: 24px; background: #0F172A; color: #FFF;
+
+      padding: 12px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 700;
+
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: none; z-index: 2000;
+
+    }
+
+    code { background: #F1F5F9; padding: 2px 5px; border-radius: 4px; font-size: 11.5px; }
+
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-002", "devCommit": "d562524a", "progress": "구현(CONF-002 목록 · 이력 · 개정 편집 · 상세). [유형 2] 직접 수정 · 개정 고지 발송 바로가기 · 에디터 도구는 개발 없음 — 주황 표시", "menus": [{"route": "admin.terms.index", "label": "약관·정책 관리"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+
+<body>
+
+  <aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+
+
+  <div id="v4-root-shell">
+
+    <header class="top-bar v4-gen3-topbar">
+
+      <div class="crumb-wrap">
+
+        <span class="crumb-code" id="top-crumb-code">ADMN-CONF-002</span>
+
+        <h1 class="crumb-title" id="top-crumb-title">약관 및 개인정보처리방침 관리</h1>
+
+        <span class="crumb-sub">사이트 · 약관 · 메시지 설정 &gt; 약관 5종(T01~T05) 마스터 목록 · 버전별 제·개정 에디터 · 사전 고지 발송 연동</span>
+
+      </div>
+
+      <div style="display:flex; align-items:center; gap:8px;">
+
+        <span class="badge badge-blue">법정 공고 기한 자동 검증 (일반 7일 / 회원에게 불리한 변경 30일)</span>
+
+        <a href="ADMN-CONF-004_baseline.html?view=send&target=all&channel=EMAIL&type=terms_notice&term=T03" class="btn btn-sm btn-outline">📣 개정 고지 발송 화면 (CONF-004-S1) ↗</a>
+
+      </div>
+
+    </header>
+
+
+
+    <div id="v4-page-body" class="main-container">
+
+
+
+      <!-- ================================================================== -->
+
+      <!-- VIEW 1: ADMN-CONF-002 약관 5종 마스터 목록 뷰 (view-list)            -->
+
+      <!-- ================================================================== -->
+
+      <section id="view-list" class="view-panel active">
+
+        <div class="kpi-grid">
+
+          <div class="kpi-card">
+
+            <div class="k-title"><span>운영 중인 법정·서비스 약관</span><span class="badge badge-blue">T01 ~ T05</span></div>
+
+            <div class="k-num">5 종</div>
+
+            <div class="k-sub">필수 동의 3종 · 상시 공시 1종(T03) · 선택 동의 1종(T05)</div>
+
+          </div>
+
+          <div class="kpi-card">
+
+            <div class="k-title"><span>사전 공고 중 (시행 예정 버전)</span><span class="badge badge-amber">ANNOUNCED</span></div>
+
+            <div class="k-num" id="kpi-announced-cnt">1 건</div>
+
+            <div class="k-sub">개인정보처리방침(T03) v3.0 · 2026.11.20 시행 예정</div>
+
+          </div>
+
+          <div class="kpi-card">
+
+            <div class="k-title"><span>법정 사전 공고 의무 기간</span><span class="badge badge-green">전자상거래법·약관법</span></div>
+
+            <div class="k-num">7일 / 30일</div>
+
+            <div class="k-sub">일반 7일 전 · 회원에게 불리한 변경 30일 전(개별 통지 병행)</div>
+
+          </div>
+
+          <div class="kpi-card">
+
+            <div class="k-title"><span>개정 사전 고지 발송 대상</span><span class="badge badge-purple">CONF-004-S1 연동</span></div>
+
+            <div class="k-num">12,480 명</div>
+
+            <div class="k-sub">전체 정상 회원 대상 이메일·알림톡 사전 고지 (수신동의 무관)</div>
+
+          </div>
+
+        </div>
+
+
+
+        <div class="policy-banner">
+
+          <strong>[약관 운영 및 버전 이력 관리 원칙]</strong>
+
+          산준모닷컴 약관 마스터는 <strong>T01(서비스 이용약관) ~ T05(마케팅 정보 수신 동의) 5종</strong>으로 운영됩니다. (수험생 전용 플랫폼 정책에 따라 만 14세 미만 가입 차단 약관은 두지 않음)<br/>
+
+          약관 개정 시 기존 회원의 로그인을 막는 강제 재동의 절차 대신, <strong>법정 사전 공고 기간(일반 7일 / 회원에게 불리한 변경 30일) 동안 사이트 공지 및 전체 회원 개정 고지(ADMN-CONF-004-S1)</strong>를 발송하며, 역대 모든 버전은 하단 이력에 보존되어 프론트 푸터(<code>USER-INFO-001</code>)의 <strong>[이전 버전 보기]</strong> 드롭다운과 1:1 연동됩니다.
+
+        </div>
+
+
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div class="card-title">
+
+              <span>📋 약관 및 개인정보처리방침 마스터 목록 (5종)</span>
+
+              <span class="badge badge-gray">행을 클릭하면 [상세 편집 · 신규 개정 등록 · 버전별 변경 이력] 화면으로 이동합니다</span>
+
+            </div>
+
+            <div style="display:flex; gap:8px;">
+
+              <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="개발은 6종 고정(Term CODES T01~T06) — 종류 추가 경로 없음" onclick="showToast('신규 약관 코드(T06 등) 추가는 회원가입(USER-JOIN-002)·주문서(USER-PAY-001) 프론트 체크박스 연동 배포 사항입니다.')">+ 신규 약관 종류 추가 안내</button>
+
+            </div>
+
+          </div>
+
+          <div class="card-body" style="padding:0;">
+
+            <table class="data-table" id="terms-master-table">
+
+              <thead>
+
+                <tr>
+
+                  <th style="width:90px;">약관 코드</th>
+
+                  <th>약관 · 방침 명칭</th>
+
+                  <th>수집 구분</th>
+
+                  <th>프론트 노출 · 동의 수집 위치</th>
+
+                  <th>현재 시행 버전</th>
+
+                  <th>최근 시행일</th>
+
+                  <th>사전 공고(시행 예정)</th>
+
+                  <th>보관 버전 수</th>
+
+                  <th style="text-align:right;">관리</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="terms-list-tbody"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+      <!-- ================================================================== -->
+
+      <!-- VIEW 2: ADMN-CONF-002 약관 상세 편집 · 개정 등록 · 버전 이력 뷰       -->
+
+      <!-- ================================================================== -->
+
+      <section id="view-detail" class="view-panel">
+
+        <div class="card">
+
+          <div class="card-header">
+
+            <div class="card-title">
+
+              <button type="button" class="btn btn-sm btn-outline" onclick="switchView('list')">← 약관 목록으로 (ADMN-CONF-002)</button>
+
+              <span id="dt-term-title" style="margin-left:6px; font-size:15px; font-weight:800;">[T04] 환불 · 청약철회 규정 (이용약관 제15조)</span>
+
+              <span id="dt-term-badge" class="badge badge-blue">필수 동의</span>
+
+            </div>
+
+            <div style="display:flex; align-items:center; gap:8px;">
+
+              <span style="font-size:12px; color:var(--text-sub); font-weight:700;">약관 빠른 전환:</span>
+
+              <select id="dt-term-switcher" name="type" data-dev-value="T01 service · T02 privacy_consent · T03 privacy · T04 refund · T05 marketing · T06 age14" class="f-select" style="width:280px;" onchange="openTermDetail(this.value, currentDetailTab)">
+
+                <option value="T01">[T01] 서비스 이용약관 (현행 v2.1)</option>
+
+                <option value="T02">[T02] 개인정보 수집 · 이용 동의 (현행 v1.8)</option>
+
+                <option value="T03">[T03] 개인정보처리방침 (현행 v2.9 / 공시 v3.0)</option>
+
+                <option value="T04">[T04] 환불 · 청약철회 규정 (현행 v1.4)</option>
+
+                <option value="T05">[T05] 마케팅 정보 수신 동의 (현행 v1.1)</option>
+                <option value="T06" disabled data-dev-flag="dev-only" data-dev-value="age14" data-dev-note="개발 6종 중 프로토 switcher에 없는 종류(만 14세 이상 확인)">[T06] 만 14세 이상 확인 (개발 전용)</option>
+
+              </select>
+
+              <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="개정 고지 발송 바로가기(CONF-004-S1) — 개발 약관 화면에 없음" onclick="goTermsNoticeSend()">📣 전체 회원 개정 고지 발송 (CONF-004-S1) ↗</button>
+
+            </div>
+
+          </div>
+
+
+
+          <div class="card-body">
+
+            <!-- 상단 요약 메타 테이블 -->
+
+            <table class="kv-table">
+
+              <tbody>
+
+                <tr>
+
+                  <th>약관 코드 / 명칭</th>
+
+                  <td id="dt-meta-name"><code>T04</code> <strong>환불 · 청약철회 규정 (이용약관 제15조)</strong></td>
+
+                  <th>수집 구분 / DB 매핑</th>
+
+                  <td id="dt-meta-req">필수 동의 · <code>user_agreements (term_code='T04')</code></td>
+
+                </tr>
+
+                <tr>
+
+                  <th>프론트 노출 위치</th>
+
+                  <td id="dt-meta-loc">주문/결제(<code>USER-PAY-001</code>) 필수 체크 + 사이트 하단 푸터(<code>USER-INFO-001</code>) 상시 노출</td>
+
+                  <th>현행 시행 버전 / 시행일</th>
+
+                  <td id="dt-meta-ver"><span class="badge badge-green">v1.4 시행중</span> (시행일: 2026-03-01)</td>
+
+                </tr>
+
+              </tbody>
+
+            </table>
+
+
+
+            <!-- 내부 서브탭: [탭 1: 개정 버전 등록 · 본문 편집] / [탭 2: 버전별 변경 이력 (프론트 이전버전 보기 연동)] -->
+
+            <div class="inner-tabs">
+
+              <button type="button" class="inner-tab active" id="tab-btn-edit" data-dev-route="admin.terms.create | admin.terms.edit" data-dev-method="GET" data-dev-url="/sj-admin/terms/create?type= | /terms/{term}/edit" data-dev-perm="등록 | 수정" onclick="switchDetailTab('edit')">✏️ 약관 개정 버전 등록 · 본문 편집</button>
+
+              <button type="button" class="inner-tab" id="tab-btn-history" data-dev-route="admin.terms.history.index" data-dev-method="GET" data-dev-url="/sj-admin/terms/history?type=" data-dev-perm="조회" onclick="switchDetailTab('history')">🗂️ 버전별 변경 이력 리스트 (<span id="dt-hist-cnt">3</span>건 · 프론트 [이전 버전 보기] 연동)</button>
+
+            </div>
+
+
+
+            <!-- 탭 1: 약관 개정 버전 등록 · 본문 편집 -->
+
+            <div id="detail-tab-edit">
+
+              <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:14px;">
+
+                <div style="font-size:12px; font-weight:800; color:var(--text-sub); margin-bottom:8px;">작업 유형 선택</div>
+
+                <div style="display:flex; gap:20px; flex-wrap:wrap;">
+
+                  <label style="display:flex; align-items:center; gap:6px; font-weight:800; cursor:pointer; color:var(--primary);">
+
+                    <input type="radio" name="edit_mode" value="NEW_REV" data-dev-name="(새 개정 = POST admin.terms.store)" checked onchange="onChangeEditMode()" />
+
+                    <span>[유형 1] 신규 개정 버전 등록 (기존 시행 버전은 [이전 버전 이력]으로 자동 보관)</span>
+
+                  </label>
+
+                  <label style="display:flex; align-items:center; gap:6px; font-weight:700; cursor:pointer; color:var(--text-main);">
+
+                    <input type="radio" name="edit_mode" value="DIRECT_FIX" data-dev-flag="proto-only" data-dev-note="[유형 2] 현행/공시예정 본문 직접 수정 — 개발은 확정 버전 수정 불가(정책 D-CONF-01)" data-dev-name="(없음)" onchange="onChangeEditMode()" />
+
+                    <span>[유형 2] 현행/공시예정 버전 본문 직접 수정 (단순 오탈자·문구 보정용 · 버전 번호 유지)</span>
+
+                  </label>
+
+                </div>
+
+              </div>
+
+
+
+              <div id="rev-config-box" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap:12px; margin-bottom:14px;">
+
+                <div>
+
+                  <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">개정 유형 (버전 채번 기준) *</label>
+
+                  <select id="ed-rev-type" name="revision" data-dev-value="minor 일반 개정 · major 전면 개정 (프로토 값 MINOR · MAJOR)" class="f-select" style="width:100%;" onchange="onChangeRevType()">
+
+                    <option value="MINOR">일반 개정 (버전 +0.1)</option>
+
+                    <option value="MAJOR">전면 개정 (버전 +1.0)</option>
+
+                  </select>
+
+                </div>
+
+                <div>
+
+                  <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">회원에게 불리한 변경 여부 *</label>
+
+                  <select id="ed-adverse" name="is_unfavorable" data-dev-value="0 일반(7일) · 1 불리(30일) (프로토 값 NO · YES)" class="f-select" style="width:100%;" onchange="validateNoticePeriod()">
+
+                    <option value="NO">아니오 (최소 7일 전 공고)</option>
+
+                    <option value="YES">예 (최소 30일 전 공고 + 개별 통지)</option>
+
+                  </select>
+
+                </div>
+
+                <div>
+
+                  <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">적용될 버전 번호 (자동 채번)</label>
+
+                  <input type="text" id="ed-ver-num" data-dev-note="개발 #termVersion · [data-term-version] 표시용 — 번호는 서버가 revision으로 채번" class="f-input" style="width:100%; background:#F1F5F9; font-weight:800;" value="v1.5" readonly />
+
+                </div>
+
+                <div>
+
+                  <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">공고일자 (사전 공시 시작일) *</label>
+
+                  <input type="date" id="ed-announce-date" name="notice_date" class="f-input" style="width:100%;" value="2026-10-18" onchange="validateNoticePeriod()" />
+
+                </div>
+
+                <div>
+
+                  <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">시행일자 (효력 발생일) *</label>
+
+                  <input type="date" id="ed-effective-date" name="effective_date" data-dev-note="≥ notice_date" class="f-input" style="width:100%;" value="2026-10-28" onchange="validateNoticePeriod()" />
+
+                </div>
+
+              </div>
+
+
+
+              <div style="margin-bottom:14px;" data-dev-flag="dev-only" data-dev-note="TermRequest title (required · max 255)">
+                <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">약관 제목 *</label>
+                <input type="text" class="f-input" name="title" style="width:100%;" value="환불 · 청약철회 규정" />
+              </div>
+              <!-- 법정 사전 공고 기간 검증 배너 -->
+
+              <div id="notice-period-alert" style="border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:12px; font-weight:700; background:#F0FDF4; border:1px solid #BBF7D0; color:#166534;">
+
+                ✅ [법정 사전 공고 기간 충족] 공고일(2026-10-18) ~ 시행일(2026-10-28): 총 10일 확보 (불리한 변경 아님 · 최소 7일 이상 충족)
+
+              </div>
+
+
+
+              <div style="margin-bottom:14px;">
+
+                <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">개정 · 수정 사유 (변경 이력 표기 및 회원 고지 요약문) *</label>
+
+                <input type="text" id="ed-reason" name="change_reason" data-dev-note="confirm이면 필수 · max 500" class="f-input" style="width:100%;" value="합격환급반 제세공과금(22%) 원천징수 안내 및 실물 교재 반품 배송비 차감 기준 명확화" placeholder="개정 사유를 입력하세요 (최소 5자 이상)" />
+
+              </div>
+
+
+
+              <div style="margin-bottom:14px;">
+
+                <div class="editor-toolbar">
+
+                  <span style="font-size:11.5px; font-weight:800; color:var(--text-sub); margin-right:6px;">조문 편집 도구:</span>
+
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="에디터 서식 도구 — 개발 textarea(content)만" onclick="insertEditorTag('<strong>', '</strong>')"><b>B</b> 굵게</button>
+
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="에디터 서식 도구 — 개발 textarea(content)만" onclick="insertEditorTag('<u>', '</u>')"><u>U</u> 밑줄</button>
+
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="에디터 서식 도구 — 개발 textarea(content)만" onclick="insertEditorTag('\n<h4>제N조 (조항 제목)</h4>\n<p>', '</p>')">+ 조항(제N조) 추가</button>
+
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="에디터 서식 도구 — 개발 textarea(content)만" onclick="insertEditorTag('<mark style=\x22background:#FEF08A;\x22>', '</mark>')">🖍️ 개정 강조</button>
+
+                  <span style="margin-left:auto; font-size:11.5px; color:var(--text-muted);">※ 저장 시 프론트 약관 뷰어(<code>USER-INFO-001</code>) 및 동의 모달에 즉시 반영됩니다.</span>
+
+                </div>
+
+                <textarea id="ed-body" name="content" class="editor-area"></textarea>
+
+              </div>
+
+
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid var(--border);">
+
+                <div style="display:flex; gap:8px;">
+
+                  <button type="button" class="btn btn-outline" data-dev-note="개발 #termCurrent · #termCompare · #termCompareToggle(같은 페이지 대조)" onclick="openDiffModal()">🔍 현행 버전과 신·구 대조(Diff) 미리보기</button>
+
+                  <button type="button" class="btn btn-outline" data-dev-flag="proto-only" data-dev-note="현행 조문으로 초기화 — 개발 없음" onclick="resetEditorToCurrent()">↺ 현행 조문으로 초기화</button>
+                  <button type="button" class="btn btn-outline" data-dev-flag="dev-only" data-dev-note="개발 #layerTermPreview · #termPreviewFrame · #termPreviewOpen" onclick="showToast('사용자 화면 미리보기 레이어(#layerTermPreview)를 엽니다.')">👁 사용자 화면 미리보기</button>
+
+                </div>
+
+                <div style="display:flex; gap:8px;">
+
+                  <button type="button" class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.terms.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/terms/{term}" data-dev-perm="삭제" data-dev-note="작성중(draft) 개정본 버리기" onclick="showToast('작성중 개정본을 버립니다.')">작성중 개정본 버리기</button>
+                  <button type="button" class="btn btn-outline" data-dev-route="admin.terms.store | admin.terms.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/terms | /terms/{term}" data-dev-perm="등록 | 수정" data-dev-value="action=draft" onclick="saveTermDraft()">임시저장 (DRAFT)</button>
+
+                  <button type="button" class="btn btn-primary" id="btn-save-term" data-dev-note="개발은 확인 모달 없이 같은 폼 action=confirm 제출" onclick="openSaveConfirmModal()">💾 약관 저장 및 공시 확정</button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+
+            <!-- 탭 2: 버전별 변경 이력 리스트 (프론트 [이전 버전 보기] 드롭다운 연동) -->
+
+            <div id="detail-tab-history" style="display:none;">
+
+              <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:12px 16px; margin-bottom:14px; display:flex; justify-content:space-between; align-items:center;">
+
+                <div style="font-size:12px; color:var(--text-sub);">
+
+                  <strong>[프론트 이전 버전 보기 연동]</strong> 개인정보보호법 제30조 및 전자상거래법에 따라 역대 약관 버전은 삭제 없이 보존되며, 사용자 화면(<code>USER-INFO-001</code>) 하단 드롭다운에서 수험생이 언제든 이전 버전을 열람할 수 있습니다.
+
+                </div>
+
+                <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.terms.create" data-dev-method="GET" data-dev-url="/sj-admin/terms/create?type=" data-dev-perm="등록" onclick="switchDetailTab('edit')">+ 새 개정 버전 등록하기</button>
+
+              </div>
+
+
+
+              <table class="data-table">
+
+                <thead>
+
+                  <tr>
+
+                    <th>버전 번호</th>
+
+                    <th>개정 구분</th>
+
+                    <th>공고일</th>
+
+                    <th>시행일 (효력기간)</th>
+
+                    <th>주요 개정 · 제정 사유</th>
+
+                    <th>등록 관리자</th>
+
+                    <th>상태</th>
+
+                    <th style="text-align:right;">전문 열람 · 고지</th>
+
+                  </tr>
+
+                </thead>
+
+                <tbody id="term-history-tbody"></tbody>
+
+              </table>
+
+            </div>
+
+
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+
+    </div>
+
+  </div>
+
+
+
+  <!-- MODAL 1: 신·구 조문 대조(Diff) 미리보기 모달 -->
+
+  <div class="modal-backdrop" id="modal-diff">
+
+    <div class="modal-box" style="max-width:920px;">
+
+      <div class="modal-head">
+
+        <span id="diff-modal-title">🔍 약관 신·구 조문 대조 (Diff) 미리보기</span>
+
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('modal-diff')">✕</button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+
+          <div style="border:1px solid var(--border); border-radius:8px; overflow:hidden;">
+
+            <div style="background:#F1F5F9; padding:8px 12px; font-weight:800; font-size:12px; color:var(--text-sub);" id="diff-old-head">현행 시행본</div>
+
+            <div id="diff-old-body" style="padding:14px; font-size:12.5px; line-height:1.7; white-space:pre-wrap; max-height:380px; overflow-y:auto;"></div>
+
+          </div>
+
+          <div style="border:2px solid var(--primary); border-radius:8px; overflow:hidden;">
+
+            <div style="background:#EFF6FF; padding:8px 12px; font-weight:800; font-size:12px; color:var(--primary);" id="diff-new-head">개정/수정 작성본</div>
+
+            <div id="diff-new-body" style="padding:14px; font-size:12.5px; line-height:1.7; white-space:pre-wrap; max-height:380px; overflow-y:auto;"></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-foot">
+
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-diff')">닫기</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- MODAL 2: 버전별 전문 열람 모달 -->
+
+  <div class="modal-backdrop" id="modal-view-ver">
+
+    <div class="modal-box" style="max-width:720px;">
+
+      <div class="modal-head">
+
+        <span id="view-ver-title">📄 약관 버전별 전문 열람</span>
+
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('modal-view-ver')">✕</button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div id="view-ver-meta" style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:12px;"></div>
+
+        <div id="view-ver-content" style="border:1px solid var(--border); border-radius:8px; padding:16px; font-size:13px; line-height:1.75; white-space:pre-wrap; max-height:420px; overflow-y:auto;"></div>
+
+      </div>
+
+      <div class="modal-foot">
+
+        <button type="button" class="btn btn-outline" data-dev-flag="proto-only" data-dev-note="이 버전 본문을 편집창으로 불러오기 — 개발 없음" onclick="loadVerToEditor()">이 버전 본문을 편집창으로 불러오기</button>
+
+        <button type="button" class="btn btn-primary" onclick="closeModal('modal-view-ver')">확인</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- MODAL 3: 약관 저장 확정 확인 모달 -->
+
+  <div class="modal-backdrop" id="modal-save-confirm">
+
+    <div class="modal-box" style="max-width:540px;">
+
+      <div class="modal-head">
+
+        <span>💾 약관 개정 · 수정 저장 확정</span>
+
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('modal-save-confirm')">✕</button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <div id="save-confirm-summary" style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:14px; font-size:12.5px; line-height:1.7; margin-bottom:12px;"></div>
+
+        <div style="font-size:12px; color:var(--text-sub);">
+
+          • 저장 즉시 버전별 변경 이력(<code>terms_version_history</code>) 및 시스템 감사 로그(<code>ADMN-CONF-010</code>)에 기록됩니다.<br/>
+
+          • 신규 개정 공시 등록 후에는 <strong>[전체 회원 개정 고지 발송 (ADMN-CONF-004-S1)]</strong>을 통해 이메일/알림톡 사전 안내를 발송할 수 있습니다.
+
+        </div>
+
+      </div>
+
+      <div class="modal-foot">
+
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-save-confirm')">취소</button>
+
+        <button type="button" class="btn btn-primary" data-dev-route="admin.terms.store | admin.terms.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/terms | /terms/{term}" data-dev-perm="등록 | 수정" data-dev-value="action=confirm" onclick="commitTermSave()">확정 및 저장</button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div id="toast-box"></div>
+
+
+
+  <script>
+
+    const TERMS_DATA = {
+
+      'T01': {
+
+        code: 'T01',
+
+        name: '서비스 이용약관',
+
+        reqType: '필수 동의',
+
+        reqBadge: 'badge-blue',
+
+        dbMap: "user_agreements (term_code='T01')",
+
+        location: '회원가입(USER-JOIN-002) 필수 체크 + 하단 푸터(USER-INFO-001)',
+
+        currentVer: 'v2.1',
+
+        effectiveDate: '2026-05-01',
+
+        announcedVer: null,
+
+        body: `제1조 (목적)
+본 약관은 산준모닷컴(이하 "회사")이 제공하는 온라인 산업안전기사·건설안전기사 수험 강좌(VOD), 합격환급반 및 수험 교재 판매 서비스의 이용 조건과 절차를 규정함을 목적으로 합니다.
+
+제2조 (수강 아이디 및 동시접속 제한)
+1. 회원의 아이디(이메일) 및 비밀번호 관리 책임은 회원 본인에게 있습니다.
+2. 회사는 저작권 보호 및 부정 수강 방지를 위하여 동일 계정의 동시 접속을 1개 세션(IP 기준)으로 제한하며, 중복 접속 감지 시 기존 세션을 강제 로그아웃 처리할 수 있습니다.`,
+
+        history: [
+
+          { ver: 'v2.1', revType: '일반 개정', announceDate: '2026-04-20', effectiveDate: '2026-05-01', reason: '동시접속 1세션 제어 및 부정수강 제재 기준 명확화', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 (목적)
+본 약관은 산준모닷컴(이하 "회사")이 제공하는 온라인 산업안전기사·건설안전기사 수험 강좌(VOD), 합격환급반 및 수험 교재 판매 서비스의 이용 조건과 절차를 규정함을 목적으로 합니다.
+
+제2조 (수강 아이디 및 동시접속 제한)
+1. 회원의 아이디(이메일) 및 비밀번호 관리 책임은 회원 본인에게 있습니다.
+2. 회사는 저작권 보호 및 부정 수강 방지를 위하여 동일 계정의 동시 접속을 1개 세션(IP 기준)으로 제한하며, 중복 접속 감지 시 기존 세션을 강제 로그아웃 처리할 수 있습니다.` },
+
+          { ver: 'v2.0', revType: '전면 개정', announceDate: '2025-11-25', effectiveDate: '2026-01-01', reason: '합격환급반 운영 조항 및 유·무상 포인트 차감 순서 신설', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `제1조 (목적)
+산준모닷컴 온라인 강의 및 교재 서비스 이용약관 (v2.0 보관본)` }
+
+        ]
+
+      },
+
+      'T02': {
+
+        code: 'T02',
+
+        name: '개인정보 수집 · 이용 동의',
+
+        reqType: '필수 동의',
+
+        reqBadge: 'badge-blue',
+
+        dbMap: "user_agreements (term_code='T02')",
+
+        location: '회원가입(USER-JOIN-002) 필수 체크',
+
+        currentVer: 'v1.8',
+
+        effectiveDate: '2026-04-01',
+
+        announcedVer: null,
+
+        body: `1. 수집하는 개인정보 항목
+- 필수항목: 이름, 이메일 주소(ID), 비밀번호(암호화), 휴대전화번호(SMS 본인인증 및 DI 중복가입 확인), 배송지 주소(교재 주문 시)
+- 선택항목: 산준모 네이버 카페 아이디(ID)
+
+2. 수집 및 이용 목적
+- 회원 식별, 중복 가입 및 웰컴 혜택(5,000P·10% 쿠폰) 중복 수령 방지(DI 해시 검증), 강좌 수강 및 3PL 교재 배송, 합격환급반 본인 확인 및 원천징수 신고
+
+3. 보유 및 이용 기간
+- 회원 탈퇴 시 즉시 파기 (단, 재가입 부정수급 방지용 DI 해시는 탈퇴 후 30일 보관, 전자상거래법에 따른 계약·결제·환불 기록은 5년 보관)`,
+
+        history: [
+
+          { ver: 'v1.8', revType: '일반 개정', announceDate: '2026-03-20', effectiveDate: '2026-04-01', reason: '탈퇴 후 30일 DI 해시 보관(웰컴 혜택 중복 수령 방지) 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `1. 수집하는 개인정보 항목 및 이용 목적 (v1.8 현행본)` },
+
+          { ver: 'v1.7', revType: '일반 개정', announceDate: '2025-10-10', effectiveDate: '2025-10-20', reason: '네이버 카페 ID 선택 입력 항목 추가', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `1. 수집하는 개인정보 항목 및 이용 목적 (v1.7 보관본)` }
+
+        ]
+
+      },
+
+      'T03': {
+
+        code: 'T03',
+
+        name: '개인정보처리방침',
+
+        reqType: '법정 상시공시',
+
+        reqBadge: 'badge-green',
+
+        dbMap: '상시 공시 문서 (별도 체크박스 수집 없음 · 푸터 상시 노출)',
+
+        location: '사이트 하단 푸터(USER-INFO-001) 볼드체 상시 노출',
+
+        currentVer: 'v2.9',
+
+        effectiveDate: '2026-03-15',
+
+        announcedVer: 'v3.0 (2026-11-20 시행 예정)',
+
+        body: `제1조 (개인정보의 처리 목적)
+산준모닷컴은 다음의 목적을 위하여 개인정보를 처리합니다.
+
+제4조 (개인정보 처리업무의 위탁)
+1. 결제 처리(PG): 토스페이먼츠(주)
+2. 실물 교재 출고 및 배송(3PL): (주)산준모 지정 물류센터 및 CJ대한통운
+3. 알림톡 · 문자(SMS/LMS) · 이메일 발송: 네이버클라우드(주) SENS
+
+제7조 (개인정보의 파기 절차 및 민감정보 보호)
+합격환급반 및 현금환불 처리를 위해 수집된 주민등록번호·계좌번호(AES-256 암호화)는 국세청 원천징수 신고 및 정산 보존 기한 경과 후 보안 파기 배치(ADMN-USER-007)를 통해 영구 파기합니다.`,
+
+        history: [
+
+          { ver: 'v3.0', revType: '일반 개정', announceDate: '2026-10-15', effectiveDate: '2026-11-20', reason: '주 PG사(토스페이먼츠) 및 3PL 물류 수탁사 현황 현행화', admin: '최고 관리자 (admin_root)', status: 'ANNOUNCED', body: `제4조 (개인정보 처리업무의 위탁) 토스페이먼츠 및 네이버클라우드 SENS, 3PL 물류 위탁 반영 (v3.0 사전 공고본)` },
+
+          { ver: 'v2.9', revType: '일반 개정', announceDate: '2026-03-05', effectiveDate: '2026-03-15', reason: '민감정보(주민번호·계좌) 암호화 및 파기 절차 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 ~ 제7조 개인정보처리방침 (v2.9 현행 시행본)` }
+
+        ]
+
+      },
+
+      'T04': {
+
+        code: 'T04',
+
+        name: '환불 · 청약철회 규정 (이용약관 제15조)',
+
+        reqType: '필수 동의',
+
+        reqBadge: 'badge-blue',
+
+        dbMap: "user_agreements (term_code='T04')",
+
+        location: '주문/결제(USER-PAY-001) 필수 체크 + 하단 푸터(USER-INFO-001)',
+
+        currentVer: 'v1.4',
+
+        effectiveDate: '2026-03-01',
+
+        announcedVer: null,
+
+        body: `제15조 (강좌 및 교재의 청약철회 및 환불 기준)
+1. 온라인 강좌(VOD) 전액 환불: 결제일로부터 7일 이내이며 맛보기 강의를 제외한 수강 이력이 2강 이하인 경우 100% 환불됩니다.
+2. 온라인 강좌 부분 환불: 평생교육법 시행령 [별표 3]에 따라 [실결제금액 - (일할 계산 금액 또는 진도율 비례 금액)]을 공제한 잔액을 환불합니다.
+3. 실물 교재(도서정가제 적용 대상): 래핑(비닐 포장) 개봉 또는 훼손 시 반품·환불이 불가하며, 단순 변심 반품 시 왕복 배송비(6,000원, 편도 3,000원)는 회원이 부담합니다.
+4. 포인트 차감 및 복원: 결제 시 무상 포인트(무상 P) → 구매적립 포인트(적립 P) 순으로 차감하고, 환불 시에는 역순(LIFO)으로 적립 P → 무상 P 순으로 복원합니다(복원 시 유효기간이 지난 포인트는 7일 유예). 지급된 적립 P가 이미 사용된 경우 회수 부족액은 현금 환불액에서 먼저 차감하고, 초과분은 적립 P 마이너스 부채로 기록됩니다.`,
+
+        history: [
+
+          { ver: 'v1.4', revType: '전면 개정', announceDate: '2026-01-25', effectiveDate: '2026-03-01', reason: '평생교육법 시행령 별표3 산식 및 교재 반품 배송비(편도 3,000원 / 왕복 6,000원) 기준 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제15조 (강좌 및 교재의 청약철회 및 환불 기준) v1.4 현행 조문` },
+
+          { ver: 'v1.3', revType: '일반 개정', announceDate: '2025-08-10', effectiveDate: '2025-08-20', reason: '패키지 상품 내 실물 교재 포함 시 과·면세 분리 환불 안내 추가', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `제15조 (강좌 및 교재의 청약철회 및 환불 기준) v1.3 보관 조문` }
+
+        ]
+
+      },
+
+      'T05': {
+
+        code: 'T05',
+
+        name: '마케팅 정보 · 이벤트 혜택 수신 동의',
+
+        reqType: '선택 동의',
+
+        reqBadge: 'badge-purple',
+
+        dbMap: 'users.is_marketing_agreed (SMS/알림톡·이메일 통합 단일 필드)',
+
+        location: '회원가입(USER-JOIN-002) 선택 체크 + 마이페이지(USER-MY-009) 토글',
+
+        currentVer: 'v1.1',
+
+        effectiveDate: '2026-02-01',
+
+        announcedVer: null,
+
+        body: `1. 마케팅 정보 수신 동의 안내 (선택)
+산준모닷컴이 제공하는 시험 일정 알림, 신규 특강 오픈, 할인 쿠폰 및 이벤트 혜택 정보를 카카오톡 알림톡, 문자(SMS/LMS), 이메일로 수신하는 것에 동의합니다.
+
+2. 통합 동의 및 철회 방법
+- 본 동의는 선택 사항이며, 동의하지 않아도 회원가입 및 유료 강좌·교재 구매에는 아무런 제한이 없습니다.
+- 회원님은 언제든지 [내 강의실 > 회원정보 수정] 또는 메시지 하단 080 무료수신거부를 통해 수신 동의를 철회(users.is_marketing_agreed = false)할 수 있습니다.
+- 정보통신망법 제50조에 따라 야간(21:00 ~ 익일 08:00)에는 광고성 메시지가 발송되지 않습니다.`,
+
+        history: [
+
+          { ver: 'v1.1', revType: '일반 개정', announceDate: '2026-01-20', effectiveDate: '2026-02-01', reason: '알림톡·SMS·이메일 채널을 users.is_marketing_agreed 단일 동의 필드로 통합 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `1. 마케팅 정보 수신 동의 안내 (v1.1 현행 조문)` }
+
+        ]
+
+      }
+
+    };
+
+
+
+    let currentTermCode = 'T04';
+
+    let currentDetailTab = 'edit';
+
+    let viewingHistoryVer = null;
+
+
+
+    function renderTermsMasterList() {
+
+      const tbody = document.getElementById('terms-list-tbody');
+
+      const codes = ['T01', 'T02', 'T03', 'T04', 'T05'];
+
+      let announcedCount = 0;
+
+
+
+      tbody.innerHTML = codes.map(code => {
+
+        const t = TERMS_DATA[code];
+
+        if (t.announcedVer) announcedCount++;
+
+        const announcedHtml = t.announcedVer
+
+          ? `<span class="badge badge-amber">${t.announcedVer}</span>`
+
+          : `<span style="color:var(--text-muted); font-size:12px;">—</span>`;
+
+
+
+        return `
+
+          <tr onclick="openTermDetail('${t.code}', 'edit')">
+
+            <td><code>${t.code}</code></td>
+
+            <td><strong>${t.name}</strong></td>
+
+            <td><span class="badge ${t.reqBadge}">${t.reqType}</span></td>
+
+            <td style="font-size:12px; color:var(--text-sub);">${t.location}</td>
+
+            <td><span class="badge badge-green">${t.currentVer} 시행중</span></td>
+
+            <td>${t.effectiveDate}</td>
+
+            <td>${announcedHtml}</td>
+
+            <td><strong>${t.history.length}개 버전</strong></td>
+
+            <td style="text-align:right;" onclick="event.stopPropagation();">
+
+              <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.terms.create" data-dev-method="GET" data-dev-url="/sj-admin/terms/create?type=" data-dev-perm="등록" data-dev-note="작성중 개정본이 있으면 그 편집(admin.terms.edit)으로" onclick="openTermDetail('${t.code}', 'edit')">상세 · 개정/수정</button>
+
+              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.terms.history.index" data-dev-method="GET" data-dev-url="/sj-admin/terms/history?type=" data-dev-perm="조회" onclick="openTermDetail('${t.code}', 'history')">변경 이력 (${t.history.length})</button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join('');
+
+
+
+      document.getElementById('kpi-announced-cnt').textContent = announcedCount + ' 건';
+
+    }
+
+
+
+    function switchView(viewName) {
+
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+
+      if (viewName === 'detail') {
+
+        document.getElementById('view-detail').classList.add('active');
+
+        document.getElementById('top-crumb-code').textContent = 'ADMN-CONF-002 · ' + currentTermCode;
+
+      } else {
+
+        document.getElementById('view-list').classList.add('active');
+
+        document.getElementById('top-crumb-code').textContent = 'ADMN-CONF-002';
+
+        renderTermsMasterList();
+      /* Init Term History */
+      if (typeof renderTermHistoryTable === 'function') renderTermHistoryTable();
+
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    }
+
+
+
+    function openTermDetail(code, tabMode) {
+
+      currentTermCode = code || 'T04';
+
+      const t = TERMS_DATA[currentTermCode];
+
+      document.getElementById('dt-term-switcher').value = currentTermCode;
+
+      document.getElementById('dt-term-title').textContent = `[${t.code}] ${t.name}`;
+
+      const badgeEl = document.getElementById('dt-term-badge');
+
+      badgeEl.className = 'badge ' + t.reqBadge;
+
+      badgeEl.textContent = t.reqType;
+
+
+
+      document.getElementById('dt-meta-name').innerHTML = `<code>${t.code}</code> <strong>${t.name}</strong>`;
+
+      document.getElementById('dt-meta-req').innerHTML = `${t.reqType} · <code>${t.dbMap}</code>`;
+
+      document.getElementById('dt-meta-loc').textContent = t.location;
+
+      document.getElementById('dt-meta-ver').innerHTML = `<span class="badge badge-green">${t.currentVer} 시행중</span> (시행일: ${t.effectiveDate})` +
+
+        (t.announcedVer ? ` &nbsp;·&nbsp; <span class="badge badge-amber">공시중: ${t.announcedVer}</span>` : '');
+
+      document.getElementById('dt-hist-cnt').textContent = t.history.length;
+
+
+
+      document.getElementById('ed-body').value = t.body;
+
+      onChangeEditMode();
+
+      renderTermHistoryTable();
+
+      switchDetailTab(tabMode || 'edit');
+
+      switchView('detail');
+
+    }
+
+
+
+    function switchDetailTab(tab) {
+
+      currentDetailTab = tab;
+
+      document.getElementById('tab-btn-edit').classList.toggle('active', tab === 'edit');
+
+      document.getElementById('tab-btn-history').classList.toggle('active', tab === 'history');
+
+      document.getElementById('detail-tab-edit').style.display = (tab === 'edit') ? 'block' : 'none';
+
+      document.getElementById('detail-tab-history').style.display = (tab === 'history') ? 'block' : 'none';
+
+    }
+
+
+
+    function calcNextVersion(verStr, revType) {
+
+      const clean = (verStr || 'v1.0').replace('v', '');
+
+      const parts = clean.split('.');
+
+      let major = parseInt(parts[0] || '1', 10);
+
+      let minor = parseInt(parts[1] || '0', 10);
+
+      if (revType === 'MAJOR') {
+
+        major += 1;
+
+        minor = 0;
+
+      } else {
+
+        minor += 1;
+
+      }
+
+      return `v${major}.${minor}`;
+
+    }
+
+
+
+    function onChangeEditMode() {
+
+      const mode = document.querySelector('input[name="edit_mode"]:checked').value;
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const revBox = document.getElementById('rev-config-box');
+
+      const alertBox = document.getElementById('notice-period-alert');
+
+      if (mode === 'DIRECT_FIX') {
+
+        revBox.style.opacity = '0.55';
+
+        document.getElementById('ed-ver-num').value = t.currentVer + ' (버전 유지)';
+
+        alertBox.style.background = '#EFF6FF';
+
+        alertBox.style.borderColor = '#BFDBFE';
+
+        alertBox.style.color = '#1E40AF';
+
+        alertBox.textContent = 'ℹ️ [현행/공시본 직접 수정 모드] 버전 번호 변경 없이 오탈자·문구만 즉시 보정합니다. (중요 권리·의무 변경 시에는 신규 개정 버전 등록을 사용해 주세요)';
+
+        document.getElementById('btn-save-term').disabled = false;
+
+      } else {
+
+        revBox.style.opacity = '1';
+
+        onChangeRevType();
+
+      }
+
+    }
+
+
+
+    function onChangeRevType() {
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const revType = document.getElementById('ed-rev-type').value;
+
+      document.getElementById('ed-ver-num').value = calcNextVersion(t.currentVer, revType);
+
+      // 개정 유형은 버전 채번만 결정한다. 공고 기간은 '회원에게 불리한 변경 여부'로 결정한다.
+
+      validateNoticePeriod();
+
+    }
+
+
+
+    function validateNoticePeriod() {
+
+      const mode = document.querySelector('input[name="edit_mode"]:checked').value;
+
+      if (mode === 'DIRECT_FIX') return true;
+
+
+
+      const revType = document.getElementById('ed-rev-type').value;
+
+      const adverse = document.getElementById('ed-adverse').value === 'YES';
+      const reqDays = adverse ? 30 : 7;
+
+      const d1 = new Date(document.getElementById('ed-announce-date').value);
+
+      const d2 = new Date(document.getElementById('ed-effective-date').value);
+
+      const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+
+
+
+      const alertBox = document.getElementById('notice-period-alert');
+
+      const saveBtn = document.getElementById('btn-save-term');
+
+
+
+      if (isNaN(diffDays) || diffDays < reqDays) {
+
+        alertBox.style.background = '#FEF2F2';
+
+        alertBox.style.borderColor = '#FECACA';
+
+        alertBox.style.color = '#991B1B';
+
+        alertBox.innerHTML = `🚫 [법정 사전 공고 기한 미달 — 저장 차단] ${adverse ? '회원에게 불리한 변경(최소 30일 전 공고 + 개별 통지)' : '일반 변경(최소 7일 전 공고)'} 기준 공고~시행 간격이 <strong>${isNaN(diffDays) ? 0 : diffDays}일</strong>로 ${reqDays}일에 미달합니다. 시행일자를 늦춰 주세요.`;
+
+        saveBtn.disabled = true;
+
+        return false;
+
+      } else {
+
+        alertBox.style.background = '#F0FDF4';
+
+        alertBox.style.borderColor = '#BBF7D0';
+
+        alertBox.style.color = '#166534';
+
+        alertBox.innerHTML = `✅ [법정 사전 공고 기간 충족] 공고일(${document.getElementById('ed-announce-date').value}) ~ 시행일(${document.getElementById('ed-effective-date').value}): 총 <strong>${diffDays}일</strong> 확보 (${adverse ? '회원에게 불리한 변경 30일 · 전체 회원 개별 통지 필수' : '일반 변경 7일'} 이상 기준 충족)`;
+
+        saveBtn.disabled = false;
+
+        return true;
+
+      }
+
+    }
+
+
+
+    function insertEditorTag(openTag, closeTag) {
+
+      const ta = document.getElementById('ed-body');
+
+      const start = ta.selectionStart || 0;
+
+      const end = ta.selectionEnd || 0;
+
+      const text = ta.value;
+
+      const selected = text.substring(start, end) || '내용 입력';
+
+      ta.value = text.substring(0, start) + openTag + selected + closeTag + text.substring(end);
+
+      ta.focus();
+
+    }
+
+
+
+    function resetEditorToCurrent() {
+
+      const t = TERMS_DATA[currentTermCode];
+
+      document.getElementById('ed-body').value = t.body;
+
+      showToast('현재 시행 중인 조문 원본으로 편집창을 복원했습니다.');
+
+    }
+
+
+
+    function openDiffModal() {
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const newVer = document.getElementById('ed-ver-num').value;
+
+      document.getElementById('diff-modal-title').textContent = `🔍 [${t.code}] ${t.name} — 신·구 조문 대조 (${t.currentVer} ↔ ${newVer})`;
+
+      document.getElementById('diff-old-head').textContent = `현행 시행본 (${t.currentVer} · 시행일 ${t.effectiveDate})`;
+
+      document.getElementById('diff-new-head').textContent = `현재 편집본 (${newVer})`;
+
+      document.getElementById('diff-old-body').textContent = t.body;
+
+      document.getElementById('diff-new-body').textContent = document.getElementById('ed-body').value;
+
+      document.getElementById('modal-diff').classList.add('show');
+
+    }
+
+
+
+    function saveTermDraft() {
+
+      showToast(`[${currentTermCode}] 작성 중인 약관 조문이 임시저장(DRAFT) 되었습니다.`);
+
+    }
+
+
+
+    function openSaveConfirmModal() {
+
+      if (!validateNoticePeriod()) return;
+
+      const reason = document.getElementById('ed-reason').value.trim();
+
+      if (reason.length < 5) {
+
+        showToast('개정 · 수정 사유를 최소 5자 이상 입력해 주세요.');
+
+        return;
+
+      }
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const mode = document.querySelector('input[name="edit_mode"]:checked').value;
+
+      const newVer = document.getElementById('ed-ver-num').value;
+
+      const annDate = document.getElementById('ed-announce-date').value;
+
+      const effDate = document.getElementById('ed-effective-date').value;
+
+
+
+      document.getElementById('save-confirm-summary').innerHTML = `
+
+        • <strong>대상 약관:</strong> [${t.code}] ${t.name}<br/>
+
+        • <strong>처리 방식:</strong> ${mode === 'NEW_REV' ? '신규 개정 버전 등록 (기존 버전 이력 자동 보관)' : '현행 버전 본문 직접 수정'}<br/>
+
+        • <strong>적용 버전:</strong> <span class="badge badge-blue">${newVer}</span><br/>
+
+        • <strong>공고일 / 시행일:</strong> ${annDate} 공고 → <strong>${effDate} 시행</strong>${document.getElementById('ed-adverse').value === 'YES' ? ' <span class="badge badge-red">회원에게 불리한 변경 · 개별 통지 필요</span>' : ''}<br/>
+
+        • <strong>개정 사유:</strong> ${reason}
+
+      `;
+
+      document.getElementById('modal-save-confirm').classList.add('show');
+
+    }
+
+
+
+    function commitTermSave() {
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const mode = document.querySelector('input[name="edit_mode"]:checked').value;
+
+      const revType = document.getElementById('ed-rev-type').value;
+
+      const adverse = document.getElementById('ed-adverse').value === 'YES';
+
+      const newVer = calcNextVersion(t.currentVer, revType);
+
+      const annDate = document.getElementById('ed-announce-date').value;
+
+      const effDate = document.getElementById('ed-effective-date').value;
+
+      const reason = document.getElementById('ed-reason').value.trim();
+
+      const newBody = document.getElementById('ed-body').value;
+
+
+
+      t.body = newBody;
+
+      if (mode === 'NEW_REV') {
+
+        t.announcedVer = `${newVer} (${effDate} 시행 예정)`;
+
+        t.history.unshift({
+
+          ver: newVer,
+
+          revType: revType === 'MAJOR' ? '전면 개정' : '일반 개정',
+          adverse: adverse,
+
+          announceDate: annDate,
+
+          effectiveDate: effDate,
+
+          reason: reason,
+
+          admin: '최고 관리자 (admin_root)',
+
+          status: 'ANNOUNCED',
+
+          body: newBody
+
+        });
+
+      } else {
+
+        if (t.history[0]) {
+
+          t.history[0].reason = reason + ' (본문 보정)';
+
+          t.history[0].body = newBody;
+
+        }
+
+      }
+
+
+
+      closeModal('modal-save-confirm');
+
+      openTermDetail(currentTermCode, 'history');
+
+      showToast(`[${t.code}] ${t.name} 저장이 완료되어 버전별 변경 이력에 반영되었습니다.`);
+
+    }
+
+
+
+    function renderTermHistoryTable() {
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const tbody = document.getElementById('term-history-tbody');
+
+      tbody.innerHTML = t.history.map((h, idx) => {
+
+        let stBadge = '<span class="badge badge-gray">이전 버전 (보관 · 푸터 열람가능)</span>';
+
+        if (h.status === 'ACTIVE') stBadge = '<span class="badge badge-green">현행 시행중 (ACTIVE)</span>';
+
+        else if (h.status === 'ANNOUNCED') stBadge = '<span class="badge badge-amber">사전 공고중 (시행 예정)</span>';
+
+
+
+        return `
+
+          <tr>
+
+            <td><strong>${h.ver}</strong></td>
+
+            <td><span class="badge ${h.revType.indexOf('전면') !== -1 ? 'badge-red' : 'badge-blue'}">${h.revType}</span></td>
+
+            <td>${h.announceDate}</td>
+
+            <td><strong>${h.effectiveDate}</strong></td>
+
+            <td>${h.reason}</td>
+
+            <td>${h.admin}</td>
+
+            <td>${stBadge}</td>
+
+            <td style="text-align:right;">
+
+              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.terms.show" data-dev-method="GET" data-dev-url="/sj-admin/terms/{term}" data-dev-perm="조회" onclick="openVerModal(${idx})">전문 열람</button>
+
+              <button type="button" class="btn btn-sm btn-primary" data-dev-flag="proto-only" data-dev-note="이력 행 개정 고지 발송 — 개발 없음" onclick="goTermsNoticeSend('${h.ver}')">📣 개정 고지 발송 ↗</button>
+
+            </td>
+
+          </tr>
+
+        `;
+
+      }).join('');
+
+    }
+
+
+
+    function openVerModal(idx) {
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const h = t.history[idx];
+
+      if (!h) return;
+
+      viewingHistoryVer = h;
+
+      document.getElementById('view-ver-title').textContent = `📄 [${t.code}] ${t.name} — ${h.ver} 전문`;
+
+      document.getElementById('view-ver-meta').innerHTML = `
+
+        <strong>버전:</strong> ${h.ver} (${h.revType}) &nbsp;|&nbsp;
+
+        <strong>공고일:</strong> ${h.announceDate} &nbsp;|&nbsp;
+
+        <strong>시행일:</strong> ${h.effectiveDate} &nbsp;|&nbsp;
+
+        <strong>사유:</strong> ${h.reason}
+
+      `;
+
+      document.getElementById('view-ver-content').textContent = h.body;
+
+      document.getElementById('modal-view-ver').classList.add('show');
+
+    }
+
+
+
+    function loadVerToEditor() {
+
+      if (viewingHistoryVer) {
+
+        document.getElementById('ed-body').value = viewingHistoryVer.body;
+
+        closeModal('modal-view-ver');
+
+        switchDetailTab('edit');
+
+        showToast(`${viewingHistoryVer.ver} 조문 내용을 편집창으로 불러왔습니다.`);
+
+      }
+
+    }
+
+
+
+    function goTermsNoticeSend(verStr) {
+
+      const t = TERMS_DATA[currentTermCode];
+
+      const v = verStr || t.currentVer;
+
+      window.location.href = `ADMN-CONF-004_baseline.html?view=send&target=all&channel=EMAIL&type=terms_notice&term=${encodeURIComponent(t.code)}&ver=${encodeURIComponent(v)}`;
+
+    }
+
+
+
+    function closeModal(id) {
+
+      document.getElementById(id).classList.remove('show');
+
+    }
+
+
+
+    function showToast(msg) {
+
+      const box = document.getElementById('toast-box');
+
+      box.textContent = msg;
+
+      box.style.display = 'block';
+
+      clearTimeout(window.__toastTimer);
+
+      window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3500);
+
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+      renderTermsMasterList();
+      /* Init Term History */
+      if (typeof renderTermHistoryTable === 'function') renderTermHistoryTable();
+
+      const params = new URLSearchParams(window.location.search);
+
+      const view = params.get('view');
+
+      const term = params.get('term');
+
+      if (view === 'detail' || term) {
+
+        openTermDetail(term || 'T04', 'edit');
+
+      }
+
+    });
+
+  </script>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+
+</html>
+

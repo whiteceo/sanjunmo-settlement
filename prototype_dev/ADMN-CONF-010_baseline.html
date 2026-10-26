@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>시스템 감사 로그 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --sub: #64748b;
+      --line: #dbe3ef;
+      --line-strong: #b8c6db;
+      --pri: #1d4ed8;
+      --pri-soft: #eff6ff;
+      --ok: #15803d;
+      --ok-soft: #f0fdf4;
+      --ok-line: #86efac;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --warn-line: #fcd34d;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --bad-line: #fca5a5;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+      --teal: #0f766e;
+      --teal-soft: #f0fdfa;
+      --snb-bg: #0b1324;
+      --snb-ink: #cbd5e1;
+      --snb-active: #2563eb;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 12px;
+      --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.48;
+      font-size: 13.5px;
+    }
+    .layout { display: grid; grid-template-columns: 272px 1fr; min-height: 100vh; }
+
+    /* 좌측 SNB (4단계 업무 여정 표준) */
+    .snb {
+      background: var(--snb-bg);
+      color: var(--snb-ink);
+      padding: 20px 14px;
+      display: flex; flex-direction: column; gap: 14px;
+      border-right: 1px solid #1e293b;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 8px 14px; border-bottom: 1px solid #1e293b;
+    }
+    .brand-logo {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      display: grid; place-items: center;
+      color: #fff; font-weight: 800; font-size: 15px;
+    }
+    .brand-title { font-weight: 800; color: #fff; font-size: 14.5px; line-height: 1.25; }
+    .brand-sub { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .nav-group { display: flex; flex-direction: column; gap: 3px; }
+    .nav-label {
+      font-size: 10.5px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px;
+    }
+    .nav-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 11px; border-radius: 8px;
+      color: #cbd5e1; text-decoration: none;
+      font-size: 12.5px; font-weight: 600;
+      cursor: pointer; border: none; background: transparent;
+      width: 100%; text-align: left; transition: 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-btn.active { background: var(--snb-active); color: #fff; font-weight: 700; }
+    .nav-code {
+      font-family: var(--mono); font-size: 10.5px;
+      padding: 2px 6px; border-radius: 4px;
+      background: rgba(15, 23, 42, 0.45); color: #94a3b8;
+    }
+    .nav-btn.active .nav-code { background: rgba(255,255,255,0.2); color: #fff; }
+
+    /* Main */
+    .main { display: flex; flex-direction: column; min-width: 0; }
+    .topbar {
+      background: #fff; border-bottom: 1px solid var(--line);
+      padding: 16px 26px; display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; position: sticky; top: 0; z-index: 20;
+    }
+    .title-area h1 { margin: 0; font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .title-area p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 999px;
+      font-size: 11.5px; font-weight: 700; white-space: nowrap;
+    }
+    .b-pri { background: var(--pri-soft); color: var(--pri); border: 1px solid #bfdbfe; }
+    .b-ok { background: var(--ok-soft); color: var(--ok); border: 1px solid var(--ok-line); }
+    .b-warn { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn-line); }
+    .b-bad { background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad-line); }
+    .b-pur { background: var(--purple-soft); color: var(--purple); border: 1px solid #ddd6fe; }
+    .b-teal { background: var(--teal-soft); color: var(--teal); border: 1px solid #99f6e4; }
+    .b-dark { background: #0f172a; color: #fff; }
+    .b-gray { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 13px; border-radius: 8px;
+      font-size: 12.5px; font-weight: 700;
+      border: 1px solid var(--line-strong);
+      background: #fff; color: var(--ink);
+      cursor: pointer; transition: 0.15s; white-space: nowrap;
+    }
+    .btn:hover { background: #f8fafc; }
+    .btn-pri { background: var(--pri); color: #fff; border-color: var(--pri); }
+    .btn-pri:hover { background: #1e40af; }
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; border-radius: 6px; }
+    .btn-sm.active-preset { background: var(--pri-soft); color: var(--pri); border-color: var(--pri); }
+
+    .content { padding: 20px 26px 96px; display: flex; flex-direction: column; gap: 18px; }
+
+    /* Period Control Bar */
+    .period-bar {
+      background: #fff; border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 13px 18px;
+      box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+    }
+
+    /* KPI Strip */
+    .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .kpi-card:hover { border-color: var(--pri); transform: translateY(-1px); }
+    .kpi-card.active { border: 2px solid var(--pri); background: #f8fbff; }
+
+    /* Tabs */
+    .tabs {
+      display: flex; gap: 6px; border-bottom: 1px solid var(--line);
+      background: #fff; padding: 0 18px; border-radius: 10px 10px 0 0;
+      border: 1px solid var(--line); border-bottom: none;
+    }
+    .tab-btn {
+      padding: 13px 16px; font-size: 13px; font-weight: 800;
+      color: var(--muted); background: transparent; border: none;
+      border-bottom: 3px solid transparent; cursor: pointer;
+    }
+    .tab-btn.active { color: var(--pri); border-bottom-color: var(--pri); }
+
+    .card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+    }
+    .card-hd {
+      padding: 14px 18px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: #f8fafc;
+    }
+    .card-hd h3 { margin: 0; font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid var(--line);
+    }
+    .input, .select {
+      padding: 7px 11px; border-radius: 7px; border: 1px solid var(--line-strong);
+      font-size: 12.5px; font-family: var(--font); background: #fff;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th {
+      background: #f8fafc; color: var(--muted); font-weight: 800;
+      text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap;
+    }
+    td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    tr.clickable-row:hover td { background: #f0f7ff; cursor: pointer; }
+    .num { text-align: right; font-family: var(--mono); font-weight: 700; }
+    .code { font-family: var(--mono); font-size: 11.5px; color: #334155; }
+
+    /* Diff Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+      display: none; place-items: center; z-index: 60; padding: 20px;
+    }
+    .modal-backdrop.open { display: grid; }
+    .modal {
+      background: #fff; border-radius: 14px; width: min(940px, 96vw);
+      max-height: 88vh; display: flex; flex-direction: column;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.3); overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .modal-hd {
+      padding: 16px 20px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      background: #0f172a; color: #fff;
+    }
+    .modal-hd h3 { margin: 0; font-size: 15px; font-weight: 800; }
+    .modal-bd { padding: 18px 20px; overflow-y: auto; flex: 1; }
+    .modal-ft {
+      padding: 13px 20px; border-top: 1px solid var(--line);
+      background: #f8fafc; display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .diff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+    .json-box {
+      font-family: var(--mono); font-size: 12px; line-height: 1.55;
+      padding: 14px; border-radius: 10px; white-space: pre-wrap; word-break: break-all;
+      border: 1px solid var(--line);
+    }
+    .json-before { background: #fff5f5; border-color: #feb2b2; color: #742a2a; }
+    .json-after { background: #f0fff4; border-color: #9ae6b4; color: #22543d; }
+
+    /* Footer Bar */
+    .footer-bar {
+      position: fixed; bottom: 0; left: 272px; right: 0;
+      background: #0f172a; color: #fff;
+      padding: 12px 26px; display: flex; align-items: center; justify-content: space-between;
+      z-index: 30; border-top: 1px solid #334155;
+    }
+
+    #toast {
+      position: fixed; bottom: 72px; right: 26px;
+      background: #0f172a; color: #fff; padding: 11px 16px;
+      border-radius: 8px; font-size: 12.5px; font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25); display: none; z-index: 100;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  
+
+  
+
+
+
+
+
+
+<link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-010", "devCommit": "d562524a", "progress": "개발 미구현(CONF-010 메뉴 · 라우트 없음). 탭 3은 개발 CONF-006 관리자 로그 · 로그인 로그(구현)에 대응. 탭 1 · 2 · 해시 체인은 규칙 기반 명명 — 주황 표시", "menus": [{"route": "admin.audit-logs.index (규칙)", "label": "시스템 감사 로그 (개발 미구현)"}, {"route": "admin.admin-logs.index", "label": "관리자 로그 (개발 CONF-006)"}, {"route": "admin.login-logs.index", "label": "관리자 로그인 로그 (개발 CONF-006)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">권한 · 개인정보 · 보안 감사</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-CONF-010</span>
+      <h1 class="crumb-title" id="header-screen-title">시스템 감사 로그 (정산 원장 변경 · 개인정보 열람 · 운영자 작업 불변 이력)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <button class="btn" data-dev-route="admin.audit-logs.verifications.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/audit-logs/verifications" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="해시 체인 — 개발 흔적 없음(정책 D-CONF-03: 2차 권고)" onclick="verifyHashChain()">🛡️ 해시 체인 위변조 무결성 검증</button> <button class="btn btn-pri" data-dev-route="admin.audit-logs.download (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs/download" data-dev-perm="다운로드" data-dev-flag="proto-only" data-dev-note="ReasonRequest reason · reason_ref · reason_etc (공통 사유 모달)" onclick="exportAuditCsv()">⬇ 현재 조회 월·기간 감사 원장 추출 (CSV/JSON)</button>
+    </div></header><div id="v4-page-body">
+  
+  
+
+  
+  <!-- 좌측 SNB (업무 여정 4단계 표준) -->
+  
+
+  <!-- 우측 메인 -->
+  <main class="main">
+    
+
+    <div class="content">
+      <!-- 상단 월별 / 기간별 조회 컨트롤 바 -->
+      <div class="period-bar">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span style="font-weight:800; font-size:13px; color:var(--pri);">📅 정산월(귀속월) 기준 보기:</span>
+          <select id="monthFilterSelect" data-dev-flag="proto-only" data-dev-name="settlement_month" data-dev-note="(규칙) admin_logs.settlement_month — 개발 컬럼 없음" class="select" style="font-weight:700;" onchange="applyMonthFilter(this.value)">
+            <option value="ALL">전체 누적 기간 (2026-08 ~ 2026-10 · 13건)</option>
+            <option value="2026-10" selected="">2026-10 (당월 정산 진행 중 · 9건)</option>
+            <option value="2026-09">2026-09 (정산 마감 확정 Locked · 3건)</option>
+            <option value="2026-08">2026-08 (정산 마감 확정 Locked · 1건)</option>
+          </select>
+
+          <span style="color:var(--line-strong);">|</span>
+
+          <span style="font-weight:800; font-size:12.5px; color:var(--muted);">발생 일자 범위:</span>
+          <input type="date" id="dateFrom" name="start_date" data-dev-note="Y-m-d · 최대 90일 · 기본 7일 (개발 id #startDate)" class="input" value="2026-10-01" onchange="onCustomDateChange()">
+          <span>~</span>
+          <input type="date" id="dateTo" name="end_date" data-dev-note="개발 id #endDate" class="input" value="2026-10-31" onchange="onCustomDateChange()">
+        </div>
+
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="font-size:12px; font-weight:700; color:var(--muted);">빠른 기간:</span>
+          <button class="btn btn-sm" id="preset-TODAY" data-dev-name="period" data-dev-value="1" onclick="applyQuickDate('TODAY')">오늘 (10/15)</button>
+          <button class="btn btn-sm" id="preset-7D" data-dev-name="period" data-dev-value="7" onclick="applyQuickDate('7D')">최근 7일</button>
+          <button class="btn btn-sm active-preset" id="preset-CUR_M" data-dev-name="period" data-dev-value="30 (개발은 일수 프리셋 — 당월 개념 없음)" onclick="applyQuickDate('CUR_M')">당월 전체 (2026-10)</button>
+          <button class="btn btn-sm" id="preset-PREV_M" data-dev-flag="proto-only" data-dev-note="전월 마감분 — 개발 없음(정산월 컬럼 없음)" onclick="applyQuickDate('PREV_M')">전월 마감분 (2026-09)</button>
+          <button class="btn btn-sm" id="preset-ALL" data-dev-flag="proto-only" data-dev-note="전체 기간 — 개발 1회 조회 최대 90일(period 90). 정본 결정: 최근 90일로" onclick="applyQuickDate('ALL')">전체 기간</button>
+        </div>
+      </div>
+
+      <!-- 상단 KPI 5종 (선택한 월/기간 기준으로 실시간 재집계) -->
+      <div class="kpi-grid">
+        <div class="kpi-card active" id="kpi-ALL" data-dev-note="KPI 카드 → 감사 영역 필터(프로토 전용 집계)" onclick="setAuditCategory('ALL')">
+          <div class="k-title"><span id="kpiLabelMonth">2026-10 감사 이벤트</span><span class="badge b-pri">전체 감사 영역</span></div>
+          <div class="k-num" id="kpiValAll">9건</div>
+          <div class="k-sub">변경 전·후 JSON 스냅샷 100% 보존</div>
+        </div>
+        <div class="kpi-card" id="kpi-SHARE" data-dev-note="KPI 카드 → 감사 영역 필터(프로토 전용 집계)" onclick="setAuditCategory('SHARE')">
+          <div class="k-title"><span>1·2계층 지분율·매핑 변경</span><span class="badge b-pur">SETT-001 · 007</span></div>
+          <div class="k-num" style="color:var(--purple);" id="kpiValShare">2건</div>
+          <div class="k-sub">강의/도서 1계층 및 수취인 2계층 지분 변경</div>
+        </div>
+        <div class="kpi-card" id="kpi-FINANCE" data-dev-note="KPI 카드 → 감사 영역 필터(프로토 전용 집계)" onclick="setAuditCategory('FINANCE')">
+          <div class="k-title"><span>수동 조정 · 계정대체 · 수기검수</span><span class="badge b-warn">SETT-005 · INST-002</span></div>
+          <div class="k-num" style="color:var(--warn);" id="kpiValFinance">3건</div>
+          <div class="k-sub">2차 승인 · PRE↔POST 대체 · MANUAL_NOTE</div>
+        </div>
+        <div class="kpi-card" id="kpi-STATE" data-dev-note="KPI 카드 → 감사 영역 필터(프로토 전용 집계)" onclick="setAuditCategory('STATE')">
+          <div class="k-title"><span>지원금 상태전이 · 국세청 · 도서</span><span class="badge b-teal">정산 감사 기준</span></div>
+          <div class="k-num" style="color:var(--teal);" id="kpiValState">2건</div>
+          <div class="k-sub">COMPLETED↔ACTIVE 복원 · 과세유형 전환</div>
+        </div>
+        <div class="kpi-card" id="kpi-PII" data-dev-note="KPI 카드 → 감사 영역 필터(프로토 전용 집계)" onclick="setAuditCategory('PII')">
+          <div class="k-title"><span>민감정보 열람 · 계층 1 파기</span><span class="badge b-bad">민감정보 보호 기준</span></div>
+          <div class="k-num" style="color:var(--bad);" id="kpiValPii">2건</div>
+          <div class="k-sub">10자 이상 열람 사유 및 개인정보 필드 파기</div>
+        </div>
+      </div>
+
+      <!-- 탭 전환: 건별 상세 원장 vs 월별 감사 요약 리포트 -->
+      <div>
+        <div class="tabs">
+          <button class="tab-btn active" id="tabBtn-logs" data-dev-route="admin.audit-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs" data-dev-perm="조회" data-dev-flag="proto-only" onclick="switchTab('logs')">1. 감사 이벤트 건별 상세 원장 (Before / After JSON 비교)</button>
+          <button class="tab-btn" id="tabBtn-monthly" data-dev-route="admin.audit-logs.monthly.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs/monthly" data-dev-perm="조회" data-dev-flag="proto-only" onclick="switchTab('monthly')">2. 정산월별 감사 통계 요약 및 월마감 스냅샷 아카이브</button>
+          <button class="tab-btn" id="tabBtn-access" data-dev-route="admin.admin-logs.index | admin.login-logs.index" data-dev-method="GET" data-dev-url="/sj-admin/admin-logs | /login-logs" data-dev-perm="조회" data-dev-note="개발 CONF-006 — 관리자 로그(type 필터) + 로그인 로그(event · status 필터) 두 메뉴" onclick="switchTab('access')">3. 운영자 접근 · 권한 · 다운로드 로그 (계정 단위)</button>
+        </div>
+
+        <!-- TAB 1: 건별 상세 원장 -->
+        <div class="card" id="tabPanel-logs" style="border-top-left-radius:0;">
+          <div class="filter-bar">
+            <span style="font-weight:800; font-size:12.5px;">감사 영역:</span>
+            <select id="catSelect" name="target_type" data-dev-note="(유사) 개발 관리자 로그 target_type · type — 정산 감사 4구분은 개발 없음" class="select" onchange="setAuditCategory(this.value)">
+              <option value="ALL">전체 감사 이벤트 보기</option>
+              <option value="SHARE">1. 1계층·2계층 지분율 및 매핑 변경 (SETT-001 / SETT-007)</option>
+              <option value="FINANCE">2. 정산 수동 조정 · 계정 간 대체 · 수기 검수 (SETT-005 / INST-002)</option>
+              <option value="STATE">3. 지원금 상태전이(COMPLETED↔ACTIVE) · 국세청 · 도서 공급형태</option>
+              <option value="PII">4. 민감정보 마스킹 해제 및 계층 1 개인정보 파기 (USER-007)</option>
+            </select>
+
+            <select id="screenSelect" data-dev-flag="proto-only" data-dev-name="screen_code" data-dev-note="(규칙) admin_logs.screen_code — 개발은 menu_id" class="select" onchange="renderAuditRows()">
+              <option value="ALL">전체 발생 화면 (ADMN-*)</option>
+              <option value="ADMN-SETT-001">ADMN-SETT-001 (상품별 권리자 매핑)</option>
+              <option value="ADMN-SETT-007">ADMN-SETT-007 (수취인 분할 관리)</option>
+              <option value="ADMN-INST-002">ADMN-INST-002 (약정금 마일스톤 검수)</option>
+              <option value="ADMN-SETT-005">ADMN-SETT-005 (정산 수동 조정)</option>
+              <option value="ADMN-SETT-002">ADMN-SETT-002 (월간 정산 및 집행)</option>
+              <option value="ADMN-SETT-008">ADMN-SETT-008 (사업자등록 확인 이력)</option>
+              <option value="ADMN-BOOK-001">ADMN-BOOK-001 (도서 공급 원장)</option>
+              <option value="ADMN-USER-007">ADMN-USER-007 (민감 정보 열람 통제)</option>
+            </select>
+
+            <input type="text" id="auditKeyword" name="keyword" data-dev-note="max 100" class="input" style="width:260px;" placeholder="로그ID, 대상 식별자(CT/SUP/ADJ), 작업자, 사유 검색..." oninput="renderAuditRows()">
+
+            <span style="margin-left:auto; font-size:12px; color:var(--muted);" id="resultCountInfo">조회 결과: 9건</span>
+          </div>
+
+          <div style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>로그 ID / 발생 일시</th>
+                  <th>귀속 정산월</th>
+                  <th>발생 화면</th>
+                  <th>감사 이벤트 구분 (정산 기준 4개 구분)</th>
+                  <th>대상 엔티티 / 권리자</th>
+                  <th>입력된 변경·열람·승인 사유</th>
+                  <th>작업자 / IP</th>
+                  <th>전·후 비교 및 화면 이동</th>
+                </tr>
+              </thead>
+              <tbody id="auditListTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 3: 운영자 접근 · 권한 · 다운로드 로그 (구 ADMN-CONF-006, 운영자 권한 관리 탭에서 이전) -->
+        <div class="card" id="tabPanel-access" style="display:none; border-top-left-radius:0;">
+          <div class="card-hd">
+            <h3>🛡️ 운영자 · 파트너 계정 접근 · 권한 변경 · 다운로드 로그</h3>
+            <span class="badge b-pri">계정 단위 · 접속 IP 기록 · 감사 로그 5년 보존</span>
+          </div>
+          <div class="filter-bar" style="border-bottom:1px solid var(--line, #E2E8F0);">
+            <span style="font-weight:800; font-size:12.5px;">이벤트 유형:</span>
+            <select id="accessTypeSelect" name="event" data-dev-note="로그인 로그 status(success · fail) · event" data-dev-value="LOGIN_SUCCESS · LOGIN_FAIL · ACCOUNT_LOCKED · ACCOUNT_UNLOCKED … 18종 (관리자 로그는 type: personal_view · unmask · member_update · excel_download · setting_change · role_change)" class="select" onchange="renderAccessLogs()">
+              <option value="ALL">전체 유형</option>
+              <option value="LOGIN">로그인 시도 · 실패 · 잠금 (전체)</option>
+              <option value="로그인 성공">로그인 성공</option>
+              <option value="로그인 실패">로그인 실패</option>
+              <option value="로그인 5회 실패 · 계정 잠금">로그인 5회 실패 · 계정 잠금</option>
+              <option value="잠금 해제">잠금 해제</option>
+              <option value="OTHER">그 밖의 접근 · 권한 · 다운로드</option>
+            </select>
+            <span data-dev-flag="dev-only" data-dev-note="관리자 로그 LogSearchRequest: result_status · admin_role_code · target_member · ip · disallowed_ip_only" style="display:flex; gap:6px; align-items:center;">
+              <select class="select" name="result_status"><option value="">결과 전체</option><option value="success">성공</option><option value="fail">실패</option></select>
+              <input type="text" class="input" name="target_member" maxlength="191" style="width:140px;" placeholder="대상 회원">
+              <input type="text" class="input" name="ip" maxlength="45" style="width:120px;" placeholder="IP">
+              <label style="font-size:12px;"><input type="checkbox" name="disallowed_ip_only" value="1"> 허용 외 IP만</label>
+            </span>
+            <span style="margin-left:auto; font-size:12px; color:var(--muted);" id="accessCountInfo"></span>
+            <button class="btn btn-sm" data-dev-flag="dev-only" data-dev-route="admin.admin-logs.download | admin.login-logs.download" data-dev-method="GET" data-dev-url="/sj-admin/admin-logs/download | /login-logs/download" data-dev-perm="다운로드" data-dev-note="엑셀 사유 모달(ReasonRequest reason: refund_account · delivery_error · identity_check · payment_inquiry · legal_request · settlement_check · etc)" onclick="showToast('다운로드 사유를 입력한 뒤 엑셀을 받습니다.')">⬇ 엑셀</button>
+          </div>
+          <div style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:120px;">로그 ID</th>
+                  <th style="width:150px;">발생 일시</th>
+                  <th style="width:200px;">행위자 (계정 / 권한)</th>
+                  <th style="width:170px;">이벤트 유형</th>
+                  <th>상세 수행 내역 및 열람 사유</th>
+                  <th style="width:130px;">접속 IP</th>
+                </tr>
+              </thead>
+              <tbody id="accessLogTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 2: 정산월별 감사 통계 요약 -->
+        <div class="card" id="tabPanel-monthly" style="display:none; border-top-left-radius:0;">
+          <div class="card-hd">
+            <h3>📊 정산월(귀속월)별 감사 이벤트 집계 및 외부 감사 제출용 월별 패키지</h3>
+            <span class="badge b-pri">감사 로그 5년 보존 · 정산 원장 스냅샷은 상법 제33조 10년 보존</span>
+          </div>
+          <div style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>정산 기준월</th>
+                  <th>정산 마감 상태</th>
+                  <th class="num">총 감사 로그 수</th>
+                  <th class="num">1·2계층 지분변경</th>
+                  <th class="num">수동조정·계정대체·수기검수</th>
+                  <th class="num">지원금·국세청·도서</th>
+                  <th class="num">민감정보 열람·파기</th>
+                  <th>월별 마지막 블록 해시</th>
+                  <th>월별 원장 보기 / 추출</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong class="code" style="font-size:13.5px; color:var(--pri);">2026-10</strong></td>
+                  <td><span class="badge b-warn">🔓 미마감 (진행 중)</span></td>
+                  <td class="num">9건</td>
+                  <td class="num">2건</td>
+                  <td class="num">3건</td>
+                  <td class="num">2건</td>
+                  <td class="num">2건</td>
+                  <td class="code">SHA256:9f84c2e1...09d2</td>
+                  <td>
+                    <button class="btn btn-sm btn-pri" data-dev-route="admin.audit-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs?settlement_month=" data-dev-perm="조회" data-dev-flag="proto-only" onclick="jumpToMonthLogs('2026-10')">이 달의 로그 보기</button>
+                    <button class="btn btn-sm" data-dev-route="admin.audit-logs.monthly.download (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs/monthly/download" data-dev-perm="다운로드" data-dev-flag="proto-only" data-dev-note="(규칙) audit_log_snapshots month · last_hash · counts · closed_at" onclick="exportMonthPackage('2026-10')">⬇ 월별 패키지</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong class="code" style="font-size:13.5px; color:var(--ok);">2026-09</strong></td>
+                  <td><span class="badge b-ok">🔒 마감 확정 (Locked)</span></td>
+                  <td class="num">3건</td>
+                  <td class="num">1건</td>
+                  <td class="num">0건</td>
+                  <td class="num">1건</td>
+                  <td class="num">1건</td>
+                  <td class="code">SHA256:7b11a094...e831</td>
+                  <td>
+                    <button class="btn btn-sm btn-pri" data-dev-route="admin.audit-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs?settlement_month=" data-dev-perm="조회" data-dev-flag="proto-only" onclick="jumpToMonthLogs('2026-09')">이 달의 로그 보기</button>
+                    <button class="btn btn-sm" data-dev-route="admin.audit-logs.monthly.download (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs/monthly/download" data-dev-perm="다운로드" data-dev-flag="proto-only" data-dev-note="(규칙) audit_log_snapshots month · last_hash · counts · closed_at" onclick="exportMonthPackage('2026-09')">⬇ 월별 패키지</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong class="code" style="font-size:13.5px; color:var(--ok);">2026-08</strong></td>
+                  <td><span class="badge b-ok">🔒 마감 확정 (Locked)</span></td>
+                  <td class="num">1건</td>
+                  <td class="num">0건</td>
+                  <td class="num">0건</td>
+                  <td class="num">1건</td>
+                  <td class="num">0건</td>
+                  <td class="code">SHA256:1d04f920...c712</td>
+                  <td>
+                    <button class="btn btn-sm btn-pri" data-dev-route="admin.audit-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs?settlement_month=" data-dev-perm="조회" data-dev-flag="proto-only" onclick="jumpToMonthLogs('2026-08')">이 달의 로그 보기</button>
+                    <button class="btn btn-sm" data-dev-route="admin.audit-logs.monthly.download (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs/monthly/download" data-dev-perm="다운로드" data-dev-flag="proto-only" data-dev-note="(규칙) audit_log_snapshots month · last_hash · counts · closed_at" onclick="exportMonthPackage('2026-08')">⬇ 월별 패키지</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 고정 상태바 -->
+    <footer class="footer-bar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="badge b-ok">IMMUTABLE AUDIT LEDGER</span>
+        <span style="font-size:12.5px; color:#cbd5e1;">
+          본 감사 원장은 DB 레벨에서 <code>UPDATE</code> · <code>DELETE</code> 권한이 박탈된 <strong>Append-Only 테이블</strong>입니다. 행을 클릭하면 변경 전·후(<code>Before / After</code>) JSON 스냅샷을 대조할 수 있습니다.
+        </span>
+      </div>
+      <div style="font-family:var(--mono); font-size:12px; color:#93c5fd;">
+        최종 블록 해시: <code>SHA256:9f84c2e1...a47b09d2</code> (무결성 정상)
+      </div>
+    </footer>
+  </main>
+
+
+<!-- ===================================================================== -->
+<!-- 변경 전·후 (Before / After) JSON Diff 상세 비교 모달                    -->
+<!-- ===================================================================== -->
+<div class="modal-backdrop" id="diffModal" data-dev-note="개발은 레이어가 아니라 admin-logs/{adminLog} 상세 페이지 — 해시 줄은 프로토 전용">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3 id="diffModalTitle">🔍 감사 로그 변경 전·후 (Before / After) JSON 스냅샷 상세 대조</h3>
+      <button class="btn btn-sm" style="background:#1e293b; color:#fff; border-color:#475569;" onclick="closeDiffModal()">✕ 닫기</button>
+    </div>
+    <div class="modal-bd">
+      <div id="diffMetaSummary" style="background:#f8fafc; border:1px solid var(--line); border-radius:10px; padding:13px 16px;"></div>
+
+      <div class="diff-grid">
+        <div>
+          <div style="font-weight:800; font-size:12.5px; color:var(--bad); margin-bottom:6px;">
+            🔴 변경 전 스냅샷 (<code>before_snapshot_json</code>)
+          </div>
+          <div class="json-box json-before" id="diffBeforeBox"></div>
+        </div>
+        <div>
+          <div style="font-weight:800; font-size:12.5px; color:var(--ok); margin-bottom:6px;">
+            🟢 변경 후 스냅샷 (<code>after_snapshot_json</code>)
+          </div>
+          <div class="json-box json-after" id="diffAfterBox"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <span class="code" id="diffHashText" style="color:var(--muted);"></span>
+      <div style="display:flex; gap:8px;">
+        <button class="btn" id="btnJumpSourceScreen">↗ 발생 원천 화면으로 이동</button>
+        <button class="btn btn-pri" onclick="closeDiffModal()">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+
+
+
+</div></div><script>
+  const AUDIT_EVENTS = [
+    // === 2026-10 (당월 9건) ===
+    {
+      logId: "AUD-202610-0091",
+      month: "2026-10",
+      dateOnly: "2026-10-15",
+      ts: "2026-10-15 16:40:12",
+      cat: "STATE",
+      screenCode: "ADMN-SETT-002",
+      screenFile: "ADMN-SETT-002_baseline.html",
+      eventName: "지원금 약정 상태 전이 (COMPLETED → ACTIVE) 및 한도 복원 ",
+      targetId: "SFA-2026-009 (정종대 · RH-0025)",
+      reason: "차월 환불(-75,000원) 발생 및 한도 복원 옵션(cap_restore_on_refund = true)에 따른 잔여 한도 복원 및 약정 상태 ACTIVE 자동 복귀",
+      actor: "SYSTEM_BATCH (박정산 실행)",
+      ip: "10.20.14.88",
+      hash: "SHA256:9f84c2e18b71a032c19e44d1a47b09d2",
+      beforeJson: {
+        agreement_id: "SFA-2026-009",
+        cap_type: "CAPPED (한도형)",
+        total_cap_amount: 3000000,
+        cumulative_used: 3000000,
+        remaining_cap: 0,
+        status: "COMPLETED (한도소진종료)"
+      },
+      afterJson: {
+        agreement_id: "SFA-2026-009",
+        cap_type: "CAPPED (한도형)",
+        total_cap_amount: 3000000,
+        refund_deduct_amount: -75000,
+        cap_restore_on_refund: true,
+        cumulative_used: 2925000,
+        remaining_cap: 75000,
+        status: "ACTIVE (유효 복귀 )"
+      }
+    },
+    {
+      logId: "AUD-202610-0090",
+      month: "2026-10",
+      dateOnly: "2026-10-15",
+      ts: "2026-10-15 15:18:04",
+      cat: "FINANCE",
+      screenCode: "ADMN-SETT-005",
+      screenFile: "ADMN-SETT-005_baseline.html",
+      eventName: "세전(PRE_TAX) ↔ 세후(POST_TAX) 이월 계정 간 대체 2차 승인",
+      targetId: "ADJ-202610-02 (정종대 · CRY-202609-04)",
+      reason: "2026-09 지급 보류액 중 원천징수 영수증 기발급 확인 건(350,000원)을 세전 계정에서 세후 지급대기 계정으로 대체 전표 승인",
+      actor: "재무책임자 최재무 (2차 승인)",
+      ip: "10.20.11.05",
+      hash: "SHA256:3c91a4f02d11b890e77213bc98201a11",
+      beforeJson: {
+        carryover_id: "CRY-202609-04",
+        account_type: "PRE_TAX (세전 미지급 계정)",
+        pre_tax_balance: 350000,
+        post_tax_balance: 0
+      },
+      afterJson: {
+        carryover_id: "CRY-202609-04",
+        transfer_voucher_id: "ADJ-202610-02",
+        account_type: "POST_TAX (세후 지급대기 계정)",
+        pre_tax_balance: 0,
+        post_tax_balance: 350000,
+        approved_by_tier2: "최재무 (ROLE_FINANCE_DIRECTOR)"
+      }
+    },
+    {
+      logId: "AUD-202610-0089",
+      month: "2026-10",
+      dateOnly: "2026-10-15",
+      ts: "2026-10-15 14:22:10",
+      cat: "PII",
+      screenCode: "ADMN-USER-007",
+      screenFile: "ADMN-USER-007_baseline.html",
+      eventName: "민감 정보(주민번호·계좌번호) 마스킹 해제 열람 (30초 열람 제한)",
+      targetId: "RH-0025 (정종대)",
+      reason: "2026-10 당월 대량이체 실행 전 예금주 실명 확인 및 계좌 대조 (10자 이상 사유 검증 통과)",
+      actor: "박정산 (ROLE_FINANCE_ADMIN)",
+      ip: "10.20.14.88",
+      hash: "SHA256:7d12e88a901c4b22f19002de81920c44",
+      beforeJson: {
+        holder_id: "RH-0025",
+        rrn_display: "791102-1******",
+        account_display: "042-81-04****-*",
+        unmasked: false
+      },
+      afterJson: {
+        holder_id: "RH-0025",
+        unmasked: true,
+        pii_unmask_ttl_seconds: 30,
+        auto_remasked_at: "2026-10-15 14:22:40"
+      }
+    },
+    {
+      logId: "AUD-202610-0088",
+      month: "2026-10",
+      dateOnly: "2026-10-15",
+      ts: "2026-10-15 13:05:49",
+      cat: "SHARE",
+      screenCode: "ADMN-SETT-001",
+      screenFile: "ADMN-SETT-001_baseline.html",
+      eventName: "1계층 강의별 권리자 지분율(lecture_instructors) 변경 저장",
+      targetId: "LSN-1001-01 (2026 산업안전 필기 1강)",
+      reason: "신규 개정판 공동 촬영 합의서에 따른 정종대 70.00% + 엘캠퍼스(자사) 30.00% (합계 100.00%) 매핑 확정",
+      actor: "콘텐츠기획 이기획",
+      ip: "10.20.18.42",
+      hash: "SHA256:5a09b3117c88d2104e9182ab7712e901",
+      beforeJson: {
+        lecture_id: "LSN-1001-01",
+        mapping_status: "UNMAPPED (판매 차단)",
+        shares: []
+      },
+      afterJson: {
+        lecture_id: "LSN-1001-01",
+        mapping_status: "VALID_100_PERCENT (판매 허용)",
+        shares: [
+          { rights_holder_id: "RH-0025 (정종대)", contract_id: "CT-2026-0501", share_ratio: 70.00, end_basis: "CONTRACT_LINKED" },
+          { rights_holder_id: "RH-INTERNAL (엘캠퍼스)", contract_id: "CT-INTERNAL-000", share_ratio: 30.00, end_basis: "CONTRACT_LINKED" }
+        ]
+      }
+    },
+    {
+      logId: "AUD-202610-0087",
+      month: "2026-10",
+      dateOnly: "2026-10-14",
+      ts: "2026-10-14 17:40:00",
+      cat: "SHARE",
+      screenCode: "ADMN-SETT-007",
+      screenFile: "ADMN-SETT-007_baseline.html",
+      eventName: "2계층 수취인 분할 지분율(payee_splits) 등록",
+      targetId: "CT-2026-0715 (김안전 · RH-0019)",
+      reason: "계약서 제8조 공동 서명인 수익 분할 특약에 따른 강사 본인(RH-0019) 70.00% : 소속사 스타에듀(RH-0071) 30.00% 등록",
+      actor: "박정산 (ROLE_FINANCE_ADMIN)",
+      ip: "10.20.14.88",
+      hash: "SHA256:1b44d902e1109a88c32109ff8812a309",
+      beforeJson: {
+        contract_id: "CT-2026-0715",
+        advance_remaining: 0,
+        payee_splits: [
+          { payee_id: "RH-0019 (김안전)", split_ratio: 100.00, matrix_case_id: "TX-02" }
+        ]
+      },
+      afterJson: {
+        contract_id: "CT-2026-0715",
+        advance_remaining: 0,
+        payee_splits: [
+          { payee_id: "RH-0019 (김안전)", split_ratio: 70.00, matrix_case_id: "TX-02 (사업소득 3.3%)" },
+          { payee_id: "RH-0071 ((주)스타에듀매니지먼트)", split_ratio: 30.00, matrix_case_id: "TX-07 (일반과세 세금계산서)" }
+        ]
+      }
+    },
+    {
+      logId: "AUD-202610-0086",
+      month: "2026-10",
+      dateOnly: "2026-10-14",
+      ts: "2026-10-14 15:12:33",
+      cat: "FINANCE",
+      screenCode: "ADMN-INST-002",
+      screenFile: "ADMN-INST-002_baseline.html",
+      eventName: "비정기 약정금 수기 소명(MANUAL_NOTE) 검수 승인",
+      targetId: "MS-2026-004 (정종대 분할형 개발지원금 2차)",
+      reason: "LMS 스튜디오 마스터 영상 40강 전체 업로드 완료를 관리자가 직접 확인하여 수기 소명 승인 (2026-10 7단계 가산 이관)",
+      actor: "최재무 (ROLE_FINANCE_DIRECTOR)",
+      ip: "10.20.11.05",
+      hash: "SHA256:8e21f009a4412c77b89102dc33109f12",
+      beforeJson: {
+        milestone_id: "MS-2026-004",
+        verify_method: "MANUAL_NOTE (수기 소명형)",
+        status: "PENDING (검수 대기)"
+      },
+      afterJson: {
+        milestone_id: "MS-2026-004",
+        verify_method: "MANUAL_NOTE (수기 검수 배지 부여)",
+        income_category: "OTHER (기타소득 C19)",
+        target_month: "2026-10",
+        amount: 2000000,
+        status: "APPROVED (7단계 LUMPSUM_ADD 이관 완료)"
+      }
+    },
+    {
+      logId: "AUD-202610-0085",
+      month: "2026-10",
+      dateOnly: "2026-10-14",
+      ts: "2026-10-14 11:30:19",
+      cat: "STATE",
+      screenCode: "ADMN-SETT-008",
+      screenFile: "ADMN-SETT-008_baseline.html",
+      eventName: "국세청 오픈API 과세유형 전환 감지 승인 및 신규 버전 행 추가",
+      targetId: "RH-0028 (박소방교육연구소 · 120-18-99401)",
+      reason: "국세청 상태조회 API 응답(tax_type_cd=07) 확인 — 영수증교부 간이과세자(TX-05)에서 세금계산서 발급 간이과세자(TX-06)로 전환 승인",
+      actor: "김세무 (ROLE_FINANCE_ADMIN)",
+      ip: "10.20.14.91",
+      hash: "SHA256:4f00c912b7718d33e10928fa6612b804",
+      beforeJson: {
+        rights_holder_id: "RH-0028",
+        biz_no: "120-18-99401",
+        vat_tax_type: "SIMPLIFIED_RECEIPT (간이·세금계산서 발급불가)",
+        matrix_case_id: "TX-05",
+        effective_to: null
+      },
+      afterJson: {
+        rights_holder_id: "RH-0028",
+        previous_row_closed_at: "2026-06-30",
+        new_version_row: {
+          vat_tax_type: "SIMPLIFIED_INVOICE (간이·세금계산서 발급가능 · 코드07)",
+          matrix_case_id: "TX-06",
+          tax_type_change_dt: "2026-07-01"
+        }
+      }
+    },
+    {
+      logId: "AUD-202610-0084",
+      month: "2026-10",
+      dateOnly: "2026-10-13",
+      ts: "2026-10-13 16:05:00",
+      cat: "FINANCE",
+      screenCode: "ADMN-SETT-005",
+      screenFile: "ADMN-SETT-005_baseline.html",
+      eventName: "계약 중도해지 지원금 이행률 정산(PRO_RATA) 수동 조정 반려",
+      targetId: "ADJ-202610-04 (산준교육 콘텐츠 주식회사 · SFA-2026-001)",
+      reason: "같은 약정 SFA-2026-001은 종료 처리 정책 LUMP_SETTLE에 따라 종료 일시정산 MS-2026-006(1,800,000원)으로 이미 정산됨 — 이행률 정산 +640,000원은 같은 약정의 중복 조정이라 반려(10월 정산 미반영)",
+      actor: "최재무 (반려)",
+      ip: "10.20.11.05",
+      hash: "SHA256:6c19d820a3310f44b71829ec0019a215",
+      beforeJson: {
+        agreement_id: "SFA-2026-001",
+        on_termination_policy: "LUMP_SETTLE (MS-2026-006 종료 일시정산 승인)",
+        paid_cumulative: 2560000,
+        status: "TERMINATED_PENDING_SETTLE"
+      },
+      afterJson: {
+        adj_id: "ADJ-202610-04",
+        origin_month: "2026-09",
+        applied_month: "2026-10",
+        pro_rata_ratio: "64.0% (32/50강)",
+        recognized_amount: 3200000,
+        adjustment_delta: 0,
+        status: "REJECTED (중복 조정)"
+      }
+    },
+    {
+      logId: "AUD-202610-0083",
+      month: "2026-10",
+      dateOnly: "2026-10-12",
+      ts: "2026-10-12 09:50:11",
+      cat: "PII",
+      screenCode: "ADMN-USER-007",
+      screenFile: "ADMN-USER-007_baseline.html",
+      eventName: "계층 1 개인식별 필드 분리 파기 및 계층 2 정산원장 비식별 보존",
+      targetId: "RH-0003 (이*기_CT-2020-0011)",
+      reason: "국세기본법 법정신고기한 + 5년 경과 및 파기 보류 사유(선급금·소송) 부재 확인에 따른 주민번호·신분증 파기 승인 (정산 금액은 10년 보존)",
+      actor: "최재무 (ROLE_FINANCE_DIRECTOR)",
+      ip: "10.20.11.05",
+      hash: "SHA256:2a88e104c5519b77d20193fa9910c381",
+      beforeJson: {
+        rights_holder_id: "RH-0003",
+        holder_name: "이기초",
+        rrn_encrypted: "ENC_AES256_9918273...",
+        bank_account_enc: "ENC_AES256_4410293...",
+        settlement_ledger_total: 42500000
+      },
+      afterJson: {
+        rights_holder_id: "RH-0003",
+        holder_name: "이*기_CT-2020-0011 (비식별 표시명 치환)",
+        rrn_encrypted: null,
+        bank_account_enc: null,
+        s3_id_card_object: "PERMANENTLY_DELETED",
+        settlement_ledger_total: 42500000,
+        retention_tier2_until: "2030-12-31 (상법 제33조 10년 보존 유지)"
+      }
+    },
+
+    // === 2026-09 (전월 마감 확정분 3건) ===
+    {
+      logId: "AUD-202609-0052",
+      month: "2026-09",
+      dateOnly: "2026-09-30",
+      ts: "2026-09-30 18:10:00",
+      cat: "STATE",
+      screenCode: "ADMN-SETT-002",
+      screenFile: "ADMN-SETT-002_baseline.html",
+      eventName: "2026-09 월간 정산 마감 확정 (Locked = True) 및 스냅샷 영구 동결",
+      targetId: "SETTLEMENT_MONTH: 2026-09",
+      reason: "PG 대사 오차 0원 및 세무 판정 보류 0건 검증 통과 후 2026-09 월간 정산 마감 확정 실행",
+      actor: "최재무 (ROLE_FINANCE_DIRECTOR)",
+      ip: "10.20.11.05",
+      hash: "SHA256:7b11a094c2109d44e10923ab0091e831",
+      beforeJson: { target_month: "2026-09", locked: false, status: "BATCH_VERIFIED" },
+      afterJson: { target_month: "2026-09", locked: true, locked_at: "2026-09-30 18:10:00", snapshot_frozen: true }
+    },
+    {
+      logId: "AUD-202609-0041",
+      month: "2026-09",
+      dateOnly: "2026-09-18",
+      ts: "2026-09-18 14:05:22",
+      cat: "SHARE",
+      screenCode: "ADMN-SETT-007",
+      screenFile: "ADMN-SETT-007_baseline.html",
+      eventName: "사망·상속 수취인 권리 승계 및 저작자 지위(payee_is_author) 전환",
+      targetId: "CT-2025-1102 (고 박위생 → 상속인 박승계 외 1명)",
+      reason: "상속재산분할협의서 접수에 따른 배우자 60% : 자녀 40% 승계 확정 (승계 확정일 2026-09-01 기준 payee_is_author = false 전환)",
+      actor: "박정산 (ROLE_FINANCE_ADMIN)",
+      ip: "10.20.14.88",
+      hash: "SHA256:5e9012ab44109c88d21093fe7712b104",
+      beforeJson: { payee_id: "RH-0018 (고 박위생)", payee_is_author: true, split_ratio: 100.00 },
+      afterJson: {
+        succession_effective_date: "2026-09-01",
+        payees: [
+          { payee_id: "RH-0076 (박승계)", split_ratio: 60.00, payee_is_author: false },
+          { payee_id: "RH-0077 (박자녀)", split_ratio: 40.00, payee_is_author: false }
+        ]
+      }
+    },
+    {
+      logId: "AUD-202609-0019",
+      month: "2026-09",
+      dateOnly: "2026-09-10",
+      ts: "2026-09-10 11:20:09",
+      cat: "PII",
+      screenCode: "ADMN-USER-007",
+      screenFile: "ADMN-USER-007_baseline.html",
+      eventName: "증빙 사본 Presigned URL 발급 열람 (5분 만료 )",
+      targetId: "RH-0018 (상속재산분할협의서 및 가족관계증명서)",
+      reason: "저작자 사망에 따른 상속인 수취 계좌 및 법정상속인 신분증 진위 대조를 위한 S3 보안 문서 열람",
+      actor: "김세무 (ROLE_FINANCE_ADMIN)",
+      ip: "10.20.14.91",
+      hash: "SHA256:2c0918fa33120b99e41029dc8812a002",
+      beforeJson: { s3_object: "s3://sanjunmo-private-pii/2026/RH-0018_inheritance.pdf", presigned_active: false },
+      afterJson: { presigned_active: true, expires_in_seconds: 300, watermark_actor: "김세무" }
+    },
+
+    // === 2026-08 (전전월 마감 확정분 1건) ===
+    {
+      logId: "AUD-202608-0012",
+      month: "2026-08",
+      dateOnly: "2026-08-25",
+      ts: "2026-08-25 10:15:40",
+      cat: "STATE",
+      screenCode: "ADMN-BOOK-001",
+      screenFile: "ADMN-BOOK-001_baseline.html",
+      eventName: "자사 저작권 도서(자사 저작권 보유) 신규 SKU 등록 및 가채번 매칭",
+      targetId: "PROD-BK-1004 ([자사저작권] 산준모 산업안전 실기 빈출문제집)",
+      reason: "출간 완료에 따른 가채번(BK-REQ-2026-0004) 정식 SKU 연결 및 자사 저작권 100% + 정종대 개발지원금 모수 설정",
+      actor: "도서MD 최출판",
+      ip: "10.20.19.12",
+      hash: "SHA256:1d04f920a8812c33b90124ef7712c712",
+      beforeJson: { temp_book_code: "BK-REQ-2026-0004", sku: null, status: "PENDING_PUBLICATION" },
+      afterJson: {
+        sku: "PROD-BK-1004",
+        book_supply_type: "OWN_PUBLISHED (자사 발행)",
+        own_copyright_yn: true,
+        royalty_bypass: true,
+        pipeline_5_1_agreement: "SFA-2026-009 (15% · CONDITIONAL)"
+      }
+    }
+  ];
+
+  let currentCat = "ALL";
+  let currentMonth = "2026-10";
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => { t.style.display = "none"; }, 2800);
+  }
+
+  function goNav(file) {
+    window.location.href = file;
+  }
+
+  function switchTab(tabId) {
+    ["logs", "monthly", "access"].forEach(id => {
+      document.getElementById("tabBtn-" + id).classList.toggle("active", id === tabId);
+      document.getElementById("tabPanel-" + id).style.display = (id === tabId) ? "block" : "none";
+    });
+  }
+
+  function highlightPresetBtn(presetId) {
+    ["TODAY", "7D", "CUR_M", "PREV_M", "ALL"].forEach(id => {
+      const el = document.getElementById("preset-" + id);
+      if (el) el.classList.toggle("active-preset", id === presetId);
+    });
+  }
+
+  function applyMonthFilter(m) {
+    currentMonth = m;
+    if (m === "2026-10") {
+      document.getElementById("dateFrom").value = "2026-10-01";
+      document.getElementById("dateTo").value = "2026-10-31";
+      highlightPresetBtn("CUR_M");
+    } else if (m === "2026-09") {
+      document.getElementById("dateFrom").value = "2026-09-01";
+      document.getElementById("dateTo").value = "2026-09-30";
+      highlightPresetBtn("PREV_M");
+    } else if (m === "2026-08") {
+      document.getElementById("dateFrom").value = "2026-08-01";
+      document.getElementById("dateTo").value = "2026-08-31";
+      highlightPresetBtn("");
+    } else {
+      document.getElementById("dateFrom").value = "2026-08-01";
+      document.getElementById("dateTo").value = "2026-10-31";
+      highlightPresetBtn("ALL");
+    }
+    renderAuditRows();
+  }
+
+  function applyQuickDate(preset) {
+    highlightPresetBtn(preset);
+    if (preset === "TODAY") {
+      currentMonth = "ALL";
+      document.getElementById("monthFilterSelect").value = "ALL";
+      document.getElementById("dateFrom").value = "2026-10-15";
+      document.getElementById("dateTo").value = "2026-10-15";
+    } else if (preset === "7D") {
+      currentMonth = "ALL";
+      document.getElementById("monthFilterSelect").value = "ALL";
+      document.getElementById("dateFrom").value = "2026-10-09";
+      document.getElementById("dateTo").value = "2026-10-15";
+    } else if (preset === "CUR_M") {
+      document.getElementById("monthFilterSelect").value = "2026-10";
+      applyMonthFilter("2026-10");
+      return;
+    } else if (preset === "PREV_M") {
+      document.getElementById("monthFilterSelect").value = "2026-09";
+      applyMonthFilter("2026-09");
+      return;
+    } else if (preset === "ALL") {
+      document.getElementById("monthFilterSelect").value = "ALL";
+      applyMonthFilter("ALL");
+      return;
+    }
+    renderAuditRows();
+  }
+
+  function onCustomDateChange() {
+    currentMonth = "ALL";
+    document.getElementById("monthFilterSelect").value = "ALL";
+    highlightPresetBtn("");
+    renderAuditRows();
+  }
+
+  function setAuditCategory(cat) {
+    currentCat = cat;
+    document.getElementById("catSelect").value = cat;
+    document.querySelectorAll(".kpi-card").forEach(el => el.classList.remove("active"));
+    const kpiEl = document.getElementById("kpi-" + cat);
+    if (kpiEl) kpiEl.classList.add("active");
+    switchTab("logs");
+    renderAuditRows();
+  }
+
+  function getPeriodFilteredEvents() {
+    const dFrom = document.getElementById("dateFrom").value || "2000-01-01";
+    const dTo = document.getElementById("dateTo").value || "2099-12-31";
+    return AUDIT_EVENTS.filter(ev => {
+      if (currentMonth !== "ALL" && ev.month !== currentMonth) return false;
+      if (ev.dateOnly < dFrom || ev.dateOnly > dTo) return false;
+      return true;
+    });
+  }
+
+  function updateKpiCounts(periodEvents) {
+    const labelPrefix = currentMonth === "ALL" ? "조회 기간" : currentMonth;
+    document.getElementById("kpiLabelMonth").textContent = `${labelPrefix} 감사 이벤트`;
+    document.getElementById("kpiValAll").textContent = periodEvents.length + "건";
+    document.getElementById("kpiValShare").textContent = periodEvents.filter(e => e.cat === "SHARE").length + "건";
+    document.getElementById("kpiValFinance").textContent = periodEvents.filter(e => e.cat === "FINANCE").length + "건";
+    document.getElementById("kpiValState").textContent = periodEvents.filter(e => e.cat === "STATE").length + "건";
+    document.getElementById("kpiValPii").textContent = periodEvents.filter(e => e.cat === "PII").length + "건";
+  }
+
+  function renderAuditRows() {
+    const periodEvents = getPeriodFilteredEvents();
+    updateKpiCounts(periodEvents);
+
+    const scr = document.getElementById("screenSelect").value;
+    const kw = (document.getElementById("auditKeyword").value || "").trim().toLowerCase();
+    const tbody = document.getElementById("auditListTbody");
+
+    const filtered = periodEvents.filter(ev => {
+      if (currentCat !== "ALL" && ev.cat !== currentCat) return false;
+      if (scr !== "ALL" && ev.screenCode !== scr) return false;
+      if (kw) {
+        const hay = `${ev.logId} ${ev.month} ${ev.screenCode} ${ev.eventName} ${ev.targetId} ${ev.reason} ${ev.actor}`.toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
+      return true;
+    });
+
+    document.getElementById("resultCountInfo").textContent = `조회 결과: ${filtered.length}건`;
+
+    tbody.innerHTML = filtered.map(ev => {
+      const badgeClass = ev.cat === "PII" ? "b-bad" : (ev.cat === "SHARE" ? "b-pur" : (ev.cat === "FINANCE" ? "b-warn" : "b-teal"));
+      const monthBadge = ev.month === "2026-10" ? "b-pri" : "b-ok";
+      return `
+        <tr class="clickable-row" data-dev-route="admin.audit-logs.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/audit-logs/{auditLog}" data-dev-perm="조회" onclick="openDiffModal('${ev.logId}')">
+          <td>
+            <span class="code" style="font-weight:800; color:var(--pri);">${ev.logId}</span>
+            <div class="code" style="font-size:11px; color:var(--muted); margin-top:2px;">${ev.ts}</div>
+          </td>
+          <td><span class="badge ${monthBadge} code">${ev.month}</span></td>
+          <td><span class="badge b-dark code">${ev.screenCode}</span></td>
+          <td><span class="badge ${badgeClass}">${ev.eventName}</span></td>
+          <td><strong>${ev.targetId}</strong></td>
+          <td style="max-width:320px;">${ev.reason}</td>
+          <td>
+            <div style="font-weight:700;">${ev.actor}</div>
+            <div class="code" style="font-size:11px; color:var(--muted);">IP: ${ev.ip}</div>
+          </td>
+          <td onclick="event.stopPropagation();">
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm btn-pri" data-dev-route="admin.admin-logs.show" data-dev-method="GET" data-dev-url="/sj-admin/admin-logs/{adminLog}" data-dev-perm="조회" data-dev-note="개발 상세 = view 페이지(before_value · after_value)" onclick="openDiffModal('${ev.logId}')">🔍 전·후 JSON 비교</button>
+              <button class="btn btn-sm" onclick="goNav('${ev.screenFile}')">↗ 화면 이동</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function jumpToMonthLogs(m) {
+    document.getElementById("monthFilterSelect").value = m;
+    applyMonthFilter(m);
+    switchTab("logs");
+    showToast(`${m} 귀속 정산 감사 로그 목록으로 전환했습니다.`);
+  }
+
+  function exportMonthPackage(m) {
+    showToast(`[${m} 귀속] 외부 회계감사 제출용 월별 감사 원장 패키지(CSV + JSON 스냅샷)를 다운로드했습니다.`);
+  }
+
+  function openDiffModal(logId) {
+    const ev = AUDIT_EVENTS.find(e => e.logId === logId);
+    if (!ev) return;
+
+    document.getElementById("diffModalTitle").textContent = `🔍 [${ev.logId}] ${ev.eventName} — 변경 전·후 스냅샷 대조`;
+    document.getElementById("diffMetaSummary").innerHTML = `
+      <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+        <div><strong>귀속 정산월:</strong> <span class="badge b-pri code">${ev.month}</span> · <strong>발생 화면:</strong> <span class="badge b-dark code">${ev.screenCode}</span> · <strong>대상:</strong> ${ev.targetId}</div>
+        <div><strong>작업자:</strong> ${ev.actor} (IP: <span class="code">${ev.ip}</span>) · <strong>시각:</strong> <span class="code">${ev.ts}</span></div>
+      </div>
+      <div style="margin-top:8px; font-size:12.5px; color:var(--pri); font-weight:700;">
+        📌 기록된 사유: ${ev.reason}
+      </div>
+    `;
+    document.getElementById("diffBeforeBox").textContent = JSON.stringify(ev.beforeJson, null, 2);
+    document.getElementById("diffAfterBox").textContent = JSON.stringify(ev.afterJson, null, 2);
+    document.getElementById("diffHashText").textContent = `블록 무결성 해시: ${ev.hash}`;
+    document.getElementById("btnJumpSourceScreen").onclick = () => goNav(ev.screenFile);
+
+    document.getElementById("diffModal").classList.add("open");
+  }
+
+  function closeDiffModal() {
+    document.getElementById("diffModal").classList.remove("open");
+  }
+
+  function verifyHashChain() {
+    const cnt = getPeriodFilteredEvents().length;
+    showToast(`✔ 현재 조회된 ${cnt}건의 감사 로그 SHA-256 해시 체인 검증 완료 — 위변조 및 누락 레코드 0건입니다.`);
+  }
+
+  function exportAuditCsv() {
+    const m = document.getElementById("monthFilterSelect").value;
+    showToast(`[${m === 'ALL' ? '전체 기간' : m}] 불변 감사 원장(CSV + JSON 스냅샷 패키지)을 다운로드했습니다.`);
+  }
+
+  // 운영자 접근 · 권한 · 다운로드 로그 (구 ADMN-CONF-006)
+  const ACCESS_LOGS = [
+    { id: 'AUD-9925', dt: '2026-10-19 13:05', actor: 'fin_manager (재무관리)', type: '잠금 해제', loginEvent: true, detail: '최고 관리자 본인확인 후 비밀번호 5회 오류 잠금을 해제하고 임시 비밀번호 변경을 강제 (ADMN-CONF-005)', ip: '211.45.120.10' },
+    { id: 'AUD-9924', dt: '2026-10-19 12:41', actor: 'fin_manager (재무관리)', type: '로그인 5회 실패 · 계정 잠금', loginEvent: true, detail: '비밀번호 연속 5회 오류로 계정 자동 잠금 (is_locked=true · 잠금 해제는 최고 관리자 본인확인 후)', ip: '211.45.120.18' },
+    { id: 'AUD-9923', dt: '2026-10-19 12:40', actor: 'fin_manager (재무관리)', type: '로그인 실패', loginEvent: true, detail: '비밀번호 불일치 (4/5회)', ip: '211.45.120.18' },
+    { id: 'AUD-9922', dt: '2026-10-19 11:02', actor: '3pl_cjlogis (외부물류 3PL)', type: '로그인 성공', loginEvent: true, detail: '외부 파트너 로그인 · 초기 착지 ADMN-ORD-001 (3PL 출고 대상)', ip: '121.160.44.92' },
+    { id: 'AUD-9921', dt: '2026-10-19 11:32', actor: 'fin_manager (재무관리)', type: '정산 계좌번호 마스킹 해제', detail: '정종대 강사(RH-0025 / CT-2026-0501) 10월 정산금 이체 대조를 위한 계좌번호 열람 (ADMN-USER-007 10자 사유 통과)', ip: '211.45.120.18' },
+    { id: 'AUD-9920', dt: '2026-10-19 10:48', actor: '3pl_cjlogis (외부물류 3PL)', type: '출고 송장 엑셀 업로드', detail: '2026-10-19 오전 출고분 실물 교재 64건 CJ대한통운 송장번호 일괄 매핑', ip: '121.160.44.92' },
+    { id: 'AUD-9919', dt: '2026-10-18 16:35', actor: 'copy_sanjunbook (저작권자)', type: '정산서 열람', detail: '[PROD-BK-1011] 2026 산준모 산업안전기사 필기 한권완성 도서 인세 정산서 PDF 다운로드', ip: '58.120.89.11' },
+    { id: 'AUD-9918', dt: '2026-10-18 14:12', actor: 'admin_white (최고 관리자)', type: '파트너 권한 분리 설정', detail: '한출판 계정에 ROLE_PARTNER_COPYRIGHT(교재 저작권자 전용) 권한 및 도서 스코프 부여', ip: '211.45.120.10' }
+  ];
+
+  function renderAccessLogs() {
+    const sel = document.getElementById("accessTypeSelect");
+    const f = sel ? sel.value : "ALL";
+    const rows = ACCESS_LOGS.filter(l => f === "ALL" || (f === "LOGIN" ? l.loginEvent : f === "OTHER" ? !l.loginEvent : l.type === f));
+    const info = document.getElementById("accessCountInfo");
+    if (info) info.textContent = `조회 결과: ${rows.length}건`;
+    document.getElementById("accessLogTbody").innerHTML = rows.map(l => `
+      <tr>
+        <td style="font-weight:700;">${l.id}</td>
+        <td>${l.dt}</td>
+        <td style="font-weight:700;">${l.actor}</td>
+        <td><span class="badge b-pri">${l.type}</span></td>
+        <td>${l.detail}</td>
+        <td>${l.ip}</td>
+      </tr>
+    `).join("");
+  }
+
+  renderAuditRows();
+  renderAccessLogs();
+  (function () {
+    const v = new URLSearchParams(window.location.search).get("view");
+    if (v === "access" || v === "ADMN-CONF-006") switchTab("access");
+  })();
+</script><script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>
