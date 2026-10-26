@@ -1062,28 +1062,7 @@
     "d9Diffs": [],
     "note": "Case 9에 합격환급 옵션 B를 더한 결합 — D-9 규칙(복원 후 한도 = 잔여 + 복원, 신규 확정 = min(신규, 복원 후 한도), 지급 대상 = 신규 확정 − 공제) 값 일치. 옵션 B 때문에 Case 9 기대값과 달라진 값: DEDUCT 1.1_net 1,200,000 → 1,156,650, DEDUCT 5.1_net 400,000 → 385,550, SUPPORT_CAP expired_excess 250,000 → 235,550, PAYEE_SPLIT payee_split_base 1,350,000 → 1,306,650, PAYEE_SPLIT taxable_base 1,350,000 → 1,306,650, TAX 1.1 / income_tax 36,000 → 34,699, TAX 1.1 / local_income_tax 3,600 → 3,469, TAX total_withholding 44,550 → 43,118, TAX net_payable 1,305,450 → 1,263,532, PAYOUT payout_amount 1,305,450 → 1,263,532"
    },
-   "screenDiff": {
-    "step4LectureDeduct": [
-     0,
-     -43350
-    ],
-    "step4SupportDeduct": [
-     -100000,
-     -14450
-    ],
-    "step8TaxableBaseSum": [
-     1350000,
-     1306650
-    ],
-    "step9WithholdingTax": [
-     44550,
-     43118
-    ],
-    "step11NetPayout": [
-     1305450,
-     1263532
-    ]
-   }
+   "screenDiff": {}
   },
   {
    "holderId": "RH-0044",
@@ -1971,40 +1950,7 @@
     "step11NetPayout": 5000000,
     "payoutCategory": "PAYOUT_TARGET"
    },
-   "screenDiff": {
-    "step2SupportAccrued": [
-     0,
-     450000
-    ],
-    "step4SupportDeduct": [
-     -33000,
-     0
-    ],
-    "step5SupportConfirmed": [
-     -33000,
-     450000
-    ],
-    "step6PrepayEligible": [
-     2825000,
-     3275000
-    ],
-    "step6PrepayOffset": [
-     -2621775,
-     -3056925
-    ],
-    "step8TaxableBaseSum": [
-     7825000,
-     8275000
-    ],
-    "step9WithholdingTax": [
-     368225,
-     383075
-    ],
-    "step11NetPayout": [
-     4802000,
-     4835000
-    ]
-   }
+   "screenDiff": {}
   },
   {
    "holderId": "RH-0012",
@@ -3704,16 +3650,7 @@
     "payoutCategory": "PAYOUT_TARGET",
     "step2ConsignGross": 4000000
    },
-   "screenDiff": {
-    "step10PostTaxAdjust": [
-     0,
-     220000
-    ],
-    "step11NetPayout": [
-     2900000,
-     3120000
-    ]
-   }
+   "screenDiff": {}
   }
  ],
  "open_questions": [

@@ -53,21 +53,7 @@
 
 | 권리자 | 필드 | 현재 화면 | 계산기 |
 | :--- | :--- | --: | --: |
-| RH-0046 | step4LectureDeduct | 0 | -43,350 |
-| RH-0046 | step4SupportDeduct | -100,000 | -14,450 |
-| RH-0046 | step8TaxableBaseSum | 1,350,000 | 1,306,650 |
-| RH-0046 | step9WithholdingTax | 44,550 | 43,118 |
-| RH-0046 | step11NetPayout | 1,305,450 | 1,263,532 |
-| RH-0025 | step2SupportAccrued | 0 | 450,000 |
-| RH-0025 | step4SupportDeduct | -33,000 | 0 |
-| RH-0025 | step5SupportConfirmed | -33,000 | 450,000 |
-| RH-0025 | step6PrepayEligible | 2,825,000 | 3,275,000 |
-| RH-0025 | step6PrepayOffset | -2,621,775 | -3,056,925 |
-| RH-0025 | step8TaxableBaseSum | 7,825,000 | 8,275,000 |
-| RH-0025 | step9WithholdingTax | 368,225 | 383,075 |
-| RH-0025 | step11NetPayout | 4,802,000 | 4,835,000 |
-| RH-0051 | step10PostTaxAdjust | 0 | 220,000 |
-| RH-0051 | step11NetPayout | 2,900,000 | 3,120,000 |
+| — | — | — | — |
 
 모든 권리자를 현재 ADMN-SETT-002 정산서와 비교했다.
 

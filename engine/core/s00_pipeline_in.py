@@ -66,7 +66,11 @@ def line_1_1(ctx, c):
 # ------------------------------------------------------------------ P1.1
 
 def step1_allocate(ctx, items):
-    """Step 1 패키지 혜택 소급 안분(V2 L133, 13.3 L577: 강좌 정가 내림차순 → product_id 오름차순, 마지막 행 잔여)."""
+    """Step 1 패키지 혜택 소급 안분(V2 §8.1 L98~100 · §8.3 L133 · 13.3 L577).
+
+    순수 강좌 결제 풀(강좌 정가 합 − 쿠폰 · 포인트 할인; 교재 · 배송비는 이 주문 행에 넣지 않는다)을 강좌 정가 비율로
+    내림 안분하고, 정렬(강좌 정가 내림차순 → product_id 오름차순)의 마지막 행이 잔여 차액을 받는다.
+    """
     out = {}
     orders = {o["order_id"]: o for o in ctx.input["orders"]}
     by_order = defaultdict(list)
@@ -76,14 +80,21 @@ def step1_allocate(ctx, items):
     for oid, rows in by_order.items():
         disc = D(orders[oid]["discount_total"])
         rows = sorted(rows, key=lambda r: (-D(r.get("list_price")), str(r.get("product_id"))))
-        allocs = alloc_last_remainder(disc, [D(r.get("list_price")) for r in rows])
-        for r, a in zip(rows, allocs):
+        lists = [D(r.get("list_price")) for r in rows]
+        pool = sum(lists) - disc
+        paid = alloc_last_remainder(pool, lists)
+        for i, (r, p) in enumerate(zip(rows, paid)):
+            last = i == len(rows) - 1
+            raw = pool * lists[i] / sum(lists) if sum(lists) else D(0)
             out[r["order_item_id"]] = ctx.emit(
-                STEP, "paid_amount", D(r.get("list_price")) - a, holder=None, line="1.1", ref_id=r["order_item_id"],
-                inputs={"list_price": r.get("list_price"), "discount_total": disc, "alloc": a},
-                formula="쿠폰 · 포인트 할인액을 강좌 정가 비율대로 비례 안분하여 실결제액 산출(잔여 1원은 13장)",
-                code="paid_amount = list_price − alloc_last_remainder(discount_total, list_price 비율)",
-                rounding="ALLOC_LAST_REMAINDER", ref="V2 §8.3 1단계 Step 1 L133 · §13.3 L577", output=False)
+                STEP, "paid_amount", p, holder=None, line="1.1", ref_id=r["order_item_id"],
+                inputs={"순수 강좌 결제 풀": pool, "해당 강좌 정가": lists[i], "패키지 내 강좌 정가 합계": sum(lists),
+                        "쿠폰 · 포인트 할인": disc},
+                formula=("마지막 강좌 라인 = 순수 강좌 결제 풀 − 선행 강좌 합계(잔여 차액)" if last else
+                         "개별 강좌 실결제액 = 내림( 순수 강좌 결제 풀 × (해당 강좌 정가 / 패키지 내 강좌 정가 합계) )"),
+                code="paid = alloc_last_remainder(pool, list_price 비율), pool = Σlist_price − discount_total",
+                before=None if last else raw, rounding="ALLOC_LAST_REMAINDER" if last else "FLOOR_WON",
+                ref="V2 §8.1 L98~100 · §8.3 1단계 Step 1 L133 · §13.3 L577", output=False)
     return out
 
 
