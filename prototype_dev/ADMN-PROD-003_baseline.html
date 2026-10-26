@@ -1,0 +1,2705 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>단과 강좌 관리 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --navy-950: #0B1120;
+      --navy-900: #0F172A;
+      --navy-800: #1E293B;
+      --navy-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748B;
+      --slate-400: #94A3B8;
+      --slate-300: #CBD5E1;
+      --slate-200: #E2E8F0;
+      --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC;
+      --white: #FFFFFF;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --emerald: #059669;
+      --emerald-soft: #ECFDF5;
+      --emerald-border: #A7F3D0;
+      --amber: #D97706;
+      --amber-soft: #FFFBEB;
+      --amber-border: #FDE68A;
+      --rose: #E11D48;
+      --rose-soft: #FFF1F2;
+      --rose-border: #FECDD3;
+      --violet: #7C3AED;
+      --violet-soft: #F5F3FF;
+      --violet-border: #DDD6FE;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background-color: var(--slate-100);
+      color: var(--navy-900);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==================== MASTER SNB (v4 픽셀 고정) ==================== */
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    /* ==================== MAIN WORKSPACE ==================== */
+    .app-shell {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Header */
+    .top-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .breadcrumb .crumb-code {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+    }
+    .breadcrumb .crumb-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy-900);
+      margin-left: 4px;
+    }
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .subview-switcher {
+      display: inline-flex;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .subview-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s;
+    }
+    .subview-btn:hover { color: var(--navy-900); }
+    .subview-btn.active {
+      background: var(--white);
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      font-weight: 700;
+    }
+    .subview-btn .code-tag {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 10.5px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--slate-200);
+      color: var(--navy-800);
+    }
+    .subview-btn.active .code-tag {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    /* Main Content Container */
+    .main-container {
+      padding: 22px 28px 48px 28px;
+      max-width: 1560px;
+      width: 100%;
+    }
+
+    /* Policy Callout Banner */
+    .policy-banner {
+      background: linear-gradient(90deg, #EFF6FF 0%, #F8FAFC 100%);
+      border: 1px solid var(--primary-border);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .policy-banner-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .policy-badge {
+      background: var(--primary);
+      color: var(--white);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+    .policy-text {
+      font-size: 12.5px;
+      color: var(--navy-800);
+    }
+    .policy-text strong { color: var(--navy-900); font-weight: 700; }
+
+    /* Cards & Panels */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      margin-bottom: 18px;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy-900);
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .card-body { padding: 18px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.12s;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-lg { height: 38px; padding: 0 18px; font-size: 13px; }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: var(--white); border-color: var(--slate-300); color: var(--navy-800); }
+    .btn-outline:hover { background: var(--slate-50); border-color: var(--slate-400); }
+    .btn-soft { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+    .btn-soft:hover { background: #DBEAFE; }
+    .btn-danger-outline { background: var(--white); border-color: var(--rose-border); color: var(--rose); }
+    .btn-danger-outline:hover { background: var(--rose-soft); }
+    .btn-dark { background: var(--navy-900); color: var(--white); }
+    .btn-dark:hover { background: var(--navy-800); }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Form Controls */
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      height: 34px;
+      padding: 0 11px;
+      border: 1px solid var(--slate-300);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--navy-900);
+      background: var(--white);
+      font-family: inherit;
+      transition: border-color 0.12s, box-shadow 0.12s;
+    }
+    .form-textarea {
+      height: auto;
+      padding: 9px 11px;
+      resize: vertical;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .form-input[readonly], .form-input:disabled, .form-select:disabled {
+      background: var(--slate-100);
+      color: var(--slate-500);
+      cursor: not-allowed;
+    }
+    .input-with-unit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .input-unit {
+      font-size: 12px;
+      color: var(--slate-600);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Filter Grid */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 16px;
+      align-items: end;
+    }
+    .filter-field label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--slate-600);
+      margin-bottom: 5px;
+    }
+    .filter-span-2 { grid-column: span 2; }
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--slate-200);
+    }
+
+    /* Status / Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .badge-sale { background: var(--emerald-soft); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .badge-ready { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
+    .badge-stop { background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose-border); }
+    .badge-end { background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-300); }
+    .badge-info { background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-border); }
+    .badge-violet { background: var(--violet-soft); color: var(--violet); border: 1px solid var(--violet-border); }
+    .code-pill {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      color: var(--navy-800);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* Tables */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.data-table th {
+      background: var(--slate-50);
+      color: var(--slate-600);
+      font-weight: 700;
+      font-size: 11.5px;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--slate-200);
+      color: var(--navy-900);
+      vertical-align: middle;
+    }
+    table.data-table tbody tr:hover {
+      background: #F8FAFC;
+    }
+    .text-right { text-align: right !important; }
+    .text-center { text-align: center !important; }
+    .course-link {
+      color: var(--navy-900);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .course-link:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    /* Form Table (2-column spec style) */
+    .spec-form-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-top: 1px solid var(--slate-200);
+    }
+    .spec-form-table th {
+      width: 170px;
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      border-right: 1px solid var(--slate-200);
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy-800);
+      vertical-align: middle;
+    }
+    .spec-form-table td {
+      border-bottom: 1px solid var(--slate-200);
+      padding: 10px 14px;
+      vertical-align: middle;
+    }
+    .req-star { color: var(--rose); margin-left: 3px; font-weight: 800; }
+    .field-hint {
+      font-size: 11.5px;
+      color: var(--slate-500);
+      margin-top: 4px;
+    }
+
+    /* Radio & Checkbox groups */
+    .inline-options {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .option-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--navy-800);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .option-label input {
+      accent-color: var(--primary);
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    /* Curriculum Section Builder */
+    .section-card {
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      background: var(--white);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .section-card-header {
+      background: var(--slate-50);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .section-card-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .drag-handle {
+      color: var(--slate-400);
+      cursor: grab;
+      font-size: 14px;
+      padding: 0 4px;
+      user-select: none;
+    }
+    .section-badge {
+      background: var(--navy-800);
+      color: var(--white);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Settlement Gate Box */
+    .settlement-gate-box {
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: var(--slate-50);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .settlement-gate-box.locked {
+      background: var(--rose-soft);
+      border-color: var(--rose-border);
+    }
+    .settlement-gate-box.ok {
+      background: var(--emerald-soft);
+      border-color: var(--emerald-border);
+    }
+
+    /* Progress Simulator Bar */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .sim-stat {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .sim-stat-label {
+      font-size: 11.5px;
+      color: var(--slate-500);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .sim-stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--navy-900);
+    }
+
+    /* Subview Visibility */
+    .subview-panel { display: none; }
+    .subview-panel.active { display: block; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-window {
+      background: var(--white);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 820px;
+      max-height: 86vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title { font-size: 15px; font-weight: 800; color: var(--navy-900); }
+    .modal-body { padding: 18px 20px; overflow-y: auto; }
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--slate-200);
+      background: var(--slate-50);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Toast */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy-900);
+      color: var(--white);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+      z-index: 3000;
+      display: none;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+    <link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PROD-003", "devCommit": "d562524a", "progress": "구현(목록 · 등록/수정 · 커리큘럼 구성). 프로토 003-S2 '상세 조회'는 개발 미구현. 개발 코드는 등록/수정 = 003-S2, 커리큘럼 = 003-S1(별도 페이지)", "menus": [{"route": "admin.courses.index", "label": "단과 강좌 관리"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">상품 · 강좌 · 교재 관리</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-PROD-003</span>
+      <h1 class="crumb-title" id="header-screen-title">단과 강좌 관리 (커리큘럼 · 수강기간 · 정산 하드락)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <div class="subview-switcher" role="tablist" aria-label="단과 강좌 서브 화면 전환">
+          <button type="button" class="subview-btn active" data-view="list" data-dev-route="admin.courses.index" data-dev-method="GET" data-dev-url="/sj-admin/courses" data-dev-perm="조회" onclick="switchSubview('list')">
+            <span class="code-tag">003</span>
+            <span>강좌 목록</span>
+          </button>
+          <button type="button" class="subview-btn" data-view="detail" data-dev-flag="proto-only" data-dev-route="admin.courses.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}" data-dev-perm="조회" data-dev-note="강좌 상세 조회 — 개발 미구현(개발은 목록 행 클릭이 바로 수정 폼)" onclick="switchSubview('detail')">
+            <span class="code-tag">003-S2</span>
+            <span>강좌 상세 조회</span>
+          </button>
+          <button type="button" class="subview-btn" data-view="form" data-dev-route="admin.courses.create | admin.courses.edit" data-dev-method="GET" data-dev-url="/sj-admin/courses/create | /courses/{course}/edit" data-dev-perm="등록 | 수정" data-dev-note="개발 화면 코드 PROD-003-S2 (커리큘럼 구성은 PROD-003-S1 별도 페이지)" onclick="switchSubview('form')">
+            <span class="code-tag">003-S2</span>
+            <span>단과 강좌 등록 · 수정</span>
+          </button>
+        </div>
+    </div></header><div id="v4-page-body">
+  
+  
+
+  <!-- ==================== 고정 SNB (v4.0.0) ==================== -->
+  
+
+  <!-- ==================== 메인 워크스페이스 ==================== -->
+  
+  
+    <!-- Top Header -->
+    
+
+    <main class="main-container">
+      <!-- 정책/정산 연동 안내 배너 -->
+      <div class="policy-banner">
+        <div class="policy-banner-left">
+          <span class="policy-badge">정산 · 진도 연동 규칙</span>
+          <div class="policy-text">
+            단과 강좌의 커리큘럼은 <strong>강의 관리(ADMN-PROD-002)</strong> 원장을 호출하여 구성하며, 총 강의시간 합산값은 <strong>합격 환급반(ADMN-SETT-006)</strong> 출석·진도율 산정의 분모가 됩니다.
+            또한 <strong>상품별 권리자 매핑(ADMN-SETT-001)</strong>의 1계층 지분 합계가 <strong>100.00%</strong>가 아니면 판매 상태를 <strong>[판매중]</strong>으로 전환할 수 없습니다.
+          </div>
+        </div>
+        <a class="btn btn-soft btn-sm" href="ADMN-SETT-001_baseline.html">ADMN-SETT-001 지분 매핑 이동 →</a>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 1] ADMN-PROD-003 : 단과 강좌 목록                                 -->
+      <!-- ========================================================================= -->
+      <section id="subview-list" class="subview-panel active">
+        <div id="bk-alert-area" style="display:none;"></div>
+        <!-- 검색 필터 영역 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">단과 강좌 검색 조건</h2>
+              <span class="card-subtitle">카테고리 · 강사 · 판매상태 · 노출여부 복합 조회</span>
+            </div>
+            <span class="code-pill">Table: course</span>
+          </div>
+          <div class="card-body">
+            <div class="filter-grid">
+              <div class="filter-field">
+                <label>카테고리 (1차 분류)</label>
+                <select id="filter-cat1" name="root_category_id" data-dev-note="개발 #searchRoot" class="form-select" onchange="syncCat2Filter()">
+                  <option value="ALL">전체 (1차 분류)</option>
+                  <option value="산업안전기사">산업안전기사</option>
+                  <option value="건설안전기사">건설안전기사</option>
+                  <option value="산업안전지도사">산업안전지도사</option>
+                  <option value="위험물산업기사">위험물산업기사</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>카테고리 (2차 분류)</label>
+                <select id="filter-cat2" name="category_id" data-dev-note="개발 #searchChild" class="form-select">
+                  <option value="ALL">전체 (2차 분류)</option>
+                  <option value="필기 단과">필기 단과</option>
+                  <option value="실기 필답형">실기 필답형</option>
+                  <option value="실기 작업형">실기 작업형</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>담당 강사 (권리자)</label>
+                <select id="filter-instructor" name="instructor_id" data-dev-note="대표 강사" class="form-select">
+                  <option value="ALL">전체 강사</option>
+                  <option value="김안전">김안전 (RH-0019)</option>
+                  <option value="이건설">이건설 (RH-0046)</option>
+                  <option value="박보건">박보건 (RH-0047)</option>
+                  <option value="최지도">최지도 (RH-0048)</option>
+                  <option value="정종대">정종대 (RH-0025)</option>
+                  <option value="산준교육">산준교육 (RH-0012)</option>
+                  <option value="이전기">이전기 (RH-0015)</option>
+                  <option value="엘캠퍼스">엘캠퍼스 자사 (RH-INTERNAL)</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>판매 상태</label>
+                <select id="filter-sale-status" name="display_status" data-dev-value="selling 전시 · 판매중 · hidden 비전시 · stopped 판매중지 — 판매대기 · 판매종료 없음(Q-PROD003-1)" class="form-select">
+                  <option value="ALL">전체 상태</option>
+                  <option value="판매중">판매중</option>
+                  <option value="판매대기">판매대기</option>
+                  <option value="판매중지">판매중지</option>
+                  <option value="판매종료">판매종료</option>
+                </select>
+              </div>
+
+              <div class="filter-field">
+                <label>프론트 노출 여부</label>
+                <select id="filter-display" data-dev-flag="proto-only" data-dev-note="프론트 노출 Y/N — 개발은 display_status 1칸(Q-PROD003-1)" class="form-select">
+                  <option value="ALL">전체</option>
+                  <option value="Y">노출 (Y)</option>
+                  <option value="N">미노출 (N)</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>등록일 조회 (시작 ~ 종료)</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <input type="date" id="filter-date-from" data-dev-flag="proto-only" data-dev-note="등록일 기간 검색 — 개발 없음" class="form-input" value="2026-01-01">
+                  <span style="color:var(--slate-400);">~</span>
+                  <input type="date" id="filter-date-to" data-dev-flag="proto-only" data-dev-note="등록일 기간 검색 — 개발 없음" class="form-input" value="2026-12-31">
+                </div>
+              </div>
+              <div class="filter-field" data-dev-flag="dev-only" data-dev-note="개발 book_mapped 필터">
+                <label>교재 매핑</label>
+                <select name="book_mapped" class="form-select"><option value="">전체</option><option value="1">매핑됨</option><option value="0">미매핑</option></select>
+              </div>
+              <div class="filter-field filter-span-2">
+                <label>검색어 (강좌명 / 강좌코드 / 담당 강사명)</label>
+                <input type="text" id="filter-keyword" name="keyword" data-dev-note="강좌명 또는 강좌 코드 — 강사명 검색은 개발 없음" class="form-input" placeholder="강좌명, 강좌코드(CRS-XXXX), 강사명 입력">
+              </div>
+            </div>
+
+            <div class="filter-actions">
+              <button type="button" class="btn btn-outline" data-dev-route="admin.courses.index" data-dev-method="GET" data-dev-url="/sj-admin/courses" data-dev-perm="조회" onclick="resetCourseFilters()">검색 초기화</button>
+              <button type="button" class="btn btn-primary" data-dev-route="admin.courses.index" data-dev-method="GET" data-dev-url="/sj-admin/courses" data-dev-perm="조회" data-dev-note="정렬 sort = title · duration_days · sale_price · created_at, direction asc · desc (표 머리)" onclick="renderCourseList()">조건 검색</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 강좌 목록 그리드 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">단과 강좌 목록</h2>
+              <span class="card-subtitle" data-dev-note="개발 툴바: 전체 N건 · 전시중 N건(sellingCount)">총 <strong id="course-total-count" style="color:var(--primary);">0</strong>건 조회됨 · 등록일 컬럼 기본 노출</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline" data-dev-route="admin.courses.download" data-dev-method="GET" data-dev-url="/sj-admin/courses/download" data-dev-perm="다운로드" data-dev-note="사유 레이어 layerReason(공통)" onclick="exportCourseCsv()">엑셀 다운로드 (CSV)</button>
+              <button type="button" class="btn btn-primary" data-dev-route="admin.courses.create" data-dev-method="GET" data-dev-url="/sj-admin/courses/create" data-dev-perm="등록" onclick="openNewCourseForm()">+ 단과 강좌 등록</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="text-center" style="width:52px;">No</th>
+                    <th style="width:110px;" data-dev-flag="proto-only" data-dev-note="개발 목록에 강좌코드 컬럼 없음(코드 CRS_00001)">강좌코드</th>
+                    <th style="width:170px;">카테고리 (1차 &gt; 2차)</th>
+                    <th>강좌명</th>
+                    <th style="width:105px;" data-dev-note="대표 강사 + '강사 계약 종료' 배지(자동 판매중지 없음)" data-dev-name="instructor_id">담당 강사</th>
+                    <th class="text-center" style="width:110px;" data-dev-name="sort=duration_days">수강기간</th>
+                    <th class="text-right" style="width:95px;" data-dev-flag="proto-only" data-dev-note="개발 목록에 정가 컬럼 없음">정가</th>
+                    <th class="text-right" style="width:115px;" data-dev-name="sort=sale_price">판매가 (할인율)</th>
+                    <th class="text-center" style="width:85px;" data-dev-flag="proto-only" data-dev-note="개발 목록에 총 강의수 없음">총 강의수</th>
+                    <th class="text-center" style="width:125px;" data-dev-flag="proto-only" data-dev-note="정산 매핑 컬럼 — 개발 없음(Q-PROD003-3). 개발에는 대신 '교재 매핑' 매핑/미매핑 컬럼">정산 매핑 (1계층)</th>
+                    <th class="text-center" style="width:90px;" data-dev-note="판매상태 + 노출여부 2컬럼 → 개발 '전시' 1컬럼" data-dev-name="display_status">판매상태</th>
+                    <th class="text-center" style="width:75px;" data-dev-flag="proto-only" data-dev-note="노출여부 분리 — 개발 없음(Q-PROD003-1)">노출여부</th>
+                    <th class="text-center" style="width:100px;" data-dev-name="sort=created_at">등록일</th>
+                    <th class="text-center" style="width:120px;">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="course-list-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 2] ADMN-PROD-003-S2(조회) : 단과 강좌 상세 조회                    -->
+      <!-- v12에는 상세 전용 코드가 없다(행 클릭 → S2에 강좌 로드). 같은 S2를 조회 · [수정] 두 단계로 나눈 것 -->
+      <!-- ========================================================================= -->
+      <section id="subview-detail" class="subview-panel" data-dev-flag="proto-only" data-dev-note="강좌 상세 조회 화면 — 개발 미구현(admin.courses.show 규칙)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">← 목록으로</button>
+            <span class="code-pill" id="detail-course-code">CRS-2601</span>
+            <h2 style="font-size:16px; font-weight:800;" id="detail-course-title">2026 산업안전기사 필기 한권완성 개념+빈출 단과</h2>
+            <span id="detail-course-status-badge" class="badge badge-sale">판매중</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a class="btn btn-soft" href="ADMN-SETT-001_baseline.html" data-dev-flag="proto-only" data-dev-note="SETT-001 이동 — 개발 강좌 화면에 없음">정산 지분 매핑 (ADMN-SETT-001)</a>
+            <button type="button" class="btn btn-primary" data-dev-route="admin.courses.edit" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/edit" data-dev-perm="수정" onclick="editCurrentDetailCourse()">강좌 정보 수정 (003-S2)</button>
+          </div>
+        </div>
+
+        <!-- 1. 기본 및 가격/수강조건 요약 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">1. 강좌 기본 · 가격 · 수강기간 정보</h3>
+              <span class="card-subtitle">프론트 수강신청 상세 페이지 및 정산 원장에 연동되는 기준 정보</span>
+            </div>
+            <span class="code-pill" id="detail-created-at">등록일: 2026-01-12</span>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>강좌코드</th>
+                  <td><span class="code-pill" id="d-code">CRS-2601</span> <span style="font-size:11.5px; color:var(--slate-500); margin-left:6px;">(시스템 자동채번 · 수정불가)</span></td>
+                  <th>카테고리 분류</th>
+                  <td id="d-category">산업안전기사 &gt; 필기 단과</td>
+                </tr>
+                <tr>
+                  <th>강좌명</th>
+                  <td colspan="3" style="font-weight:700;" id="d-title">2026 산업안전기사 필기 한권완성 개념+빈출 단과</td>
+                </tr>
+                <tr>
+                  <th>강좌 한줄 요약</th>
+                  <td colspan="3" id="d-summary">비전공자도 4주 만에 합격권 도달하는 산안기 필기 핵심 이론 + 10개년 핵심 빈출문제 풀이</td>
+                </tr>
+                <tr>
+                  <th>담당 강사 (권리자)</th>
+                  <td id="d-instructor">김안전 (권리자코드: RH-0019 / 계약상태: 정상)</td>
+                  <th>과세 구분</th>
+                  <td><span class="badge badge-info">면세 (VAT 0% · 원격평생교육시설 온라인 교육용역)</span></td>
+                </tr>
+                <tr>
+                  <th>정가 / 할인 / 판매가</th>
+                  <td id="d-pricing">정가 180,000원 → <strong>판매가 144,000원</strong> (정률 20% 할인)</td>
+                  <th>수강기간 유형</th>
+                  <td id="d-period">결제일로부터 <strong>90일</strong> (일시정지 최대 3회 / 회당 15일 · 총 30일 한도)</td>
+                </tr>
+                <tr>
+                  <th>판매 상태 / 노출 여부</th>
+                  <td id="d-status-display">판매중 / 프론트 노출 (Y)</td>
+                  <th>수강배수 / 기기제한</th>
+                  <td>무제한 배수 (재생수단: StarPlayer+ 보안 플레이어 / PC 동시 재생 1세션 제어 (모바일 기기 등록 2차))</td>
+                </tr>
+                <tr>
+                  <th>정산 1계층 매핑 상태</th>
+                  <td colspan="3">
+                    <div id="d-settlement-box" class="settlement-gate-box ok" style="padding:10px 14px;">
+                      <div id="d-settlement-text">
+                        <strong>[ADMN-SETT-001 검증 통과]</strong> 1계층 권리자 지분 합계 <strong>100.00%</strong> (김안전 강사 단독 100.00% · 적용 계약 <code>CT-2026-0715</code> R/S 요율 50%)
+                      </div>
+                      <a href="ADMN-SETT-001_baseline.html" class="btn btn-outline btn-sm">매핑 원장 열기</a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. 커리큘럼 및 진도율 분모 시뮬레이션 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">2. 커리큘럼 구성 및 진도율 산정 시뮬레이터</h3>
+              <span class="card-subtitle">ADMN-PROD-002(강의 원장) 연동 · 환급반(ADMN-SETT-006) 출석/진도 판정 분모 기준</span>
+            </div>
+            <span class="badge badge-violet">차시 인정 기준: 강의별 재생시간 90% 이상 시청 시 1차시 완료</span>
+          </div>
+          <div class="card-body">
+            <div class="sim-grid">
+              <div class="sim-stat">
+                <div class="sim-stat-label">구성 섹션(대단원) 수</div>
+                <div class="sim-stat-val" id="d-sec-count">2개 섹션</div>
+              </div>
+              <div class="sim-stat">
+                <div class="sim-stat-label">총 매핑 강의(차시) 수</div>
+                <div class="sim-stat-val" id="d-lec-count">5강</div>
+              </div>
+              <div class="sim-stat">
+                <div class="sim-stat-label">총 강의 재생시간 합계 (분모)</div>
+                <div class="sim-stat-val" id="d-total-duration">212분 30초</div>
+              </div>
+              <div class="sim-stat">
+                <div class="sim-stat-label">맛보기(무료 공개) 지정 차시</div>
+                <div class="sim-stat-val" id="d-preview-count">1강 (1차시)</div>
+              </div>
+            </div>
+
+            <div id="detail-curriculum-container"></div>
+          </div>
+        </div>
+
+        <!-- 3. 연계 교재 정보 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">3. 연계 교재 매핑 내역 (ADMN-PROD-004 연동)</h3>
+              <span class="card-subtitle">단과 강좌 상세 화면에서 수강생이 함께 구매할 수 있는 주교재 · 부교재</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:110px;">교재구분</th>
+                  <th style="width:120px;">교재 SKU 코드</th>
+                  <th>교재명</th>
+                  <th style="width:140px;">ISBN-13</th>
+                  <th class="text-right" style="width:110px;">정가/판매가</th>
+                  <th class="text-center" style="width:110px;">현재 재고</th>
+                  <th class="text-center" style="width:120px;">과세구분</th>
+                </tr>
+              </thead>
+              <tbody id="detail-textbook-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <!-- 주교재 연동 판매 상태 변경 이력 -->
+        <div class="card" id="bk-log-card" data-dev-flag="proto-only" data-dev-route="admin.courses.status-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/status-logs" data-dev-perm="조회" data-dev-note="판매 상태 변경 이력 — 개발 미구현(admin_logs subAction stop_selling에만 남음). 주교재 연동 자동 판매중지도 개발 없음(Q-PROD004-1)">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">판매 상태 변경 이력 (주교재 연동)</h3>
+              <span class="card-subtitle">주교재가 판매중지 · 판매종료되면 이 강좌은(는) 자동으로 판매중지되고, 변경 내용이 여기에 기록됩니다.</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="text-center" style="width:150px;">일시</th>
+                  <th>변경 내용</th>
+                  <th class="text-center" style="width:180px;">처리</th>
+                </tr>
+              </thead>
+              <tbody id="bk-log-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 3] ADMN-PROD-003-S2 : 단과 강좌 등록 / 수정 (3번 섹션 = 커리큘럼 구성 003-S1) -->
+      <!-- ========================================================================= -->
+      <section id="subview-form" class="subview-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">← 목록으로</button>
+            <h2 style="font-size:16px; font-weight:800;" id="form-mode-title">단과 강좌 등록 / 수정 (ADMN-PROD-003-S2 · 커리큘럼 구성 003-S1 포함)</h2>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a class="btn btn-outline" href="#" data-dev-flag="dev-only" data-dev-route="front.course.show" data-dev-note="프론트 미리보기(form.blade.php:595)">프론트 미리보기</a>
+            <button type="button" class="btn btn-outline" data-dev-flag="dev-only" id="courseStop" data-dev-route="admin.courses.stop.update" data-dev-method="POST" data-dev-url="/sj-admin/courses/{course}/stop-selling" data-dev-perm="수정" data-dev-note="개발 #courseStopForm — 판매중지 전용 버튼(프로토는 판매 상태 라디오)">판매중지</button>
+            <button type="button" class="btn btn-outline" data-dev-flag="dev-only" id="courseDelete" data-dev-route="admin.courses.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/courses/{course}" data-dev-perm="삭제" data-dev-note="개발 #courseDeleteForm — user_courses · order_items · package_items · cart_items 등 참조 7종 있으면 거부(비전시 · 판매중지 안내)">삭제</button>
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">취소</button>
+            <button type="button" class="btn btn-primary btn-lg" data-dev-route="admin.courses.store | admin.courses.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/courses | /courses/{course}" data-dev-perm="등록 | 수정" data-dev-note="개발 #courseForm (CourseRequest)" onclick="saveCourseForm()">단과 강좌 저장</button>
+          </div>
+        </div>
+
+        <!-- 1. 기본 정보 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">1. 강좌 기본 정보</h3>
+              <span class="card-subtitle">강좌코드 자동채번 및 카테고리 · 담당 강사 매핑</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>강좌코드 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" id="f-code" data-dev-note="개발 서버 채번 CRS_00001 (프로토 CRS-YYNN)" class="form-input" style="width:180px;" value="CRS-2601" readonly="">
+                      <span class="field-hint" style="margin:0;">신규 등록 저장 시 <code>CRS-YYNN</code> 포맷으로 시스템이 자동 부여합니다.</span>
+                    </div>
+                  </td>
+                  <th>등록일</th>
+                  <td>
+                    <input type="text" id="f-created-at" data-dev-name="created_at" class="form-input" style="width:160px;" value="2026-01-12" readonly="">
+                  </td>
+                </tr>
+                <tr>
+                  <th>카테고리 선택 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; gap:8px;">
+                      <select id="f-cat1" data-dev-note="개발 #formRoot" data-dev-name="(전송 안 함)" class="form-select" style="width:190px;">
+                        <option value="산업안전기사">산업안전기사</option>
+                        <option value="건설안전기사">건설안전기사</option>
+                        <option value="산업안전지도사">산업안전지도사</option>
+                        <option value="위험물산업기사">위험물산업기사</option>
+                      </select>
+                      <select id="f-cat2" name="category_id" data-dev-note="개발 #formChild — 2Depth만 · category_products 대표 1건" class="form-select" style="width:190px;">
+                        <option value="필기 단과">필기 단과</option>
+                        <option value="실기 필답형">실기 필답형</option>
+                        <option value="실기 작업형">실기 작업형</option>
+                      </select>
+                    </div>
+                    <div class="field-hint">ADMN-PROD-001(카테고리 관리)에 등록된 노출 상태의 1·2차 분류만 노출됩니다.</div>
+                  </td>
+                  <th>담당 강사 (권리자) <span class="req-star">*</span></th>
+                  <td>
+                    <select id="f-instructor" name="instructors[0][instructor_id]" data-dev-note="개발 #mainInstructor — 계약 유효 강사만(기존 값은 통과)" data-dev-value="instructors[0][role]=m (대표)" class="form-select" style="width:260px;">
+                      <option value="김안전">김안전 (RH-0019 · 계약 정상)</option>
+                      <option value="이건설">이건설 (RH-0046 · 계약 정상)</option>
+                      <option value="박보건">박보건 (RH-0047 · 계약 정상)</option>
+                      <option value="최지도">최지도 (RH-0048 · 계약 정상)</option>
+                      <option value="정종대">정종대 (RH-0025 · 계약 정상)</option>
+                      <option value="산준교육">산준교육 (RH-0012 · 계약 만료일 2026-10-14)</option>
+                      <option value="이전기">이전기 (RH-0015 · 계약 해지 2026-10-05)</option>
+                      <option value="엘캠퍼스">엘캠퍼스 자사 제작 (RH-INTERNAL)</option>
+                    </select>
+                    <div class="field-hint">ADMN-INST-001(권리자 계약 원장)에 등록된 강사 마스터와 연동됩니다.</div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>강좌명 <span class="req-star">*</span></th>
+                  <td colspan="3">
+                    <input type="text" id="f-title" name="title" data-dev-note="required · max 255" class="form-input" maxlength="100" value="2026 산업안전기사 필기 한권완성 개념+빈출 단과" placeholder="강좌명을 입력하세요 (최대 100자)">
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="개발 #instructorTable · #instructorRows — instructors[n][instructor_id] · instructors[n][role] (s 부강사 · a 참여), distinct">
+                  <th>참여 강사</th>
+                  <td colspan="3">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                      <select name="instructors[1][instructor_id]" class="form-select" style="width:260px;"><option value="">강사 선택</option><option value="정종대">정종대 (RH-0025)</option><option value="이건설">이건설 (RH-0046)</option></select>
+                      <select name="instructors[1][role]" class="form-select" style="width:130px;"><option value="s">부강사</option><option value="a">참여</option></select>
+                      <button type="button" class="btn btn-outline btn-sm">+ 강사 추가</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>강좌 한줄 요약</th>
+                  <td colspan="3">
+                    <input type="text" id="f-summary" data-dev-flag="proto-only" data-dev-note="한줄 요약 — 개발 없음" class="form-input" maxlength="200" value="비전공자도 4주 만에 합격권 도달하는 산안기 필기 핵심 이론 + 10개년 핵심 빈출문제 풀이" placeholder="리스트 및 상세 상단에 노출될 서브 카피 (최대 200자)">
+                  </td>
+                </tr>
+                <tr>
+                  <th>검색 태그 (자동 코드)</th>
+                  <td colspan="3">
+                    <input type="text" id="f-tags" data-dev-flag="proto-only" data-dev-note="검색 태그 — 개발 없음" class="form-input" value="산업안전기사필기, 김안전, 2026대비, 한권완성" placeholder="쉼표(,)로 구분하여 입력 (태그 코드는 내부 자동 채번)">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. 가격 · 수강기간 · 판매상태 (정산 100% 하드락 포함) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">2. 가격 · 수강기간 · 판매 상태 설정</h3>
+              <span class="card-subtitle">할인 자동 계산 및 정산 1계층 지분율(100%) 하드락 검증</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>정가 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="input-with-unit" style="width:200px;">
+                      <input type="number" id="f-list-price" name="original_price" data-dev-note="required · 정수 ≥ 0" class="form-input text-right" value="180000" min="0" step="1000" oninput="recalcCoursePrice()">
+                      <span class="input-unit">원</span>
+                    </div>
+                  </td>
+                  <th>할인 설정</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <select id="f-discount-type" data-dev-flag="proto-only" data-dev-note="할인 설정 — 개발 없음(판매가 직접 입력, 할인율은 #discountRateDisplay 표시만)" class="form-select" style="width:130px;" onchange="recalcCoursePrice()">
+                        <option value="NONE">할인 없음</option>
+                        <option value="RATE" selected="">정률 할인 (%)</option>
+                        <option value="AMOUNT">정액 할인 (원)</option>
+                      </select>
+                      <div class="input-with-unit" style="width:150px;">
+                        <input type="number" id="f-discount-val" data-dev-flag="proto-only" data-dev-note="할인 값 — 개발 없음" class="form-input text-right" value="20" min="0" oninput="recalcCoursePrice()">
+                        <span class="input-unit" id="f-discount-unit">%</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>최종 판매가 (자동계산)</th>
+                  <td>
+                    <div class="input-with-unit" style="width:220px;">
+                      <input type="text" id="f-sale-price-display" name="sale_price" data-dev-note="개발은 직접 입력(required · ≤ 정가) #salePrice" class="form-input text-right" style="font-weight:800; color:var(--primary);" value="144,000" readonly="">
+                      <span class="input-unit">원 (교육면세 VAT 0%)</span>
+                    </div>
+                  </td>
+                  <th>과세 구분</th>
+                  <td>
+                    <span class="badge badge-info" data-dev-name="tax_type" data-dev-value="exempt (서버 고정)">면세 상품 (VAT 0% · 원격평생교육시설 온라인 단과 강좌 고정)</span>
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="개발 CourseRequest cost_price(원가) · allow_coupon · allow_point(기본 1)">
+                  <th>원가</th>
+                  <td>
+                    <div class="input-with-unit" style="width:200px;">
+                      <input type="number" name="cost_price" class="form-input text-right" value="" min="0" step="1000">
+                      <span class="input-unit">원</span>
+                    </div>
+                  </td>
+                  <th>프로모션 허용</th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label"><input type="checkbox" name="allow_coupon" value="1" checked=""><span>쿠폰 사용</span></label>
+                      <label class="option-label"><input type="checkbox" name="allow_point" value="1" checked=""><span>포인트 사용</span></label>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>수강기간 설정 <span class="req-star">*</span></th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+                      <label class="option-label">
+                        <input type="radio" name="f-period-type" value="DAYS" data-dev-note="개발은 N일 + start_type(immediate · scheduled + start_date) — 지정일 시작은 Q-PROD003-2 확인 전이라 추가 안 함" data-dev-name="duration_days" checked="" onchange="togglePeriodInput()">
+                        <span>결제일로부터 일수 지정</span>
+                      </label>
+                      <div class="input-with-unit" id="period-days-wrap" style="width:140px;">
+                        <input type="number" id="f-period-days" name="duration_days" data-dev-note="개발 #durationDays — required · min 1" class="form-input text-right" value="90" min="1">
+                        <span class="input-unit">일간 수강</span>
+                      </div>
+
+                      <label class="option-label" style="margin-left:12px;">
+                        <input type="radio" name="f-period-type" value="FIXED_DATE" data-dev-flag="proto-only" data-dev-note="수강 만료일 고정 — 개발 없음(Q-PROD003-2)" onchange="togglePeriodInput()">
+                        <span>수강 만료일 고정 (시험일 기준)</span>
+                      </label>
+                      <div id="period-date-wrap" style="width:180px; display:none;">
+                        <input type="date" id="f-period-enddate" data-dev-flag="proto-only" data-dev-note="만료일 고정 — 개발 없음(Q-PROD003-2)" class="form-input" value="2026-12-31">
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>일시정지 허용 정책</th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+                      <label class="option-label">
+                        <input type="checkbox" id="f-pause-allow" data-dev-flag="proto-only" data-dev-note="일시정지 허용 정책 — 개발 없음(Q-PROD003-4, 일시정지는 USER-003 건별)" checked="">
+                        <span>수강생 마이페이지 일시정지 허용</span>
+                      </label>
+                      <div class="input-with-unit" style="width:160px;">
+                        <span class="input-unit">최대 횟수</span>
+                        <input type="number" id="f-pause-count" data-dev-flag="proto-only" data-dev-note="Q-PROD003-4" class="form-input text-right" value="3" min="0" max="10" style="width:70px;">
+                        <span class="input-unit">회</span>
+                      </div>
+                      <div class="input-with-unit" style="width:190px;">
+                        <span class="input-unit">총 누적 일수 한도</span>
+                        <input type="number" id="f-pause-days" data-dev-flag="proto-only" data-dev-note="Q-PROD003-4" class="form-input text-right" value="30" min="0" max="180" style="width:80px;">
+                        <span class="input-unit">일</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>정산 1계층 매핑 검증 <span class="req-star">*</span></th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+                      <span style="font-size:12px; font-weight:700; color:var(--slate-600);">시뮬레이션 지분 상태 전환:</span>
+                      <select id="f-settlement-sim" data-dev-flag="proto-only" data-dev-note="정산 1계층 매핑 검증(하드락) — 개발 없음(Q-PROD003-3)" class="form-select" style="width:320px;" onchange="applySettlementHardLock()">
+                        <option value="100">[정상] ADMN-SETT-001 1계층 지분 합계 100.00% 완료</option>
+                        <option value="70">[미완성] ADMN-SETT-001 1계층 지분 합계 70.00% (30% 미배분)</option>
+                        <option value="0">[미등록] ADMN-SETT-001 권리자 지분 매핑 내역 없음 (0%)</option>
+                      </select>
+                    </div>
+                    <div id="f-settlement-banner" class="settlement-gate-box ok">
+                      <div>
+                        <strong id="f-settlement-title">[검증 통과] 1계층 지분 합계 100.00%</strong>
+                        <div style="font-size:12px; margin-top:2px;" id="f-settlement-desc">
+                          김안전(RH-0019) 1계층 권리자 지분 100.00% 매핑 완료 (적용 계약 R/S 50%). [판매중] 상태 설정이 가능합니다.
+                        </div>
+                      </div>
+                      <a href="ADMN-SETT-001_baseline.html" class="btn btn-outline btn-sm">ADMN-SETT-001 지분 편집 →</a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>판매 상태 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label">
+                        <input type="radio" name="f-sale-status" id="radio-sale-on" value="판매중" data-dev-name="display_status" data-dev-value="selling" checked="">
+                        <span>판매중</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-sale-status" id="radio-sale-ready" value="판매대기" data-dev-flag="proto-only" data-dev-name="display_status" data-dev-note="판매대기 — 개발 없음(가장 가까운 값 hidden, Q-PROD003-1)">
+                        <span>판매대기</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-sale-status" value="판매중지" data-dev-note="개발은 [판매중지] 버튼(admin.courses.stop.update)으로도 전환" data-dev-name="display_status" data-dev-value="stopped">
+                        <span>판매중지</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-sale-status" value="판매종료" data-dev-flag="proto-only" data-dev-name="display_status" data-dev-note="판매종료 — 개발 없음(Q-PROD003-1)">
+                        <span>판매종료</span>
+                      </label>
+                    </div>
+                    <div class="field-hint" id="sale-hardlock-hint">정산 매핑이 100% 미달이면 [판매중] 라디오 버튼이 자동 잠금 처리됩니다.</div>
+                    <div id="book-link-form-note" style="display:none; margin-top:8px;"></div>
+                  </td>
+                  <th>프론트 노출 여부 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label">
+                        <input type="radio" name="f-display-yn" value="Y" data-dev-name="display_status" data-dev-note="노출 분리 — 개발은 display_status 1칸(Y ≈ selling · stopped, N ≈ hidden), Q-PROD003-1" checked="">
+                        <span>노출 (Y)</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-display-yn" value="N" data-dev-name="display_status" data-dev-value="hidden">
+                        <span>미노출 (N)</span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. 커리큘럼 구성 (섹션 아코디언 + ADMN-PROD-002 강의 불러오기) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">3. 커리큘럼 구성 (ADMN-PROD-003-S1 · 섹션 · 차시 매핑)</h3>
+              <span class="card-subtitle">섹션(대단원)을 추가하고 ADMN-PROD-002(강의 관리)에 등록된 강의를 매핑합니다.</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="badge badge-info" id="form-curriculum-summary" data-dev-note="개발 #clCount · #clSeconds · #clLabel (폼 안 요약) / 커리큘럼 페이지 #curCount · #curSeconds · #curLabel">총 2개 섹션 · 5강 · 합계 212분 30초</span>
+              <button type="button" class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="섹션(대단원) 구분 — 개발 없음(course_lectures 1단 순서만)" onclick="addCurriculumSection()">+ 섹션(대단원) 추가</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="field-hint" data-dev-flag="dev-only" data-dev-route="admin.courses.curriculum.index" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/curriculum" data-dev-perm="조회" data-dev-note="개발 커리큘럼 구성 페이지(#curriculumForm) · 변경 영향 미리 보기 #crsImpact · #curImpact">판매 이력이 있는 강좌는 기존 강의를 제외할 수 없고 추가만 가능하다. 저장 전에 기존 수강생 진도율 분모 변화(영향 인원)를 미리 보여 준다.</div>
+            <div id="form-sections-wrapper" data-dev-name="lectures[]" data-dev-note="순서 = 배열 순서 · 편성 가능(VOD Key + 재생시간) 강의만"></div>
+          </div>
+        </div>
+
+        <!-- 4. 연계 교재 설정 (ADMN-PROD-004 모달 연동) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">4. 연계 교재 매핑 (주교재 · 부교재)</h3>
+              <span class="card-subtitle">ADMN-PROD-004(교재 관리) SKU를 연결하여 수강신청 시 함께 구매하도록 구성합니다.</span>
+            </div>
+            <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.api.books" data-dev-method="GET" data-dev-url="/sj-admin/api/books" data-dev-perm="상품 메뉴 4종 중 조회 1개" data-dev-note="개발 #bookTable · #bookRows" onclick="openTextbookModal()">+ 교재 검색 및 추가 (ADMN-PROD-004)</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:140px;">교재 구분</th>
+                  <th style="width:120px;">교재 SKU 코드</th>
+                  <th>교재명</th>
+                  <th style="width:140px;">ISBN-13</th>
+                  <th class="text-right" style="width:110px;">판매가(정가)</th>
+                  <th class="text-center" style="width:100px;">재고수량</th>
+                  <th class="text-center" style="width:90px;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="form-textbooks-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 5. 대표 썸네일 및 상세 설명 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">5. 대표 썸네일 및 강좌 상세 소개</h3>
+              <span class="card-subtitle">프론트 강좌 카드 썸네일 및 상세 탭(강좌소개/학습대상) 노출 콘텐츠</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>대표 썸네일 이미지 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <input type="text" id="f-thumb" name="thumbnail" data-dev-note="jpg/png/webp · 5MB · 720×405(16:9) 이상 · 삭제는 delete_thumbnail (#courseThumbSelector)" class="form-input" style="width:360px;" value="course_thumb_crs2601_v2.png (720x480px, 412KB)" readonly="">
+                      <button type="button" class="btn btn-outline btn-sm" data-dev-note="개발 #courseThumbSelector" onclick="showToast('썸네일 파일 선택 창이 호출되었습니다. (권장 720x480px, JPG/PNG 5MB 이하)')">파일 찾아보기</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>강좌 상세 소개 <span class="req-star">*</span></th>
+                  <td>
+                    <textarea id="f-desc" name="description" data-dev-note="개발은 description · target_audience · content 3칸(에디터)" class="form-textarea" rows="5">1. 학습 대상: 산업안전기사 필기 시험을 처음 준비하는 비전공자 및 단기 합격 목표 수험생
+2. 강좌 특징:
+ - 최근 10개년 빈출 빅데이터 분석을 통한 핵심 빈출 키워드 압축 정리
+ - 과목별 계산문제 공식 암기 노트 PDF 교안(ADMN-PROD-002 연동) 전 차시 제공
+3. 환급반 진도 기준: 각 차시별 러닝타임 90% 이상 재생 시 출석/진도 인정</textarea>
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="개발 target_audience · content (에디터)">
+                  <th>수강 대상 · 내용 및 특징</th>
+                  <td>
+                    <textarea name="target_audience" class="form-textarea" rows="2" placeholder="수강 대상"></textarea>
+                    <textarea name="content" class="form-textarea" rows="3" placeholder="내용 및 특징" style="margin-top:6px;"></textarea>
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="개발 intro_lecture_id · sample_lecture_id(살아 있는 강의) · badge_slot_1_code · badge_slot_2_code(강조 배지)">
+                  <th>소개 · 샘플 영상 · 강조 배지</th>
+                  <td>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                      <input type="text" name="intro_lecture_id" class="form-input" style="width:220px;" placeholder="소개 영상 (강의 선택)" readonly="">
+                      <input type="text" name="sample_lecture_id" class="form-input" style="width:220px;" placeholder="샘플 강의 (강의 선택)" readonly="">
+                      <input type="text" name="badge_slot_1_code" class="form-input" style="width:160px;" placeholder="강조 배지 1">
+                      <input type="text" name="badge_slot_2_code" class="form-input" style="width:160px;" placeholder="강조 배지 2">
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  
+
+  <!-- ==================== [모달 1] ADMN-PROD-002 강의 불러오기 ==================== -->
+  <div class="modal-backdrop" id="modal-lecture-picker" data-dev-note="개발은 모달 없이 커리큘럼 페이지(PROD-003-S1) 후보 표 #candCheckAll · #candAdd">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">강의(영상 단품) 검색 및 차시 추가 — ADMN-PROD-002 연동</div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeLectureModal()">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; gap:8px; margin-bottom:12px;">
+          <input type="text" id="modal-lec-keyword" name="keyword" class="form-input" placeholder="강의명 또는 강의코드(LEC-XXXX) 검색" oninput="renderLectureModalRows()">
+          <button type="button" class="btn btn-primary" data-dev-route="admin.courses.curriculum.index" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/curriculum?keyword=" data-dev-perm="조회" onclick="renderLectureModalRows()">검색</button>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="text-center" style="width:50px;">선택</th>
+              <th style="width:100px;">강의코드</th>
+              <th>강의명</th>
+              <th style="width:90px;">담당강사</th>
+              <th class="text-center" style="width:100px;">플레이어</th>
+              <th class="text-center" style="width:95px;">재생시간</th>
+              <th class="text-center" style="width:90px;">교안첨부</th>
+            </tr>
+          </thead>
+          <tbody id="modal-lecture-tbody"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeLectureModal()">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.courses.curriculum.update" data-dev-method="PUT" data-dev-url="/sj-admin/courses/{course}/curriculum" data-dev-perm="수정" data-dev-note="개발 #candAdd → #curSave (CourseCurriculumRequest lectures[])" onclick="confirmAddLecturesToSection()">선택한 강의를 섹션에 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== [모달 2] ADMN-PROD-004 교재 불러오기 ==================== -->
+  <div class="modal-backdrop" id="modal-textbook-picker" data-dev-note="개발 form.blade.php:975 교재 선택(admin.api.books)">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">연계 교재 검색 및 매핑 — ADMN-PROD-004 연동</div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeTextbookModal()">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="text-center" style="width:50px;">선택</th>
+              <th style="width:110px;">교재구분 지정</th>
+              <th style="width:105px;">SKU 코드</th>
+              <th>교재명</th>
+              <th style="width:135px;">ISBN-13</th>
+              <th class="text-right" style="width:95px;">정가</th>
+              <th class="text-center" style="width:85px;">재고</th>
+            </tr>
+          </thead>
+          <tbody id="modal-textbook-tbody"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeTextbookModal()">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-note="books[n][book_id] · books[n][book_type] 행 추가(저장은 강좌 저장과 함께)" onclick="confirmAddTextbooks()">선택 교재 매핑 적용</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-msg" id="toast-box"></div>
+
+  
+
+
+</div></div><script>
+    /* =========================================================================
+       1. SNB 마스터 렌더링 (20개 전체 화면 · 현재 ADMN-PROD-003 active)
+       ========================================================================= */
+
+    const CURRENT_SCREEN_CODE = "ADMN-PROD-003";
+
+
+    /* =========================================================================
+       2. 샘플 원장 데이터 (단과 강좌 / 강의 마스터 / 교재 마스터)
+       ========================================================================= */
+    const LECTURE_MASTER_POOL = [
+      { code: "LEC-2601", title: "[1강] 안전관리론 핵심 개념 및 재해발생 메커니즘", instructor: "김안전", player: "StarPlayer+", durationSec: 2550, pdf: "1강_안전관리론_핵심교안.pdf" },
+      { code: "LEC-2602", title: "[2강] 하인리히 & 버드 재해연쇄성 이론과 빈출 계산문제", instructor: "김안전", player: "StarPlayer+", durationSec: 2820, pdf: "2강_재해통계지수_공식집.pdf" },
+      { code: "LEC-2603", title: "[3강] 인간공학 및 시스템안전공학 FTA/ETA 위험성평가", instructor: "김안전", player: "StarPlayer+", durationSec: 2460, pdf: "3강_FTA_실전예제.pdf" },
+      { code: "LEC-2604", title: "[4강] 기계위험방지기술 프레스·전단기·크레인 방호장치", instructor: "김안전", player: "StarPlayer+", durationSec: 2610, pdf: "4강_기계방호장치_요약.pdf" },
+      { code: "LEC-2605", title: "[5강] 전기 및 화학설비 위험방지 폭발한계 계산 특강", instructor: "김안전", player: "StarPlayer+", durationSec: 2310, pdf: "5강_폭발한계_빈출모음.pdf" },
+      { code: "LEC-2606", title: "[6강] 건설안전기술 가설공사·비계·거푸집 동바리 안전기준", instructor: "이건설", player: "StarPlayer+", durationSec: 2700, pdf: "6강_가설공사_기준표.pdf" },
+      { code: "LEC-2607", title: "[7강] 산업안전보건법령 핵심 조문 및 벌칙 기준 총정리", instructor: "박보건", player: "StarPlayer+", durationSec: 2400, pdf: "7강_산안법_개정비교표.pdf" }
+    ];
+
+    const TEXTBOOK_MASTER_POOL = [
+      { sku: "PROD-BK-1011", role: "주교재", title: "2026 산준모 산업안전기사 필기 한권완성 이론+빈출", isbn: "979-11-98765-01-2", price: 38000, stock: 420 },
+      { sku: "PROD-BK-1012", role: "부교재", title: "2026 산업안전기사 필기 10개년 과년도 빈출해설집", isbn: "979-11-98765-02-9", price: 29000, stock: 185 },
+      { sku: "PROD-BK-1005", role: "주교재", title: "2026 산준모 산업안전기사 실기 필답형 모범답안집", isbn: "979-11-98765-03-6", price: 34000, stock: 310 },
+      { sku: "PROD-BK-3003", role: "부교재", title: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출", isbn: "979-11-98765-04-3", price: 25000, stock: 0 },
+      { sku: "PROD-BK-1007", role: "주교재", title: "2026 산업안전지도사 1차 산업안전일반 핵심요약집", isbn: "979-11-98765-07-9", price: 20000, stock: 180 },
+      { sku: "PROD-BK-1006", role: "주교재", title: "2026 정종대 산업안전기사 필기 기본서", isbn: "979-11-89210-01-4", price: 20000, stock: 240 }
+    ];
+
+    let coursesData = [
+      {
+        code: "CRS-2601",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "2026 산업안전기사 필기 한권완성 개념+빈출 단과",
+        summary: "비전공자도 4주 만에 합격권 도달하는 산안기 필기 핵심 이론 + 10개년 핵심 빈출문제 풀이",
+        instructor: "김안전",
+        periodType: "DAYS",
+        periodDays: 90,
+        periodEndDate: "",
+        listPrice: 180000,
+        discountType: "RATE",
+        discountVal: 20,
+        salePrice: 144000,
+        lectureCount: 5,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-01-12"
+      },
+      {
+        code: "CRS-2602",
+        cat1: "산업안전기사",
+        cat2: "실기 필답형",
+        title: "2026 산업안전기사 실기 필답형 만점 답안 작성 전략반",
+        summary: "채점관 기준 키워드 중심 서술 훈련 및 빈출 300제 완전 정복",
+        instructor: "김안전",
+        periodType: "DAYS",
+        periodDays: 60,
+        periodEndDate: "",
+        listPrice: 160000,
+        discountType: "AMOUNT",
+        discountVal: 20000,
+        salePrice: 140000,
+        lectureCount: 28,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-01-25"
+      },
+      {
+        code: "CRS-2603",
+        cat1: "건설안전기사",
+        cat2: "필기 단과",
+        title: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강",
+        summary: "건설시공학·건설재료학·건설안전기술 3과목 집중 공략 단과",
+        instructor: "이건설",
+        periodType: "FIXED_DATE",
+        periodDays: 0,
+        periodEndDate: "2026-10-31",
+        listPrice: 170000,
+        discountType: "RATE",
+        discountVal: 15,
+        salePrice: 144500,
+        lectureCount: 34,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-02-04"
+      },
+      {
+        code: "CRS-2604",
+        cat1: "산업안전지도사",
+        cat2: "필기 단과",
+        title: "2026 산업안전지도사 1차 산업안전보건법령 심화 단과",
+        summary: "법령·시행령·시행규칙·안전보건기준규칙 조문 비교 정리",
+        instructor: "최지도",
+        periodType: "DAYS",
+        periodDays: 120,
+        periodEndDate: "",
+        listPrice: 240000,
+        discountType: "NONE",
+        discountVal: 0,
+        salePrice: 240000,
+        lectureCount: 18,
+        settlementShare: 70,
+        saleStatus: "판매대기",
+        displayYn: "N",
+        createdAt: "2026-03-02"
+      },
+      {
+        code: "CRS-2519",
+        cat1: "산업안전기사",
+        cat2: "실기 작업형",
+        title: "2025 산업안전기사 실기 작업형 동영상 빈출 복원반 (구과정)",
+        summary: "2025년도 정기검정 대비 작업형 동영상 문제 풀이",
+        instructor: "박보건",
+        periodType: "DAYS",
+        periodDays: 45,
+        periodEndDate: "",
+        listPrice: 130000,
+        discountType: "RATE",
+        discountVal: 30,
+        salePrice: 91000,
+        lectureCount: 22,
+        settlementShare: 100,
+        saleStatus: "판매종료",
+        displayYn: "N",
+        createdAt: "2025-09-18"
+      },
+      {
+        code: "CRS-2605",
+        cat1: "산업안전기사",
+        cat2: "실기 작업형",
+        title: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반",
+        summary: "2026년 작업형 동영상 출제 장면별 위험요인 · 안전대책 답안 훈련 (CRS-2519 후속 과정)",
+        instructor: "박보건",
+        periodType: "DAYS",
+        periodDays: 60,
+        periodEndDate: "",
+        listPrice: 150000,
+        discountType: "AMOUNT",
+        discountVal: 25000,
+        salePrice: 125000,
+        lectureCount: 3,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-03-02"
+      },
+      {
+        code: "CRS-2606",
+        cat1: "산업안전지도사",
+        cat2: "필기 단과",
+        title: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과",
+        summary: "산업안전일반 과목 핵심이론 + 연계 교재(핵심요약집) 기반 문제풀이",
+        instructor: "최지도",
+        periodType: "DAYS",
+        periodDays: 120,
+        periodEndDate: "",
+        listPrice: 200000,
+        discountType: "NONE",
+        discountVal: 0,
+        salePrice: 200000,
+        lectureCount: 3,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-04-10"
+      },
+      {
+        code: "CRS-1002",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "정종대 산업안전 실전 빈출특강",
+        summary: "빈출 핵심 문제풀이 2부작 (정종대 기본서 연계)",
+        instructor: "정종대",
+        periodType: "DAYS",
+        periodDays: 90,
+        periodEndDate: "",
+        listPrice: 150000,
+        discountType: "NONE",
+        discountVal: 0,
+        salePrice: 150000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-01-05"
+      },
+      /* [v6.63 W4] 판매 근거 보강 강좌 — ADMN-SETT-001 매핑 · INST-001 계약 상품과 같은 코드 */
+      {
+        code: "CRS-1004",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반",
+        summary: "합격 시 강좌 실결제액 환급(교재 제외) · 판매가 이력: 2026-02 오픈 특가 240,000 → 2026-03 410,000 → 2026-06 막차 특가 180,000 · 2026-06-30 판매종료",
+        instructor: "정종대",
+        periodType: "FIXED_DATE",
+        periodDays: 0,
+        periodEndDate: "2026-12-31",
+        listPrice: 450000,
+        discountType: "AMOUNT",
+        discountVal: 40000,
+        salePrice: 410000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매종료",
+        displayYn: "N",
+        createdAt: "2026-01-20"
+      },
+      {
+        code: "CRS-1001",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "산업안전기사 필기 핵심이론 패키지",
+        summary: "산준교육 콘텐츠 제작 필기 핵심이론 3부작 (계약 만료일 2026-10-14 · 3강 매핑 10-10 종료)",
+        instructor: "산준교육",
+        periodType: "DAYS",
+        periodDays: 90,
+        periodEndDate: "",
+        listPrice: 180000,
+        discountType: "AMOUNT",
+        discountVal: 30000,
+        salePrice: 150000,
+        lectureCount: 3,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2024-10-15"
+      },
+      {
+        code: "CRS-1012",
+        cat1: "위험물산업기사",
+        cat2: "실기 작업형",
+        title: "2026 위험물산업기사 실기 시뮬레이션 특강",
+        summary: "3D 시뮬레이션 공동제작 강좌 (자사 100% · 기여자 최그래픽 매출연동 지원금 5%)",
+        instructor: "엘캠퍼스",
+        periodType: "DAYS",
+        periodDays: 90,
+        periodEndDate: "",
+        listPrice: 150000,
+        discountType: "RATE",
+        discountVal: 20,
+        salePrice: 120000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-05-10"
+      },
+      {
+        code: "CRS-2509",
+        cat1: "산업안전기사",
+        cat2: "필기 단과",
+        title: "2026 산업안전기사 필기 전기위험방지기술 집중 특강",
+        summary: "전기위험방지기술 과목 집중 특강 (강사 계약 2026-10-05 해지 → 판매중지 · 기존 수강생은 수강기간까지 유지)",
+        instructor: "이전기",
+        periodType: "DAYS",
+        periodDays: 60,
+        periodEndDate: "",
+        listPrice: 120000,
+        discountType: "AMOUNT",
+        discountVal: 20000,
+        salePrice: 100000,
+        lectureCount: 2,
+        settlementShare: 100,
+        saleStatus: "판매중지",
+        displayYn: "N",
+        createdAt: "2025-09-20"
+      }
+    ];
+
+    /* [v6.60] 정산 1계층 지분 구성 — ADMN-SETT-001 매핑과 같은 값(상세 화면 표시용) */
+    const COURSE_SHARE_TEXT = {
+      "CRS-2601": "김안전 강사 단독 100.00% · 적용 계약 <code>CT-2026-0715</code> R/S 요율 50% · 2계층 수취인 분할 70:30",
+      "CRS-2602": "김안전 강사 단독 100.00% · 적용 계약 <code>CT-2026-0715</code> R/S 요율 50%",
+      "CRS-2603": "이건설 강사 60.00% + 자사 40.00% · 적용 계약 <code>CT-2026-0712</code> R/S 요율 50% · 개발지원금 10%",
+      "CRS-2604": "최지도 강사 70.00%만 입력 · 30.00% 미배분 · 적용 계약 <code>CT-2026-0405</code>",
+      "CRS-2519": "박보건 강사 단독 100.00% · 적용 계약 <code>CT-2024-1101</code>",
+      "CRS-2605": "박보건 강사 단독 100.00% · 적용 계약 <code>CT-2024-1101</code> R/S 요율 50%",
+      "CRS-2606": "최지도 강사 단독 100.00% · 적용 계약 <code>CT-2026-0405</code> R/S 요율 50%",
+      "CRS-1002": "정종대 강사 70.00% + 자사 30.00% · 적용 계약 <code>CT-2026-0501</code> R/S 요율 50% · 개발지원금 15%",
+      "CRS-1004": "정종대 강사 단독 100.00% · 적용 계약 <code>CT-2026-0501</code> R/S 요율 50% · 합격환급 원거래(2026-02~06 결제분) 스냅샷 지분",
+      "CRS-1001": "산준교육 콘텐츠 80.00% + 자사 20.00% · 적용 계약 <code>CT-2026-0412</code> R/S 요율 50% · 3강 매핑 종료일 10-10(계약 종료일 10-14와 불일치)",
+      "CRS-1012": "자사 100.00% (<code>CT-INTERNAL-000</code>) · 기여자 최그래픽 매출연동 개발지원금 5% (<code>SFA-2026-012</code> · 계약 <code>CT-2026-0702</code>)",
+      "CRS-2509": "이전기 강사 단독 100.00% · 적용 계약 <code>CT-2025-0911</code> R/S 요율 50% · 2026-10-05 해지(해지일까지 결제분만 정산)"
+    };
+
+    // 커리큘럼 섹션 상태 (등록/수정 및 상세 공유)
+    let curriculumSections = [
+      {
+        id: "SEC-1",
+        title: "Part 01. 안전관리론 및 인간공학 핵심 이론",
+        lectures: [
+          { code: "LEC-2601", title: "[1강] 안전관리론 핵심 개념 및 재해발생 메커니즘", durationSec: 2550, pdf: "1강_안전관리론_핵심교안.pdf", previewYn: true },
+          { code: "LEC-2602", title: "[2강] 하인리히 & 버드 재해연쇄성 이론과 빈출 계산문제", durationSec: 2820, pdf: "2강_재해통계지수_공식집.pdf", previewYn: false },
+          { code: "LEC-2603", title: "[3강] 인간공학 및 시스템안전공학 FTA/ETA 위험성평가", durationSec: 2460, pdf: "3강_FTA_실전예제.pdf", previewYn: false }
+        ]
+      },
+      {
+        id: "SEC-2",
+        title: "Part 02. 기계·전기·화학설비 위험방지기술",
+        lectures: [
+          { code: "LEC-2604", title: "[4강] 기계위험방지기술 프레스·전단기·크레인 방호장치", durationSec: 2610, pdf: "4강_기계방호장치_요약.pdf", previewYn: false },
+          { code: "LEC-2605", title: "[5강] 전기 및 화학설비 위험방지 폭발한계 계산 특강", durationSec: 2310, pdf: "5강_폭발한계_빈출모음.pdf", previewYn: false }
+        ]
+      }
+    ];
+
+    // 연계 교재 매핑 상태
+    let mappedTextbooks = [
+      { sku: "PROD-BK-1011", role: "주교재", title: "2026 산준모 산업안전기사 필기 한권완성 이론+빈출", isbn: "979-11-98765-01-2", price: 38000, stock: 420 },
+      { sku: "PROD-BK-1012", role: "부교재", title: "2026 산업안전기사 필기 10개년 과년도 빈출해설집", isbn: "979-11-98765-02-9", price: 29000, stock: 185 }
+    ];
+
+
+    /* =========================================================================
+       [v6.42] 주교재 연동: ADMN-PROD-004 교재 상태 -> 연결 강좌 · 패키지
+       - 주교재 판매중지 · 판매종료: 연결 상품 자동 판매중지 + [판매중] 선택 잠금(복귀는 운영자 수동)
+       - 주교재 일시품절: 판매 상태 유지 + 구매 일시 중지 표시(입고 시 자동 복귀)
+       - 부교재 문제: 경고만
+       ========================================================================= */
+    const BK_STATUS_KEY = "sjm.prod.bookStatus.v1";
+    const BK_STOP_KEY = "sjm.prod.autoStop.v1";
+    const BK_LOG_KEY = "sjm.prod.bookLinkLog.v1";
+    const BK_BOX_ROSE = "margin:0 0 10px; padding:10px 12px; border:1px solid #EF4444; background:#FEF2F2; color:#991B1B; border-radius:8px; font-size:13px; font-weight:600;";
+    const BK_BOX_AMBER = "margin:0 0 10px; padding:10px 12px; border:1px solid #F59E0B; background:#FFFBEB; color:#92400E; border-radius:8px; font-size:13px; font-weight:600;";
+    const BK_PAUSE_BADGE = '<span class="badge" style="margin-left:4px; background:#FFFBEB; color:#92400E; border:1px solid #F59E0B;">구매 일시 중지(주교재 품절)</span>';
+    function bkRead(key, fb) { try { const v = JSON.parse(localStorage.getItem(key) || "null"); return v == null ? fb : v; } catch (e) { return fb; } }
+    function bkWrite(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+    function bkNow() { const d = new Date(); const p = n => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+    function bkBad(st) { return st === "판매중지" || st === "판매종료"; }
+    function bkView(sku, baseStatus, baseStock) {
+      const s = bkRead(BK_STATUS_KEY, {})[sku];
+      let status = baseStatus || "판매중", stock = baseStock;
+      if (s) {
+        if (s.status) status = s.status;
+        if (typeof s.stock === "number") stock = s.stock;
+        if (!bkBad(status) && typeof stock === "number" && stock <= 0) status = "일시품절";
+      }
+      return { status, stock };
+    }
+    function bkEval(items) {
+      const r = { stop: [], sold: [], warn: [] };
+      items.forEach(it => {
+        const v = bkView(it.sku, it.baseStatus, it.baseStock);
+        const e = { sku: it.sku, status: v.status };
+        if (it.main) { if (bkBad(v.status)) r.stop.push(e); else if (v.status === "일시품절") r.sold.push(e); }
+        else if (bkBad(v.status) || v.status === "일시품절") r.warn.push(e);
+      });
+      return r;
+    }
+    function bkLog(code, text) {
+      const arr = bkRead(BK_LOG_KEY, []);
+      arr.unshift({ at: bkNow(), code, text });
+      bkWrite(BK_LOG_KEY, arr.slice(0, 60));
+    }
+    function bkMsgs(iss, who) {
+      const out = [];
+      iss.stop.forEach(e => out.push({ tone: "rose", text: `주교재 [${e.sku}] ${e.status} - 이 ${who}은(는) 자동으로 판매중지되었고 [판매중] 선택이 잠깁니다. 주교재 문제가 풀린 뒤 운영자가 수동으로 판매중으로 되돌려 주세요.` }));
+      iss.sold.forEach(e => out.push({ tone: "amber", text: `주교재 [${e.sku}] 일시품절 - 구매 일시 중지(주교재 품절). 판매 상태는 바뀌지 않으며, 주교재 재고가 들어오면 자동으로 복귀합니다.` }));
+      iss.warn.forEach(e => out.push({ tone: "amber", text: `부교재 [${e.sku}] ${e.status} - 경고만 표시합니다(판매 상태는 유지). 교재 교체 또는 구성 변경 여부를 확인하세요.` }));
+      return out;
+    }
+    function bkMsgHtml(list) {
+      return list.map(m => `<div style="${m.tone === "rose" ? BK_BOX_ROSE : BK_BOX_AMBER}">${m.tone === "rose" ? "[자동 판매중지] " : "[안내] "}${m.text}</div>`).join("");
+    }
+
+    const COURSE_BOOKS = {
+      "CRS-2601": [{ sku: "PROD-BK-1011", role: "주교재" }, { sku: "PROD-BK-1012", role: "부교재" }],
+      "CRS-2602": [{ sku: "PROD-BK-1005", role: "주교재" }],
+      "CRS-2603": [{ sku: "PROD-BK-3003", role: "부교재" }],
+      "CRS-2606": [{ sku: "PROD-BK-1007", role: "주교재" }],
+      "CRS-1002": [{ sku: "PROD-BK-1006", role: "주교재" }],
+      "CRS-1004": [{ sku: "PROD-BK-1006", role: "주교재" }]
+    };
+    function bkItems(code) {
+      return (COURSE_BOOKS[code] || []).map(m => {
+        const b = TEXTBOOK_MASTER_POOL.find(x => x.sku === m.sku) || {};
+        return { sku: m.sku, main: m.role === "주교재", baseStock: b.stock };
+      });
+    }
+    function bkApplyCourseBooks(code) {
+      const m = COURSE_BOOKS[code];
+      if (!m) return;
+      mappedTextbooks = m.map(x => { const b = TEXTBOOK_MASTER_POOL.find(p => p.sku === x.sku); return b ? Object.assign({}, b, { role: x.role }) : null; }).filter(Boolean);
+    }
+    function bkTag(b) {
+      const v = bkView(b.sku, null, b.stock);
+      return (bkBad(v.status) || v.status === "일시품절") ? ` <span class="badge badge-stop" style="margin-left:4px;">${v.status}</span>` : "";
+    }
+    function bkStock(b) { return bkView(b.sku, null, b.stock).stock; }
+
+    function bkSyncCourses() {
+      const marks = bkRead(BK_STOP_KEY, {}); const newly = []; let dirty = false;
+      coursesData.forEach(c => {
+        const iss = bkEval(bkItems(c.code));
+        const mark = marks[c.code];
+        if (iss.stop.length) {
+          if (mark && mark.released) { delete mark.released; dirty = true; }
+          if (c.saleStatus === "판매중") {
+            c.saleStatus = "판매중지";
+            if (!mark) {
+              const e = iss.stop[0];
+              marks[c.code] = { sku: e.sku, status: e.status, at: bkNow() }; dirty = true;
+              bkLog(c.code, `주교재 [${e.sku}] ${e.status} → 판매중에서 판매중지로 자동 전환 (담당자 알림 발송)`);
+              newly.push(c);
+            }
+          }
+        } else if (mark) {
+          if (c.saleStatus === "판매중") c.saleStatus = "판매중지";
+          if (!mark.released) { mark.released = bkNow(); dirty = true; bkLog(c.code, "주교재 문제 해소 확인 - 판매중 복귀는 운영자가 수동으로 진행"); }
+        }
+        c.bk = { stop: iss.stop, sold: iss.sold, warn: iss.warn, auto: !!marks[c.code], released: !!(marks[c.code] && !iss.stop.length) };
+      });
+      if (dirty) bkWrite(BK_STOP_KEY, marks);
+      return newly;
+    }
+    function bkPaused(c) { return c.saleStatus === "판매중" && c.bk && !c.bk.stop.length && c.bk.sold.length > 0; }
+    function bkListExtra(c) {
+      if (!c.bk) return "";
+      let h = "";
+      if (c.bk.stop.length && c.saleStatus === "판매중지") h += `<div style="font-size:11px; color:#B91C1C; font-weight:600;">주교재 ${c.bk.stop[0].status}로 자동 중지</div>`;
+      else if (c.bk.released && c.saleStatus === "판매중지") h += `<div style="font-size:11px; color:#92400E; font-weight:600;">주교재 정상화 - 수동 복귀 대기</div>`;
+      if (bkPaused(c)) h += `<div style="margin-top:2px;">${BK_PAUSE_BADGE}</div>`;
+      if (c.bk.warn.length) h += `<div style="font-size:11px; color:#92400E;">부교재 경고 ${c.bk.warn.length}건</div>`;
+      return h;
+    }
+    function bkRenderAlerts() {
+      const box = document.getElementById("bk-alert-area");
+      if (!box) return;
+      let h = "";
+      coursesData.forEach(c => {
+        if (!c.bk) return;
+        if (c.bk.stop.length && c.bk.auto) h += `<div style="${BK_BOX_ROSE}">[담당자 알림] [${c.code}] 주교재 [${c.bk.stop[0].sku}] ${c.bk.stop[0].status}로 자동 판매중지되었습니다. 문제 해소 후 상세 · 수정에서 수동으로 판매중으로 되돌려 주세요.</div>`;
+        if (bkPaused(c)) h += `<div style="${BK_BOX_AMBER}">[안내] [${c.code}] 주교재 [${c.bk.sold[0].sku}] 일시품절 - 구매 일시 중지(주교재 품절). 입고되면 자동으로 복귀합니다.</div>`;
+        if (c.bk.warn.length) h += `<div style="${BK_BOX_AMBER}">[경고] [${c.code}] 부교재 ${c.bk.warn.map(e => `[${e.sku}] ${e.status}`).join(", ")} - 판매 상태는 유지됩니다.</div>`;
+      });
+      box.innerHTML = h;
+      box.style.display = h ? "block" : "none";
+    }
+    function bkRenderLog(code) {
+      const tb = document.getElementById("bk-log-tbody");
+      if (!tb) return;
+      const rows = bkRead(BK_LOG_KEY, []).filter(x => x.code === code);
+      tb.innerHTML = rows.length
+        ? rows.map(x => `<tr><td class="text-center">${x.at}</td><td>${x.text}</td><td class="text-center">시스템(주교재 연동)</td></tr>`).join("")
+        : `<tr><td colspan="3" class="text-center" style="padding:16px; color:var(--slate-400);">주교재 연동으로 기록된 판매 상태 변경 이력이 없습니다.</td></tr>`;
+    }
+    function bkApplyLock(code, radioSale, statusName, fallbackSel) {
+      const note = document.getElementById("book-link-form-note");
+      const iss = bkEval(bkItems(code));
+      if (iss.stop.length && radioSale) {
+        radioSale.disabled = true;
+        if (radioSale.checked) { const f = document.querySelector(fallbackSel); if (f) f.checked = true; }
+      }
+      if (note) {
+        const html = bkMsgHtml(bkMsgs(iss, "강좌"));
+        note.innerHTML = html; note.style.display = html ? "block" : "none";
+      }
+    }
+    function bkOnStorage(e) {
+      if (e && e.key && e.key !== BK_STATUS_KEY && e.key !== BK_STOP_KEY) return;
+      bkSyncCourses();
+      renderCourseList(); renderDetailView(); bkRefreshLock();
+    }
+    window.addEventListener("storage", bkOnStorage);
+    window.addEventListener("DOMContentLoaded", () => {
+      const n = bkSyncCourses();
+      if (n.length) showToast(`주교재 문제로 연결된 강좌 ${n.length}개가 자동으로 판매중지되었습니다. (담당자 알림 · 변경 이력 기록)`);
+    });
+
+    function bkRenderDetail(c) {
+      const el = document.getElementById("d-status-display");
+      if (!el || !c.bk) return;
+      let h = el.textContent;
+      if (bkPaused(c)) h += BK_PAUSE_BADGE;
+      const msgs = bkMsgs(c.bk, "강좌");
+      if (c.bk.released && c.saleStatus === "판매중지") msgs.push({ tone: "amber", text: "주교재 문제가 해소되었습니다. 현재 판매중지 상태이며, 판매중 복귀는 운영자가 수정 화면에서 직접 진행합니다." });
+      h += `<div style="margin-top:8px;">${bkMsgHtml(msgs)}</div>`;
+      el.innerHTML = h;
+      bkRenderLog(c.code);
+    }
+    function bkRefreshLock() {
+      const f = document.getElementById("f-code");
+      if (f) bkApplyLock(f.value, document.getElementById("radio-sale-on"), "f-sale-status", 'input[name="f-sale-status"][value="판매중지"]');
+    }
+    {
+      const _origLock = applySettlementHardLock;
+      applySettlementHardLock = function () { _origLock(); bkRefreshLock(); };
+      const _origList = renderCourseList;
+      renderCourseList = function () { _origList(); bkRenderAlerts(); };
+    }
+
+    let activeSectionIndexForModal = 0;
+
+    /* =========================================================================
+       3. 유틸 함수
+       ========================================================================= */
+    function formatNumber(n) {
+      return Number(n || 0).toLocaleString("ko-KR");
+    }
+
+    function formatDuration(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}분 ${String(s).padStart(2, "0")}초`;
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toast-box");
+      box.textContent = msg;
+      box.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        box.style.display = "none";
+      }, 2800);
+    }
+
+    /* =========================================================================
+       4. 서브뷰 전환 (003 목록 / 003-S2 상세 조회 / 003-S2 등록·수정 — 커리큘럼 003-S1은 폼 안 섹션)
+       ========================================================================= */
+    function switchSubview(viewName) {
+      document.querySelectorAll(".subview-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".subview-btn").forEach(b => b.classList.remove("active"));
+
+      const panel = document.getElementById(`subview-${viewName}`);
+      const btn = document.querySelector(`.subview-btn[data-view="${viewName}"]`);
+      if (panel) panel.classList.add("active");
+      if (btn) btn.classList.add("active");
+
+      const codeEl = document.getElementById("header-screen-code");
+      const titleEl = document.getElementById("header-screen-title");
+
+      if (viewName === "list") {
+        codeEl.textContent = "ADMN-PROD-003";
+        titleEl.textContent = "단과 강좌 관리 (목록)";
+        renderCourseList();
+      } else if (viewName === "detail") {
+        codeEl.textContent = "ADMN-PROD-003-S2";
+        titleEl.textContent = "단과 강좌 상세 조회";
+        renderDetailView();
+      } else if (viewName === "form") {
+        codeEl.textContent = "ADMN-PROD-003-S2";
+        titleEl.textContent = "단과 강좌 등록 / 수정";
+        renderFormSections();
+        renderFormTextbooks();
+        recalcCoursePrice();
+      /* Init PROD-003 Picker Modals */
+      if (typeof renderLectureModalRows === 'function') renderLectureModalRows();
+      var tb = document.getElementById('modal-textbook-tbody');
+      if (tb && typeof TEXTBOOK_MASTER_POOL !== 'undefined') {
+        tb.innerHTML = TEXTBOOK_MASTER_POOL.map(b => `<tr><td class="text-center"><input type="checkbox" class="book-pick-chk" value="${b.sku}"/></td><td><select class="form-select book-role-sel" data-sku="${b.sku}"><option value="주교재">주교재</option><option value="부교재">부교재</option></select></td><td><span class="code-pill">${b.sku}</span></td><td style="font-weight:600;">${b.title}</td><td>${b.isbn}</td><td class="text-right">${formatNumber(b.price)}원</td><td class="text-center">${formatNumber(b.stock)}권</td></tr>`).join("");
+      }
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /* =========================================================================
+       5. 목록(ADMN-PROD-003) 렌더링 및 검색
+       ========================================================================= */
+    function syncCat2Filter() {
+      // 데모 편의용 유지
+    }
+
+    function resetCourseFilters() {
+      document.getElementById("filter-cat1").value = "ALL";
+      document.getElementById("filter-cat2").value = "ALL";
+      document.getElementById("filter-instructor").value = "ALL";
+      document.getElementById("filter-sale-status").value = "ALL";
+      document.getElementById("filter-display").value = "ALL";
+      document.getElementById("filter-date-from").value = "2025-01-01";
+      document.getElementById("filter-date-to").value = "2026-12-31";
+      document.getElementById("filter-keyword").value = "";
+      renderCourseList();
+    }
+
+    function getStatusBadgeHtml(status) {
+      if (status === "판매중") return `<span class="badge badge-sale">판매중</span>`;
+      if (status === "판매대기") return `<span class="badge badge-ready">판매대기</span>`;
+      if (status === "판매중지") return `<span class="badge badge-stop">판매중지</span>`;
+      return `<span class="badge badge-end">판매종료</span>`;
+    }
+
+    function renderCourseList() {
+      const cat1 = document.getElementById("filter-cat1").value;
+      const cat2 = document.getElementById("filter-cat2").value;
+      const inst = document.getElementById("filter-instructor").value;
+      const status = document.getElementById("filter-sale-status").value;
+      const disp = document.getElementById("filter-display").value;
+      const kw = document.getElementById("filter-keyword").value.trim().toLowerCase();
+
+      const filtered = coursesData.filter(c => {
+        if (cat1 !== "ALL" && c.cat1 !== cat1) return false;
+        if (cat2 !== "ALL" && c.cat2 !== cat2) return false;
+        if (inst !== "ALL" && c.instructor !== inst) return false;
+        if (status !== "ALL" && c.saleStatus !== status) return false;
+        if (disp !== "ALL" && c.displayYn !== disp) return false;
+        if (kw && !(c.title.toLowerCase().includes(kw) || c.code.toLowerCase().includes(kw) || c.instructor.toLowerCase().includes(kw))) {
+          return false;
+        }
+        return true;
+      });
+
+      document.getElementById("course-total-count").textContent = filtered.length;
+      const tbody = document.getElementById("course-list-tbody");
+
+      tbody.innerHTML = filtered.map((c, idx) => {
+        const periodLabel = c.periodType === "DAYS" ? `${c.periodDays}일` : `~${c.periodEndDate}`;
+        let discountLabel = "할인없음";
+        if (c.discountType === "RATE" && c.discountVal > 0) discountLabel = `-${c.discountVal}%`;
+        if (c.discountType === "AMOUNT" && c.discountVal > 0) discountLabel = `-${formatNumber(c.discountVal)}원`;
+
+        const settlementBadge = c.settlementShare === 100
+          ? `<span class="badge badge-sale">100.00% 완료</span>`
+          : `<span class="badge badge-stop">${c.settlementShare}% (미완)</span>`;
+
+        return `
+          <tr>
+            <td class="text-center">${filtered.length - idx}</td>
+            <td><span class="code-pill">${c.code}</span></td>
+            <td>${c.cat1} &gt; ${c.cat2}</td>
+            <td>
+              <a class="course-link" data-dev-route="admin.courses.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="개발은 행 클릭(.crs-row--link data-href) → 수정 폼" onclick="openCourseDetail('${c.code}')">${c.title}</a>
+            </td>
+            <td>${c.instructor}</td>
+            <td class="text-center">${periodLabel}</td>
+            <td class="text-right" style="color:var(--slate-500); text-decoration:line-through;">${formatNumber(c.listPrice)}원</td>
+            <td class="text-right">
+              <strong style="color:var(--navy-900);">${formatNumber(c.salePrice)}원</strong>
+              <div style="font-size:11px; color:var(--primary); font-weight:600;">(${discountLabel})</div>
+            </td>
+            <td class="text-center">${c.lectureCount}강</td>
+            <td class="text-center">${settlementBadge}</td>
+            <td class="text-center">${getStatusBadgeHtml(c.saleStatus)}${bkListExtra(c)}</td>
+            <td class="text-center">
+              <span class="badge ${c.displayYn === 'Y' ? 'badge-info' : 'badge-end'}">${c.displayYn}</span>
+            </td>
+            <td class="text-center">${c.createdAt}</td>
+            <td class="text-center">
+              <div style="display:flex; gap:4px; justify-content:center;">
+                <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.courses.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="개발은 행 클릭(.crs-row--link data-href) → 수정 폼" onclick="openCourseDetail('${c.code}')">상세</button>
+                <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.courses.edit" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/edit" data-dev-perm="수정" onclick="openCourseEdit('${c.code}')">수정</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function openCourseDetail(code) {
+      bkApplyCourseBooks(code);
+      const target = coursesData.find(c => c.code === code) || coursesData[0];
+      window.__currentCourse = target;
+      switchSubview("detail");
+    }
+
+    function openCourseEdit(code) {
+      bkApplyCourseBooks(code);
+      const target = coursesData.find(c => c.code === code) || coursesData[0];
+      window.__currentCourse = target;
+      populateFormWithCourse(target);
+      switchSubview("form");
+    }
+
+    function openNewCourseForm() {
+      document.getElementById("form-mode-title").textContent = "신규 단과 강좌 등록 (ADMN-PROD-003-S2)";
+      document.getElementById("f-code").value = "CRS-AUTO (저장 시 자동채번)";
+      document.getElementById("f-created-at").value = "2026-10-15";
+      document.getElementById("f-title").value = "";
+      document.getElementById("f-summary").value = "";
+      document.getElementById("f-list-price").value = 180000;
+      document.getElementById("f-discount-type").value = "RATE";
+      document.getElementById("f-discount-val").value = 10;
+      document.getElementById("f-settlement-sim").value = "0";
+      applySettlementHardLock();
+      switchSubview("form");
+    }
+
+    function editCurrentDetailCourse() {
+      const target = window.__currentCourse || coursesData[0];
+      populateFormWithCourse(target);
+      switchSubview("form");
+    }
+
+    function populateFormWithCourse(c) {
+      document.getElementById("form-mode-title").textContent = `단과 강좌 수정 — ${c.code} (ADMN-PROD-003-S2)`;
+      document.getElementById("f-code").value = c.code;
+      document.getElementById("f-created-at").value = c.createdAt;
+      document.getElementById("f-cat1").value = c.cat1;
+      document.getElementById("f-cat2").value = c.cat2;
+      document.getElementById("f-instructor").value = c.instructor;
+      document.getElementById("f-title").value = c.title;
+      document.getElementById("f-summary").value = c.summary;
+      document.getElementById("f-list-price").value = c.listPrice;
+      document.getElementById("f-discount-type").value = c.discountType;
+      document.getElementById("f-discount-val").value = c.discountVal;
+      document.getElementById("f-settlement-sim").value = c.settlementShare === 100 ? "100" : "70";
+      { const _r = document.querySelector('input[name="f-sale-status"][value="' + c.saleStatus + '"]'); if (_r) _r.checked = true; }
+      applySettlementHardLock();
+      recalcCoursePrice();
+      /* Init PROD-003 Picker Modals */
+      if (typeof renderLectureModalRows === 'function') renderLectureModalRows();
+      var tb = document.getElementById('modal-textbook-tbody');
+      if (tb && typeof TEXTBOOK_MASTER_POOL !== 'undefined') {
+        tb.innerHTML = TEXTBOOK_MASTER_POOL.map(b => `<tr><td class="text-center"><input type="checkbox" class="book-pick-chk" value="${b.sku}"/></td><td><select class="form-select book-role-sel" data-sku="${b.sku}"><option value="주교재">주교재</option><option value="부교재">부교재</option></select></td><td><span class="code-pill">${b.sku}</span></td><td style="font-weight:600;">${b.title}</td><td>${b.isbn}</td><td class="text-right">${formatNumber(b.price)}원</td><td class="text-center">${formatNumber(b.stock)}권</td></tr>`).join("");
+      }
+    }
+
+    /* =========================================================================
+       6. 상세(ADMN-PROD-003-S2) 렌더링
+       ========================================================================= */
+    function renderDetailView() {
+      const c = window.__currentCourse || coursesData[0];
+      document.getElementById("detail-course-code").textContent = c.code;
+      document.getElementById("detail-course-title").textContent = c.title;
+      document.getElementById("detail-created-at").textContent = `등록일: ${c.createdAt}`;
+      document.getElementById("d-code").textContent = c.code;
+      document.getElementById("d-category").textContent = `${c.cat1} > ${c.cat2}`;
+      document.getElementById("d-title").textContent = c.title;
+      document.getElementById("d-summary").textContent = c.summary;
+      document.getElementById("d-instructor").textContent = `${c.instructor} (권리자 원장 ADMN-INST-001 연동)`;
+      document.getElementById("d-pricing").innerHTML = `정가 ${formatNumber(c.listPrice)}원 → <strong style="color:var(--primary);">판매가 ${formatNumber(c.salePrice)}원</strong>`;
+      document.getElementById("d-status-display").textContent = `${c.saleStatus} / 프론트 노출 (${c.displayYn})`;
+      const shareText = COURSE_SHARE_TEXT[c.code];
+      if (shareText) {
+        const done = c.settlementShare === 100;
+        document.getElementById("d-settlement-box").className = `settlement-gate-box ${done ? "ok" : "locked"}`;
+        document.getElementById("d-settlement-text").innerHTML = `<strong>${done ? "[ADMN-SETT-001 검증 통과]" : "[ADMN-SETT-001 지분 미완성 — 판매중 전환 차단]"}</strong> 1계층 권리자 지분 합계 <strong>${c.settlementShare}.00%</strong> (${shareText})`;
+      }
+      bkRenderDetail(c);
+
+      let totalLectures = 0;
+      let totalSeconds = 0;
+      let previewCount = 0;
+
+      curriculumSections.forEach(sec => {
+        totalLectures += sec.lectures.length;
+        sec.lectures.forEach(l => {
+          totalSeconds += l.durationSec;
+          if (l.previewYn) previewCount++;
+        });
+      });
+
+      document.getElementById("d-sec-count").textContent = `${curriculumSections.length}개 섹션`;
+      document.getElementById("d-lec-count").textContent = `${totalLectures}강`;
+      document.getElementById("d-total-duration").textContent = formatDuration(totalSeconds);
+      document.getElementById("d-preview-count").textContent = `${previewCount}강`;
+
+      const container = document.getElementById("detail-curriculum-container");
+      container.innerHTML = curriculumSections.map((sec, sIdx) => `
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-left">
+              <span class="section-badge">섹션 ${sIdx + 1}</span>
+              <strong style="font-size:13px;">${sec.title}</strong>
+            </div>
+            <span style="font-size:12px; color:var(--slate-500);">차시 ${sec.lectures.length}강</span>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th class="text-center" style="width:65px;">차시</th>
+                <th style="width:110px;">강의코드</th>
+                <th>강의명</th>
+                <th class="text-center" style="width:110px;">재생시간</th>
+                <th style="width:220px;">첨부 교안 (PDF)</th>
+                <th class="text-center" style="width:105px;">맛보기 공개</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sec.lectures.map((l, lIdx) => `
+                <tr>
+                  <td class="text-center">${lIdx + 1}차시</td>
+                  <td><span class="code-pill">${l.code}</span></td>
+                  <td>${l.title}</td>
+                  <td class="text-center">${formatDuration(l.durationSec)}</td>
+                  <td style="font-size:12px; color:var(--primary);">${l.pdf || "-"}</td>
+                  <td class="text-center">
+                    ${l.previewYn ? `<span class="badge badge-sale">무료 맛보기</span>` : `<span class="badge badge-end">수강생 전용</span>`}
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `).join("");
+
+      const tbTbody = document.getElementById("detail-textbook-tbody");
+      tbTbody.innerHTML = mappedTextbooks.map(b => `
+        <tr>
+          <td><span class="badge ${b.role === '주교재' ? 'badge-info' : 'badge-violet'}">${b.role}</span></td>
+          <td><span class="code-pill">${b.sku}</span></td>
+          <td style="font-weight:600;">${b.title}${bkTag(b)}</td>
+          <td>${b.isbn}</td>
+          <td class="text-right">${formatNumber(b.price)}원</td>
+          <td class="text-center">${formatNumber(bkStock(b))}권</td>
+          <td class="text-center"><span class="badge badge-sale">면세 (ISBN 도서)</span></td>
+        </tr>
+      `).join("");
+    }
+
+    /* =========================================================================
+       7. 등록/수정(ADMN-PROD-003-S2) 가격 계산 · 하드락 · 커리큘럼 빌더(003-S1)
+       ========================================================================= */
+    function recalcCoursePrice() {
+      const listPrice = Number(document.getElementById("f-list-price").value || 0);
+      const discType = document.getElementById("f-discount-type").value;
+      const discValInput = document.getElementById("f-discount-val");
+      const unitEl = document.getElementById("f-discount-unit");
+
+      let salePrice = listPrice;
+      if (discType === "NONE") {
+        discValInput.value = 0;
+        discValInput.disabled = true;
+        unitEl.textContent = "-";
+      } else if (discType === "RATE") {
+        discValInput.disabled = false;
+        unitEl.textContent = "%";
+        const rate = Math.min(100, Math.max(0, Number(discValInput.value || 0)));
+        salePrice = Math.round(listPrice * (1 - rate / 100));
+      } else if (discType === "AMOUNT") {
+        discValInput.disabled = false;
+        unitEl.textContent = "원";
+        const amt = Math.min(listPrice, Math.max(0, Number(discValInput.value || 0)));
+        salePrice = listPrice - amt;
+      }
+
+      document.getElementById("f-sale-price-display").value = formatNumber(salePrice);
+    }
+
+    function togglePeriodInput() {
+      const selected = document.querySelector('input[name="f-period-type"]:checked').value;
+      document.getElementById("period-days-wrap").style.display = selected === "DAYS" ? "flex" : "none";
+      document.getElementById("period-date-wrap").style.display = selected === "FIXED_DATE" ? "block" : "none";
+    }
+
+    function applySettlementHardLock() {
+      const simVal = document.getElementById("f-settlement-sim").value;
+      const banner = document.getElementById("f-settlement-banner");
+      const title = document.getElementById("f-settlement-title");
+      const desc = document.getElementById("f-settlement-desc");
+      const radioSaleOn = document.getElementById("radio-sale-on");
+      const radioSaleReady = document.getElementById("radio-sale-ready");
+
+      if (simVal === "100") {
+        banner.className = "settlement-gate-box ok";
+        title.textContent = "[검증 통과] ADMN-SETT-001 1계층 지분 합계 100.00%";
+        desc.textContent = "권리자 지분 합계가 100.00%로 검증되어 [판매중] 상태 설정 및 즉시 노출이 가능합니다.";
+        radioSaleOn.disabled = false;
+      } else {
+        banner.className = "settlement-gate-box locked";
+        title.textContent = `[판매중 전환 차단 — Hard Lock] 1계층 지분 합계 ${simVal}.00% (100% 미달)`;
+        desc.textContent = "ADMN-SETT-001의 1계층 지분율 합계가 100.00%가 아니면 [판매중]으로 설정할 수 없으며 [판매대기]로 강제 고정됩니다.";
+        if (radioSaleOn.checked) radioSaleReady.checked = true;
+        radioSaleOn.disabled = true;
+      }
+    }
+
+    function renderFormSections() {
+      const wrapper = document.getElementById("form-sections-wrapper");
+      let totalLec = 0;
+      let totalSec = 0;
+
+      wrapper.innerHTML = curriculumSections.map((sec, sIdx) => {
+        totalLec += sec.lectures.length;
+        sec.lectures.forEach(l => { totalSec += l.durationSec; });
+
+        return `
+          <div class="section-card">
+            <div class="section-card-header">
+              <div class="section-card-left">
+                <span class="drag-handle" title="드래그하여 섹션 순서 변경">☰</span>
+                <span class="section-badge">섹션 ${sIdx + 1}</span>
+                <input type="text" class="form-input" style="max-width:440px; height:30px; font-weight:700;" value="${sec.title}" onchange="updateSectionTitle(${sIdx}, this.value)" />
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.api.lectures" data-dev-method="GET" data-dev-url="/sj-admin/api/lectures" data-dev-perm="상품 메뉴 4종 중 조회 1개" data-dev-note="개발은 커리큘럼 페이지 후보 표(category_id · instructor_id · keyword · all=1)" onclick="openLectureModal(${sIdx})">+ 강의 불러오기 (ADMN-PROD-002)</button>
+                <button type="button" class="btn btn-danger-outline btn-sm" data-dev-flag="proto-only" data-dev-note="섹션 — 개발 없음" onclick="removeSection(${sIdx})">섹션 삭제</button>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="text-center" style="width:70px;">순서</th>
+                  <th style="width:105px;">강의코드</th>
+                  <th>강의명</th>
+                  <th class="text-center" style="width:105px;">재생시간</th>
+                  <th style="width:210px;">연동 교안 파일</th>
+                  <th class="text-center" style="width:110px;">무료 맛보기</th>
+                  <th class="text-center" style="width:85px;">제외</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sec.lectures.length === 0 ? `
+                  <tr>
+                    <td colspan="7" class="text-center" style="padding:20px; color:var(--slate-400);">
+                      등록된 차시가 없습니다. 우측 상단 [+ 강의 불러오기] 버튼을 눌러 강의를 매핑하세요.
+                    </td>
+                  </tr>
+                ` : sec.lectures.map((lec, lIdx) => `
+                  <tr>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-outline btn-sm" style="padding:0 5px; height:22px;" data-dev-note="개발은 드래그 순서(#curRenumber)" onclick="moveLecture(${sIdx}, ${lIdx}, -1)">▲</button>
+                      <button type="button" class="btn btn-outline btn-sm" style="padding:0 5px; height:22px;" data-dev-note="개발은 드래그 순서(#curRenumber)" onclick="moveLecture(${sIdx}, ${lIdx}, 1)">▼</button>
+                    </td>
+                    <td><span class="code-pill">${lec.code}</span></td>
+                    <td style="font-weight:600;">${lec.title}</td>
+                    <td class="text-center">${formatDuration(lec.durationSec)}</td>
+                    <td style="font-size:12px; color:var(--primary);">${lec.pdf || "-"}</td>
+                    <td class="text-center">
+                      <input type="checkbox" ${lec.previewYn ? "checked" : ""} data-dev-flag="proto-only" data-dev-note="섹션별 맛보기 토글 — 개발 없음(맛보기는 강의 is_preview)" onchange="togglePreview(${sIdx}, ${lIdx}, this.checked)" style="width:15px; height:15px; accent-color:var(--primary); cursor:pointer;" />
+                    </td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-danger-outline btn-sm" data-dev-note="판매 이력 강좌는 기존 강의 제외 불가(CourseService.php:714-724)" onclick="removeLectureFromSection(${sIdx}, ${lIdx})">삭제</button>
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("form-curriculum-summary").textContent =
+        `총 ${curriculumSections.length}개 섹션 · ${totalLec}강 · 합계 ${formatDuration(totalSec)}`;
+    }
+
+    function updateSectionTitle(sIdx, val) {
+      curriculumSections[sIdx].title = val;
+    }
+
+    function addCurriculumSection() {
+      const nextNum = curriculumSections.length + 1;
+      curriculumSections.push({
+        id: `SEC-${Date.now()}`,
+        title: `Part 0${nextNum}. 신규 대단원 섹션명을 입력하세요`,
+        lectures: []
+      });
+      renderFormSections();
+      showToast("신규 섹션(대단원)이 추가되었습니다.");
+    }
+
+    function removeSection(sIdx) {
+      if (curriculumSections.length <= 1) {
+        showToast("최소 1개 이상의 커리큘럼 섹션이 유지되어야 합니다.");
+        return;
+      }
+      curriculumSections.splice(sIdx, 1);
+      renderFormSections();
+    }
+
+    function moveLecture(sIdx, lIdx, dir) {
+      const list = curriculumSections[sIdx].lectures;
+      const targetIdx = lIdx + dir;
+      if (targetIdx < 0 || targetIdx >= list.length) return;
+      const temp = list[lIdx];
+      list[lIdx] = list[targetIdx];
+      list[targetIdx] = temp;
+      renderFormSections();
+    }
+
+    function togglePreview(sIdx, lIdx, checked) {
+      curriculumSections[sIdx].lectures[lIdx].previewYn = checked;
+    }
+
+    function removeLectureFromSection(sIdx, lIdx) {
+      curriculumSections[sIdx].lectures.splice(lIdx, 1);
+      renderFormSections();
+    }
+
+    /* =========================================================================
+       8. 강의 불러오기 모달 (ADMN-PROD-002 연동) & 교재 모달 (ADMN-PROD-004 연동)
+       ========================================================================= */
+    function openLectureModal(sectionIdx) {
+      activeSectionIndexForModal = sectionIdx;
+      document.getElementById("modal-lec-keyword").value = "";
+      renderLectureModalRows();
+      document.getElementById("modal-lecture-picker").classList.add("open");
+    }
+
+    function closeLectureModal() {
+      document.getElementById("modal-lecture-picker").classList.remove("open");
+    }
+
+    function renderLectureModalRows() {
+      const kw = document.getElementById("modal-lec-keyword").value.trim().toLowerCase();
+      const tbody = document.getElementById("modal-lecture-tbody");
+      const rows = LECTURE_MASTER_POOL.filter(l =>
+        !kw || l.title.toLowerCase().includes(kw) || l.code.toLowerCase().includes(kw)
+      );
+
+      tbody.innerHTML = rows.map(l => `
+        <tr>
+          <td class="text-center">
+            <input type="checkbox" class="lec-pick-chk" data-dev-name="lectures[]" value="${l.code}" style="width:15px; height:15px; accent-color:var(--primary);" />
+          </td>
+          <td><span class="code-pill">${l.code}</span></td>
+          <td style="font-weight:600;">${l.title}</td>
+          <td>${l.instructor}</td>
+          <td class="text-center"><span class="badge badge-info">${l.player}</span></td>
+          <td class="text-center">${formatDuration(l.durationSec)}</td>
+          <td class="text-center">${l.pdf ? "첨부됨" : "-"}</td>
+        </tr>
+      `).join("");
+    }
+
+    function confirmAddLecturesToSection() {
+      const checkedCodes = Array.from(document.querySelectorAll(".lec-pick-chk:checked")).map(el => el.value);
+      if (checkedCodes.length === 0) {
+        showToast("추가할 강의를 1개 이상 선택해 주세요.");
+        return;
+      }
+      const targetSec = curriculumSections[activeSectionIndexForModal];
+      checkedCodes.forEach(code => {
+        const found = LECTURE_MASTER_POOL.find(item => item.code === code);
+        if (found && !targetSec.lectures.some(x => x.code === code)) {
+          targetSec.lectures.push({
+            code: found.code,
+            title: found.title,
+            durationSec: found.durationSec,
+            pdf: found.pdf,
+            previewYn: false
+          });
+        }
+      });
+      closeLectureModal();
+      renderFormSections();
+      showToast(`섹션 ${activeSectionIndexForModal + 1}에 강의가 매핑되었습니다.`);
+    }
+
+    // 교재 매핑 렌더링 및 모달
+    function renderFormTextbooks() {
+      const tbody = document.getElementById("form-textbooks-tbody");
+      if (mappedTextbooks.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="text-center" style="padding:18px; color:var(--slate-400);">
+              매핑된 연계 교재가 없습니다. [+ 교재 검색 및 추가] 버튼으로 주교재/부교재를 연결하세요.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      tbody.innerHTML = mappedTextbooks.map((b, idx) => `
+        <tr>
+          <td>
+            <select class="form-select" style="height:28px; font-size:12px;" data-dev-name="books[n][book_type]" data-dev-value="main 주교재 · sub 부교재" onchange="mappedTextbooks[${idx}].role = this.value">
+              <option value="주교재" ${b.role === "주교재" ? "selected" : ""}>주교재 (필수)</option>
+              <option value="부교재" ${b.role === "부교재" ? "selected" : ""}>부교재 (선택)</option>
+            </select>
+          </td>
+          <td><span class="code-pill">${b.sku}</span></td>
+          <td style="font-weight:600;">${b.title}</td>
+          <td>${b.isbn}</td>
+          <td class="text-right">${formatNumber(b.price)}원</td>
+          <td class="text-center">${formatNumber(b.stock)}권</td>
+          <td class="text-center">
+            <button type="button" class="btn btn-danger-outline btn-sm" data-dev-note="books[n] 행 제거" onclick="removeMappedTextbook(${idx})">해제</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function removeMappedTextbook(idx) {
+      mappedTextbooks.splice(idx, 1);
+      renderFormTextbooks();
+    }
+
+    function openTextbookModal() {
+      const tbody = document.getElementById("modal-textbook-tbody");
+      tbody.innerHTML = TEXTBOOK_MASTER_POOL.map(b => `
+        <tr>
+          <td class="text-center">
+            <input type="checkbox" class="book-pick-chk" value="${b.sku}" style="width:15px; height:15px; accent-color:var(--primary);" />
+          </td>
+          <td>
+            <select class="form-select book-role-sel" data-sku="${b.sku}" data-dev-name="books[n][book_type]" data-dev-value="main · sub" style="height:28px; font-size:12px;">
+              <option value="주교재" ${b.role === "주교재" ? "selected" : ""}>주교재</option>
+              <option value="부교재" ${b.role === "부교재" ? "selected" : ""}>부교재</option>
+            </select>
+          </td>
+          <td><span class="code-pill">${b.sku}</span></td>
+          <td style="font-weight:600;">${b.title}</td>
+          <td>${b.isbn}</td>
+          <td class="text-right">${formatNumber(b.price)}원</td>
+          <td class="text-center">${formatNumber(b.stock)}권</td>
+        </tr>
+      `).join("");
+      document.getElementById("modal-textbook-picker").classList.add("open");
+    }
+
+    function closeTextbookModal() {
+      document.getElementById("modal-textbook-picker").classList.remove("open");
+    }
+
+    function confirmAddTextbooks() {
+      const checked = Array.from(document.querySelectorAll(".book-pick-chk:checked")).map(el => el.value);
+      if (checked.length === 0) {
+        showToast("연결할 교재를 선택해 주세요.");
+        return;
+      }
+      checked.forEach(sku => {
+        const found = TEXTBOOK_MASTER_POOL.find(b => b.sku === sku);
+        const roleSel = document.querySelector(`.book-role-sel[data-sku="${sku}"]`);
+        if (found && !mappedTextbooks.some(x => x.sku === sku)) {
+          mappedTextbooks.push({
+            ...found,
+            role: roleSel ? roleSel.value : found.role
+          });
+        }
+      });
+      closeTextbookModal();
+      renderFormTextbooks();
+      showToast("선택한 교재가 단과 강좌에 매핑되었습니다.");
+    }
+
+    /* =========================================================================
+       9. 단과 강좌 저장
+       ========================================================================= */
+    function saveCourseForm() {
+      const title = document.getElementById("f-title").value.trim();
+      if (!title) {
+        showToast("강좌명을 입력해 주세요.");
+        document.getElementById("f-title").focus();
+        return;
+      }
+
+      let totalLecCount = 0;
+      curriculumSections.forEach(s => { totalLecCount += s.lectures.length; });
+      if (totalLecCount === 0) {
+        showToast("커리큘럼에 최소 1개 이상의 강의를 매핑해야 저장할 수 있습니다.");
+        return;
+      }
+
+      const codeVal = document.getElementById("f-code").value;
+      const isNew = codeVal.includes("AUTO");
+      const nextNo = Math.max(0, ...coursesData.map(c => (/^CRS-26(\d{2})$/.exec(c.code) || [0, 0])[1] * 1)) + 1;
+      const finalCode = isNew ? `CRS-26${String(nextNo).padStart(2, "0")}` : codeVal;
+
+      const listPrice = Number(document.getElementById("f-list-price").value || 0);
+      const discType = document.getElementById("f-discount-type").value;
+      const discVal = Number(document.getElementById("f-discount-val").value || 0);
+      const salePrice = Number(document.getElementById("f-sale-price-display").value.replace(/,/g, "") || 0);
+      const saleStatus = document.querySelector('input[name="f-sale-status"]:checked').value;
+      const displayYn = document.querySelector('input[name="f-display-yn"]:checked').value;
+      const settlementShare = Number(document.getElementById("f-settlement-sim").value || 100);
+
+      const payload = {
+        code: finalCode,
+        cat1: document.getElementById("f-cat1").value,
+        cat2: document.getElementById("f-cat2").value,
+        title,
+        summary: document.getElementById("f-summary").value.trim(),
+        instructor: document.getElementById("f-instructor").value,
+        periodType: document.querySelector('input[name="f-period-type"]:checked').value,
+        periodDays: Number(document.getElementById("f-period-days").value || 90),
+        periodEndDate: document.getElementById("f-period-enddate").value,
+        listPrice,
+        discountType: discType,
+        discountVal: discVal,
+        salePrice,
+        lectureCount: totalLecCount,
+        settlementShare,
+        saleStatus,
+        displayYn,
+        createdAt: document.getElementById("f-created-at").value
+      };
+
+      {
+        const _iss = bkEval(bkItems(finalCode));
+        if (_iss.stop.length && payload.saleStatus === "판매중") payload.saleStatus = "판매중지";
+        const _m = bkRead(BK_STOP_KEY, {});
+        if (!_iss.stop.length && _m[finalCode]) { delete _m[finalCode]; bkWrite(BK_STOP_KEY, _m); bkLog(finalCode, `운영자 저장: 판매 상태 ${payload.saleStatus} (자동 중지 표식 해제)`); }
+      }
+      const existingIdx = coursesData.findIndex(c => c.code === finalCode);
+      if (existingIdx >= 0) {
+        coursesData[existingIdx] = payload;
+      } else {
+        coursesData.unshift(payload);
+      }
+
+      window.__currentCourse = payload;
+      bkSyncCourses();
+      showToast(`단과 강좌 [${finalCode}] 정보가 저장되었습니다.`);
+      switchSubview("list");
+    }
+
+    function exportCourseCsv() {
+      showToast("현재 필터링된 단과 강좌 목록 CSV 파일을 생성했습니다.");
+    }
+
+    /* 초기 실행 */
+    window.addEventListener("DOMContentLoaded", () => {
+      renderCourseList();
+      renderDetailView();
+      renderFormSections();
+      renderFormTextbooks();
+      recalcCoursePrice();
+      /* Init PROD-003 Picker Modals */
+      if (typeof renderLectureModalRows === 'function') renderLectureModalRows();
+      var tb = document.getElementById('modal-textbook-tbody');
+      if (tb && typeof TEXTBOOK_MASTER_POOL !== 'undefined') {
+        tb.innerHTML = TEXTBOOK_MASTER_POOL.map(b => `<tr><td class="text-center"><input type="checkbox" class="book-pick-chk" value="${b.sku}"/></td><td><select class="form-select book-role-sel" data-sku="${b.sku}"><option value="주교재">주교재</option><option value="부교재">부교재</option></select></td><td><span class="code-pill">${b.sku}</span></td><td style="font-weight:600;">${b.title}</td><td>${b.isbn}</td><td class="text-right">${formatNumber(b.price)}원</td><td class="text-center">${formatNumber(b.stock)}권</td></tr>`).join("");
+      }
+    });
+  </script><script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>

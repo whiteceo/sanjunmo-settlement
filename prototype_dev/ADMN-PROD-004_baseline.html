@@ -1,0 +1,2833 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>교재 관리 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --navy-950: #0B1120;
+      --navy-900: #0F172A;
+      --navy-800: #1E293B;
+      --navy-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748B;
+      --slate-400: #94A3B8;
+      --slate-300: #CBD5E1;
+      --slate-200: #E2E8F0;
+      --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC;
+      --white: #FFFFFF;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --emerald: #059669;
+      --emerald-soft: #ECFDF5;
+      --emerald-border: #A7F3D0;
+      --amber: #D97706;
+      --amber-soft: #FFFBEB;
+      --amber-border: #FDE68A;
+      --rose: #E11D48;
+      --rose-soft: #FFF1F2;
+      --rose-border: #FECDD3;
+      --violet: #7C3AED;
+      --violet-soft: #F5F3FF;
+      --violet-border: #DDD6FE;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background-color: var(--slate-100);
+      color: var(--navy-900);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==================== MASTER SNB (v4 픽셀 고정) ==================== */
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    /* ==================== MAIN WORKSPACE ==================== */
+    .app-shell {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .breadcrumb .crumb-code {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+    }
+    .breadcrumb .crumb-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy-900);
+      margin-left: 4px;
+    }
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .role-sim-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      color: var(--navy-800);
+      font-weight: 600;
+    }
+    .subview-switcher {
+      display: inline-flex;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .subview-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s;
+    }
+    .subview-btn:hover { color: var(--navy-900); }
+    .subview-btn.active {
+      background: var(--white);
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      font-weight: 700;
+    }
+    .subview-btn .code-tag {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 10.5px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--slate-200);
+      color: var(--navy-800);
+    }
+    .subview-btn.active .code-tag {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .main-container {
+      padding: 20px 28px 48px 28px;
+      max-width: 1560px;
+      width: 100%;
+    }
+
+    /* ==================== 도서 3원장 4단계 신호등 프로세스 바 ==================== */
+    .book-pipeline-stepper {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    .stepper-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .stepper-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--navy-900);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .stepper-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .step-light {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+    .light-green { background: var(--emerald-soft); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .light-yellow { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
+    .light-red { background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose-border); }
+
+    /* ==================== 3-Way 도서 등록 진입 선택 카드 ==================== */
+    .entry-mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .entry-mode-card {
+      border: 2px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      background: var(--white);
+      transition: all 0.14s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .entry-mode-card:hover {
+      border-color: var(--primary-border);
+      background: var(--slate-50);
+    }
+    .entry-mode-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+    }
+    .entry-mode-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--navy-900);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .entry-mode-body {
+      font-size: 12px;
+      color: var(--slate-600);
+      line-height: 1.45;
+    }
+    .entry-mode-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px dashed var(--slate-300);
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    /* Policy Banner */
+    .policy-banner {
+      background: linear-gradient(90deg, #EFF6FF 0%, #F8FAFC 100%);
+      border: 1px solid var(--primary-border);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 11px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .policy-banner-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .policy-badge {
+      background: var(--primary);
+      color: var(--white);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+    .policy-text {
+      font-size: 12px;
+      color: var(--navy-800);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      margin-bottom: 18px;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy-900);
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .card-body { padding: 18px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.12s;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-lg { height: 38px; padding: 0 18px; font-size: 13px; }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: var(--white); border-color: var(--slate-300); color: var(--navy-800); }
+    .btn-outline:hover { background: var(--slate-50); border-color: var(--slate-400); }
+    .btn-soft { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+    .btn-soft:hover { background: #DBEAFE; }
+    .btn-danger-outline { background: var(--white); border-color: var(--rose-border); color: var(--rose); }
+    .btn-danger-outline:hover { background: var(--rose-soft); }
+
+    /* Form Controls */
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      height: 34px;
+      padding: 0 11px;
+      border: 1px solid var(--slate-300);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--navy-900);
+      background: var(--white);
+      font-family: inherit;
+      transition: border-color 0.12s, box-shadow 0.12s;
+    }
+    .form-textarea {
+      height: auto;
+      padding: 9px 11px;
+      resize: vertical;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .form-input[readonly], .form-input:disabled, .form-select:disabled {
+      background: var(--slate-100);
+      color: var(--slate-500);
+      cursor: not-allowed;
+    }
+    .input-with-unit {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .input-unit {
+      font-size: 12px;
+      color: var(--slate-600);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Filter Grid */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 16px;
+      align-items: end;
+    }
+    .filter-field label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--slate-600);
+      margin-bottom: 5px;
+    }
+    .filter-span-2 { grid-column: span 2; }
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--slate-200);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .badge-sale { background: var(--emerald-soft); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .badge-preorder { background: var(--violet-soft); color: var(--violet); border: 1px solid var(--violet-border); }
+    .badge-out { background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose-border); }
+    .badge-warn { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
+    .badge-end { background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-300); }
+    .badge-info { background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-border); }
+
+    .code-pill {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      color: var(--navy-800);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* Mini 3-Ledger Traffic Dots in List Table */
+    .ledger-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .dot-chip {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+    }
+    .dot-ok { background: var(--emerald-soft); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .dot-pend { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
+    .dot-miss { background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose-border); }
+
+    /* Tables */
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.data-table th {
+      background: var(--slate-50);
+      color: var(--slate-600);
+      font-weight: 700;
+      font-size: 11.5px;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--slate-200);
+      color: var(--navy-900);
+      vertical-align: middle;
+    }
+    table.data-table tbody tr:hover { background: #F8FAFC; }
+    .text-right { text-align: right !important; }
+    .text-center { text-align: center !important; }
+    .book-link {
+      color: var(--navy-900);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .book-link:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    /* Spec Form Table */
+    .spec-form-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-top: 1px solid var(--slate-200);
+    }
+    .spec-form-table th {
+      width: 175px;
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      border-right: 1px solid var(--slate-200);
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy-800);
+      vertical-align: middle;
+    }
+    .spec-form-table td {
+      border-bottom: 1px solid var(--slate-200);
+      padding: 10px 14px;
+      vertical-align: middle;
+    }
+    .req-star { color: var(--rose); margin-left: 3px; font-weight: 800; }
+    .field-hint {
+      font-size: 11.5px;
+      color: var(--slate-500);
+      margin-top: 4px;
+    }
+
+    /* Inline Options */
+    .inline-options {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .option-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--navy-800);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .option-label input {
+      accent-color: var(--primary);
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    /* Supply Ledger Sync Box */
+    .ledger-sync-box {
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 12px 16px;
+      background: var(--slate-50);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .ledger-sync-box.warn {
+      background: var(--rose-soft);
+      border-color: var(--rose-border);
+    }
+    .ledger-sync-box.ok {
+      background: var(--emerald-soft);
+      border-color: var(--emerald-border);
+    }
+    .masked-cost {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      background: var(--navy-900);
+      color: #FACC15;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+
+    /* Subview Panels */
+    .subview-panel { display: none; }
+    .subview-panel.active { display: block; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-window {
+      background: var(--white);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 820px;
+      max-height: 86vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title { font-size: 15px; font-weight: 800; color: var(--navy-900); }
+    .modal-body { padding: 18px 20px; overflow-y: auto; }
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--slate-200);
+      background: var(--slate-50);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* Toast */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy-900);
+      color: var(--white);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+      z-index: 3000;
+      display: none;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+    <link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PROD-004", "devCommit": "d562524a", "progress": "구현(목록 · 등록/수정 · 재고 조정 · 판매중지 · 재고 이력 레이어). 프로토 '교재 상세 조회' · 3-Way 가채번/공급원장 불러오기 · 3원장 신호등은 개발 미구현", "menus": [{"route": "admin.books.index", "label": "교재 관리"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">상품 · 강좌 · 교재 관리</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-PROD-004</span>
+      <h1 class="crumb-title" id="header-screen-title">교재 관리 (도서정가제 상한 10% · 면세 · 3원장 연동)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <div class="role-sim-box" title="ADMN-BOOK-001 공급원가 열람 권한 시뮬레이터" data-dev-note="개발 역할 코드 finance(재무) 또는 최고 관리자만 사입 원가 열람 · 저장(AdminPermissionService::canManageCostPrice)">
+          <span>열람 권한:</span>
+          <select id="role-mask-select" class="form-select" style="height:26px; width:195px; font-size:11.5px; padding:0 8px;" onchange="applyRoleCostMasking()">
+            <option value="PROD_ADMIN">그 밖의 역할 그룹 (원가 마스킹)</option>
+            <option value="FIN_MANAGER">재무팀 (원가 열람)</option>
+          </select>
+        </div>
+
+        <div class="subview-switcher" role="tablist" aria-label="교재 관리 서브 화면 전환">
+          <button type="button" class="subview-btn active" data-view="list" data-dev-route="admin.books.index" data-dev-method="GET" data-dev-url="/sj-admin/books" data-dev-perm="조회" onclick="switchSubview('list')">
+            <span class="code-tag">004</span>
+            <span>교재 목록</span>
+          </button>
+          <button type="button" class="subview-btn" data-view="detail" data-dev-flag="proto-only" data-dev-route="admin.books.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/books/{book}" data-dev-perm="조회" data-dev-note="교재 상세 조회 — 개발 미구현(행 클릭이 수정 폼, 재고 이력은 수정 화면 레이어 layerStockLogs)" onclick="switchSubview('detail')">
+            <span class="code-tag">004-S1</span>
+            <span>교재 상세 조회 · 재고이력</span>
+          </button>
+          <button type="button" class="subview-btn" data-view="form" data-dev-route="admin.books.create | admin.books.edit" data-dev-method="GET" data-dev-url="/sj-admin/books/create | /books/{book}/edit" data-dev-perm="등록 | 수정" onclick="switchSubview('form')">
+            <span class="code-tag">004-S1</span>
+            <span>교재 등록/수정</span>
+          </button>
+        </div>
+    </div></header><div id="v4-page-body">
+  
+  
+
+  <!-- ==================== 고정 SNB (v4.0.0) ==================== -->
+  
+
+  <!-- ==================== 메인 워크스페이스 ==================== -->
+  
+  
+    <!-- 표준화된 Top Bar: [도메인 경로] › [화면코드 배지] [표준 한글 기능명] -->
+    
+
+    <main class="main-container">
+      <!-- ==================== [보강 핵심 1] 도서 3원장 4단계 신호등 상태바 ==================== -->
+      <div class="book-pipeline-stepper" data-dev-flag="proto-only" data-dev-note="도서 3원장 4단계 신호등 — 개발 없음">
+        <div class="stepper-header">
+          <div class="stepper-title">
+            <span class="badge badge-info">도서 3원장 통합 워크플로우 가이드</span>
+            <span>교재는 출발점(강사 인세 계약 vs 외부 사입)에 따라 아래 4단계 원장이 유기적으로 연결됩니다. 각 카드를 클릭하면 해당 원장으로 이동합니다.</span>
+          </div>
+          <span style="font-size:11.5px; color:var(--slate-500); font-weight:600;" id="stepper-target-label">현재 선택 도서: [PROD-BK-1011] 산안기 필기 한권완성</span>
+        </div>
+
+        <div class="stepper-grid">
+          <a class="step-node" href="ADMN-INST-001_baseline.html">
+            <div class="step-node-top">
+              <span class="step-num">Step 1. 권리자 계약 원장 (인세도서 가채번)</span>
+              <span class="step-light light-green" id="step1-light">🟢 가채번 완료 (BK-REQ-2026-0011)</span>
+            </div>
+            <div class="step-desc">
+              <code>ADMN-INST-001</code> · 강사 저자 계약 시 임시 도서코드(가채번)를 먼저 생성합니다. (외부 사입 도서는 생략 가능)
+            </div>
+          </a>
+
+          <a class="step-node" href="ADMN-BOOK-001_baseline.html">
+            <div class="step-node-top">
+              <span class="step-num">Step 2. 도서 공급 원장 (SKU · 매입원가)</span>
+              <span class="step-light light-green" id="step2-light">🟢 공급원장 등록됨</span>
+            </div>
+            <div class="step-desc">
+              <code>ADMN-BOOK-001</code> · 정식 SKU(<code>PROD-BK-NNNN</code>)를 부여하고 출판사 공급률·제조원가·인세율을 확정합니다.
+            </div>
+          </a>
+
+          <a class="step-node" href="ADMN-SETT-001_baseline.html">
+            <div class="step-node-top">
+              <span class="step-num">Step 3. 상품별 권리자 매핑 (지분 100%)</span>
+              <span class="step-light light-green" id="step3-light">🟢 계약원장 자동상속</span>
+            </div>
+            <div class="step-desc">
+              <code>ADMN-SETT-001</code> · 가채번 도서는 계약 지분이 자동 상속되며(공동 저자는 여기서 지분 확인), 계약원장 없이 신규 생성한 도서는 여기서 권리자를 수동 매핑합니다.
+            </div>
+          </a>
+
+          <div class="step-node current-screen" onclick="switchSubview('form')" style="cursor:pointer;">
+            <div class="step-node-top">
+              <span class="step-num">Step 4. 교재 상세 · 재고 · 전시 (현재 화면)</span>
+              <span class="step-light light-green" id="step4-light">🟢 판매중 (420권)</span>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- 도서정가제/면세 정책 배너 -->
+      <div class="policy-banner">
+        <div class="policy-banner-left">
+          <span class="policy-badge">도서 기본 할인 0~10% · 면세 고정</span>
+          <div class="policy-text">
+            산준모 판매 교재는 <strong>도서정가제 상한 10% 이내 기본 할인(<code>book_discount_rate</code> 0~10%, <code>book_discount_rate_limit = 10%</code>)</strong>만 적용하고 쿠폰 · 포인트 추가 할인은 막으며, ISBN 도서로서 <strong>부가세 면세(VAT 0%)</strong> 처리됩니다. 재고 <strong>0권</strong> 도달 시 자동으로 <strong>[일시품절]</strong> 전환됩니다.
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" data-dev-route="admin.books.create" data-dev-method="GET" data-dev-url="/sj-admin/books/create" data-dev-perm="등록" onclick="openNewBookForm()">+ 3-Way 교재 등록 바로가기</button>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 1] ADMN-PROD-004 : 교재 목록                                     -->
+      <!-- ========================================================================= -->
+      <section id="subview-list" class="subview-panel active">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">교재 검색 조건</h2>
+              <span class="card-subtitle">카테고리 · 생성 경로(가채번 연동 / 공급원장 연동 / 직접등록) · 원장 매핑 상태 · 재고 조회</span>
+            </div>
+            <span class="code-pill">Table: textbook</span>
+          </div>
+          <div class="card-body">
+            <div class="filter-grid">
+              <div class="filter-field">
+                <label>카테고리 분류</label>
+                <select id="filter-cat" name="category_id" data-dev-note="자격증 종류(카테고리)" class="form-select">
+                  <option value="ALL">전체 카테고리</option>
+                  <option value="산업안전기사">산업안전기사</option>
+                  <option value="건설안전기사">건설안전기사</option>
+                  <option value="산업안전지도사">산업안전지도사</option>
+                  <option value="산업위생관리기사">산업위생관리기사</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>도서 등록 출발 경로</label>
+                <select id="filter-origin" data-dev-flag="proto-only" data-dev-note="등록 출발 경로(INST_TEMP · BOOK_LEDGER · PROD_DIRECT) — 개발 없음(Q-PROD004-4). 개발은 공급 형태 book_supply_type 필터" class="form-select">
+                  <option value="ALL">전체 경로</option>
+                  <option value="INST_TEMP">[경로 1] 계약원장 가채번 출발 (인세도서)</option>
+                  <option value="BOOK_LEDGER">[경로 2] 공급원장 SKU 출발 (위탁/사입)</option>
+                  <option value="PROD_DIRECT">[경로 3] 교재관리 직접 선등록 (후속매핑 필요)</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>판매 상태 (예약판매 포함)</label>
+                <select id="filter-status" name="display_status" data-dev-value="selling · hidden · stopped — 예약판매 · 판매대기 · 일시품절 · 판매종료 없음(Q-PROD004-2)" class="form-select">
+                  <option value="ALL">전체 상태</option>
+                  <option value="판매중">판매중</option>
+                  <option value="예약판매">예약판매 (출간예정)</option>
+                  <option value="판매대기">판매대기 (원장 매핑 미완)</option>
+                  <option value="일시품절">일시품절 (재고 0)</option>
+                  <option value="판매중지">판매중지 (구매만 차단)</option>
+                  <option value="판매종료">판매종료 (구판 · 절판)</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>재고 상태 필터</label>
+                <select id="filter-stock" name="stock_status" data-dev-value="normal 정상 · low 임계치 이하 · soldout 품절 (프로토 LOW · ZERO)" class="form-select">
+                  <option value="ALL">전체 재고</option>
+                  <option value="LOW">안전재고 미달 (20권 이하)</option>
+                  <option value="ZERO">품절 (0권)</option>
+                </select>
+              </div>
+
+              <div class="filter-field">
+                <label>프론트 노출 여부</label>
+                <select id="filter-display" data-dev-flag="proto-only" data-dev-note="노출 Y/N 분리 — 개발 없음(Q-PROD004-2)" class="form-select">
+                  <option value="ALL">전체</option>
+                  <option value="Y">노출 (Y)</option>
+                  <option value="N">미노출 (N)</option>
+                </select>
+              </div>
+              <div class="filter-field" data-dev-flag="dev-only" data-dev-note="개발 book_supply_type 필터(BookSupplyService::SUPPLY_LABELS)">
+                <label>공급 형태</label>
+                <select name="book_supply_type" class="form-select"><option value="">전체</option><option value="OWN_PUBLISHED">자사 발행</option><option value="PURCHASED_RESALE">매입 재판매</option><option value="CONSIGNMENT">위탁</option><option value="BUNDLED">부속</option></select>
+              </div>
+              <div class="filter-field" data-dev-flag="dev-only" data-dev-note="개발 is_free · published_from · published_to · instructor_id 필터">
+                <label>판매 구분 · 발행일</label>
+                <div style="display:flex; gap:6px; align-items:center;">
+                  <select name="is_free" class="form-select" style="width:90px;"><option value="">전체</option><option value="0">유료</option><option value="1">무료</option></select>
+                  <input type="date" name="published_from" class="form-input">
+                  <input type="date" name="published_to" class="form-input">
+                </div>
+              </div>
+              <div class="filter-field filter-span-2">
+                <label>검색어 (교재명 / SKU 코드 / 가채번 코드 / ISBN-13 / 저자명)</label>
+                <input type="text" id="filter-keyword" name="title" data-dev-note="개발은 title · author · publisher · isbn 4칸 따로(SKU · 가채번 검색 없음)" class="form-input" placeholder="교재명, PROD-BK-NNNN, BK-REQ-YYYY-SEQ, ISBN-13, 저자명 입력">
+              </div>
+              <div class="filter-field" style="display:flex; justify-content:flex-end; gap:8px;">
+                <button type="button" class="btn btn-outline" data-dev-route="admin.books.index" data-dev-method="GET" data-dev-url="/sj-admin/books" data-dev-perm="조회" onclick="resetBookFilters()">초기화</button>
+                <button type="button" class="btn btn-primary" data-dev-route="admin.books.index" data-dev-method="GET" data-dev-url="/sj-admin/books" data-dev-perm="조회" onclick="renderBookList()">조건 검색</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">교재 마스터 목록 (3원장 연동 신호등 표시)</h2>
+              <span class="card-subtitle">총 <strong id="book-total-count" style="color:var(--primary);">0</strong>종 조회됨 · 행 클릭 시 상단 4단계 신호등이 해당 도서 기준으로 갱신됩니다</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline" data-dev-route="admin.books.download" data-dev-method="GET" data-dev-url="/sj-admin/books/download" data-dev-perm="다운로드" data-dev-note="사유 레이어 layerReason(공통)" onclick="showToast('교재 마스터 목록 CSV 다운로드가 완료되었습니다.')">엑셀 다운로드 (CSV)</button>
+              <button type="button" class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.books.selected.download" data-dev-method="POST" data-dev-url="/sj-admin/books/download-selected" data-dev-perm="다운로드" data-dev-note="체크한 행 ids[] + 사유">선택 다운로드</button>
+              <button type="button" class="btn btn-primary" data-dev-route="admin.books.create" data-dev-method="GET" data-dev-url="/sj-admin/books/create" data-dev-perm="등록" onclick="openNewBookForm()">+ 신규 교재 등록 (3-Way)</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="text-center" style="width:36px;" data-dev-flag="dev-only"><input type="checkbox" id="checkAll" /></th>
+                    <th class="text-center" style="width:46px;">No</th>
+                    <th style="width:110px;" data-dev-note="개발 BK_00001 — 가채번 표시는 개발 없음" data-dev-name="code">교재 SKU / 가채번</th>
+                    <th style="width:135px;" data-dev-flag="proto-only" data-dev-note="등록 출발 경로 — 개발 없음(Q-PROD004-4). 개발에는 공급 형태 컬럼">등록 출발 경로</th>
+                    <th>교재명</th>
+                    <th style="width:95px;" data-dev-note="개발 2컬럼 + ISBN · 발행일 컬럼" data-dev-name="author · publisher">저자 / 출판사</th>
+                    <th class="text-right" style="width:95px;" data-dev-note="개발 '판매가' (= 정가)" data-dev-name="sale_price">정가(면세)</th>
+                    <th class="text-right" style="width:120px;" data-dev-note="재무(finance) 역할만 컬럼 표시" data-dev-name="cost_price">공급원가(BOOK-001)</th>
+                    <th class="text-center" style="width:215px;" data-dev-flag="proto-only" data-dev-note="3원장 신호등 — 개발 없음. 개발에는 '연결 상품 수' 컬럼">3원장 연동 신호등 (계약·원가·매핑)</th>
+                    <th class="text-center" style="width:90px;" data-dev-name="stock · stock_status">현재 재고</th>
+                    <th class="text-center" style="width:105px;" data-dev-name="display_status">판매상태</th>
+                    <th class="text-center" style="width:90px;" data-dev-flag="proto-only" data-dev-note="개발 목록에 등록일 없음">등록일</th>
+                    <th class="text-center" style="width:140px;">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="book-list-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 2] ADMN-PROD-004-S1(조회) : 교재 상세 · 재고 수불 이력             -->
+      <!-- v12에는 상세 전용 코드가 없다(PROD-004는 S1 교재 등록 · 수정뿐). 같은 S1을 조회 · [수정] 두 단계로 나눈 것(PROD-003과 같은 방식) -->
+      <!-- ========================================================================= -->
+      <section id="subview-detail" class="subview-panel" data-dev-flag="proto-only" data-dev-note="교재 상세 조회 — 개발 미구현(admin.books.show 규칙)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">← 목록으로</button>
+            <span class="code-pill" id="d-sku-badge">PROD-BK-1011</span>
+            <h2 style="font-size:16px; font-weight:800;" id="d-book-title">2026 산준모 산업안전기사 필기 한권완성 이론+빈출</h2>
+            <span id="d-status-badge" class="badge badge-sale">판매중</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-soft" data-dev-route="admin.books.edit" data-dev-method="GET" data-dev-url="/sj-admin/books/{book}/edit" data-dev-perm="수정" data-dev-note="개발은 수정 화면의 재고 조정 레이어 layerStockAdjust" onclick="openStockAdjustModal()">재고 입고/차감 등록</button>
+            <a class="btn btn-outline" href="ADMN-BOOK-001_baseline.html">도서 공급 원장 (ADMN-BOOK-001)</a>
+            <button type="button" class="btn btn-primary" data-dev-route="admin.books.edit" data-dev-method="GET" data-dev-url="/sj-admin/books/{book}/edit" data-dev-perm="수정" onclick="editCurrentDetailBook()">교재 정보 수정 (004-S1)</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">1. 교재 기본 · 3원장 바인딩 · 가격 · 배송 정책 정보</h3>
+              <span class="card-subtitle">계약원장 가채번 코드 및 도서 공급 원장(ADMN-BOOK-001) 연결 상태</span>
+            </div>
+            <span class="code-pill" id="d-created-at">등록일: 2026-01-05</span>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>교재 SKU 코드</th>
+                  <td><span class="code-pill" id="d-sku">PROD-BK-1011</span></td>
+                  <th>계약원장 가채번 코드<br>(ADMN-INST-001)</th>
+                  <td id="d-temp-code"><span class="code-pill">BK-REQ-2026-0011</span> (김안전 저자 출판계약서 자동 상속)</td>
+                </tr>
+                <tr>
+                  <th>교재명</th>
+                  <td colspan="3" style="font-weight:700;" id="d-title">2026 산준모 산업안전기사 필기 한권완성 이론+빈출</td>
+                </tr>
+                <tr>
+                  <th>저자명 / 출판사</th>
+                  <td id="d-author-pub">김안전 저 / 산준모북스</td>
+                  <th>ISBN-13 / 출간일</th>
+                  <td id="d-isbn-pubdate"><code>979-11-98765-01-2</code> / 출간일: 2026-01-10</td>
+                </tr>
+                <tr>
+                  <th>정가 / 도서할인 / 판매가</th>
+                  <td id="d-price-info">
+                    정가 <strong>38,000원</strong> / 할인율 <strong>0% (도서정가제 상한 10%)</strong> → 최종 판매가 <strong style="color:var(--primary);">38,000원 (면세)</strong>
+                  </td>
+                  <th>배송비 정책</th>
+                  <td>기본 배송비 <strong>3,000원</strong> (순수 실물(교재·일반상품) 결제 합계 <strong>30,000원 이상 무료배송</strong> (강좌 금액 합산 제외 · 도서산간 우편번호 대조 추가배송비 가산) / 1주문당 최대 5권)</td>
+                </tr>
+                <tr>
+                  <th>3원장 연결 및 정산 검증</th>
+                  <td colspan="3">
+                    <div class="ledger-sync-box ok" id="d-ledger-box">
+                      <div>
+                        <strong id="d-supply-type">[[경로 1] 계약원장 가채번 출발 · 3원장 완전 동기화]</strong>
+                        <span id="d-ledger-desc">공급원장(ADMN-BOOK-001) 원가 등록 완료 · 권리자 매핑(ADMN-SETT-001) 저자인세 10% 자동 매핑 완료</span>
+                        · 단위 공급원가: <span class="masked-cost" id="d-cost-display">🔒 마스킹 (재무팀 전용)</span>
+                      </div>
+                      <div style="display:flex; gap:6px;">
+                        <a href="ADMN-BOOK-001_baseline.html" class="btn btn-outline btn-sm">ADMN-BOOK-001 원장</a>
+                        <a href="ADMN-SETT-001_baseline.html" class="btn btn-outline btn-sm">ADMN-SETT-001 매핑</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">2. 최근 재고 수불(입고 · 주문차감 · 반품 · 조정) 이력</h3>
+              <span class="card-subtitle">재고 0권 도달 시 판매상태가 자동으로 [일시품절]로 전환됩니다.</span>
+            </div>
+            <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.books.edit" data-dev-method="GET" data-dev-url="/sj-admin/books/{book}/edit" data-dev-perm="수정" data-dev-note="개발은 수정 화면의 재고 조정 레이어 layerStockAdjust" onclick="openStockAdjustModal()">+ 재고 수동 입고/조정</button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:155px;">처리 일시</th>
+                  <th style="width:120px;">수불 유형</th>
+                  <th class="text-right" style="width:110px;">변동 수량</th>
+                  <th class="text-right" style="width:110px;">변동 후 잔여재고</th>
+                  <th>사유 및 참조 전표번호</th>
+                  <th style="width:130px;">처리자</th>
+                </tr>
+              </thead>
+              <tbody id="detail-stock-log-tbody" data-dev-note="개발 재고 이력 레이어 layerStockLogs (book_stock_logs: type · quantity · before_stock · after_stock · order_id · admin_id · memo)"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 3] ADMN-PROD-004-S1 : 교재 등록 / 수정 (3-Way 진입 선택기 탑재)     -->
+      <!-- ========================================================================= -->
+      <section id="subview-form" class="subview-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">← 목록으로</button>
+            <h2 style="font-size:16px; font-weight:800;" id="form-mode-title">교재 등록 / 수정 (ADMN-PROD-004-S1 · 1차 오픈 도서 SKU 원본 입력처 / ADMN-BOOK-001은 조회·매입처 전용)</h2>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">취소</button>
+            <button type="button" class="btn btn-primary btn-lg" data-dev-route="admin.books.store | admin.books.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/books | /books/{book}" data-dev-perm="등록 | 수정" data-dev-note="BookRequest" onclick="saveBookForm()">교재 정보 저장</button>
+          </div>
+        </div>
+
+        <!-- ==================== [보강 핵심 2] 3-Way 도서 등록 진입 경로 선택기 ==================== -->
+        <div class="card">
+          <div class="card-header" style="background:var(--slate-50);">
+            <div class="card-title-group">
+              <h3 class="card-title">Step 0. 도서 등록 출발 경로 선택 (3-Way 바인딩 가이드)</h3>
+              <span class="card-subtitle">실무 혼선을 막기 위해 현재 등록하려는 교재가 어느 원장에서 출발했는지 먼저 선택하세요.</span>
+            </div>
+            <span class="badge badge-info">업무 흐름 자동 가이드</span>
+          </div>
+          <div class="card-body">
+            <div class="entry-mode-grid">
+              <!-- 경로 A -->
+              <div class="entry-mode-card selected" id="entry-card-INST_TEMP" data-dev-flag="proto-only" data-dev-note="3-Way 등록 출발 경로 — 개발 없음(Q-PROD004-4)" onclick="selectEntryMode('INST_TEMP')">
+                <div>
+                  <div class="entry-mode-title">
+                    <span>[경로 1] 계약원장(ADMN-INST-001) 가채번 도서 불러오기</span>
+                    <span class="badge badge-sale">강사 인세도서 권장</span>
+                  </div>
+                  <div class="entry-mode-body" style="margin-top:8px;">
+                    강사와 저자 인세 계약을 먼저 체결하여 <strong>가채번(<code>BK-REQ-YYYY-SEQ</code>)</strong>된 도서를 불러옵니다.<br>
+                    저자명·인세율·권리자 지분이 자동 상속됩니다. <strong>단독 저자는 권리자 매핑(SETT-001)이 따로 필요 없고, 공동 저자는 SETT-001에서 저자별 지분을 확인합니다.</strong>
+                  </div>
+                </div>
+                <div class="entry-mode-foot">
+                  <span style="color:var(--primary);" id="entry-status-INST_TEMP">현재 바인딩: BK-REQ-2026-0011 (김안전 10%)</span>
+                  <button type="button" class="btn btn-soft btn-sm" data-dev-flag="proto-only" data-dev-route="admin.books.royalty-contracts.index (규칙)" onclick="event.stopPropagation(); openTempBookModal();">가채번 도서 검색 →</button>
+                </div>
+              </div>
+
+              <!-- 경로 B -->
+              <div class="entry-mode-card" id="entry-card-BOOK_LEDGER" data-dev-flag="proto-only" data-dev-note="3-Way 등록 출발 경로 — 개발 없음(Q-PROD004-4)" onclick="selectEntryMode('BOOK_LEDGER')">
+                <div>
+                  <div class="entry-mode-title">
+                    <span>[경로 2] 도서 공급원장(ADMN-BOOK-001) 기등록 SKU 불러오기</span>
+                    <span class="badge badge-info">위탁·사입 표준</span>
+                  </div>
+                  <div class="entry-mode-body" style="margin-top:8px;">
+                    재무/출판 담당자가 <strong>도서 공급 원장(<code>ADMN-BOOK-001</code>)</strong>에서 먼저 생성한 정식 SKU를 불러옵니다.<br>
+                    SKU·정가·출판사·공급원가가 자동 세팅되며, 최고 관리자는 표지·목차·재고만 입력합니다.
+                  </div>
+                </div>
+                <div class="entry-mode-foot">
+                  <span style="color:var(--slate-600);" id="entry-status-BOOK_LEDGER">공급원장 미연결 SKU 2건 대기중</span>
+                  <button type="button" class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-route="admin.books.supply-skus.index (규칙)" onclick="event.stopPropagation(); openSupplyLedgerModal();">공급원장 SKU 검색 →</button>
+                </div>
+              </div>
+
+              <!-- 경로 C -->
+              <div class="entry-mode-card" id="entry-card-PROD_DIRECT" data-dev-flag="proto-only" data-dev-note="3-Way 등록 출발 경로 — 개발 없음(Q-PROD004-4)" onclick="selectEntryMode('PROD_DIRECT')">
+                <div>
+                  <div class="entry-mode-title">
+                    <span>[경로 3] 이 화면(PROD-004)에서 즉시 신규 SKU 생성</span>
+                    <span class="badge badge-warn">후속 매핑 필수</span>
+                  </div>
+                  <div class="entry-mode-body" style="margin-top:8px;">
+                    계약원장·공급원장 등록 전에 최고 관리자가 먼저 <strong>신규 SKU(<code>PROD-BK-AUTO</code>)</strong>를 채번하여 등록합니다.<br>
+                    단, 저장 후 <strong>공급원장 원가 입력(BOOK-001)</strong> 및 <strong>권리자 매핑(SETT-001)</strong>을 완료하기 전에는 <strong>[판매대기]</strong>로 잠금됩니다.
+                  </div>
+                </div>
+                <div class="entry-mode-foot">
+                  <span style="color:var(--amber);">선등록 후 원장 역매핑 모드</span>
+                  <button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); selectEntryMode('PROD_DIRECT');">즉시 신규 채번 전환</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 경로 선택에 따른 실시간 체크리스트 알림 박스 -->
+            <div id="entry-mode-alert" class="ledger-sync-box ok" style="margin-top:14px;">
+              <div>
+                <strong id="entry-alert-title">[경로 1 선택됨 — 계약원장 가채번(BK-REQ-2026-0011) 연동 완료]</strong>
+                <div style="font-size:12px; margin-top:2px;" id="entry-alert-desc">
+                  계약원장(ADMN-INST-001)에서 저자(김안전 · RH-0019) 및 인세율(10%) 정보가 자동 연동되었습니다. 표지 이미지와 재고만 입력하면 즉시 [판매중]으로 전시할 수 있습니다.
+                </div>
+              </div>
+              <div style="display:flex; gap:6px; flex-shrink:0;" id="entry-alert-actions">
+                <a href="ADMN-INST-001_baseline.html" class="btn btn-outline btn-sm">계약원장 확인</a>
+                <a href="ADMN-BOOK-001_baseline.html" class="btn btn-outline btn-sm">공급원장 확인</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. 서지 및 기본 정보 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">1. 교재 기본 및 서지(ISBN) 정보</h3>
+              <span class="card-subtitle">교재 SKU · 가채번 바인딩 코드 및 ISBN-13 중복·유효성 검증</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>교재 SKU 코드 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" id="f-sku" data-dev-note="개발 서버 채번 BK_00001" data-dev-name="code" class="form-input" style="width:190px; font-weight:700;" value="PROD-BK-1011" readonly="">
+                      <span class="field-hint" style="margin:0;">공급원장 연동 또는 신규 자동채번(<code>PROD-BK-NNNN</code>)</span>
+                    </div>
+                  </td>
+                  <th>계약원장 가채번 코드<br>(ADMN-INST-001)</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" id="f-temp-code" data-dev-flag="proto-only" data-dev-note="가채번 코드 — 개발 없음(Q-PROD004-4)" class="form-input" style="width:170px;" value="BK-REQ-2026-0011" readonly="">
+                      <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.books.royalty-contracts.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/books/royalty-contracts" data-dev-perm="조회" data-dev-flag="proto-only" onclick="openTempBookModal()">가채번 변경</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>카테고리 분류 <span class="req-star">*</span></th>
+                  <td>
+                    <select id="f-cat" name="category_id" data-dev-note="2Depth만 · category_products 대표" class="form-select" style="width:220px;">
+                      <option value="산업안전기사">산업안전기사</option>
+                      <option value="건설안전기사">건설안전기사</option>
+                      <option value="산업안전지도사">산업안전지도사</option>
+                      <option value="산업위생관리기사">산업위생관리기사</option>
+                    </select>
+                  </td>
+                  <th>출간일 <span class="req-star">*</span></th>
+                  <td>
+                    <input type="date" id="f-pub-date" name="published_at" class="form-input" style="width:180px;" value="2026-01-10">
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="개발 cert_category_ids[](1Depth 복수) · edition · book_size · page_count">
+                  <th>자격증 종류</th>
+                  <td>
+                    <select name="cert_category_ids[]" class="form-select" style="width:220px;" multiple size="2"><option value="산업안전기사">산업안전기사</option><option value="건설안전기사">건설안전기사</option></select>
+                  </td>
+                  <th>판쇄 · 판형 · 페이지</th>
+                  <td>
+                    <div style="display:flex; gap:6px;">
+                      <input type="text" name="edition" class="form-input" style="width:90px;" placeholder="판쇄">
+                      <input type="text" name="book_size" class="form-input" style="width:90px;" placeholder="판형">
+                      <input type="number" name="page_count" class="form-input" style="width:90px;" placeholder="페이지">
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>교재명 <span class="req-star">*</span></th>
+                  <td colspan="3">
+                    <input type="text" id="f-title" name="title" data-dev-note="required · max 255" class="form-input" maxlength="100" value="2026 산준모 산업안전기사 필기 한권완성 이론+빈출" placeholder="교재명을 입력하세요 (최대 100자)">
+                  </td>
+                </tr>
+                <tr>
+                  <th>부제 / 한줄 설명</th>
+                  <td colspan="3">
+                    <input type="text" id="f-subtitle" data-dev-flag="proto-only" data-dev-note="부제 — 개발 없음" class="form-input" maxlength="150" value="2026년 최신 개정 법령 및 출제기준 100% 반영 · 무료 해설강의 연동">
+                  </td>
+                </tr>
+                <tr>
+                  <th>저자명 (권리자 연동) <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; gap:8px;">
+                      <input type="text" id="f-author" name="author" data-dev-note="required · max 100 (book_authors)" class="form-input" style="width:150px;" value="김안전">
+                      <select id="f-author-inst" name="instructors[0][instructor_id]" data-dev-note="개발 #instructorRows — instructors[n][instructor_id] · [role] m · s · a" class="form-select" style="width:210px;">
+                        <option value="RH-0019">김안전 (RH-0019 · 인세 10%)</option>
+                        <option value="RH-0046">이건설 (RH-0046 · 인세 10%)</option>
+                        <option value="RH-0048">최지도 (RH-0048 · 인세 12%)</option>
+                        <option value="NONE">외부 저자 (권리자 매핑 별도)</option>
+                      </select>
+                    </div>
+                  </td>
+                  <th>출판사명 / ISBN-13 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" id="f-publisher" name="publisher" class="form-input" style="width:140px;" value="산준모북스" placeholder="출판사명">
+                      <input type="text" id="f-isbn" name="isbn" data-dev-note="개발 #isbn · #isbnFormat — 부속(BUNDLED) 외 required · 전체 유일 · 형식 검사(서버 isbnRule)" class="form-input" style="width:175px;" value="979-11-98765-01-2" placeholder="979-11-XXXXX-XX-X">
+                      <button type="button" class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="ISBN 검증 버튼 — 개발은 서버 검증만" onclick="validateIsbnField()">ISBN 검증</button>
+                    </div>
+                    <div class="field-hint" id="f-isbn-lock-msg" style="display:none;">🔒 결제 · 출고 이력이 있는 교재 — ISBN 변경 영구 차단. 개정판은 새 ISBN · 새 SKU로 등록하고 구판은 판매종료로 내립니다.</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. 도서정가제 가격 · 면세 · 공급원장 바인딩 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">2. 도서정가제 가격 · 세무(면세) · 도서 공급 원장(ADMN-BOOK-001) 바인딩</h3>
+              <span class="card-subtitle">도서 할인율은 도서정가제 상한 10%까지 정수로 입력합니다. 쿠폰 · 포인트 추가 할인은 0%로 고정됩니다.</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr data-dev-flag="dev-only" data-dev-note="개발 #isFree toggleFreeBook() — 등록 때만, 1이면 가격 0 · 도서정가제 제외">
+                  <th>판매 구분</th>
+                  <td colspan="3">
+                    <label class="option-label"><input type="checkbox" name="is_free" value="1"><span>무료 도서</span></label>
+                  </td>
+                </tr>
+                <tr>
+                  <th>도서 정가 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="input-with-unit" style="width:210px;">
+                      <input type="number" id="f-list-price" name="original_price" data-dev-note="등록 때만 — 수정은 BOOK-001 정가 이력(admin.book-supply.prices.update)" class="form-input text-right" value="38000" min="0" step="500" oninput="syncBookSalePrice()">
+                      <span class="input-unit">원</span>
+                    </div>
+                    <div class="field-hint" id="f-price-rule-msg" style="display:none;"></div>
+                  </td>
+                  <th>도서 할인율 (0~10%)</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="number" id="f-book-discount-rate" data-dev-note="개발 교재별 할인율 칸 없음 — 판매가 직접 입력 + site_settings.book_discount_rate_limit(기본 0%) 검증(Q-PROD004-3)" name="book_discount_rate" class="form-input text-right" style="width:80px;" value="0" min="0" max="10" step="1" oninput="syncBookSalePrice()">
+                      <span class="input-unit">%</span>
+                      <span class="badge badge-warn">도서정가제 상한 10% · 쿠폰 · 포인트 0%</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>최종 판매가 (할인 반영)</th>
+                  <td>
+                    <div class="input-with-unit" style="width:220px;">
+                      <input type="text" id="f-sale-price" name="sale_price" data-dev-note="등록 때만 · ≤ 정가 · 정가 × (1 − 한도%) 이상" class="form-input text-right" style="font-weight:800; color:var(--primary);" value="38,000" readonly="">
+                      <span class="input-unit">원 (면세 VAT 0%)</span>
+                    </div>
+                  </td>
+                  <th>배송비 정책</th>
+                  <td>
+                    <span class="badge badge-info">기본 3,000원 · 도서/상품 실결제 30,000원 이상 무료배송</span>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;" data-dev-flag="dev-only" data-dev-note="개발 교재별 배송 정책 delivery_fee · is_free_delivery · free_delivery_threshold · island_delivery_fee · return_delivery_fee · package_bundled_yn">
+                      <input type="number" name="delivery_fee" class="form-input text-right" style="width:100px;" placeholder="배송비">
+                      <input type="number" name="free_delivery_threshold" class="form-input text-right" style="width:120px;" placeholder="무료 기준금액">
+                      <input type="number" name="island_delivery_fee" class="form-input text-right" style="width:110px;" placeholder="도서산간">
+                      <input type="number" name="return_delivery_fee" class="form-input text-right" style="width:110px;" placeholder="반품 배송비">
+                      <label class="option-label"><input type="checkbox" name="is_free_delivery" value="1"><span>무조건 무료</span></label>
+                      <label class="option-label"><input type="checkbox" name="package_bundled_yn" value="1"><span>패키지 동봉</span></label>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>도서 공급 원장 연결<br>(ADMN-BOOK-001)</th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <select id="f-supply-ledger" data-dev-note="개발 교재 폼에서 받지 않음(LEDGER_OWNED_KEYS) — 🔒 표시 + BOOK-001(admin.book-supply.edit)에서 지정(Q-PROD004-4)" data-dev-name="book_supply_type" data-dev-value="OWN_PUBLISHED · PURCHASED_RESALE · CONSIGNMENT · BUNDLED" class="form-select" style="width:360px;" onchange="onSupplyLedgerChange()">
+                        <option value="">공급 형태 선택 (SKU 채번 앞자리 결정)</option>
+                        <option value="자체출판(인세)">[자사] 산준모북스 — 자사 발행 (SKU 1xxx · 저자 인세 10% 정산)</option>
+                        <option value="사입판매">사입판매 (SKU 2xxx · 매입처는 거래처 원장에서 선택)</option>
+                        <option value="위탁판매">[RH-0044] 안전기술출판 — 위탁판매 (SKU 3xxx · 공급률 75% · 수수료 25%)</option>
+                        <option value="비매품(번들)">[자사] 비매품 — 강좌 번들 출고 전용 (SKU 4xxx · 정산기준금 0원)</option>
+                        <option value="미등록(후속입력)">[미등록] 공급 형태 미확정 — 기존 선등록 SKU 전용</option>
+                      </select>
+                      <select id="f-supply-vendor" data-dev-note="BOOK-001 소관" data-dev-name="supplier_id" class="form-select" style="width:300px; display:none;" onchange="onSupplyVendorChange()"></select>
+                      <span class="field-hint" id="f-supply-vendor-label" style="margin:0;"></span>
+                      <span class="masked-cost" id="f-cost-preview">🔒 매입원가 마스킹 (재무팀 전용)</span>
+                      <a href="ADMN-BOOK-001_baseline.html" class="btn btn-outline btn-sm">ADMN-BOOK-001에서 공급원가 관리 →</a>
+                    </div>
+                    <div class="field-hint" id="f-supply-lock-msg" style="display:none;">🔒 결제 · 출고 이력이 있는 교재 — 공급 형태 변경 영구 차단(정산 라우팅 고정).</div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. 예약판매(is_preorder) · 재고 수량 · 판매상태 하드락 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">3. 예약판매(<code>is_preorder</code>) · 재고 수량 · 판매 상태 제어</h3>
+              <span class="card-subtitle">재고 0권 시 [일시품절] 자동 전환 · 경로 3(직접 선등록) 선택 시 원장 매핑 전까지 [판매대기] 하드락 작동</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>예약판매 설정<br>(<code>is_preorder</code>)</th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+                      <label class="option-label">
+                        <input type="checkbox" id="f-is-preorder" name="is_preorder" onchange="togglePreorderFields()">
+                        <span><strong>예약판매(출간 예정 도서 선주문) 활성화</strong></span>
+                      </label>
+                      <div id="preorder-date-wrap" style="display:none; align-items:center; gap:10px;">
+                        <span class="input-unit" style="color:var(--violet);">출고 예정일 (<code>release_date</code>) <span class="req-star">*</span></span>
+                        <input type="date" id="f-release-date" name="release_date" data-dev-note="DB 컬럼만 — 개발 폼 입력칸 없음(restock_date만 있음)" class="form-input" style="width:170px;" value="2026-11-15">
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>현재 재고 수량 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="number" id="f-stock-qty" name="stock" data-dev-note="등록 때만 required — 이후 재고 조정(admin.books.stock.update)으로만" class="form-input text-right" style="width:120px; font-weight:700;" value="420" min="0" oninput="checkZeroStockHardLock()">
+                      <span class="input-unit">권</span>
+                      <button type="button" class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="재고 0권 하드락 시뮬레이션 — 개발은 재고 0이면 전시와 별개로 품절 처리" onclick="setZeroStockDemo()">재고 0권 시뮬레이션</button>
+                    </div>
+                  </td>
+                  <th>안전재고 알림 기준</th>
+                  <td>
+                    <div class="input-with-unit" style="width:170px;">
+                      <input type="number" id="f-safe-stock" name="stock_alert_qty" class="form-input text-right" value="20" min="0">
+                      <span class="input-unit">권 이하 시 경고</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>판매 상태 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label">
+                        <input type="radio" name="f-book-status" id="radio-book-sale" value="판매중" data-dev-name="display_status" data-dev-value="selling" checked="">
+                        <span>판매중</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-book-status" id="radio-book-preorder" value="예약판매" data-dev-name="is_preorder" data-dev-value="1 (+ display_status selling)" data-dev-note="개발은 판매 상태가 아니라 is_preorder 플래그">
+                        <span>예약판매</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-book-status" id="radio-book-ready" value="판매대기" data-dev-flag="proto-only" data-dev-note="판매대기(원장 매핑 대기) — 개발 없음(Q-PROD004-2)">
+                        <span>판매대기 (원장매핑 대기)</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-book-status" id="radio-book-out" value="일시품절" data-dev-flag="proto-only" data-dev-note="일시품절 — 개발은 상태값이 아니라 재고 0 파생 품절(soldout)">
+                        <span>일시품절 (재고 0)</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-book-status" id="radio-book-pause" value="판매중지" data-dev-note="개발은 [판매중지] 레이어 layerBookStop(admin.books.stop.update)으로도 전환" data-dev-name="display_status" data-dev-value="stopped">
+                        <span>판매중지 (구매 차단)</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-book-status" id="radio-book-end" value="판매종료" data-dev-flag="proto-only" data-dev-note="판매종료(구판 · 절판) — 개발 없음(Q-PROD004-2)">
+                        <span>판매종료 (구판 · 절판)</span>
+                      </label>
+                    </div>
+                    <div class="field-hint" id="stock-hardlock-msg">3원장 매핑이 완료되고 재고가 1권 이상일 때 [판매중] 설정이 가능합니다.</div>
+                    <div class="field-hint" id="pause-sale-msg" style="display:none;">[판매중지] 운영자가 판매를 멈춘 교재입니다. 목록 · 상세 전시는 유지되고 구매(결제) 버튼만 비활성화되어 신규 결제가 차단됩니다. [일시품절]과 달리 재고가 입고되거나 바뀌어도 자동으로 판매중이 되지 않으며, 운영자가 판매 상태를 [판매중]으로 직접 바꿔야 다시 판매됩니다. 판매중 전환은 3원장 매핑(권리자 지분 합계 100%) 완료와 재고 1권 이상 조건을 그대로 따릅니다.</div>
+                    <div class="field-hint" id="end-of-sale-msg" style="display:none;">[판매종료] 개정판 출간 등으로 판매를 끝낸 교재입니다. 프론트 노출이 미노출로 고정되고, 재고가 바뀌어도 판매중으로 돌아가지 않습니다. 과거 주문의 환불 · 정산은 그대로 처리됩니다.</div>
+                  </td>
+                  <th>프론트 노출 여부 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label">
+                        <input type="radio" name="f-book-display" value="Y" data-dev-name="display_status" data-dev-note="노출 분리 — 개발은 display_status 1칸(Q-PROD004-2)" checked="">
+                        <span>노출 (Y)</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-book-display" value="N" data-dev-name="display_status" data-dev-value="hidden">
+                        <span>미노출 (N)</span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 4. 표지 이미지 · 미리보기 PDF · 목차 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">4. 교재 표지 이미지 · 미리보기(PDF) · 목차 및 상세 소개</h3>
+              <span class="card-subtitle">프론트 교재 상세 화면의 미리보기 뷰어 및 목차 탭 데이터</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>교재 표지 이미지 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <input type="text" class="form-input" style="width:320px;" value="book_cover_2601_front.jpg (600x860px)" readonly="">
+                      <button type="button" class="btn btn-outline btn-sm" data-dev-note="개발 #thumbnailSelector — jpg/png/webp · 5MB · 700×980 이상 · 5:7, 삭제 delete_thumbnail" data-dev-name="thumbnail" onclick="showToast('표지 이미지 업로드 창 호출')">표지 파일 선택</button>
+                    </div>
+                  </td>
+                  <th>미리보기 샘플 PDF</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <input type="text" class="form-input" style="width:270px;" value="preview_book2601_sample_20p.pdf" readonly="">
+                      <button type="button" class="btn btn-outline btn-sm" data-dev-note="개발은 미리보기 이미지 여러 장(#previewSelector, 5MB) — PDF 아님" data-dev-name="preview_images[]" onclick="showToast('미리보기 PDF 업로드 (최대 20MB)')">PDF 변경</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="개발 detail_images[] (#detailSelector) · table_of_contents(목차 별도 칸)">
+                  <th>상세 이미지</th>
+                  <td>
+                    <input type="file" name="detail_images[]" class="form-input" style="width:320px;" accept="image/*" multiple>
+                  </td>
+                  <th>목차</th>
+                  <td>
+                    <textarea name="table_of_contents" class="form-textarea" rows="2" placeholder="목차"></textarea>
+                  </td>
+                </tr>
+                <tr>
+                  <th>교재 목차 및 상세 소개 <span class="req-star">*</span></th>
+                  <td colspan="3">
+                    <textarea id="f-book-desc" name="description" data-dev-note="개발은 description · table_of_contents 2칸" class="form-textarea" rows="4">Part 01. 안전관리론 ~ Part 06. 건설안전기술 + 최근 10개년 과년도 빈출해설 수록
+- 한국산업인력공단 최신 출제기준 및 2026년 개정 산업안전보건법령 완벽 반영
+- 김안전 강사의 단과 강좌(CRS-2601) 및 0원 합격 환급반(PKG-2601) 공식 주교재</textarea>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  
+
+  <!-- ==================== [모달 1] ADMN-INST-001 계약원장 가채번 도서 불러오기 ==================== -->
+  <div class="modal-backdrop" id="modal-temp-book" data-dev-flag="proto-only" data-dev-note="가채번 도서 불러오기 — 개발 미구현(book_royalty_contracts 원장 필드만)">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">[경로 1] 계약원장(ADMN-INST-001) 가채번 도서 불러오기 (저자 인세 자동 상속)</div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeTempBookModal()">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:12px; color:var(--slate-600); margin-bottom:12px;">
+          권리자 계약 원장(<code>ADMN-INST-001</code>)에서 출판/인세 계약 체결 시 자동 채번된 임시 도서 목록입니다. 선택하면 저자·인세율·권리자 매핑이 자동으로 연결됩니다.
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:120px;">가채번 코드</th>
+              <th style="width:110px;">연결된 SKU</th>
+              <th>계약서상 가칭 도서명</th>
+              <th style="width:120px;">저자 (권리자코드)</th>
+              <th class="text-center" style="width:95px;">계약 인세율</th>
+              <th class="text-center" style="width:105px;">선택</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code-pill">BK-REQ-2026-0011</span></td>
+              <td><span class="code-pill">PROD-BK-1011</span></td>
+              <td style="font-weight:700;">2026 산준모 산업안전기사 필기 한권완성 이론+빈출</td>
+              <td>김안전 (RH-0019)</td>
+              <td class="text-center"><span class="badge badge-sale">인세 10%</span></td>
+              <td class="text-center">
+                <button type="button" class="btn btn-primary btn-sm" data-dev-flag="proto-only" onclick="applyTempBookSelection('BK-REQ-2026-0011', 'PROD-BK-1011', '2026 산준모 산업안전기사 필기 한권완성 이론+빈출', '김안전', '산준모북스', 38000)">불러오기</button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="code-pill">BK-REQ-2026-0016</span></td>
+              <td><span class="code-pill">PROD-BK-1016</span></td>
+              <td style="font-weight:700;">2026 건설안전기사 실기 작업형 고득점 핵심노트 (신규 가채번)</td>
+              <td>이건설 (RH-0046)</td>
+              <td class="text-center"><span class="badge badge-sale">인세 12%</span></td>
+              <td class="text-center">
+                <button type="button" class="btn btn-primary btn-sm" data-dev-flag="proto-only" onclick="applyTempBookSelection('BK-REQ-2026-0016', 'PROD-BK-1016', '2026 건설안전기사 실기 작업형 고득점 핵심노트', '이건설', '산준모북스', 33000)">불러오기</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeTempBookModal()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== [모달 2] ADMN-BOOK-001 도서 공급원장 기등록 SKU 불러오기 ==================== -->
+  <div class="modal-backdrop" id="modal-supply-sku" data-dev-flag="proto-only" data-dev-note="공급원장 SKU 불러오기 — 개발 미구현(등록 후 BOOK-001에서 공급 형태 지정)">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title">[경로 2] 도서 공급 원장(ADMN-BOOK-001) 기등록 SKU 불러오기</div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeSupplyLedgerModal()">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:12px; color:var(--slate-600); margin-bottom:12px;">
+          도서 공급 원장(<code>ADMN-BOOK-001</code>)에서 SKU와 공급원가가 먼저 등록되었으나 아직 상품 전시(<code>ADMN-PROD-004</code>) 상세 정보가 입력되지 않은 도서입니다.
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:110px;">공급원장 SKU</th>
+              <th style="width:110px;">공급 유형</th>
+              <th>공급원장 등록 도서명</th>
+              <th style="width:120px;">출판사(공급처)</th>
+              <th class="text-right" style="width:100px;">정가(면세)</th>
+              <th class="text-center" style="width:105px;">선택</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="code-pill">PROD-BK-3004</span></td>
+              <td><span class="badge badge-info">위탁판매 (75%)</span></td>
+              <td style="font-weight:700;">2026 인간공학기사 필기 빈출문제 7개년 총정리</td>
+              <td>안전기술출판</td>
+              <td class="text-right">32,000원</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-primary btn-sm" data-dev-flag="proto-only" onclick="applySupplySkuSelection('PROD-BK-3004', '2026 인간공학기사 필기 빈출문제 7개년 총정리', '박보건', '안전기술출판', 32000, '위탁판매')">SKU 불러오기</button>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="code-pill">PROD-BK-2018</span></td>
+              <td><span class="badge badge-preorder">사입판매 (65%)</span></td>
+              <td style="font-weight:700;">2026 소방설비기사(전기) 핵심이론 기본서</td>
+              <td>한국자격교재총판</td>
+              <td class="text-right">40,000원</td>
+              <td class="text-center">
+                <button type="button" class="btn btn-primary btn-sm" data-dev-flag="proto-only" onclick="applySupplySkuSelection('PROD-BK-2018', '2026 소방설비기사(전기) 핵심이론 기본서', '외부저자팀', '한국자격교재총판', 40000, '사입판매')">SKU 불러오기</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeSupplyLedgerModal()">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== [모달 3] 재고 수동 입고/조정 ==================== -->
+  <div class="modal-backdrop" id="layerStockAdjust">
+    <div class="modal-window" style="">
+      <div class="modal-header">
+        <div class="modal-title">교재 재고 수불(입고 · 차감 · 조정) 등록</div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeStockAdjustModal()">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="spec-form-table">
+          <tbody>
+            <tr>
+              <th>대상 교재</th>
+              <td id="modal-stock-book-name" style="font-weight:700;">[PROD-BK-1011] 2026 산준모 산업안전기사 필기 한권완성 이론+빈출</td>
+            </tr>
+            <tr>
+              <th>수불 처리 유형 <span class="req-star">*</span></th>
+              <td>
+                <select id="modal-stock-type" name="type" data-dev-value="in 입고 · return_in 반품 입고 · disposal 파본 폐기 · audit 실사 조정 (이력 전용 order_out · order_restore)" class="form-select" style="width:240px;">
+                  <option value="입고(+)" data-dev-value="in">신규 인쇄/사입 입고 (+)</option>
+                  <option value="반품입고(+)" data-dev-value="return_in">고객 반품 양품 입고 (+)</option>
+                  <option value="파손차감(-)" data-dev-value="disposal">파손/오염 재고 차감 (-)</option>
+                  <option value="실사조정(-)" data-dev-value="audit">물류센터 재고실사 차감 (-)</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <th>수량 입력 <span class="req-star">*</span></th>
+              <td>
+                <div class="input-with-unit" style="width:180px;">
+                  <input type="number" id="modal-stock-qty" name="quantity" data-dev-note="정수 ≠ 0 (음수 = 차감)" class="form-input text-right" value="100" min="1">
+                  <span class="input-unit">권</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>사유 및 전표 메모 <span class="req-star">*</span></th>
+              <td>
+                <input type="text" id="modal-stock-reason" name="memo" data-dev-note="개발 nullable · max 255 (프로토는 필수)" class="form-input" value="파주 물류센터 2쇄 추가 입고 (전표 #WH-20261015-01)">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeStockAdjustModal()">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.books.stock.update" data-dev-method="PUT" data-dev-url="/sj-admin/books/{book}/stock" data-dev-perm="수정" onclick="confirmStockAdjust()">재고 반영</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== [모달 4] 주교재 판매중지 · 판매종료 시 연결 상품 자동 판매중지 확인 ==================== -->
+  <div class="modal-backdrop" id="layerBookStop">
+    <div class="modal-window" style="">
+      <div class="modal-header">
+        <div class="modal-title" id="autostop-title" data-dev-note="개발 layerBookStop은 '패키지 N건의 판매 가능 상태가 깨집니다' 표시만 — 강좌 · 패키지 자동 판매중지는 개발 없음(Q-PROD004-1)">연결된 강좌 · 패키지가 자동으로 판매중지됩니다</div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeAutoStopConfirm()">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="autostop-book" style="font-weight:700; margin-bottom:10px;"></div>
+        <table class="data-table">
+          <thead>
+            <tr><th style="width:90px;">구분</th><th style="width:110px;">코드</th><th>상품명</th><th style="width:80px;">교재 역할</th></tr>
+          </thead>
+          <tbody id="autostop-main-tbody"></tbody>
+        </table>
+        <div id="autostop-sub" style="display:none; margin-top:10px; color:#92400E; font-weight:600;"></div>
+        <div style="margin-top:10px; font-size:12px; color:var(--slate-500);">담당자 알림이 발송되고 변경 이력이 기록됩니다. 판매중 복귀는 교재 문제가 풀린 뒤 운영자가 각 상품에서 수동으로 진행합니다.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeAutoStopConfirm()">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.books.stop.update" data-dev-method="POST" data-dev-url="/sj-admin/books/{book}/stop-selling" data-dev-perm="수정" data-dev-note="개발은 교재만 stopped로 바꿈(연결 상품 자동 판매중지 없음, Q-PROD004-1)" onclick="confirmAutoStop()">확인 후 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-msg" id="toast-box"></div>
+
+  
+
+
+</div></div><script>
+    /* =========================================================================
+       1. SNB 마스터 렌더링 (20개 전체 화면 · 현재 ADMN-PROD-004 active)
+       ========================================================================= */
+
+    const CURRENT_SCREEN_CODE = "ADMN-PROD-004";
+
+
+    /* =========================================================================
+       2. 교재 원장 샘플 데이터 (3-Way 출발 경로 및 3원장 신호등 상태 포함)
+       ========================================================================= */
+    let currentEntryMode = "INST_TEMP";
+
+    let booksData = [
+      {
+        sku: "PROD-BK-1011",
+        tempCode: "BK-REQ-2026-0011",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "2026 산준모 산업안전기사 필기 한권완성 이론+빈출",
+        subtitle: "2026년 최신 개정 법령 및 출제기준 100% 반영 · 무료 해설강의 연동",
+        author: "김안전",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-01-2",
+        pubDate: "2026-01-10",
+        price: 38000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 11400,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 420,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-01-05"
+      },
+      {
+        sku: "PROD-BK-1012",
+        tempCode: "BK-REQ-2026-0012",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "2026 산업안전기사 필기 10개년 과년도 빈출해설집",
+        subtitle: "2016~2025 전 회차 빈출 문항별 오답노트 수록",
+        author: "김안전",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-02-9",
+        pubDate: "2026-01-18",
+        price: 29000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 8700,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 185,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-01-12"
+      },
+      {
+        sku: "PROD-BK-3003",
+        tempCode: "-",
+        originMode: "BOOK_LEDGER",
+        cat: "건설안전기사",
+        title: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출",
+        subtitle: "건설안전기술 표준안전작업지침 개정판 완전 반영",
+        author: "이건설",
+        publisher: "안전기술출판",
+        isbn: "979-11-98765-04-3",
+        pubDate: "2026-02-14",
+        price: 25000,
+        supplyType: "위탁판매",
+        supplyCost: 18750,
+        supplyRateLabel: "위탁공급률 75% (수수료 25% 차감 지급 · NET_DEDUCT)",
+        step1Ok: false,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 0,
+        safeStock: 25,
+        isPreorder: false,
+        releaseDate: "",
+        status: "일시품절",
+        displayYn: "Y",
+        createdAt: "2026-02-01"
+      },
+      {
+        sku: "PROD-BK-2017",
+        tempCode: "-",
+        originMode: "PROD_DIRECT",
+        cat: "산업안전지도사",
+        title: "2027 대비 산업안전지도사 1차 산안법령 조문해설집 (선등록 · 원장매핑 대기)",
+        subtitle: "최고 관리자 선등록 도서 · 공급원장 원가 및 권리자 매핑 후 판매 개시 예정",
+        author: "최지도",
+        publisher: "한국자격교재총판",
+        isbn: "979-11-98765-05-0",
+        pubDate: "2026-11-15",
+        price: 45000,
+        supplyType: "미등록(후속입력)",
+        supplyCost: 0,
+        supplyRateLabel: "BOOK-001 원가 미입력",
+        step1Ok: false,
+        step2Ok: false,
+        step3Ok: false,
+        stock: 150,
+        safeStock: 20,
+        isPreorder: true,
+        releaseDate: "2026-11-15",
+        status: "판매대기",
+        displayYn: "N",
+        createdAt: "2026-10-02"
+      },
+      /* [v6.60] 샘플 시나리오 교재 — 코드 · 가격은 ADMN-PROD-003 · ADMN-SETT-001과 같다(scripts/qa/reports/review/scenario_codes.md) */
+      {
+        sku: "PROD-BK-1007",
+        tempCode: "BK-REQ-2026-0007",
+        originMode: "INST_TEMP",
+        cat: "산업안전지도사",
+        title: "2026 산업안전지도사 1차 산업안전일반 핵심요약집",
+        subtitle: "최지도 강사 단과(CRS-2606) 공식 주교재 · 저자 인세 10%(실결제액 기준)",
+        author: "최지도",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-07-9",
+        pubDate: "2026-04-10",
+        price: 20000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 6000,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 180,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-04-03"
+      },
+      {
+        sku: "PROD-BK-1006",
+        tempCode: "BK-REQ-2025-0006",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "2026 정종대 산업안전기사 필기 기본서",
+        subtitle: "정종대 강사 특강(CRS-1002) 공식 주교재 · 저자 인세 10%",
+        author: "정종대",
+        publisher: "산준모북스",
+        isbn: "979-11-89210-01-4",
+        pubDate: "2025-12-15",
+        price: 20000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 6000,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 240,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-12-01"
+      },
+      {
+        sku: "PROD-BK-1001",
+        tempCode: "BK-REQ-2026-0001",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "산업안전 핵심 이론 교재",
+        subtitle: "공동저자 교재 (산준교육 콘텐츠 50% · 이안전 30% · 자사 20%) · 인세 10%",
+        author: "산준교육 콘텐츠 · 이안전",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-08-6",
+        pubDate: "2024-10-20",
+        price: 28000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 8400,
+        supplyRateLabel: "제조원가 30% + 공동저자 인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 150,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2024-10-15"
+      },
+      {
+        sku: "PROD-BK-1005",
+        tempCode: "BK-REQ-2026-0005",
+        originMode: "INST_TEMP",
+        cat: "산업안전기사",
+        title: "2026 산준모 산업안전기사 실기 필답형 모범답안집",
+        subtitle: "실기 필답형 전략반(CRS-2602) · 합격 환급반(PKG-2601 · 2602) 공식 주교재",
+        author: "김안전",
+        publisher: "산준모북스",
+        isbn: "979-11-98765-03-6",
+        pubDate: "2026-01-20",
+        price: 34000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 10200,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 310,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2026-01-15"
+      },
+      {
+        sku: "PROD-BK-2001",
+        tempCode: "-",
+        originMode: "BOOK_LEDGER",
+        cat: "건설안전기사",
+        title: "2026 건설안전기사 필기 총정리",
+        subtitle: "외부 출판사 도서 매입 재판매 (정산 비인입 · 자사 100% 자동 귀속)",
+        author: "외부저자팀",
+        publisher: "한국자격교재총판",
+        isbn: "979-11-90312-21-9",
+        pubDate: "2025-12-20",
+        price: 18000,
+        supplyType: "사입판매",
+        supplyCost: 12000,
+        supplyRateLabel: "매입가 12,000원 (매입처 한국자격교재총판 SUP-0003)",
+        supplyVendor: "SUP-0003",
+        step1Ok: false,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 140,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-02-01"
+      },
+      /* [v6.63 W4] 고 박위생 저서 — 상속 승계 계약 CT-2025-1102 · 인세 10%(정가 기준) · 10월 판매 500권 */
+      {
+        sku: "PROD-BK-1008",
+        tempCode: "BK-REQ-2025-0018",
+        originMode: "INST_TEMP",
+        cat: "산업위생관리기사",
+        title: "2026 산업위생관리기사 필기 핵심정리",
+        subtitle: "고(故) 박위생 저 · 저자 인세 10%(정가 기준) · 상속인 수취인 분할 60:40 (ADMN-SETT-007)",
+        author: "박위생",
+        publisher: "산준모북스",
+        isbn: "979-11-89210-08-3",
+        pubDate: "2025-11-20",
+        price: 30000,
+        supplyType: "자체출판(인세)",
+        supplyCost: 9000,
+        supplyRateLabel: "제조원가 30% + 저자인세 10%",
+        step1Ok: true,
+        step2Ok: true,
+        step3Ok: true,
+        stock: 180,
+        safeStock: 20,
+        isPreorder: false,
+        releaseDate: "",
+        status: "판매중",
+        displayYn: "Y",
+        createdAt: "2025-11-15"
+      }
+    ];
+
+    let stockHistoryLogs = [
+      { dt: "2026-10-14 16:40", type: "주문출고(-)", delta: -12, after: 420, reason: "일일 택배 출고 마감 (송장묶음 #DLV-261014)", actor: "시스템(OMS)" },
+      { dt: "2026-10-10 11:15", type: "반품입고(+)", delta: 2, after: 432, reason: "단순변심 미개봉 반품 검수 입고 (#RTN-261010-04)", actor: "물류담당(박물류)" },
+      { dt: "2026-10-01 09:30", type: "신규입고(+)", delta: 300, after: 430, reason: "산준모북스 2쇄 입고 (전표 #WH-20261001-02)", actor: "상품관리(김기획)" }
+    ];
+
+    /* =========================================================================
+       3. 유틸 및 상단 4단계 신호등(Stepper) 동적 업데이트
+       ========================================================================= */
+    function formatNumber(n) {
+      return Number(n || 0).toLocaleString("ko-KR");
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toast-box");
+      box.textContent = msg;
+      box.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        box.style.display = "none";
+      }, 2800);
+    }
+
+    function isFinManagerRole() {
+      return document.getElementById("role-mask-select").value === "FIN_MANAGER";
+    }
+
+    function formatSupplyCostByRole(book) {
+      if (!book.step2Ok) {
+        return `<span class="badge badge-out">BOOK-001 미등록</span>`;
+      }
+      if (isFinManagerRole()) {
+        return `<span style="color:var(--emerald); font-weight:700;">${formatNumber(book.supplyCost)}원</span> <span style="font-size:11px; color:var(--slate-500);">(${book.supplyRateLabel})</span>`;
+      }
+      return `<span class="masked-cost">🔒 ****원 (권한제한)</span>`;
+    }
+
+    function applyRoleCostMasking() {
+      renderBookList();
+      renderDetailView();
+      const b = window.__currentBook || booksData[0];
+      const previewEl = document.getElementById("f-cost-preview");
+      if (previewEl) {
+        previewEl.innerHTML = isFinManagerRole()
+          ? `단위 공급원가: ${formatNumber(b.supplyCost)}원 (${b.supplyRateLabel})`
+          : `🔒 매입원가 마스킹 (재무팀 전용)`;
+      }
+    }
+
+    function updateTopStepperByBook(b) {
+      document.getElementById("stepper-target-label").textContent = `현재 선택 도서: [${b.sku}] ${b.title}`;
+
+      const s1 = document.getElementById("step1-light");
+      const s2 = document.getElementById("step2-light");
+      const s3 = document.getElementById("step3-light");
+      const s4 = document.getElementById("step4-light");
+
+      if (b.originMode === "INST_TEMP") {
+        s1.className = "step-light light-green";
+        s1.textContent = `🟢 가채번 완료 (${b.tempCode})`;
+      } else {
+        s1.className = "step-light light-yellow";
+        s1.textContent = `🟡 해당없음 (사입/선등록)`;
+      }
+
+      if (b.step2Ok) {
+        s2.className = "step-light light-green";
+        s2.textContent = `🟢 공급원장 원가 완료`;
+      } else {
+        s2.className = "step-light light-red";
+        s2.textContent = `🔴 원가 미등록 (필수)`;
+      }
+
+      if (b.step3Ok) {
+        s3.className = "step-light light-green";
+        s3.textContent = b.originMode === "INST_TEMP" ? `🟢 계약원장 자동상속` : `🟢 SETT-001 매핑완료`;
+      } else {
+        s3.className = "step-light light-red";
+        s3.textContent = `🔴 SETT-001 미매핑 (필수)`;
+      }
+
+      if (b.status === "판매중") {
+        s4.className = "step-light light-green";
+        s4.textContent = `🟢 판매중 (${b.stock}권)`;
+      } else if (b.status === "일시품절") {
+        s4.className = "step-light light-red";
+        s4.textContent = `🔴 일시품절 (0권)`;
+      } else if (b.status === "판매중지") {
+        s4.className = "step-light light-yellow";
+        s4.textContent = `⏸ 판매중지 (구매 차단)`;
+      } else if (b.status === "판매종료") {
+        s4.className = "step-light light-yellow";
+        s4.textContent = `⚫ 판매종료 (미노출)`;
+      } else {
+        s4.className = "step-light light-yellow";
+        s4.textContent = `🟡 ${b.status}`;
+      }
+    }
+
+    /* =========================================================================
+       4. 서브뷰 전환
+       ========================================================================= */
+    function switchSubview(viewName) {
+      document.querySelectorAll(".subview-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".subview-btn").forEach(b => b.classList.remove("active"));
+
+      const panel = document.getElementById(`subview-${viewName}`);
+      const btn = document.querySelector(`.subview-btn[data-view="${viewName}"]`);
+      if (panel) panel.classList.add("active");
+      if (btn) btn.classList.add("active");
+
+      const codeEl = document.getElementById("header-screen-code");
+      const titleEl = document.getElementById("header-screen-title");
+
+      if (viewName === "list") {
+        codeEl.textContent = "ADMN-PROD-004";
+        titleEl.textContent = "교재 관리 (목록)";
+        renderBookList();
+      } else if (viewName === "detail") {
+        codeEl.textContent = "ADMN-PROD-004-S1";
+        titleEl.textContent = "교재 상세 · 재고 수불 이력";
+        renderDetailView();
+      } else if (viewName === "form") {
+        codeEl.textContent = "ADMN-PROD-004-S1";
+        titleEl.textContent = "교재 등록 / 수정 (3-Way 바인딩)";
+        syncBookSalePrice();
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /* =========================================================================
+       5. 목록 렌더링 (3원장 연동 신호등 컬럼 포함)
+       ========================================================================= */
+    function getOriginBadge(mode) {
+      if (mode === "INST_TEMP") return `<span class="badge badge-sale">[경로 1] 계약원장 가채번</span>`;
+      if (mode === "BOOK_LEDGER") return `<span class="badge badge-info">[경로 2] 공급원장 SKU</span>`;
+      return `<span class="badge badge-warn">[경로 3] PROD-004 선등록</span>`;
+    }
+
+    function getBookStatusBadge(b) {
+      if (b.status === "판매중") return `<span class="badge badge-sale">판매중</span>`;
+      if (b.status === "예약판매") return `<span class="badge badge-preorder">예약판매</span>`;
+      if (b.status === "판매대기") return `<span class="badge badge-warn">판매대기(매핑미완)</span>`;
+      if (b.status === "일시품절") return `<span class="badge badge-out">일시품절(0권)</span>`;
+      if (b.status === "판매중지") return `<span class="badge badge-warn">판매중지(구매차단)</span>`;
+      if (b.status === "판매종료") return `<span class="badge badge-end">판매종료(미노출)</span>`;
+      return `<span class="badge badge-end">${b.status}</span>`;
+    }
+
+    function resetBookFilters() {
+      document.getElementById("filter-cat").value = "ALL";
+      document.getElementById("filter-origin").value = "ALL";
+      document.getElementById("filter-status").value = "ALL";
+      document.getElementById("filter-stock").value = "ALL";
+      document.getElementById("filter-display").value = "ALL";
+      document.getElementById("filter-keyword").value = "";
+      renderBookList();
+    }
+
+    function renderBookList() {
+      const cat = document.getElementById("filter-cat").value;
+      const origin = document.getElementById("filter-origin").value;
+      const status = document.getElementById("filter-status").value;
+      const stockFilter = document.getElementById("filter-stock").value;
+      const disp = document.getElementById("filter-display").value;
+      const kw = document.getElementById("filter-keyword").value.trim().toLowerCase();
+
+      const filtered = booksData.filter(b => {
+        if (cat !== "ALL" && b.cat !== cat) return false;
+        if (origin !== "ALL" && b.originMode !== origin) return false;
+        if (status !== "ALL" && b.status !== status) return false;
+        if (stockFilter === "LOW" && !(b.stock > 0 && b.stock <= b.safeStock)) return false;
+        if (stockFilter === "ZERO" && b.stock !== 0) return false;
+        if (disp !== "ALL" && b.displayYn !== disp) return false;
+        if (kw && !(
+          b.title.toLowerCase().includes(kw) ||
+          b.sku.toLowerCase().includes(kw) ||
+          b.tempCode.toLowerCase().includes(kw) ||
+          b.isbn.toLowerCase().includes(kw) ||
+          b.author.toLowerCase().includes(kw)
+        )) return false;
+        return true;
+      });
+
+      document.getElementById("book-total-count").textContent = filtered.length;
+      const tbody = document.getElementById("book-list-tbody");
+
+      tbody.innerHTML = filtered.map((b, idx) => {
+        let stockHtml = `<strong>${formatNumber(b.stock)}권</strong>`;
+        if (b.stock === 0) stockHtml = `<span class="badge badge-out">0권 (품절)</span>`;
+        else if (b.stock <= b.safeStock) stockHtml = `<span class="badge badge-warn">${b.stock}권 (부족)</span>`;
+
+        const c1 = b.step1Ok ? `<span class="dot-chip dot-ok">계약🟢</span>` : `<span class="dot-chip dot-pend">계약➖</span>`;
+        const c2 = b.step2Ok ? `<span class="dot-chip dot-ok">원가🟢</span>` : `<span class="dot-chip dot-miss">원가🔴</span>`;
+        const c3 = b.step3Ok ? `<span class="dot-chip dot-ok">매핑🟢</span>` : `<span class="dot-chip dot-miss">매핑🔴</span>`;
+
+        return `
+          <tr data-dev-note="개발 행 클릭 → 수정 폼 · 신호등 갱신은 프로토만" onclick="selectBookForStepper('${b.sku}')" style="cursor:pointer;">
+            <td class="text-center" data-dev-flag="dev-only" onclick="event.stopPropagation();"><input type="checkbox" class="check-item" name="ids[]" value="${b.sku}" /></td>
+            <td class="text-center">${filtered.length - idx}</td>
+            <td>
+              <span class="code-pill">${b.sku}</span>
+              ${b.tempCode !== "-" ? `<div style="font-size:10.5px; color:var(--slate-500); margin-top:2px;">가채번: ${b.tempCode}</div>` : ""}
+            </td>
+            <td>${getOriginBadge(b.originMode)}</td>
+            <td>
+              <a class="book-link" data-dev-flag="proto-only" data-dev-route="admin.books.show (규칙)" onclick="event.stopPropagation(); openBookDetail('${b.sku}')">${b.title}</a>
+              <div style="font-size:11px; color:var(--slate-500); margin-top:2px;">ISBN: <code>${b.isbn}</code></div>
+            </td>
+            <td>${b.author}<br/><span style="font-size:11px; color:var(--slate-500);">${b.publisher}</span></td>
+            <td class="text-right"><strong>${formatNumber(b.price)}원</strong></td>
+            <td class="text-right">${formatSupplyCostByRole(b)}</td>
+            <td class="text-center">
+              <div class="ledger-dots">${c1}${c2}${c3}</div>
+            </td>
+            <td class="text-center">${stockHtml}</td>
+            <td class="text-center">${getBookStatusBadge(b)}</td>
+            <td class="text-center">${b.createdAt}</td>
+            <td class="text-center" onclick="event.stopPropagation();">
+              <div style="display:flex; gap:4px; justify-content:center;">
+                <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.books.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/books/{book}" data-dev-perm="조회" data-dev-flag="proto-only" onclick="openBookDetail('${b.sku}')">상세</button>
+                <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.books.edit" data-dev-method="GET" data-dev-url="/sj-admin/books/{book}/edit" data-dev-perm="수정" onclick="openBookEdit('${b.sku}')">수정</button>
+                <button type="button" class="btn btn-outline btn-sm" data-dev-flag="dev-only" data-dev-route="admin.books.copy.store" data-dev-method="POST" data-dev-url="/sj-admin/books/{book}/copy" data-dev-perm="등록" data-dev-note="#actionForm">복사</button>
+                <button type="button" class="btn btn-outline btn-sm" data-dev-flag="dev-only" data-dev-route="admin.books.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/books/{book}" data-dev-perm="삭제" data-dev-note="#actionForm + #actionMethod">삭제</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function selectBookForStepper(sku) {
+      const found = booksData.find(b => b.sku === sku);
+      if (found) {
+        window.__currentBook = found;
+        updateTopStepperByBook(found);
+      }
+    }
+
+    function openBookDetail(sku) {
+      const found = booksData.find(b => b.sku === sku) || booksData[0];
+      window.__currentBook = found;
+      updateTopStepperByBook(found);
+      switchSubview("detail");
+    }
+
+    function openBookEdit(sku) {
+      const found = booksData.find(b => b.sku === sku) || booksData[0];
+      window.__currentBook = found;
+      updateTopStepperByBook(found);
+      populateBookForm(found);
+      switchSubview("form");
+    }
+
+    function openNewBookForm() {
+      document.getElementById("form-mode-title").textContent = "신규 교재 등록 — 3-Way 바인딩 모드 (ADMN-PROD-004-S1)";
+      applyBookEditLocks(null);
+      selectEntryMode("INST_TEMP");
+      document.getElementById("f-book-discount-rate").value = 0;
+      syncBookSalePrice();
+      switchSubview("form");
+    }
+
+    function editCurrentDetailBook() {
+      const b = window.__currentBook || booksData[0];
+      populateBookForm(b);
+      switchSubview("form");
+    }
+
+    /* =========================================================================
+       6. 3-Way 도서 등록 진입 경로 선택기 제어 (핵심 보강 로직)
+       ========================================================================= */
+    function selectEntryMode(mode) {
+      currentEntryMode = mode;
+      ["INST_TEMP", "BOOK_LEDGER", "PROD_DIRECT"].forEach(m => {
+        const card = document.getElementById(`entry-card-${m}`);
+        if (card) card.classList.toggle("selected", m === mode);
+      });
+
+      const alertBox = document.getElementById("entry-mode-alert");
+      const alertTitle = document.getElementById("entry-alert-title");
+      const alertDesc = document.getElementById("entry-alert-desc");
+      const radioSale = document.getElementById("radio-book-sale");
+      const radioReady = document.getElementById("radio-book-ready");
+
+      if (mode === "INST_TEMP") {
+        alertBox.className = "ledger-sync-box ok";
+        alertTitle.textContent = "[경로 1 선택됨 — 계약원장 가채번(BK-REQ-2026-0011) 연동 모드]";
+        alertDesc.textContent = "계약원장(ADMN-INST-001)의 저자·인세율·권리자 지분이 자동 상속됩니다. 공동 저자 도서는 권리자 매핑(SETT-001)에서 지분 합계 100%를 확인한 뒤 [판매중]으로 바꿉니다.";
+        document.getElementById("f-temp-code").value = "BK-REQ-2026-0011";
+        document.getElementById("f-sku").value = "PROD-BK-1011";
+        radioSale.disabled = false;
+      } else if (mode === "BOOK_LEDGER") {
+        alertBox.className = "ledger-sync-box ok";
+        alertTitle.textContent = "[경로 2 선택됨 — 도서 공급원장(ADMN-BOOK-001) 기등록 SKU 호출 모드]";
+        alertDesc.textContent = "공급원장에서 채번된 SKU와 정가·출판사를 불러옵니다. 외부 저자 인세/RS 배분이 필요한 경우에만 ADMN-SETT-001 매핑을 확인하세요.";
+        document.getElementById("f-temp-code").value = "- (공급원장 직결)";
+        radioSale.disabled = false;
+      } else if (mode === "PROD_DIRECT") {
+        alertBox.className = "ledger-sync-box warn";
+        alertTitle.textContent = "[경로 3 선택됨 — PROD-004 직접 신규 SKU 채번 (후속 원장 매핑 필수)]";
+        alertDesc.textContent = "⚠️ 계약원장·공급원장 없이 여기서 바로 SKU를 생성합니다. 저장 후 ADMN-BOOK-001 공급원가 입력과 ADMN-SETT-001 권리자 매핑을 모두 완료하기 전까지 판매 상태는 [판매대기]로 강제 고정됩니다.";
+        document.getElementById("f-sku").value = "PROD-BK-AUTO (즉시 신규채번)";
+        document.getElementById("f-temp-code").value = "- (미연동)";
+        document.getElementById("f-supply-ledger").value = "";
+        onSupplyLedgerChange();
+        radioReady.checked = true;
+        radioSale.disabled = true;
+      }
+    }
+
+    /* =========================================================================
+       6-1. 공급 형태 선택 → 앞자리 채번 · 사입 매입처(거래처 원장) (v6.38 F3)
+       ========================================================================= */
+    const SUPPLY_PREFIX = { "자체출판(인세)": 1, "사입판매": 2, "위탁판매": 3, "비매품(번들)": 4 };
+    /* 다른 화면(BOOK-001 등)에서 이미 쓰는 SKU — 신규 채번 중복 방지용 */
+    const RESERVED_SKUS = ["PROD-BK-1001", "PROD-BK-1004", "PROD-BK-1006", "PROD-BK-1011", "PROD-BK-1012", "PROD-BK-2017", "PROD-BK-1016", "PROD-BK-2001", "PROD-BK-3001", "PROD-BK-2018", "PROD-BK-3003", "PROD-BK-3004", "PROD-BK-4001"];
+    function nextBookSku(type) {
+      const p = SUPPLY_PREFIX[type];
+      if (!p) return "";
+      const used = new Set(booksData.map(x => x.sku).concat(RESERVED_SKUS));
+      let max = p * 1000;
+      used.forEach(code => {
+        const m = /^PROD-BK-(\d{4})$/.exec(code);
+        if (m && Math.floor(Number(m[1]) / 1000) === p && Number(m[1]) > max) max = Number(m[1]);
+      });
+      let n = max + 1;
+      while (used.has(`PROD-BK-${n}`)) n++;
+      return `PROD-BK-${n}`;
+    }
+    function purchaseVendors() {
+      const M = window.SJM_MASTER;
+      if (!M || !M.vendors) return [];
+      return M.vendors.byForm("PURCHASE").filter(v => v.type === "VT-01" && v.on && v.status !== "폐업");
+    }
+    function onSupplyLedgerChange(keepVendor) {
+      const type = document.getElementById("f-supply-ledger").value;
+      const vsel = document.getElementById("f-supply-vendor");
+      const label = document.getElementById("f-supply-vendor-label");
+      if (type === "사입판매") {
+        vsel.innerHTML = purchaseVendors().map(v => `<option value="${v.name}" data-rate="${v.terms && v.terms.rate ? v.terms.rate : ""}">[${v.id}] ${v.name} (공급률 ${v.terms && v.terms.rate ? v.terms.rate : "-"}%)</option>`).join("");
+        if (keepVendor && Array.from(vsel.options).some(o => o.value === keepVendor)) vsel.value = keepVendor;
+        vsel.style.display = "";
+        onSupplyVendorChange();
+      } else {
+        vsel.style.display = "none";
+        label.textContent = "";
+      }
+      const skuEl = document.getElementById("f-sku");
+      if (skuEl.value.includes("AUTO")) {
+        const next = nextBookSku(type);
+        skuEl.value = next ? `PROD-BK-AUTO (신규채번 · 예정 ${next})` : "PROD-BK-AUTO (공급 형태 선택 후 채번)";
+      }
+    }
+    function onSupplyVendorChange() {
+      const o = document.getElementById("f-supply-vendor").selectedOptions[0];
+      document.getElementById("f-supply-vendor-label").textContent = o && o.dataset.rate
+        ? `매입 공급률 ${o.dataset.rate}% (거래처 원장 값 · 도서별 공급률 확정은 ADMN-BOOK-001)`
+        : "";
+    }
+
+    function openTempBookModal() {
+      document.getElementById("modal-temp-book").classList.add("open");
+    }
+    function closeTempBookModal() {
+      document.getElementById("modal-temp-book").classList.remove("open");
+    }
+    function applyTempBookSelection(tempCode, sku, title, author, pub, price) {
+      selectEntryMode("INST_TEMP");
+      document.getElementById("f-temp-code").value = tempCode;
+      document.getElementById("f-sku").value = sku;
+      document.getElementById("f-title").value = title;
+      document.getElementById("f-author").value = author;
+      document.getElementById("f-publisher").value = pub;
+      document.getElementById("f-list-price").value = price;
+      document.getElementById("entry-status-INST_TEMP").textContent = `현재 바인딩: ${tempCode} (${author})`;
+      syncBookSalePrice();
+      closeTempBookModal();
+      showToast(`계약원장 가채번 [${tempCode}] 도서 정보 및 저자 인세 매핑이 자동 반영되었습니다.`);
+    }
+
+    function openSupplyLedgerModal() {
+      document.getElementById("modal-supply-sku").classList.add("open");
+    }
+    function closeSupplyLedgerModal() {
+      document.getElementById("modal-supply-sku").classList.remove("open");
+    }
+    function applySupplySkuSelection(sku, title, author, pub, price, supplyType) {
+      selectEntryMode("BOOK_LEDGER");
+      document.getElementById("f-sku").value = sku;
+      document.getElementById("f-title").value = title;
+      document.getElementById("f-author").value = author;
+      document.getElementById("f-publisher").value = pub;
+      document.getElementById("f-list-price").value = price;
+      document.getElementById("f-supply-ledger").value = supplyType;
+      onSupplyLedgerChange(pub);
+      document.getElementById("entry-status-BOOK_LEDGER").textContent = `현재 바인딩: ${sku} (${pub})`;
+      syncBookSalePrice();
+      closeSupplyLedgerModal();
+      showToast(`도서 공급 원장 SKU [${sku}] 기본 정보 및 공급처가 자동 세팅되었습니다.`);
+    }
+
+    /* =========================================================================
+       7. 상세 및 폼 보조 로직
+       ========================================================================= */
+    function populateBookForm(b) {
+      document.getElementById("form-mode-title").textContent = `교재 정보 수정 — ${b.sku} (ADMN-PROD-004-S1)`;
+      selectEntryMode(b.originMode || "INST_TEMP");
+      document.getElementById("f-sku").value = b.sku;
+      document.getElementById("f-temp-code").value = b.tempCode;
+      document.getElementById("f-cat").value = b.cat;
+      document.getElementById("f-title").value = b.title;
+      document.getElementById("f-subtitle").value = b.subtitle || "";
+      document.getElementById("f-author").value = b.author;
+      document.getElementById("f-publisher").value = b.publisher;
+      document.getElementById("f-isbn").value = b.isbn;
+      document.getElementById("f-pub-date").value = b.pubDate;
+      document.getElementById("f-list-price").value = b.price;
+      document.getElementById("f-book-discount-rate").value = b.discountRate || 0;
+      document.getElementById("f-supply-ledger").value = b.supplyType;
+      onSupplyLedgerChange(b.supplyVendor);
+      document.getElementById("f-stock-qty").value = b.stock;
+      document.getElementById("f-safe-stock").value = b.safeStock;
+      document.getElementById("f-is-preorder").checked = Boolean(b.isPreorder);
+      const st = document.querySelector(`input[name="f-book-status"][value="${b.status}"]`);
+      if (st) st.checked = true;
+      const dp = document.querySelector(`input[name="f-book-display"][value="${b.displayYn || "Y"}"]`);
+      if (dp) dp.checked = true;
+      togglePreorderFields();
+      checkZeroStockHardLock();
+      syncEndOfSaleLock();
+      syncBookSalePrice();
+      applyBookEditLocks(b);
+    }
+
+    function renderDetailView() {
+      const b = window.__currentBook || booksData[0];
+      updateTopStepperByBook(b);
+      document.getElementById("d-sku-badge").textContent = b.sku;
+      document.getElementById("d-book-title").textContent = b.title;
+      document.getElementById("d-created-at").textContent = `등록일: ${b.createdAt}`;
+      document.getElementById("d-sku").textContent = b.sku;
+      document.getElementById("d-temp-code").innerHTML = b.tempCode !== "-"
+        ? `<span class="code-pill">${b.tempCode}</span> (권리자 계약원장 ADMN-INST-001 자동 상속)`
+        : `<span class="badge badge-end">계약원장 가채번 없음 (${b.originMode === 'BOOK_LEDGER' ? '공급원장 직결' : 'PROD-004 선등록'})</span>`;
+      document.getElementById("d-title").textContent = b.title;
+      document.getElementById("d-author-pub").textContent = `${b.author} 저 / ${b.publisher}`;
+      document.getElementById("d-isbn-pubdate").innerHTML = `<code>${b.isbn}</code> / 출간일: ${b.pubDate}`;
+      document.getElementById("d-price-info").innerHTML =
+        `정가 <strong>${formatNumber(b.price)}원</strong> / 할인율 <strong>${b.discountRate || 0}% (도서정가제 상한 10%)</strong> → 최종 판매가 <strong style="color:var(--primary);">${formatNumber(bookSalePrice(b.price, b.discountRate || 0))}원 (면세)</strong>`;
+
+      const ledgerBox = document.getElementById("d-ledger-box");
+      if (b.step2Ok && b.step3Ok) {
+        ledgerBox.className = "ledger-sync-box ok";
+        document.getElementById("d-supply-type").textContent = `[3원장 검증 완료 · ${b.supplyType}]`;
+        document.getElementById("d-ledger-desc").textContent = "공급원장(BOOK-001) 원가 및 권리자 매핑(SETT-001)이 모두 정상 완료되었습니다.";
+      } else {
+        ledgerBox.className = "ledger-sync-box warn";
+        document.getElementById("d-supply-type").textContent = `[⚠️ 후속 원장 매핑 미완료 — 판매대기 잠금]`;
+        document.getElementById("d-ledger-desc").textContent = "ADMN-BOOK-001(공급원가) 및 ADMN-SETT-001(권리자 매핑) 등록이 완료되어야 판매중 전환이 가능합니다.";
+      }
+
+      const costEl = document.getElementById("d-cost-display");
+      costEl.textContent = isFinManagerRole()
+        ? `${formatNumber(b.supplyCost)}원 (${b.supplyRateLabel})`
+        : `🔒 마스킹 (재무팀 전용)`;
+
+      const logTbody = document.getElementById("detail-stock-log-tbody");
+      logTbody.innerHTML = stockHistoryLogs.map(log => {
+        const isPlus = log.delta > 0;
+        return `
+          <tr>
+            <td>${log.dt}</td>
+            <td><span class="badge ${isPlus ? 'badge-sale' : 'badge-warn'}">${log.type}</span></td>
+            <td class="text-right" style="font-weight:700; color:${isPlus ? 'var(--emerald)' : 'var(--rose)'};">
+              ${isPlus ? '+' : ''}${formatNumber(log.delta)}권
+            </td>
+            <td class="text-right" style="font-weight:700;">${formatNumber(log.after)}권</td>
+            <td>${log.reason}</td>
+            <td>${log.actor}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+
+    /* =========================================================================
+       [v6.42] 주교재 연동: 교재 상태 · 재고를 브라우저 저장소에 남겨 강좌(PROD-003) · 패키지(PROD-005)가 읽는다
+       ========================================================================= */
+    const BOOKSTATUS_KEY = "sjm.prod.bookStatus.v1";
+    const BOOK_LINKED_PRODUCTS = {
+      "PROD-BK-1011": [
+        { type: "단과 강좌", code: "CRS-2601", title: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", role: "주교재" },
+        { type: "패키지", code: "PKG-2601", title: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", role: "주교재" },
+        { type: "패키지", code: "PKG-2602", title: "2026 산업안전기사 필기+실기(필답+작업) 올인원 종합반", role: "주교재" }
+      ],
+      "PROD-BK-1005": [
+        { type: "단과 강좌", code: "CRS-2602", title: "2026 산업안전기사 실기 필답형 만점 답안 작성 전략반", role: "주교재" },
+        { type: "패키지", code: "PKG-2601", title: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", role: "주교재" },
+        { type: "패키지", code: "PKG-2602", title: "2026 산업안전기사 필기+실기(필답+작업) 올인원 종합반", role: "주교재" }
+      ],
+      "PROD-BK-1012": [
+        { type: "단과 강좌", code: "CRS-2601", title: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", role: "부교재" }
+      ],
+      "PROD-BK-3003": [
+        { type: "단과 강좌", code: "CRS-2603", title: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", role: "부교재" }
+      ],
+      "PROD-BK-1007": [
+        { type: "단과 강좌", code: "CRS-2606", title: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", role: "주교재" }
+      ],
+      "PROD-BK-1006": [
+        { type: "단과 강좌", code: "CRS-1002", title: "정종대 산업안전 실전 빈출특강", role: "주교재" },
+        { type: "단과 강좌", code: "CRS-1004", title: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반 (판매종료)", role: "주교재" }
+      ]
+    };
+    function recordBookStatus(b) {
+      try {
+        const s = JSON.parse(localStorage.getItem(BOOKSTATUS_KEY) || "{}") || {};
+        s[b.sku] = { status: b.status, stock: Number(b.stock || 0), at: new Date().toISOString() };
+        localStorage.setItem(BOOKSTATUS_KEY, JSON.stringify(s));
+      } catch (e) {}
+    }
+    function applyBookStatusStore() {
+      try {
+        const s = JSON.parse(localStorage.getItem(BOOKSTATUS_KEY) || "{}") || {};
+        booksData.forEach(b => {
+          const r = s[b.sku];
+          if (!r) return;
+          if (r.status) b.status = r.status;
+          if (typeof r.stock === "number") b.stock = r.stock;
+        });
+      } catch (e) {}
+    }
+    function bkAutoStopTargets(payload, prev) {
+      const none = { main: [], sub: [] };
+      if (payload.status !== "판매중지" && payload.status !== "판매종료") return none;
+      if (prev && (prev.status === "판매중지" || prev.status === "판매종료")) return none;
+      const list = BOOK_LINKED_PRODUCTS[payload.sku] || [];
+      return { main: list.filter(x => x.role === "주교재"), sub: list.filter(x => x.role !== "주교재") };
+    }
+    function openAutoStopConfirm(payload, tg) {
+      document.getElementById("autostop-title").textContent = `연결된 강좌 · 패키지 ${tg.main.length}개가 자동으로 판매중지됩니다`;
+      document.getElementById("autostop-book").textContent = `[${payload.sku}] ${payload.title} 을(를) [${payload.status}]로 저장합니다. 이 교재가 주교재로 연결된 상품은 판매를 멈춥니다.`;
+      document.getElementById("autostop-main-tbody").innerHTML = tg.main.map(x => `<tr><td>${x.type}</td><td><span class="code-pill">${x.code}</span></td><td>${x.title}</td><td>${x.role}</td></tr>`).join("");
+      const sub = document.getElementById("autostop-sub");
+      sub.innerHTML = tg.sub.length ? `부교재로 연결된 상품(${tg.sub.map(x => x.code).join(", ")})은 판매 상태를 바꾸지 않고 경고만 표시합니다.` : "";
+      sub.style.display = tg.sub.length ? "block" : "none";
+      const el = document.getElementById("layerBookStop");
+      el.style.removeProperty("display");
+      el.classList.add("open");
+    }
+    function closeAutoStopConfirm() {
+      document.getElementById("layerBookStop").classList.remove("open");
+    }
+    function confirmAutoStop() {
+      closeAutoStopConfirm();
+      window.__autoStopConfirmed = true;
+      saveBookForm();
+    }
+
+    function openStockAdjustModal() {
+      const b = window.__currentBook || booksData[0];
+      document.getElementById("modal-stock-book-name").textContent = `[${b.sku}] ${b.title} (현재 ${b.stock}권)`;
+      document.getElementById("layerStockAdjust").classList.add("open");
+    }
+    function closeStockAdjustModal() {
+      document.getElementById("layerStockAdjust").classList.remove("open");
+    }
+    function confirmStockAdjust() {
+      const b = window.__currentBook || booksData[0];
+      const type = document.getElementById("modal-stock-type").value;
+      const rawQty = Math.max(1, Number(document.getElementById("modal-stock-qty").value || 0));
+      const reason = document.getElementById("modal-stock-reason").value.trim() || "수동 재고 조정";
+
+      const isPlus = type.includes("(+)");
+      const delta = isPlus ? rawQty : -rawQty;
+      b.stock = Math.max(0, b.stock + delta);
+      if (b.status === "판매종료" || b.status === "판매중지") { /* 재고가 바뀌어도 판매종료 · 판매중지 유지 */ }
+      else if (b.stock === 0) b.status = "일시품절";
+      else if (b.status === "일시품절" && b.stock > 0) b.status = (b.step2Ok && b.step3Ok) ? "판매중" : "판매대기";
+
+      stockHistoryLogs.unshift({
+        dt: "2026-10-15 15:30",
+        type,
+        delta,
+        after: b.stock,
+        reason,
+        actor: "관리자(white)"
+      });
+
+      closeStockAdjustModal();
+      renderBookList();
+      renderDetailView();
+      recordBookStatus(b);
+      showToast(`[${b.sku}] 재고가 ${b.stock}권으로 반영되었습니다.`);
+    }
+
+    // 도서 기본 할인율: 0~10% 정수(도서정가제 상한). 판매가 = 내림(정가 × (100 − 할인율) / 100)
+    function bookDiscountRate() {
+      const el = document.getElementById("f-book-discount-rate");
+      let r = Math.floor(Number(el.value || 0));
+      if (!(r >= 0)) r = 0;
+      if (r > 10) {
+        alert('출판문화산업진흥법(도서정가제) 및 당사 정책에 따라 도서 기본 할인율은 최대 10%까지만 입력할 수 있습니다.');
+        r = 10;
+      }
+      if (String(r) !== String(el.value)) el.value = r;
+      return r;
+    }
+    function bookSalePrice(price, rate) { return Math.floor(price * (100 - rate) / 100); }
+
+    /* 판매 후 잠금 · 정가 권한 (통합설계서 [S2-03] · 01권 6.2절 재정가 · 정가 결정 권한, 8절 위탁 도서)
+       - 결제 · 출고가 1건이라도 있으면 ISBN · 공급 형태 변경 영구 차단(book_supply_type_change_allowed_yn = false)
+       - 위탁 도서 정가는 위탁자가 정한다(price_owner = CONSIGNOR) → 이 화면에서 변경 불가
+       - 재정가(정가 변경)는 발행일로부터 12개월이 지난 뒤에만(출판문화산업 진흥법 제22조 제2항, book_reprice_min_months = 12) */
+    const BOOK_TODAY = "2026-10-22";
+    const BOOK_REPRICE_MIN_MONTHS = 12;
+    /* 프로토타입은 주문 · 출고 원장이 없어 판매 상태로 판정한다(판매대기 = 판매 개시 전). 개발은 주문 품목 · 출고 존재 여부로 판정 */
+    function bookHasOrders(b) { return Boolean(b) && b.status !== "판매대기"; }
+    function bookRepriceDate(b) {
+      const [y, m, d] = String(b.pubDate || "").split("-").map(Number);
+      if (!y) return "";
+      const t = new Date(y, m - 1 + BOOK_REPRICE_MIN_MONTHS, d);
+      return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+    }
+    function applyBookEditLocks(b) {
+      window.__editBook = b || null;
+      const isbn = document.getElementById("f-isbn");
+      const sup = document.getElementById("f-supply-ledger");
+      const vendor = document.getElementById("f-supply-vendor");
+      const price = document.getElementById("f-list-price");
+      const locked = bookHasOrders(b);
+      const consign = Boolean(b) && b.supplyType === "위탁판매";
+      isbn.readOnly = locked;
+      sup.disabled = locked;
+      vendor.disabled = locked;
+      price.readOnly = consign;
+      isbn.style.background = locked ? "#f1f5f9" : "";
+      price.style.background = consign ? "#f1f5f9" : "";
+      document.getElementById("f-isbn-lock-msg").style.display = locked ? "block" : "none";
+      document.getElementById("f-supply-lock-msg").style.display = locked ? "block" : "none";
+      const pm = document.getElementById("f-price-rule-msg");
+      if (!b) {
+        pm.textContent = "";
+      } else if (consign) {
+        pm.textContent = "🔒 위탁 도서 — 정가는 위탁자(출판사)가 정합니다. 이 화면에서 바꿀 수 없습니다.";
+      } else {
+        const rd = bookRepriceDate(b);
+        pm.textContent = rd && rd <= BOOK_TODAY
+          ? `재정가 가능(발행일 ${b.pubDate} + 12개월 경과) — 정가를 바꾸면 정가 변경 이력(시행일)으로 남습니다(ADMN-BOOK-001).`
+          : `재정가는 발행일로부터 12개월이 지난 ${rd}부터 가능합니다. 그 전에는 정가를 바꿀 수 없습니다.`;
+      }
+      pm.style.display = pm.textContent ? "block" : "none";
+    }
+    /* 저장 시 서버 검증과 같은 판정 — 위반이면 사유 문구, 통과면 "" */
+    function bookEditRuleError(prev, next) {
+      if (bookHasOrders(prev)) {
+        if (next.isbn !== prev.isbn) return `[${prev.sku}] 결제 · 출고 이력이 있는 교재는 ISBN을 바꿀 수 없습니다.\n개정판은 새 ISBN · 새 SKU로 등록하고 구판은 판매종료로 내립니다.`;
+        if (next.supplyType !== prev.supplyType) return `[${prev.sku}] 결제 · 출고 이력이 있는 교재는 공급 형태를 바꿀 수 없습니다(정산 라우팅 고정).`;
+      }
+      if (next.price !== Number(prev.price)) {
+        if (prev.supplyType === "위탁판매") return `[${prev.sku}] 위탁 도서의 정가는 위탁자(출판사)가 정합니다. 이 화면에서 바꿀 수 없습니다.`;
+        const rd = bookRepriceDate(prev);
+        if (rd && rd > BOOK_TODAY) return `[${prev.sku}] 재정가는 발행일(${prev.pubDate})로부터 12개월이 지난 ${rd}부터 할 수 있습니다.\n(출판문화산업 진흥법 제22조 제2항)`;
+      }
+      return "";
+    }
+    function syncBookSalePrice() {
+      const price = Number(document.getElementById("f-list-price").value || 0);
+      document.getElementById("f-sale-price").value = formatNumber(bookSalePrice(price, bookDiscountRate()));
+    }
+
+    function togglePreorderFields() {
+      const isPre = document.getElementById("f-is-preorder").checked;
+      document.getElementById("preorder-date-wrap").style.display = isPre ? "inline-flex" : "none";
+    }
+
+    // 판매종료(구판 · 절판)를 고르면 프론트 노출을 미노출로 고정한다. 다른 상태로 바꾸면 노출 선택을 다시 연다
+    function syncEndOfSaleLock() {
+      const paused = document.getElementById("radio-book-pause").checked;
+      const ended = document.getElementById("radio-book-end").checked;
+      document.getElementById("pause-sale-msg").style.display = paused ? "block" : "none";
+      document.querySelectorAll('input[name="f-book-display"]').forEach(r => {
+        if (ended) r.checked = r.value === "N";
+        r.disabled = ended;
+      });
+      document.getElementById("end-of-sale-msg").style.display = document.getElementById("radio-book-end").checked ? "block" : "none";
+    }
+
+    function checkZeroStockHardLock() {
+      if (document.getElementById("radio-book-end").checked) return;
+      if (document.getElementById("radio-book-pause").checked) {
+        /* 판매중지는 재고로 상태를 바꾸지 않되, 판매중 복귀 잠금 규칙(재고 0 · 선등록)은 유지한다 */
+        document.getElementById("radio-book-sale").disabled = (Number(document.getElementById("f-stock-qty").value || 0) <= 0) || currentEntryMode === "PROD_DIRECT";
+        return;
+      }
+      const qty = Number(document.getElementById("f-stock-qty").value || 0);
+      const radioSale = document.getElementById("radio-book-sale");
+      const radioOut = document.getElementById("radio-book-out");
+      const radioReady = document.getElementById("radio-book-ready");
+
+      if (qty <= 0) {
+        radioOut.checked = true;
+        radioSale.disabled = true;
+      } else if (currentEntryMode === "PROD_DIRECT") {
+        radioReady.checked = true;
+        radioSale.disabled = true;
+      } else {
+        radioSale.disabled = false;
+      }
+    }
+
+    function setZeroStockDemo() {
+      document.getElementById("f-stock-qty").value = 0;
+      checkZeroStockHardLock();
+      showToast("재고 0권 시뮬레이션: [일시품절] 상태로 전환되었습니다.");
+    }
+
+    function validateIsbnField() {
+      showToast("ISBN-13 유효성 및 국립중앙도서관 서지 포맷 검증이 완료되었습니다.");
+    }
+
+    function saveBookForm() {
+      const title = document.getElementById("f-title").value.trim();
+      if (!title) {
+        showToast("교재명을 입력해 주세요.");
+        return;
+      }
+
+      const rawSku = document.getElementById("f-sku").value;
+      const isNew = rawSku.includes("AUTO");
+      const supplyTypeVal = document.getElementById("f-supply-ledger").value;
+      if (isNew && !SUPPLY_PREFIX[supplyTypeVal]) {
+        showToast("공급 형태를 먼저 선택해 주세요. 공급 형태에 따라 SKU 앞자리(1 자사 발행 · 2 사입 · 3 위탁 · 4 비매품)가 정해집니다.");
+        return;
+      }
+      const finalSku = isNew ? nextBookSku(supplyTypeVal) : rawSku;
+      const prevBook = booksData.find(b => b.sku === finalSku);
+      const price = Number(document.getElementById("f-list-price").value || 0);
+      /* 등록된 교재를 수정할 때만(수정 진입 = window.__editBook) 판매 후 잠금 · 정가 권한 규칙을 검사 */
+      const editingRegistered = Boolean(!isNew && prevBook && window.__editBook && window.__editBook.sku === prevBook.sku);
+      const repriced = editingRegistered && price !== Number(prevBook.price);
+      if (editingRegistered) {
+        const ruleErr = bookEditRuleError(prevBook, { isbn: document.getElementById("f-isbn").value.trim(), supplyType: supplyTypeVal, price });
+        if (ruleErr) { alert(ruleErr); return; }
+      }
+      const stock = Number(document.getElementById("f-stock-qty").value || 0);
+      const status = document.querySelector('input[name="f-book-status"]:checked').value;
+
+      const isDirect = (currentEntryMode === "PROD_DIRECT");
+
+      const payload = {
+        sku: finalSku,
+        tempCode: document.getElementById("f-temp-code").value.split(" ")[0],
+        originMode: currentEntryMode,
+        cat: document.getElementById("f-cat").value,
+        title,
+        subtitle: document.getElementById("f-subtitle").value.trim(),
+        author: document.getElementById("f-author").value.trim(),
+        publisher: document.getElementById("f-publisher").value.trim(),
+        isbn: document.getElementById("f-isbn").value.trim(),
+        pubDate: document.getElementById("f-pub-date").value,
+        price,
+        discountRate: bookDiscountRate(),
+        salePrice: bookSalePrice(price, bookDiscountRate()),
+        supplyType: supplyTypeVal,
+        supplyVendor: supplyTypeVal === "사입판매" ? document.getElementById("f-supply-vendor").value : "",
+        supplyCost: isDirect ? 0 : (prevBook ? prevBook.supplyCost : 0),
+        supplyRateLabel: isDirect ? "BOOK-001 원가 미입력" : (prevBook ? prevBook.supplyRateLabel : "BOOK-001 원가 확인 필요"),
+        step1Ok: currentEntryMode === "INST_TEMP",
+        step2Ok: !isDirect,
+        step3Ok: !isDirect,
+        stock,
+        safeStock: Number(document.getElementById("f-safe-stock").value || 20),
+        isPreorder: document.getElementById("f-is-preorder").checked,
+        releaseDate: document.getElementById("f-release-date").value,
+        status: isDirect ? "판매대기" : status,
+        displayYn: (!isDirect && status === "판매종료") ? "N" : document.querySelector('input[name="f-book-display"]:checked').value,
+        createdAt: "2026-10-15"
+      };
+
+      const autoStopTargets = bkAutoStopTargets(payload, prevBook);
+      if (autoStopTargets.main.length && !window.__autoStopConfirmed) { openAutoStopConfirm(payload, autoStopTargets); return; }
+      window.__autoStopConfirmed = false;
+      const idx = booksData.findIndex(b => b.sku === finalSku);
+      if (idx >= 0) booksData[idx] = payload;
+      else booksData.unshift(payload);
+
+      window.__currentBook = payload;
+      recordBookStatus(payload);
+      if (autoStopTargets.main.length) setTimeout(() => showToast(`연결된 강좌 · 패키지 ${autoStopTargets.main.length}개가 자동으로 판매중지되었습니다. (담당자 알림 · 변경 이력은 각 상품 화면에서 확인)`), 60);
+      updateTopStepperByBook(payload);
+      showToast(isDirect
+        ? `[${finalSku}] 선등록 완료 (판매대기). 후속 작업으로 ADMN-BOOK-001 원가 입력 및 ADMN-SETT-001 권리자 매핑을 진행하세요.`
+        : `교재 [${finalSku}] 저장 및 3원장 연동이 완료되었습니다.` + (repriced ? ` 재정가 ${formatNumber(prevBook.price)}원 → ${formatNumber(price)}원은 정가 변경 이력(시행일 ${BOOK_TODAY})으로 남습니다.` : ""));
+      switchSubview("list");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      applyBookStatusStore();
+      document.querySelectorAll('input[name="f-book-status"]').forEach(r => r.addEventListener("change", syncEndOfSaleLock));
+      window.__currentBook = booksData[0];
+      updateTopStepperByBook(booksData[0]);
+      renderBookList();
+      renderDetailView();
+      syncBookSalePrice();
+    });
+  </script>
+<script id="prod-004-list-fix">
+window.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var tbody = document.querySelector('#subview-list tbody, .data-table tbody, #book-list-tbody');
+    if (tbody && tbody.children.length === 0) {
+      // 모든 select 필터를 첫 번째 옵션('전체' 또는 '')으로 초기화 후 재렌더링 시도
+      document.querySelectorAll('select').forEach(function(sel) {
+        if (sel.options.length > 0 && (sel.options[0].text.indexOf('전체') !== -1 || sel.options[0].value === '' || sel.options[0].value === 'ALL')) {
+          sel.selectedIndex = 0;
+        }
+      });
+      if (typeof window.filterBooks === 'function') window.filterBooks();
+      if (typeof window.renderBookList === 'function') window.renderBookList();
+      if (typeof window.renderTable === 'function') window.renderTable();
+      if (typeof window.applyFilter === 'function') window.applyFilter();
+    }
+  }, 60);
+});
+</script>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+
+<!-- book-discount-limit-guard -->
+<script>
+(function(){
+  document.addEventListener('input', function(e){
+    var el = e.target;
+    if (!el) return;
+    if (el.id === 'f-book-discount-rate' || el.name === 'book_discount_rate') {
+      var v = parseFloat(el.value || '0');
+      if (v > 10) {
+        alert('출판문화산업진흥법(도서정가제) 및 당사 정책에 따라 도서 기본 할인율은 최대 10%까지만 입력할 수 있습니다.');
+        el.value = 10;
+      } else if (v < 0) {
+        el.value = 0;
+      }
+      var listPriceEl = document.getElementById('f-list-price');
+      var salePriceEl = document.getElementById('f-sale-price');
+      if (listPriceEl && salePriceEl) {
+        var lp = parseFloat((listPriceEl.value || '0').replace(/,/g, '')) || 0;
+        var rate = parseFloat(el.value || '0') || 0;
+        var sp = Math.floor(lp * (100 - rate) / 100);
+        salePriceEl.value = sp.toLocaleString('ko-KR');
+      }
+    }
+  });
+})();
+</script>
+
+</body></html>
