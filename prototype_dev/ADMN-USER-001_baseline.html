@@ -992,7 +992,7 @@ code, pre, kbd, samp,
                 <div style="font-size:12.5px; font-weight:800; margin-bottom:6px;">보유 쿠폰 <span style="font-weight:500; color:var(--text-muted); font-size:11.5px;">(미사용 쿠폰만 회수 가능 · 회수하면 '사용 불가' · 회원 목록 메뉴 수정 권한)</span></div>
                 <table class="data-table" id="dt-coupon-table">
                   <thead><tr><th>쿠폰 코드</th><th>쿠폰명</th><th>발급일</th><th>만료일</th><th>상태</th><th>관리</th></tr></thead>
-                  <tbody></tbody>
+                  <tbody id="dt-coupon-tbody"></tbody>
                 </table>
               </div>
             </div>
@@ -2519,7 +2519,7 @@ code, pre, kbd, samp,
     function adminLabel() { return ADMIN_ROLE_ID === 'RG-02' ? CS_ADMIN : `${roleName(ADMIN_ROLE_ID)} (admin_root)`; }
     // 2차(white 결정 2·3·12·14·29·31): 기능별 권한 = 최고 관리자 또는 해당 회원 메뉴 권한자.
     // 회원 메뉴 5개 분리(결정 32)가 공통 데이터에 들어오면 아래 키만 바꾼다(지금은 'user' 하나)
-    const MEMBER_MENU = { list: 'user', course: 'user', progress: 'user', blacklist: 'user' };
+    const MEMBER_MENU = { list: 'user', course: 'usercourse', progress: 'userprogress', blacklist: 'userblacklist', group: 'usergroup' };
     const MEMBER_MENU_LABEL = { list: '회원 목록', course: '수강 제어', progress: '진도', blacklist: '블랙리스트' };
     function canMenu(area, flag) {
       if (ADMIN_ROLE_ID === SUPER_ROLE_ID) return true;
@@ -2786,7 +2786,7 @@ code, pre, kbd, samp,
     };
     const COUPON_ST = { UNUSED: '<span class="badge badge-green">미사용</span>', USED: '<span class="badge badge-gray">사용 완료</span>', EXPIRED: '<span class="badge badge-gray">기간 만료</span>', REVOKED: '<span class="badge badge-red">사용 불가(회수)</span>' };
     function renderCoupons() {
-      const body = document.querySelector('#dt-coupon-table tbody');
+      const body = document.getElementById('dt-coupon-tbody');
       if (!body) return;
       const list = COUPONS[currentMemberId] || [];
       body.innerHTML = list.length ? list.map((c, i) => `<tr><td><code>${csEsc(c.code)}</code></td><td>${csEsc(c.name)}</td><td>${c.issued}</td><td>${c.exp}</td><td>${COUPON_ST[c.status]}${c.note ? `<div style="font-size:11px; color:var(--text-muted);">${csEsc(c.note)}</div>` : ''}</td>

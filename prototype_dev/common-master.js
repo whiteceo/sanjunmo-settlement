@@ -39,7 +39,12 @@
   var MENUS = [
     { key: "dash", label: "운영 현황 대시보드", screens: "DASH-001" },
     { key: "stat", label: "매출 · 상품 통계", screens: "STAT-001" },
-    { key: "user", label: "회원 · 수강 관리", screens: "USER-001~006" },
+    // 회원 관리 메뉴는 5개로 나눈다(white 결정 32, 2026-10-27 — 개발 메뉴 구조와 맞춤). user 키는 회원 목록 · 상세로 유지
+    { key: "user", label: "회원 목록 · 상세", screens: "USER-001 · 002" },
+    { key: "usercourse", label: "회원 수강 · 기기 제어", screens: "USER-003" },
+    { key: "userprogress", label: "진도율 · 이어보기", screens: "USER-004" },
+    { key: "userblacklist", label: "블랙리스트 · 부정사용 제재", screens: "USER-005" },
+    { key: "usergroup", label: "회원 그룹 · 태그", screens: "USER-006" },
     { key: "order", label: "주문 · 배송 관리", screens: "ORD-001" },
     { key: "shipout", label: "출고 지시 · 송장 업로드", screens: "ORD-001 (출고 지시 · 송장)" },
     { key: "refund", label: "환불 요청 · 심사", screens: "RFD-002" },
@@ -94,6 +99,13 @@
       desc: "출고 대상 조회 · 송장 업로드 (금액 비노출)",
       perms: { shipout: "RW" } }
   ];
+
+  // 회원 하위 메뉴 4개는 최초값에서 user 값과 같게(나누기 전과 접근 권한이 같도록, 결정 32)
+  var USER_SUB_MENUS = ["usercourse", "userprogress", "userblacklist", "usergroup"];
+  ROLE_SEED.forEach(function (g) {
+    if (g.perms === ALL || !g.perms.user) return;
+    USER_SUB_MENUS.forEach(function (k) { if (g.perms[k] === undefined) g.perms[k] = g.perms.user; });
+  });
 
   // 1:1 문의 분류 최초값 — 담당 부서 큐(depts)는 역할 그룹 ID로 가리킨다(그룹 이름이 바뀌어도 연결 유지)
   var MAJOR_SEED = [
@@ -185,6 +197,8 @@
   (function () {
     var cur = roleStore.get(), changed = false;
     cur.forEach(function (g) {
+      // 결정 32 회원 메뉴 분리 — 저장된 역할 그룹(운영자가 만든 그룹 포함)의 user 값을 새 하위 메뉴 키에 보충
+      if (g.perms && g.perms.user !== undefined) USER_SUB_MENUS.forEach(function (k) { if (g.perms[k] === undefined) { g.perms[k] = g.perms.user; changed = true; } });
       ROLE_SEED.forEach(function (sg) {
         if (sg.id !== g.id) return;
         g.perms = g.perms || {};

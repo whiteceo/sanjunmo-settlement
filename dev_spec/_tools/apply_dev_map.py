@@ -70,6 +70,21 @@ def apply_ops(text, ops):
     return text, errors
 
 
+def summarize_sources():
+    d = os.path.join(DST, "_sources")
+    rows = []
+    for fn in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+        with open(os.path.join(d, fn), encoding="utf-8") as f:
+            rows.append(f.read().strip())
+    head = ["# prototype_dev 원본 기록", "",
+            "apply_dev_map.py가 만들 때마다 갱신한다(화면별 원본은 _sources/). 원본이 바뀌면 다시 돌리고, 건수 불일치는 dev_spec/_maps/<코드>.py를 고친다.", "",
+            "| 화면 | 원본 prototype_clean 상태 | 원본 sha256(앞 12) | 맞춘 dev 커밋 | 변경 항목 수 | 생성 시각 |", "|---|---|---|---|---|---|"]
+    tmp = os.path.join(DST, f"_SOURCES.md.{os.getpid()}")
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(head + rows) + "\n")
+    os.replace(tmp, os.path.join(DST, "_SOURCES.md"))
+
+
 def build(code):
     src_name = f"{code}_baseline.html"
     src_path = os.path.join(SRC, src_name)
@@ -89,26 +104,23 @@ def build(code):
         f.write(text.replace("\n", eol))
     for c in COMMON:
         s, d = os.path.join(SRC, c), os.path.join(DST, c)
-        if os.path.isdir(s):
-            shutil.copytree(s, d, dirs_exist_ok=True)
-        elif os.path.exists(s):
-            shutil.copy2(s, d)
+        try:
+            if os.path.isdir(s):
+                shutil.copytree(s, d, dirs_exist_ok=True)
+            elif os.path.exists(s):
+                shutil.copy2(s, d)
+        except OSError:
+            pass  # 다른 작업자가 같은 공통 파일을 복사 중 — 내용이 같으므로 건너뛴다
     head = git("log", "-1", "--format=%h", "--", f"prototype_clean/{src_name}")
     dirty = git("status", "--porcelain", "--", f"prototype_clean/{src_name}")
     state = f"{head}" + (" + 미커밋 작업 트리" if dirty else "")
     sha = hashlib.sha256(raw).hexdigest()[:12]
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    rec = os.path.join(DST, "_SOURCES.md")
-    lines = []
-    if os.path.exists(rec):
-        with open(rec, encoding="utf-8") as f:
-            lines = [ln for ln in f.read().split("\n") if ln and not ln.startswith(f"| {code} ")]
-    if not lines:
-        lines = ["# prototype_dev 원본 기록", "", "apply_dev_map.py가 만들 때마다 갱신한다. 원본이 바뀌면 다시 돌리고, 건수 불일치는 dev_spec/_maps/<코드>.py를 고친다.", "",
-                 "| 화면 | 원본 prototype_clean 상태 | 원본 sha256(앞 12) | 맞춘 dev 커밋 | 변경 항목 수 | 생성 시각 |", "|---|---|---|---|---|---|"]
-    lines.append(f"| {code} | {state} | {sha} | {getattr(m, 'DEV_COMMIT', '?')} | {len(m.OPS)} | {now} |")
-    with open(rec, "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(lines) + "\n")
+    # 화면마다 한 파일(여러 작업자가 동시에 돌려도 겹치지 않게). 목록은 summarize_sources()가 _SOURCES.md로 모은다
+    os.makedirs(os.path.join(DST, "_sources"), exist_ok=True)
+    with open(os.path.join(DST, "_sources", f"{code}.md"), "w", encoding="utf-8", newline="\n") as f:
+        f.write(f"| {code} | {state} | {sha} | {getattr(m, 'DEV_COMMIT', '?')} | {len(m.OPS)} | {now} |\n")
+    summarize_sources()
     print(f"[{code}] 완료 — 변경 {len(m.OPS)}항목, 원본 {state} ({sha})")
     return True
 

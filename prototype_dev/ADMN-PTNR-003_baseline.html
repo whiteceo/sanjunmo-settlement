@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="screen-code" content="ADMN-PTNR-003" />
+  <title>공급사 파트너 센터 — 산준모닷컴</title>
+  <!--
+    ADMN-PTNR-003 공급사 파트너 센터 (prototype_dev 신규, 2026-10-27)
+    - 구분: 추론 기반 신규, 정본 근거 없음. prototype_clean 원본 없음 — 이 파일이 원본이다(apply_dev_map 대상 아님).
+      정본에 직접 근거가 있는 부분: 소속 3종 · 본인 바인딩 2단 통제(README 1절, L43), 매입처 = 거래처 테이블 suppliers(02권 2.4절),
+      매입 재판매 AP 결제 · 전자계산서 수취(01권 6.1절 L406 · L412 · L413), 수취 증빙 상태 분리 추적(01권 6.5절 L490),
+      매입처는 사업자등록번호 · 계좌만 수집(03권 L295), 폐업 시 신규 증빙 요청 중단(03권 L427).
+      나머지(외부 계정 부여 · 발주 확인 · 반출 · 증빙 제출 · 변경 요청)는 추론 — 확인 항목은 dev_spec/_drafts/POLICY_D_PTNR-003.md.
+    - 대상: 거래처 소속 외부 계정 중 도서 · 상품 매입처(거래처 유형 양식 PURCHASE). 진입 ?vendor=SUP-NNNN&role=RG-09
+      (거래처 코드는 SJM_MASTER.vendors의 SUP-NNNN을 따른다. 지시서의 VD-NNNN 대신 기존 코드 체계 사용)
+    - 역할 그룹 '도서 공급사'(RG-09)는 공통 기준정보(common-master.js)에 없다. 공통 파일을 고치지 않고 이 화면 안의 가정값(ROLE_PROPOSED)으로 둔다.
+      기준정보에 같은 id가 생기면 그쪽을 쓴다.
+    - 운영자 SNB(common-snb.js)는 PTNR-001과 같이 로드하지 않는다: common-snb.js는 body 맨 앞에 운영자 SNB를 무조건 넣는다.
+    - 숫자는 ADMN-SETT-011 S1 도서 매입 계산서 대조(2026년 9월분) · ADMN-PROD-004(PROD-BK-2001 재고 140권) · VEND-001 거래 조건과 같다.
+      8월 · 10월분과 수불 상세는 이 화면에서 정한 가상 샘플(원본 화면에 없는 달).
+  -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PTNR-003", "devCommit": "d562524a", "progress": "추론 기반 신규, 정본 근거 없음 — 개발 미구현(전 화면 규칙 기반 명명, 주황 표시)", "menus": [{"route": "admin.partner.book-supply.index", "label": "공급 원장 (규칙)"}, {"route": "admin.partner.purchase-orders.index", "label": "발주 · 입고 확인 (규칙)"}, {"route": "admin.partner.purchase-statements.index", "label": "월 매입 정산서 (규칙)"}, {"route": "admin.partner.purchase-invoices.index", "label": "세금계산서 · 증빙 제출 (규칙)"}, {"route": "admin.partner.profile.index", "label": "내 정보 (규칙)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+  <style>
+    :root {
+      --ptnr-nav-w: 220px;
+      --ptnr-top-h: 60px;
+      --ptnr-border: #E2E8F0;
+      --ptnr-muted: #64748B;
+      --ptnr-text: #0F172A;
+    }
+    .ptnr-topbar {
+      position: sticky; top: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      min-height: var(--ptnr-top-h); padding: 10px 24px; box-sizing: border-box;
+      background: #0F172A; color: #fff;
+    }
+    .ptnr-brand { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .ptnr-brand img { height: 18px; width: auto; display: block; }
+    .ptnr-brand-title { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+    .ptnr-brand-sep { width: 1px; height: 16px; background: #334155; }
+    .ptnr-who { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12.5px; }
+    .ptnr-who-name { font-weight: 800; font-size: 13.5px; }
+    .ptnr-who-aff { color: #CBD5E1; }
+    .ptnr-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; background: #1E293B; color: #E2E8F0; border: 1px solid #334155; }
+    .ptnr-logout { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 6px; background: #334155; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700; }
+    .ptnr-logout:hover { background: #475569; }
+    .screen-id-badge { font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #7C3AED; color: #fff; }
+    .infer-badge { font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #EA580C; color: #fff; }
+
+    .ptnr-layout { display: flex; align-items: flex-start; min-height: calc(100vh - var(--ptnr-top-h)); }
+    .ptnr-nav {
+      position: sticky; top: var(--ptnr-top-h); flex: 0 0 var(--ptnr-nav-w); width: var(--ptnr-nav-w);
+      min-height: calc(100vh - var(--ptnr-top-h)); box-sizing: border-box; padding: 18px 12px;
+      background: #fff; border-right: 1px solid var(--ptnr-border);
+    }
+    .ptnr-nav-title { font-size: 11px; font-weight: 800; color: var(--ptnr-muted); padding: 0 10px 8px; letter-spacing: 0.02em; }
+    .ptnr-nav .tab-btn {
+      display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box;
+      padding: 10px 12px; margin-bottom: 4px; border: none; border-radius: 8px; background: transparent;
+      font-size: 13.5px; font-weight: 600; color: #334155; cursor: pointer; text-align: left;
+    }
+    .ptnr-nav .tab-btn:hover { background: #F1F5F9; }
+    .ptnr-nav .tab-btn.active { background: #EFF6FF; color: #1D4ED8; font-weight: 800; }
+    .ptnr-nav .tab-btn .ptnr-count { min-width: 20px; padding: 1px 7px; border-radius: 999px; background: #F59E0B; color: #fff; font-size: 11px; font-weight: 800; text-align: center; }
+    .ptnr-nav-help { margin-top: 18px; padding: 12px; border-radius: 8px; background: #F8FAFC; border: 1px solid var(--ptnr-border); font-size: 11.5px; color: #475569; line-height: 1.6; }
+
+    .ptnr-main { flex: 1 1 auto; min-width: 0; padding: 24px 28px 48px; box-sizing: border-box; }
+    .ptnr-section { display: none; }
+    .ptnr-section.active { display: block; }
+    .ptnr-h2 { margin: 0 0 4px; font-size: 19px; font-weight: 900; color: var(--ptnr-text); }
+    .ptnr-sub { margin: 0 0 18px; font-size: 12.5px; color: var(--ptnr-muted); }
+    .ptnr-card { background: #fff; border: 1px solid var(--ptnr-border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+    .ptnr-card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; font-size: 14px; font-weight: 800; color: var(--ptnr-text); }
+    .ptnr-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .ptnr-kpi { background: #fff; border: 1px solid var(--ptnr-border); border-radius: 10px; padding: 14px 16px; }
+    .ptnr-kpi-label { font-size: 12px; color: var(--ptnr-muted); font-weight: 700; }
+    .ptnr-kpi-num { margin-top: 6px; font-size: 21px; font-weight: 900; color: var(--ptnr-text); font-variant-numeric: tabular-nums; line-height: 1.35; word-break: keep-all; }
+    .ptnr-kpi-sub { margin-top: 4px; font-size: 11.5px; color: var(--ptnr-muted); line-height: 1.5; }
+
+    .ptnr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .ptnr-table th { background: #F8FAFC; color: #334155; font-weight: 700; text-align: left; padding: 9px 10px; border: 1px solid var(--ptnr-border); white-space: nowrap; }
+    .ptnr-table td { padding: 9px 10px; border: 1px solid var(--ptnr-border); vertical-align: top; color: var(--ptnr-text); }
+    .ptnr-table td.num, .ptnr-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .ptnr-table tr.is-empty td { text-align: center; color: var(--ptnr-muted); padding: 22px 10px; }
+    .ptnr-table tfoot td { background: #F8FAFC; font-weight: 800; }
+    .ptnr-table-wrap { overflow-x: auto; }
+    .ptnr-minus { color: #DC2626; }
+    .ptnr-small { font-size: 11px; color: #64748B; margin-top: 3px; }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .badge-blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .badge-green { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+    .badge-amber { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
+    .badge-rose { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+    .badge-gray { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+    .badge-violet { background: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid #CBD5E1; background: #fff; color: #0F172A; font-size: 12.5px; font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; }
+    .btn:hover { background: #F8FAFC; }
+    .btn-primary { background: #2563EB; border-color: #1D4ED8; color: #fff; }
+    .btn-primary:hover { background: #1D4ED8; }
+    .btn-green { background: #16A34A; border-color: #15803D; color: #fff; }
+    .btn-green:hover { background: #15803D; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .ptnr-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .ptnr-select, .ptnr-input, .ptnr-textarea { height: 32px; padding: 0 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #fff; font-size: 12.5px; color: #0F172A; box-sizing: border-box; }
+    .ptnr-textarea { height: auto; min-height: 90px; padding: 10px; width: 100%; resize: vertical; line-height: 1.6; }
+    .ptnr-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .ptnr-field label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+    .ptnr-field .ptnr-input, .ptnr-field .ptnr-select { width: 100%; }
+    .ptnr-field-full { grid-column: 1 / -1; }
+    .ptnr-error { display: none; margin-top: 10px; padding: 9px 12px; border-radius: 6px; background: #FFF1F2; border: 1px solid #FECDD3; color: #BE123C; font-size: 12.5px; font-weight: 700; }
+
+    /* 운영 안내 박스 — clean 공통 CSS가 숨기는 기획 설명 클래스와 겹치지 않게 별도 이름을 쓴다 */
+    .ptnr-notice { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 13px 16px; border-radius: 8px; margin-bottom: 14px; font-size: 12.5px; line-height: 1.65; }
+    .ptnr-notice.is-blue { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E3A8A; }
+    .ptnr-notice.is-amber { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
+    .ptnr-notice.is-gray { background: #F8FAFC; border: 1px solid var(--ptnr-border); color: #475569; }
+    .ptnr-notice.is-rose { background: #FFF1F2; border: 1px solid #FECDD3; color: #9F1239; }
+    .ptnr-notice strong { font-weight: 800; }
+
+    .ptnr-doc-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 2px solid #0F172A; }
+    .ptnr-doc-head h3 { margin: 4px 0 0; font-size: 20px; font-weight: 900; color: #0F172A; }
+    .ptnr-doc-meta { text-align: right; font-size: 12px; color: #475569; line-height: 1.7; }
+    .ptnr-party-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .ptnr-party { padding: 12px 14px; border: 1px solid var(--ptnr-border); border-radius: 8px; background: #F8FAFC; font-size: 12.5px; line-height: 1.75; }
+    .ptnr-party-title { font-size: 12px; font-weight: 800; color: #1D4ED8; margin-bottom: 4px; }
+    .ptnr-sec-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 18px 0 8px; font-size: 13.5px; font-weight: 800; color: #0F172A; }
+    .ptnr-sec-title small { font-size: 11.5px; color: var(--ptnr-muted); font-weight: 600; }
+    .ptnr-equation { margin-top: 8px; padding: 9px 12px; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 6px; font-size: 12px; color: #92400E; line-height: 1.6; }
+    .ptnr-month-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .ptnr-dl { display: grid; grid-template-columns: 160px 1fr; border-top: 1px solid var(--ptnr-border); font-size: 13px; }
+    .ptnr-dl dt, .ptnr-dl dd { margin: 0; padding: 11px 12px; border-bottom: 1px solid var(--ptnr-border); }
+    .ptnr-dl dt { background: #F8FAFC; color: #475569; font-weight: 700; }
+    .ptnr-dl dd { color: #0F172A; }
+
+    .ptnr-blocked { max-width: 560px; margin: 60px auto; padding: 28px; background: #fff; border: 1px solid var(--ptnr-border); border-radius: 12px; text-align: center; font-size: 13.5px; line-height: 1.7; color: #334155; }
+
+    /* 모달 — 공통 CSS가 위치 · 표시(.open)를 맡고, 여기서는 배경과 창 모양만 준다 (body.partner-isolated-mode → 전체 화면 기준) */
+    .modal-backdrop { background: rgba(15, 23, 42, 0.55); }
+    .ptnr-modal { width: min(640px, 100%); max-height: calc(100vh - 40px); display: flex; flex-direction: column; background: #fff; border-radius: 12px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3); overflow: hidden; }
+    .ptnr-modal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--ptnr-border); }
+    .ptnr-modal-head strong { font-size: 15px; font-weight: 800; }
+    .ptnr-modal-body { padding: 16px 18px; overflow-y: auto; }
+    .ptnr-modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--ptnr-border); background: #F8FAFC; }
+    .ptnr-x { border: none; background: transparent; font-size: 16px; cursor: pointer; color: #475569; }
+
+    #ptnrToast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 11000; max-width: 640px; padding: 11px 18px; border-radius: 8px; background: #0F172A; color: #fff; font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.3); display: none; }
+    #ptnrToast.show { display: block; }
+
+    @media (max-width: 860px) {
+      .ptnr-layout { flex-direction: column; }
+      .ptnr-nav { position: static; width: 100%; flex-basis: auto; min-height: 0; border-right: none; border-bottom: 1px solid var(--ptnr-border); display: flex; flex-wrap: wrap; gap: 4px; }
+      .ptnr-nav .tab-btn { width: auto; margin: 0; }
+      .ptnr-nav-title, .ptnr-nav-help { display: none; }
+      .ptnr-main { padding: 18px 16px 40px; }
+    }
+  </style>
+</head>
+<body class="partner-isolated-mode" data-screen-code="ADMN-PTNR-003">
+
+<header class="ptnr-topbar" id="ptnrTopbar">
+  <div class="ptnr-brand">
+    <img src="img/sjm_logo-horizontal-white.png" alt="산준모" />
+    <span class="ptnr-brand-sep"></span>
+    <span class="ptnr-brand-title">공급사 파트너 센터</span>
+    <span class="screen-id-badge">ADMN-PTNR-003</span>
+    <span class="infer-badge" data-dev-flag="proto-only" data-dev-note="추론 기반 신규, 정본 근거 없음 — 근거 목록은 dev_spec/ADMN-PTNR-003.md 맨 위">추론 기반 신규 · 정본 근거 없음</span>
+  </div>
+  <div class="ptnr-who">
+    <span class="ptnr-who-name" id="ptnrWhoName">-</span>
+    <span class="ptnr-who-aff" id="ptnrWhoAff">-</span>
+    <span class="ptnr-chip" id="ptnrWhoRole">-</span>
+    <a href="ADMN-LOGIN-001_baseline.html" class="ptnr-logout" id="ptnrLogout">로그아웃</a>
+  </div>
+</header>
+
+<div class="ptnr-layout" id="ptnrLayout">
+  <nav class="ptnr-nav" id="ptnrNav" aria-label="공급사 메뉴">
+    <div class="ptnr-nav-title">내 메뉴</div>
+    <button type="button" class="tab-btn active" data-tab="home" onclick="switchPtnrTab('home')">홈</button>
+    <button type="button" class="tab-btn" data-tab="ledger" onclick="switchPtnrTab('ledger')"
+      data-dev-route="admin.partner.book-supply.index" data-dev-method="GET" data-dev-url="/{admin}/partner/book-supply" data-dev-perm="can_view">공급 원장</button>
+    <button type="button" class="tab-btn" data-tab="orders" id="navOrders" onclick="switchPtnrTab('orders')"
+      data-dev-route="admin.partner.purchase-orders.index" data-dev-method="GET" data-dev-url="/{admin}/partner/purchase-orders" data-dev-perm="can_view">발주 · 입고 확인 <span class="ptnr-count" id="navOrdersCount">0</span></button>
+    <button type="button" class="tab-btn" data-tab="stmt" onclick="switchPtnrTab('stmt')"
+      data-dev-route="admin.partner.purchase-statements.index" data-dev-method="GET" data-dev-url="/{admin}/partner/purchase-statements" data-dev-perm="can_view">월 매입 정산서</button>
+    <button type="button" class="tab-btn" data-tab="tax" id="navTax" onclick="switchPtnrTab('tax')"
+      data-dev-route="admin.partner.purchase-invoices.index" data-dev-method="GET" data-dev-url="/{admin}/partner/purchase-invoices" data-dev-perm="can_view">세금계산서 · 증빙 제출 <span class="ptnr-count" id="navTaxCount">0</span></button>
+    <button type="button" class="tab-btn" data-tab="me" onclick="switchPtnrTab('me')"
+      data-dev-route="admin.partner.profile.index" data-dev-method="GET" data-dev-url="/{admin}/partner/profile" data-dev-perm="can_view">내 정보</button>
+    <div class="ptnr-nav-help">
+      매입 대금 · 계좌 문의<br><strong>재무팀 settlement@sanjunmo.com</strong><br>
+      발주 · 입고 문의<br><strong>물류팀 logistics@sanjunmo.com</strong><br>
+      이 화면에는 본인 거래처의 공급 도서 · 매입 정보만 표시됩니다.
+    </div>
+  </nav>
+
+  <main class="ptnr-main" id="ptnrMain">
+    <div id="readOnlyNotice"></div>
+
+    <!-- 홈 -->
+    <section class="ptnr-section active" id="tab-home" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2" id="homeGreeting">공급사 파트너 센터</h2>
+      <p class="ptnr-sub">공급 현황과 처리할 일을 한눈에 확인합니다.</p>
+      <div class="ptnr-kpis" id="homeKpis"></div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>처리할 일</span></div>
+        <div id="homeTodoList"></div>
+      </div>
+    </section>
+
+    <!-- 공급 원장 -->
+    <section class="ptnr-section" id="tab-ledger" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">공급 원장</h2>
+      <p class="ptnr-sub">공급한 도서의 월별 입고 · 판매 출고 · 반품 · 재고를 확인합니다. 재고와 매입 단가는 산준모닷컴 도서 공급 원장 · 교재 관리와 같은 값입니다.</p>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title">
+          <div class="ptnr-filters" style="margin:0;">
+            <label for="ledgerMonth" style="font-size:12.5px; font-weight:700; color:#334155;">기준 월</label>
+            <select id="ledgerMonth" name="month" class="ptnr-select" onchange="renderLedger()"></select>
+            <select id="ledgerSku" name="book_id" class="ptnr-select" onchange="renderLedger()"></select>
+          </div>
+          <button type="button" class="btn btn-sm" id="btnLedgerDownload" onclick="downloadLedger()"
+            data-dev-route="admin.partner.book-supply.download" data-dev-method="GET" data-dev-url="/{admin}/partner/book-supply/download?month=&amp;book_id=" data-dev-perm="can_download">원장 엑셀 다운로드</button>
+        </div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead>
+              <tr><th>도서 · 상품코드</th><th class="num">매입 단가</th><th class="num">기초 재고</th><th class="num">입고 (+)</th><th class="num">판매 출고 (−)</th><th class="num">고객 반품 입고 (+)</th><th class="num">매입처 반품 (−)</th><th class="num">폐기 · 실사 조정</th><th class="num">기말 재고</th><th class="num">입고 기준 매입액</th></tr>
+            </thead>
+            <tbody id="ledgerBody"></tbody>
+            <tfoot id="ledgerFoot"></tfoot>
+          </table>
+        </div>
+        <div class="ptnr-notice is-gray" style="margin:12px 0 0;" id="ledgerNote"></div>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>입고 · 반출 이력</span><span style="font-size:12px; color:#64748B; font-weight:600;">물류센터 입고 전표 · 매입처 반품(반출) 전표 기준</span></div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead><tr><th>일자</th><th>구분</th><th>도서 · 상품코드</th><th class="num">수량</th><th>전표번호</th><th>관련 발주 · 사유</th></tr></thead>
+            <tbody id="ledgerLogBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 발주 · 입고 확인 -->
+    <section class="ptnr-section" id="tab-orders" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">발주 · 입고 확인</h2>
+      <p class="ptnr-sub">산준모닷컴 발주를 확인해 납품 예정일을 알려 주고, 물류센터 입고 수량과 매입처 반품(반출)을 확인합니다. 확인한 수량이 월 매입 정산서의 기준이 됩니다.</p>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>발주 · 입고</span><span style="font-size:12px; color:#64748B; font-weight:600;" id="ordersCountText"></span></div>
+        <div class="ptnr-filters">
+          <select id="ordersStatusFilter" name="status" class="ptnr-select" onchange="renderOrders()">
+            <option value="">상태 전체</option>
+            <option value="ORDERED">발주 확인 대기</option>
+            <option value="ACCEPTED">납품 예정</option>
+            <option value="RECEIVED">입고 확인 대기</option>
+            <option value="CONFIRMED">입고 확인 완료</option>
+            <option value="DISPUTED">이의 제기 · 확인 중</option>
+          </select>
+          <button type="button" class="btn btn-sm" onclick="resetOrdersFilter()">초기화</button>
+        </div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead><tr><th>발주번호</th><th>발주일</th><th>도서 · 상품코드</th><th class="num">발주 수량</th><th>납품 예정일</th><th class="num">입고 수량</th><th>입고 전표</th><th>상태</th><th>처리</th></tr></thead>
+            <tbody id="ordersBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>매입처 반품 (반출)</span><span style="font-size:12px; color:#64748B; font-weight:600;">파본 · 인쇄 불량 등으로 공급사에 되돌려 보내는 수량 — 확인 후 매입 대금에서 차감</span></div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead><tr><th>반출번호</th><th>요청일</th><th>도서 · 상품코드</th><th class="num">수량</th><th>사유</th><th class="num">매입 대금 차감</th><th>상태</th><th>처리</th></tr></thead>
+            <tbody id="returnsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 월 매입 정산서 -->
+    <section class="ptnr-section" id="tab-stmt" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">월 매입 정산서</h2>
+      <p class="ptnr-sub">월별 입고 · 반출 기준 매입 대금, 계산서 수취 상태, 지급 예정 · 지급 내역을 확인합니다.</p>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title">
+          <div class="ptnr-month-bar">
+            <label for="stmtMonth" style="font-size:12.5px; font-weight:700; color:#334155;">매입 귀속월</label>
+            <button type="button" class="btn btn-sm" onclick="shiftStmtMonth(-1)">◀ 이전 달</button>
+            <select id="stmtMonth" name="month" class="ptnr-select" onchange="renderStatement()"></select>
+            <button type="button" class="btn btn-sm" onclick="shiftStmtMonth(1)">다음 달 ▶</button>
+            <span id="stmtStatusBadge"></span>
+          </div>
+          <div class="btn-row">
+            <button type="button" class="btn btn-sm btn-green" id="btnStmtGoTax" onclick="switchPtnrTab('tax')">세금계산서 · 증빙 제출</button>
+            <button type="button" class="btn btn-sm btn-primary" id="btnStmtPdf" onclick="downloadStatementPdf()"
+              data-dev-route="admin.partner.purchase-statements.download" data-dev-method="GET" data-dev-url="/{admin}/partner/purchase-statements/{month}/download" data-dev-perm="can_download">정산서 PDF 다운로드</button>
+          </div>
+        </div>
+        <div id="stmtSheet"></div>
+      </div>
+    </section>
+
+    <!-- 세금계산서 · 증빙 제출 -->
+    <section class="ptnr-section" id="tab-tax" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">세금계산서 · 증빙 제출</h2>
+      <p class="ptnr-sub">입고 기준 매입액대로 홈택스에서 발행한 전자계산서의 승인번호와 증빙 PDF를 제출합니다.</p>
+      <div class="ptnr-notice is-blue">
+        <div>
+          <strong>제출 방법</strong><br>
+          1. 도서는 면세 재화이므로 <strong>전자계산서(면세)</strong>를 발행합니다. 공급받는 자는 주식회사 엘캠퍼스(산준모닷컴) 120-88-00000입니다.<br>
+          2. 아래 목록의 공급가액 그대로 홈택스에서 발행한 뒤 [제출]을 눌러 승인번호(24자리)와 증빙 PDF를 등록합니다. 세액은 0원입니다.<br>
+          3. 재무팀이 홈택스 매입 내역과 승인번호 · 금액을 대조해 수취 완료로 바꿉니다. 금액이 다르면 수정 계산서 발행을 요청합니다.<br>
+          매입 대금은 계산서 수취 완료분부터 거래 조건의 지급일에 지급합니다. 발행 기한은 공급(입고)일이 속한 달의 다음 달 10일입니다.
+        </div>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>발행 요청 · 제출 내역</span></div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead><tr><th>매입 귀속월</th><th>도서 · 상품코드</th><th>증빙 종류</th><th class="num">공급가액</th><th class="num">세액</th><th class="num">수취 계산서 금액</th><th>발행 기한</th><th>상태</th><th>제출</th></tr></thead>
+            <tbody id="taxDocBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <form class="ptnr-card" id="purchaseInvoiceForm" style="display:none;" onsubmit="return false;" data-dev-flag="proto-only"
+        data-dev-route="admin.partner.purchase-invoices.store" data-dev-method="POST" data-dev-url="/{admin}/partner/purchase-invoices" data-dev-perm="can_create">
+        <div class="ptnr-card-title"><span id="taxFormTitle">증빙 제출</span></div>
+        <div class="ptnr-notice is-gray" id="taxFormGuide"></div>
+        <div class="ptnr-form-grid">
+          <div class="ptnr-field"><label for="tiApproval">승인번호 *</label><input type="text" id="tiApproval" name="nts_approval_no" class="ptnr-input" placeholder="00000000-00000000-00000000" maxlength="26" /></div>
+          <div class="ptnr-field"><label for="tiDate">작성일자 *</label><input type="date" id="tiDate" name="issue_date" class="ptnr-input" /></div>
+          <div class="ptnr-field"><label for="tiSupply">공급가액 *</label><input type="number" id="tiSupply" name="supply_amount" class="ptnr-input" /></div>
+          <div class="ptnr-field"><label for="tiVat">세액 *</label><input type="number" id="tiVat" name="tax_amount" class="ptnr-input" /></div>
+          <div class="ptnr-field"><label for="tiFile">증빙 파일 (PDF) *</label><input type="file" id="tiFile" name="evidence_file" class="ptnr-input" accept="application/pdf,.pdf" style="padding-top:4px;" /></div>
+        </div>
+        <div class="ptnr-error" id="tiError"></div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+          <button type="button" class="btn" onclick="cancelTaxForm()">취소</button>
+          <button type="button" class="btn btn-green" id="purchaseInvoiceSubmit" onclick="submitTaxDoc()"
+            data-dev-route="admin.partner.purchase-invoices.store" data-dev-method="POST" data-dev-url="/{admin}/partner/purchase-invoices" data-dev-perm="can_create">제출</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 내 정보 -->
+    <section class="ptnr-section" id="tab-me" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">내 정보</h2>
+      <p class="ptnr-sub">사업자 정보 · 거래 조건 · 정산 계좌는 읽기 전용입니다. 바꿀 내용이 있으면 변경 요청을 보내 주세요. 재무팀이 확인한 뒤 반영합니다.</p>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>사업자 · 거래 조건</span></div>
+        <dl class="ptnr-dl" id="meBizList"></dl>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title">
+          <span>연락처 · 정산 계좌</span>
+          <button type="button" class="btn btn-sm btn-primary" id="btnOpenProfileChange" onclick="openProfileChangeModal()"
+            data-dev-route="admin.partner.profile.change-requests.store" data-dev-method="POST" data-dev-url="/{admin}/partner/profile/change-requests" data-dev-perm="can_create">변경 요청</button>
+        </div>
+        <dl class="ptnr-dl" id="meContactList"></dl>
+        <div class="ptnr-notice is-gray" style="margin:14px 0 0;">
+          <div>정산 계좌 변경은 사업자 명의 통장 사본을 첨부해 요청해 주세요. 재무팀이 등록된 대표 연락처로 전화 확인한 뒤 반영하며, 반영 이후 지급분부터 적용됩니다. 메일로 계좌 변경을 안내받으면 따르지 말고 재무팀에 알려 주세요.</div>
+        </div>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>변경 요청 내역</span></div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead><tr><th>요청일</th><th>요청 항목</th><th>요청 내용</th><th>상태</th><th>처리 결과</th></tr></thead>
+            <tbody id="meRequestBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 진입 차단 (거래처 · 역할 그룹 확인 실패) -->
+    <section class="ptnr-section" id="tab-blocked">
+      <div class="ptnr-blocked">
+        <div style="font-size:16px; font-weight:900; margin-bottom:8px;">공급사 계정을 확인할 수 없습니다</div>
+        <div id="blockedReason">소속 거래처 정보가 없습니다.</div>
+        <div style="margin-top:16px;"><a href="ADMN-LOGIN-001_baseline.html" class="btn btn-primary">로그인 화면으로</a></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 발주 확인 (납품 예정일 회신) -->
+<div class="modal-backdrop" id="layerPurchaseOrderConfirm" role="dialog" aria-modal="true" aria-labelledby="poConfirmTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal">
+    <div class="ptnr-modal-head">
+      <strong id="poConfirmTitle">발주 확인</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerPurchaseOrderConfirm')">✕</button>
+    </div>
+    <form class="ptnr-modal-body" id="purchaseOrderConfirmForm" onsubmit="return false;">
+      <div class="ptnr-notice is-gray" id="poConfirmInfo"></div>
+      <div class="ptnr-form-grid">
+        <div class="ptnr-field"><label for="poExpectedDate">납품 예정일 *</label><input type="date" id="poExpectedDate" name="expected_date" class="ptnr-input" /></div>
+        <div class="ptnr-field"><label for="poQty">납품 가능 수량 *</label><input type="number" id="poQty" name="quantity" class="ptnr-input" min="1" /></div>
+        <div class="ptnr-field ptnr-field-full"><label for="poMemo">메모 (발주 수량보다 적게 납품하면 사유 필수)</label><textarea id="poMemo" name="memo" class="ptnr-textarea" placeholder="예: 2쇄 제작 중 — 150권 우선 납품, 나머지 11월 둘째 주"></textarea></div>
+      </div>
+      <div class="ptnr-error" id="poConfirmError"></div>
+    </form>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerPurchaseOrderConfirm')">취소</button>
+      <button type="button" class="btn btn-primary" id="purchaseOrderConfirmSubmit" onclick="submitPoConfirm()"
+        data-dev-route="admin.partner.purchase-orders.confirm.update" data-dev-method="PUT" data-dev-url="/{admin}/partner/purchase-orders/{purchaseOrder}/confirm" data-dev-perm="can_update">발주 확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 입고 · 반출 이의 제기 -->
+<div class="modal-backdrop" id="layerStockReceiptDispute" role="dialog" aria-modal="true" aria-labelledby="disputeTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal">
+    <div class="ptnr-modal-head">
+      <strong id="disputeTitle">이의 제기</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerStockReceiptDispute')">✕</button>
+    </div>
+    <form class="ptnr-modal-body" id="stockReceiptDisputeForm" onsubmit="return false;">
+      <div class="ptnr-notice is-gray" id="disputeInfo"></div>
+      <div class="ptnr-form-grid">
+        <div class="ptnr-field"><label for="disputeReason">이의 사유 *</label>
+          <select id="disputeReason" name="reason_code" class="ptnr-select">
+            <option value="">선택</option>
+            <option value="qty_short">수량이 적게 잡힘</option>
+            <option value="qty_over">수량이 많게 잡힘</option>
+            <option value="not_defective">파본 · 불량 사유 이견</option>
+            <option value="other">기타</option>
+          </select>
+        </div>
+        <div class="ptnr-field"><label for="disputeQty">공급사 기준 수량 *</label><input type="number" id="disputeQty" name="quantity" class="ptnr-input" min="0" /></div>
+        <div class="ptnr-field ptnr-field-full"><label for="disputeMemo">상세 내용 * (10자 이상)</label><textarea id="disputeMemo" name="reason" class="ptnr-textarea" placeholder="예: 10월 15일 출고 송장 기준 300권 납품, 거래명세서 첨부 예정"></textarea></div>
+      </div>
+      <div class="ptnr-error" id="disputeError"></div>
+    </form>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerStockReceiptDispute')">취소</button>
+      <button type="button" class="btn btn-primary" id="stockReceiptDisputeSubmit" onclick="submitDispute()"
+        data-dev-route="admin.partner.stock-receipts.dispute.store" data-dev-method="POST" data-dev-url="/{admin}/partner/stock-receipts/{stockReceipt}/dispute" data-dev-perm="can_create">이의 제기 등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 내 정보 변경 요청 -->
+<div class="modal-backdrop" id="layerProfileChangeRequest" role="dialog" aria-modal="true" aria-labelledby="profileChangeTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal">
+    <div class="ptnr-modal-head">
+      <strong id="profileChangeTitle">내 정보 변경 요청</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerProfileChangeRequest')">✕</button>
+    </div>
+    <form class="ptnr-modal-body" id="profileChangeRequestForm" onsubmit="return false;">
+      <div class="ptnr-form-grid">
+        <div class="ptnr-field ptnr-field-full"><label for="pcType">요청 항목 *</label>
+          <select id="pcType" name="request_type" class="ptnr-select" onchange="renderProfileChangeFields()">
+            <option value="bank_account">정산 계좌</option>
+            <option value="contact">담당자 메일</option>
+            <option value="business_info">사업자 정보 (상호 · 대표자 · 과세유형)</option>
+          </select>
+        </div>
+        <div class="ptnr-field pc-bank"><label for="pcBank">은행 *</label><input type="text" id="pcBank" name="bank_name" class="ptnr-input" maxlength="50" /></div>
+        <div class="ptnr-field pc-bank"><label for="pcAccount">계좌번호 * (숫자 · 하이픈)</label><input type="text" id="pcAccount" name="account_no" class="ptnr-input" maxlength="50" /></div>
+        <div class="ptnr-field pc-bank"><label for="pcHolder">예금주 *</label><input type="text" id="pcHolder" name="account_holder" class="ptnr-input" maxlength="50" /></div>
+        <div class="ptnr-field pc-contact" style="display:none;"><label for="pcEmail">담당자 메일 *</label><input type="email" id="pcEmail" name="contact_email" class="ptnr-input" maxlength="100" /></div>
+        <div class="ptnr-field ptnr-field-full"><label for="pcReason">요청 사유 * (10자 이상)</label><textarea id="pcReason" name="reason" class="ptnr-textarea" placeholder="예: 주거래 은행 변경 — 11월 지급분부터 새 계좌로 받기를 요청합니다"></textarea></div>
+        <div class="ptnr-field ptnr-field-full"><label for="pcFile" id="pcFileLabel">증빙 파일 * (사업자 명의 통장 사본)</label><input type="file" id="pcFile" name="evidence_file" class="ptnr-input" accept="application/pdf,.pdf,image/*" style="padding-top:4px;" /></div>
+      </div>
+      <div class="ptnr-error" id="pcError"></div>
+    </form>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerProfileChangeRequest')">취소</button>
+      <button type="button" class="btn btn-primary" id="profileChangeRequestSubmit" onclick="submitProfileChange()"
+        data-dev-route="admin.partner.profile.change-requests.store" data-dev-method="POST" data-dev-url="/{admin}/partner/profile/change-requests" data-dev-perm="can_create">변경 요청 보내기</button>
+    </div>
+  </div>
+</div>
+
+<div id="ptnrToast" role="status" aria-live="polite"></div>
+
+<script>
+  // ===== 샘플 데이터 — 실제 서비스에서는 로그인 계정의 소속 거래처(vendor) 데이터만 서버가 내려준다 =====
+  var TODAY = "2026-10-27";
+  var VD_MONTHS = ["2026-08", "2026-09", "2026-10"];
+  var VD_MONTH_LABEL = { "2026-08": "2026년 8월", "2026-09": "2026년 9월", "2026-10": "2026년 10월" };
+  var VD_MONTH_END = { "2026-08": "2026-08-31", "2026-09": "2026-09-30", "2026-10": "2026-10-31" };
+  var VD_MONTH_DEADLINE = { "2026-08": "2026-09-10", "2026-09": "2026-10-10", "2026-10": "2026-11-10" };
+  var VD_CLOSED_MONTHS = ["2026-08", "2026-09"]; // 10월은 마감 전(잠정)
+
+  // 역할 그룹 '도서 공급사' — 공통 기준정보에 없어 이 화면의 가정값으로 둔다(POLICY_D_PTNR-003 D-PTNR3-01)
+  var ROLE_PROPOSED = { id: "RG-09", name: "도서 공급사", side: "EXTERNAL", aff: ["VENDOR"], on: true, perms: { supply: "RWX" }, proposed: true };
+
+  // 공급 도서 — 매입 단가는 ADMN-SETT-011 S1 사입 원가 · ADMN-PROD-004(PROD-BK-2001 매입가 12,000원)와 같은 값
+  var VD_BOOKS = {
+    "PROD-BK-2011": { title: "산업안전기사 필기 핵심요약", vendor: "SUP-0004", cost: 17500 },
+    "PROD-BK-2012": { title: "산업안전기사 실기 필답형 문제집", vendor: "SUP-0004", cost: 18200 },
+    "PROD-BK-2015": { title: "산업안전 법령집 2026", vendor: "SUP-0004", cost: 12000 },
+    "PROD-BK-2013": { title: "산업안전기사 작업형 실전", vendor: "SUP-0005", cost: 16800 },
+    "PROD-BK-2014": { title: "산업안전기사 필기 빈출문제집", vendor: "SUP-0006", cost: 15000 },
+    "PROD-BK-2016": { title: "건설안전기사 실기 작업형 워크북", vendor: "SUP-0008", cost: 14500 },
+    "PROD-BK-2001": { title: "2026 건설안전기사 필기 총정리", vendor: "SUP-0003", cost: 12000 }
+  };
+
+  // 월별 수불 — open 기초 · inQty 입고 · outQty 판매 출고 · retIn 고객 반품 입고 · retOut 매입처 반품(반출) · adj 폐기 · 실사 조정
+  // 9월 입고 수량은 ADMN-SETT-011 S1과 같다. PROD-BK-2001 10월 기말 140권 = ADMN-PROD-004 재고
+  var VD_LEDGER = {
+    "2026-08": [
+      { sku: "PROD-BK-2011", open: 0, inQty: 1000, outQty: 880, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2012", open: 0, inQty: 400, outQty: 320, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2001", open: 0, inQty: 200, outQty: 10, retIn: 0, retOut: 0, adj: 0 }
+    ],
+    "2026-09": [
+      { sku: "PROD-BK-2011", open: 120, inQty: 800, outQty: 610, retIn: 12, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2012", open: 80, inQty: 600, outQty: 455, retIn: 5, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2015", open: 0, inQty: 100, outQty: 38, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2013", open: 40, inQty: 300, outQty: 210, retIn: 2, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2014", open: 0, inQty: 200, outQty: 95, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2016", open: 0, inQty: 120, outQty: 30, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2001", open: 190, inQty: 0, outQty: 25, retIn: 0, retOut: 0, adj: 0 }
+    ],
+    "2026-10": [
+      { sku: "PROD-BK-2011", open: 322, inQty: 300, outQty: 280, retIn: 4, retOut: 20, adj: 0 },
+      { sku: "PROD-BK-2012", open: 230, inQty: 0, outQty: 170, retIn: 3, retOut: 0, adj: -2 },
+      { sku: "PROD-BK-2015", open: 62, inQty: 0, outQty: 21, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2013", open: 132, inQty: 0, outQty: 60, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2014", open: 105, inQty: 0, outQty: 40, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2016", open: 90, inQty: 0, outQty: 0, retIn: 0, retOut: 0, adj: 0 },
+      { sku: "PROD-BK-2001", open: 165, inQty: 0, outQty: 25, retIn: 0, retOut: 0, adj: 0 }
+    ]
+  };
+
+  // 입고 · 반출 전표 (book_stock_logs type in / return_out(규칙))
+  var VD_STOCK_LOGS = [
+    { month: "2026-08", date: "2026-08-15", type: "in", sku: "PROD-BK-2011", qty: 1000, doc: "WH-20260815-01", ref: "PO-2026-08-003" },
+    { month: "2026-08", date: "2026-08-15", type: "in", sku: "PROD-BK-2012", qty: 400, doc: "WH-20260815-02", ref: "PO-2026-08-004" },
+    { month: "2026-08", date: "2026-08-20", type: "in", sku: "PROD-BK-2001", qty: 200, doc: "WH-20260820-01", ref: "PO-2026-08-011" },
+    { month: "2026-09", date: "2026-09-10", type: "in", sku: "PROD-BK-2016", qty: 120, doc: "WH-20260910-01", ref: "PO-2026-09-002" },
+    { month: "2026-09", date: "2026-09-15", type: "in", sku: "PROD-BK-2011", qty: 800, doc: "WH-20260915-03", ref: "PO-2026-09-004" },
+    { month: "2026-09", date: "2026-09-15", type: "in", sku: "PROD-BK-2012", qty: 600, doc: "WH-20260915-04", ref: "PO-2026-09-005" },
+    { month: "2026-09", date: "2026-09-16", type: "in", sku: "PROD-BK-2013", qty: 300, doc: "WH-20260916-02", ref: "PO-2026-09-006" },
+    { month: "2026-09", date: "2026-09-18", type: "in", sku: "PROD-BK-2014", qty: 200, doc: "WH-20260918-01", ref: "PO-2026-09-007" },
+    { month: "2026-09", date: "2026-09-22", type: "in", sku: "PROD-BK-2015", qty: 100, doc: "WH-20260922-01", ref: "PO-2026-09-009" },
+    { month: "2026-10", date: "2026-10-15", type: "in", sku: "PROD-BK-2011", qty: 300, doc: "WH-20261015-02", ref: "PO-2026-10-007" },
+    { month: "2026-10", date: "2026-10-21", type: "return_out", sku: "PROD-BK-2011", qty: 20, doc: "RT-2026-10-001", ref: "파본(인쇄 불량) 반출" }
+  ];
+  var VD_LOG_TYPE = { "in": "입고", "return_out": "매입처 반품(반출)" };
+
+  // 발주 — status ORDERED 발주 확인 대기 / ACCEPTED 납품 예정 / RECEIVED 입고 확인 대기 / CONFIRMED 입고 확인 완료 / DISPUTED 이의 제기
+  var VD_ORDERS = [
+    { po: "PO-2026-10-012", vendor: "SUP-0004", date: "2026-10-20", sku: "PROD-BK-2012", qty: 200, expected: "", recvQty: null, recvDoc: "", status: "ORDERED" },
+    { po: "PO-2026-10-013", vendor: "SUP-0004", date: "2026-10-20", sku: "PROD-BK-2015", qty: 50, expected: "2026-11-03", recvQty: null, recvDoc: "", status: "ACCEPTED" },
+    { po: "PO-2026-10-007", vendor: "SUP-0004", date: "2026-10-06", sku: "PROD-BK-2011", qty: 300, expected: "2026-10-15", recvQty: 300, recvDoc: "WH-20261015-02", status: "RECEIVED" },
+    { po: "PO-2026-09-009", vendor: "SUP-0004", date: "2026-09-16", sku: "PROD-BK-2015", qty: 100, expected: "2026-09-22", recvQty: 100, recvDoc: "WH-20260922-01", status: "CONFIRMED" },
+    { po: "PO-2026-09-005", vendor: "SUP-0004", date: "2026-09-08", sku: "PROD-BK-2012", qty: 600, expected: "2026-09-15", recvQty: 600, recvDoc: "WH-20260915-04", status: "CONFIRMED" },
+    { po: "PO-2026-09-004", vendor: "SUP-0004", date: "2026-09-08", sku: "PROD-BK-2011", qty: 800, expected: "2026-09-15", recvQty: 800, recvDoc: "WH-20260915-03", status: "CONFIRMED" },
+    { po: "PO-2026-08-004", vendor: "SUP-0004", date: "2026-08-07", sku: "PROD-BK-2012", qty: 400, expected: "2026-08-15", recvQty: 400, recvDoc: "WH-20260815-02", status: "CONFIRMED" },
+    { po: "PO-2026-08-003", vendor: "SUP-0004", date: "2026-08-07", sku: "PROD-BK-2011", qty: 1000, expected: "2026-08-15", recvQty: 1000, recvDoc: "WH-20260815-01", status: "CONFIRMED" },
+    { po: "PO-2026-10-010", vendor: "SUP-0005", date: "2026-10-19", sku: "PROD-BK-2013", qty: 150, expected: "", recvQty: null, recvDoc: "", status: "ORDERED" },
+    { po: "PO-2026-09-006", vendor: "SUP-0005", date: "2026-09-09", sku: "PROD-BK-2013", qty: 300, expected: "2026-09-16", recvQty: 300, recvDoc: "WH-20260916-02", status: "CONFIRMED" },
+    { po: "PO-2026-09-007", vendor: "SUP-0006", date: "2026-09-10", sku: "PROD-BK-2014", qty: 200, expected: "2026-09-18", recvQty: 200, recvDoc: "WH-20260918-01", status: "CONFIRMED" },
+    { po: "PO-2026-09-002", vendor: "SUP-0008", date: "2026-09-03", sku: "PROD-BK-2016", qty: 120, expected: "2026-09-10", recvQty: 120, recvDoc: "WH-20260910-01", status: "CONFIRMED" },
+    { po: "PO-2026-08-011", vendor: "SUP-0003", date: "2026-08-12", sku: "PROD-BK-2001", qty: 200, expected: "2026-08-20", recvQty: 200, recvDoc: "WH-20260820-01", status: "CONFIRMED" }
+  ];
+  var VD_ORDER_STATUS = {
+    ORDERED: '<span class="badge badge-amber">발주 확인 대기</span>',
+    ACCEPTED: '<span class="badge badge-blue">납품 예정</span>',
+    RECEIVED: '<span class="badge badge-amber">입고 확인 대기</span>',
+    CONFIRMED: '<span class="badge badge-green">입고 확인 완료</span>',
+    DISPUTED: '<span class="badge badge-rose">이의 제기 · 확인 중</span>'
+  };
+
+  // 매입처 반품(반출) — PENDING 확인 대기 / CONFIRMED 확인 완료 / DISPUTED 이의 제기
+  var VD_RETURNS = [
+    { rt: "RT-2026-10-001", vendor: "SUP-0004", date: "2026-10-21", sku: "PROD-BK-2011", qty: 20, reason: "파본(인쇄 불량) — 고객 반품 회수분 검수", status: "PENDING" }
+  ];
+  var VD_RETURN_STATUS = {
+    PENDING: '<span class="badge badge-amber">반출 확인 대기</span>',
+    CONFIRMED: '<span class="badge badge-green">반출 확인 완료</span>',
+    DISPUTED: '<span class="badge badge-rose">이의 제기 · 확인 중</span>'
+  };
+
+  // 매입 대금 지급 — AP 결제(회계 시스템). 9월 값은 ADMN-SETT-011 S1 수취 상태(DONE · NONE · MISMATCH · REQUESTED)에서 나온다
+  var VD_PAYMENTS = {
+    "SUP-0004": {
+      "2026-08": { status: "PAID", paid: 24780000, payDate: "2026-09-10", docNo: "PS-SUP0004-202608" },
+      "2026-09": { status: "PARTIAL", paid: 24920000, payDate: "2026-10-10", docNo: "PS-SUP0004-202609", note: "PROD-BK-2015 1,200,000원은 계산서 수취 후 다음 지급일에 지급" },
+      "2026-10": { status: "OPEN", paid: 0, payDate: "2026-11-10", docNo: "PS-SUP0004-202610", note: "10월 31일 마감 전 잠정 금액 — 반출 RT-2026-10-001 확인 결과에 따라 바뀔 수 있음" }
+    },
+    "SUP-0005": { "2026-09": { status: "HOLD", paid: 0, payDate: "2026-10-15", docNo: "PS-SUP0005-202609", note: "수취 계산서 금액 불일치 — 수정 계산서 수취 후 지급" } },
+    "SUP-0006": { "2026-09": { status: "HOLD", paid: 0, payDate: "2026-10-10", docNo: "PS-SUP0006-202609", note: "수정 계산서 재요청 중 — 수취 후 지급" } },
+    "SUP-0008": { "2026-09": { status: "HOLD", paid: 0, payDate: "-", docNo: "PS-SUP0008-202609", note: "폐업 사업자 — 계산서 수취 불가, 재무팀이 별도 처리" } },
+    "SUP-0003": { "2026-08": { status: "PAID", paid: 2400000, payDate: "2026-09-10", docNo: "PS-SUP0003-202608" } }
+  };
+  var VD_PAY_STATUS = {
+    PAID: '<span class="badge badge-green">지급 완료</span>',
+    PARTIAL: '<span class="badge badge-blue">일부 지급</span>',
+    HOLD: '<span class="badge badge-rose">지급 보류</span>',
+    OPEN: '<span class="badge badge-amber">마감 전 · 잠정</span>'
+  };
+
+  // 수취 계산서 — ADMN-SETT-011 S1 books와 같은 값. status NONE 미수취 / SUBMITTED 제출 / DONE 수취 완료 / REISSUE 수정 발행 요청 / WAIT 마감 전
+  var VD_TAX_DOCS = [
+    { id: "PI-202608-01", vendor: "SUP-0004", month: "2026-08", sku: "PROD-BK-2011", supply: 17500000, invoice: 17500000, status: "DONE", approvalNo: "20260905-41000000-00008811" },
+    { id: "PI-202608-02", vendor: "SUP-0004", month: "2026-08", sku: "PROD-BK-2012", supply: 7280000, invoice: 7280000, status: "DONE", approvalNo: "20260905-41000000-00008812" },
+    { id: "PI-202609-01", vendor: "SUP-0004", month: "2026-09", sku: "PROD-BK-2011", supply: 14000000, invoice: 14000000, status: "DONE", approvalNo: "20261002-41000000-00010231" },
+    { id: "PI-202609-02", vendor: "SUP-0004", month: "2026-09", sku: "PROD-BK-2012", supply: 10920000, invoice: 10920000, status: "DONE", approvalNo: "20261002-41000000-00010232" },
+    { id: "PI-202609-05", vendor: "SUP-0004", month: "2026-09", sku: "PROD-BK-2015", supply: 1200000, invoice: null, status: "NONE", approvalNo: "" },
+    { id: "PI-202610-01", vendor: "SUP-0004", month: "2026-10", sku: "PROD-BK-2011", supply: 4900000, invoice: null, status: "WAIT", approvalNo: "", note: "입고 300권 − 반출 20권(확인 대기) — 10월 마감 후 금액 확정" },
+    { id: "PI-202609-03", vendor: "SUP-0005", month: "2026-09", sku: "PROD-BK-2013", supply: 5040000, invoice: 4957200, status: "REISSUE", approvalNo: "20261006-41000000-00011870" },
+    { id: "PI-202609-04", vendor: "SUP-0006", month: "2026-09", sku: "PROD-BK-2014", supply: 3000000, invoice: 3150000, status: "REISSUE", approvalNo: "20261005-41000000-00011502" },
+    { id: "PI-202609-06", vendor: "SUP-0008", month: "2026-09", sku: "PROD-BK-2016", supply: 1740000, invoice: null, status: "NONE", approvalNo: "" },
+    { id: "PI-202608-03", vendor: "SUP-0003", month: "2026-08", sku: "PROD-BK-2001", supply: 2400000, invoice: 2400000, status: "DONE", approvalNo: "20260904-10000000-00007204" }
+  ];
+  var VD_TAX_STATUS = {
+    NONE: '<span class="badge badge-amber">미수취 · 발행 요청</span>',
+    SUBMITTED: '<span class="badge badge-blue">제출 완료 · 대조 대기</span>',
+    DONE: '<span class="badge badge-green">수취 완료</span>',
+    REISSUE: '<span class="badge badge-rose">금액 불일치 · 수정 발행 요청</span>',
+    WAIT: '<span class="badge badge-gray">마감 후 발행 요청</span>'
+  };
+
+  // 거래처 부가 정보 — 기준정보(VENDOR_SEED)에 없는 계좌 · 메일은 가린 값만 내려온다(03권: 매입처는 사업자등록번호 · 계좌만 수집)
+  var VD_PROFILE = {
+    "SUP-0003": { bankMasked: "국민은행 ***-**-****-201 (예금주 한국자격교재총판)", emailMasked: "ac***@kqbook.co.kr" },
+    "SUP-0004": { bankMasked: "기업은행 ***-******-04-*** (예금주 예문사)", emailMasked: "se***@yemun.co.kr" },
+    "SUP-0005": { bankMasked: "우리은행 ****-***-**1200 (예금주 구민사)", emailMasked: "fi***@kumin.co.kr" },
+    "SUP-0006": { bankMasked: "신한은행 ***-***-**6300 (예금주 성안당)", emailMasked: "bo***@sungan.co.kr" },
+    "SUP-0008": { bankMasked: "하나은행 ***-******-***90 (예금주 (주)한빛도서유통)", emailMasked: "-" }
+  };
+  var VD_CHANGE_REQUESTS = [
+    { vendor: "SUP-0004", date: "2026-07-02", type: "contact", text: "담당자 메일 변경 (se***@yemun.co.kr)", status: "DONE", result: "2026-07-03 반영" }
+  ];
+  var VD_REQ_TYPE = { bank_account: "정산 계좌", contact: "담당자 메일", business_info: "사업자 정보" };
+  var VD_REQ_STATUS = {
+    REQUESTED: '<span class="badge badge-amber">요청 접수 · 확인 대기</span>',
+    DONE: '<span class="badge badge-green">반영 완료</span>'
+  };
+
+  // ===== 공통 =====
+  function vdWon(n) {
+    if (n === null || n === undefined || n === "") return "-";
+    return Number(n).toLocaleString("ko-KR") + "원";
+  }
+  function vdNum(n) { return Number(n).toLocaleString("ko-KR"); }
+  function vdSigned(n, unit) {
+    if (!n) return "0" + (unit || "");
+    return (n > 0 ? "+" : "−") + vdNum(Math.abs(n)) + (unit || "");
+  }
+  function vdEsc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; });
+  }
+  function showPtnrToast(msg) {
+    var t = document.getElementById("ptnrToast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(window.__ptnrToastTimer);
+    window.__ptnrToastTimer = setTimeout(function () { t.classList.remove("show"); }, 2800);
+  }
+  function bookLabel(sku) {
+    var b = VD_BOOKS[sku];
+    return '<strong>' + vdEsc(b ? b.title : sku) + '</strong><div class="ptnr-small">' + sku + '</div>';
+  }
+  function openLayer(id) {
+    var m = document.getElementById(id);
+    m.style.removeProperty("display");
+    m.classList.add("open");
+    m.setAttribute("aria-hidden", "false");
+  }
+  function closeLayer(id) {
+    var m = document.getElementById(id);
+    if (!m) return;
+    m.classList.remove("open");
+    m.setAttribute("aria-hidden", "true");
+  }
+
+  // ===== 진입 컨텍스트 (본인 바인딩: 소속 거래처 → 데이터 범위, 역할 그룹 → 기능 범위) =====
+  var VD = { vendorId: "", vendor: null, vendorType: null, roleId: "", role: null, canView: false, canWrite: false, canDownload: false, readOnly: false, ok: false, month: "2026-09", taxFormKey: "", poKey: "", disputeKey: "", disputeKind: "" };
+
+  function resolveContext() {
+    var p = new URLSearchParams(window.location.search);
+    var vendorId = (p.get("vendor") || "SUP-0004").trim().toUpperCase();
+    var roleId = (p.get("role") || "RG-09").trim().toUpperCase();
+    var M = window.SJM_MASTER;
+    VD.vendorId = vendorId;
+    VD.roleId = roleId;
+    if (!M || !M.vendors || !M.roles) return "공통 기준정보를 불러오지 못했습니다.";
+    var v = M.vendors.get(vendorId);
+    if (!v) return "소속 거래처 정보를 찾을 수 없습니다. 운영자에게 계정 소속 확인을 요청해 주세요.";
+    var t = M.vendors.type(v.type);
+    if (!t || t.form !== "PURCHASE") {
+      return "매입처(도서 · 상품 공급사) 소속 계정 전용 화면입니다. 물류 대행사 계정은 출고 · 송장 화면으로 로그인해 주세요.";
+    }
+    var g = M.roles.get(roleId) || (roleId === ROLE_PROPOSED.id ? ROLE_PROPOSED : null);
+    if (!g || g.side !== "EXTERNAL" || !g.aff || g.aff.indexOf("VENDOR") === -1) {
+      return "거래처 소속 공급사 계정 전용 화면입니다. 운영자 계정은 백오피스로 로그인해 주세요.";
+    }
+    var perm = (g.perms && g.perms.supply) || "";
+    if (perm.indexOf("R") === -1) return "이 역할 그룹에는 공급사 메뉴 권한이 없습니다. 운영자에게 역할 그룹 확인을 요청해 주세요.";
+    VD.vendor = v;
+    VD.vendorType = t;
+    VD.role = g;
+    VD.canView = true;
+    VD.canDownload = perm.indexOf("X") !== -1;
+    // 폐업 · 휴업 · 거래 중지 거래처는 열람만 (03권 L427: 폐업 감지 시 신규 증빙 요청 중단)
+    VD.readOnly = v.on === false || v.status === "폐업" || v.status === "휴업";
+    VD.canWrite = perm.indexOf("W") !== -1 && !VD.readOnly;
+    VD.ok = true;
+    return "";
+  }
+
+  function renderTopbar() {
+    var v = VD.vendor;
+    document.getElementById("ptnrWhoName").textContent = v.name;
+    document.getElementById("ptnrWhoAff").textContent = "거래처 " + v.id + " · " + VD.vendorType.name;
+    document.getElementById("ptnrWhoRole").textContent = VD.role.name + (VD.role.proposed ? " (가정)" : "");
+    if (VD.readOnly) {
+      document.getElementById("readOnlyNotice").innerHTML = '<div class="ptnr-notice is-rose"><div><strong>열람 전용</strong> — 거래 상태가 ' + vdEsc(v.on === false ? "거래 중지" : v.status) + '(국세청 확인 ' + vdEsc(v.checkedAt || "-") + ')로 확인되어 발주 확인 · 증빙 제출 · 변경 요청을 할 수 없습니다. 남은 매입 대금은 재무팀이 따로 안내합니다.</div></div>';
+    }
+  }
+
+  function applyScope() {
+    var hide = function (id) { var el = document.getElementById(id); if (el) el.style.display = "none"; };
+    if (!VD.canDownload) { hide("btnLedgerDownload"); hide("btnStmtPdf"); }
+    if (!VD.canWrite) { hide("btnOpenProfileChange"); hide("btnStmtGoTax"); }
+  }
+
+  function switchPtnrTab(tab) {
+    if (!VD.ok) return;
+    if (!document.getElementById("tab-" + tab) || tab === "blocked") tab = "home";
+    document.querySelectorAll(".ptnr-section").forEach(function (s) { s.classList.toggle("active", s.id === "tab-" + tab); });
+    document.querySelectorAll("#ptnrNav .tab-btn").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-tab") === tab); });
+    if (tab === "ledger") renderLedger();
+    if (tab === "orders") renderOrders();
+    if (tab === "stmt") renderStatement();
+    if (tab === "tax") renderTaxDocs();
+    if (tab === "me") renderMe();
+    window.scrollTo(0, 0);
+  }
+
+  // ===== 본인 데이터 (서버가 소속 거래처로 거른 값만 내려준다고 가정) =====
+  function myLedger(month) { return (VD_LEDGER[month] || []).filter(function (r) { return VD_BOOKS[r.sku] && VD_BOOKS[r.sku].vendor === VD.vendorId; }); }
+  function myLogs(month) { return VD_STOCK_LOGS.filter(function (l) { return l.month === month && VD_BOOKS[l.sku] && VD_BOOKS[l.sku].vendor === VD.vendorId; }); }
+  function myOrders() { return VD_ORDERS.filter(function (o) { return o.vendor === VD.vendorId; }); }
+  function myReturns() { return VD_RETURNS.filter(function (r) { return r.vendor === VD.vendorId; }); }
+  function myTaxDocs() { return VD_TAX_DOCS.filter(function (d) { return d.vendor === VD.vendorId; }); }
+  function myPayment(month) { return (VD_PAYMENTS[VD.vendorId] || {})[month] || null; }
+  function myBooks() { return Object.keys(VD_BOOKS).filter(function (k) { return VD_BOOKS[k].vendor === VD.vendorId; }); }
+  function closeQty(r) { return r.open + r.inQty - r.outQty + r.retIn - r.retOut + r.adj; }
+  function purchaseOf(r) { var c = VD_BOOKS[r.sku].cost; return { gross: r.inQty * c, ret: r.retOut * c, net: (r.inQty - r.retOut) * c }; }
+  function monthPurchase(month) {
+    var s = { gross: 0, ret: 0, net: 0 };
+    myLedger(month).forEach(function (r) { var p = purchaseOf(r); s.gross += p.gross; s.ret += p.ret; s.net += p.net; });
+    return s;
+  }
+  function pendingOrderCount() {
+    return myOrders().filter(function (o) { return o.status === "ORDERED" || o.status === "RECEIVED"; }).length
+      + myReturns().filter(function (r) { return r.status === "PENDING"; }).length;
+  }
+  function pendingTaxCount() { return myTaxDocs().filter(function (d) { return d.status === "NONE" || d.status === "REISSUE"; }).length; }
+  function updateNavCounts() {
+    var o = pendingOrderCount(), t = VD.readOnly ? 0 : pendingTaxCount();
+    var oc = document.getElementById("navOrdersCount"), tc = document.getElementById("navTaxCount");
+    oc.textContent = o; oc.style.display = o ? "" : "none";
+    tc.textContent = t; tc.style.display = t ? "" : "none";
+  }
+
+  // ===== 홈 =====
+  function renderHome() {
+    var v = VD.vendor;
+    document.getElementById("homeGreeting").textContent = v.name + " 공급 현황";
+    var cur = monthPurchase("2026-10"), prev = monthPurchase("2026-09");
+    var stock = myLedger("2026-10").reduce(function (a, r) { return a + closeQty(r); }, 0);
+    var pay9 = myPayment("2026-09");
+    document.getElementById("homeKpis").innerHTML =
+      kpi("10월 입고 기준 매입액 (잠정)", vdWon(cur.net), "입고 " + vdWon(cur.gross) + " − 반출 " + vdWon(cur.ret) + " · 10월 31일 마감")
+      + kpi("9월 매입 대금", vdWon(prev.net), pay9 ? (pay9.paid ? "지급 " + vdWon(pay9.paid) + " (" + pay9.payDate + ")" : "지급 보류") : "입고 없음")
+      + kpi("현재 재고 (공급 도서 합계)", vdNum(stock) + "권", myBooks().length + "종 · 물류센터 기준")
+      + kpi("처리할 일", (pendingOrderCount() + (VD.readOnly ? 0 : pendingTaxCount())) + "건", "발주 · 입고 · 반출 확인과 계산서 제출");
+    var todo = [];
+    myOrders().forEach(function (o) {
+      if (o.status === "ORDERED") todo.push(todoRow("발주 확인", o.po + " · " + VD_BOOKS[o.sku].title + " " + vdNum(o.qty) + "권 — 납품 예정일을 알려 주세요", "orders"));
+      if (o.status === "RECEIVED") todo.push(todoRow("입고 확인", o.po + " · " + o.recvDoc + " 입고 " + vdNum(o.recvQty) + "권 — 수량을 확인해 주세요", "orders"));
+    });
+    myReturns().forEach(function (r) {
+      if (r.status === "PENDING") todo.push(todoRow("반출 확인", r.rt + " · " + VD_BOOKS[r.sku].title + " " + vdNum(r.qty) + "권 (" + r.reason + ")", "orders"));
+    });
+    if (!VD.readOnly) myTaxDocs().forEach(function (d) {
+      if (d.status === "NONE") todo.push(todoRow("계산서 제출", VD_MONTH_LABEL[d.month] + " " + VD_BOOKS[d.sku].title + " " + vdWon(d.supply) + (VD_MONTH_DEADLINE[d.month] < TODAY ? " — 발행 기한 " + VD_MONTH_DEADLINE[d.month] + " 지남" : ""), "tax"));
+      if (d.status === "REISSUE") todo.push(todoRow("수정 계산서", VD_MONTH_LABEL[d.month] + " " + VD_BOOKS[d.sku].title + " — 입고 기준 " + vdWon(d.supply) + " · 수취 " + vdWon(d.invoice), "tax"));
+    });
+    document.getElementById("homeTodoList").innerHTML = todo.length
+      ? '<div class="ptnr-table-wrap"><table class="ptnr-table"><tbody>' + todo.join("") + '</tbody></table></div>'
+      : '<div class="ptnr-notice is-gray" style="margin:0;"><div>지금 처리할 일이 없습니다.</div></div>';
+  }
+  function kpi(label, num, sub) {
+    return '<div class="ptnr-kpi"><div class="ptnr-kpi-label">' + vdEsc(label) + '</div><div class="ptnr-kpi-num">' + num + '</div><div class="ptnr-kpi-sub">' + vdEsc(sub) + '</div></div>';
+  }
+  function todoRow(kind, text, tab) {
+    return '<tr><td style="width:110px;"><span class="badge badge-amber">' + vdEsc(kind) + '</span></td><td>' + vdEsc(text) + '</td><td style="width:90px;"><button type="button" class="btn btn-sm" onclick="switchPtnrTab(\'' + tab + '\')">바로가기</button></td></tr>';
+  }
+
+  // ===== 공급 원장 =====
+  function fillSelects() {
+    var opts = VD_MONTHS.map(function (m) { return '<option value="' + m + '">' + VD_MONTH_LABEL[m] + (VD_CLOSED_MONTHS.indexOf(m) === -1 ? ' (마감 전)' : '') + '</option>'; }).join("");
+    document.getElementById("ledgerMonth").innerHTML = opts;
+    document.getElementById("stmtMonth").innerHTML = opts;
+    document.getElementById("ledgerMonth").value = "2026-10";
+    document.getElementById("stmtMonth").value = VD.month;
+    document.getElementById("ledgerSku").innerHTML = '<option value="">공급 도서 전체</option>' + myBooks().map(function (k) {
+      return '<option value="' + k + '">' + vdEsc(VD_BOOKS[k].title) + ' (' + k + ')</option>';
+    }).join("");
+  }
+  function renderLedger() {
+    var m = document.getElementById("ledgerMonth").value;
+    var sku = document.getElementById("ledgerSku").value;
+    var rows = myLedger(m).filter(function (r) { return !sku || r.sku === sku; });
+    var t = { open: 0, inQty: 0, outQty: 0, retIn: 0, retOut: 0, adj: 0, close: 0, net: 0 };
+    document.getElementById("ledgerBody").innerHTML = rows.map(function (r) {
+      var c = closeQty(r), p = purchaseOf(r);
+      t.open += r.open; t.inQty += r.inQty; t.outQty += r.outQty; t.retIn += r.retIn; t.retOut += r.retOut; t.adj += r.adj; t.close += c; t.net += p.net;
+      return '<tr><td>' + bookLabel(r.sku) + '</td><td class="num">' + vdWon(VD_BOOKS[r.sku].cost) + '</td><td class="num">' + vdNum(r.open) + '</td>'
+        + '<td class="num">' + vdSigned(r.inQty) + '</td><td class="num ptnr-minus">' + (r.outQty ? "−" + vdNum(r.outQty) : "0") + '</td>'
+        + '<td class="num">' + vdSigned(r.retIn) + '</td><td class="num ptnr-minus">' + (r.retOut ? "−" + vdNum(r.retOut) : "0") + '</td>'
+        + '<td class="num">' + vdSigned(r.adj) + '</td><td class="num"><strong>' + vdNum(c) + '권</strong></td>'
+        + '<td class="num"><strong>' + vdWon(p.net) + '</strong>' + (r.retOut ? '<div class="ptnr-small">입고 ' + vdWon(p.gross) + ' − 반출 ' + vdWon(p.ret) + '</div>' : '') + '</td></tr>';
+    }).join("") || '<tr class="is-empty"><td colspan="10">이 달의 공급 도서 수불 내역이 없습니다.</td></tr>';
+    document.getElementById("ledgerFoot").innerHTML = rows.length
+      ? '<tr><td>합계</td><td class="num">-</td><td class="num">' + vdNum(t.open) + '</td><td class="num">' + vdSigned(t.inQty) + '</td><td class="num ptnr-minus">' + (t.outQty ? "−" + vdNum(t.outQty) : "0") + '</td><td class="num">' + vdSigned(t.retIn) + '</td><td class="num ptnr-minus">' + (t.retOut ? "−" + vdNum(t.retOut) : "0") + '</td><td class="num">' + vdSigned(t.adj) + '</td><td class="num">' + vdNum(t.close) + '권</td><td class="num">' + vdWon(t.net) + '</td></tr>'
+      : '';
+    document.getElementById("ledgerNote").innerHTML = '<div>판매 출고는 물류센터 출고 확정 수량, 고객 반품 입고는 양품으로 되돌아온 수량입니다. 폐기 · 실사 조정은 파본 폐기와 재고 실사 차이로, 매입 대금에는 영향을 주지 않습니다. '
+      + (VD_CLOSED_MONTHS.indexOf(m) === -1 ? '<strong>' + VD_MONTH_LABEL[m] + '은 마감 전이라 ' + TODAY + ' 기준 잠정 값입니다.</strong>' : '') + '</div>';
+    var logs = myLogs(m).filter(function (l) { return !sku || l.sku === sku; });
+    document.getElementById("ledgerLogBody").innerHTML = logs.map(function (l) {
+      return '<tr><td>' + l.date + '</td><td>' + (l.type === "in" ? '<span class="badge badge-blue">입고</span>' : '<span class="badge badge-rose">' + VD_LOG_TYPE[l.type] + '</span>') + '</td><td>' + bookLabel(l.sku) + '</td>'
+        + '<td class="num">' + (l.type === "in" ? "+" : "−") + vdNum(l.qty) + '권</td><td>' + l.doc + '</td><td>' + vdEsc(l.ref) + '</td></tr>';
+    }).join("") || '<tr class="is-empty"><td colspan="6">이 달의 입고 · 반출 전표가 없습니다.</td></tr>';
+  }
+  function downloadLedger() {
+    showPtnrToast(VD_MONTH_LABEL[document.getElementById("ledgerMonth").value] + " 공급 원장 엑셀을 내려받았습니다.");
+  }
+
+  // ===== 발주 · 입고 확인 =====
+  function resetOrdersFilter() { document.getElementById("ordersStatusFilter").value = ""; renderOrders(); }
+  function renderOrders() {
+    var st = document.getElementById("ordersStatusFilter").value;
+    var all = myOrders();
+    var list = all.filter(function (o) { return !st || o.status === st; });
+    document.getElementById("ordersCountText").textContent = "전체 " + all.length + "건 · 처리 대기 " + all.filter(function (o) { return o.status === "ORDERED" || o.status === "RECEIVED"; }).length + "건 · 조회 " + list.length + "건";
+    document.getElementById("ordersBody").innerHTML = list.map(function (o) {
+      var act = "-";
+      if (VD.canWrite && o.status === "ORDERED") {
+        act = '<button type="button" class="btn btn-sm btn-primary" onclick="openPoConfirmModal(\'' + o.po + '\')" data-dev-route="admin.partner.purchase-orders.confirm.update" data-dev-method="PUT" data-dev-url="/{admin}/partner/purchase-orders/{purchaseOrder}/confirm" data-dev-perm="can_update">발주 확인</button>';
+      } else if (VD.canWrite && o.status === "RECEIVED") {
+        act = '<div class="btn-row"><button type="button" class="btn btn-sm btn-green" onclick="confirmReceipt(\'' + o.po + '\')" data-dev-route="admin.partner.stock-receipts.confirm.update" data-dev-method="PUT" data-dev-url="/{admin}/partner/stock-receipts/{stockReceipt}/confirm" data-dev-perm="can_update">입고 확인</button>'
+          + '<button type="button" class="btn btn-sm" onclick="openDisputeModal(\'receipt\', \'' + o.po + '\')" data-dev-route="admin.partner.stock-receipts.dispute.store" data-dev-method="POST" data-dev-url="/{admin}/partner/stock-receipts/{stockReceipt}/dispute" data-dev-perm="can_create">이의 제기</button></div>';
+      }
+      var diff = (o.recvQty !== null && o.recvQty !== o.qty) ? '<div class="ptnr-small">발주 대비 ' + vdSigned(o.recvQty - o.qty, "권") + '</div>' : '';
+      return '<tr><td><strong>' + o.po + '</strong></td><td>' + o.date + '</td><td>' + bookLabel(o.sku) + '</td><td class="num">' + vdNum(o.qty) + '권</td>'
+        + '<td>' + (o.expected || '<span style="color:#B45309;">회신 대기</span>') + (o.memo ? '<div class="ptnr-small">' + vdEsc(o.memo) + '</div>' : '') + '</td>'
+        + '<td class="num">' + (o.recvQty === null ? '-' : vdNum(o.recvQty) + '권') + diff + '</td><td>' + (o.recvDoc || '-') + '</td>'
+        + '<td>' + VD_ORDER_STATUS[o.status] + (o.dispute ? '<div class="ptnr-small">' + vdEsc(o.dispute) + '</div>' : '') + '</td><td>' + act + '</td></tr>';
+    }).join("") || '<tr class="is-empty"><td colspan="9">조건에 맞는 발주가 없습니다.</td></tr>';
+    document.getElementById("returnsBody").innerHTML = myReturns().map(function (r) {
+      var act = "-";
+      if (VD.canWrite && r.status === "PENDING") {
+        act = '<div class="btn-row"><button type="button" class="btn btn-sm btn-green" onclick="confirmReturn(\'' + r.rt + '\')" data-dev-route="admin.partner.stock-returns.confirm.update" data-dev-method="PUT" data-dev-url="/{admin}/partner/stock-returns/{stockReturn}/confirm" data-dev-perm="can_update">반출 확인</button>'
+          + '<button type="button" class="btn btn-sm" onclick="openDisputeModal(\'return\', \'' + r.rt + '\')" data-dev-route="admin.partner.stock-returns.dispute.store" data-dev-method="POST" data-dev-url="/{admin}/partner/stock-returns/{stockReturn}/dispute" data-dev-perm="can_create">이의 제기</button></div>';
+      }
+      return '<tr><td><strong>' + r.rt + '</strong></td><td>' + r.date + '</td><td>' + bookLabel(r.sku) + '</td><td class="num">' + vdNum(r.qty) + '권</td><td>' + vdEsc(r.reason) + '</td>'
+        + '<td class="num ptnr-minus">−' + vdWon(r.qty * VD_BOOKS[r.sku].cost) + '</td><td>' + VD_RETURN_STATUS[r.status] + (r.dispute ? '<div class="ptnr-small">' + vdEsc(r.dispute) + '</div>' : '') + '</td><td>' + act + '</td></tr>';
+    }).join("") || '<tr class="is-empty"><td colspan="8">매입처 반품(반출) 내역이 없습니다.</td></tr>';
+  }
+  function findOrder(po) { return myOrders().filter(function (o) { return o.po === po; })[0]; }
+  function findReturn(rt) { return myReturns().filter(function (r) { return r.rt === rt; })[0]; }
+  function refreshAfterAction() { updateNavCounts(); renderOrders(); renderHome(); }
+
+  function openPoConfirmModal(po) {
+    var o = findOrder(po);
+    if (!o || !VD.canWrite) return;
+    VD.poKey = po;
+    document.getElementById("poConfirmTitle").textContent = "발주 확인 — " + po;
+    document.getElementById("poConfirmInfo").innerHTML = '<div><strong>' + vdEsc(VD_BOOKS[o.sku].title) + '</strong> (' + o.sku + ') · 발주 ' + vdNum(o.qty) + '권 · 발주일 ' + o.date + '<br>매입 단가 ' + vdWon(VD_BOOKS[o.sku].cost) + ' · 납품처 산준모닷컴 파주 물류센터(CJ대한통운)</div>';
+    document.getElementById("poExpectedDate").value = "";
+    document.getElementById("poQty").value = o.qty;
+    document.getElementById("poMemo").value = "";
+    document.getElementById("poConfirmError").style.display = "none";
+    openLayer("layerPurchaseOrderConfirm");
+  }
+  function submitPoConfirm() {
+    var o = findOrder(VD.poKey);
+    var err = document.getElementById("poConfirmError");
+    var fail = function (msg) { err.textContent = msg; err.style.display = "block"; };
+    err.style.display = "none";
+    if (!o) return;
+    var d = document.getElementById("poExpectedDate").value;
+    var q = Number(document.getElementById("poQty").value);
+    var memo = document.getElementById("poMemo").value.trim();
+    if (!d) return fail("납품 예정일을 입력해 주세요.");
+    if (d < TODAY) return fail("납품 예정일은 오늘(" + TODAY + ") 이후여야 합니다.");
+    if (!q || q < 1 || q % 1 !== 0) return fail("납품 가능 수량을 1 이상의 정수로 입력해 주세요.");
+    if (q > o.qty) return fail("발주 수량(" + vdNum(o.qty) + "권)보다 많이 납품할 수 없습니다. 추가 수량은 물류팀과 협의해 주세요.");
+    if (q < o.qty && memo.replace(/\s/g, "").length < 10) return fail("발주 수량보다 적게 납품하면 사유를 10자 이상 적어 주세요.");
+    o.expected = d;
+    o.status = "ACCEPTED";
+    if (q < o.qty) o.memo = "납품 가능 " + vdNum(q) + "권 — " + memo;
+    else if (memo) o.memo = memo;
+    closeLayer("layerPurchaseOrderConfirm");
+    refreshAfterAction();
+    showPtnrToast(o.po + " 발주를 확인했습니다. 납품 예정일 " + d + "을 물류팀에 전달했습니다.");
+  }
+  function confirmReceipt(po) {
+    var o = findOrder(po);
+    if (!o || !VD.canWrite || o.status !== "RECEIVED") return;
+    o.status = "CONFIRMED";
+    refreshAfterAction();
+    showPtnrToast(o.recvDoc + " 입고 " + vdNum(o.recvQty) + "권을 확인했습니다. 이 수량이 월 매입 정산서 기준이 됩니다.");
+  }
+  function confirmReturn(rt) {
+    var r = findReturn(rt);
+    if (!r || !VD.canWrite || r.status !== "PENDING") return;
+    r.status = "CONFIRMED";
+    refreshAfterAction();
+    showPtnrToast(r.rt + " 반출 " + vdNum(r.qty) + "권을 확인했습니다. " + vdWon(r.qty * VD_BOOKS[r.sku].cost) + "이 10월 매입 대금에서 차감됩니다.");
+  }
+  function openDisputeModal(kind, key) {
+    if (!VD.canWrite) return;
+    var target = kind === "receipt" ? findOrder(key) : findReturn(key);
+    if (!target) return;
+    VD.disputeKind = kind;
+    VD.disputeKey = key;
+    document.getElementById("disputeTitle").textContent = (kind === "receipt" ? "입고 수량 이의 제기 — " + target.recvDoc : "반출 이의 제기 — " + target.rt);
+    document.getElementById("disputeInfo").innerHTML = '<div><strong>' + vdEsc(VD_BOOKS[target.sku].title) + '</strong> (' + target.sku + ')<br>'
+      + (kind === "receipt" ? '발주 ' + target.po + ' · 발주 ' + vdNum(target.qty) + '권 · 물류센터 입고 ' + vdNum(target.recvQty) + '권' : '반출 ' + vdNum(target.qty) + '권 · 사유 ' + vdEsc(target.reason))
+      + '<br>이의를 등록하면 물류팀 · 재무팀이 확인할 때까지 이 수량은 매입 정산서에서 잠정으로 표시됩니다.</div>';
+    document.getElementById("disputeReason").value = "";
+    document.getElementById("disputeQty").value = "";
+    document.getElementById("disputeMemo").value = "";
+    document.getElementById("disputeError").style.display = "none";
+    var submit = document.getElementById("stockReceiptDisputeSubmit");
+    var base = kind === "receipt" ? "stock-receipts" : "stock-returns";
+    submit.setAttribute("data-dev-route", "admin.partner." + base + ".dispute.store");
+    submit.setAttribute("data-dev-url", "/{admin}/partner/" + base + "/{" + (kind === "receipt" ? "stockReceipt" : "stockReturn") + "}/dispute");
+    openLayer("layerStockReceiptDispute");
+  }
+  function submitDispute() {
+    var err = document.getElementById("disputeError");
+    var fail = function (msg) { err.textContent = msg; err.style.display = "block"; };
+    err.style.display = "none";
+    var target = VD.disputeKind === "receipt" ? findOrder(VD.disputeKey) : findReturn(VD.disputeKey);
+    if (!target) return;
+    var reason = document.getElementById("disputeReason").value;
+    var qRaw = document.getElementById("disputeQty").value;
+    var memo = document.getElementById("disputeMemo").value.trim();
+    if (!reason) return fail("이의 사유를 골라 주세요.");
+    if (qRaw === "" || Number(qRaw) < 0 || Number(qRaw) % 1 !== 0) return fail("공급사 기준 수량을 0 이상의 정수로 입력해 주세요.");
+    var compact = memo.replace(/\s/g, "");
+    if (compact.length < 10) return fail("상세 내용을 공백 제외 10자 이상 적어 주세요.");
+    if (new Set(compact.split("")).size < 3) return fail("상세 내용을 구체적으로 적어 주세요(같은 글자 반복은 받지 않습니다).");
+    if (memo.length > 200) return fail("상세 내용은 200자 이하로 적어 주세요.");
+    target.status = "DISPUTED";
+    target.dispute = "공급사 기준 " + vdNum(Number(qRaw)) + "권 · " + memo;
+    closeLayer("layerStockReceiptDispute");
+    refreshAfterAction();
+    showPtnrToast((VD.disputeKind === "receipt" ? target.recvDoc + " 입고" : target.rt + " 반출") + " 이의를 등록했습니다. 물류팀이 확인 후 회신합니다.");
+  }
+
+  // ===== 월 매입 정산서 (권리자 정산서 SETT-002-S2 형식을 따른 공급 대금 명세) =====
+  function shiftStmtMonth(dir) {
+    var i = VD_MONTHS.indexOf(document.getElementById("stmtMonth").value) + dir;
+    if (i < 0 || i >= VD_MONTHS.length) return;
+    document.getElementById("stmtMonth").value = VD_MONTHS[i];
+    renderStatement();
+  }
+  function downloadStatementPdf() { showPtnrToast(VD_MONTH_LABEL[VD.month] + " 매입 정산서 PDF를 내려받았습니다."); }
+  function stmtTable(headers, rowsHtml, footHtml) {
+    return '<div class="ptnr-table-wrap"><table class="ptnr-table"><thead><tr>' + headers.map(function (h) {
+      return '<th' + (h.num ? ' class="num"' : '') + '>' + h.t + '</th>';
+    }).join("") + '</tr></thead><tbody>' + rowsHtml + '</tbody>' + (footHtml ? '<tfoot>' + footHtml + '</tfoot>' : '') + '</table></div>';
+  }
+  function renderStatement() {
+    var sel = document.getElementById("stmtMonth");
+    if (sel && sel.value) VD.month = sel.value;
+    var m = VD.month, v = VD.vendor;
+    var rows = myLedger(m).filter(function (r) { return r.inQty || r.retOut; });
+    var pay = myPayment(m);
+    var box = document.getElementById("stmtSheet");
+    document.getElementById("stmtStatusBadge").innerHTML = pay ? VD_PAY_STATUS[pay.status] : '<span class="badge badge-gray">정산서 없음</span>';
+    if (!rows.length || !pay) {
+      box.innerHTML = '<div class="ptnr-notice is-gray"><div>' + VD_MONTH_LABEL[m] + ' 귀속 입고 · 반출이 없어 매입 정산서가 없습니다.</div></div>';
+      return;
+    }
+    var s = monthPurchase(m);
+    var docs = myTaxDocs().filter(function (d) { return d.month === m; });
+    var received = docs.filter(function (d) { return d.status === "DONE"; }).reduce(function (a, d) { return a + d.invoice; }, 0);
+    var unpaid = s.net - pay.paid;
+    var html = [];
+    html.push('<div class="ptnr-doc-head"><div><div style="font-size:11.5px; color:#64748b; font-weight:700;">산준모닷컴 매입 대금 명세서</div>'
+      + '<h3>' + VD_MONTH_LABEL[m] + ' 귀속 매입 정산서 · ' + vdEsc(v.name) + '</h3></div>'
+      + '<div class="ptnr-doc-meta"><div>문서번호 <strong>' + pay.docNo + '</strong></div><div>' + (VD_CLOSED_MONTHS.indexOf(m) === -1 ? '<strong style="color:#B45309;">마감 전 잠정 · ' + TODAY + ' 기준</strong>' : '마감일자 <strong>' + VD_MONTH_END[m] + '</strong>') + ' · 대상기간 <strong>' + m + '-01 ~ ' + VD_MONTH_END[m] + '</strong></div></div></div>');
+    html.push('<div class="ptnr-party-grid">'
+      + '<div class="ptnr-party"><div class="ptnr-party-title">공급받는 자 (매입)</div><div><strong>상호</strong> 주식회사 엘캠퍼스 (산준모닷컴)</div><div><strong>사업자등록번호</strong> 120-88-00000 · <strong>대표이사</strong> 김영호</div><div><strong>문의</strong> 재무팀 settlement@sanjunmo.com</div></div>'
+      + '<div class="ptnr-party"><div class="ptnr-party-title">공급자 (매입처)</div><div><strong>거래처</strong> ' + vdEsc(v.name) + ' · ' + v.id + '</div><div><strong>사업자등록번호</strong> ' + vdEsc(v.bizNo) + ' · <strong>과세유형</strong> ' + vdEsc(v.taxType) + '</div><div><strong>지급 조건</strong> ' + vdEsc((v.terms && v.terms.pay) || "-") + ' · <strong>입금 계좌</strong> ' + vdEsc((VD_PROFILE[v.id] || {}).bankMasked || "-") + '</div></div>'
+      + '</div>');
+    html.push('<div class="ptnr-sec-title"><span>1. 매입 대금 요약</span><small>도서 재화 공급 면세(TX-11) · 전자계산서 수취 · 원천징수 없음</small></div>');
+    html.push('<div class="ptnr-table-wrap"><table class="ptnr-table"><thead><tr>'
+      + '<th class="num">입고 기준 매입액</th><th class="num">매입처 반품(반출) 차감</th>'
+      + '<th class="num" style="background:#EFF6FF; color:#1E40AF;">순 매입액 (계산서 공급가액 기준)</th>'
+      + '<th class="num">세액 (면세)</th><th class="num">수취 완료 계산서</th><th class="num">지급액</th>'
+      + '<th class="num" style="background:#F0FDF4; color:#15803D;">미지급 잔액</th><th>지급(예정)일</th></tr></thead><tbody><tr>'
+      + '<td class="num" style="font-weight:700;">' + vdWon(s.gross) + '</td>'
+      + '<td class="num" style="font-weight:700; color:#DC2626;">' + (s.ret ? "−" + vdWon(s.ret) : "0원") + '</td>'
+      + '<td class="num" style="font-weight:800; background:#EFF6FF; color:#1D4ED8;" id="stmtNetPurchase">' + vdWon(s.net) + '</td>'
+      + '<td class="num">0원</td><td class="num">' + vdWon(received) + '</td><td class="num">' + vdWon(pay.paid) + '</td>'
+      + '<td class="num" style="font-weight:900; font-size:14px; background:#F0FDF4; color:#15803D;">' + vdWon(unpaid) + '</td>'
+      + '<td>' + pay.payDate + '</td></tr></tbody></table></div>');
+    html.push('<div class="ptnr-equation"><strong>산출 요약</strong> 순 매입액 = Σ(입고 수량 × 매입 단가) − Σ(반출 수량 × 매입 단가) = ' + vdWon(s.gross) + ' − ' + vdWon(s.ret) + ' = ' + vdWon(s.net)
+      + (pay.note ? '<br>' + vdEsc(pay.note) : '') + '</div>');
+    html.push('<div class="ptnr-sec-title"><span>2. 도서별 입고 · 반출 내역</span><small>물류센터 입고 전표 · 반출 전표 기준 (판매 수량과 무관)</small></div>');
+    html.push(stmtTable([{ t: "도서명 · 상품코드" }, { t: "입고 수량", num: 1 }, { t: "반출 수량", num: 1 }, { t: "매입 단가", num: 1 }, { t: "입고 기준 매입액", num: 1 }, { t: "반출 차감", num: 1 }, { t: "순 매입액", num: 1 }],
+      rows.map(function (r) {
+        var p = purchaseOf(r);
+        return '<tr><td>' + bookLabel(r.sku) + '</td><td class="num">' + vdNum(r.inQty) + '권</td><td class="num">' + vdNum(r.retOut) + '권</td><td class="num">' + vdWon(VD_BOOKS[r.sku].cost) + '</td>'
+          + '<td class="num">' + vdWon(p.gross) + '</td><td class="num" style="color:#DC2626;">' + (p.ret ? "−" + vdWon(p.ret) : "0원") + '</td><td class="num" style="font-weight:800;">' + vdWon(p.net) + '</td></tr>';
+      }).join(""),
+      '<tr><td>합계</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num">' + vdWon(s.gross) + '</td><td class="num">' + (s.ret ? "−" + vdWon(s.ret) : "0원") + '</td><td class="num">' + vdWon(s.net) + '</td></tr>'));
+    html.push('<div class="ptnr-sec-title"><span>3. 계산서 수취 상태</span><small>당사가 공급받는 자 — 수취 증빙 (권리자 발행 증빙과 따로 추적)</small></div>');
+    html.push(stmtTable([{ t: "도서명 · 상품코드" }, { t: "공급가액 (입고 기준)", num: 1 }, { t: "수취 계산서 금액", num: 1 }, { t: "차액", num: 1 }, { t: "상태" }],
+      docs.map(function (d) {
+        var diff = d.invoice === null ? null : d.invoice - d.supply;
+        return '<tr><td>' + bookLabel(d.sku) + '</td><td class="num">' + vdWon(d.supply) + '</td><td class="num">' + vdWon(d.invoice) + '</td>'
+          + '<td class="num"' + (diff ? ' style="color:#DC2626; font-weight:800;"' : '') + '>' + (diff === null ? '-' : vdSigned(diff, "원")) + '</td><td>' + VD_TAX_STATUS[d.status] + '</td></tr>';
+      }).join("") || '<tr class="is-empty"><td colspan="5">계산서 수취 대상이 없습니다.</td></tr>'));
+    html.push('<div class="ptnr-notice is-gray" style="margin-top:14px;"><div>'
+      + '이 명세서는 본인 거래처의 입고 · 반출 수량과 매입 단가만 발췌한 것입니다. 판매 수량 · 판매가 · 다른 거래처 정보는 포함되지 않습니다.<br>'
+      + '매입 대금은 산준모닷컴 회계 시스템의 매입채무(AP) 결제로 지급하며, 강사 · 저자 정산 지급과는 별도로 처리됩니다.<br>'
+      + '단가는 입고일 기준 유효한 매입 단가(도서 공급 원장)를 적용합니다. 단가 변경은 물류팀 · 재무팀과 협의해 주세요.'
+      + '</div></div>');
+    box.innerHTML = html.join("");
+  }
+
+  // ===== 세금계산서 · 증빙 제출 (PTNR-001 제출 흐름 재사용) =====
+  function renderTaxDocs() {
+    var body = document.getElementById("taxDocBody");
+    var docs = myTaxDocs().slice().sort(function (a, b) { return b.month.localeCompare(a.month) || a.id.localeCompare(b.id); });
+    body.innerHTML = docs.map(function (d) {
+      var canSubmit = VD.canWrite && (d.status === "NONE" || d.status === "REISSUE");
+      var late = (d.status === "NONE" || d.status === "REISSUE") && VD_MONTH_DEADLINE[d.month] < TODAY;
+      return '<tr><td><strong>' + VD_MONTH_LABEL[d.month] + '</strong></td><td>' + bookLabel(d.sku) + (d.note ? '<div class="ptnr-small">' + vdEsc(d.note) + '</div>' : '') + '</td><td>전자계산서 (면세)</td>'
+        + '<td class="num">' + vdWon(d.supply) + '</td><td class="num">0원</td><td class="num">' + vdWon(d.invoice) + '</td>'
+        + '<td>' + VD_MONTH_DEADLINE[d.month] + (late ? '<div class="ptnr-small" style="color:#DC2626; font-weight:700;">기한 지남</div>' : '') + '</td>'
+        + '<td>' + VD_TAX_STATUS[d.status] + (d.approvalNo ? '<div class="ptnr-small">승인번호 ' + d.approvalNo + '</div>' : '') + '</td>'
+        + '<td>' + (canSubmit ? '<button type="button" class="btn btn-sm btn-green" onclick="openTaxForm(\'' + d.id + '\')" data-dev-route="admin.partner.purchase-invoices.store" data-dev-method="POST" data-dev-url="/{admin}/partner/purchase-invoices" data-dev-perm="can_create">' + (d.status === "REISSUE" ? "수정 제출" : "제출") + '</button>' : '-') + '</td></tr>';
+    }).join("") || '<tr class="is-empty"><td colspan="9">발행 요청 건이 없습니다.</td></tr>';
+  }
+  function findTaxDoc(id) { return myTaxDocs().filter(function (d) { return d.id === id; })[0]; }
+  function openTaxForm(id) {
+    var d = findTaxDoc(id);
+    if (!d || !VD.canWrite) return;
+    VD.taxFormKey = id;
+    document.getElementById("taxFormTitle").textContent = VD_MONTH_LABEL[d.month] + " " + VD_BOOKS[d.sku].title + " 전자계산서 " + (d.status === "REISSUE" ? "수정 제출" : "제출");
+    document.getElementById("taxFormGuide").innerHTML = '<div><strong>발행 안내</strong> — 전자계산서(면세) · 공급받는 자: 주식회사 엘캠퍼스(산준모닷컴) 120-88-00000<br>공급가액 <strong>' + vdWon(d.supply) + '</strong> · 세액 <strong>0원</strong> · 작성일자는 공급(입고) 월 안의 날짜(월 합계 발행 시 ' + VD_MONTH_END[d.month] + ') · 발행 기한 ' + VD_MONTH_DEADLINE[d.month]
+      + (d.status === "REISSUE" ? '<br>먼저 받은 계산서 ' + vdWon(d.invoice) + '(승인번호 ' + d.approvalNo + ')와 금액이 달라 수정 전자계산서를 요청드립니다.' : '') + '</div>';
+    document.getElementById("tiApproval").value = "";
+    document.getElementById("tiDate").value = VD_MONTH_END[d.month];
+    document.getElementById("tiSupply").value = d.supply;
+    document.getElementById("tiVat").value = 0;
+    document.getElementById("tiFile").value = "";
+    document.getElementById("tiError").style.display = "none";
+    var card = document.getElementById("purchaseInvoiceForm");
+    card.style.display = "block";
+    card.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function cancelTaxForm() {
+    document.getElementById("purchaseInvoiceForm").style.display = "none";
+    VD.taxFormKey = "";
+  }
+  function submitTaxDoc() {
+    var err = document.getElementById("tiError");
+    var fail = function (msg) { err.textContent = msg; err.style.display = "block"; };
+    err.style.display = "none";
+    var d = findTaxDoc(VD.taxFormKey);
+    if (!d) return;
+    var no = document.getElementById("tiApproval").value.trim();
+    if (!/^\d{8}-\d{8}-\d{8}$/.test(no)) return fail("승인번호 형식(8자리-8자리-8자리, 24자리)을 확인해 주세요.");
+    var dt = document.getElementById("tiDate").value;
+    if (!dt) return fail("작성일자를 입력해 주세요.");
+    if (dt.slice(0, 7) !== d.month) return fail("작성일자는 공급(입고) 월인 " + VD_MONTH_LABEL[d.month] + " 안의 날짜여야 합니다.");
+    if (Number(document.getElementById("tiVat").value) !== 0) return fail("도서는 면세 재화라 세액이 0원인 전자계산서로 발행해 주세요.");
+    if (Number(document.getElementById("tiSupply").value) !== d.supply) {
+      return fail("입고 기준 매입액(공급가액 " + vdWon(d.supply) + ")과 다릅니다. 입고 수량에 이견이 있으면 발주 · 입고 확인에서 이의를 제기해 주세요.");
+    }
+    if (!document.getElementById("tiFile").files.length) return fail("증빙 파일(PDF)을 첨부해 주세요.");
+    d.status = "SUBMITTED";
+    d.approvalNo = no;
+    cancelTaxForm();
+    renderTaxDocs();
+    updateNavCounts();
+    renderHome();
+    showPtnrToast(VD_MONTH_LABEL[d.month] + " " + VD_BOOKS[d.sku].title + " 전자계산서 제출을 등록했습니다. 재무팀이 홈택스 매입 내역과 대조한 뒤 수취 완료로 바뀝니다.");
+  }
+
+  // ===== 내 정보 =====
+  function renderMe() {
+    var v = VD.vendor, prof = VD_PROFILE[v.id] || {};
+    var terms = v.terms || {};
+    document.getElementById("meBizList").innerHTML =
+      '<dt>거래처</dt><dd>' + vdEsc(v.name) + ' · ' + v.id + '</dd>'
+      + '<dt>거래처 유형</dt><dd>' + vdEsc(VD.vendorType.name) + ' · 수취 증빙 ' + vdEsc(VD.vendorType.evidence) + '</dd>'
+      + '<dt>사업자등록번호</dt><dd>' + vdEsc(v.bizNo) + ' · 대표자 ' + vdEsc(v.ceo) + '</dd>'
+      + '<dt>과세유형 · 사업자 상태</dt><dd>' + vdEsc(v.taxType) + ' · ' + vdEsc(v.status) + ' (국세청 확인 ' + vdEsc(v.checkedAt || "-") + ')</dd>'
+      + '<dt>거래 조건</dt><dd>공급률 ' + vdEsc(terms.rate || "-") + '% · ' + vdEsc(terms.pay || "-") + '</dd>'
+      + '<dt>거래 시작일</dt><dd>' + vdEsc(v.since || "-") + '</dd>';
+    document.getElementById("meContactList").innerHTML =
+      '<dt>대표 연락처</dt><dd>' + vdEsc(v.contact || "-") + '</dd>'
+      + '<dt>담당자 메일</dt><dd>' + vdEsc(prof.emailMasked || "-") + '</dd>'
+      + '<dt>정산 계좌</dt><dd id="meBank">' + vdEsc(prof.bankMasked || "등록된 계좌 없음 — 변경 요청으로 등록해 주세요") + '</dd>';
+    var reqs = VD_CHANGE_REQUESTS.filter(function (r) { return r.vendor === v.id; });
+    document.getElementById("meRequestBody").innerHTML = reqs.map(function (r) {
+      return '<tr><td>' + r.date + '</td><td>' + VD_REQ_TYPE[r.type] + '</td><td>' + vdEsc(r.text) + '</td><td>' + VD_REQ_STATUS[r.status] + '</td><td>' + vdEsc(r.result || "-") + '</td></tr>';
+    }).join("") || '<tr class="is-empty"><td colspan="5">변경 요청 내역이 없습니다.</td></tr>';
+  }
+  function renderProfileChangeFields() {
+    var t = document.getElementById("pcType").value;
+    document.querySelectorAll("#profileChangeRequestForm .pc-bank").forEach(function (el) { el.style.display = t === "bank_account" ? "" : "none"; });
+    document.querySelectorAll("#profileChangeRequestForm .pc-contact").forEach(function (el) { el.style.display = t === "contact" ? "" : "none"; });
+    document.getElementById("pcFileLabel").textContent = t === "bank_account" ? "증빙 파일 * (사업자 명의 통장 사본)" : (t === "business_info" ? "증빙 파일 * (변경된 사업자등록증)" : "증빙 파일 (선택)");
+  }
+  function openProfileChangeModal() {
+    if (!VD.canWrite) return;
+    ["pcBank", "pcAccount", "pcHolder", "pcEmail", "pcReason", "pcFile"].forEach(function (id) { document.getElementById(id).value = ""; });
+    document.getElementById("pcType").value = "bank_account";
+    document.getElementById("pcError").style.display = "none";
+    renderProfileChangeFields();
+    openLayer("layerProfileChangeRequest");
+  }
+  function submitProfileChange() {
+    var err = document.getElementById("pcError");
+    var fail = function (msg) { err.textContent = msg; err.style.display = "block"; };
+    err.style.display = "none";
+    var t = document.getElementById("pcType").value;
+    var reason = document.getElementById("pcReason").value.trim();
+    var text = "";
+    if (t === "bank_account") {
+      var bank = document.getElementById("pcBank").value.trim(), acc = document.getElementById("pcAccount").value.trim(), holder = document.getElementById("pcHolder").value.trim();
+      if (!bank || !acc || !holder) return fail("은행 · 계좌번호 · 예금주를 모두 입력해 주세요.");
+      if (!/^[0-9-]+$/.test(acc)) return fail("계좌번호는 숫자와 하이픈(-)만 입력해 주세요.");
+      if (holder.replace(/\s/g, "") !== VD.vendor.name.replace(/\s/g, "") && holder.indexOf(VD.vendor.ceo) === -1) return fail("예금주는 사업자 명의(" + VD.vendor.name + ")여야 합니다.");
+      text = bank + " " + acc.replace(/\d(?=[\d-]{4})/g, "*") + " (예금주 " + holder + ")";
+    } else if (t === "contact") {
+      var em = document.getElementById("pcEmail").value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) return fail("담당자 메일 형식을 확인해 주세요.");
+      text = "담당자 메일 " + em.replace(/^(.{2}).*(@.*)$/, "$1***$2");
+    } else {
+      text = "사업자 정보 변경 (사업자등록증 첨부)";
+    }
+    if (reason.replace(/\s/g, "").length < 10) return fail("요청 사유를 공백 제외 10자 이상 적어 주세요.");
+    if (reason.length > 200) return fail("요청 사유는 200자 이하로 적어 주세요.");
+    if (t !== "contact" && !document.getElementById("pcFile").files.length) return fail("증빙 파일을 첨부해 주세요.");
+    VD_CHANGE_REQUESTS.unshift({ vendor: VD.vendorId, date: TODAY, type: t, text: text, status: "REQUESTED", result: "" });
+    closeLayer("layerProfileChangeRequest");
+    renderMe();
+    showPtnrToast(VD_REQ_TYPE[t] + " 변경 요청을 보냈습니다. " + (t === "bank_account" ? "재무팀이 대표 연락처로 전화 확인한 뒤 반영합니다." : "재무팀 확인 후 반영합니다."));
+  }
+
+  // ===== 시작 =====
+  function initPartnerCenter() {
+    var reason = resolveContext();
+    if (reason) {
+      document.getElementById("ptnrNav").style.display = "none";
+      document.getElementById("ptnrWhoName").textContent = "공급사 계정 확인 필요";
+      document.getElementById("ptnrWhoAff").textContent = "";
+      document.getElementById("ptnrWhoRole").style.display = "none";
+      document.getElementById("blockedReason").textContent = reason;
+      document.querySelectorAll(".ptnr-section").forEach(function (s) { s.classList.toggle("active", s.id === "tab-blocked"); });
+      return;
+    }
+    renderTopbar();
+    applyScope();
+    fillSelects();
+    updateNavCounts();
+    renderHome();
+    renderLedger();
+    renderOrders();
+    renderStatement();
+    renderTaxDocs();
+    renderMe();
+    var tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab) switchPtnrTab(tab);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPartnerCenter);
+  } else {
+    initPartnerCenter();
+  }
+</script>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === (PTNR-001과 같은 공통 핫픽스 사본) */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

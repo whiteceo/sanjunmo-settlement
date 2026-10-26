@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="screen-code" content="ADMN-PTNR-002" />
+  <title>물류 파트너 센터 — 산준모닷컴</title>
+  <!--
+    ADMN-PTNR-002 물류 파트너 센터 (prototype_dev 신규 · 추론 기반 신규, 정본 근거 없음)
+    - 대상: 소속이 '거래처'이고 거래처 유형 양식이 물류 대행(LOGISTICS)인 외부 계정(최초값 역할 그룹 RG-08 외부 3PL).
+      진입 ?vendor=SUP-NNNN&role=RG-08 (vendor 기본 SUP-0020, role 기본 RG-08). 거래처 코드는 공통 기준정보 거래처(SJM_MASTER.vendors, ADMN-VEND-001) · 개발 suppliers.code 형식을 따른다.
+    - 정본에는 소속 규칙(README 1절 5항, 통합 설계서 S3-03 · 3장 RBAC)과 3PL 계정의 업무 범위(출고지시 엑셀 · 송장 업로드, 금액 · 강좌내역 마스킹)만 있고 이 화면 자체의 근거는 없다.
+      화면 구성은 ADMN-ORD-001(배송 관리 ORD-002 · P1 · P2 · P3 · S3) · ADMN-SETT-011(물류비 대사) · ADMN-VEND-001(거래처 · 3PL 유형)에서 추론했다. 근거 목록 dev_spec/ADMN-PTNR-002.md, 확인할 가정 dev_spec/_drafts/POLICY_D_PTNR-002.md.
+    - 디자인은 ADMN-PTNR-001(SNB 밖 파트너 전용 화면)을 그대로 따른다. common-snb.js는 PTNR-001과 같은 이유로 로드하지 않는다(운영자 SNB를 body 맨 앞에 무조건 넣음).
+    - 메뉴 노출은 역할 그룹 권한(SJM_MASTER.roles perms.shipout: R 조회 · W 등록 · X 다운로드)으로 판정한다. 역할 그룹 이름을 화면에 직접 적지 않는다.
+    - 샘플 데이터: 출고 · 배송은 ADMN-ORD-001 SHIP_LINES, 물류비는 ADMN-SETT-011 2026-09 데이터와 같은 값. 실제 서비스에서는 로그인 계정의 소속 거래처 데이터만 서버가 내려준다.
+  -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <style>
+    :root {
+      --ptnr-nav-w: 220px;
+      --ptnr-top-h: 60px;
+      --ptnr-border: #E2E8F0;
+      --ptnr-muted: #64748B;
+      --ptnr-text: #0F172A;
+    }
+    .ptnr-topbar {
+      position: sticky; top: 0; z-index: 900;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+      min-height: var(--ptnr-top-h); padding: 10px 24px; box-sizing: border-box;
+      background: #0F172A; color: #fff;
+    }
+    .ptnr-brand { display: flex; align-items: center; gap: 10px; }
+    .ptnr-brand img { height: 18px; width: auto; display: block; }
+    .ptnr-brand-title { font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+    .ptnr-brand-sep { width: 1px; height: 16px; background: #334155; }
+    .ptnr-who { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12.5px; }
+    .ptnr-who-name { font-weight: 800; font-size: 13.5px; }
+    .ptnr-who-aff { color: #CBD5E1; }
+    .ptnr-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 700; background: #1E293B; color: #E2E8F0; border: 1px solid #334155; }
+    .ptnr-logout { display: inline-flex; align-items: center; height: 30px; padding: 0 12px; border-radius: 6px; background: #334155; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700; }
+    .ptnr-logout:hover { background: #475569; }
+    .screen-id-badge { font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: #7C3AED; color: #fff; }
+
+    .ptnr-layout { display: flex; align-items: flex-start; min-height: calc(100vh - var(--ptnr-top-h)); }
+    .ptnr-nav {
+      position: sticky; top: var(--ptnr-top-h); flex: 0 0 var(--ptnr-nav-w); width: var(--ptnr-nav-w);
+      min-height: calc(100vh - var(--ptnr-top-h)); box-sizing: border-box; padding: 18px 12px;
+      background: #fff; border-right: 1px solid var(--ptnr-border);
+    }
+    .ptnr-nav-title { font-size: 11px; font-weight: 800; color: var(--ptnr-muted); padding: 0 10px 8px; letter-spacing: 0.02em; }
+    .ptnr-nav .tab-btn {
+      display: flex; align-items: center; justify-content: space-between; width: 100%; box-sizing: border-box;
+      padding: 10px 12px; margin-bottom: 4px; border: none; border-radius: 8px; background: transparent;
+      font-size: 13.5px; font-weight: 600; color: #334155; cursor: pointer; text-align: left;
+    }
+    .ptnr-nav .tab-btn:hover { background: #F1F5F9; }
+    .ptnr-nav .tab-btn.active { background: #EFF6FF; color: #1D4ED8; font-weight: 800; }
+    .ptnr-nav .tab-btn .ptnr-count { min-width: 20px; padding: 1px 7px; border-radius: 999px; background: #F59E0B; color: #fff; font-size: 11px; font-weight: 800; text-align: center; }
+    .ptnr-nav-help { margin-top: 18px; padding: 12px; border-radius: 8px; background: #F8FAFC; border: 1px solid var(--ptnr-border); font-size: 11.5px; color: #475569; line-height: 1.6; }
+
+    .ptnr-main { flex: 1 1 auto; min-width: 0; padding: 24px 28px 48px; box-sizing: border-box; }
+    .ptnr-section { display: none; }
+    .ptnr-section.active { display: block; }
+    .ptnr-h2 { margin: 0 0 4px; font-size: 19px; font-weight: 900; color: var(--ptnr-text); }
+    .ptnr-sub { margin: 0 0 18px; font-size: 12.5px; color: var(--ptnr-muted); }
+    .ptnr-card { background: #fff; border: 1px solid var(--ptnr-border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+    .ptnr-card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 0 0 12px; font-size: 14px; font-weight: 800; color: var(--ptnr-text); }
+    .ptnr-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .ptnr-kpi { background: #fff; border: 1px solid var(--ptnr-border); border-radius: 10px; padding: 14px 16px; }
+    .ptnr-kpi-label { font-size: 12px; color: var(--ptnr-muted); font-weight: 700; }
+    .ptnr-kpi-num { margin-top: 6px; font-size: 21px; font-weight: 900; color: var(--ptnr-text); font-variant-numeric: tabular-nums; line-height: 1.35; word-break: keep-all; }
+    .ptnr-kpi-sub { margin-top: 4px; font-size: 11.5px; color: var(--ptnr-muted); line-height: 1.5; }
+
+    .ptnr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .ptnr-table th { background: #F8FAFC; color: #334155; font-weight: 700; text-align: left; padding: 9px 10px; border: 1px solid var(--ptnr-border); white-space: nowrap; }
+    .ptnr-table td { padding: 9px 10px; border: 1px solid var(--ptnr-border); vertical-align: top; color: var(--ptnr-text); }
+    .ptnr-table td.num, .ptnr-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .ptnr-table tr.is-empty td { text-align: center; color: var(--ptnr-muted); padding: 22px 10px; }
+    .ptnr-table-wrap { overflow-x: auto; }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .badge-blue { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .badge-green { background: #ECFDF5; color: #047857; border: 1px solid #A7F3D0; }
+    .badge-amber { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
+    .badge-rose { background: #FFF1F2; color: #BE123C; border: 1px solid #FECDD3; }
+    .badge-gray { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+    .badge-violet { background: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid #CBD5E1; background: #fff; color: #0F172A; font-size: 12.5px; font-weight: 700; cursor: pointer; text-decoration: none; white-space: nowrap; }
+    .btn:hover { background: #F8FAFC; }
+    .btn-primary { background: #2563EB; border-color: #1D4ED8; color: #fff; }
+    .btn-primary:hover { background: #1D4ED8; }
+    .btn-green { background: #16A34A; border-color: #15803D; color: #fff; }
+    .btn-green:hover { background: #15803D; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .ptnr-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .ptnr-select, .ptnr-input, .ptnr-textarea { height: 32px; padding: 0 10px; border: 1px solid #CBD5E1; border-radius: 6px; background: #fff; font-size: 12.5px; color: #0F172A; box-sizing: border-box; }
+    .ptnr-textarea { height: auto; min-height: 120px; padding: 10px; width: 100%; resize: vertical; line-height: 1.6; }
+    .ptnr-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .ptnr-field label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+    .ptnr-field .ptnr-input { width: 100%; }
+    .ptnr-error { display: none; margin-top: 10px; padding: 9px 12px; border-radius: 6px; background: #FFF1F2; border: 1px solid #FECDD3; color: #BE123C; font-size: 12.5px; font-weight: 700; }
+
+    /* 운영 안내 박스 — clean 공통 CSS가 숨기는 기획 설명 클래스와 겹치지 않게 별도 이름을 쓴다 */
+    .ptnr-notice { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 13px 16px; border-radius: 8px; margin-bottom: 14px; font-size: 12.5px; line-height: 1.65; }
+    .ptnr-notice.is-blue { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E3A8A; }
+    .ptnr-notice.is-amber { background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E; }
+    .ptnr-notice.is-gray { background: #F8FAFC; border: 1px solid var(--ptnr-border); color: #475569; }
+    .ptnr-notice strong { font-weight: 800; }
+
+    .ptnr-doc-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 2px solid #0F172A; }
+    .ptnr-doc-head h3 { margin: 4px 0 0; font-size: 20px; font-weight: 900; color: #0F172A; }
+    .ptnr-doc-meta { text-align: right; font-size: 12px; color: #475569; line-height: 1.7; }
+    .ptnr-party-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .ptnr-party { padding: 12px 14px; border: 1px solid var(--ptnr-border); border-radius: 8px; background: #F8FAFC; font-size: 12.5px; line-height: 1.75; }
+    .ptnr-party-title { font-size: 12px; font-weight: 800; color: #1D4ED8; margin-bottom: 4px; }
+    .ptnr-sec-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 18px 0 8px; font-size: 13.5px; font-weight: 800; color: #0F172A; }
+    .ptnr-sec-title small { font-size: 11.5px; color: var(--ptnr-muted); font-weight: 600; }
+    .ptnr-equation { margin-top: 8px; padding: 9px 12px; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 6px; font-size: 12px; color: #92400E; line-height: 1.6; }
+    .ptnr-month-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .ptnr-dl { display: grid; grid-template-columns: 160px 1fr; border-top: 1px solid var(--ptnr-border); font-size: 13px; }
+    .ptnr-dl dt, .ptnr-dl dd { margin: 0; padding: 11px 12px; border-bottom: 1px solid var(--ptnr-border); }
+    .ptnr-dl dt { background: #F8FAFC; color: #475569; font-weight: 700; }
+    .ptnr-dl dd { color: #0F172A; }
+
+    .ptnr-q-meta { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; font-size: 12.5px; margin-bottom: 12px; }
+    .ptnr-q-meta div:nth-child(odd) { color: var(--ptnr-muted); font-weight: 700; }
+    .ptnr-q-body { padding: 12px 14px; border-radius: 8px; background: #F8FAFC; border: 1px solid var(--ptnr-border); font-size: 13px; line-height: 1.7; white-space: pre-wrap; margin-bottom: 12px; }
+    .ptnr-a-body { padding: 12px 14px; border-radius: 8px; background: #ECFDF5; border: 1px solid #A7F3D0; font-size: 13px; line-height: 1.7; white-space: pre-wrap; margin-bottom: 12px; }
+
+    .ptnr-blocked { max-width: 560px; margin: 60px auto; padding: 28px; background: #fff; border: 1px solid var(--ptnr-border); border-radius: 12px; text-align: center; font-size: 13.5px; line-height: 1.7; color: #334155; }
+
+    /* 모달 — 공통 CSS가 위치 · 표시(.open)를 맡고, 여기서는 배경과 창 모양만 준다 (body.partner-isolated-mode → 전체 화면 기준) */
+    .modal-backdrop { background: rgba(15, 23, 42, 0.55); }
+    .ptnr-modal { width: min(720px, 100%); max-height: calc(100vh - 40px); display: flex; flex-direction: column; background: #fff; border-radius: 12px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3); overflow: hidden; }
+    .ptnr-modal-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--ptnr-border); }
+    .ptnr-modal-head strong { font-size: 15px; font-weight: 800; }
+    .ptnr-modal-body { padding: 16px 18px; overflow-y: auto; }
+    .ptnr-modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--ptnr-border); background: #F8FAFC; }
+    .ptnr-x { border: none; background: transparent; font-size: 16px; cursor: pointer; color: #475569; }
+
+    #ptnrToast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 11000; max-width: 640px; padding: 11px 18px; border-radius: 8px; background: #0F172A; color: #fff; font-size: 13px; font-weight: 600; box-shadow: 0 10px 30px rgba(15, 23, 42, 0.3); display: none; }
+    #ptnrToast.show { display: block; }
+
+    @media (max-width: 860px) {
+      .ptnr-layout { flex-direction: column; }
+      .ptnr-nav { position: static; width: 100%; flex-basis: auto; min-height: 0; border-right: none; border-bottom: 1px solid var(--ptnr-border); display: flex; flex-wrap: wrap; gap: 4px; }
+      .ptnr-nav .tab-btn { width: auto; margin: 0; }
+      .ptnr-nav-title, .ptnr-nav-help { display: none; }
+      .ptnr-main { padding: 18px 16px 40px; }
+    }
+    /* PTNR-002 추가분 */
+    .ptnr-infer-chip { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+    .ptnr-chipbar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .ptnr-chipbar .chip { height: 30px; padding: 0 12px; border-radius: 999px; border: 1px solid #CBD5E1; background: #fff; font-size: 12.5px; font-weight: 700; color: #334155; cursor: pointer; }
+    .ptnr-chipbar .chip.active { background: #1D4ED8; border-color: #1D4ED8; color: #fff; }
+    .ptnr-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; }
+    .ptnr-muted { color: var(--ptnr-muted); font-size: 11.5px; }
+    .ptnr-file-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .ptnr-check { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: #334155; margin-right: 14px; }
+    .ptnr-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .ptnr-step { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--ptnr-border); background: #F8FAFC; font-size: 12px; line-height: 1.55; color: #334155; }
+    .ptnr-step b { display: block; font-size: 12.5px; color: #0F172A; margin-bottom: 2px; }
+    .ptnr-table tr.is-selected td { background: #F8FAFF; }
+    .ptnr-kpi-num.is-warn { color: #B45309; }
+    .ptnr-kpi-num.is-bad { color: #BE123C; }
+    .ptnr-kpi-num.is-ok { color: #047857; }
+  </style>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PTNR-002", "devCommit": "d562524a", "progress": "추론 기반 신규, 정본 근거 없음 — 개발 미구현(규칙 기반 명명). 개발에는 내부 배송 관리(admin.deliveries.*)만 있음", "menus": [{"route": "admin.partner.deliveries.index", "label": "출고 대상 · 송장 등록 · 배송 현황 (규칙)"}, {"route": "admin.partner.logistics-bills.index", "label": "물류비 청구 · 대사 결과 (규칙)"}, {"route": "admin.partner.profile.show", "label": "내 정보 — 로그인 계정 공통, 메뉴 권한 밖 (규칙)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body class="partner-isolated-mode" data-screen-code="ADMN-PTNR-002">
+
+<header class="ptnr-topbar" id="ptnrTopbar">
+  <div class="ptnr-brand">
+    <img src="img/sjm_logo-horizontal-white.png" alt="산준모" />
+    <span class="ptnr-brand-sep"></span>
+    <span class="ptnr-brand-title">물류 파트너 센터</span>
+    <span class="screen-id-badge">ADMN-PTNR-002</span>
+    <span class="ptnr-infer-chip" data-dev-flag="proto-only" title="정본에 이 화면 근거가 없어 관련 기능에서 추론해 만든 화면입니다">추론 기반 신규 · 정본 근거 없음</span>
+  </div>
+  <div class="ptnr-who">
+    <span class="ptnr-who-name" id="ptnrWhoName">-</span>
+    <span class="ptnr-who-aff" id="ptnrWhoAff">-</span>
+    <span class="ptnr-chip" id="ptnrWhoRole">-</span>
+    <a href="ADMN-LOGIN-001_baseline.html" class="ptnr-logout" id="ptnrLogout" data-dev-route="admin.logout" data-dev-method="POST" data-dev-url="/{admin}/logout" data-dev-perm="로그인만">로그아웃</a>
+  </div>
+</header>
+
+<div class="ptnr-layout" id="ptnrLayout">
+  <nav class="ptnr-nav" id="ptnrNav" aria-label="물류 파트너 메뉴">
+    <div class="ptnr-nav-title">내 메뉴</div>
+    <button type="button" class="tab-btn active" data-tab="home" onclick="switchPtnrTab('home')" data-dev-route="admin.partner.deliveries.index (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries" data-dev-perm="can_view">홈</button>
+    <button type="button" class="tab-btn" data-tab="ready" id="navReady" onclick="switchPtnrTab('ready')" data-dev-route="admin.partner.deliveries.index (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries?tab=ready" data-dev-perm="can_view">출고 대상 <span class="ptnr-count" id="navReadyCount">0</span></button>
+    <button type="button" class="tab-btn" data-tab="tracking" id="navTracking" onclick="switchPtnrTab('tracking')" data-dev-route="admin.partner.deliveries.batches.index (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries/batches" data-dev-perm="can_view">송장 등록</button>
+    <button type="button" class="tab-btn" data-tab="status" id="navStatus" onclick="switchPtnrTab('status')" data-dev-route="admin.partner.deliveries.index (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries?tab=shipping" data-dev-perm="can_view">배송 현황 · 예외 <span class="ptnr-count" id="navExcCount">0</span></button>
+    <button type="button" class="tab-btn" data-tab="bill" id="navBill" onclick="switchPtnrTab('bill')" data-dev-route="admin.partner.logistics-bills.index (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/logistics-bills" data-dev-perm="can_view">물류비 청구 · 대사 결과</button>
+    <button type="button" class="tab-btn" data-tab="me" onclick="switchPtnrTab('me')" data-dev-route="admin.partner.profile.show (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/profile" data-dev-perm="로그인만">내 정보</button>
+    <div class="ptnr-nav-help">
+      출고 · 송장 문의<br><strong>물류팀 logistics@sanjunmo.com</strong><br>
+      물류비 · 계좌 문의<br><strong>재무팀 settlement@sanjunmo.com</strong><br>
+      이 화면에는 본 거래처에 배정된 출고 · 반품 정보만 표시됩니다.
+    </div>
+  </nav>
+
+  <main class="ptnr-main" id="ptnrMain">
+
+    <!-- 홈 -->
+    <section class="ptnr-section active" id="tab-home" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2" id="homeGreeting">물류 파트너 센터</h2>
+      <p class="ptnr-sub">오늘 처리할 출고 · 송장 · 예외와 물류비 대사 진행 상태를 확인합니다.</p>
+      <div class="ptnr-kpis" id="homeKpis"></div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>처리할 일</span></div>
+        <div id="homeTodoList"></div>
+      </div>
+    </section>
+
+    <!-- 출고 대상 -->
+    <section class="ptnr-section" id="tab-ready" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">출고 대상</h2>
+      <p class="ptnr-sub">배송준비중인 실물 교재 · 상품 라인입니다(1행 = 주문 라인 1개). 결제금액 · 강좌 내역은 표시하지 않으며, 수령인 이름 · 연락처는 가려서 보여 줍니다.</p>
+      <div class="ptnr-notice is-gray">
+        <div>
+          라벨 출력용 원문(수령인 · 연락처 · 주소)은 <strong>발주 엑셀(출고지시)</strong>에만 담깁니다. 발주 엑셀을 내려받는 순간 해당 라인은 <strong>출고지시 완료</strong>로 잠겨 고객 · 운영자의 배송지 변경과 즉시 취소가 막힙니다.
+          출고지시 완료 라인만 송장을 등록할 수 있습니다.
+        </div>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-filters">
+          <select id="readyLockFilter" class="ptnr-select" name="lock" onchange="renderReady()">
+            <option value="">출고지시 전체</option>
+            <option value="before">출고지시 전</option>
+            <option value="locked">출고지시 완료 · 송장 대기</option>
+          </select>
+          <select id="readyKeyType" class="ptnr-select" name="search_type">
+            <option value="order_no">주문번호</option>
+            <option value="receiver">수령인명</option>
+          </select>
+          <input type="text" id="readyKeyword" class="ptnr-input" name="keyword" placeholder="검색어" style="width:200px;" />
+          <button type="button" class="btn btn-sm" onclick="renderReady()" data-dev-route="admin.partner.deliveries.index (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries?tab=ready&amp;search_type=&amp;keyword=" data-dev-perm="can_view">조회</button>
+          <button type="button" class="btn btn-sm" onclick="resetReadyFilter()">초기화</button>
+        </div>
+        <div class="ptnr-card-title">
+          <span id="readySummary">-</span>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-sm btn-primary" id="dispatchButton" onclick="openDispatchLayer()" data-dev-route="admin.partner.deliveries.dispatch.download (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/deliveries/dispatch" data-dev-perm="can_download">발주 엑셀 다운로드 (출고지시)</button>
+            <button type="button" class="btn btn-sm btn-green" onclick="switchPtnrTab('tracking')">송장 등록으로</button>
+          </div>
+        </div>
+        <div class="ptnr-error" id="dispatchPermNote" style="display:none;"></div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead>
+              <tr><th style="width:34px;"><input type="checkbox" id="readyCheckAll" onchange="toggleReadyAll(this.checked)" aria-label="출고지시 전 라인 전체 선택" /></th><th>주문번호 · 라인</th><th>수령인</th><th>연락처</th><th>배송지</th><th>교재 · 상품</th><th class="num">수량</th><th>배송비 구분</th><th>출고지시</th><th>송장</th></tr>
+            </thead>
+            <tbody id="readyTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 송장 등록 -->
+    <section class="ptnr-section" id="tab-tracking" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">송장 등록</h2>
+      <p class="ptnr-sub">출고한 라인의 운송장을 엑셀로 한 번에 올리거나 한 건씩 등록합니다. 등록되면 주문은 배송중으로 바뀌고 구매자에게 배송출고 알림이 나갑니다.</p>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title">
+          <span>엑셀 일괄 업로드</span>
+          <button type="button" class="btn btn-sm" onclick="downloadTemplate()" data-dev-route="admin.partner.deliveries.template.download (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries/tracking/template/download" data-dev-perm="can_download">표준 양식 받기</button>
+        </div>
+        <div class="ptnr-steps">
+          <div class="ptnr-step"><b>1. 파일 선택</b>.xlsx · 10MB 이하. 필수 컬럼: 주문번호 · 주문라인번호 · 택배사코드 · 운송장번호 · 출고일자</div>
+          <div class="ptnr-step"><b>2. 사전 읽기</b>저장하지 않고 행마다 결과(정상 · E01~E06)를 미리 봅니다.</div>
+          <div class="ptnr-step"><b>3. 업로드 확정</b>정상 행만 반영합니다. 실패 행은 출고 대상에 남고, 실패 목록을 내려받아 고쳐 다시 올립니다.</div>
+        </div>
+        <form id="importForm" onsubmit="return false;">
+          <div class="ptnr-form-grid">
+            <div class="ptnr-field">
+              <label for="importFile">송장 회신 파일 (.xlsx) *</label>
+              <input type="file" id="importFile" name="file" class="ptnr-input" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="padding-top:4px;" onchange="onImportFileChange()" />
+              <div class="ptnr-muted" id="importFileName" style="margin-top:4px;">선택한 파일 없음 · <a href="javascript:void(0)" onclick="useSampleImportFile()">예시 파일로 해 보기</a></div>
+            </div>
+            <div class="ptnr-field">
+              <label for="importBatch">발주 배치</label>
+              <select id="importBatch" name="batch_id" class="ptnr-select" style="width:100%;"></select>
+              <div class="ptnr-muted" style="margin-top:4px;">배치를 고르면 그 배치 밖의 주문번호는 E01로 막습니다.</div>
+            </div>
+          </div>
+          <div style="margin-top:12px;">
+            <label class="ptnr-check"><input type="checkbox" id="importNotify" name="notify" value="1" checked /> 배송출고 알림 발송(구매자)</label>
+            <label class="ptnr-check"><input type="checkbox" id="importOverwrite" name="overwrite" value="1" /> 기존 운송장 덮어쓰기(덮어쓴 건은 알림 다시 보내지 않음)</label>
+          </div>
+          <div class="ptnr-error" id="importError"></div>
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:12px;">
+            <button type="button" class="btn btn-primary" id="importPreview" onclick="openImportPreview()" data-dev-route="admin.partner.deliveries.tracking.preview.store (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/deliveries/tracking/preview" data-dev-perm="can_create">사전 읽기</button>
+          </div>
+        </form>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title">
+          <span>발주 · 업로드 이력</span>
+          <span class="ptnr-muted">본 거래처 계정과 운영자가 만든 배치 중 이 거래처 배정분만 표시</span>
+        </div>
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead><tr><th>배치 번호</th><th>구분</th><th>처리 일시</th><th>처리자</th><th>처리 건수</th><th>송장 · 알림 현황</th><th>파일</th></tr></thead>
+            <tbody id="batchTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 배송 현황 · 예외 -->
+    <section class="ptnr-section" id="tab-status" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">배송 현황 · 예외</h2>
+      <p class="ptnr-sub">출고한 라인의 배송 상태와 반송 · 분실 · 파손 같은 예외를 관리합니다. 운송장 정정과 예외 등록은 운영자(물류팀)에게 바로 전달됩니다.</p>
+      <div class="ptnr-chipbar" id="statusChips">
+        <button type="button" class="chip active" data-st="SHIPPING" onclick="setStatusChip('SHIPPING')">배송중 <span id="chipCntSHIPPING">0</span></button>
+        <button type="button" class="chip" data-st="DELIVERED" onclick="setStatusChip('DELIVERED')">배송완료 <span id="chipCntDELIVERED">0</span></button>
+        <button type="button" class="chip" data-st="RETURNING" onclick="setStatusChip('RETURNING')">반품진행중 <span id="chipCntRETURNING">0</span></button>
+        <button type="button" class="chip" data-st="EXCEPTION" onclick="setStatusChip('EXCEPTION')">예외 <span id="chipCntEXCEPTION">0</span></button>
+      </div>
+      <div class="ptnr-notice is-gray" id="statusNote"></div>
+      <div class="ptnr-card">
+        <div class="ptnr-table-wrap">
+          <table class="ptnr-table">
+            <thead id="statusThead"></thead>
+            <tbody id="statusTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 물류비 청구 · 대사 결과 -->
+    <section class="ptnr-section" id="tab-bill" data-dev-flag="proto-only">
+      <h2 class="ptnr-h2">물류비 청구 · 대사 결과</h2>
+      <p class="ptnr-sub">월 1회 제출한 수수료 명세서를 산준모 출고 · 송장 기록과 맞춘 결과입니다. 재무팀 대사 화면과 같은 숫자이며, 결제금액 · 고객 배송비 수납액은 표시하지 않습니다.</p>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title">
+          <div class="ptnr-month-bar">
+            <label for="billMonth" style="font-size:12.5px; font-weight:700; color:#334155;">청구 월</label>
+            <select id="billMonth" name="settlement_month" class="ptnr-select" onchange="renderBill()">
+              <option value="2026-09">2026년 9월</option>
+              <option value="2026-10">2026년 10월</option>
+            </select>
+            <span id="billStatusBadge"></span>
+          </div>
+          <span class="ptnr-muted" id="billFileMeta"></span>
+        </div>
+        <div id="billTerms" class="ptnr-muted" style="margin-bottom:6px;"></div>
+      </div>
+      <div id="billBody"></div>
+    </section>
+
+    <!-- 내 정보 -->
+    <section class="ptnr-section" id="tab-me">
+      <h2 class="ptnr-h2">내 정보</h2>
+      <p class="ptnr-sub">거래처 정보 · 거래 조건 · 정산 계좌는 읽기 전용입니다. 변경이 필요하면 재무팀에 요청해 주세요.</p>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>거래처 · 거래 조건</span></div>
+        <dl class="ptnr-dl" id="meVendorList"></dl>
+      </div>
+      <div class="ptnr-card">
+        <div class="ptnr-card-title"><span>담당자 · 정산 계좌</span></div>
+        <dl class="ptnr-dl" id="meContactList"></dl>
+        <div class="ptnr-notice is-gray" style="margin:14px 0 0;">
+          <div>담당자 · 정산 계좌 변경은 재무팀(settlement@sanjunmo.com)에 요청해 주세요. 계좌 변경은 거래처 명의 통장 사본을 확인한 뒤 운영자가 거래처 관리에서 반영하며, 반영 이후 지급분부터 적용됩니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 진입 차단 -->
+    <section class="ptnr-section" id="tab-blocked">
+      <div class="ptnr-blocked">
+        <div style="font-size:16px; font-weight:900; margin-bottom:8px;">물류 파트너 계정을 확인할 수 없습니다</div>
+        <div id="blockedReason">소속 거래처 정보가 없습니다.</div>
+        <div style="margin-top:16px;"><a href="ADMN-LOGIN-001_baseline.html" class="btn btn-primary">로그인 화면으로</a></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 발주 엑셀 다운로드 = 출고지시 확인 -->
+<div class="modal-backdrop" id="layerDispatch" role="dialog" aria-modal="true" aria-labelledby="dispatchTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal">
+    <div class="ptnr-modal-head">
+      <strong id="dispatchTitle">발주 엑셀 다운로드 · 출고지시 확정</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerDispatch')">✕</button>
+    </div>
+    <div class="ptnr-modal-body">
+      <form id="dispatchForm" onsubmit="return false;">
+        <div class="ptnr-notice is-amber"><div>
+          선택한 <strong id="dispatchCount">0</strong>개 라인을 출고지시합니다. 내려받는 즉시 배치 번호가 붙고 배송지 변경 · 즉시 취소가 잠깁니다.<br>
+          엑셀에는 라벨 출력용 수령인 · 연락처 · 주소 원문이 담깁니다. 출고 목적 외 사용 · 보관을 하지 말고, 출고 후 파일을 삭제해 주세요. 다운로드는 감사 로그에 남습니다.
+        </div></div>
+        <div id="dispatchList" class="ptnr-muted" style="line-height:1.7;"></div>
+        <input type="hidden" name="ids[]" id="dispatchIds" value="" />
+      </form>
+    </div>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerDispatch')">취소</button>
+      <button type="button" class="btn btn-primary" id="dispatchConfirm" onclick="confirmDispatch()" data-dev-route="admin.partner.deliveries.dispatch.download (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/deliveries/dispatch" data-dev-perm="can_download">출고지시 확정 · 다운로드</button>
+    </div>
+  </div>
+</div>
+
+<!-- 송장 사전 읽기 결과 (ORD-002-P1 STEP 2와 같은 규칙) -->
+<div class="modal-backdrop" id="layerImportResult" role="dialog" aria-modal="true" aria-labelledby="importResultTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal" style="width:min(900px, 100%);">
+    <div class="ptnr-modal-head">
+      <strong id="importResultTitle">송장 파일 사전 읽기 결과</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerImportResult')">✕</button>
+    </div>
+    <div class="ptnr-modal-body" id="importResultBody"></div>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerImportResult')">닫기</button>
+      <button type="button" class="btn" id="importFailDownload" onclick="downloadFailures()" data-dev-route="admin.partner.deliveries.failures.download (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries/tracking/{batch}/failures/download" data-dev-perm="can_download">실패 목록 엑셀</button>
+      <button type="button" class="btn btn-primary" id="importSubmit" onclick="submitImport()" data-dev-route="admin.partner.deliveries.tracking.store (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/deliveries/tracking" data-dev-perm="can_create">업로드 확정 (정상 행만 반영)</button>
+    </div>
+  </div>
+</div>
+
+<!-- 송장 개별 등록 · 정정 (ORD-002-P2와 같은 필드 — DeliveryTrackingRequest) -->
+<div class="modal-backdrop" id="layerTracking" role="dialog" aria-modal="true" aria-labelledby="trackingTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal" style="width:min(600px, 100%);">
+    <div class="ptnr-modal-head">
+      <strong id="trackingTitle">송장 등록</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerTracking')">✕</button>
+    </div>
+    <div class="ptnr-modal-body">
+      <form id="trackingForm" onsubmit="return false;">
+        <div class="ptnr-q-meta" id="trackingTarget"></div>
+        <div class="ptnr-form-grid">
+          <div class="ptnr-field"><label for="trackingCourier">택배사 *</label>
+            <select id="trackingCourier" name="courier" class="ptnr-select" style="width:100%;">
+              <option value="">선택</option>
+              <option value="CJ">CJ대한통운</option>
+              <option value="HANJIN">한진택배</option>
+              <option value="LOTTE">롯데택배</option>
+              <option value="EPOST">우체국택배</option>
+            </select></div>
+          <div class="ptnr-field"><label for="trackingNo">운송장번호 *</label><input type="text" id="trackingNo" name="tracking_no" class="ptnr-input" placeholder="숫자 10~14자리, 하이픈 없이" maxlength="14" inputmode="numeric" /></div>
+          <div class="ptnr-field"><label for="trackingShippedAt">출고일자 *</label><input type="date" id="trackingShippedAt" name="shipped_at" class="ptnr-input" /></div>
+          <div class="ptnr-field"><label for="trackingReason">등록 사유 *</label>
+            <select id="trackingReason" name="reason_code" class="ptnr-select" style="width:100%;">
+              <option value="">선택</option>
+              <option value="missing">3PL 회신 누락</option>
+              <option value="typo">운송장 오타 정정</option>
+              <option value="courier">택배사 변경</option>
+              <option value="etc">기타</option>
+            </select></div>
+        </div>
+        <div class="ptnr-field" style="margin-top:12px;"><label for="trackingMemo">메모 (기타 사유는 필수 · 200자 이하)</label><input type="text" id="trackingMemo" name="reason_memo" class="ptnr-input" maxlength="200" style="width:100%;" /></div>
+        <div style="margin-top:10px;"><label class="ptnr-check"><input type="checkbox" id="trackingNotify" name="notify" value="1" checked /> 배송출고 알림 발송(정정은 이미 보낸 경우 다시 보내지 않음)</label></div>
+        <div class="ptnr-error" id="trackingError"></div>
+      </form>
+    </div>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerTracking')">취소</button>
+      <button type="button" class="btn btn-primary" id="trackingSubmit" onclick="submitTracking()" data-dev-route="admin.partner.deliveries.tracking.update (규칙)" data-dev-method="PUT" data-dev-url="/{admin}/partner/deliveries/{delivery}/tracking" data-dev-perm="can_update">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 배송 예외 등록 (반송 · 분실 · 파손) -->
+<div class="modal-backdrop" id="layerDeliveryException" role="dialog" aria-modal="true" aria-labelledby="exceptionTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal" style="width:min(600px, 100%);">
+    <div class="ptnr-modal-head">
+      <strong id="exceptionTitle">배송 예외 등록</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerDeliveryException')">✕</button>
+    </div>
+    <div class="ptnr-modal-body">
+      <form id="deliveryExceptionForm" onsubmit="return false;">
+        <div class="ptnr-q-meta" id="exceptionTarget"></div>
+        <div class="ptnr-form-grid">
+          <div class="ptnr-field"><label for="exceptionType">예외 구분 *</label>
+            <select id="exceptionType" name="exception_type" class="ptnr-select" style="width:100%;">
+              <option value="">선택</option>
+              <option value="return_to_sender">반송 (수취 거부 · 주소 불명 · 장기 부재)</option>
+              <option value="lost">분실</option>
+              <option value="damaged">파손 (배송 중)</option>
+            </select></div>
+          <div class="ptnr-field"><label for="exceptionOccurredAt">발생일 *</label><input type="date" id="exceptionOccurredAt" name="occurred_at" class="ptnr-input" /></div>
+        </div>
+        <div class="ptnr-field" style="margin-top:12px;"><label for="exceptionReason">내용 * (10자 이상 · 200자 이하)</label>
+          <textarea id="exceptionReason" name="reason" class="ptnr-textarea" maxlength="200" placeholder="택배사 확인 내용, 반송 입고 예정일 등을 적어 주세요. 고객 연락처 · 주소는 적지 않습니다."></textarea></div>
+        <div class="ptnr-field" style="margin-top:12px;"><label for="exceptionFile">증빙 (택배사 사고 확인서 · 사진, 선택)</label><input type="file" id="exceptionFile" name="attachment" class="ptnr-input" accept="image/*,application/pdf" style="padding-top:4px; width:100%;" /></div>
+        <div class="ptnr-error" id="exceptionError"></div>
+      </form>
+    </div>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerDeliveryException')">취소</button>
+      <button type="button" class="btn btn-primary" id="deliveryExceptionSubmit" onclick="submitException()" data-dev-route="admin.partner.deliveries.exceptions.store (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/deliveries/{delivery}/exceptions" data-dev-perm="can_create">예외 등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 대사 불일치 소명 제출 -->
+<div class="modal-backdrop" id="layerBillObjection" role="dialog" aria-modal="true" aria-labelledby="objectionTitle" aria-hidden="true" data-dev-flag="proto-only">
+  <div class="ptnr-modal" style="width:min(600px, 100%);">
+    <div class="ptnr-modal-head">
+      <strong id="objectionTitle">소명 자료 제출</strong>
+      <button type="button" class="ptnr-x" aria-label="닫기" onclick="closeLayer('layerBillObjection')">✕</button>
+    </div>
+    <div class="ptnr-modal-body">
+      <form id="billObjectionForm" onsubmit="return false;">
+        <div class="ptnr-q-meta" id="objectionTarget"></div>
+        <div class="ptnr-field"><label for="objectionReason">소명 내용 * (10자 이상 · 200자 이하)</label>
+          <textarea id="objectionReason" name="reason" class="ptnr-textarea" maxlength="200" placeholder="출고 기록 · 택배사 집하 기록 등 청구가 맞는 근거를 적어 주세요."></textarea></div>
+        <div class="ptnr-field" style="margin-top:12px;"><label for="objectionFile">증빙 파일 (집하 스캔 기록 · 출고 사진 등, 선택)</label><input type="file" id="objectionFile" name="attachment" class="ptnr-input" accept="image/*,application/pdf,.xlsx" style="padding-top:4px; width:100%;" /></div>
+        <div class="ptnr-error" id="objectionError"></div>
+      </form>
+    </div>
+    <div class="ptnr-modal-foot">
+      <button type="button" class="btn" onclick="closeLayer('layerBillObjection')">취소</button>
+      <button type="button" class="btn btn-primary" id="billObjectionSubmit" onclick="submitObjection()" data-dev-route="admin.partner.logistics-bills.items.objections.store (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/logistics-bills/items/{item}/objections" data-dev-perm="can_create">제출</button>
+    </div>
+  </div>
+</div>
+
+<div id="ptnrToast" role="status" aria-live="polite"></div>
+
+<script>
+  // ===== 샘플 데이터 — 실제 서비스에서는 로그인 계정의 소속 거래처(vendor) 배정분만 서버가 내려준다 =====
+  // 출고 · 배송: ADMN-ORD-001 SHIP_LINES와 같은 주문 · 수령인 · 교재. 상태 코드는 개발 deliveries.status(READY · SHIPPING · DELIVERED · RETURNING)
+  var PL_TODAY = "2026-10-27";
+  var PL_LINES = [
+    { id: 9101, key: "SJM20260818-0021 #2", status: "READY", recv: "홍길동", phone: "010-1234-5678", addr: "13529 경기 성남시 분당구 판교역로 235 에이치스퀘어 N동 7층", memo: "경비실에 맡겨주세요", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 2, fee: "FREE", lockedAt: "08.18 14:02", batch: "BATCH-20260818-01" },
+    { id: 9102, key: "SJM20260818-0019 #1", status: "READY", recv: "김수현", phone: "010-2233-4455", addr: "13561 경기 성남시 분당구 대왕판교로 660 유스페이스1 A동 502호", memo: "", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", sku: "", qty: 2, fee: "FREE", lockedAt: "", batch: "" },
+    { id: 9103, key: "SJM20260818-0007 #1", status: "READY", recv: "강도현", phone: "010-4747-1010", addr: "63309 제주특별자치도 제주시 첨단로 242", memo: "", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 2, fee: "ISLAND", lockedAt: "", batch: "" },
+    { id: 9104, key: "SJM20260817-0102 #1", status: "READY", recv: "최유진", phone: "010-5566-1212", addr: "04524 서울 중구 세종대로 110", memo: "", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 1, fee: "FREE", lockedAt: "08.17 15:30", batch: "BATCH-20260817-02" },
+    { id: 9201, key: "SJM20260814-0077 #1", status: "SHIPPING", recv: "최유진", phone: "010-5566-1212", addr: "04524 서울 중구 세종대로 110", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 2, fee: "FREE", shipDate: "2026-08-15", waybill: "641233879021", courier: "CJ", edited: 0 },
+    { id: 9202, key: "SJM20260815-0010 #1", status: "SHIPPING", recv: "박지훈", phone: "010-3131-7788", addr: "34126 대전 유성구 대학로 99", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", sku: "", qty: 1, fee: "PREPAID", shipDate: "2026-08-16", waybill: "641233879055", courier: "CJ", edited: 0 },
+    { id: 9203, key: "SJM20260815-0003 #2", status: "SHIPPING", recv: "한소율", phone: "010-8282-4646", addr: "48058 부산 해운대구 센텀중앙로 79", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 1, fee: "FREE", shipDate: "2026-08-16", waybill: "641233879068", courier: "CJ", edited: 1 },
+    { id: 9301, key: "SJM20260811-0020 #1", status: "DELIVERED", recv: "윤서진", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 1, shipDate: "2026-08-12", delivDate: "2026-08-13", basis: "택배사 수신", waybill: "641233878810", courier: "CJ" },
+    { id: 9302, key: "SJM20260810-0005 #1", status: "DELIVERED", recv: "오태민", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", sku: "", qty: 2, shipDate: "2026-08-11", delivDate: "2026-08-14", basis: "출고 후 자동(D+3)", waybill: "641233878755", courier: "CJ" },
+    { id: 9303, key: "SJM20260809-0011 #2", status: "DELIVERED", recv: "장미래", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 1, shipDate: "2026-08-10", delivDate: "2026-08-12", basis: "수동 보정", waybill: "641233878702", courier: "CJ" },
+    { id: 9401, key: "SJM20260809-0044 #2", status: "RETURNING", recv: "홍길동", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 1, returnWb: "641299001122", inDate: "2026-08-18", inspect: "검수 대기" },
+    { id: 9402, key: "SJM20260805-0012 #1", status: "RETURNING", recv: "서지호", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", sku: "", qty: 1, returnWb: "641288774411", inDate: "2026-08-17", inspect: "훼손 판정 · 환불 심사 전달" },
+    { id: 9403, key: "SJM20260811-0030 #1", status: "RETURNING", recv: "이도윤", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", sku: "PROD-BK-1006", qty: 1, returnWb: "641299004455", inDate: "", inspect: "창고 입고 대기" }
+  ];
+  var PL_EXCEPTIONS = [
+    { lineId: 9203, key: "SJM20260815-0003 #2", type: "return_to_sender", occurredAt: "2026-08-19", reason: "수취인 장기 부재로 택배사 반송 처리 예정. 반송 입고 후 재출고 여부 확인 요청", by: "물류 담당", status: "운영자 확인 중" }
+  ];
+  var PL_BATCHES = [
+    { no: "UPL-20260818-03", kind: "import", at: "2026-08-18 17:40", by: "이물류", count: "총 148 · 성공 141 · 실패 7", note: "알림 실패 2건" },
+    { no: "BATCH-20260818-01", kind: "export", at: "2026-08-18 14:02", by: "이물류", count: "12건", note: "송장 등록 10 · 미등록 2" },
+    { no: "BATCH-20260817-02", kind: "export", at: "2026-08-17 15:10", by: "김운영", count: "38건", note: "송장 등록 38 · 미등록 0" }
+  ];
+  var PL_FEE_LABEL = { FREE: "무료", PREPAID: "선불", ISLAND: "도서산간" };
+  var PL_STATUS_LABEL = { READY: "배송준비중", SHIPPING: "배송중", DELIVERED: "배송완료", RETURNING: "반품진행중" };
+  var PL_COURIER = { CJ: "CJ대한통운", HANJIN: "한진택배", LOTTE: "롯데택배", EPOST: "우체국택배" };
+  var PL_TRACKING_REASON = { missing: "3PL 회신 누락", typo: "운송장 오타 정정", courier: "택배사 변경", etc: "기타" };
+  var PL_EXC_LABEL = { return_to_sender: "반송", lost: "분실", damaged: "파손" };
+
+  // 물류비: ADMN-SETT-011 2026-09 데이터와 같은 값(대사 결과 · 3PL 청구 쪽만, 고객 배송비 수납액 제외)
+  var PL_BILLS = {
+    "2026-09": {
+      file: { name: "3pl_202609_cj_paju.xlsx", at: "2026-10-03 10:12" },
+      runAt: "2026-10-03 10:15", completed: false,
+      dbCount: 1842, claimCount: 1849, fee: 3698000,
+      rows: [
+        { no: 1, date: "09.03", waybill: "6841-2201-0031", order: "SJM-20260902-004010 · 홍*동", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
+        { no: 2, date: "09.08", waybill: "6841-2201-0198", order: "SJM-20260907-004188 · 김*연", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "3PL만 존재" },
+        { no: 3, date: "09.11", waybill: "6841-2201-0244", order: "SJM-20260910-004221 · 박*우", qty: 2, db: "2건", claim: "3건", price: 2000, status: "DIFF", diff: "+2,000" },
+        { no: 4, date: "09.15", waybill: "6841-2201-0402", order: "SJM-20260914-004301 · 이*준", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
+        { no: 5, date: "09.19", waybill: "—", order: "SJM-20260918-004377 · 최*아", qty: 1, db: "출고", claim: "미청구", price: 0, status: "ONLY_DB", diff: "DB만 존재" },
+        { no: 6, date: "09.24", waybill: "6841-2201-0611", order: "SJM-20260923-004455 · 정*늘", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
+        { no: 7, date: "09.25", waybill: "6841-2201-0655", order: "SJM-20260924-004470 · 강*재", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "3PL만 존재" },
+        { no: 8, date: "09.26", waybill: "6841-2201-0702", order: "SJM-20260925-004498 · 오*훈", qty: 1, db: "1건", claim: "1건", price: 2500, status: "DIFF", diff: "단가 +500" },
+        { no: 9, date: "09.27", waybill: "6841-2201-0733", order: "SJM-20260926-004512 · 윤*연", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
+        { no: 10, date: "09.29", waybill: "—", order: "SJM-20260928-004560 · 한*우", qty: 1, db: "출고", claim: "미청구", price: 0, status: "ONLY_DB", diff: "DB만 존재" },
+        { no: 11, date: "09.30", waybill: "6841-2201-0790", order: "SJM-20260929-004588 · 서*민", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "3PL만 존재" },
+        { no: 12, date: "09.30", waybill: "6841-2201-0801", order: "SJM-20260929-004590 · 문*희", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" }
+      ],
+      ship: [
+        { kind: "정상 출고", pay: 3270000, note: "1,635건 × 2,000원" },
+        { kind: "무료배송 프로모션 출고", pay: 428000, note: "214건 × 2,000원 · 정상 출고와 분리 계상" },
+        { kind: "반품 회수 — 고객 귀책", pay: 124000, note: "31건 × 4,000원" },
+        { kind: "반품 회수 — 회사 귀책", pay: 36000, note: "9건 × 4,000원" }
+      ],
+      returns: [
+        { order: "SJM-20260905-004102 · 김*수", dbReason: "단순 변심", plReason: "파손 회수" },
+        { order: "SJM-20260912-004260 · 이*정", dbReason: "단순 변심 · 무료배송 혜택 취소", plReason: "파손 회수" },
+        { order: "SJM-20260921-004418 · 박*현", dbReason: "단순 변심", plReason: "파손 회수" }
+      ]
+    },
+    "2026-10": null
+  };
+  var PL_BILL_STATUS = { MATCH: "일치", ONLY_3PL: "3PL만 존재", ONLY_DB: "산준모 기록만 존재", DIFF: "수량 · 단가 차이" };
+  var PL_RESULT_LABEL = { PAY: "승인 지급", DEDUCT: "차감", CARRY: "차월 이월" };
+  // 거래처 담당자 · 계좌(개발 suppliers.contact_email · bank_name · account_no_enc · account_holder) — 화면에는 가린 값만
+  var PL_VENDOR_PROFILE = {
+    "SUP-0020": { manager: "박*류 과장", email: "pa***@cjlogistics-paju.example", bankMasked: "IBK기업은행 ***-******-**-301", holder: "CJ대한통운(주)" }
+  };
+
+  // ===== 진입 컨텍스트 =====
+  var PL = { vendorId: "", vendor: null, vendorType: null, roleId: "", ok: false, canView: false, canWrite: false, canDownload: false, statusChip: "SHIPPING", trackingLineId: 0, exceptionLineId: 0, objectionNo: 0, importFile: "", importRows: [], objections: {}, statements: {} };
+
+  function plWon(n) { var v = Number(n) || 0; return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("ko-KR") + "원"; }
+  function plEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  // 수령인 마스킹 — ADMN-ORD-001 3PL 격리 보기와 같은 규칙(이름 두 번째 글자 · 연락처 가운데 4자리). 서버가 이미 가린 값이 오지만 화면에서도 한 번 더 가린다(해제 기능 없음)
+  function plMaskName(name) {
+    if (!name) return "-";
+    if (name.indexOf("*") !== -1) return name;
+    return name.length > 2 ? name.charAt(0) + "*" + name.slice(2) : name.charAt(0) + "*";
+  }
+  function plMaskPhone(p) { return p ? String(p).replace(/(\d{3})-(\d{3,4})-(\d{4})/, "$1-****-$3") : "-"; }
+  function plDate(s) { return s ? s.replace(/^2026-/, "").replace("-", ".") : "-"; }
+
+  function showPtnrToast(msg) {
+    var t = document.getElementById("ptnrToast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(window.__ptnrToastTimer);
+    window.__ptnrToastTimer = setTimeout(function () { t.classList.remove("show"); }, 3000);
+  }
+
+  function openLayer(id) {
+    var m = document.getElementById(id);
+    m.style.removeProperty("display");
+    m.classList.add("open");
+    m.setAttribute("aria-hidden", "false");
+  }
+  function closeLayer(id) {
+    var m = document.getElementById(id);
+    m.classList.remove("open");
+    m.setAttribute("aria-hidden", "true");
+  }
+  function setError(id, msg) {
+    var e = document.getElementById(id);
+    e.textContent = msg || "";
+    e.style.display = msg ? "block" : "none";
+    return !msg;
+  }
+  // 사유 검사 — 개발 MemberReasonRequest와 같은 규칙(공백 제외 10자 이상 · 서로 다른 글자 3개 이상 · 200자 이하)
+  function reasonError(text) {
+    var compact = String(text || "").replace(/\s/g, "");
+    if (compact.length < 10) return "내용을 공백 제외 10자 이상 입력해 주세요.";
+    var uniq = {};
+    compact.split("").forEach(function (c) { uniq[c] = true; });
+    if (Object.keys(uniq).length < 3) return "같은 글자만 반복하지 말고 내용을 적어 주세요.";
+    if (String(text).length > 200) return "200자 이하로 입력해 주세요.";
+    return "";
+  }
+
+  function resolveContext() {
+    var p = new URLSearchParams(window.location.search);
+    var vendorId = (p.get("vendor") || "SUP-0020").trim().toUpperCase();
+    var roleId = (p.get("role") || "RG-08").trim().toUpperCase();
+    var M = window.SJM_MASTER;
+    PL.vendorId = vendorId;
+    PL.roleId = roleId;
+    if (!M || !M.vendors || !M.roles) return "공통 기준정보를 불러오지 못했습니다.";
+    var v = M.vendors.get(vendorId);
+    if (!v) return "소속 거래처 정보를 찾을 수 없습니다. 운영자에게 계정 소속 확인을 요청해 주세요.";
+    var t = M.vendors.type(v.type);
+    if (!t || t.form !== "LOGISTICS") return "물류 대행 거래처 소속 계정 전용 화면입니다. 매입처 계정은 별도 화면을 이용해 주세요.";
+    if (!v.on) return "거래가 중지된 거래처입니다. 재무팀에 확인해 주세요.";
+    var g = M.roles.get(roleId);
+    if (!g || g.side !== "EXTERNAL" || !g.aff || g.aff.indexOf("VENDOR") === -1) {
+      return "거래처 소속 파트너 계정 전용 화면입니다. 운영자 계정은 백오피스로 로그인해 주세요.";
+    }
+    // 메뉴 · 기능 범위는 역할 그룹의 출고 지시 · 송장(shipout) 권한으로 판정 — R 조회 · W 등록 · X 다운로드(발주 엑셀)
+    PL.canView = M.roles.has(roleId, "shipout", "R");
+    PL.canWrite = M.roles.has(roleId, "shipout", "W");
+    PL.canDownload = M.roles.has(roleId, "shipout", "X");
+    if (!PL.canView) return "이 역할 그룹에는 출고 · 송장 조회 권한이 없습니다. 운영자에게 권한을 요청해 주세요.";
+    PL.vendor = v;
+    PL.vendorType = t;
+    PL.ok = true;
+    return "";
+  }
+
+  function renderTopbar() {
+    document.getElementById("ptnrWhoName").textContent = PL.vendor.name;
+    document.getElementById("ptnrWhoAff").textContent = "거래처 " + PL.vendor.id + " · " + PL.vendorType.name;
+    document.getElementById("ptnrWhoRole").textContent = window.SJM_MASTER.roles.name(PL.roleId);
+  }
+
+  function switchPtnrTab(tab) {
+    if (!PL.ok) return;
+    if (!document.getElementById("tab-" + tab)) tab = "home";
+    document.querySelectorAll(".ptnr-section").forEach(function (s) { s.classList.toggle("active", s.id === "tab-" + tab); });
+    document.querySelectorAll("#ptnrNav .tab-btn").forEach(function (b) { b.classList.toggle("active", b.getAttribute("data-tab") === tab); });
+    if (tab === "home") renderHome();
+    if (tab === "ready") renderReady();
+    if (tab === "tracking") renderTracking();
+    if (tab === "status") renderStatus();
+    if (tab === "bill") renderBill();
+    window.scrollTo(0, 0);
+  }
+
+  function linesBy(status) { return PL_LINES.filter(function (l) { return l.status === status; }); }
+  function lineById(id) { return PL_LINES.filter(function (l) { return l.id === id; })[0]; }
+  function openExceptions() { return PL_EXCEPTIONS.filter(function (e) { return e.status !== "종결"; }); }
+
+  function updateNavCounts() {
+    var waiting = linesBy("READY").filter(function (l) { return !!l.lockedAt; }).length;
+    var before = linesBy("READY").filter(function (l) { return !l.lockedAt; }).length;
+    document.getElementById("navReadyCount").textContent = waiting + before;
+    document.getElementById("navExcCount").textContent = openExceptions().length;
+    document.getElementById("navExcCount").style.display = openExceptions().length ? "" : "none";
+  }
+
+  // ===== 홈 =====
+  function renderHome() {
+    var ready = linesBy("READY");
+    var locked = ready.filter(function (l) { return !!l.lockedAt; }).length;
+    var before = ready.length - locked;
+    var shipping = linesBy("SHIPPING").length;
+    var exc = openExceptions().length;
+    var bill = PL_BILLS["2026-09"];
+    var mis = bill.rows.filter(function (r) { return r.status !== "MATCH"; }).length;
+    document.getElementById("homeGreeting").textContent = PL.vendor.name + " 물류 파트너 센터";
+    document.getElementById("homeKpis").innerHTML =
+      kpi("출고지시 전", before + "건", "발주 엑셀을 내려받으면 출고지시 완료로 바뀝니다", before ? "is-warn" : "")
+      + kpi("송장 대기", locked + "건", "출고지시 완료 · 운송장 미등록", locked ? "is-warn" : "is-ok")
+      + kpi("배송중", shipping + "건", "택배사 배송완료 수신 또는 출고 후 D+3 자동 완료")
+      + kpi("예외 처리 중", exc + "건", "반송 · 분실 · 파손 — 운영자 확인 대기", exc ? "is-bad" : "is-ok")
+      + kpi("2026년 9월 물류비 대사", bill.completed ? "대사 완료" : "재무팀 검수 중", "불일치 " + mis + "건 · 청구 수수료 " + plWon(bill.fee), bill.completed ? "is-ok" : "");
+    var todo = [];
+    if (before) todo.push(todoRow("출고지시 전 라인 " + before + "건", "발주 엑셀(출고지시)을 내려받아 출고를 시작합니다.", "ready", "출고 대상 보기"));
+    if (locked) todo.push(todoRow("송장 미등록 " + locked + "건", "출고 후 운송장을 엑셀로 일괄 업로드하거나 한 건씩 등록합니다.", "tracking", "송장 등록"));
+    if (exc) todo.push(todoRow("예외 " + exc + "건 운영자 확인 중", "반송 입고 · 재출고 지시를 기다리는 건이 있습니다.", "status", "예외 보기"));
+    if (!PL_BILLS["2026-10"] && !PL.statements["2026-10"]) todo.push(todoRow("2026년 10월 수수료 명세서 미제출", "익월 초에 월 명세서를 제출하면 재무팀이 대사합니다.", "bill", "명세서 제출"));
+    document.getElementById("homeTodoList").innerHTML = todo.length ? todo.join("") : '<div class="ptnr-muted">처리할 일이 없습니다.</div>';
+  }
+  function kpi(label, num, sub, cls) {
+    return '<div class="ptnr-kpi"><div class="ptnr-kpi-label">' + plEsc(label) + '</div><div class="ptnr-kpi-num ' + (cls || "") + '">' + plEsc(num) + '</div><div class="ptnr-kpi-sub">' + plEsc(sub) + '</div></div>';
+  }
+  function todoRow(title, desc, tab, btn) {
+    return '<div class="ptnr-notice is-gray" style="margin-bottom:8px; align-items:center;"><div><strong>' + plEsc(title) + '</strong><br>' + plEsc(desc) + '</div>'
+      + '<button type="button" class="btn btn-sm" onclick="switchPtnrTab(\'' + tab + '\')">' + plEsc(btn) + '</button></div>';
+  }
+
+  // ===== 출고 대상 =====
+  var PL_SELECTED = {};
+  function resetReadyFilter() {
+    document.getElementById("readyLockFilter").value = "";
+    document.getElementById("readyKeyType").value = "order_no";
+    document.getElementById("readyKeyword").value = "";
+    renderReady();
+  }
+  function filteredReady() {
+    var lock = document.getElementById("readyLockFilter").value;
+    var kt = document.getElementById("readyKeyType").value;
+    var kw = document.getElementById("readyKeyword").value.trim();
+    return linesBy("READY").filter(function (l) {
+      if (lock === "before" && l.lockedAt) return false;
+      if (lock === "locked" && !l.lockedAt) return false;
+      if (kw) {
+        if (kt === "order_no" && l.key.indexOf(kw) === -1) return false;
+        if (kt === "receiver" && l.recv !== kw) return false; // 수령인명은 완전 일치만(가린 이름으로 부분 검색 방지)
+      }
+      return true;
+    });
+  }
+  function renderReady() {
+    var list = filteredReady();
+    var tb = document.getElementById("readyTbody");
+    if (!list.length) {
+      tb.innerHTML = '<tr class="is-empty"><td colspan="10">조건에 맞는 출고 대상이 없습니다.</td></tr>';
+    } else {
+      tb.innerHTML = list.map(function (l) {
+        var sel = !!PL_SELECTED[l.id];
+        var lockCell = l.lockedAt
+          ? '<span class="badge badge-violet">출고지시 완료</span><div class="ptnr-muted">' + plEsc(l.lockedAt) + ' · ' + plEsc(l.batch) + '</div>'
+          : '<span class="badge badge-gray">출고지시 전</span>';
+        var wbCell = l.lockedAt
+          ? (PL.canWrite ? '<button type="button" class="btn btn-sm" onclick="openTrackingLayer(' + l.id + ')" data-dev-route="admin.partner.deliveries.tracking.update (규칙)" data-dev-method="PUT" data-dev-url="/{admin}/partner/deliveries/' + l.id + '/tracking" data-dev-perm="can_update">송장 등록</button>' : '<span class="ptnr-muted">미등록</span>')
+          : '<span class="ptnr-muted">출고지시 후 등록</span>';
+        return '<tr class="' + (sel ? "is-selected" : "") + '" data-line-id="' + l.id + '">'
+          + '<td>' + (l.lockedAt ? '' : '<input type="checkbox" class="ready-cb" name="ids[]" value="' + l.id + '" ' + (sel ? "checked" : "") + ' onchange="toggleReady(' + l.id + ', this.checked)" aria-label="' + plEsc(l.key) + ' 선택" />') + '</td>'
+          + '<td class="ptnr-mono"><b>' + plEsc(l.key) + '</b></td>'
+          + '<td class="ready-recv"><b>' + plEsc(plMaskName(l.recv)) + '</b></td>'
+          + '<td class="ptnr-mono ready-phone">' + plEsc(plMaskPhone(l.phone)) + '</td>'
+          + '<td>' + plEsc(l.addr) + (l.memo ? '<div class="ptnr-muted">배송 메시지: ' + plEsc(l.memo) + '</div>' : '') + '</td>'
+          + '<td>' + plEsc(l.book) + (l.sku ? '<div class="ptnr-muted">' + plEsc(l.sku) + '</div>' : '') + '</td>'
+          + '<td class="num">' + l.qty + '</td>'
+          + '<td>' + (l.fee === "ISLAND" ? '<span class="badge badge-amber">도서산간</span>' : plEsc(PL_FEE_LABEL[l.fee] || "-")) + '</td>'
+          + '<td>' + lockCell + '</td>'
+          + '<td>' + wbCell + '</td></tr>';
+      }).join("");
+    }
+    var all = linesBy("READY");
+    var selCount = Object.keys(PL_SELECTED).filter(function (k) { return PL_SELECTED[k]; }).length;
+    document.getElementById("readySummary").textContent = "출고 대상 " + all.length + "건 · 출고지시 전 " + all.filter(function (l) { return !l.lockedAt; }).length + "건 · 선택 " + selCount + "건";
+    var btn = document.getElementById("dispatchButton");
+    btn.disabled = !PL.canDownload || selCount === 0;
+    var note = document.getElementById("dispatchPermNote");
+    if (!PL.canDownload) {
+      note.textContent = "이 계정의 역할 그룹에는 다운로드 권한이 없어 발주 엑셀(출고지시)을 내려받을 수 없습니다. 출고지시는 운영자(물류팀)가 하고, 출고지시 완료 라인의 송장만 등록할 수 있습니다.";
+      note.style.display = "block";
+      note.style.background = "#F8FAFC"; note.style.borderColor = "#E2E8F0"; note.style.color = "#475569";
+    } else {
+      note.style.display = "none";
+    }
+    var allBox = document.getElementById("readyCheckAll");
+    var selectable = list.filter(function (l) { return !l.lockedAt; });
+    allBox.disabled = !PL.canDownload || !selectable.length;
+    allBox.checked = selectable.length > 0 && selectable.every(function (l) { return PL_SELECTED[l.id]; });
+    document.querySelectorAll(".ready-cb").forEach(function (cb) { cb.disabled = !PL.canDownload; });
+    updateNavCounts();
+  }
+  function toggleReady(id, on) { PL_SELECTED[id] = !!on; renderReady(); }
+  function toggleReadyAll(on) {
+    filteredReady().forEach(function (l) { if (!l.lockedAt) PL_SELECTED[l.id] = !!on; });
+    renderReady();
+  }
+  function selectedReadyLines() { return linesBy("READY").filter(function (l) { return !l.lockedAt && PL_SELECTED[l.id]; }); }
+  function openDispatchLayer() {
+    if (!PL.canDownload) { showPtnrToast("다운로드 권한이 없습니다."); return; }
+    var sel = selectedReadyLines();
+    if (!sel.length) { showPtnrToast("출고지시할 라인을 선택해 주세요."); return; }
+    document.getElementById("dispatchCount").textContent = sel.length;
+    document.getElementById("dispatchIds").value = sel.map(function (l) { return l.id; }).join(",");
+    document.getElementById("dispatchList").innerHTML = sel.map(function (l) { return plEsc(l.key) + " · " + plEsc(l.book) + " × " + l.qty; }).join("<br>");
+    openLayer("layerDispatch");
+  }
+  function confirmDispatch() {
+    var sel = selectedReadyLines();
+    var batch = "BATCH-20261027-01";
+    sel.forEach(function (l) { l.lockedAt = "10.27 " + nowHm(); l.batch = batch; PL_SELECTED[l.id] = false; });
+    PL_BATCHES.unshift({ no: batch, kind: "export", at: PL_TODAY + " " + nowHm(), by: "본 거래처 계정", count: sel.length + "건", note: "송장 등록 0 · 미등록 " + sel.length });
+    closeLayer("layerDispatch");
+    renderReady();
+    showPtnrToast("SJM_3PL_발주_20261027_01.xlsx 다운로드 · " + sel.length + "개 라인 출고지시 완료(" + batch + "). 배송지 변경이 잠겼습니다.");
+  }
+  function nowHm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+
+  // ===== 송장 등록 =====
+  function renderTracking() {
+    var sel = document.getElementById("importBatch");
+    var exports = PL_BATCHES.filter(function (b) { return b.kind === "export"; });
+    var cur = sel.value;
+    sel.innerHTML = exports.map(function (b) { return '<option value="' + plEsc(b.no) + '">' + plEsc(b.no) + ' (' + plEsc(b.at) + ' · ' + plEsc(b.count) + ')</option>'; }).join("")
+      + '<option value="">전체 배치 허용 (배치 미지정)</option>';
+    if (cur !== "" && exports.some(function (b) { return b.no === cur; })) sel.value = cur; else sel.value = "";
+    var canW = PL.canWrite;
+    ["importFile", "importBatch", "importNotify", "importOverwrite", "importPreview"].forEach(function (id) { document.getElementById(id).disabled = !canW; });
+    document.getElementById("batchTbody").innerHTML = PL_BATCHES.map(function (b) {
+      return '<tr><td class="ptnr-mono"><b>' + plEsc(b.no) + '</b></td>'
+        + '<td>' + (b.kind === "import" ? '<span class="badge badge-blue">송장 업로드</span>' : '<span class="badge badge-amber">발주 다운로드</span>') + '</td>'
+        + '<td>' + plEsc(b.at) + '</td><td>' + plEsc(b.by) + '</td><td>' + plEsc(b.count) + '</td><td>' + plEsc(b.note) + '</td>'
+        + '<td>' + (b.kind === "import"
+          ? '<button type="button" class="btn btn-sm" onclick="downloadFailures(\'' + plEsc(b.no) + '\')" data-dev-route="admin.partner.deliveries.failures.download (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries/tracking/{batch}/failures/download" data-dev-perm="can_download">실패 목록</button>'
+          : (PL.canDownload ? '<button type="button" class="btn btn-sm" onclick="showPtnrToast(\'' + plEsc(b.no) + ' 발주 파일을 다시 내려받습니다. 출고지시를 새로 걸지 않고 감사 로그에만 남습니다.\')" data-dev-route="admin.partner.deliveries.batches.download (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/deliveries/batches/{batch}/download" data-dev-perm="can_download">재다운로드</button>' : '<span class="ptnr-muted">-</span>'))
+        + '</td></tr>';
+    }).join("");
+  }
+  function onImportFileChange() {
+    var f = document.getElementById("importFile").files[0];
+    PL.importFile = f ? f.name : "";
+    document.getElementById("importFileName").innerHTML = f ? plEsc(f.name) + " · " + Math.max(1, Math.round(f.size / 1024)) + "KB" : '선택한 파일 없음 · <a href="javascript:void(0)" onclick="useSampleImportFile()">예시 파일로 해 보기</a>';
+    setError("importError", "");
+  }
+  function useSampleImportFile() {
+    if (!PL.canWrite) return;
+    PL.importFile = "3PL_송장회신_20261027.xlsx";
+    document.getElementById("importFileName").textContent = PL.importFile + " (예시 파일)";
+    setError("importError", "");
+  }
+  function downloadTemplate() { showPtnrToast("송장 회신 표준 양식(주문번호 · 주문라인번호 · 택배사코드 · 운송장번호 · 출고일자)을 내려받습니다."); }
+  function downloadFailures(batch) {
+    var fails = PL.importRows.filter(function (r) { return r.code; }).length;
+    showPtnrToast((typeof batch === "string" ? batch : "이번 파일") + " 실패 목록 엑셀(오류코드 · 사유 포함)을 내려받습니다." + (typeof batch !== "string" ? " 실패 " + fails + "건" : ""));
+  }
+  // 사전 읽기 — 실제로는 서버가 파일을 읽는다. 시연: 이 거래처 출고 대상 + 고정 오류 행으로 결과를 만든다(오류 코드 · 문구는 개발 DeliveryService ERROR_MESSAGES)
+  var PL_ERR = {
+    E01: "주문번호 불일치 — 존재하지 않거나 출고 대상이 아닌 주문입니다",
+    E02: "이미 처리됨 — 이미 운송장이 등록된 라인입니다(중복 회신으로 건너뜀)",
+    E03: "필수값 누락 — 주문번호 · 라인 · 택배사 · 운송장 · 출고일자 중 공란",
+    E04: "형식 오류 — 운송장(숫자 10~14자리) · 출고일자 · 택배사 코드를 확인하세요",
+    E05: "상태 불일치 — 출고지시 완료 라인만 출고 송장을 받을 수 있습니다",
+    E06: "운송장 중복 — 다른 주문 라인에 이미 사용된 운송장번호입니다"
+  };
+  function openImportPreview() {
+    if (!PL.canWrite) return;
+    var name = PL.importFile;
+    if (!name) { setError("importError", "업로드할 엑셀 파일을 선택해 주세요."); return; }
+    if (!/\.xlsx$/i.test(name)) { setError("importError", ".xlsx 파일만 올릴 수 있습니다."); return; }
+    setError("importError", "");
+    var batch = document.getElementById("importBatch").value;
+    var rows = [];
+    var rowNo = 2;
+    var seq = 401;
+    linesBy("READY").forEach(function (l) {
+      var parts = l.key.split(" #");
+      var r = { row: rowNo++, order: parts[0], line: parts[1], courier: "CJ", waybill: "6412338" + (79000 + seq++), shippedAt: PL_TODAY, lineId: l.id, code: "" };
+      if (!l.lockedAt) r.code = "E05";
+      else if (batch && l.batch !== batch) r.code = "E01";
+      rows.push(r);
+    });
+    rows.push({ row: rowNo++, order: "SJM20260818-0O21", line: "2", courier: "CJ", waybill: "641233879500", shippedAt: PL_TODAY, code: "E01" });
+    rows.push({ row: rowNo++, order: "SJM20260814-0077", line: "1", courier: "CJ", waybill: "641233879021", shippedAt: "2026-08-15", code: "E02" });
+    rows.push({ row: rowNo++, order: "SJM20260818-0041", line: "1", courier: "CJ", waybill: "6412-3387-9105", shippedAt: PL_TODAY, code: "E04" });
+    PL.importRows = rows;
+    var ok = rows.filter(function (r) { return !r.code; });
+    var bad = rows.filter(function (r) { return r.code; });
+    document.getElementById("importResultBody").innerHTML =
+      '<div class="ptnr-kpis">'
+      + kpi("총 행수", rows.length + "건", name, "")
+      + kpi("반영 예정 (정상)", ok.length + "건", "확정하면 배송중으로 바뀝니다", ok.length ? "is-ok" : "")
+      + kpi("반영 안 됨 (오류)", bad.length + "건", "출고 대상에 그대로 남습니다", bad.length ? "is-bad" : "")
+      + '</div>'
+      + '<div class="ptnr-table-wrap"><table class="ptnr-table" id="importResultTable"><thead><tr><th>엑셀 행</th><th>주문번호</th><th>라인</th><th>택배사</th><th>운송장번호</th><th>출고일자</th><th>결과</th></tr></thead><tbody>'
+      + rows.map(function (r) {
+        return '<tr><td>' + r.row + '</td><td class="ptnr-mono">' + plEsc(r.order) + '</td><td>' + plEsc(r.line) + '</td><td>' + plEsc(PL_COURIER[r.courier] || r.courier) + '</td><td class="ptnr-mono">' + plEsc(r.waybill) + '</td><td>' + plEsc(r.shippedAt) + '</td>'
+          + '<td>' + (r.code ? '<span class="badge badge-rose">' + r.code + '</span> ' + plEsc(PL_ERR[r.code]) : '<span class="badge badge-green">정상</span>') + '</td></tr>';
+      }).join("")
+      + '</tbody></table></div>'
+      + '<p class="ptnr-muted" style="margin-top:10px;">사전 읽기는 저장하지 않습니다. [업로드 확정]을 눌러야 정상 행이 반영되고' + (document.getElementById("importNotify").checked ? ' 구매자에게 배송출고 알림이 발송됩니다.' : ' 알림은 보내지 않습니다.') + '</p>';
+    document.getElementById("importSubmit").disabled = ok.length === 0;
+    openLayer("layerImportResult");
+  }
+  function submitImport() {
+    var ok = PL.importRows.filter(function (r) { return !r.code && r.lineId; });
+    if (!ok.length) return;
+    var used = {};
+    ok.forEach(function (r) {
+      var l = lineById(r.lineId);
+      if (!l || l.status !== "READY") return;
+      l.status = "SHIPPING"; l.waybill = r.waybill; l.courier = r.courier; l.shipDate = r.shippedAt; l.edited = 0;
+      used[l.batch] = (used[l.batch] || 0) + 1;
+    });
+    var total = PL.importRows.length;
+    var no = "UPL-20261027-0" + (PL_BATCHES.filter(function (b) { return b.no.indexOf("UPL-20261027") === 0; }).length + 1);
+    PL_BATCHES.unshift({ no: no, kind: "import", at: PL_TODAY + " " + nowHm(), by: "본 거래처 계정", count: "총 " + total + " · 성공 " + ok.length + " · 실패 " + (total - ok.length), note: document.getElementById("importNotify").checked ? "알림 발송 " + ok.length + "건" : "알림 미발송" });
+    PL.importRows = [];
+    PL.importFile = "";
+    document.getElementById("importFile").value = "";
+    onImportFileChange();
+    closeLayer("layerImportResult");
+    renderTracking();
+    updateNavCounts();
+    showPtnrToast(no + " 업로드 확정 — " + ok.length + "건 배송중 전환, 실패 " + (total - ok.length) + "건은 출고 대상에 남았습니다.");
+  }
+
+  function openTrackingLayer(id) {
+    if (!PL.canWrite) return;
+    var l = lineById(id);
+    if (!l) return;
+    PL.trackingLineId = id;
+    var isEdit = l.status === "SHIPPING";
+    document.getElementById("trackingTitle").textContent = isEdit ? "운송장 정정 — " + l.key : "송장 등록 — " + l.key;
+    document.getElementById("trackingTarget").innerHTML =
+      '<div>주문 · 라인</div><div class="ptnr-mono">' + plEsc(l.key) + '</div>'
+      + '<div>수령인</div><div>' + plEsc(plMaskName(l.recv)) + '</div>'
+      + '<div>교재 · 상품</div><div>' + plEsc(l.book) + ' × ' + l.qty + '</div>'
+      + '<div>처리 구분</div><div>' + (isEdit ? '정정 (현재 ' + plEsc(PL_COURIER[l.courier]) + ' ' + plEsc(l.waybill) + ')' : '신규 등록 (출고지시 ' + plEsc(l.lockedAt) + ')') + '</div>';
+    document.getElementById("trackingCourier").value = isEdit ? l.courier : "CJ";
+    document.getElementById("trackingNo").value = "";
+    document.getElementById("trackingShippedAt").value = isEdit ? l.shipDate : PL_TODAY;
+    document.getElementById("trackingShippedAt").max = PL_TODAY;
+    document.getElementById("trackingReason").value = isEdit ? "typo" : "missing";
+    document.getElementById("trackingMemo").value = "";
+    document.getElementById("trackingNotify").checked = !isEdit;
+    setError("trackingError", "");
+    openLayer("layerTracking");
+  }
+  function submitTracking() {
+    var l = lineById(PL.trackingLineId);
+    if (!l) return;
+    var courier = document.getElementById("trackingCourier").value;
+    var no = document.getElementById("trackingNo").value.trim();
+    var at = document.getElementById("trackingShippedAt").value;
+    var reason = document.getElementById("trackingReason").value;
+    var memo = document.getElementById("trackingMemo").value.trim();
+    // 검증 — 개발 DeliveryTrackingRequest 규칙 · 문구
+    if (!courier) return setError("trackingError", "택배사를 선택해 주세요.");
+    if (!no) return setError("trackingError", "운송장번호를 입력해 주세요.");
+    if (!/^\d{10,14}$/.test(no)) return setError("trackingError", "하이픈 없이 숫자만 입력해 주세요(10~14자리).");
+    if (!at) return setError("trackingError", "출고일자를 입력해 주세요.");
+    if (at > PL_TODAY) return setError("trackingError", "출고일자는 오늘 이후일 수 없습니다.");
+    if (!reason) return setError("trackingError", "등록 사유를 선택해 주세요.");
+    if (reason === "etc" && !memo) return setError("trackingError", "기타 사유는 메모를 입력해 주세요.");
+    var dup = PL_LINES.some(function (x) { return x.id !== l.id && x.waybill === no; });
+    if (dup) return setError("trackingError", PL_ERR.E06);
+    var wasEdit = l.status === "SHIPPING";
+    l.courier = courier; l.waybill = no; l.shipDate = at;
+    if (wasEdit) l.edited = (l.edited || 0) + 1; else { l.status = "SHIPPING"; l.edited = 0; }
+    closeLayer("layerTracking");
+    renderReady();
+    if (document.getElementById("tab-status").classList.contains("active")) renderStatus();
+    showPtnrToast(l.key + (wasEdit ? " 운송장을 정정했습니다(사유: " : " 송장을 등록했습니다 — 배송중 전환(사유: ") + PL_TRACKING_REASON[reason] + ").");
+  }
+
+  // ===== 배송 현황 · 예외 =====
+  function setStatusChip(st) { PL.statusChip = st; renderStatus(); }
+  function renderStatus() {
+    var st = PL.statusChip;
+    document.querySelectorAll("#statusChips .chip").forEach(function (c) { c.classList.toggle("active", c.getAttribute("data-st") === st); });
+    ["SHIPPING", "DELIVERED", "RETURNING"].forEach(function (s) { document.getElementById("chipCnt" + s).textContent = linesBy(s).length; });
+    document.getElementById("chipCntEXCEPTION").textContent = PL_EXCEPTIONS.length;
+    var th = document.getElementById("statusThead");
+    var tb = document.getElementById("statusTbody");
+    var note = document.getElementById("statusNote");
+    var excBtn = function (l) {
+      return PL.canWrite ? '<button type="button" class="btn btn-sm" onclick="openExceptionLayer(' + l.id + ')" data-dev-route="admin.partner.deliveries.exceptions.store (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/deliveries/' + l.id + '/exceptions" data-dev-perm="can_create">예외 등록</button>' : '';
+    };
+    if (st === "SHIPPING") {
+      note.innerHTML = "<div>배송중 라인은 운송장 정정과 예외(반송 · 분실 · 파손) 등록만 할 수 있습니다. 배송지 변경은 출고지시 이후 잠겨 있어 이 화면에서 받지 않습니다.</div>";
+      th.innerHTML = "<tr><th>주문번호 · 라인</th><th>수령인</th><th>연락처</th><th>배송지</th><th>교재 · 상품</th><th class=\"num\">수량</th><th>출고일</th><th>택배사 · 운송장</th><th>관리</th></tr>";
+      var list = linesBy("SHIPPING");
+      tb.innerHTML = list.length ? list.map(function (l) {
+        return '<tr><td class="ptnr-mono"><b>' + plEsc(l.key) + '</b></td><td><b>' + plEsc(plMaskName(l.recv)) + '</b></td><td class="ptnr-mono">' + plEsc(plMaskPhone(l.phone)) + '</td><td>' + plEsc(l.addr || "-") + '</td>'
+          + '<td>' + plEsc(l.book) + '</td><td class="num">' + l.qty + '</td><td>' + plDate(l.shipDate) + '</td>'
+          + '<td>' + plEsc(PL_COURIER[l.courier] || l.courier) + '<div class="ptnr-mono">' + plEsc(l.waybill) + '</div>' + (l.edited ? '<span class="badge badge-amber">정정 ' + l.edited + '</span>' : '') + hasExcBadge(l) + '</td>'
+          + '<td style="white-space:nowrap;">' + (PL.canWrite ? '<button type="button" class="btn btn-sm" onclick="openTrackingLayer(' + l.id + ')" data-dev-route="admin.partner.deliveries.tracking.update (규칙)" data-dev-method="PUT" data-dev-url="/{admin}/partner/deliveries/' + l.id + '/tracking" data-dev-perm="can_update">정정</button> ' : '') + excBtn(l) + '</td></tr>';
+      }).join("") : '<tr class="is-empty"><td colspan="9">배송중인 라인이 없습니다.</td></tr>';
+    } else if (st === "DELIVERED") {
+      note.innerHTML = "<div>배송완료 라인은 연락처 · 주소를 표시하지 않습니다(배송 목적 달성). 배송완료 뒤 분실 · 파손 신고가 오면 예외로 등록합니다.</div>";
+      th.innerHTML = "<tr><th>주문번호 · 라인</th><th>수령인</th><th>교재 · 상품</th><th class=\"num\">수량</th><th>출고일</th><th>배송완료일</th><th>완료 근거</th><th>택배사 · 운송장</th><th>관리</th></tr>";
+      var dl = linesBy("DELIVERED");
+      tb.innerHTML = dl.map(function (l) {
+        return '<tr><td class="ptnr-mono"><b>' + plEsc(l.key) + '</b></td><td>' + plEsc(plMaskName(l.recv)) + '</td><td>' + plEsc(l.book) + '</td><td class="num">' + l.qty + '</td><td>' + plDate(l.shipDate) + '</td><td>' + plDate(l.delivDate) + '</td>'
+          + '<td>' + plEsc(l.basis) + '</td><td>' + plEsc(PL_COURIER[l.courier]) + '<div class="ptnr-mono">' + plEsc(l.waybill) + '</div>' + hasExcBadge(l) + '</td><td>' + excBtn(l) + '</td></tr>';
+      }).join("");
+    } else if (st === "RETURNING") {
+      note.innerHTML = "<div>반품 수거 · 창고 입고 현황입니다. 검수 판정(정상 · 훼손)은 운영자(물류팀)가 입력하며 이 화면에서는 결과만 확인합니다.</div>";
+      th.innerHTML = "<tr><th>주문번호 · 라인</th><th>수령인</th><th>반품 교재 · 상품</th><th class=\"num\">수량</th><th>수거 운송장</th><th>창고 입고일</th><th>검수 상태</th></tr>";
+      tb.innerHTML = linesBy("RETURNING").map(function (l) {
+        var cls = l.inspect.indexOf("훼손") !== -1 ? "badge-rose" : (l.inDate ? "badge-amber" : "badge-gray");
+        return '<tr><td class="ptnr-mono"><b>' + plEsc(l.key) + '</b></td><td>' + plEsc(plMaskName(l.recv)) + '</td><td>' + plEsc(l.book) + '</td><td class="num">' + l.qty + '</td><td class="ptnr-mono">' + plEsc(l.returnWb) + '</td><td>' + (l.inDate ? plDate(l.inDate) : '입고 전') + '</td><td><span class="badge ' + cls + '">' + plEsc(l.inspect) + '</span></td></tr>';
+      }).join("");
+    } else {
+      note.innerHTML = "<div>등록한 예외는 운영자(물류팀)가 확인해 재출고 · 환불 · 택배사 배상 청구 여부를 정합니다. 처리 결과는 이 목록에 반영됩니다.</div>";
+      th.innerHTML = "<tr><th>주문번호 · 라인</th><th>예외 구분</th><th>발생일</th><th>내용</th><th>등록</th><th>처리 상태</th></tr>";
+      tb.innerHTML = PL_EXCEPTIONS.length ? PL_EXCEPTIONS.map(function (e) {
+        return '<tr><td class="ptnr-mono"><b>' + plEsc(e.key) + '</b></td><td><span class="badge badge-rose">' + plEsc(PL_EXC_LABEL[e.type]) + '</span></td><td>' + plDate(e.occurredAt) + '</td><td>' + plEsc(e.reason) + '</td><td>' + plEsc(e.by) + '</td><td><span class="badge badge-amber">' + plEsc(e.status) + '</span></td></tr>';
+      }).join("") : '<tr class="is-empty"><td colspan="6">등록된 예외가 없습니다.</td></tr>';
+    }
+    updateNavCounts();
+  }
+  function hasExcBadge(l) {
+    var e = PL_EXCEPTIONS.filter(function (x) { return x.lineId === l.id; })[0];
+    return e ? ' <span class="badge badge-rose">' + plEsc(PL_EXC_LABEL[e.type]) + ' 등록</span>' : '';
+  }
+  function openExceptionLayer(id) {
+    if (!PL.canWrite) return;
+    var l = lineById(id);
+    if (!l) return;
+    PL.exceptionLineId = id;
+    document.getElementById("exceptionTitle").textContent = "배송 예외 등록 — " + l.key;
+    document.getElementById("exceptionTarget").innerHTML =
+      '<div>주문 · 라인</div><div class="ptnr-mono">' + plEsc(l.key) + '</div>'
+      + '<div>상태</div><div>' + plEsc(PL_STATUS_LABEL[l.status]) + '</div>'
+      + '<div>운송장</div><div>' + plEsc(PL_COURIER[l.courier] || "-") + ' ' + plEsc(l.waybill || "") + '</div>';
+    document.getElementById("exceptionType").value = "";
+    document.getElementById("exceptionOccurredAt").value = PL_TODAY;
+    document.getElementById("exceptionOccurredAt").max = PL_TODAY;
+    document.getElementById("exceptionReason").value = "";
+    document.getElementById("exceptionFile").value = "";
+    setError("exceptionError", "");
+    openLayer("layerDeliveryException");
+  }
+  function submitException() {
+    var l = lineById(PL.exceptionLineId);
+    if (!l) return;
+    var type = document.getElementById("exceptionType").value;
+    var at = document.getElementById("exceptionOccurredAt").value;
+    var reason = document.getElementById("exceptionReason").value.trim();
+    if (!type) return setError("exceptionError", "예외 구분을 선택해 주세요.");
+    if (!at || at > PL_TODAY) return setError("exceptionError", "발생일을 오늘 이전 날짜로 입력해 주세요.");
+    var re = reasonError(reason);
+    if (re) return setError("exceptionError", re);
+    if (PL_EXCEPTIONS.some(function (e) { return e.lineId === l.id && e.status !== "종결"; })) return setError("exceptionError", "이 라인에는 처리 중인 예외가 이미 있습니다. 운영자 확인을 기다려 주세요.");
+    PL_EXCEPTIONS.unshift({ lineId: l.id, key: l.key, type: type, occurredAt: at, reason: reason, by: "본 거래처 계정", status: "운영자 확인 대기" });
+    closeLayer("layerDeliveryException");
+    renderStatus();
+    showPtnrToast(l.key + " " + PL_EXC_LABEL[type] + " 예외를 등록했습니다. 물류팀에 알림이 갑니다.");
+  }
+
+  // ===== 물류비 청구 · 대사 결과 =====
+  function renderBill() {
+    var month = document.getElementById("billMonth").value;
+    var m = PL_BILLS[month];
+    var terms = PL.vendor.terms || {};
+    document.getElementById("billTerms").textContent = "계약 단가(거래처 관리): 출고 건당 " + plWon(terms.outFee) + " · 반품 회수 " + plWon(terms.returnFee) + " · 보관료 월 " + plWon(terms.storage) + "(보관료는 별도 정산 · 대사 범위 밖) · 명세서 주기 " + (terms.cycle || "-");
+    var badge = document.getElementById("billStatusBadge");
+    var meta = document.getElementById("billFileMeta");
+    var body = document.getElementById("billBody");
+    if (!m) {
+      var sub = PL.statements[month];
+      badge.innerHTML = sub ? '<span class="badge badge-blue">명세서 제출 · 재무팀 대사 대기</span>' : '<span class="badge badge-gray">명세서 미제출</span>';
+      meta.textContent = sub ? "제출 " + sub.name + " · " + sub.at : "";
+      body.innerHTML = '<div class="ptnr-card" id="billStatementCard">'
+        + '<div class="ptnr-card-title"><span>' + (month === "2026-10" ? "2026년 10월" : month) + ' 수수료 명세서 제출</span></div>'
+        + (sub
+          ? '<div class="ptnr-notice is-blue"><div>제출한 명세서 <strong>' + plEsc(sub.name) + '</strong>를 재무팀이 출고 · 송장 기록과 대사합니다. 대사가 끝나면 이 화면에서 결과를 확인할 수 있습니다.</div></div>'
+          : '<div class="ptnr-notice is-gray"><div>익월 초에 월 수수료 명세서(.xlsx)를 제출합니다. 행마다 송장번호 · 주문번호 · 출고일 · 수량 · 단가가 있어야 대사할 수 있습니다. 세금계산서는 대사 결과로 확정된 금액으로 발행해 주세요.</div></div>'
+            + '<form id="billStatementForm" onsubmit="return false;"><div class="ptnr-file-row"><input type="file" id="billStatementFile" name="file" class="ptnr-input" accept=".xlsx" style="padding-top:4px;" ' + (PL.canWrite ? '' : 'disabled') + ' />'
+            + '<button type="button" class="btn btn-primary btn-sm" id="billStatementSubmit" onclick="submitStatement()" ' + (PL.canWrite ? '' : 'disabled') + ' data-dev-route="admin.partner.logistics-bills.statements.store (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/logistics-bills/statements" data-dev-perm="can_create">명세서 제출</button>'
+            + '<a href="javascript:void(0)" onclick="useSampleStatement()" class="ptnr-muted">예시 파일로 해 보기</a></div><div class="ptnr-error" id="billStatementError"></div></form>')
+        + '</div>';
+      return;
+    }
+    meta.textContent = "명세서 " + m.file.name + " · 제출 " + m.file.at + " · 대사 실행 " + m.runAt;
+    badge.innerHTML = m.completed ? '<span class="badge badge-green">대사 완료</span>' : '<span class="badge badge-amber">재무팀 검수 중</span>';
+    var mis = m.rows.filter(function (r) { return r.status !== "MATCH"; });
+    var shipTotal = m.ship.reduce(function (s, x) { return s + x.pay; }, 0);
+    var retTotal = m.ship.filter(function (x) { return x.kind.indexOf("반품") === 0; }).reduce(function (s, x) { return s + x.pay; }, 0);
+    var html = '<div class="ptnr-kpis">'
+      + kpi("산준모 출고 기록", m.dbCount.toLocaleString("ko-KR") + "건", "주문 · 배송 원장의 출고 · 송장 기준", "")
+      + kpi("청구 건 (명세서)", m.claimCount.toLocaleString("ko-KR") + "건", "송장번호 → 주문번호 → 수령인 · 출고일 순서로 매칭", "")
+      + kpi("불일치", mis.length + "건", "아래 표에서 처리 결과와 소명 여부를 확인합니다", mis.length ? "is-warn" : "is-ok")
+      + kpi("청구 출고 수수료", plWon(m.fee), "반품 회수 " + plWon(retTotal) + " 별도 · 대사 대상 합계 " + plWon(m.fee + retTotal), "")
+      + '</div>';
+    html += '<div class="ptnr-card"><div class="ptnr-card-title"><span>출고 · 수수료 대사 결과</span>'
+      + '<span class="ptnr-chipbar" style="margin:0;"><button type="button" class="chip' + (PL.billMisOnly ? ' active' : '') + '" id="billMisOnly" onclick="toggleBillMisOnly()">불일치만 보기</button></span></div>'
+      + '<div class="ptnr-table-wrap"><table class="ptnr-table"><thead><tr><th>No</th><th>출고일</th><th>송장번호</th><th>주문번호 · 수령인</th><th class="num">수량</th><th>산준모 기록</th><th>청구</th><th class="num">단가</th><th>대사 결과</th><th>처리 결과</th><th>소명</th></tr></thead><tbody>'
+      + m.rows.filter(function (r) { return !PL.billMisOnly || r.status !== "MATCH"; }).map(function (r) {
+        var stCls = r.status === "MATCH" ? "badge-green" : (r.status === "ONLY_DB" ? "badge-gray" : "badge-amber");
+        var obj = PL.objections[month + "#" + r.no];
+        var canObj = (r.status === "ONLY_3PL" || r.status === "DIFF");
+        return '<tr><td>' + r.no + '</td><td>' + r.date + '</td><td class="ptnr-mono">' + plEsc(r.waybill) + '</td><td class="ptnr-mono">' + plEsc(r.order) + '</td><td class="num">' + r.qty + '</td><td>' + plEsc(r.db) + '</td><td>' + plEsc(r.claim) + '</td><td class="num">' + (r.price ? plWon(r.price) : "-") + '</td>'
+          + '<td><span class="badge ' + stCls + '">' + plEsc(PL_BILL_STATUS[r.status]) + '</span>' + (r.status === "DIFF" ? '<div class="ptnr-muted">' + plEsc(r.diff) + '</div>' : '') + '</td>'
+          + '<td>' + (r.status === "MATCH" ? '<span class="ptnr-muted">-</span>' : (r.result ? plEsc(PL_RESULT_LABEL[r.result]) : '<span class="ptnr-muted">검수 중</span>')) + '</td>'
+          + '<td>' + (obj ? '<span class="badge badge-blue">제출 ' + plEsc(obj.at) + '</span>' : (canObj && PL.canWrite && !m.completed ? '<button type="button" class="btn btn-sm" onclick="openObjectionLayer(' + r.no + ')" data-dev-route="admin.partner.logistics-bills.items.objections.store (규칙)" data-dev-method="POST" data-dev-url="/{admin}/partner/logistics-bills/items/{item}/objections" data-dev-perm="can_create">소명 제출</button>' : '<span class="ptnr-muted">-</span>')) + '</td></tr>';
+      }).join("")
+      + '</tbody></table></div><p class="ptnr-muted" style="margin:8px 0 0;">표는 대사 표본입니다. 전체 행은 재무팀이 확정한 뒤 대사 결과 엑셀로 받을 수 있습니다. "산준모 기록만 존재"는 청구가 빠진 건으로, 다음 달 명세서에 넣을지 재무팀이 안내합니다.</p></div>';
+    html += '<div class="ptnr-card"><div class="ptnr-card-title"><span>배송비 · 반품 회수 청구</span><span class="ptnr-muted">청구(지급) 쪽만 표시</span></div>'
+      + '<div class="ptnr-table-wrap"><table class="ptnr-table"><thead><tr><th>구분</th><th class="num">청구 금액</th><th>산정</th></tr></thead><tbody>'
+      + m.ship.map(function (x) { return '<tr><td>' + plEsc(x.kind) + '</td><td class="num">' + plWon(x.pay) + '</td><td>' + plEsc(x.note) + '</td></tr>'; }).join("")
+      + '<tr><td><b>합계</b></td><td class="num"><b>' + plWon(shipTotal) + '</b></td><td class="ptnr-muted">정상 · 무료배송 출고분 합계는 청구 출고 수수료와 같습니다</td></tr>'
+      + '</tbody></table></div></div>';
+    html += '<div class="ptnr-card"><div class="ptnr-card-title"><span>반품 귀책 판정 대기</span><span class="ptnr-muted">' + m.returns.length + '건 — 회수 사유가 산준모 기록과 다릅니다</span></div>'
+      + '<div class="ptnr-table-wrap"><table class="ptnr-table"><thead><tr><th>주문번호 · 수령인</th><th>산준모 반품 사유</th><th>회수 사유 (명세서)</th><th>판정</th></tr></thead><tbody>'
+      + m.returns.map(function (x) { return '<tr><td class="ptnr-mono">' + plEsc(x.order) + '</td><td>' + plEsc(x.dbReason) + '</td><td>' + plEsc(x.plReason) + '</td><td><span class="badge badge-amber">재무팀 판정 대기</span></td></tr>'; }).join("")
+      + '</tbody></table></div><p class="ptnr-muted" style="margin:8px 0 0;">파손 회수가 운송 중 파손이면 회수비 부담 주체가 달라질 수 있습니다. 파손 사진이 있으면 해당 주문의 배송 예외로 등록해 주세요.</p></div>';
+    body.innerHTML = html;
+  }
+  function toggleBillMisOnly() { PL.billMisOnly = !PL.billMisOnly; renderBill(); }
+  function openObjectionLayer(no) {
+    var month = document.getElementById("billMonth").value;
+    var r = (PL_BILLS[month] || { rows: [] }).rows.filter(function (x) { return x.no === no; })[0];
+    if (!r) return;
+    PL.objectionNo = no;
+    document.getElementById("objectionTarget").innerHTML =
+      '<div>청구 월 · No</div><div>' + plEsc(month) + ' · ' + r.no + '</div>'
+      + '<div>송장 · 주문</div><div class="ptnr-mono">' + plEsc(r.waybill) + ' · ' + plEsc(r.order) + '</div>'
+      + '<div>대사 결과</div><div>' + plEsc(PL_BILL_STATUS[r.status]) + ' (' + plEsc(r.diff) + ')</div>';
+    document.getElementById("objectionReason").value = "";
+    document.getElementById("objectionFile").value = "";
+    setError("objectionError", "");
+    openLayer("layerBillObjection");
+  }
+  function submitObjection() {
+    var month = document.getElementById("billMonth").value;
+    var text = document.getElementById("objectionReason").value.trim();
+    var re = reasonError(text);
+    if (re) return setError("objectionError", re);
+    PL.objections[month + "#" + PL.objectionNo] = { at: "10.27 " + nowHm(), text: text };
+    closeLayer("layerBillObjection");
+    renderBill();
+    showPtnrToast("No " + PL.objectionNo + " 소명을 제출했습니다. 재무팀이 검수에 반영합니다.");
+  }
+  function useSampleStatement() { PL.sampleStatement = "3pl_202610_cj_paju.xlsx"; showPtnrToast("예시 파일 " + PL.sampleStatement + "를 골랐습니다. [명세서 제출]을 누르세요."); }
+  function submitStatement() {
+    var month = document.getElementById("billMonth").value;
+    var f = document.getElementById("billStatementFile");
+    var name = (f && f.files[0]) ? f.files[0].name : (PL.sampleStatement || "");
+    if (!name) return setError("billStatementError", "제출할 명세서 파일을 선택해 주세요.");
+    if (!/\.xlsx$/i.test(name)) return setError("billStatementError", ".xlsx 파일만 올릴 수 있습니다.");
+    PL.statements[month] = { name: name, at: PL_TODAY + " " + nowHm() };
+    PL.sampleStatement = "";
+    renderBill();
+    showPtnrToast(name + " 명세서를 제출했습니다. 재무팀 대사 후 결과가 표시됩니다.");
+  }
+
+  // ===== 내 정보 =====
+  function renderMe() {
+    var v = PL.vendor;
+    var t = v.terms || {};
+    var prof = PL_VENDOR_PROFILE[v.id] || {};
+    document.getElementById("meVendorList").innerHTML =
+      '<dt>거래처</dt><dd>' + plEsc(v.name) + ' · ' + plEsc(v.id) + '</dd>'
+      + '<dt>거래처 유형</dt><dd>' + plEsc(PL.vendorType.name) + ' · 증빙 ' + plEsc(PL.vendorType.evidence || "-") + '</dd>'
+      + '<dt>사업자등록번호</dt><dd>' + plEsc(v.bizNo) + ' · 대표 ' + plEsc(v.ceo) + '</dd>'
+      + '<dt>과세 유형 · 상태</dt><dd>' + plEsc(v.taxType) + ' · ' + plEsc(v.status) + ' (국세청 조회 ' + plEsc(v.checkedAt) + ')</dd>'
+      + '<dt>거래 조건</dt><dd>출고 건당 ' + plWon(t.outFee) + ' · 반품 회수 ' + plWon(t.returnFee) + ' · 보관료 월 ' + plWon(t.storage) + '<br>' + plEsc(t.cycle || "") + '</dd>'
+      + '<dt>거래 시작일</dt><dd>' + plEsc(v.since || "-") + '</dd>'
+      + '<dt>역할 그룹</dt><dd>' + plEsc(window.SJM_MASTER.roles.name(PL.roleId)) + ' — ' + (PL.canWrite ? "출고 대상 조회 · 송장 등록" : "출고 대상 조회") + (PL.canDownload ? " · 발주 엑셀 다운로드" : "") + '</dd>';
+    document.getElementById("meContactList").innerHTML =
+      '<dt>대표 연락처</dt><dd>' + plEsc(v.contact || "-") + '</dd>'
+      + '<dt>담당자</dt><dd>' + plEsc(prof.manager || "-") + '</dd>'
+      + '<dt>담당자 이메일</dt><dd>' + plEsc(prof.email || "-") + '</dd>'
+      + '<dt>정산 계좌</dt><dd id="meBank">' + plEsc(prof.bankMasked ? prof.bankMasked + " · 예금주 " + prof.holder : "등록된 계좌 없음 — 재무팀에 등록을 요청해 주세요") + '</dd>'
+      + '<dt>지급 방식</dt><dd>회계 시스템 매입채무(AP) 결제 — 대사 확정 금액의 전자세금계산서 수취 후 지급</dd>';
+  }
+
+  // ===== 시작 =====
+  function initPartnerCenter() {
+    var reason = resolveContext();
+    if (reason) {
+      document.getElementById("ptnrNav").style.display = "none";
+      document.getElementById("ptnrWhoName").textContent = "물류 파트너 계정 확인 필요";
+      document.getElementById("ptnrWhoAff").textContent = "";
+      document.getElementById("ptnrWhoRole").style.display = "none";
+      document.getElementById("blockedReason").textContent = reason;
+      document.querySelectorAll(".ptnr-section").forEach(function (s) { s.classList.toggle("active", s.id === "tab-blocked"); });
+      return;
+    }
+    renderTopbar();
+    if (!PL.canWrite) { var nt = document.getElementById("navTracking"); nt.parentNode.removeChild(nt); var st = document.getElementById("tab-tracking"); st.parentNode.removeChild(st); }
+    renderHome();
+    renderReady();
+    if (PL.canWrite) renderTracking();
+    renderStatus();
+    renderBill();
+    renderMe();
+    var tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab) switchPtnrTab(tab);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPartnerCenter);
+  } else {
+    initPartnerCenter();
+  }
+</script>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

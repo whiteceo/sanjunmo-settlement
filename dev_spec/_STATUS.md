@@ -52,7 +52,8 @@
 | ADMN-ORD-001 · RFD-002 | d562524a | (명세만) | 완료(정책 질문 4 · 9) | 통합 커밋 대기 | 에이전트 |
 | ADMN-PROD-005~007 · BOOK-001 · INST-001 · 002 | d562524a | (명세만) | 완료(정책 질문 7 · 2 · 5 · 3 · 2 · 5) | 통합 커밋 대기 | INST-001 줄 번호는 미커밋 트리 기준 — 통합 커밋 후 다시 |
 | 그룹 4~6 (25개) | d562524a | (명세만) | 완료(_STATUS_group4-6.md) | 통합 커밋 대기 | SETT-009↔011 물류비 대사 · CONF-007 발송이력↔SENS 템플릿 → D- 정책 |
-| ADMN-USER-001 | d562524a | 4c93268 + 미커밋 작업 트리(sha a1226da36c50) | 완료 | 완료(138항목, 동작 9종 · 콘솔 에러 0 — clean과 동일) | 시범. 통합 커밋 후 apply 다시 |
+| ADMN-USER-007 | d562524a | (명세) | 완료(새 정책 질문 4) | 에이전트 map 작성 중 | |
+| ADMN-USER-001 | d562524a | 38bca64 v6.72 (sha e25f29783c1f) | 완료 | 완료(138항목, 동작 9종 · 콘솔 에러 0 — clean과 동일) | 시범. 통합 커밋 후 apply 다시 |
 
 ## 결정 기록
 - 2026-10-27 prototype_dev 이름 입히는 방식: 프로토타입 JS가 기대는 것(라디오 name · value, 내부 코드값, JS가 id로 찾는 입력)은 동작을 지키려고 그대로 두고 `data-dev-name` · `data-dev-value`로 개발 이름을 단다. JS가 안 쓰는 입력에는 실제 `name=`을 개발 이름으로 넣고, 모달 id는 개발 레이어 id로 바꾼다(참조 전부). 동작 버튼에는 `data-dev-route` · `data-dev-method` · `data-dev-url` · `data-dev-perm`. 개발에만 있음 = `data-dev-flag="dev-only"`(정본 디자인으로 추가), 프로토타입에만 있음 = `data-dev-flag="proto-only"`. 오른쪽 아래 [개발 매핑] 버튼(`prototype_dev/dev-overlay.js`)으로 겹쳐 본다.
@@ -74,7 +75,13 @@
 | 권리자 파트너 센터 확장 — 계약 상세 열람 · 마일스톤 증빙 제출(INST-002) | 정본 기반 신규(PTNR-001 보강) | INST-001-S2 · INST-002, 정산 03권 | PTNR-001 prototype_dev 끝난 뒤 판단 |
 | 파트너 공통 로그인 · 비밀번호 찾기(외부 소속) | 정본 기반(LOGIN-001 규칙 재사용) | LOGIN-001, README 소속 규칙 | 개발은 관리자 로그인 하나 |
 
+## prototype_dev 확장 (v6.72 통합 커밋 기준, 10-27 시작)
+- 도구: `apply_dev_map.py <코드>`(map 적용) → `check_dev_screen.py <코드>`(clean과 같은 동작 · 오류 0 · onclick 누락 0 · VERIFY 같음). 견본 map `_maps/ADMN-USER-001.py`(VERIFY 포함).
+- USER-001은 v6.72 원본으로 다시 맞춤(138항목 그대로 맞음, 검사 통과).
+- 그룹별 에이전트가 `_maps/<코드>.py`를 쓰고 두 도구를 통과시킨다. 진행은 아래 화면별 상태 표.
+
 ## 정책 질문 정리 (10-27 진행 중)
+- 그룹 4~6은 보조 스레드가 끝냄: `scripts/qa/reports/review/findings/devspec/POLICY_D_00_요약.md` · `_SETT` · `_BRD` · `_CONF`(git 제외 폴더, 로컬 전용). 나머지도 같은 폴더 · 형식(A/B/C 분류, 개요는 C만, 번호 D-<그룹>-NN)으로 맞춘다.
 - 에이전트 2팀: 상품 · 강사 · 도서 → `dev_spec/_drafts/POLICY_D_PROD.md`(D-P..), 주문 · 정산 · 게시판 · 설정 → `_drafts/POLICY_D_OPS.md`(D-O..). 신규 화면 가정 → `_drafts/POLICY_D_PTNR-002/003.md`.
 - 끝나면 총괄이 표본 대조 후 `scripts/qa/reports/review/findings/POLICY_QUEUE.md`에 D- 절로 합친다.
 - USER-007 명세 에이전트 실행 중. 00_WORKFLOW_GUIDE는 작업 안내 문서라 명세 대상 아님.
@@ -82,9 +89,9 @@
 ## 신규 화면 진행
 | 코드(규칙) | 화면 | 상태 | 산출물 |
 |---|---|---|---|
-| ADMN-PTNR-002 | 거래처(3PL) 파트너 센터 | 에이전트 작성 중(10-27) | prototype_dev/ADMN-PTNR-002_baseline.html · dev_spec/ADMN-PTNR-002.md · dev_spec/_drafts/POLICY_D_PTNR-002.md |
-| ADMN-PTNR-003 | 거래처(매입처 · 도서 공급사) 파트너 센터 | 에이전트 작성 중(10-27) | 같은 형식 |
-- `_drafts/POLICY_D_*.md`는 총괄이 POLICY_QUEUE.md `D-` 절로 옮긴다(공용 파일이라 한 곳에서만 고친다).
+| ADMN-PTNR-002 | 거래처(3PL) 파트너 센터 | 완료(검증 76항목 · 오류 0, 정책 D-PTNR2-01~09) | prototype_dev/ADMN-PTNR-002_baseline.html · dev_spec/ADMN-PTNR-002.md · dev_spec/_drafts/POLICY_D_PTNR-002.md |
+| ADMN-PTNR-003 | 거래처(매입처 · 도서 공급사) 파트너 센터 | 완료(검증 36항목 · 오류 0, 정책 D-PTNR3-01~10) | 같은 형식 |
+- 신규 화면 정책 가정은 `findings/devspec/POLICY_D_PTNR2.md`(9건) · `POLICY_D_PTNR3.md`(10건). 진입 파라미터는 개발 suppliers.code 형식 `?vendor=SUP-NNNN&role=RG-08|RG-09`. common-snb.js는 PTNR-001처럼 로드하지 않음.
 
 ## 다음 할 일
 - 로컬 커밋만 함, 푸시는 white 확인 대기.

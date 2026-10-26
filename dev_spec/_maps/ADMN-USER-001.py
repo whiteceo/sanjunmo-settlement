@@ -249,3 +249,15 @@ ACT("openTagResultPage", flag="proto-only", route="admin.members.group.batches.s
 ACT("m3fTrRetry", flag="proto-only", route="admin.members.group.batches.retry.store (규칙)", method="POST", url=A + "/members/group/batches/{batch}/retry", perm="등록")
 ACT("m3fTrRevert", flag="proto-only", route="admin.members.group.batches.destroy (규칙)", method="DELETE", url=A + "/members/group/batches/{batch}", perm="삭제")
 ACT("m3fTrExcelDownload", flag="proto-only", route="admin.members.group.batches.download (규칙)", method="GET", url=A + "/members/group/batches/{batch}/download", perm="다운로드")
+
+# ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
+VERIFY = [
+    ("상세 view", "switchView('detail')", "#view-detail"),
+    ("엑셀 모달", "openExcelModal()", "#layerMemberDownload|#modal-excel-p1"),
+    ("포인트 모달", "switchView('detail'); openPointModal()", "#layerPointGrant|#modal-point-p1"),
+    ("상태 모달", "switchView('detail'); openStatusModal()", "#layerMemberStatus|#modal-status"),
+    ("소셜 모달", "switchView('detail'); openSocialModal()", "#layerSocialUnlink|#modal-social"),
+    ("수강 view", "switchView('course')", "#view-course"),
+    ("태그 view", "switchView('tags')", "#view-tags"),
+    ("블랙리스트 view", "switchView('blacklist')", "#view-blacklist"),
+]
