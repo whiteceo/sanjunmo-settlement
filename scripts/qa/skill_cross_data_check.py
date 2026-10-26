@@ -20,6 +20,9 @@
                               스크립트 객체 안의 SKU 키(sku · productId · id)와 이름 키(title · productName · name)도 짝짓는다
   [4] 이름 → 코드 역방향    → 같은 권리자 이름이 서로 다른 RH 코드로 적혀 있으면 오류
   [5] 수취인 코드           → 2계층 수취인도 권리자 원장의 RH 코드를 쓴다. 옛 수취인 코드(PY-NNNN)가 남아 있으면 오류
+  [6] 관계 대조             → 기준: ADMN-SETT-001 상품 · 지분 매핑. 대상: lines + attributedHolders 필드가 있는 화면(RELATION_SCREENS).
+                              결제일에 유효한 매핑의 (권리자, 지분) 집합 ≠ 귀속 권리자 집합이면 오류, SETT-001에 없는 상품(SHIPPING 제외)도 오류,
+                              rightsHolderId가 귀속 외부 권리자에 없으면 오류. lines가 빈 행 · 필드 없음은 참고(관계 오류/참고 칸에 따로 집계)
 
 사용법:
   python scripts/qa/skill_cross_data_check.py                  # prototype_clean 기준(두 폴더는 데이터가 같음)
@@ -80,6 +83,183 @@ def norm_title(t):
     t = re.sub(r"\s+", " ", t).strip(" -–—.,…")
     t = re.sub(r"^\d{4}\s*", "", t)          # 연도 접두 제거
     return t
+
+
+# 관계 대조 설정 — lines + attributedHolders 형식을 쓰는 화면을 여기에 추가하면 자동 검사된다
+RELATION_BASE = "ADMN-SETT-001_baseline.html"
+RELATION_SCREENS = ["ADMN-SETT-004_baseline.html"]
+RELATION_SKIP_PRODUCTS = {"SHIPPING"}
+INTERNAL_ID = "RH-INTERNAL"
+
+
+def match_close(text, i, op, cl):
+    """text[i]==op 인 위치에서 짝이 맞는 닫는 괄호 위치(문자열 리터럴 · 주석 안은 무시), 없으면 -1"""
+    depth, q, j, n = 0, None, i, len(text)
+    while j < n:
+        c = text[j]
+        if q:
+            if c == "\\":
+                j += 1
+            elif c == q:
+                q = None
+        elif c in "\"'`":
+            q = c
+        elif text.startswith("//", j):
+            j = text.find("\n", j)
+            if j < 0:
+                return -1
+        elif text.startswith("/*", j):
+            j = text.find("*/", j)
+            if j < 0:
+                return -1
+            j += 1
+        elif c == op:
+            depth += 1
+        elif c == cl:
+            depth -= 1
+            if depth == 0:
+                return j
+        j += 1
+    return -1
+
+
+def array_after(raw, key_pat):
+    """key_pat 뒤의 [ ... ] 본문(없으면 None)"""
+    m = re.search(key_pat + r"\s*[:=]?\s*\[", raw)
+    if not m:
+        return None
+    i = m.end() - 1
+    e = match_close(raw, i, "[", "]")
+    return raw[i + 1:e] if e > 0 else None
+
+
+def top_objects(body):
+    out, i = [], 0
+    while True:
+        i = body.find("{", i)
+        if i < 0:
+            return out
+        e = match_close(body, i, "{", "}")
+        if e < 0:
+            return out
+        out.append(body[i:e + 1])
+        i = e + 1
+
+
+def strs(o, key):
+    m = re.search(r"\b" + key + r"""\s*:\s*["']([^"']*)["']""", o)
+    return m.group(1) if m else None
+
+
+def num(o, key):
+    m = re.search(r"\b" + key + r"\s*:\s*(-?\d+(?:\.\d+)?)", o)
+    return float(m.group(1)) if m else None
+
+
+def load_relation_base(base):
+    """SETT-001 → (상품 {id: (kind, name, [lesson id])}, 매핑 {단위 id: [(holderId, share, start, end)]})"""
+    path = os.path.join(base, RELATION_BASE)
+    if not os.path.exists(path):
+        return None, None
+    raw = open(path, encoding="utf-8").read()
+    pa = array_after(raw, r"\bconst\s+products")
+    if pa is None:
+        return None, None
+    prods = {}
+    for blk in top_objects(pa):
+        head = blk.split("lessons", 1)[0]
+        pid = strs(head, "id")
+        if pid:
+            prods[pid] = (strs(head, "kind"), strs(head, "name"), re.findall(r"""id\s*:\s*["'](LSN-[^"']+)["']""", blk))
+    maps = {}
+    mm = re.search(r"\bmappings\s*:\s*\{", raw)
+    if mm:
+        i = mm.end() - 1
+        e = match_close(raw, i, "{", "}")
+        body = raw[i + 1:e]
+        for k in re.finditer(r"""["']([A-Za-z0-9-]+)["']\s*:\s*\[""", body):
+            a = k.end() - 1
+            b = match_close(body, a, "[", "]")
+            rows = []
+            for o in top_objects(body[a + 1:b]):
+                hid = strs(o, "holderId")
+                if hid:
+                    rows.append((hid, num(o, "share"), strs(o, "start"), strs(o, "end")))
+            maps[k.group(1)] = rows
+    return prods, maps
+
+
+def valid_set(rows, day):
+    return {(h, round(sh or 0, 2)) for h, sh, st, en in rows if (not st or st <= day) and (not en or day <= en)}
+
+
+def fmt_set(s):
+    return "{" + ", ".join(f"{h} {sh:g}%" for h, sh in sorted(s)) + "}" if s else "{}"
+
+
+def relation_check(base, folder_files):
+    """관계 대조 → (오류 목록, 참고 목록, 대조한 상품 줄 수). 행 형식: (유형, 대상, 내용)"""
+    errs, notes, checked = [], [], 0
+    prods, maps = load_relation_base(base)
+    if prods is None:
+        return [], [("관계 대조 건너뜀", RELATION_BASE, "기준 데이터(상품 · 매핑)를 읽지 못함")], 0
+    for scr in RELATION_SCREENS:
+        if scr not in folder_files:
+            notes.append(("관계 대조 건너뜀", scr, "화면 파일 없음"))
+            continue
+        raw = open(os.path.join(base, scr), encoding="utf-8").read()
+        body = array_after(raw, r"\brecords")
+        if body is None:
+            notes.append(("관계 대조 건너뜀", scr, "records 없음"))
+            continue
+        recs = top_objects(body)
+        if not any(re.search(r"\blines\s*:", r) and re.search(r"\battributedHolders\s*:", r) for r in recs):
+            notes.append(("관계 대조 건너뜀", scr, f"필드 없음 — records {len(recs)}건에 lines · attributedHolders가 아직 없다"))
+            continue
+        for r in recs:
+            la = array_after(r, r"\blines")
+            aa = array_after(r, r"\battributedHolders")
+            top = r
+            for key in ("lines", "attributedHolders"):
+                m = re.search(r"\b" + key + r"\s*:\s*\[", top)
+                if m:
+                    e = match_close(top, m.end() - 1, "[", "]")
+                    top = top[:m.start()] + top[e + 1:]
+            rid = strs(top, "id") or "?"
+            if la is None or aa is None:
+                notes.append(("관계 대조: 필드 없음", f"{scr} {rid}", "lines 또는 attributedHolders 누락"))
+                continue
+            paid = (strs(top, "paidAt") or "")[:10]
+            lines = [(strs(o, "productId"), strs(o, "name")) for o in top_objects(la)]
+            attr = defaultdict(set)
+            ext = set()
+            for o in top_objects(aa):
+                pid, hid = strs(o, "productId"), strs(o, "holderId")
+                attr[pid].add((hid, round(num(o, "share") or 0, 2)))
+                if hid != INTERNAL_ID and not re.search(r"\binternal\s*:\s*true", o):
+                    ext.add(hid)
+            if not lines:
+                notes.append(("관계 대조: lines 비어 있음(주문 매칭 불가)", f"{scr} {rid}", "상품 대조 생략"))
+            for pid, nm in lines:
+                if pid in RELATION_SKIP_PRODUCTS:
+                    continue
+                checked += 1
+                if pid not in prods and pid not in maps:
+                    errs.append(("관계: 상품이 SETT-001에 없음", f"{scr} {rid}", f"productId `{pid}` ({nm})"))
+                    continue
+                units = prods[pid][2] if pid in prods and prods[pid][2] else [pid]
+                exps = [valid_set(maps.get(u, []), paid) for u in units]
+                got = attr.get(pid, set())
+                if got in exps:
+                    continue
+                exp_txt = " 또는 ".join(sorted({fmt_set(e) for e in exps}))
+                errs.append(("관계: 귀속 권리자 불일치", f"{scr} {rid}", f"상품 `{pid}` ({nm}) 결제일 {paid} — 기대 {exp_txt} · 실제 {fmt_set(got)}"))
+            for pid in sorted(x for x in set(attr) - {p for p, _ in lines} if x):
+                errs.append(("관계: lines에 없는 상품의 귀속 행", f"{scr} {rid}", f"productId `{pid}`"))
+            rh = strs(top, "rightsHolderId")
+            if rh and rh != INTERNAL_ID and ext and rh not in ext:
+                errs.append(("관계: rightsHolderId가 귀속 외부 권리자에 없음", f"{scr} {rid}", f"`{rh}` ∉ {{{', '.join(sorted(ext))}}}"))
+    return errs, notes, checked
 
 
 def scan(folder):
@@ -196,6 +376,8 @@ def main():
         if len(titles) > 1:
             notes.append(("한 도서 코드 · 여러 도서명(약칭 여부 확인)", code, fmt(titles)))
 
+    rel_err, rel_note, rel_n = relation_check(os.path.join(ROOT, args.folder), files)
+
     L = ["# CROSS DATA CHECK REPORT — 화면 간 권리자 · 계약 · 도서 데이터 대조", "",
          f"- 생성: {datetime.datetime.now():%Y-%m-%d %H:%M}",
          f"- 대상: `{args.folder}` ({len(files)}개 파일)",
@@ -209,12 +391,22 @@ def main():
         else:
             L.append("없음")
         L.append("")
+    L += [f"## 관계 대조 (오류 {len(rel_err)}건 · 참고 {len(rel_note)}건)", "",
+          f"- 기준: `{RELATION_BASE}` 상품 · 매핑 / 대상 화면: {', '.join(RELATION_SCREENS)} / 대조한 상품 줄 {rel_n}건", ""]
+    for title, rows in (("관계 오류", rel_err), ("관계 참고", rel_note)):
+        L += [f"### {title} ({len(rows)}건)", ""]
+        if rows:
+            L += ["| 유형 | 대상 | 내용 |", "| :--- | :--- | :--- |"]
+            L += [f"| {k} | {c} | {v} |" for k, c, v in rows]
+        else:
+            L.append("없음")
+        L.append("")
     L += ["## 권리자 코드별 이름", "", "| 코드 | 이름 (파일) |", "| :--- | :--- |"]
     L += [f"| `{c}` | {fmt(n)} |" for c, n in sorted(rh_names.items())]
     os.makedirs(os.path.dirname(REPORT), exist_ok=True)
     open(REPORT, "w", encoding="utf-8").write("\n".join(L) + "\n")
-    print(f"[Skill 3] {args.folder}: 권리자 {len(rh_names)} · 계약 {len(con_rh)} · 도서 {len(bk_files)} | 오류 {len(errors)} · 참고 {len(notes)} → {os.path.relpath(REPORT, ROOT)}")
-    if args.strict and errors:
+    print(f"[Skill 3] {args.folder}: 권리자 {len(rh_names)} · 계약 {len(con_rh)} · 도서 {len(bk_files)} | 오류 {len(errors)} · 참고 {len(notes)} | 관계 오류 {len(rel_err)} · 참고 {len(rel_note)} → {os.path.relpath(REPORT, ROOT)}")
+    if args.strict and (errors or rel_err):
         sys.exit(1)
 
 
