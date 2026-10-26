@@ -32,3 +32,7 @@ node_modules/
 
 # Local-only: 개발 자료 비밀 값 (plans/*.local.md)
 plans/*.local.md
+
+# 정산엔진 기준 계산기 실행 산출물
+__pycache__/
+engine/out/
