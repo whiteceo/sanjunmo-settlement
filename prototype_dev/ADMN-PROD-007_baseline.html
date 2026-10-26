@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>상품 마스터 (일반 상품 관리) — 산준모닷컴 백오피스 v8.4 Final</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <style>
+    :root {
+      --bg-main: #F3F5F9;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --text-main: #0F172A;
+      --text-sub: #475569;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --success: #059669;
+      --success-soft: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #D97706;
+      --warning-soft: #FFFBEB;
+      --warning-border: #FDE68A;
+      --danger: #DC2626;
+      --danger-soft: #FEF2F2;
+      --danger-border: #FECACA;
+      --purple: #7C3AED;
+      --purple-soft: #F5F3FF;
+      --purple-border: #DDD6FE;
+      --radius-md: 10px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #v4-root-shell {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header.top-bar.v4-gen3-topbar {
+      height: 60px;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+    .crumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-sub); }
+    .crumb-code {
+      background: #1E293B;
+      color: #F8FAFC;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+
+    .main-container {
+      padding: 22px 28px 60px;
+      max-width: 1620px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
+    /* 4층 KPI 스코어카드 (5칸) */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .kpi-card:hover { border-color: var(--primary); }
+    .kpi-card .k-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .kpi-card .k-title { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+    .kpi-card .k-num { font-size: 22px; font-weight: 800; color: var(--text-main); margin: 2px 0 4px; }
+    .kpi-card .k-sub { font-size: 11.5px; color: var(--text-muted); }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 13px 18px;
+      background: #FAFBFD;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .card-title { font-size: 14px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .card-body { padding: 18px; }
+
+    .search-tbl, .form-tbl { width: 100%; border-collapse: collapse; }
+    .search-tbl th, .form-tbl th {
+      width: 150px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+    .search-tbl td, .form-tbl td {
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      background: #FFFFFF;
+    }
+
+    .f-input, .f-select, .f-textarea {
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-family: inherit;
+      color: var(--text-main);
+      background: #FFFFFF;
+    }
+    .f-input[readonly], .f-input:disabled, .f-select:disabled {
+      background: #F1F5F9;
+      color: #64748B;
+      cursor: not-allowed;
+    }
+    .f-textarea { height: auto; padding: 8px 10px; width: 100%; }
+
+    .btn {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-sm { height: 27px; padding: 0 9px; font-size: 11.5px; }
+    .btn-primary { background: var(--primary); color: #FFFFFF; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-dark { background: #0F172A; color: #FFFFFF; }
+    .btn-outline { background: #FFFFFF; border-color: var(--border-strong); color: var(--text-main); }
+    .btn-outline:hover { background: #F8FAFC; }
+    .btn-danger { background: var(--danger-soft); border-color: var(--danger-border); color: var(--danger); }
+    .btn:disabled {
+      background: #E2E8F0 !important;
+      color: #94A3B8 !important;
+      border-color: #CBD5E1 !important;
+      cursor: not-allowed !important;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-green { background: var(--success-soft); color: var(--success); border: 1px solid var(--success-border); }
+    .badge-blue { background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-border); }
+    .badge-amber { background: var(--warning-soft); color: #B45309; border: 1px solid var(--warning-border); }
+    .badge-red { background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); border: 1px solid var(--purple-border); }
+    .badge-gray { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th {
+      background: #F8FAFC;
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:hover { background: #F8FAFC; }
+    .data-table tbody tr.row-warn { background: #FFFBEB; }
+    .tr-right { text-align: right !important; }
+    .tr-center { text-align: center !important; }
+
+    .policy-banner {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 11px 15px;
+      font-size: 12px;
+      color: #1E3A8A;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 620px;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .modal-head {
+      padding: 15px 20px;
+      background: #0F172A;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .modal-body { padding: 18px 20px; max-height: 78vh; overflow-y: auto; }
+    .modal-foot {
+      padding: 13px 20px;
+      background: #F8FAFC;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 26px;
+      right: 26px;
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 13px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.25);
+      z-index: 3000;
+      display: none;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PROD-007", "devCommit": "d562524a", "progress": "구현(목록 · 등록 · 수정 · 판매중지 · 일괄 판매중지 · 재고 조정 · 입출고 이력 · 엑셀). 판매대기 · 판매종료 · P2 기간 · 구분 필터 · 조정 후 재고 미리보기는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.goods.index", "label": "상품 마스터(추정)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="crumb">
+        <span class="crumb-code" id="top-crumb-code">ADMN-PROD-007</span>
+        <span id="top-crumb-path">상품관리 &gt; 상품 마스터 &gt;</span>
+        <strong id="top-crumb-title" style="color:var(--text-main);">일반 상품 마스터 (공급 형태 · 재고 · 일반 상품 판매매출)</strong>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label style="font-size:12px; font-weight:700; background:#F1F5F9; padding:4px 10px; border-radius:6px; border:1px solid var(--border); cursor:pointer;">
+          <input type="checkbox" id="chk-fin-role" data-dev-flag="proto-only" data-dev-note="재무 권한 시연 토글 — 개발은 AdminPermissionService::canManageCostPrice() 실제 권한" checked onchange="toggleFinanceRole(this.checked)" /> 재무팀 권한 시뮬레이션 (사입원가 열람)
+        </label>
+        <a href="ADMN-SETT-009_baseline.html" class="btn btn-sm btn-outline">내부 정산 조회 (ADMN-SETT-009) ↗</a>
+        <a href="ADMN-SETT-001_baseline.html" class="btn btn-sm btn-outline">상품별 권리자 매핑 (ADMN-SETT-001) ↗</a>
+      </div>
+    </header>
+
+    <div id="v4-page-body" class="main-container content-wrap">
+
+      <!-- ================================================================= -->
+      <!-- VIEW 1: ADMN-PROD-007 상품 마스터 목록                             -->
+      <!-- ================================================================= -->
+      <section id="view-list" class="view-panel active">
+
+        <div class="policy-banner">
+          <div>
+            <strong>일반 상품 정산 · 세무 · 회계 규칙 :</strong>
+            도서(ISBN 면세)가 아닌 일반 소비재·굿즈는 <strong>일반 과세 재화 공급(<code>TX-13</code> · VAT 10% 포함가 <code>10/11</code> 자동 분해)</strong>으로 판정되며 도서정가제 제한이 없어 쿠폰·포인트 사용이 가능합니다.
+            <code>ADMN-SETT-001</code>에서 <strong>자사 권리자 100%로 자동 매핑</strong>되어 <strong>일반 상품 판매매출</strong>로 집계되며, 매입 대금은 정산 엔진(대량이체)을 거치지 않고 <strong>회계 매입채무(AP · <code>INVENTORY_PURCHASE</code>)</strong> 경로로 지급됩니다.
+          </div>
+          <span class="badge badge-purple">TX-13 과세 · 일반상품 매출</span>
+        </div>
+
+        <!-- 5칸 스코어카드 -->
+        <div class="kpi-grid">
+          <div class="kpi-card" data-dev-route="admin.goods.index" data-dev-method="GET" data-dev-url="/sj-admin/goods" data-dev-perm="조회" data-dev-note="스코어카드(전체 · 판매중 · 재고 임박 · 품절) 클릭 → sale_status · stock_status 필터" onclick="filterStock('ALL')">
+            <div class="k-top"><span class="k-title">전체 상품</span><span class="badge badge-blue">ALL</span></div>
+            <div class="k-num" id="kpi-all">4</div>
+            <div class="k-sub">매입 재판매 3 · 자사 직접 판매 1</div>
+          </div>
+          <div class="kpi-card" data-dev-route="admin.goods.index" data-dev-method="GET" data-dev-url="/sj-admin/goods" data-dev-perm="조회" data-dev-note="스코어카드(전체 · 판매중 · 재고 임박 · 품절) 클릭 → sale_status · stock_status 필터" onclick="filterStock('SALE')">
+            <div class="k-top"><span class="k-title">판매중</span><span class="badge badge-green">ON SALE</span></div>
+            <div class="k-num" id="kpi-sale">3</div>
+            <div class="k-sub">자사 권리자 100% 매핑 유효</div>
+          </div>
+          <div class="kpi-card" data-dev-route="admin.goods.index" data-dev-method="GET" data-dev-url="/sj-admin/goods" data-dev-perm="조회" data-dev-note="스코어카드(전체 · 판매중 · 재고 임박 · 품절) 클릭 → sale_status · stock_status 필터" onclick="filterStock('LOW')">
+            <div class="k-top"><span class="k-title">재고 임박 (임계치 이하)</span><span class="badge badge-amber">LOW STOCK</span></div>
+            <div class="k-num" style="color:var(--warning);" id="kpi-low">1</div>
+            <div class="k-sub">알림 임계치(20개) 이하 발주 필요</div>
+          </div>
+          <div class="kpi-card" data-dev-route="admin.goods.index" data-dev-method="GET" data-dev-url="/sj-admin/goods" data-dev-perm="조회" data-dev-note="스코어카드(전체 · 판매중 · 재고 임박 · 품절) 클릭 → sale_status · stock_status 필터" onclick="filterStock('OUT')">
+            <div class="k-top"><span class="k-title">품절 (재고 0)</span><span class="badge badge-red">SOLD OUT</span></div>
+            <div class="k-num" style="color:var(--danger);" id="kpi-out">1</div>
+            <div class="k-sub">재고 0 도달 시 결제 자동 차단</div>
+          </div>
+          <div class="kpi-card" onclick="window.location.href='ADMN-SETT-009_baseline.html'">
+            <div class="k-top"><span class="k-title">당월 일반 상품 판매매출</span><span class="badge badge-purple">일반상품 매출</span></div>
+            <div class="k-num" style="color:var(--primary);">3,000,000</div>
+            <div class="k-sub">ADMN-SETT-009 내부 정산 집계액(원)</div>
+          </div>
+        </div>
+
+        <!-- 검색 필터 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">일반 상품 검색 조건</div>
+            <span style="font-size:11.5px; color:var(--text-muted);">물리적 삭제는 금지되며(주문·정산 원장 참조 무결성), 잠시 멈출 때는 [판매중지](전시 유지 · 구매 차단), 단종은 [판매종료]로 전환합니다.</span>
+          </div>
+          <div class="card-body" style="padding:14px 18px;">
+            <table class="search-tbl">
+              <tbody>
+                <tr>
+                  <th>공급 형태 (<code>goods_supply_type</code>)</th>
+                  <td>
+                    <select id="fl-supply" name="goods_supply_type" data-dev-value="PURCHASED_RESALE · DIRECT_SALE ('전체' ALL → 빈 값)" class="f-select" style="width:220px;">
+                      <option value="ALL">전체 공급 형태</option>
+                      <option value="PURCHASED_RESALE">매입 재판매 (PURCHASED_RESALE)</option>
+                      <option value="DIRECT_SALE">자사 직접 판매 (DIRECT_SALE)</option>
+                    </select>
+                  </td>
+                  <th>판매 상태</th>
+                  <td>
+                    <select id="fl-status" name="sale_status" data-dev-value="selling · stopped · soldout(재고 파생) — 판매대기 · 판매종료는 개발 없음(정책 질문 Q-PROD007-1)" class="f-select" style="width:180px;">
+                      <option value="ALL">전체</option>
+                      <option value="판매중">판매중</option>
+                      <option value="판매대기">판매대기 (등록만 · 미노출)</option>
+                      <option value="판매중지">판매중지</option>
+                      <option value="품절">품절 (재고 0)</option>
+                      <option value="판매종료">판매종료 (단종 · 미노출)</option>
+                    </select>
+                  </td>
+                  <th>재고 상태</th>
+                  <td>
+                    <select id="fl-stock" name="stock_status" data-dev-value="normal · low · soldout (프로토 NORMAL · LOW · OUT)" class="f-select" style="width:180px;">
+                      <option value="ALL">전체</option>
+                      <option value="NORMAL">정상</option>
+                      <option value="LOW">재고 임박 (임계치 이하)</option>
+                      <option value="OUT">품절 (0개)</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>상품명 / 상품 ID</th>
+                  <td colspan="5">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                      <input type="text" id="fl-kw" name="keyword" data-dev-note="상품명 · GDS 코드, 100자" class="f-input" style="width:360px;" placeholder="상품명(안전모 키링, 계산기 등) 또는 상품 ID(GDS-0001) 입력" />
+                      <div style="display:flex; gap:8px;">
+                        <button type="button" class="btn btn-outline" data-dev-note="개발은 /goods 로 이동(조건 제거)" onclick="resetSearch()">초기화</button>
+                        <button type="button" class="btn btn-dark" data-dev-route="admin.goods.index" data-dev-method="GET" data-dev-url="/sj-admin/goods" data-dev-perm="조회" data-dev-note="30건 고정 페이지, 정렬 파라미터 없음" onclick="renderTable()">조회</button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 목록 그리드 -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:13px;">전체 <strong id="list-cnt">4</strong>건</span>
+              <span class="badge badge-gray">사입 원가는 대외비로 재무팀 권한 외 **** 마스킹</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.goods.bulk-stop.update" data-dev-method="POST" data-dev-url="/sj-admin/goods/bulk-stop" data-dev-perm="수정" data-dev-note="ids[] 1~500 — 개발 bulkStop · bulkStopForm" onclick="bulkStopSale()">선택 판매중지</button>
+              <button type="button" class="btn btn-sm btn-outline" id="btn-excel" data-dev-route="admin.goods.download" data-dev-method="GET" data-dev-url="/sj-admin/goods/download" data-dev-perm="다운로드 + 재무 권한" data-dev-note="사유 레이어 layerReason" onclick="showToast('일반상품 마스터 엑셀 다운로드 이력이 감사 로그에 기록되었습니다.')">엑셀 다운로드</button>
+              <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.goods.create | admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/create | /goods/{goods}/edit" data-dev-perm="등록 | 수정" data-dev-note="개발 행 클릭 tr[data-href] → 수정" onclick="openForm('NEW')">＋ 상품 등록 (ADMN-PROD-007-S1)</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:36px;"><input type="checkbox" id="checkAll" onchange="document.querySelectorAll('.g-chk').forEach(c=>c.checked=this.checked)" /></th>
+                  <th>상품 ID</th>
+                  <th>공급 형태 (<code>goods_supply_type</code>)</th>
+                  <th>상품명</th>
+                  <th class="tr-right">판매가 (VAT 포함)</th>
+                  <th class="tr-right">공급가액 / 부가세 (10/11)</th>
+                  <th class="tr-right">사입 원가 (대외비)</th>
+                  <th class="tr-right">재고 (임계치 20)</th>
+                  <th class="tr-center">세무 / 정산</th>
+                  <th class="tr-center">판매 상태</th>
+                  <th class="tr-center">재고 제어 / 관리</th>
+                </tr>
+              </thead>
+              <tbody id="gds-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 2: ADMN-PROD-007-S1 일반상품 등록 · 수정                      -->
+      <!-- ================================================================= -->
+      <section id="view-form" class="view-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <button type="button" class="btn btn-sm btn-outline" onclick="switchView('list')">← 목록으로 (ADMN-PROD-007)</button>
+              <span style="margin-left:6px;" id="form-header-title">일반상품 등록 · 수정 (ADMN-PROD-007-S1)</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-sm btn-outline" id="btn-form-p1" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P1은 수정 화면 안 레이어(.layer__open[data-target=layerGoodsStockAdjust]) — 목록에서 바로 여는 버튼은 개발 없음" onclick="openStockAdjustModal(currentEditId)">재고 조정 (007-P1)</button>
+              <button type="button" class="btn btn-sm btn-outline" id="btn-form-p2" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P2는 수정 폼에 함께 실린 stockLogs를 레이어에 그림" onclick="openStockHistoryModal(currentEditId)">입출고 이력 (007-P2)</button>
+            </div>
+          </div>
+          <div class="card-body">
+
+            <!-- 섹션 1: 기본 정보 -->
+            <div style="font-size:13px; font-weight:800; margin-bottom:8px;">1. 기본 정보 · 공급 형태 (판매 이력 존재 시 공급 형태 변경 잠금 🔒)</div>
+            <table class="form-tbl" style="margin-bottom:20px;">
+              <tbody>
+                <tr>
+                  <th>상품 ID</th>
+                  <td>
+                    <input type="text" id="f-id" data-dev-note="저장 후 GDS-%04d(id) 자동 채번 — 입력 칸 아님" data-dev-name="code" class="f-input" style="width:160px;" value="GDS-0001" readonly />
+                    <span style="font-size:11.5px; color:var(--text-muted); margin-left:6px;">🔒 최초 저장 시 <code>GDS-NNNN</code> 자동 채번 (수정 불가)</span>
+                  </td>
+                  <th>공급 형태 <span style="color:var(--danger);">*</span></th>
+                  <td>
+                    <select id="f-supply" name="goods_supply_type" data-dev-note="판매 이력 있으면 변경 불가(서버 차단, 폼 disabled + hidden)" class="f-select" style="width:260px;" onchange="onSupplyTypeChange()">
+                      <option value="PURCHASED_RESALE">매입 재판매 (PURCHASED_RESALE)</option>
+                      <option value="DIRECT_SALE">자사 직접 판매 (DIRECT_SALE)</option>
+                    </select>
+                    <span id="f-supply-lock-msg" style="font-size:11.5px; color:var(--warning); font-weight:700; margin-left:6px;">🔒 판매 이력이 존재하여 공급 형태 변경이 잠금되었습니다.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>상품명 <span style="color:var(--danger);">*</span></th>
+                  <td>
+                    <input type="text" id="f-name" name="name" data-dev-note="max 255" class="f-input" style="width:100%;" value="산준모 안전모 키링" placeholder="최대 80자" />
+                  </td>
+                  <th>노출 카테고리 / 전시 여부</th>
+                  <td>
+                    <select id="f-cat" name="category_id" data-dev-note="nullable — category_products 다형 매핑" class="f-select" style="width:150px;">
+                      <option value="수험굿즈">굿즈 · 학습용품</option>
+                      <option value="공학용계산기">공학용 계산기</option>
+                      <option value="문구류">문구 · 노트</option>
+                    </select>
+                    <select id="f-status" name="display_status" data-dev-value="selling 판매중 · stopped 판매중지 — 판매대기 · 판매종료는 개발 없음(정책 질문 Q-PROD007-1)" class="f-select" style="width:130px; margin-left:6px;" onchange="syncGoodsStatusHint()">
+                      <option value="판매중">판매중</option>
+                      <option value="판매대기">판매대기</option>
+                      <option value="판매중지">판매중지</option>
+                      <option value="판매종료">판매종료</option>
+                    </select>
+                    <div id="f-status-hint" style="display:none; margin-top:6px; font-size:12px; color:#B45309;"></div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>권리자 매핑 (<code>ADMN-SETT-001</code>)</th>
+                  <td colspan="3">
+                    <span class="badge badge-green">자사 권리자(주식회사 엘캠퍼스 · is_internal=true) 100.00% 자동 매핑</span>
+                    <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">외부 권리자 수익 배분 검증 면제 · 매출 전액 <strong>일반 상품 판매매출</strong>로 집계 (매핑 유효기간 외에는 신규 판매 자동 차단)</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- 섹션 2: 가격 · 과세 · 원가 계정 -->
+            <div style="font-size:13px; font-weight:800; margin-bottom:8px;">2. 가격 · 과세 자동 분해(10/11) · 원가 계정</div>
+            <table class="form-tbl" style="margin-bottom:20px;">
+              <tbody>
+                <tr>
+                  <th>판매가 (VAT 포함) <span style="color:var(--danger);">*</span></th>
+                  <td>
+                    <input type="number" id="f-price" name="sale_price" data-dev-note="정수 0~100,000,000 — 개발 id salePrice" class="f-input tr-right" style="width:160px; font-weight:800;" value="11000" min="100" step="100" oninput="calcVatSplit()" /> 원
+                    <span style="font-size:11.5px; color:var(--text-muted); margin-left:6px;">도서정가제 미적용 (쿠폰 · 포인트 사용 허용)</span>
+                  </td>
+                  <th>공급가액 + 부가가치세</th>
+                  <td>
+                    <input type="text" id="f-vat-split" data-dev-note="개발 #vatSplit 표시만, Goods::splitVat 반올림(프로토 FLOOR — 정책 질문 Q-PROD007-2)" class="f-input" style="width:280px; font-weight:700;" value="공급가액 10,000원 + 부가세 1,000원" readonly />
+                    <span style="font-size:11px; color:var(--text-muted); margin-left:4px;">🔒 <code>FLOOR(판매가×100/110)</code> 자동 분해</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>사입 원가 (대외비)</th>
+                  <td>
+                    <input type="text" id="f-cost" name="cost_price" data-dev-note="재무 권한 아니면 무시, DIRECT_SALE이면 null — 개발 id costPrice" class="f-input tr-right" style="width:160px;" value="5500" /> 원
+                    <span id="f-cost-hint" style="font-size:11.5px; color:var(--text-muted); margin-left:6px;">재무 권한 외 열람 시 마스킹 · 자사 직접 판매(DIRECT_SALE) 선택 시 비활성</span>
+                  </td>
+                  <th>원가 계정 / 세무 판정</th>
+                  <td>
+                    <code>INVENTORY_PURCHASE</code> (재고 매입 계정 🔒) &nbsp;·&nbsp;
+                    <span class="badge badge-blue">TX-13 일반 과세 재화 공급 (VAT 10%) 🔒</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- 섹션 3: 재고 · 매입처 · 배송 -->
+            <div style="font-size:13px; font-weight:800; margin-bottom:8px;">3. 재고 · 매입처(AP 경로) · 합산 배송 정책</div>
+            <table class="form-tbl">
+              <tbody>
+                <tr>
+                  <th>현재 재고</th>
+                  <td>
+                    <input type="text" id="f-stock" data-dev-note="개발 수정 폼은 stock 직접 입력(이력 없이 덮어씀) — 프로토는 조정 레이어로만(정책 질문 Q-PROD007-3)" data-dev-name="stock" class="f-input tr-right" style="width:120px; font-weight:800;" value="142 개" readonly />
+                    <button type="button" class="btn btn-sm btn-primary" id="btn-inline-adj" style="margin-left:6px;" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P1은 수정 화면 안 레이어(.layer__open[data-target=layerGoodsStockAdjust]) — 목록에서 바로 여는 버튼은 개발 없음" onclick="openStockAdjustModal(currentEditId)">재고 조정 (ADMN-PROD-007-P1)</button>
+                    <button type="button" class="btn btn-sm btn-outline" id="btn-inline-hist" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P2는 수정 폼에 함께 실린 stockLogs를 레이어에 그림" onclick="openStockHistoryModal(currentEditId)">입출고 이력 (ADMN-PROD-007-P2)</button>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">수정 모드에서 현재고 직접 덮어쓰기 불가 — 반드시 [재고 조정] 레이어를 통해 증감 수량과 사유를 `goods_stock_log`에 기록해야 합니다.</div>
+                  </td>
+                  <th>재고 알림 임계치 <span style="color:var(--danger);">*</span></th>
+                  <td>
+                    <input type="number" id="f-threshold" name="stock_alert_qty" data-dev-note="개발 nullable(정책 질문 Q-PROD007-5)" class="f-input tr-right" style="width:100px;" value="20" /> 개 이하 시 <span class="badge badge-amber">임박</span> 강조 및 알림
+                  </td>
+                </tr>
+                <tr>
+                  <th>매입처 (Supplier)</th>
+                  <td>
+                    <select id="f-supplier" name="supplier_id" data-dev-note="PURCHASED_RESALE이면 필수 — 개발 id supplierId" class="f-select" style="width:260px;">
+                      <option value="SELF">해당 없음 (자사 직접 제작)</option>
+                    </select>
+                    <span id="supplierStatus" class="badge badge-gray" style="margin-left:6px;" data-dev-flag="dev-only" data-dev-note="매입처 option data-status → 사업 상태 표시">사업 상태: 정상</span>
+                  </td>
+                  <th>매입 대금 지급 경로</th>
+                  <td>
+                    <span class="badge badge-gray">회계 시스템 매입채무(AP) 결제 🔒</span>
+                    <span style="font-size:11.5px; color:var(--text-muted); margin-left:6px;">정산 엔진(대량이체) 지급 대상에서 자동 제외(Bypass)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>배송 정책</th>
+                  <td colspan="3">
+                    기본 배송비 <strong>3,000원</strong> · <strong>교재 및 일반상품 합산 실결제 30,000원 이상 무료배송</strong> (강좌 결제액 합산 제외 · 3PL 파주 물류센터 합포장 출고)
+                  </td>
+                </tr>
+                <tr>
+                  <th>대표 이미지 / 상세 설명</th>
+                  <td colspan="3">
+                    <div style="margin-bottom:6px; font-size:12px;">첨부 파일: <code>safety_helmet_keyring_main.jpg</code> (1.2MB) <button type="button" class="btn btn-sm btn-outline" data-dev-note="등록 필수 · 수정 선택, jpg · jpeg · png · webp, 5MB" data-dev-name="thumbnail">파일 변경</button></div>
+                    <textarea id="f-desc" name="description" data-dev-note="65,535바이트 · Purifier" class="f-textarea" rows="3" placeholder="상품 상세 HTML 설명 (저장 시 XSS 방지용 script/onerror 태그 자동 필터링)">산준모 합격 기원 한정판 안전모 키링 및 수험 필수 굿즈입니다.</textarea>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
+              <button type="button" class="btn btn-outline" onclick="switchView('list')">← 목록</button>
+              <div style="display:flex; gap:8px;">
+                <button type="button" class="btn btn-danger" data-dev-route="admin.goods.stop.update" data-dev-method="POST" data-dev-url="/sj-admin/goods/{goods}/stop-selling" data-dev-perm="수정" data-dev-note="개발 goodsStop · goodsStopForm. 삭제 라우트 없음(주문 참조)" onclick="stopCurrentProduct()">판매중지 전환 (물리 삭제 불가)</button>
+                <button type="button" class="btn btn-dark" data-dev-route="admin.goods.store | admin.goods.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/goods | /goods/{goods}" data-dev-perm="등록 | 수정" data-dev-note="GoodsRequest — 개발 폼 id goodsForm" onclick="saveProductForm()">💾 저장</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 1: ADMN-PROD-007-P1 재고 조정 레이어                            -->
+  <!-- ===================================================================== -->
+  <div class="modal-backdrop" id="layerGoodsStockAdjust">
+    <div class="modal-box" style="max-width:520px;">
+      <div class="modal-head">
+        <span>재고 조정 (ADMN-PROD-007-P1)</span>
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerGoodsStockAdjust')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:12.5px;">
+          대상 상품: <strong id="p1-target-name">GDS-0001 · 산준모 안전모 키링</strong><br/>
+          현재 재고: <strong id="p1-cur-stock">142</strong> 개
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">증감 구분 <span style="color:var(--danger);">*</span></label>
+            <select id="p1-dir" name="(quantity 부호)" data-dev-note="개발은 quantity 부호 있는 정수 1칸(음수 = 차감)" class="f-select" style="width:100%;" onchange="updateP1Preview()">
+              <option value="PLUS">늘림 (+ 입고/복원)</option>
+              <option value="MINUS">줄임 (- 파손/실사차감)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">증감 수량 (1 이상 정수) <span style="color:var(--danger);">*</span></label>
+            <input type="number" id="p1-qty" name="quantity" data-dev-note="not 0, 결과 재고 < 0이면 거부" class="f-input tr-right" style="width:100%;" value="30" min="1" oninput="updateP1Preview()" />
+          </div>
+        </div>
+
+        <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:12px; font-weight:700; color:#1E3A8A;">조정 후 예상 재고 (음수 불가)</span>
+          <strong id="p1-after-stock" data-dev-flag="proto-only" data-dev-note="조정 후 재고 미리보기 — 개발 없음" style="font-size:16px; color:var(--primary);">172 개 (+30)</strong>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">조정 사유 <span style="color:var(--danger);">*</span></label>
+          <select id="p1-reason" name="type" data-dev-value="inbound 입고 · restore 복구 · adjust 수기 조정 · damaged 파손 · lost 분실 — 프로토 목록과 다름(정책 질문 Q-PROD007-4)" class="f-select" style="width:100%;">
+            <option value="입고">신규 발주 입고</option>
+            <option value="반품 입고">고객 반품 양품 입고</option>
+            <option value="파손·불량 폐기">파손 · 불량 폐기</option>
+            <option value="실사 조정">물류센터 재고 실사 조정</option>
+            <option value="기타">기타 (메모 필수)</option>
+          </select>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">사유 메모 (최대 200자 · 기타 선택 시 필수)</label>
+          <input type="text" id="p1-memo" name="memo" data-dev-note="개발 선택 · 255자" class="f-input" style="width:100%;" value="2026년 10월 2차분 파주 3PL 센터 입고 검수 완료" />
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-outline" onclick="closeModal('layerGoodsStockAdjust')">취소</button>
+        <button type="button" id="btn-p1-save" class="btn btn-primary" data-dev-route="admin.goods.stock.update" data-dev-method="PUT" data-dev-url="/sj-admin/goods/{goods}/stock" data-dev-perm="수정" onclick="confirmStockAdjust()">조정 저장 (goods_stock_log 적재)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 2: ADMN-PROD-007-P2 입출고 이력 (goods_stock_log) 레이어        -->
+  <!-- ===================================================================== -->
+  <div class="modal-backdrop" id="layerGoodsStockLogs">
+    <div class="modal-box" style="max-width:740px;">
+      <div class="modal-head">
+        <span id="p2-title">입출고 이력 원장 조회 (ADMN-PROD-007-P2 · goods_stock_log)</span>
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerGoodsStockLogs')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; background:#F8FAFC; padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+          <div style="display:flex; align-items:center; gap:8px; font-size:12px;">
+            <strong>기간:</strong>
+            <input type="date" class="f-input" name="date_from" value="2026-09-17" data-dev-flag="proto-only" data-dev-note="(규칙) admin.goods.stock-logs.index — 개발 미구현" /> ~ <input type="date" class="f-input" name="date_to" value="2026-10-17" data-dev-flag="proto-only" />
+            <strong>구분:</strong>
+            <select id="p2-filter-type" data-dev-route="admin.goods.stock-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/stock-logs" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-name="type" data-dev-value="outbound 판매 출고 · restore 복구 · adjust 수기 조정 …" class="f-select" style="width:140px;" onchange="renderStockHistoryTable()">
+              <option value="ALL">전체</option>
+              <option value="수기 조정">수기 조정</option>
+              <option value="주문 차감">주문 차감</option>
+              <option value="취소·반품 복원">취소·반품 복원</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="입출고 이력 엑셀 — 개발 없음" onclick="showToast('입출고 원장(goods_stock_log) 엑셀 다운로드가 완료되었습니다.')">엑셀 다운로드</button>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>일시</th>
+              <th>구분</th>
+              <th class="tr-right">증감</th>
+              <th class="tr-right">처리 후 재고</th>
+              <th>사유 · 메모</th>
+              <th>근거 (주문번호 / 처리자)</th>
+            </tr>
+          </thead>
+          <tbody id="p2-tbody"></tbody>
+        </table>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-dark" onclick="closeModal('layerGoodsStockLogs')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-msg" id="toast-box"></div>
+
+  <script>
+    let hasFinanceRole = true;
+    let currentEditId = 'GDS-0001';
+
+    const GOODS = [
+      {
+        id: 'GDS-0001',
+        supplyType: 'PURCHASED_RESALE',
+        supplyLabel: '매입 재판매',
+        name: '산준모 안전모 키링',
+        cat: '수험굿즈',
+        price: 11000,
+        cost: 5500,
+        stock: 142,
+        threshold: 20,
+        status: '판매중',
+        supplier: 'SUP-0007',
+        hasSalesHistory: true,
+        logs: [
+          { dt: '2026.10.16 15:20', type: '주문 차감', diff: -2, after: 142, memo: '수험생 주문 결제 완료 차감', ref: 'ORD-20261016-0041' },
+          { dt: '2026.10.12 11:05', type: '취소·반품 복원', diff: +1, after: 144, memo: '출고 전 주문 취소 재고 복원', ref: 'RFD-20261012-0009' },
+          { dt: '2026.10.01 09:30', type: '수기 조정', diff: +50, after: 143, memo: '신규 발주 입고 (파주 3PL)', ref: 'admin_kim (김물류)' }
+        ]
+      },
+      {
+        id: 'GDS-0002',
+        supplyType: 'DIRECT_SALE',
+        supplyLabel: '자사 직접 판매',
+        name: '산업안전기사 핵심 공식 암기 포스터 (A1)',
+        cat: '수험굿즈',
+        price: 8800,
+        cost: 0,
+        stock: 12,
+        threshold: 20,
+        status: '판매중',
+        supplier: 'SELF',
+        hasSalesHistory: true,
+        logs: [
+          { dt: '2026.10.15 18:10', type: '주문 차감', diff: -5, after: 12, memo: '패키지 부가 구매 차감 (임계치 20개 이하 도달)', ref: 'ORD-20261015-0112' }
+        ]
+      },
+      {
+        id: 'GDS-0003',
+        supplyType: 'PURCHASED_RESALE',
+        supplyLabel: '매입 재판매',
+        name: '산준모 합격 형광펜 3색 세트',
+        cat: '문구류',
+        price: 4400,
+        cost: 1800,
+        stock: 0,
+        threshold: 20,
+        status: '품절',
+        supplier: 'SUP-0007',
+        hasSalesHistory: true,
+        logs: [
+          { dt: '2026.10.14 20:01', type: '주문 차감', diff: -3, after: 0, memo: '잔여 재고 전량 소진 → 자동 품절 전환', ref: 'ORD-20261014-0088' }
+        ]
+      },
+      {
+        id: 'GDS-0004',
+        supplyType: 'PURCHASED_RESALE',
+        supplyLabel: '매입 재판매',
+        name: '카시오 공학용 계산기 FX-570ES PLUS 2nd',
+        cat: '공학용계산기',
+        price: 27500,
+        cost: 19000,
+        stock: 64,
+        threshold: 20,
+        status: '판매중',
+        supplier: 'SUP-0012',
+        hasSalesHistory: false,
+        logs: [
+          { dt: '2026.10.05 10:00', type: '수기 조정', diff: +64, after: 64, memo: '초도 물량 입고', ref: 'admin_kim (김물류)' }
+        ]
+      }
+    ];
+
+    function splitVat(price) {
+      const supply = Math.floor((price * 100) / 110);
+      const vat = price - supply;
+      return { supply, vat };
+    }
+
+    function renderTable() {
+      const supFilter = document.getElementById('fl-supply').value;
+      const stFilter = document.getElementById('fl-status').value;
+      const stkFilter = document.getElementById('fl-stock').value;
+      const kw = document.getElementById('fl-kw').value.trim().toLowerCase();
+
+      const tbody = document.getElementById('gds-tbody');
+      tbody.innerHTML = '';
+
+      let rows = GOODS.filter(g => {
+        if (supFilter !== 'ALL' && g.supplyType !== supFilter) return false;
+        if (stFilter !== 'ALL' && g.status !== stFilter) return false;
+        if (stkFilter === 'LOW' && !(g.stock > 0 && g.stock <= g.threshold)) return false;
+        if (stkFilter === 'OUT' && g.stock !== 0) return false;
+        if (stkFilter === 'NORMAL' && g.stock <= g.threshold) return false;
+        if (kw && !(g.name.toLowerCase().includes(kw) || g.id.toLowerCase().includes(kw))) return false;
+        return true;
+      });
+
+      document.getElementById('list-cnt').textContent = rows.length;
+
+      rows.forEach(g => {
+        const { supply, vat } = splitVat(g.price);
+        const isLow = g.stock > 0 && g.stock <= g.threshold;
+        const isOut = g.stock === 0;
+
+        let costDisplay = '— (직판)';
+        if (g.supplyType === 'PURCHASED_RESALE') {
+          costDisplay = hasFinanceRole ? g.cost.toLocaleString() + '원' : '**** (권한제한)';
+        }
+
+        let stockBadge = `<strong style="font-weight:800;">${g.stock}개</strong>`;
+        if (isLow) stockBadge = `<strong style="color:var(--warning);">${g.stock}개</strong> <span class="badge badge-amber">임박</span>`;
+        if (isOut) stockBadge = `<strong style="color:var(--danger);">0개</strong> <span class="badge badge-red">품절</span>`;
+
+        let stBadge = '<span class="badge badge-green">판매중</span>';
+        if (g.status === '판매종료') stBadge = '<span class="badge badge-gray">판매종료(미노출)</span>';
+        else if (g.status === '판매대기') stBadge = '<span class="badge badge-amber">판매대기(미노출)</span>';
+        else if (g.status === '품절' || isOut) stBadge = '<span class="badge badge-red">품절</span>';
+        else if (g.status === '판매중지') stBadge = '<span class="badge badge-gray">판매중지</span>';
+
+        const tr = document.createElement('tr');
+        if (isLow) tr.className = 'row-warn';
+        tr.innerHTML = `
+          <td><input type="checkbox" class="g-chk" name="ids[]" data-bulk-check value="${g.id}" /></td>
+          <td><code>${g.id}</code></td>
+          <td><span class="badge ${g.supplyType === 'PURCHASED_RESALE' ? 'badge-blue' : 'badge-purple'}">${g.supplyLabel}</span></td>
+          <td><a href="javascript:void(0)" data-dev-route="admin.goods.create | admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/create | /goods/{goods}/edit" data-dev-perm="등록 | 수정" data-dev-note="개발 행 클릭 tr[data-href] → 수정" onclick="openForm('${g.id}')" style="color:var(--text-main); font-weight:800; text-decoration:underline;">${g.name}</a></td>
+          <td class="tr-right" style="font-weight:800;">${g.price.toLocaleString()}원</td>
+          <td class="tr-right" style="font-size:11.5px; color:var(--text-sub);">${supply.toLocaleString()} / ${vat.toLocaleString()}</td>
+          <td class="tr-right" style="font-weight:700;">${costDisplay}</td>
+          <td class="tr-right">${stockBadge}</td>
+          <td class="tr-center"><span class="badge badge-gray">TX-13 · 일반상품 매출</span></td>
+          <td class="tr-center">${stBadge}</td>
+          <td class="tr-center">
+            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P1은 수정 화면 안 레이어(.layer__open[data-target=layerGoodsStockAdjust]) — 목록에서 바로 여는 버튼은 개발 없음" onclick="openStockAdjustModal('${g.id}')">재고조정(P1)</button>
+            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P2는 수정 폼에 함께 실린 stockLogs를 레이어에 그림" onclick="openStockHistoryModal('${g.id}')">이력(P2)</button>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.goods.create | admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/create | /goods/{goods}/edit" data-dev-perm="등록 | 수정" data-dev-note="개발 행 클릭 tr[data-href] → 수정" onclick="openForm('${g.id}')">수정</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('kpi-all').textContent = GOODS.length;
+      document.getElementById('kpi-sale').textContent = GOODS.filter(x => x.status === '판매중' && x.stock > 0).length;
+      document.getElementById('kpi-low').textContent = GOODS.filter(x => x.stock > 0 && x.stock <= x.threshold).length;
+      document.getElementById('kpi-out').textContent = GOODS.filter(x => x.stock === 0).length;
+    }
+
+    function toggleFinanceRole(checked) {
+      hasFinanceRole = checked;
+      document.getElementById('btn-excel').disabled = !checked;
+      renderTable();
+      /* Init PROD-007 Stock Modal */
+      if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
+      if (currentEditId) {
+        const g = GOODS.find(x => x.id === currentEditId);
+        if (g && g.supplyType === 'PURCHASED_RESALE') {
+          document.getElementById('f-cost').value = checked ? g.cost : '****';
+          document.getElementById('f-cost').readOnly = !checked;
+        }
+      }
+      showToast(checked ? '재무팀 권한: 사입 원가 열람 및 엑셀 다운로드가 활성화되었습니다.' : '그 밖의 역할 그룹: 대외비 사입 원가가 **** 마스킹되고 엑셀 다운로드가 제한됩니다.');
+    }
+
+    function filterStock(mode) {
+      document.getElementById('fl-supply').value = 'ALL';
+      document.getElementById('fl-status').value = mode === 'SALE' ? '판매중' : 'ALL';
+      document.getElementById('fl-stock').value = (mode === 'LOW' || mode === 'OUT') ? mode : 'ALL';
+      renderTable();
+      /* Init PROD-007 Stock Modal */
+      if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
+    }
+
+    function resetSearch() {
+      document.getElementById('fl-supply').value = 'ALL';
+      document.getElementById('fl-status').value = 'ALL';
+      document.getElementById('fl-stock').value = 'ALL';
+      document.getElementById('fl-kw').value = '';
+      renderTable();
+      /* Init PROD-007 Stock Modal */
+      if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
+    }
+
+    function switchView(v) {
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('view-' + v).classList.add('active');
+      if (v === 'list') {
+        document.getElementById('top-crumb-code').textContent = 'ADMN-PROD-007';
+        document.getElementById('top-crumb-title').textContent = '일반 상품 마스터 (공급 형태 · 재고 · 일반 상품 판매매출)';
+        renderTable();
+      /* Init PROD-007 Stock Modal */
+      if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
+      } else {
+        document.getElementById('top-crumb-code').textContent = 'ADMN-PROD-007-S1';
+        document.getElementById('top-crumb-title').textContent = '일반 상품 등록 · 수정';
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function openForm(id) {
+      if (id === 'NEW') {
+        currentEditId = null;
+        document.getElementById('form-header-title').textContent = '신규 일반 상품 등록 (ADMN-PROD-007-S1)';
+        document.getElementById('f-id').value = 'GDS-0005 (자동채번)';
+        document.getElementById('f-supply').value = 'PURCHASED_RESALE';
+        document.getElementById('f-supply').disabled = false;
+        document.getElementById('f-supply-lock-msg').textContent = '신규 등록 시 선택 가능 (판매 발생 후 변경 잠금)';
+        document.getElementById('f-name').value = '';
+        document.getElementById('f-price').value = 11000;
+        document.getElementById('f-cost').value = hasFinanceRole ? 5000 : '****';
+        document.getElementById('f-stock').value = '0 (초기 재고 입력 가능)';
+        document.getElementById('f-stock').readOnly = false;
+        document.getElementById('btn-inline-adj').disabled = true;
+        document.getElementById('btn-inline-hist').disabled = true;
+        calcVatSplit();
+      } else {
+        const g = GOODS.find(x => x.id === id);
+        if (!g) return;
+        currentEditId = g.id;
+        document.getElementById('form-header-title').textContent = `일반 상품 수정 (ADMN-PROD-007-S1 · ${g.id})`;
+        document.getElementById('f-id').value = g.id;
+        document.getElementById('f-supply').value = g.supplyType;
+        document.getElementById('f-supply').disabled = g.hasSalesHistory;
+        document.getElementById('f-supply-lock-msg').textContent = g.hasSalesHistory
+          ? '🔒 판매 이력이 존재하여 공급 형태 변경이 잠금되었습니다.'
+          : '판매 이력 없음 (공급 형태 변경 가능)';
+        document.getElementById('f-name').value = g.name;
+        document.getElementById('f-cat').value = g.cat;
+        document.getElementById('f-status').value = g.status === '품절' ? '판매중' : g.status;
+        syncGoodsStatusHint();
+        document.getElementById('f-price').value = g.price;
+        document.getElementById('f-stock').value = g.stock + ' 개';
+        document.getElementById('f-stock').readOnly = true;
+        document.getElementById('f-threshold').value = g.threshold;
+        document.getElementById('f-supplier').value = g.supplier;
+        document.getElementById('btn-inline-adj').disabled = false;
+        document.getElementById('btn-inline-hist').disabled = false;
+        onSupplyTypeChange();
+        calcVatSplit();
+      }
+      switchView('form');
+    }
+
+    function onSupplyTypeChange() {
+      const st = document.getElementById('f-supply').value;
+      const costEl = document.getElementById('f-cost');
+      const supEl = document.getElementById('f-supplier');
+      if (st === 'DIRECT_SALE') {
+        costEl.value = '0 (자사 직판 해당없음)';
+        costEl.disabled = true;
+        supEl.value = 'SELF';
+        supEl.disabled = true;
+      } else {
+        costEl.disabled = false;
+        supEl.disabled = false;
+        const g = GOODS.find(x => x.id === currentEditId);
+        const rawCost = g ? g.cost : 5500;
+        costEl.value = hasFinanceRole ? rawCost : '****';
+        costEl.readOnly = !hasFinanceRole;
+      }
+    }
+
+    function calcVatSplit() {
+      const p = parseInt(document.getElementById('f-price').value || '0', 10);
+      const { supply, vat } = splitVat(p);
+      document.getElementById('f-vat-split').value = `공급가액 ${supply.toLocaleString()}원 + 부가세 ${vat.toLocaleString()}원`;
+    }
+
+    function saveProductForm() {
+      const name = document.getElementById('f-name').value.trim();
+      const price = parseInt(document.getElementById('f-price').value || '0', 10);
+      if (!name) { showToast('상품명을 입력해 주세요.'); return; }
+      if (price <= 0) { showToast('판매가는 0보다 커야 합니다.'); return; }
+
+      if (currentEditId) {
+        const g = GOODS.find(x => x.id === currentEditId);
+        if (g) {
+          g.name = name;
+          g.price = price;
+          g.cat = document.getElementById('f-cat').value;
+          const selSt = document.getElementById('f-status').value;
+          g.status = (g.stock === 0 && selSt !== '판매종료' && selSt !== '판매대기') ? '품절' : selSt;
+          g.threshold = parseInt(document.getElementById('f-threshold').value || '20', 10);
+        }
+      } else {
+        const newId = 'GDS-000' + (GOODS.length + 1);
+        const st = document.getElementById('f-supply').value;
+        GOODS.unshift({
+          id: newId,
+          supplyType: st,
+          supplyLabel: st === 'PURCHASED_RESALE' ? '매입 재판매' : '자사 직접 판매',
+          name,
+          cat: document.getElementById('f-cat').value,
+          price,
+          cost: st === 'PURCHASED_RESALE' ? 5000 : 0,
+          stock: parseInt(document.getElementById('f-stock').value || '0', 10) || 0,
+          threshold: parseInt(document.getElementById('f-threshold').value || '20', 10),
+          status: ['판매대기', '판매종료'].includes(document.getElementById('f-status').value) ? document.getElementById('f-status').value : '판매중',
+          supplier: document.getElementById('f-supplier').value,
+          hasSalesHistory: false,
+          logs: []
+        });
+      }
+      showToast('일반 상품 마스터 정보가 저장되었습니다. (자사 권리자 100% 매핑 · TX-13 · 일반상품 매출)');
+      switchView('list');
+    }
+
+    function syncGoodsStatusHint() {
+      const v = document.getElementById('f-status').value;
+      const el = document.getElementById('f-status-hint');
+      const msg = { '판매대기': '[판매대기] 등록만 해 둔 상태로 미노출입니다. 판매 준비가 끝나면 [판매중]으로 바꾸세요.', '판매종료': '[판매종료] 단종 상품입니다. 미노출로 고정되고 재고가 바뀌어도 판매중으로 돌아가지 않습니다. 과거 주문의 환불 · 정산은 그대로 처리됩니다.' }[v] || '';
+      el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+    }
+
+    function stopCurrentProduct() {
+      if (!currentEditId) return;
+      const g = GOODS.find(x => x.id === currentEditId);
+      if (g) g.status = '판매중지';
+      showToast(`${currentEditId} 상품이 [판매중지]로 전환되었습니다.`);
+      switchView('list');
+    }
+
+    function bulkStopSale() {
+      const chks = document.querySelectorAll('.g-chk:checked');
+      if (!chks.length) { showToast('일괄 판매중지할 상품을 먼저 선택해 주세요.'); return; }
+      chks.forEach(c => {
+        const g = GOODS.find(x => x.id === c.value);
+        if (g) g.status = '판매중지';
+      });
+      renderTable();
+      /* Init PROD-007 Stock Modal */
+      if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
+      showToast(`선택한 ${chks.length}건의 상품이 [판매중지]로 전환되었습니다.`);
+    }
+
+    /* ADMN-PROD-007-P1 재고 조정 모달 */
+    function openStockAdjustModal(id) {
+      const g = GOODS.find(x => x.id === (id || currentEditId || 'GDS-0001'));
+      if (!g) return;
+      currentEditId = g.id;
+      document.getElementById('p1-target-name').textContent = `${g.id} · ${g.name}`;
+      document.getElementById('p1-cur-stock').textContent = g.stock;
+      document.getElementById('p1-dir').value = 'PLUS';
+      document.getElementById('p1-qty').value = 30;
+      updateP1Preview();
+      document.getElementById('layerGoodsStockAdjust').classList.add('show');
+    }
+
+    function updateP1Preview() {
+      const g = GOODS.find(x => x.id === currentEditId);
+      if (!g) return;
+      const dir = document.getElementById('p1-dir').value;
+      const qty = parseInt(document.getElementById('p1-qty').value || '0', 10);
+      const next = dir === 'PLUS' ? (g.stock + qty) : (g.stock - qty);
+      const el = document.getElementById('p1-after-stock');
+      const btn = document.getElementById('btn-p1-save');
+
+      if (qty < 1 || next < 0) {
+        el.textContent = `${next} 개 (⚠️ 현재고 초과 차감 불가)`;
+        el.style.color = 'var(--danger)';
+        btn.disabled = true;
+      } else {
+        el.textContent = `${next} 개 (${dir === 'PLUS' ? '+' : '-'}${qty})`;
+        el.style.color = 'var(--primary)';
+        btn.disabled = false;
+      }
+    }
+
+    function confirmStockAdjust() {
+      const g = GOODS.find(x => x.id === currentEditId);
+      if (!g) return;
+      const dir = document.getElementById('p1-dir').value;
+      const qty = parseInt(document.getElementById('p1-qty').value || '0', 10);
+      const reason = document.getElementById('p1-reason').value;
+      const memo = document.getElementById('p1-memo').value.trim();
+
+      if (reason === '기타' && !memo) {
+        showToast('조정 사유가 [기타]인 경우 상세 메모 입력이 필수입니다.');
+        return;
+      }
+
+      const diff = dir === 'PLUS' ? qty : -qty;
+      g.stock += diff;
+      if (g.status === '판매종료' || g.status === '판매대기') { /* 재고가 바뀌어도 판매종료 · 판매대기 유지 */ }
+      else if (g.stock === 0) g.status = '품절';
+      else if (g.status === '품절' && g.stock > 0) g.status = '판매중';
+
+      g.logs.unshift({
+        dt: '2026.10.17 14:35',
+        type: '수기 조정',
+        diff,
+        after: g.stock,
+        memo: `[${reason}] ${memo}`,
+        ref: 'admin_kim (김물류)'
+      });
+
+      document.getElementById('f-stock').value = g.stock + ' 개';
+      closeModal('layerGoodsStockAdjust');
+      renderTable();
+      /* Init PROD-007 Stock Modal */
+      if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
+      showToast(`재고 조정(${diff > 0 ? '+' : ''}${diff}개 → ${g.stock}개)이 goods_stock_log 원장에 기록되었습니다.`);
+    }
+
+    /* ADMN-PROD-007-P2 입출고 이력 모달 */
+    function openStockHistoryModal(id) {
+      const g = GOODS.find(x => x.id === (id || currentEditId || 'GDS-0001'));
+      if (!g) return;
+      currentEditId = g.id;
+      document.getElementById('p2-title').textContent = `입출고 이력 원장 (ADMN-PROD-007-P2 · ${g.id} ${g.name})`;
+      document.getElementById('p2-filter-type').value = 'ALL';
+      renderStockHistoryTable();
+      document.getElementById('layerGoodsStockLogs').classList.add('show');
+    }
+
+    function renderStockHistoryTable() {
+      const g = GOODS.find(x => x.id === currentEditId);
+      if (!g) return;
+      const fType = document.getElementById('p2-filter-type').value;
+      const tbody = document.getElementById('p2-tbody');
+      tbody.innerHTML = '';
+
+      const logs = g.logs.filter(l => fType === 'ALL' || l.type === fType);
+      logs.forEach(l => {
+        const isOrder = l.ref.startsWith('ORD-') || l.ref.startsWith('RFD-');
+        const refHtml = isOrder
+          ? `<a href="${l.ref.startsWith('ORD-') ? 'ADMN-ORD-001_baseline.html' : 'ADMN-RFD-002_baseline.html'}" style="color:var(--primary); font-weight:700;">${l.ref} ↗</a>`
+          : `<code>${l.ref}</code>`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${l.dt}</td>
+          <td><span class="badge ${l.type === '수기 조정' ? 'badge-blue' : (l.diff < 0 ? 'badge-amber' : 'badge-green')}">${l.type}</span></td>
+          <td class="tr-right" style="font-weight:800; color:${l.diff > 0 ? 'var(--primary)' : 'var(--danger)'};">${l.diff > 0 ? '+' + l.diff : l.diff}</td>
+          <td class="tr-right" style="font-weight:700;">${l.after}개</td>
+          <td>${l.memo}</td>
+          <td>${refHtml}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3500);
+    }
+
+    // 매입처 선택지는 거래처 관리(ADMN-VEND-001)의 매입 양식 거래처에서 읽는다 — 화면에 거래처 이름을 직접 적지 않는다
+    window.addEventListener('DOMContentLoaded', () => {
+      const M = window.SJM_MASTER;
+      const sel = document.getElementById('f-supplier');
+      const opts = M.vendors.byForm('PURCHASE').filter(v => v.on).map(v => `<option value="${v.id}">${v.name} (${v.id}) · ${M.vendors.type(v.type).name}</option>`).join('');
+      sel.insertAdjacentHTML('afterbegin', opts);
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTable();
+      /* Init PROD-007 Stock Modal */
+      if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

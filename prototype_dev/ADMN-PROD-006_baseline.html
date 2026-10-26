@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>강사 노출 정보 관리 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --navy-950: #0B1120;
+      --navy-900: #0F172A;
+      --navy-800: #1E293B;
+      --navy-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748B;
+      --slate-400: #94A3B8;
+      --slate-300: #CBD5E1;
+      --slate-200: #E2E8F0;
+      --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC;
+      --white: #FFFFFF;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-soft: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --emerald: #059669;
+      --emerald-soft: #ECFDF5;
+      --emerald-border: #A7F3D0;
+      --amber: #D97706;
+      --amber-soft: #FFFBEB;
+      --amber-border: #FDE68A;
+      --rose: #E11D48;
+      --rose-soft: #FFF1F2;
+      --rose-border: #FECDD3;
+      --violet: #7C3AED;
+      --violet-soft: #F5F3FF;
+      --violet-border: #DDD6FE;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+      background-color: var(--slate-100);
+      color: var(--navy-900);
+      font-size: 13px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==================== MASTER SNB (v4 픽셀 고정) ==================== */
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    /* ==================== MAIN WORKSPACE ==================== */
+    .app-shell {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .breadcrumb .crumb-code {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11.5px;
+    }
+    .breadcrumb .crumb-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy-900);
+      margin-left: 4px;
+    }
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .subview-switcher {
+      display: inline-flex;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .subview-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-600);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.12s;
+    }
+    .subview-btn:hover { color: var(--navy-900); }
+    .subview-btn.active {
+      background: var(--white);
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+      font-weight: 700;
+    }
+    .subview-btn .code-tag {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 10.5px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: var(--slate-200);
+      color: var(--navy-800);
+    }
+    .subview-btn.active .code-tag {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .main-container {
+      padding: 22px 28px 48px 28px;
+      max-width: 1560px;
+      width: 100%;
+    }
+
+    /* Policy Banner */
+    .policy-banner {
+      background: linear-gradient(90deg, #EFF6FF 0%, #F8FAFC 100%);
+      border: 1px solid var(--primary-border);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .policy-banner-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .policy-badge {
+      background: var(--primary);
+      color: var(--white);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+    .policy-text {
+      font-size: 12.5px;
+      color: var(--navy-800);
+    }
+    .policy-text strong { color: var(--navy-900); font-weight: 700; }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      margin-bottom: 18px;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy-900);
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .card-body { padding: 18px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.12s;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-lg { height: 38px; padding: 0 18px; font-size: 13px; }
+    .btn-primary { background: var(--primary); color: var(--white); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: var(--white); border-color: var(--slate-300); color: var(--navy-800); }
+    .btn-outline:hover { background: var(--slate-50); border-color: var(--slate-400); }
+    .btn-soft { background: var(--primary-soft); border-color: var(--primary-border); color: var(--primary); }
+    .btn-soft:hover { background: #DBEAFE; }
+    .btn-danger-outline { background: var(--white); border-color: var(--rose-border); color: var(--rose); }
+    .btn-danger-outline:hover { background: var(--rose-soft); }
+
+    /* Form Controls */
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      height: 34px;
+      padding: 0 11px;
+      border: 1px solid var(--slate-300);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--navy-900);
+      background: var(--white);
+      font-family: inherit;
+      transition: border-color 0.12s, box-shadow 0.12s;
+    }
+    .form-textarea {
+      height: auto;
+      padding: 9px 11px;
+      resize: vertical;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .form-input[readonly], .form-input:disabled, .form-select:disabled {
+      background: var(--slate-100);
+      color: var(--slate-500);
+      cursor: not-allowed;
+    }
+
+    /* Filter Grid */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 16px;
+      align-items: end;
+    }
+    .filter-field label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--slate-600);
+      margin-bottom: 5px;
+    }
+    .filter-span-2 { grid-column: span 2; }
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--slate-200);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .badge-active { background: var(--emerald-soft); color: var(--emerald); border: 1px solid var(--emerald-border); }
+    .badge-hold { background: var(--amber-soft); color: var(--amber); border: 1px solid var(--amber-border); }
+    .badge-terminated { background: var(--rose-soft); color: var(--rose); border: 1px solid var(--rose-border); }
+    .badge-end { background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-300); }
+    .badge-info { background: var(--primary-soft); color: var(--primary); border: 1px solid var(--primary-border); }
+    .badge-violet { background: var(--violet-soft); color: var(--violet); border: 1px solid var(--violet-border); }
+
+    .code-pill {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      color: var(--navy-800);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    /* Tables */
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.data-table th {
+      background: var(--slate-50);
+      color: var(--slate-600);
+      font-weight: 700;
+      font-size: 11.5px;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--slate-200);
+      color: var(--navy-900);
+      vertical-align: middle;
+    }
+    table.data-table tbody tr:hover { background: #F8FAFC; }
+    .text-right { text-align: right !important; }
+    .text-center { text-align: center !important; }
+    .inst-link {
+      color: var(--navy-900);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .inst-link:hover {
+      color: var(--primary);
+      text-decoration: underline;
+    }
+
+    /* Avatar Chip */
+    .inst-profile-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .inst-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-soft);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Spec Form Table */
+    .spec-form-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-top: 1px solid var(--slate-200);
+    }
+    .spec-form-table th {
+      width: 180px;
+      background: var(--slate-50);
+      border-bottom: 1px solid var(--slate-200);
+      border-right: 1px solid var(--slate-200);
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy-800);
+      vertical-align: middle;
+    }
+    .spec-form-table td {
+      border-bottom: 1px solid var(--slate-200);
+      padding: 10px 14px;
+      vertical-align: middle;
+    }
+    .req-star { color: var(--rose); margin-left: 3px; font-weight: 800; }
+    .field-hint {
+      font-size: 11.5px;
+      color: var(--slate-500);
+      margin-top: 4px;
+    }
+
+    /* Inline Options */
+    .inline-options {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .option-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--navy-800);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .option-label input {
+      accent-color: var(--primary);
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    /* Contract Sync Gate Box */
+    .contract-sync-box {
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+      padding: 12px 16px;
+      background: var(--slate-50);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .contract-sync-box.ok {
+      background: var(--emerald-soft);
+      border-color: var(--emerald-border);
+    }
+    .contract-sync-box.locked {
+      background: var(--rose-soft);
+      border-color: var(--rose-border);
+    }
+
+    /* Career List Builder */
+    .career-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* Subview Panels */
+    .subview-panel { display: none; }
+    .subview-panel.active { display: block; }
+
+    /* Toast */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--navy-900);
+      color: var(--white);
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+      z-index: 3000;
+      display: none;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+    <link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PROD-006", "devCommit": "d562524a", "progress": "구현(목록 · 등록 · 수정 · 삭제 · 권리자 검색 · 엑셀). 006-S2 읽기 전용 상세 · 메인 추천 · 홍보 영상 · 배너 · 인사말 · 노출 순서 일괄 저장은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.instructor-profiles.index", "label": "강사 프로필 / 전시 관리(추정)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">상품 · 강좌 · 교재 관리</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-PROD-006</span>
+      <h1 class="crumb-title" id="header-screen-title">강사 노출 정보 관리 (권리자 계약 원장 연동)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <div class="subview-switcher" role="tablist" aria-label="강사 노출 정보 서브 화면 전환">
+          <button type="button" class="subview-btn active" data-view="list" onclick="switchSubview('list')">
+            <span class="code-tag">006</span>
+            <span>강사 노출 목록</span>
+          </button>
+          <button type="button" class="subview-btn" data-view="detail" data-dev-route="admin.instructor-profiles.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/{instructorProfile}" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="006-S2 읽기 전용 상세 — 개발 미구현(강사명 링크가 수정 화면)" onclick="switchSubview('detail')">
+            <span class="code-tag">006-S2</span>
+            <span>강사 프로필 상세</span>
+          </button>
+          <button type="button" class="subview-btn" data-view="form" onclick="switchSubview('form')">
+            <span class="code-tag">006-S1</span>
+            <span>강사 노출 등록/수정</span>
+          </button>
+        </div>
+    </div></header><div id="v4-page-body">
+  
+  
+
+  <!-- ==================== 고정 SNB (v4.0.0) ==================== -->
+  
+
+  <!-- ==================== 메인 워크스페이스 ==================== -->
+  
+  
+    <!-- 표준화된 Top Bar: [도메인 경로] › [화면코드 배지] [표준 한글 기능명] -->
+    
+
+    <main class="main-container">
+      <!-- 권리자 계약 원장 연동 정책 배너 -->
+      <div class="policy-banner">
+        <div class="policy-banner-left">
+          <span class="policy-badge">권리자 계약 원장(SSOT) 연동 규칙</span>
+          <div class="policy-text">
+            강사 노출 정보는 <strong>권리자 계약 원장(ADMN-INST-001)</strong>에 등록된 강사 마스터(<code>RH-XXXX</code>)를 바인딩하여 프론트 전시 프로필을 구성합니다.
+            실명·주민/사업자번호·정산계좌·RS 요율은 <strong>ADMN-INST-001</strong>에서만 관리하며, 계약 상태가 <strong>[계약해지/종료]</strong>인 경우 프론트 강사관 노출(<code>Y</code>) 설정이 자동 차단됩니다.
+          </div>
+        </div>
+        <a class="btn btn-soft btn-sm" href="ADMN-INST-001_baseline.html">ADMN-INST-001 권리자 계약 원장 →</a>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 1] ADMN-PROD-006 : 강사 노출 목록                                 -->
+      <!-- ========================================================================= -->
+      <section id="subview-list" class="subview-panel active">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">강사 노출 검색 조건</h2>
+              <span class="card-subtitle">대표 담당 카테고리 · 권리자 계약 상태 · 프론트 노출 여부 · 강사명 조회</span>
+            </div>
+            <span class="code-pill">Table: instructor_display</span>
+          </div>
+          <div class="card-body">
+            <div class="filter-grid">
+              <div class="filter-field">
+                <label>대표 담당 카테고리</label>
+                <select id="filter-cat" name="category_id" data-dev-note="categories 1Depth id" class="form-select">
+                  <option value="ALL">전체 카테고리</option>
+                  <option value="산업안전기사">산업안전기사</option>
+                  <option value="건설안전기사">건설안전기사</option>
+                  <option value="산업안전지도사">산업안전지도사</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>권리자 계약 상태 (ADMN-INST-001)</label>
+                <select id="filter-contract" name="contract_status" data-dev-value="active 계약중 · expired 종료 · terminated 정지 (기본 목록 pending+active) — 만료임박 / 갱신대기 구분은 개발 없음" class="form-select">
+                  <option value="ALL">전체 계약상태</option>
+                  <option value="정상">계약 정상 (유효)</option>
+                  <option value="갱신대기">만료임박 / 갱신대기</option>
+                  <option value="계약종료">계약종료 / 해지</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>프론트 강사관 노출 여부</label>
+                <select id="filter-display" name="is_display" data-dev-value="1 노출 · 0 숨김" class="form-select">
+                  <option value="ALL">전체</option>
+                  <option value="Y">노출 (Y)</option>
+                  <option value="N">미노출 (N)</option>
+                </select>
+              </div>
+              <div class="filter-field">
+                <label>메인 배너 추천 강사 여부</label>
+                <select id="filter-featured" data-dev-flag="proto-only" data-dev-note="메인 추천 필터 — 개발 없음" class="form-select">
+                  <option value="ALL">전체</option>
+                  <option value="Y">메인 추천 (Y)</option>
+                  <option value="N">일반 (N)</option>
+                </select>
+              </div>
+
+              <div class="filter-field filter-span-2">
+                <label>검색어 (프론트 강사명 / 권리자코드 / 강사 슬로건)</label>
+                <input type="text" id="filter-keyword" name="keyword" data-dev-note="개발은 강사명만 — 권리자코드 · 슬로건 검색은 개발 없음" class="form-input" placeholder="강사명(김안전), 권리자코드(RH-XXXX), 슬로건 키워드 입력">
+              </div>
+              <div class="filter-field">
+                <label>정렬 기준</label>
+                <select id="filter-sort" name="sort" data-dev-value="name · contract_status · updated_at (+ direction asc · desc) — 노출 순서 정렬은 개발 없음" class="form-select" onchange="renderInstList()">
+                  <option value="ORDER">프론트 노출 순서 오름차순</option>
+                  <option value="RECENT">최근 등록일순</option>
+                </select>
+              </div>
+              <div class="filter-field" style="display:flex; justify-content:flex-end; gap:8px;">
+                <button type="button" class="btn btn-outline" data-dev-note="개발은 /instructor-profiles 로 이동(조건 제거)" onclick="resetInstFilters()">초기화</button>
+                <button type="button" class="btn btn-primary" data-dev-route="admin.instructor-profiles.index" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles" data-dev-perm="조회" data-dev-note="기본 정렬 id desc, 20건 페이지" onclick="renderInstList()">조건 검색</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h2 class="card-title">강사 노출 프로필 목록</h2>
+              <span class="card-subtitle">총 <strong id="inst-total-count" style="color:var(--primary);">0</strong>명 조회됨 · 노출 순서 변경 후 [노출 순서 일괄 저장]을 클릭하세요</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline" data-dev-flag="proto-only" data-dev-route="admin.instructor-profiles.sort.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/instructor-profiles/sort" data-dev-perm="수정" onclick="showToast('변경된 강사 노출 순서가 프론트 강사관에 반영되었습니다.')">노출 순서 일괄 저장</button>
+              <button type="button" class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.instructor-profiles.download" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/download" data-dev-perm="다운로드" data-dev-note="사유 레이어 layerReason" onclick="showToast('[개발] 엑셀 다운로드 — 사유 입력 후 GET /instructor-profiles/download')">엑셀 다운로드</button>
+              <button type="button" class="btn btn-primary" data-dev-route="admin.instructor-profiles.create" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/create" data-dev-perm="등록" onclick="openNewInstForm()">+ 신규 강사 프로필 등록</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th class="text-center" style="width:75px;">노출순서</th>
+                    <th style="width:115px;">프로필코드</th>
+                    <th style="width:115px;">권리자코드(SSOT)</th>
+                    <th style="width:210px;">프론트 노출 강사명</th>
+                    <th style="width:130px;">대표 카테고리</th>
+                    <th>강사 한줄 슬로건 (캐치프레이즈)</th>
+                    <th class="text-center" style="width:120px;">연결 강좌 / 교재</th>
+                    <th class="text-center" style="width:115px;">계약상태 (INST-001)</th>
+                    <th class="text-center" style="width:90px;">메인추천</th>
+                    <th class="text-center" style="width:80px;">노출여부</th>
+                    <th class="text-center" style="width:95px;">등록일</th>
+                    <th class="text-center" style="width:115px;">관리</th>
+                  </tr>
+                </thead>
+                <tbody id="inst-list-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 2] ADMN-PROD-006-S2 : 강사 프로필 상세 조회                        -->
+      <!-- ========================================================================= -->
+      <section id="subview-detail" class="subview-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">← 목록으로</button>
+            <span class="code-pill" id="d-prof-code">PRF-2601</span>
+            <h2 style="font-size:16px; font-weight:800;" id="d-inst-name">김안전 대표강사 (산업안전기사)</h2>
+            <span class="badge badge-active" id="d-contract-badge">계약 정상 (RH-0019)</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a class="btn btn-soft" href="ADMN-INST-001_baseline.html">권리자 계약 원장 조회 (ADMN-INST-001)</a>
+            <button type="button" class="btn btn-primary" data-dev-route="admin.instructor-profiles.edit" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/{instructorProfile}/edit" data-dev-perm="수정" onclick="editCurrentDetailInst()">강사 프로필 수정 (006-S1)</button>
+          </div>
+        </div>
+
+        <!-- 1. 권리자 원장 연동 및 노출 기본 정보 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">1. 권리자 계약 원장(ADMN-INST-001) 매핑 및 프론트 노출 기본 정보</h3>
+              <span class="card-subtitle">계약 원장 상태와 실시간 동기화되며, 프론트 강사 소개관 상단 영역에 렌더링됩니다.</span>
+            </div>
+            <span class="code-pill" id="d-created-at">등록일: 2026-01-03</span>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>프로필 코드</th>
+                  <td><span class="code-pill" id="d-code">PRF-2601</span></td>
+                  <th>바인딩 권리자 코드</th>
+                  <td>
+                    <span class="code-pill" id="d-ins-code">RH-0019</span>
+                    <span class="badge badge-active" style="margin-left:6px;" id="d-ins-status">계약 정상 (2026-01-01 ~ 2027-12-31)</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>프론트 노출 강사명</th>
+                  <td style="font-weight:800; font-size:14px;" id="d-name">김안전</td>
+                  <th>대표 담당 카테고리</th>
+                  <td id="d-cat">산업안전기사 (필기 · 실기 통합)</td>
+                </tr>
+                <tr>
+                  <th>강사 한줄 슬로건</th>
+                  <td colspan="3" style="font-weight:700; color:var(--primary);" id="d-slogan">
+                    "산업안전기사 누적 수강생 1위, 비전공자도 이해되는 스토리텔링 안전공학"
+                  </td>
+                </tr>
+                <tr>
+                  <th>프론트 노출 여부 / 순서</th>
+                  <td id="d-display-order">프론트 노출 (Y) · 카테고리 내 노출 순서 <strong>1위</strong> · 메인 추천강사 (Y)</td>
+                  <th>대표 홍보 영상 (VOD)</th>
+                  <td><code>LEC-INTRO-001</code> (StarPlayer+ · 김안전 강사 커리큘럼 가이드 3분 20초)</td>
+                </tr>
+                <tr>
+                  <th>주요 약력 및 자격사항</th>
+                  <td colspan="3">
+                    <ul style="padding-left:18px; line-height:1.8;" id="d-career-list">
+                      <li>현) 산준모 산업안전기사 · 건설안전기사 대표 전임강사</li>
+                      <li>산업안전지도사(기계안전) / 산업안전기사 / 건설안전기사 자격 보유</li>
+                      <li>전) 대기업 안전환경팀 위험성평가 총괄 컨설턴트 (경력 14년)</li>
+                      <li>저서: 2026 산준모 산업안전기사 필기/실기 한권완성 시리즈 (산준모북스)</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. 연결된 판매중 강좌 및 저서 현황 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">2. 강사 소개관 하단 자동 노출 상품 (단과 강좌 · 패키지 · 저서)</h3>
+              <span class="card-subtitle">ADMN-PROD-003 / 004 / 005에서 해당 권리자(RH-0019)가 매핑된 상품이 자동 집계됩니다.</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:120px;">상품 구분</th>
+                  <th style="width:115px;">상품/SKU 코드</th>
+                  <th>상품명</th>
+                  <th class="text-right" style="width:115px;">판매가</th>
+                  <th class="text-center" style="width:120px;">1계층 정산매핑</th>
+                  <th class="text-center" style="width:100px;">판매상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge badge-violet">패키지/환급반 (005)</span></td>
+                  <td><span class="code-pill">PKG-2601</span></td>
+                  <td style="font-weight:600;">2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)</td>
+                  <td class="text-right">312,000원</td>
+                  <td class="text-center"><span class="badge badge-active">100.00% 정상</span></td>
+                  <td class="text-center"><span class="badge badge-active">판매중</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-info">단과 강좌 (003)</span></td>
+                  <td><span class="code-pill">CRS-2601</span></td>
+                  <td style="font-weight:600;">2026 산업안전기사 필기 한권완성 개념+빈출 단과</td>
+                  <td class="text-right">144,000원</td>
+                  <td class="text-center"><span class="badge badge-active">100.00% 정상</span></td>
+                  <td class="text-center"><span class="badge badge-active">판매중</span></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-active">저서 교재 (004)</span></td>
+                  <td><span class="code-pill">PROD-BK-1011</span></td>
+                  <td style="font-weight:600;">2026 산준모 산업안전기사 필기 한권완성 이론+빈출</td>
+                  <td class="text-right">38,000원</td>
+                  <td class="text-center"><span class="badge badge-info">저자인세 10%</span></td>
+                  <td class="text-center"><span class="badge badge-active">판매중</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================================= -->
+      <!-- [SUBVIEW 3] ADMN-PROD-006-S1 : 강사 노출 정보 등록 / 수정                   -->
+      <!-- ========================================================================= -->
+      <section id="subview-form" class="subview-panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">← 목록으로</button>
+            <h2 style="font-size:16px; font-weight:800;" id="form-mode-title">강사 노출 정보 등록 / 수정 (ADMN-PROD-006-S1)</h2>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-outline" onclick="switchSubview('list')">취소</button>
+            <button type="button" class="btn btn-primary btn-lg" data-dev-route="admin.instructor-profiles.store | admin.instructor-profiles.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/instructor-profiles | /instructor-profiles/{instructorProfile}" data-dev-perm="등록 | 수정" data-dev-note="InstructorProfileRequest — 1권리자 1프로필" onclick="saveInstForm()">강사 노출 정보 저장</button>
+          </div>
+        </div>
+
+        <!-- 1. 권리자 계약 원장(ADMN-INST-001) 바인딩 및 상태 제어 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">1. 권리자 계약 원장(ADMN-INST-001) 마스터 연결 및 전시 자격 검증</h3>
+              <span class="card-subtitle">권리자 원장에 등록된 강사를 선택하면 계약 유효 상태를 검증하여 프론트 노출 가능 여부를 판정합니다.</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>프로필 코드 <span class="req-star">*</span></th>
+                  <td>
+                    <input type="text" id="f-prof-code" data-dev-flag="proto-only" data-dev-note="프로필 코드 PRF-YYNN — 개발 없음(instructor_profiles.id)" class="form-input" style="width:190px;" value="PRF-2601" readonly="">
+                  </td>
+                  <th>권리자 마스터 선택 <span class="req-star">*</span><br>(ADMN-INST-001)</th>
+                  <td>
+                    <select id="f-ins-master" name="rights_holder_id" data-dev-note="개발은 검색(searchRightsHolders) 후 hidden rightsHolderId — 위탁자 · 자사 권리자 제외" class="form-select" style="width:310px;" onchange="onChangeMasterInstructor()">
+                      <option value="RH-0019" data-status="정상" data-name="김안전">[RH-0019] 김안전 — 계약 정상 (~2027-12-31)</option>
+                      <option value="RH-0025" data-status="정상" data-name="정종대">[RH-0025] 정종대 — 계약 정상 (~2027-12-31)</option>
+                      <option value="RH-0046" data-status="정상" data-name="이건설">[RH-0046] 이건설 — 계약 정상 (~2027-06-30)</option>
+                      <option value="RH-0047" data-status="갱신대기" data-name="박보건">[RH-0047] 박보건 — 만료임박/갱신대기 (~2026-10-31)</option>
+                      <option value="RH-0049" data-status="계약종료" data-name="정기계">[RH-0049] 정기계 — 계약종료/해지 (전시 차단 대상)</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-route="admin.instructor-profiles.instructors.index" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/search-instructors" data-dev-perm="조회" data-dev-note="개인: 이름 + 생년월일 일치 시만 선택, 사업자: 사업자등록번호. exclude_profile_id">
+                  <th>권리자 검색</th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" id="searchName" class="form-input" style="width:150px;" name="name" placeholder="이름">
+                      <input type="date" id="searchBirth" class="form-input" style="width:160px;" name="birth_date">
+                      <input type="text" id="searchBizNo" class="form-input" style="width:180px;" name="business_number" placeholder="사업자등록번호">
+                      <button type="button" class="btn btn-soft btn-sm" onclick="showToast('[개발] 권리자 검색 — GET /instructor-profiles/search-instructors')">검색</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>계약 원장 연동 상태</th>
+                  <td colspan="3">
+                    <div id="f-contract-gate-box" data-dev-note="개발 linkedInfo · linkedContract(PROFILE_DETAIL_STATUS_LABELS) + 노출 판정표 verdictTable · 계약 무효 경고 layerInstructorBlind" class="contract-sync-box ok">
+                      <div>
+                        <strong id="f-contract-gate-title">[계약 유효 검증 통과] 권리자코드 RH-0019 (계약 상태: 정상)</strong>
+                        <div style="font-size:12px; margin-top:2px;" id="f-contract-gate-desc">
+                          ADMN-INST-001 원장 계약이 유효하므로 프론트 강사관 노출(Y) 및 메인 배너 추천 설정이 가능합니다.
+                        </div>
+                      </div>
+                      <a href="ADMN-INST-001_baseline.html" class="btn btn-outline btn-sm">ADMN-INST-001 계약서 확인 →</a>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>프론트 노출 강사명 <span class="req-star">*</span></th>
+                  <td>
+                    <input type="text" id="f-inst-name" name="display_name" data-dev-note="max 50" class="form-input" style="width:240px;" value="김안전" placeholder="수강생에게 표시될 강사명(예명 가능)">
+                    <div class="field-hint">강사는 이름이 아니라 ADMN-INST-001의 권리자 코드(RH 코드)와 1:1로 바인딩합니다. 동명이인이어도 코드가 달라 구분됩니다. (정산 요율 등 재무 필드는 상품 관리 화면·API에서 원천 제외)</div>
+                  </td>
+                  <th>대표 담당 카테고리 <span class="req-star">*</span></th>
+                  <td>
+                    <select id="f-inst-cat" name="categories[]" data-dev-note="개발은 1Depth 복수 선택(min 1) — 프로토는 대표 1개(정책 질문 Q-PROD006-2)" class="form-select" style="width:240px;">
+                      <option value="산업안전기사">산업안전기사</option>
+                      <option value="건설안전기사">건설안전기사</option>
+                      <option value="산업안전지도사">산업안전지도사</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>강사 한줄 슬로건 <span class="req-star">*</span></th>
+                  <td colspan="3">
+                    <input type="text" id="f-inst-slogan" name="intro_text" data-dev-note="개발 intro_text 120자(카드 요약) 또는 title 100자 — 대응 확인 필요" class="form-input" maxlength="100" value="산업안전기사 누적 수강생 1위, 비전공자도 이해되는 스토리텔링 안전공학" placeholder="강사 카드 및 상세 배너 상단에 노출할 한줄 캐치프레이즈 (최대 100자)">
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="InstructorProfileRequest instructor_type · home_link_type · home_url">
+                  <th>강사 구분 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label"><input type="radio" name="instructor_type" value="main" checked=""><span>정강사</span></label>
+                      <label class="option-label"><input type="radio" name="instructor_type" value="sub"><span>부강사</span></label>
+                    </div>
+                  </td>
+                  <th>강사 홈 링크 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label"><input type="radio" name="home_link_type" value="internal" checked=""><span>내부링크</span></label>
+                      <label class="option-label"><input type="radio" name="home_link_type" value="external"><span>아웃링크</span></label>
+                    </div>
+                    <input type="url" id="homeUrl" class="form-input" name="home_url" maxlength="500" placeholder="아웃링크 URL (아웃링크일 때 필수)" style="margin-top:6px;">
+                  </td>
+                </tr>
+                <tr>
+                  <th>프론트 강사관 노출 <span class="req-star">*</span></th>
+                  <td>
+                    <div class="inline-options">
+                      <label class="option-label">
+                        <input type="radio" name="f-inst-display" id="radio-inst-disp-y" value="Y" data-dev-name="is_display" data-dev-value="1" checked="">
+                        <span>노출 (Y)</span>
+                      </label>
+                      <label class="option-label">
+                        <input type="radio" name="f-inst-display" id="radio-inst-disp-n" value="N" data-dev-note="등록 기본 OFF. 계약 종료 · 해지면 프론트 강제 숨김" data-dev-name="is_display" data-dev-value="0">
+                        <span>미노출 (N)</span>
+                      </label>
+                    </div>
+                  </td>
+                  <th>노출 순서 / 메인 추천</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:16px;">
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:12px; font-weight:600;">노출 순서</span>
+                        <input type="number" id="f-inst-order" name="sort_order" data-dev-note="0 이상, 카테고리와 무관한 전체 순서(정책 질문 Q-PROD006-1)" class="form-input text-center" style="width:70px;" value="1" min="1" max="99">
+                        <span style="font-size:12px; color:var(--slate-500);">위</span>
+                      </div>
+                      <label class="option-label">
+                        <input type="checkbox" id="f-inst-featured" data-dev-flag="proto-only" data-dev-note="메인 홈 추천 강사 캐러셀 — 개발 없음" checked="">
+                        <span>메인 홈 추천 강사 캐러셀 노출</span>
+                      </label>
+                      <label class="option-label" data-dev-flag="dev-only" data-dev-note="맛보기 자동 진열(기본 ON, 현재 건수 표시)">
+                        <input type="checkbox" name="auto_preview" value="1" checked="">
+                        <span>맛보기 자동 진열</span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. 강사 프로필 이미지 · 홍보 영상 · 약력 빌더 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <h3 class="card-title">2. 강사 프로필 이미지 · OT 홍보 영상 · 주요 약력 설정</h3>
+              <span class="card-subtitle">프론트 강사 상세 페이지에 렌더링되는 비주얼 및 이력 데이터</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <table class="spec-form-table">
+              <tbody>
+                <tr>
+                  <th>강사 목록용 프로필 사진 <span class="req-star">*</span><br>(투명 배경 PNG 권장)</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" class="form-input" style="width:270px;" value="inst_kim_list_cutout.png (480x600px)" readonly="">
+                      <button type="button" class="btn btn-outline btn-sm" data-dev-name="photo" data-dev-note="jpg · jpeg · png · webp, 2MB, 480×640 이상 3:4 (+ delete_photo)" onclick="showToast('강사 목록용 프로필 이미지 업로드 창 호출 (480x600px PNG 권장)')">파일 변경</button>
+                    </div>
+                  </td>
+                  <th>강사 상세 상단 배너 이미지</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" class="form-input" style="width:270px;" value="inst_kim_hero_banner.jpg (1200x360px)" readonly="">
+                      <button type="button" class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="상단 배너 이미지 — 개발 없음" onclick="showToast('강사 상세 상단 배너 이미지 업로드 창 호출')">파일 변경</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>대표 홍보/인터뷰 영상<br>(ADMN-PROD-002 연동)</th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="text" id="f-intro-vod" data-dev-flag="proto-only" data-dev-note="대표 홍보 영상 — 개발 폼에 없음(instructors.intro_lecture_id 칸만 있음)" class="form-input" style="width:360px;" value="LEC-INTRO-001 (김안전 강사 2026 산안기 합격 커리큘럼 가이드)">
+                      <button type="button" class="btn btn-soft btn-sm" data-dev-flag="proto-only" data-dev-note="미디어키 확인 — 개발 미구현" onclick="showToast('ADMN-PROD-002 맛보기/홍보 영상 미디어키 검증 완료 (3분 20초)')">미디어키 확인</button>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>주요 약력 / 학력 / 저서<br>(행 단위 편집) <span class="req-star">*</span></th>
+                  <td colspan="3">
+                    <div id="career-builder-wrap" data-dev-note="개발은 에디터 HTML 1칸(빈 문단 불가) — 프로토는 행 빌더" data-dev-name="career"></div>
+                    <button type="button" class="btn btn-outline btn-sm" style="margin-top:4px;" data-dev-note="개발 career 에디터 1칸" onclick="addCareerLine()">+ 약력 항목 한 줄 추가</button>
+                  </td>
+                </tr>
+                <tr>
+                  <th>강사 인사말 및 학습 가이드</th>
+                  <td colspan="3">
+                    <textarea id="f-inst-greeting" data-dev-flag="proto-only" data-dev-note="인사말 · 학습 가이드 — 개발 없음" class="form-textarea" rows="4">안녕하십니까, 산준모 산업안전기사 대표강사 김안전입니다.
+안전공학은 단순 암기가 아니라 현장 설비의 원리와 재해 메커니즘을 이해하면 학습량을 절반으로 줄일 수 있습니다.
+필기부터 실기 필답형·작업형까지 가장 빠른 동차 합격의 길로 안내하겠습니다.</textarea>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  
+
+  <div class="toast-msg" id="toast-box"></div>
+
+  
+
+
+</div></div><script>
+    /* =========================================================================
+       1. SNB 마스터 렌더링 (20개 전체 화면 · 현재 ADMN-PROD-006 active)
+       ========================================================================= */
+
+    const CURRENT_SCREEN_CODE = "ADMN-PROD-006";
+
+
+    /* =========================================================================
+       2. 강사 노출 프로필 샘플 데이터
+       ========================================================================= */
+    let instructorsData = [
+      {
+        profCode: "PRF-2601",
+        insCode: "RH-0019",
+        name: "김안전",
+        cat: "산업안전기사",
+        slogan: "산업안전기사 누적 수강생 1위, 비전공자도 이해되는 스토리텔링 안전공학",
+        courseCount: 4,
+        bookCount: 3,
+        contractStatus: "정상",
+        featuredYn: "Y",
+        displayYn: "Y",
+        sortOrder: 1,
+        createdAt: "2026-01-03"
+      },
+      {
+        profCode: "PRF-2602",
+        insCode: "RH-0046",
+        name: "이건설",
+        cat: "건설안전기사",
+        slogan: "현장 소장 출신이 짚어주는 건설안전기술 핵심 공법과 실기 작업형 완벽 해법",
+        courseCount: 3,
+        bookCount: 2,
+        contractStatus: "정상",
+        featuredYn: "Y",
+        displayYn: "Y",
+        sortOrder: 2,
+        createdAt: "2026-01-08"
+      },
+      {
+        profCode: "PRF-2603",
+        insCode: "RH-0047",
+        name: "박보건",
+        cat: "산업안전기사",
+        slogan: "화학설비·작업환경측정·산업위생 계산문제 공식 암기법 특화",
+        courseCount: 2,
+        bookCount: 1,
+        contractStatus: "갱신대기",
+        featuredYn: "N",
+        displayYn: "Y",
+        sortOrder: 3,
+        createdAt: "2026-01-19"
+      },
+      {
+        profCode: "PRF-2604",
+        insCode: "RH-0048",
+        name: "최지도",
+        cat: "산업안전지도사",
+        slogan: "산업안전지도사 1차·2차 논술 및 구술면접 실전 코칭",
+        courseCount: 2,
+        bookCount: 1,
+        contractStatus: "정상",
+        featuredYn: "Y",
+        displayYn: "Y",
+        sortOrder: 4,
+        createdAt: "2026-02-11"
+      },
+      {
+        profCode: "PRF-2509",
+        insCode: "RH-0049",
+        name: "정기계",
+        cat: "산업안전기사",
+        slogan: "기계위험방지기술 과년도 빈출문제 해설 (2025 계약만료)",
+        courseCount: 1,
+        bookCount: 0,
+        contractStatus: "계약종료",
+        featuredYn: "N",
+        displayYn: "N",
+        sortOrder: 99,
+        createdAt: "2025-03-10"
+      }
+    ];
+
+    let careerLines = [
+      "현) 산준모 산업안전기사 · 건설안전기사 대표 전임강사",
+      "산업안전지도사(기계안전) / 산업안전기사 / 건설안전기사 자격 보유",
+      "전) 대기업 안전환경팀 위험성평가 총괄 컨설턴트 (경력 14년)",
+      "저서: 2026 산준모 산업안전기사 필기/실기 한권완성 시리즈 (산준모북스)"
+    ];
+
+    /* =========================================================================
+       3. 유틸 및 서브뷰 전환
+       ========================================================================= */
+    function showToast(msg) {
+      const box = document.getElementById("toast-box");
+      box.textContent = msg;
+      box.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        box.style.display = "none";
+      }, 2800);
+    }
+
+    function switchSubview(viewName) {
+      document.querySelectorAll(".subview-panel").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll(".subview-btn").forEach(b => b.classList.remove("active"));
+
+      const panel = document.getElementById(`subview-${viewName}`);
+      const btn = document.querySelector(`.subview-btn[data-view="${viewName}"]`);
+      if (panel) panel.classList.add("active");
+      if (btn) btn.classList.add("active");
+
+      const codeEl = document.getElementById("header-screen-code");
+      const titleEl = document.getElementById("header-screen-title");
+
+      if (viewName === "list") {
+        codeEl.textContent = "ADMN-PROD-006";
+        titleEl.textContent = "강사 노출 정보 관리 (목록)";
+        renderInstList();
+      } else if (viewName === "detail") {
+        codeEl.textContent = "ADMN-PROD-006-S2";
+        titleEl.textContent = "강사 프로필 상세 조회";
+        renderDetailView();
+      } else if (viewName === "form") {
+        codeEl.textContent = "ADMN-PROD-006-S1";
+        titleEl.textContent = "강사 노출 정보 등록 / 수정";
+        renderCareerBuilder();
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    /* =========================================================================
+       4. 목록(ADMN-PROD-006) 렌더링
+       ========================================================================= */
+    function getContractBadgeHtml(status) {
+      if (status === "정상") return `<span class="badge badge-active">계약 정상</span>`;
+      if (status === "갱신대기") return `<span class="badge badge-hold">갱신대기</span>`;
+      return `<span class="badge badge-terminated">계약종료 (노출차단)</span>`;
+    }
+
+    function resetInstFilters() {
+      document.getElementById("filter-cat").value = "ALL";
+      document.getElementById("filter-contract").value = "ALL";
+      document.getElementById("filter-display").value = "ALL";
+      document.getElementById("filter-featured").value = "ALL";
+      document.getElementById("filter-keyword").value = "";
+      renderInstList();
+    }
+
+    function renderInstList() {
+      const cat = document.getElementById("filter-cat").value;
+      const contract = document.getElementById("filter-contract").value;
+      const disp = document.getElementById("filter-display").value;
+      const feat = document.getElementById("filter-featured").value;
+      const kw = document.getElementById("filter-keyword").value.trim().toLowerCase();
+      const sortMode = document.getElementById("filter-sort").value;
+
+      let filtered = instructorsData.filter(item => {
+        if (cat !== "ALL" && item.cat !== cat) return false;
+        if (contract !== "ALL" && item.contractStatus !== contract) return false;
+        if (disp !== "ALL" && item.displayYn !== disp) return false;
+        if (feat !== "ALL" && item.featuredYn !== feat) return false;
+        if (kw && !(
+          item.name.toLowerCase().includes(kw) ||
+          item.insCode.toLowerCase().includes(kw) ||
+          item.slogan.toLowerCase().includes(kw)
+        )) return false;
+        return true;
+      });
+
+      if (sortMode === "ORDER") {
+        filtered.sort((a, b) => a.sortOrder - b.sortOrder);
+      } else {
+        filtered.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      }
+
+      document.getElementById("inst-total-count").textContent = filtered.length;
+      const tbody = document.getElementById("inst-list-tbody");
+
+      tbody.innerHTML = filtered.map(item => `
+        <tr>
+          <td class="text-center">
+            <input type="number" class="form-input text-center" style="width:58px; height:28px; font-weight:700;" value="${item.sortOrder}" min="1" max="99" onchange="updateSortOrder('${item.profCode}', this.value)" />
+          </td>
+          <td><span class="code-pill">${item.profCode}</span></td>
+          <td><span class="code-pill">${item.insCode}</span></td>
+          <td>
+            <div class="inst-profile-cell">
+              <div class="inst-avatar">${item.name.charAt(0)}</div>
+              <div>
+                <a class="inst-link" data-dev-route="admin.instructor-profiles.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/{instructorProfile}" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="개발은 강사명 링크 → 수정 화면(admin.instructor-profiles.edit)" onclick="openInstDetail('${item.profCode}')">${item.name} 강사</a>
+                <div style="font-size:11px; color:var(--slate-500);">전임 프로필</div>
+              </div>
+            </div>
+          </td>
+          <td>${item.cat}</td>
+          <td style="color:var(--navy-800);">${item.slogan}</td>
+          <td class="text-center">강좌 ${item.courseCount} · 저서 ${item.bookCount}</td>
+          <td class="text-center">${getContractBadgeHtml(item.contractStatus)}</td>
+          <td class="text-center">
+            <span class="badge ${item.featuredYn === 'Y' ? 'badge-violet' : 'badge-end'}">${item.featuredYn === 'Y' ? '메인추천' : '일반'}</span>
+          </td>
+          <td class="text-center">
+            <span class="badge ${item.displayYn === 'Y' ? 'badge-info' : 'badge-end'}">${item.displayYn}</span>
+          </td>
+          <td class="text-center">${item.createdAt}</td>
+          <td class="text-center">
+            <div style="display:flex; gap:4px; justify-content:center;">
+              <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.instructor-profiles.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/{instructorProfile}" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="개발은 강사명 링크 → 수정 화면(admin.instructor-profiles.edit)" onclick="openInstDetail('${item.profCode}')">상세</button>
+              <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.instructor-profiles.edit" data-dev-method="GET" data-dev-url="/sj-admin/instructor-profiles/{instructorProfile}/edit" data-dev-perm="수정" onclick="openInstEdit('${item.profCode}')">수정</button>
+              <button type="button" class="btn btn-danger-outline btn-sm" data-dev-flag="dev-only" data-dev-route="admin.instructor-profiles.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/instructor-profiles/{instructorProfile}" data-dev-perm="삭제" onclick="showToast('[개발] 강사 프로필 삭제 — DELETE /instructor-profiles/{instructorProfile}')">삭제</button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function updateSortOrder(profCode, newOrder) {
+      const target = instructorsData.find(i => i.profCode === profCode);
+      if (target) target.sortOrder = Number(newOrder || 1);
+    }
+
+    function openInstDetail(profCode) {
+      const found = instructorsData.find(i => i.profCode === profCode) || instructorsData[0];
+      window.__currentInst = found;
+      switchSubview("detail");
+    }
+
+    function openInstEdit(profCode) {
+      const found = instructorsData.find(i => i.profCode === profCode) || instructorsData[0];
+      window.__currentInst = found;
+      populateInstForm(found);
+      switchSubview("form");
+    }
+
+    function openNewInstForm() {
+      document.getElementById("form-mode-title").textContent = "신규 강사 노출 프로필 등록 (ADMN-PROD-006-S1)";
+      document.getElementById("f-prof-code").value = "PRF-AUTO (저장 시 자동채번)";
+      document.getElementById("f-inst-name").value = "";
+      document.getElementById("f-inst-slogan").value = "";
+      document.getElementById("f-inst-order").value = instructorsData.length + 1;
+      switchSubview("form");
+    }
+
+    function editCurrentDetailInst() {
+      const inst = window.__currentInst || instructorsData[0];
+      populateInstForm(inst);
+      switchSubview("form");
+    }
+
+    function populateInstForm(inst) {
+      document.getElementById("form-mode-title").textContent = `강사 노출 정보 수정 — ${inst.profCode} (ADMN-PROD-006-S1)`;
+      document.getElementById("f-prof-code").value = inst.profCode;
+      document.getElementById("f-ins-master").value = inst.insCode;
+      document.getElementById("f-inst-name").value = inst.name;
+      document.getElementById("f-inst-cat").value = inst.cat;
+      document.getElementById("f-inst-slogan").value = inst.slogan;
+      document.getElementById("f-inst-order").value = inst.sortOrder;
+      document.getElementById("f-inst-featured").checked = (inst.featuredYn === "Y");
+      onChangeMasterInstructor();
+    }
+
+    /* =========================================================================
+       5. 상세(ADMN-PROD-006-S2) 및 등록/수정(ADMN-PROD-006-S1) 제어
+       ========================================================================= */
+    function renderDetailView() {
+      const inst = window.__currentInst || instructorsData[0];
+      document.getElementById("d-prof-code").textContent = inst.profCode;
+      document.getElementById("d-inst-name").textContent = `${inst.name} 대표강사 (${inst.cat})`;
+      document.getElementById("d-created-at").textContent = `등록일: ${inst.createdAt}`;
+      document.getElementById("d-code").textContent = inst.profCode;
+      document.getElementById("d-ins-code").textContent = inst.insCode;
+      document.getElementById("d-name").textContent = inst.name;
+      document.getElementById("d-cat").textContent = inst.cat;
+      document.getElementById("d-slogan").textContent = `"${inst.slogan}"`;
+      document.getElementById("d-display-order").innerHTML =
+        `프론트 노출 (${inst.displayYn}) · 카테고리 내 노출 순서 <strong>${inst.sortOrder}위</strong> · 메인 추천강사 (${inst.featuredYn})`;
+    }
+
+    function onChangeMasterInstructor() {
+      const sel = document.getElementById("f-ins-master");
+      const opt = sel.options[sel.selectedIndex];
+      const status = opt.getAttribute("data-status");
+      const name = opt.getAttribute("data-name");
+
+      const gateBox = document.getElementById("f-contract-gate-box");
+      const gateTitle = document.getElementById("f-contract-gate-title");
+      const gateDesc = document.getElementById("f-contract-gate-desc");
+      const radioDispY = document.getElementById("radio-inst-disp-y");
+      const radioDispN = document.getElementById("radio-inst-disp-n");
+      const chkFeatured = document.getElementById("f-inst-featured");
+
+      if (!document.getElementById("f-inst-name").value) {
+        document.getElementById("f-inst-name").value = name;
+      }
+
+      if (status === "계약종료") {
+        gateBox.className = "contract-sync-box locked";
+        gateTitle.textContent = `[전시 차단 — Hard Lock] 권리자코드 ${sel.value} (계약 상태: 계약종료/해지)`;
+        gateDesc.textContent = "ADMN-INST-001 원장에서 계약이 종료된 권리자이므로 프론트 강사관 노출(Y) 및 메인 추천 설정이 강제 잠금(N) 처리되고, 이 강사의 신규 강좌 판매와 맛보기 영상도 함께 블라인드(비노출)됩니다. 이미 구매한 기수강생은 남은 수강 기간 동안 재생권이 그대로 보호됩니다.";
+        radioDispN.checked = true;
+        radioDispY.disabled = true;
+        chkFeatured.checked = false;
+        chkFeatured.disabled = true;
+      } else {
+        gateBox.className = "contract-sync-box ok";
+        gateTitle.textContent = `[계약 유효 검증 통과] 권리자코드 ${sel.value} (계약 상태: ${status})`;
+        gateDesc.textContent = "ADMN-INST-001 원장 계약이 유효하므로 프론트 강사관 노출(Y) 및 메인 배너 추천 설정이 가능합니다.";
+        radioDispY.disabled = false;
+        chkFeatured.disabled = false;
+      }
+    }
+
+    function renderCareerBuilder() {
+      const wrap = document.getElementById("career-builder-wrap");
+      wrap.innerHTML = careerLines.map((line, idx) => `
+        <div class="career-row">
+          <span class="code-pill" style="width:52px; text-align:center;">이력 ${idx + 1}</span>
+          <input type="text" class="form-input" value="${line}" onchange="careerLines[${idx}] = this.value" />
+          <button type="button" class="btn btn-danger-outline btn-sm" data-dev-note="개발 career 에디터 1칸" onclick="removeCareerLine(${idx})">삭제</button>
+        </div>
+      `).join("");
+    }
+
+    function addCareerLine() {
+      careerLines.push("신규 강사 약력/자격/저서 이력을 입력하세요");
+      renderCareerBuilder();
+    }
+
+    function removeCareerLine(idx) {
+      if (careerLines.length <= 1) {
+        showToast("최소 1개 이상의 약력 항목이 필요합니다.");
+        return;
+      }
+      careerLines.splice(idx, 1);
+      renderCareerBuilder();
+    }
+
+    function saveInstForm() {
+      const name = document.getElementById("f-inst-name").value.trim();
+      const slogan = document.getElementById("f-inst-slogan").value.trim();
+      if (!name || !slogan) {
+        showToast("프론트 노출 강사명과 한줄 슬로건을 입력해 주세요.");
+        return;
+      }
+
+      const rawCode = document.getElementById("f-prof-code").value;
+      const isNew = rawCode.includes("AUTO");
+      const finalCode = isNew ? `PRF-260${instructorsData.length + 1}` : rawCode;
+
+      const sel = document.getElementById("f-ins-master");
+      const opt = sel.options[sel.selectedIndex];
+      const contractStatus = opt.getAttribute("data-status");
+
+      const payload = {
+        profCode: finalCode,
+        insCode: sel.value,
+        name,
+        cat: document.getElementById("f-inst-cat").value,
+        slogan,
+        courseCount: 2,
+        bookCount: 1,
+        contractStatus,
+        featuredYn: document.getElementById("f-inst-featured").checked ? "Y" : "N",
+        displayYn: document.querySelector('input[name="f-inst-display"]:checked').value,
+        sortOrder: Number(document.getElementById("f-inst-order").value || 1),
+        createdAt: "2026-10-15"
+      };
+
+      const idx = instructorsData.findIndex(i => i.profCode === finalCode);
+      if (idx >= 0) instructorsData[idx] = payload;
+      else instructorsData.push(payload);
+
+      window.__currentInst = payload;
+      showToast(`강사 노출 프로필 [${finalCode}] 저장이 완료되었습니다.`);
+      switchSubview("list");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      window.__currentInst = instructorsData[0];
+      renderInstList();
+      renderDetailView();
+      renderCareerBuilder();
+    });
+  </script><script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>

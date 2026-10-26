@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>약정금 마일스톤 검수 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+      --snb-bg: #0f172a;
+      --snb-text: #cbd5e1;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .app-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+
+    /* 표준 SNB (업무 여정 1~4단계 정렬) */
+    .snb {
+      background: var(--snb-bg);
+      color: var(--snb-text);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .snb-brand {
+      padding: 4px 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .snb-brand .title {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .snb-brand .subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+    .snb-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      padding: 0 10px;
+      margin-bottom: 6px;
+      letter-spacing: 0.4px;
+    }
+    .snb-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .snb-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 7px;
+      color: var(--snb-text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12.5px;
+    }
+    .snb-item:hover {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+    .snb-item.active {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+    .snb-code {
+      font-size: 10.5px;
+      opacity: 0.75;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+    }
+
+    /* Main */
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding-bottom: 84px;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .topbar-left { display: flex; flex-direction: column; gap: 4px; }
+    .breadcrumb {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .page-title {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-primary { background: var(--primary-soft); color: var(--primary); border: 1px solid #bfdbfe; }
+    .badge-success { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }
+    .badge-warn { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }
+    .badge-danger { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); border: 1px solid #ddd6fe; }
+    .badge-neutral { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .btn:hover:not(:disabled) { background: var(--surface-alt); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+    .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .btn-sm { padding: 4px 9px; font-size: 11.5px; }
+
+    .content {
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Callout Banner */
+    .policy-banner {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .kpi-card:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .kpi-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+      background: #f8fbff;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Card & Table */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-alt);
+    }
+    .card-title { font-size: 14px; font-weight: 700; }
+    .filter-bar {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+    }
+    .input, .select {
+      padding: 6px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      background: #fff;
+      color: var(--text);
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--surface-alt);
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+    tr:hover td { background: #f8fafc; }
+    tr.selected td { background: #eff6ff; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; }
+    .mono { font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-size: 11.5px; }
+
+    /* Workspace Split */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1.05fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .detail-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 78px;
+    }
+    .detail-body {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+    }
+
+    /* Gate Check Box inside Detail */
+    .gate-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
+      background: var(--surface-alt);
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .gate-box-title {
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gate-item {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid var(--border);
+    }
+    .gate-item.fail { border-color: #fecaca; background: #fff5f5; color: var(--danger); }
+    .gate-item.pass { border-color: #bbf7d0; background: #f0fdf4; color: #15803d; }
+
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 7px 12px;
+      font-size: 12.5px;
+    }
+    .kv-label { color: var(--text-muted); font-weight: 600; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-label { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+    textarea.input { resize: vertical; min-height: 68px; font-family: inherit; }
+
+    /* Savebar */
+    .savebar {
+      position: fixed;
+      bottom: 0;
+      left: 250px;
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 30;
+      backdrop-filter: blur(6px);
+    }
+    .savebar-status { display: flex; align-items: center; gap: 12px; font-size: 12.5px; }
+
+    .toast-container {
+      position: fixed;
+      bottom: 72px;
+      right: 24px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      border-left: 4px solid var(--primary);
+    }
+    .hidden { display: none !important; }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  
+
+  
+
+
+
+
+
+
+<link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-INST-002", "devCommit": "d562524a", "progress": "일부 구현(검수 큐 검색 · 3대 게이트 판정 · 승인/반려). 탭 2 일할 반환 · 일시정산, 탭 3 감사 로그, 상세 편집(소득 구분 · 귀속월 · 증빙 파일) · 임시 저장 · 승인 후 자동 재연산은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.rights-holders.milestones.index", "label": "약정금 마일스톤 검수"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">정산 마감 전 사전 대사</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-INST-002</span>
+      <h1 class="crumb-title" id="header-screen-title">약정금 마일스톤 검수 (선급 · 제작지원금 승인 게이트)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <button class="btn" onclick="location.href='ADMN-INST-001_baseline.html'">← 권리자 계약 원장(INST-001)</button>
+    </div></header><div id="v4-page-body">
+  
+  
+  
+<div class="app-layout">
+  <!-- 좌측 SNB (업무 여정 1~4단계 표준) -->
+  
+
+  <!-- 우측 메인 영역 -->
+  <div class="main">
+    
+
+    <div class="content">
+      <!-- 7.2절 단일 책임 및 경로 분리 안내 배너 -->
+      <div class="policy-banner">
+        <div>
+          <strong>📌 [정산 기준 단일 책임 원칙 및 검수 범위]</strong>
+          본 화면은 <strong>전속계약금 · 일시금/분할형 개발지원금 · 매절 대금 · 정액 수당 · 종료 시 일시정산(<code>LUMP_SETTLE</code>)</strong>의 당월 정산서(7단계 <code>LUMPSUM_ADD</code>) 이관 검수와, <strong>매출연동 개발지원금 약정 체결 시 최초 1회 검수</strong>만 수행합니다. (매출연동형의 월별 지급분은 자동 연산되므로 매월 검수하지 않으며, 사입 도서 매입채무(AP)는 회계 시스템 경로로 분리됩니다.)
+        </div>
+        <span class="badge badge-neutral">마감월(2026-09) 소급 이관 차단</span>
+      </div>
+
+      <!-- KPI 필터 카드 -->
+      <section class="kpi-grid">
+        <div class="kpi-card active" data-filter="ALL">
+          <div class="k-title">전체 검수 대상 (마일스톤+R/S약정)</div>
+          <div class="k-num" id="kpiAll">9건</div>
+          <div class="k-sub">7단계 이관 + 개발지원금 약정</div>
+        </div>
+        <div class="kpi-card" data-filter="GATE_BLOCKED" data-dev-name="approval_status" data-dev-value="hold 게이트 차단 보류(개발은 상태값으로 저장)">
+          <div class="k-title">🚨 승인 게이트 차단 (조치 필요)</div>
+          <div class="k-num" id="kpiBlocked" style="color:var(--danger);">3건</div>
+          <div class="k-sub">소득구분 누락 / 국세청 90일 경과 등</div>
+        </div>
+        <div class="kpi-card" data-filter="READY_TO_APPROVE">
+          <div class="k-title">⚠️ 검수 대기 (즉시 승인 가능)</div>
+          <div class="k-num" id="kpiReady" style="color:var(--warn);">0건</div>
+          <div class="k-sub">3대 게이트 충족 · 검수 의견 대기</div>
+        </div>
+        <div class="kpi-card" data-filter="RS_AGREEMENT">
+          <div class="k-title">🟣 매출연동(R/S) 지원금 1회 검수</div>
+          <div class="k-num" id="kpiRs" style="color:var(--purple);">4건</div>
+          <div class="k-sub">약정 체결 최초 1회 필수값 게이트</div>
+        </div>
+        <div class="kpi-card" data-filter="APPROVED" data-dev-name="approval_status" data-dev-value="approved (+ transferred_at 이관 완료 카드는 개발에 따로 있음)">
+          <div class="k-title">✅ 검수 승인 · 정산서 이관 완료</div>
+          <div class="k-num" id="kpiApproved" style="color:var(--success);">6건</div>
+          <div class="k-sub">ADMN-SETT-002 수당/지원금 반영됨</div>
+        </div>
+      </section>
+
+      <!-- 탭 네비게이션 -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tabWorkspace" data-dev-route="admin.rights-holders.milestones.index" data-dev-method="GET" data-dev-url="/sj-admin/rights-holders/milestones" data-dev-perm="조회">1. 마일스톤 · 지원금 약정 검수 및 이관 승인 워크스페이스</button>
+        <button class="tab-btn" data-tab="tabClawback" data-dev-route="admin.rights-holders.milestones.clawbacks.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/rights-holders/milestones/clawbacks" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="중도해지 일할 반환 · 일시정산 — 개발 미구현(exclusive_contract_clawbacks 테이블은 있음)">2. 전속계약금 중도해지 일할 반환 · 종료 일시정산(LUMP_SETTLE) 규격 </button>
+        <button class="tab-btn" data-tab="tabAudit" data-dev-route="admin.rights-holders.milestones.logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/rights-holders/milestones/logs" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="검수 감사 로그 — 개발은 공통 admin.admin-logs.index(milestone_* 하위 동작)">3. 검수 · 수기 소명 감사 로그 (ADMN-CONF-010)</button>
+      </div>
+
+      <!-- 탭 1: 메인 워크스페이스 -->
+      <section id="tabWorkspace" class="tab-panel">
+        <div class="workspace-grid">
+          <!-- 좌측 목록 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">약정금 마일스톤 및 매출연동(R/S) 지원금 약정 검수 큐</div>
+              <span style="font-size:11.5px; color:var(--text-muted);">항목을 선택하여 우측에서 3대 게이트 검증 및 당월 정산서 이관 승인을 실행하세요.</span>
+            </div>
+            <div class="filter-bar">
+              <input type="text" id="searchInput" name="keyword" data-dev-note="식별자 · 권리자 · 계약" class="input" placeholder="마일스톤/약정 ID, 권리자명, 계약ID..." style="width:220px;">
+              <select id="typeFilter" name="term_type" data-dev-value="EXC · DEV · BUYOUT · ETC (프로토 EXCLUSIVE_FEE → EXC, SUPPORT_LUMP_INST · SUPPORT_RS_ONCE → DEV, FLAT_ALLOWANCE → ETC)" class="select">
+                <option value="ALL">전체 약정 유형</option>
+                <option value="EXCLUSIVE_FEE">전속계약금 (일회성 비상계)</option>
+                <option value="SUPPORT_LUMP_INST">개발지원금 (일시금·분할형)</option>
+                <option value="SUPPORT_RS_ONCE" data-dev-note="개발은 DEV 하나(일시금 · 분할형과 구분 없음)">개발지원금 (매출연동 R/S 체결 1회)</option>
+                <option value="BUYOUT">매절 대금 (권리 양도)</option>
+                <option value="FLAT_ALLOWANCE">정액·건당 수당</option>
+                <option value="LUMP_SETTLE" data-dev-flag="proto-only" data-dev-note="LUMP_SETTLE — 개발 term_type에 없음">지원금 종료 시 일시정산 (LUMP_SETTLE)</option>
+              </select>
+              <input type="month" class="input" name="target_month" value="2026-10" style="width:140px;" data-dev-flag="dev-only" data-dev-note="귀속월 — 미지정이면 당월 고정">
+              <select class="select" name="approval_status" data-dev-flag="dev-only" data-dev-note="ContractMilestone 검수 상태">
+                <option value="">전체 검수 상태</option>
+                <option value="pending">검수 대기</option>
+                <option value="approved">검수 승인</option>
+                <option value="rejected">검수 반려</option>
+                <option value="hold">게이트 차단 보류</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>식별자 / 계약 ID</th>
+                    <th>권리자 / 약정 구분</th>
+                    <th class="num">약정 금액 (또는 요율)</th>
+                    <th>상계 / 소득구분</th>
+                    <th>귀속월 (target_month)</th>
+                    <th>게이트 / 검수 상태</th>
+                  </tr>
+                </thead>
+                <tbody id="milestoneTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 우측 상세 검수 패널 -->
+          <div class="detail-panel">
+            <div class="card-header">
+              <div class="card-title" id="detailTitle">선택 마일스톤 검수 및 이관 승인</div>
+              <span id="detailBadge" class="badge badge-neutral">선택됨</span>
+            </div>
+            <div class="detail-body" id="detailBody">
+              <!-- JS 렌더링 -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 2: 전속계약금 일할 반환 및 지원금 종료 일시정산 참조 -->
+      <section id="tabClawback" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">전속계약금 중도해지 일할 반환 산식(10단계 CLAIM) 및 지원금 종료 시 일시 정산(LUMP_SETTLE, 7단계) 연동 현황 </div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                전속계약금 반환액은 세후 실지급액 기준 일할 산출하여 10단계(CLAIM)에서 1회 차감하며, 위약금(Penalty)은 정산 엔진(1~11단계)에서 완전 배제합니다.
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>구분</th>
+                  <th>계약 / 약정 ID</th>
+                  <th>권리자</th>
+                  <th>산출 기준 및 수식 </th>
+                  <th class="num">산출 금액</th>
+                  <th>엔진 인입 단계 및 처리 상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge badge-danger">전속계약금 일할 반환</span></td>
+                  <td class="mono">CT-2025-0911<br>(EXC-2025-01)</td>
+                  <td>이전기 (강사)</td>
+                  <td>
+                    <code>반환액 = 내림( 세후 실지급액 × (잔여 의무일수 / 총 복무일수) ) → 반환 확정 3,000,000원 (세후 · 반환 상계 동의)</code><br>
+                    <span style="font-size:11px; color:var(--text-muted);">* 총 복무일수 = 의무 종료일 − 의무 시작일 + 1 (해지일 당일은 복무 일수 포함) / 반환 상당 과세표준 역산 후 수정신고(채널 3-a) 연동</span>
+                  </td>
+                  <td class="num" style="color:var(--danger); font-weight:700;">-3,000,000원</td>
+                  <td>7단계 차감 금지 → <strong>10단계(CLAIM) 세후 1회 차감</strong></td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-primary">지원금 종료 일시정산</span></td>
+                  <td class="mono">CT-2026-0412<br>(SFA-2026-001)</td>
+                  <td>산준교육 (법인)</td>
+                  <td>
+                    <code>on_termination_policy = LUMP_SETTLE</code> (한도형 총 한도 10,000,000원 − 기 소진 8,200,000원)<br>
+                    <span style="font-size:11px; color:var(--text-muted);">* 본 화면(INST-002)에서 종료 일시정산 승인 시 7단계(LUMPSUM_ADD)로 1회 인입 + 5단계(SUPPORT_CAP) 한도 소진액 가산 후 종결 전이</span>
+                  </td>
+                  <td class="num" style="color:var(--primary); font-weight:700;">+1,800,000원</td>
+                  <td><strong>7단계(LUMPSUM_ADD) 수당 라인 인입 대기</strong> (MS-2026-006)</td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-neutral">위약금 (Penalty)</span></td>
+                  <td class="mono">CT-2025-0911</td>
+                  <td>이전기 (강사)</td>
+                  <td>
+                    <code>penalty_calc_type = MULTIPLE (200%)</code>, <code>penalty_base = TOTAL_AGREED</code>, <code>CUMULATIVE</code><br>
+                    <span style="font-size:11px; color:var(--text-muted);">* 정산 기준 원칙: 위약금은 기 지급 소득의 정정이 아닌 신규 손해배상 채무이므로 1~11단계 정산 엔진 및 이월 원장에 절대 인입하지 않음</span>
+                  </td>
+                  <td class="num">20,000,000원</td>
+                  <td><span class="badge badge-neutral">정산 엔진 완전 배제 (별도 청구 관리)</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 3: 감사 로그 -->
+      <section id="tabAudit" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">마일스톤 검수 · 수기 소명 · 정산서 이관 감사 로그 (ADMN-CONF-010 연동)</div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>일시</th>
+                  <th>작업자</th>
+                  <th>대상 식별자</th>
+                  <th>검수 방식</th>
+                  <th>처리 내역</th>
+                  <th>검수 의견 및 승인 근거</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 하단 고정 상태 바 -->
+    <footer class="savebar">
+      <div class="savebar-status">
+        <span class="badge badge-primary">이관 연동 상태</span>
+        <span id="footerSummaryText">
+          2026-10 귀속월 이관 승인 완료: <strong>2건</strong> (7단계 비정기 가산금 <strong>5,000,000원</strong> + 개발지원금 매출연동 약정 <strong>1건 ACTIVE</strong>)
+        </span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-sm" onclick="location.href='ADMN-SETT-002_baseline.html'">월간 정산 및 집행(SETT-002)으로 이동 →</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+
+
+
+</div></div>
+<div id="recalcNoticeModal" data-dev-flag="proto-only" data-dev-note="승인 후 자동 재연산 알림 — 개발 없음(정책 질문 Q-INST002-2)" class="modal-backdrop recalc-notice" role="dialog" aria-modal="true" aria-labelledby="recalcNoticeTitle" style="position:fixed; inset:0; background:rgba(15,23,42,0.55); display:none; align-items:center; justify-content:center; z-index:11000; padding:20px;">
+  <div style="background:#fff; border-radius:12px; width:680px; max-width:96%; max-height:86vh; display:flex; flex-direction:column; box-shadow:0 20px 45px rgba(15,23,42,0.25); overflow:hidden;">
+    <div style="padding:14px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; gap:8px;"><strong id="recalcNoticeTitle" style="font-size:15px;">정산서 자동 재연산 안내</strong><button type="button" class="btn btn-sm" onclick="closeRecalcNotice()">✕ 닫기</button></div>
+    <div id="recalcNoticeBody" style="padding:16px 20px; overflow-y:auto; font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:10px;"></div>
+    <div style="padding:12px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:8px;"><a class="btn" href="ADMN-SETT-002_baseline.html">월간 정산에서 확인 ↗</a><button type="button" class="btn btn-primary" onclick="closeRecalcNotice()">확인</button></div>
+  </div>
+</div>
+<script>
+  // 마감 완료된 월 목록 (7.0절: Locked=True인 데이터 기준 월에는 신규 이관 절대 차단)
+  const LOCKED_MONTHS = ["2026-08", "2026-09"];
+  // 정산 배치(SETT-002)를 이미 돌린 미마감 월 — 이 달로 승인하면 해당 권리자 정산서를 자동 재연산(정산 01권 7.2절)
+  const SETTLE_BATCH_AT = { "2026-10": "2026-10-14 15:45:00" };
+  // 정산서 자동 재연산 기록 — 월간 정산(SETT-002)이 같은 키를 읽어 배치 이후 재연산된 권리자를 표시
+  const RECALC_EVENTS_KEY = "sjm.settle.recalcEvents.v1";
+  function pushRecalcEvents(events) {
+    try {
+      const prev = JSON.parse(localStorage.getItem(RECALC_EVENTS_KEY) || "[]");
+      localStorage.setItem(RECALC_EVENTS_KEY, JSON.stringify(events.concat(prev)));
+    } catch (e) {}
+  }
+  function recalcTable(rows) {
+    const th = 'style="text-align:left; padding:7px 8px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-weight:700;"';
+    const td = 'style="padding:7px 8px; border-bottom:1px solid #e2e8f0; vertical-align:top;"';
+    return `<table style="width:100%; border-collapse:collapse; font-size:12.5px;"><thead><tr><th ${th}>권리자</th><th ${th}>계약</th><th ${th}>반영 내용</th></tr></thead><tbody>`
+      + rows.map(r => `<tr><td ${td}><strong>${r.holderName}</strong></td><td ${td} class="mono" nowrap>${r.contractId}</td><td ${td}>${r.detail}</td></tr>`).join("")
+      + `</tbody></table>`;
+  }
+  function openRecalcNotice(html) {
+    const m = document.getElementById("recalcNoticeModal");
+    document.getElementById("recalcNoticeBody").innerHTML = html;
+    m.classList.add("show");
+    m.style.setProperty("display", "flex", "important");
+    m.removeAttribute("aria-hidden");
+  }
+  function closeRecalcNotice() {
+    const m = document.getElementById("recalcNoticeModal");
+    m.classList.remove("show");
+    m.style.setProperty("display", "none", "important");
+  }
+
+  const state = {
+    selectedId: "MS-2026-001",
+    kpiFilter: "ALL",
+    items: [
+      {
+        id: "MS-2026-001",
+        contractId: "CT-2026-0715",
+        rightsHolderId: "RH-0019",
+        rightsHolderName: "김안전 (개인 프리랜서 · RH-0019)",
+        isBusinessEntity: false, // 개인 프리랜서
+        category: "BUYOUT",
+        categoryLabel: "매절 대금 (판권·문항 양도)",
+        title: "2027 대비 산업안전 실기 신규 문항 500제 매절 양도 (2회차 잔금)",
+        amount: 3000000,
+        paymentMethod: "INSTALLMENT",
+        offsetType: "NON_OFFSET", // 매절 대금은 비상계 (7단계 비정기 가산)
+        // Gate A: 소득 구분 (고의로 누락 시연 → 사용자가 지정 후 승인 가능)
+        incomeCategory: "", // "" | "BUSINESS" | "OTHER"
+        incomeClause: "",   // "" | "C15" | "C05" | "C17" | "C19"
+        payeeIsAuthor: true,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0715::MS-2026-001",
+        // Gate C: 국세청 상태 (개인은 해당 없음)
+        ntsStatus: "N/A (개인 프리랜서)",
+        ntsCheckedDaysAgo: 0,
+        ntsPass: true,
+        // 검수 방식 (이원화: EVIDENCE_FILE | MANUAL_NOTE)
+        inspectionMode: "EVIDENCE_FILE",
+        evidenceFileName: "판권양도확인서_및_500제_최종검수표_김안전.pdf",
+        targetMonth: "2026-10",
+        status: "PENDING", // PENDING | APPROVED
+        memo: "",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "SFA-2026-009",
+        contractId: "CT-2026-0501",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자 · RH-0025)",
+        isBusinessEntity: true,
+        category: "SUPPORT_RS_ONCE",
+        categoryLabel: "개발지원금 (매출연동 R/S 약정 체결 1회 검수)",
+        title: "[자사저작권 도서+강좌] 정종대 산업안전 필기 개발지원금",
+        amount: 0, // 매출연동형은 요율로 산정
+        rateText: "지원금 요율 15.00% (rate_type=SUPPORT, 기준모수 SAME_AS_BASIC)",
+        paymentMethod: "REVENUE_SHARE",
+        offsetType: "CONDITIONAL", // v4.0.0 기본값: 선급금 상계 허용
+        // Gate B: 매출연동 지원금 필수값
+        capType: "CAPPED",
+        totalCapAmount: 15000000,
+        settlementScope: "PIPELINE_1_1_2_1",
+        targetCount: 2, // CRS-1002 (자사지분 30%), PROD-BK-1004 (자사 저작권 보유 자사지분 100%)
+        targetCodes: ["CRS-1002", "PROD-BK-1004"],
+        endBasis: "CONTRACT_LINKED",
+        onTerminationPolicy: "FORFEIT",
+        // Gate A: 소득 구분
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: false, // 자사 저작권 도서의 기여 강사
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0501::SFA-2026-009",
+        // Gate C: 승인 당시 국세청 상태 확인 통과 (90일 경과 차단 시연은 MS-2026-007로 옮김)
+        ntsStatus: "계속사업자 (면세사업자)",
+        ntsCheckedDaysAgo: 2,
+        ntsPass: true,
+        inspectionMode: "EVIDENCE_FILE",
+        evidenceFileName: "정종대_개발지원금_부속정산조건표_날인본.pdf",
+        targetMonth: "2025-01",
+        status: "APPROVED",
+        memo: "자사 저작권 도서(PROD-BK-1004, 자사지분 100%) 및 강좌(CRS-1002, 자사지분 30%) 대상 매출연동 15% 지원금 약정 체결 1회 검수 승인(계약 개시 2025-01). 2026-09 마감까지 확정 · 소진 누계 4,850,000원 → 2026-10 정산에서 CRS-1002 실결제 3,000,000원 × 15% = 450,000원 발생 · 확정(소진 누계 5,300,000원 · 잔여 한도 9,700,000원). 합격환급반 CRS-1004는 자사 지분 0%라 대상 아님.",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2025-01-06 10:20:00"
+      },
+      {
+        id: "MS-2026-007",
+        contractId: "CT-2026-0501",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자 · RH-0025)",
+        isBusinessEntity: true,
+        category: "SUPPORT_LUMP_INST",
+        categoryLabel: "개발지원금 (분할형 INSTALLMENT · 1회차)",
+        title: "[신규 신청] 2027 산업안전기사 실기 기본서 집필 지원금 (1/2회차 · 원고 계약 마일스톤)",
+        amount: 1000000,
+        paymentMethod: "INSTALLMENT",
+        offsetType: "CONDITIONAL",
+        incomeCategory: "OTHER",
+        incomeClause: "C19", // 일시적 인적용역 (MS-2026-004와 같은 구분)
+        payeeIsAuthor: true,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0501::MS-2026-007",
+        // Gate C: 국세청 90일 경과 시연! (7.2절 사업자 상태 확인 게이트)
+        ntsStatus: "계속사업자 (면세사업자)",
+        ntsCheckedDaysAgo: 96, // 90일 초과 → 차단!
+        ntsPass: false,
+        inspectionMode: "EVIDENCE_FILE",
+        evidenceFileName: "정종대_2027실기기본서_원고계약서_날인본.pdf",
+        targetMonth: "2026-11",
+        status: "PENDING",
+        memo: "",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "SFA-2026-012",
+        contractId: "CT-2026-0702",
+        rightsHolderId: "RH-0042",
+        rightsHolderName: "최그래픽 (개인 프리랜서 · 기여자 · RH-0042)",
+        isBusinessEntity: false,
+        category: "SUPPORT_RS_ONCE",
+        categoryLabel: "개발지원금 (매출연동 R/S · 무한도형 UNLIMITED)",
+        title: "위험물산업기사 실기 3D 시뮬레이션 특강(CRS-1012) 기여 매출연동 지원금 (무한도형)",
+        amount: 0,
+        rateText: "지원금 요율 5.00% (rate_type=SUPPORT, 기준모수 SAME_AS_BASIC)",
+        paymentMethod: "REVENUE_SHARE",
+        offsetType: "CONDITIONAL",
+        // [v6.63 W4] 최그래픽의 유효 약정 — 대상 CRS-1012(자사지분 100%) 1건 · 2026-05 귀속 승인. 대상 0건 차단 시연은 SFA-2026-016으로 분리
+        capType: "UNLIMITED",
+        totalCapAmount: null, // UNLIMITED는 NULL 필수
+        settlementScope: "PIPELINE_1_1_ONLY",
+        targetCount: 1, // CRS-1012 (자사지분 100%)
+        targetCodes: ["CRS-1012"],
+        endBasis: "CONTRACT_LINKED",
+        onTerminationPolicy: "NONE", // UNLIMITED는 NONE 고정
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: false,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0702::SFA-2026-012",
+        ntsStatus: "N/A (개인 프리랜서)",
+        ntsCheckedDaysAgo: 0,
+        ntsPass: true,
+        inspectionMode: "MANUAL_NOTE",
+        evidenceFileName: "",
+        targetMonth: "2026-05",
+        status: "APPROVED",
+        memo: "공동제작 강좌 CRS-1012(자사 100%) 런칭 확인 · 대상 1건 매핑 후 약정 체결 1회 검수. 2026-10 대상 매출 1,440,000원 × 5% = 지원금 72,000원 발생(ADMN-SETT-002).",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-05-12 15:30:00"
+      },
+      {
+        id: "SFA-2026-016",
+        contractId: "CT-2026-0702",
+        rightsHolderId: "RH-0042",
+        rightsHolderName: "최그래픽 (개인 프리랜서 · 기여자 · RH-0042)",
+        isBusinessEntity: false,
+        category: "SUPPORT_RS_ONCE",
+        categoryLabel: "개발지원금 (매출연동 R/S · 무한도형 UNLIMITED)",
+        title: "[추가 약정 신청] 2027 소방설비기사 실기 3D 시뮬레이션 기여 매출연동 지원금 (무한도형 · 대상 강좌 미등록)",
+        amount: 0,
+        rateText: "지원금 요율 5.00% (rate_type=SUPPORT, 기준모수 SAME_AS_BASIC)",
+        paymentMethod: "REVENUE_SHARE",
+        offsetType: "CONDITIONAL",
+        // Gate B: UNLIMITED 검증 시연 (약정 대상 0건 미지정 상태 → 차단 시연) — 유효 약정 SFA-2026-012와 별개 신청
+        capType: "UNLIMITED",
+        totalCapAmount: null, // UNLIMITED는 NULL 필수
+        settlementScope: "PIPELINE_1_1_ONLY",
+        targetCount: 0, // 0건이라 Gate B 차단!
+        endBasis: "CONTRACT_LINKED",
+        onTerminationPolicy: "NONE", // UNLIMITED는 NONE 고정
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: false,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0702::SFA-2026-016",
+        ntsStatus: "N/A (개인 프리랜서)",
+        ntsCheckedDaysAgo: 0,
+        ntsPass: true,
+        inspectionMode: "MANUAL_NOTE",
+        evidenceFileName: "",
+        targetMonth: "2026-10",
+        status: "PENDING",
+        memo: "",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "MS-2026-004",
+        contractId: "CT-2026-0501",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자 · RH-0025)",
+        isBusinessEntity: true,
+        category: "SUPPORT_LUMP_INST",
+        categoryLabel: "개발지원금 (분할형 INSTALLMENT · 2회차)",
+        title: "산업안전 필기 10개년 빈출 해설집 집필 지원금 (2/2회차 완강·출간 마일스톤)",
+        amount: 2000000,
+        paymentMethod: "INSTALLMENT",
+        offsetType: "CONDITIONAL", // 6단계 선급금 상계 적격 세전액 포함 + 7단계 수당 가산
+        incomeCategory: "OTHER",
+        incomeClause: "C19", // 일시적 인적용역 (필요경비 60% 의제)
+        payeeIsAuthor: true,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0501::MS-2026-004",
+        ntsStatus: "계속사업자 (면세사업자)",
+        ntsCheckedDaysAgo: 12,
+        ntsPass: true,
+        inspectionMode: "MANUAL_NOTE", // 담당자 수기 소명형 시연
+        evidenceFileName: "",
+        targetMonth: "2026-10",
+        status: "APPROVED",
+        memo: "2026-10-10 필기 빈출 해설 강의 45강 전 차시 런칭 및 LMS 업로드 완료 내부 확인함. 2026-10 정산서 7단계(LUMPSUM_ADD) 이관 완료.",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-10-13 10:20:00",
+        bankReceiptLinked: "이체확인증 대기 (SETT-002 대량이체 결과 대사 후 자동 바인딩)"
+      },
+      {
+        id: "MS-2026-005",
+        contractId: "CT-2026-0501",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자 · RH-0025)",
+        isBusinessEntity: true,
+        category: "EXCLUSIVE_FEE",
+        categoryLabel: "전속계약금 (일회성 비상계 · 7단계 가산)",
+        title: "2026~2028 정종대 강사 2년 전속 체결 계약금 (1회 일시 지급)",
+        amount: 5000000,
+        paymentMethod: "LUMP_SUM",
+        offsetType: "NON_OFFSET", // 전속계약금은 비상계 고정
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: true,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0501::MS-2026-005",
+        ntsStatus: "계속사업자 (면세사업자)",
+        ntsCheckedDaysAgo: 12,
+        ntsPass: true,
+        inspectionMode: "EVIDENCE_FILE",
+        evidenceFileName: "정종대_전속계약서_날인원본_2026.pdf",
+        targetMonth: "2026-10",
+        status: "APPROVED",
+        memo: "전속계약 체결 및 사업자등록 상태(계속사업자) 확인 완료. 2026-10 정산서 7단계(LUMPSUM_ADD) 이관 완료.",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-10-12 11:20:00",
+        bankReceiptLinked: "이체확인증 대기 (SETT-002 대량이체 결과 대사 후 자동 바인딩)"
+      },
+      {
+        id: "MS-2026-006",
+        contractId: "CT-2026-0412",
+        rightsHolderId: "RH-0012",
+        rightsHolderName: "산준교육 콘텐츠 주식회사 (법인 · 일반과세)",
+        isBusinessEntity: true,
+        category: "LUMP_SETTLE",
+        categoryLabel: "지원금 종료 시 일시정산 (LUMP_SETTLE)",
+        title: "[SFA-2026-001] 계약 만료에 따른 한도형 지원금 미소진 잔액 일시 정산",
+        amount: 1800000,
+        paymentMethod: "LUMP_SUM",
+        offsetType: "NON_OFFSET",
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: false,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0412::MS-2026-006",
+        ntsStatus: "계속사업자 (법인 일반과세자)",
+        ntsCheckedDaysAgo: 5,
+        ntsPass: true,
+        inspectionMode: "MANUAL_NOTE",
+        evidenceFileName: "",
+        targetMonth: "2026-10",
+        status: "APPROVED",
+        memo: "계약 만료(2026-10-14) 및 on_termination_policy=LUMP_SETTLE 약정에 따라 미소진 한도(1,800,000원) 7단계 일시 정산 승인. (5단계 한도 소진액 가산 및 COMPLETED 전이 연동)",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-10-14 09:40:11",
+        bankReceiptLinked: "이체확인증 대기 (SETT-002 대량이체 결과 대사 후 자동 바인딩)"
+      },
+      {
+        id: "SFA-2026-015",
+        contractId: "CT-2026-0712",
+        rightsHolderId: "RH-0046",
+        rightsHolderName: "이건설 (개인 프리랜서 · RH-0046)",
+        isBusinessEntity: false,
+        category: "SUPPORT_RS_ONCE",
+        categoryLabel: "개발지원금 (R/S형 REVENUE_SHARE 약정 체결 1회 검수)",
+        title: "건설안전기사 필기 특강(CRS-2603) R/S형 개발지원금 (한도형 · 비상계)",
+        amount: 0,
+        rateText: "지원금 요율 10.00% (rate_type=SUPPORT, 기준모수 SAME_AS_BASIC)",
+        paymentMethod: "REVENUE_SHARE",
+        offsetType: "NON_OFFSET",
+        capType: "CAPPED",
+        totalCapAmount: 3000000,
+        settlementScope: "PIPELINE_1_1_ONLY",
+        targetCount: 1, // CRS-2603 (자사지분 40%)
+        targetCodes: ["CRS-2603"],
+        endBasis: "CONTRACT_LINKED",
+        onTerminationPolicy: "FORFEIT",
+        incomeCategory: "BUSINESS",
+        incomeClause: "NONE",
+        payeeIsAuthor: false,
+        mainWorkExternalLabor: false,
+        taxThresholdUnitKey: "CT-2026-0712::SFA-2026-015",
+        ntsStatus: "N/A (개인 프리랜서)",
+        ntsCheckedDaysAgo: 0,
+        ntsPass: true,
+        inspectionMode: "EVIDENCE_FILE",
+        evidenceFileName: "이건설_개발지원금_부속정산조건표_날인본.pdf",
+        targetMonth: "2026-01",
+        status: "APPROVED",
+        memo: "R/S형 10% · 한도 3,000,000원 · 환불 시 한도 복원 약정 체결 1회 검수. 2026-10 정산에서 한도 소진(누계 3,000,000원) → 약정 종결(COMPLETED).",
+        approvedBy: "재무책임자 (박정산)",
+        approvedAt: "2026-01-06 14:10:00"
+      }
+    ],
+    auditLogs: [
+      {
+        time: "2026-10-14 09:40:11",
+        actor: "재무책임자 (박정산)",
+        targetId: "MS-2026-006 (CT-2026-0412)",
+        mode: "수기 검수(내부확인)",
+        action: "지원금 종료 일시정산(LUMP_SETTLE) 승인 → 2026-10 이관",
+        reason: "계약 만료 및 LUMP_SETTLE 특약에 따라 미소진 잔액 1,800,000원 7단계(LUMPSUM_ADD) 이관 확정"
+      },
+      {
+        time: "2026-10-12 11:20:00",
+        actor: "재무책임자 (박정산)",
+        targetId: "MS-2026-005 (CT-2026-0501)",
+        mode: "증빙 첨부 검수",
+        action: "전속계약금 5,000,000원 검수 승인 → 2026-10 이관",
+        reason: "정종대_전속계약서_날인원본_2026.pdf 확인 및 2026-10 정산서 수당 라인 이관"
+      },
+      {
+        time: "2026-10-13 10:20:00",
+        actor: "재무책임자 (박정산)",
+        targetId: "MS-2026-004 (CT-2026-0501)",
+        mode: "수기 검수(내부확인)",
+        action: "약정금 2,000,000원 검수 승인 → 2026-10 정산서 7단계(LUMPSUM_ADD) 이관",
+        reason: "2026-10-10 필기 빈출 해설 강의 45강 전 차시 런칭 및 LMS 업로드 완료 내부 확인 (기타소득 C19 · 상계 허용)"
+      },
+      {
+        time: "2026-05-12 15:30:00",
+        actor: "재무책임자 (박정산)",
+        targetId: "SFA-2026-012 (CT-2026-0702)",
+        mode: "수기 검수(내부확인)",
+        action: "매출연동 지원금(무한도형 5%) 약정 체결 1회 검수 승인 → 2026-05 귀속",
+        reason: "공동제작 강좌 CRS-1012(자사 지분 100%) 대상 1건 매핑 확인 · 총 한도 NULL · 종료 정책 NONE (Gate B 통과)"
+      },
+      {
+        time: "2025-01-06 10:20:00",
+        actor: "재무책임자 (박정산)",
+        targetId: "SFA-2026-009 (CT-2026-0501)",
+        mode: "증빙 첨부 검수",
+        action: "매출연동 지원금(한도형 15% · 한도 15,000,000원) 약정 체결 1회 검수 승인 → 2025-01 귀속",
+        reason: "정종대_개발지원금_부속정산조건표_날인본.pdf 확인 · 대상 CRS-1002(자사 지분 30%) · PROD-BK-1004(자사 100%) 2건 매핑 · 국세청 상태 계속사업자(면세) 확인"
+      }
+    ]
+  };
+
+  function showToast(msg) {
+    const wrap = document.getElementById("toastContainer");
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), 3300);
+  }
+
+  // 항목별 3대 하드 게이트 판정 함수 (7.2절 정본)
+  function evaluateGates(item) {
+    // Gate A: 소득 구분 필수값
+    let gateAPass = true;
+    let gateAMsg = `통과 (${item.incomeCategory === "BUSINESS" ? "사업소득 BUSINESS" : "기타소득 OTHER · " + item.incomeClause})`;
+    if (!item.incomeCategory) {
+      gateAPass = false;
+      gateAMsg = "차단: 소득 구분 상위 축(income_category) 미지정";
+    } else if (item.incomeCategory === "OTHER" && (!item.incomeClause || item.incomeClause === "NONE")) {
+      gateAPass = false;
+      gateAMsg = "차단: 기타소득(OTHER) 선택 시 기타소득 호 구분(C15/C05/C19 등) 필수 지정";
+    }
+
+    // Gate B: 매출연동(REVENUE_SHARE) 지원금 필수값
+    let gateBPass = true;
+    let gateBMsg = "해당 없음 (비정기 단건 마일스톤)";
+    if (item.category === "SUPPORT_RS_ONCE") {
+      if (!item.capType || !item.settlementScope || !item.endBasis) {
+        gateBPass = false;
+        gateBMsg = "차단: 한도 유형 / 정산 범위 / 종료 기준 필수값 누락";
+      } else if (item.targetCount < 1) {
+        gateBPass = false;
+        gateBMsg = "차단: 약정 대상(support_fund_agreement_targets, 자사지분>0%) 최소 1건 이상 매핑 필수";
+      } else if (item.capType === "CAPPED" && (!item.totalCapAmount || !item.onTerminationPolicy || item.onTerminationPolicy === "NONE")) {
+        gateBPass = false;
+        gateBMsg = "차단: 한도형(CAPPED)은 총 한도 금액(total_cap_amount) 및 종료 처리 정책 필수";
+      } else if (item.capType === "UNLIMITED" && (item.totalCapAmount !== null || item.onTerminationPolicy !== "NONE")) {
+        gateBPass = false;
+        gateBMsg = "차단: 무한도형(UNLIMITED)은 총 한도 금액 NULL 및 종료 정책 NONE 고정 필수";
+      } else {
+        gateBPass = true;
+        gateBMsg = `통과 (${item.capType}, 범위: ${item.settlementScope}, 대상 ${item.targetCount}건)`;
+      }
+    }
+
+    // Gate C: 사업자 상태 확인 (국세청 계속사업자 & 90일 이내)
+    let gateCPass = true;
+    let gateCMsg = item.isBusinessEntity
+      ? `통과 (${item.ntsStatus}, ${item.ntsCheckedDaysAgo}일 전 확인)`
+      : "통과 (개인 프리랜서 · 국세청 사업자 조회 비대상)";
+    if (item.isBusinessEntity && (!item.ntsPass || item.ntsCheckedDaysAgo > 90)) {
+      gateCPass = false;
+      gateCMsg = `차단: 국세청 상태조회 후 ${item.ntsCheckedDaysAgo}일 경과 (유효기간 90일 초과 · 재조회 필수)`;
+    }
+
+    return {
+      gateAPass,
+      gateAMsg,
+      gateBPass,
+      gateBMsg,
+      gateCPass,
+      gateCMsg,
+      allPass: gateAPass && gateBPass && gateCPass
+    };
+  }
+
+  function updateKpis() {
+    const all = state.items;
+    const blocked = all.filter(x => x.status !== "APPROVED" && !evaluateGates(x).allPass);
+    const ready = all.filter(x => x.status !== "APPROVED" && evaluateGates(x).allPass);
+    const rsOnce = all.filter(x => x.category === "SUPPORT_RS_ONCE");
+    const approved = all.filter(x => x.status === "APPROVED");
+
+    document.getElementById("kpiAll").textContent = `${all.length}건`;
+    document.getElementById("kpiBlocked").textContent = `${blocked.length}건`;
+    document.getElementById("kpiReady").textContent = `${ready.length}건`;
+    document.getElementById("kpiRs").textContent = `${rsOnce.length}건`;
+    document.getElementById("kpiApproved").textContent = `${approved.length}건`;
+
+    const approvedOct = approved.filter(x => x.targetMonth === "2026-10");
+    const lumpSumApproved = approvedOct
+      .filter(x => x.category !== "SUPPORT_RS_ONCE")
+      .reduce((acc, c) => acc + c.amount, 0);
+    const rsApprovedCount = approvedOct.filter(x => x.category === "SUPPORT_RS_ONCE").length;
+
+    document.getElementById("footerSummaryText").innerHTML =
+      `2026-10 귀속월 이관 승인 완료: <strong>${approvedOct.length}건</strong> (7단계 비정기 가산금 합계 <strong>${lumpSumApproved.toLocaleString()}원</strong> + 매출연동 지원금 약정 활성화 <strong>${rsApprovedCount}건</strong>)`;
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("milestoneTableBody");
+    const q = document.getElementById("searchInput").value.trim().toLowerCase();
+    const tFilter = document.getElementById("typeFilter").value;
+
+    const filtered = state.items.filter(item => {
+      const g = evaluateGates(item);
+      if (state.kpiFilter === "GATE_BLOCKED" && !(item.status !== "APPROVED" && !g.allPass)) return false;
+      if (state.kpiFilter === "READY_TO_APPROVE" && !(item.status !== "APPROVED" && g.allPass)) return false;
+      if (state.kpiFilter === "RS_AGREEMENT" && item.category !== "SUPPORT_RS_ONCE") return false;
+      if (state.kpiFilter === "APPROVED" && item.status !== "APPROVED") return false;
+
+      if (tFilter !== "ALL" && item.category !== tFilter) return false;
+      if (q) {
+        const hay = `${item.id} ${item.contractId} ${item.rightsHolderName} ${item.title}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    tbody.innerHTML = filtered.map(item => {
+      const isSel = item.id === state.selectedId ? "selected" : "";
+      const g = evaluateGates(item);
+
+      let statusHtml = "";
+      if (item.status === "APPROVED") {
+        statusHtml = `<span class="badge badge-success">이관 승인 완료</span>`;
+      } else if (!g.allPass) {
+        statusHtml = `<span class="badge badge-danger">게이트 차단</span>`;
+      } else {
+        statusHtml = `<span class="badge badge-warn">검수 승인 대기</span>`;
+      }
+
+      const modeBadge = item.inspectionMode === "MANUAL_NOTE"
+        ? `<span class="badge badge-neutral" style="margin-top:3px;">수기 검수(내부확인)</span>`
+        : `<span class="badge badge-primary" style="margin-top:3px;">증빙 첨부형</span>`;
+
+      const amountHtml = item.category === "SUPPORT_RS_ONCE"
+        ? `<span class="badge badge-purple">매출연동 지원금 (1회)</span><div style="font-size:11px; color:var(--text-sub); margin-top:2px;">${item.rateText}</div>`
+        : `<strong>${item.amount.toLocaleString()}원</strong><div style="font-size:11px; color:var(--text-muted);">${item.paymentMethod}</div>`;
+
+      const incomeText = item.incomeCategory
+        ? `${item.incomeCategory}${item.incomeCategory === "OTHER" ? " (" + item.incomeClause + ")" : ""}`
+        : `<span style="color:var(--danger); font-weight:700;">미지정(차단)</span>`;
+
+      const offsetBadge = item.offsetType === "CONDITIONAL"
+        ? `<span class="badge badge-warn">상계허용(CONDITIONAL)</span>`
+        : `<span class="badge badge-neutral">비상계(NON_OFFSET)</span>`;
+
+      return `
+        <tr class="${isSel}" data-dev-route="admin.rights-holders.milestones.index" data-dev-method="GET" data-dev-url="/sj-admin/rights-holders/milestones" data-dev-perm="조회" data-dev-note="개발은 행의 [검수] 버튼 [data-milestone-id] → 검수 레이어 layerMilestoneReview(milestone_id)" onclick="selectItem('${item.id}')" style="cursor:pointer;">
+          <td>
+            <div class="mono" style="font-weight:700;">${item.id}</div>
+            <div class="mono" style="color:var(--text-muted);">${item.contractId}</div>
+          </td>
+          <td>
+            <div style="font-weight:700;">${item.rightsHolderName}</div>
+            <div style="font-size:11.5px; color:var(--text-sub);">${item.categoryLabel}</div>
+          </td>
+          <td class="num">${amountHtml}</td>
+          <td>
+            <div>${offsetBadge}</div>
+            <div class="mono" style="margin-top:3px;">소득: ${incomeText}</div>
+          </td>
+          <td class="mono"><strong>${item.targetMonth}</strong></td>
+          <td>
+            <div>${statusHtml}</div>
+            <div>${modeBadge}</div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderDetail() {
+    const item = state.items.find(x => x.id === state.selectedId);
+    const body = document.getElementById("detailBody");
+    const badge = document.getElementById("detailBadge");
+
+    if (!item) {
+      body.innerHTML = `<div style="color:var(--text-muted);">좌측 목록에서 검수 대상을 선택하세요.</div>`;
+      return;
+    }
+
+    const g = evaluateGates(item);
+    const isApproved = item.status === "APPROVED";
+
+    if (isApproved) {
+      badge.className = "badge badge-success";
+      badge.textContent = "이관 승인 완료";
+    } else if (!g.allPass) {
+      badge.className = "badge badge-danger";
+      badge.textContent = "승인 게이트 차단 중";
+    } else {
+      badge.className = "badge badge-warn";
+      badge.textContent = "검수 승인 가능";
+    }
+
+    const buyoutLegalWarning = item.category === "BUYOUT" ? `
+      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:7px; padding:9px 12px; font-size:11.5px; color:#92400e;">
+        <strong>⚖️ [TX-03 매절(권리 양도) 세무 근거 통제]</strong><br>
+        매절은 저작권 양도 거래이므로 '사용료' 조항인 <strong>부가가치세법 시행령 제42조 제1호 아목을 단독 인용하지 않습니다.</strong>
+        독립 저술 용역(같은 호 <strong>가목</strong>) 및 도서 면세 부수 공급 예규(<strong>서삼46015-10392</strong>)를 병기하며, 기타소득 시 원작자 여부에 따라 <code>C15(60% 경비)</code> 또는 <code>C05(승계·경비 0%)</code>로 분기합니다.
+      </div>
+    ` : "";
+
+    const rsSupportSection = item.category === "SUPPORT_RS_ONCE" ? `
+      <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:11px 13px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <strong style="color:var(--purple); font-size:12.5px;">🟣 매출연동(REVENUE_SHARE) 지원금 약정 체결 1회 필수값 검증</strong>
+          ${item.targetCount === 0 ? `<button class="btn btn-sm btn-primary" data-dev-route="admin.rights-holders.contracts.edit" data-dev-method="GET" data-dev-url="/sj-admin/rights-holders/{rightsHolder}/contracts/{contract}/edit" data-dev-perm="수정" data-dev-note="R/S 약정 대상 누락 보완 — 개발은 계약 상세(INST-001-S2)로 이동" onclick="fixMissingRsTargets('${item.id}')">+ 약정 대상(자사지분>0%) 매핑 불러오기</button>` : ""}
+        </div>
+        <div class="kv-grid" style="font-size:12px;">
+          <div class="kv-label">한도 유형 (cap_type)</div>
+          <div class="mono"><strong>${item.capType}</strong> ${item.capType === "CAPPED" ? `(총 한도: ${item.totalCapAmount.toLocaleString()}원)` : `(총 한도: NULL · 한도 복원: NULL)`}</div>
+          <div class="kv-label">지원금 요율 / 모수</div>
+          <div>${item.rateText}</div>
+          <div class="kv-label">정산 범위 / 대상 수</div>
+          <div class="mono">${item.settlementScope} / 매핑 대상: <strong style="color:${item.targetCount > 0 ? 'var(--success)' : 'var(--danger)'};">${item.targetCount}건</strong>${item.targetCodes && item.targetCount > 0 ? ` (${item.targetCodes.join(" · ")})` : ""}</div>
+          <div class="kv-label">종료 기준 / 종료 정책</div>
+          <div class="mono">end_basis = ${item.endBasis} / on_termination_policy = <strong>${item.onTerminationPolicy}</strong></div>
+        </div>
+      </div>
+    ` : "";
+
+    body.innerHTML = `
+      <div class="kv-grid">
+        <div class="kv-label">검수 식별자 / 계약</div>
+        <div class="mono"><strong>${item.id}</strong> (계약: ${item.contractId})</div>
+        <div class="kv-label">권리자 (수취인)</div>
+        <div><strong>${item.rightsHolderName}</strong> <span class="mono">(${item.rightsHolderId})</span></div>
+        <div class="kv-label">약정 구분 / 명칭</div>
+        <div><strong>${item.categoryLabel}</strong><br><span style="color:var(--text-sub);">${item.title}</span></div>
+        <div class="kv-label">약정 금액 / 지급방식</div>
+        <div class="mono">
+          ${item.category === "SUPPORT_RS_ONCE"
+            ? `<strong style="color:var(--purple);">매출연동 자동산출 (개발지원금)</strong>`
+            : `<strong>${item.amount.toLocaleString()}원</strong> (${item.paymentMethod})`}
+        </div>
+        <div class="kv-label">선급금 상계 연동</div>
+        <div>
+          ${item.offsetType === "CONDITIONAL"
+            ? `<span class="badge badge-warn">상계 허용 (CONDITIONAL)</span> <span style="font-size:11px; color:var(--text-sub);">→ 6단계(PREPAY_OFFSET) 상계 적격 세전액 포함</span>`
+            : `<span class="badge badge-neutral">비상계 (NON_OFFSET)</span> <span style="font-size:11px; color:var(--text-sub);">→ 6단계 선급금 상계 모수 제외</span>`}
+        </div>
+        <div class="kv-label">과세최저한 판정 키</div>
+        <div class="mono">${item.taxThresholdUnitKey}</div>
+      </div>
+
+      ${buyoutLegalWarning}
+      ${rsSupportSection}
+
+      <!-- 3대 하드 게이트 체크박스 -->
+      <div class="gate-box">
+        <div class="gate-box-title">
+          <span>🔒 마일스톤 검수 승인 3대 필수 게이트 판정</span>
+          <span class="mono">${g.allPass ? "ALL PASS" : "BLOCKED"}</span>
+        </div>
+        <div class="gate-item ${g.gateAPass ?"pass" : "fail"}">
+          <span><strong>[Gate A] 소득 구분 · 호 구분 · 저작자 여부 지정</strong><br>${g.gateAMsg}</span>
+          <span>${g.gateAPass ? "✔ 통과" : "✖ 차단"}</span>
+        </div>
+        <div class="gate-item ${g.gateBPass ?"pass" : "fail"}">
+          <span><strong>[Gate B] 매출연동(R/S) 지원금 필수값 · 약정 대상(≥1건)</strong><br>${g.gateBMsg}</span>
+          <span>${g.gateBPass ? "✔ 통과" : "✖ 차단"}</span>
+        </div>
+        <div class="gate-item ${g.gateCPass ?"pass" : "fail"}">
+          <span><strong>[Gate C] 국세청 계속사업자 & 90일 유효기간 확인</strong><br>${g.gateCMsg}</span>
+          <span>
+            ${g.gateCPass ? "✔ 통과" : `<button class="btn btn-sm btn-danger" data-dev-route="admin.rights-holders.nts-verify" data-dev-method="POST" data-dev-url="/sj-admin/rights-holders/{rightsHolder}/nts-verify" data-dev-perm="수정(접미사 예외)" data-dev-note="게이트 C: 계속사업자 + 조회 90일 이내" onclick="recheckNts('${item.id}')">국세청 API 즉시 재조회</button>`}
+          </span>
+        </div>
+      </div>
+
+      <!-- 소득 구분 및 귀속월 설정 폼 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">소득 구분 상위 축 (income_category)</label>
+          <select id="editIncomeCategory" data-dev-flag="proto-only" data-dev-note="소득 구분 — 개발은 이 화면에서 수정 불가(게이트 A 표시만)" class="select" onchange="onIncomeCategoryChange('${item.id}')" ${isApproved ? "disabled" : ""}>
+            <option value="" ${item.incomeCategory === "" ? "selected" : ""}>-- 필수 선택 (미지정 시 차단) --</option>
+            <option value="BUSINESS" ${item.incomeCategory === "BUSINESS" ? "selected" : ""}>BUSINESS (사업소득 · 계속/반복)</option>
+            <option value="OTHER" ${item.incomeCategory === "OTHER" ? "selected" : ""}>OTHER (기타소득 · 일시/우발)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">기타소득 호 구분 (income_clause)</label>
+          <select id="editIncomeClause" data-dev-flag="proto-only" data-dev-note="기타소득 호 — 개발은 이 화면에서 수정 불가" class="select" onchange="onIncomeClauseChange('${item.id}')" ${(isApproved || item.incomeCategory !== "OTHER") ? "disabled" : ""}>
+            <option value="NONE" ${(!item.incomeClause || item.incomeClause === "NONE") ? "selected" : ""}>해당 없음 (사업소득)</option>
+            <option value="C15" ${item.incomeClause === "C15" ? "selected" : ""}>C15 — 원작자 원고료·저작권 (경비 60%)</option>
+            <option value="C19" ${item.incomeClause === "C19" ? "selected" : ""}>C19 — 일시적 인적용역 대가 (경비 60%)</option>
+            <option value="C05" ${item.incomeClause === "C05" ? "selected" : ""}>C05 — 승계 저작권 양도·사용 (경비 0%)</option>
+            <option value="C17" ${item.incomeClause === "C17" ? "selected" : ""}>C17 — 사례금 (경비 0%)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">이원화 검수 방식 선택</label>
+          <select id="editInspectMode" name="verify_method" data-dev-value="EVIDENCE_FILE 증빙 파일 · MANUAL_NOTE 수기 소명" class="select" onchange="onInspectModeChange('${item.id}')" ${isApproved ? "disabled" : ""}>
+            <option value="EVIDENCE_FILE" ${item.inspectionMode === "EVIDENCE_FILE" ? "selected" : ""}>증빙 첨부형 검수 (완강확인서·양도서 등)</option>
+            <option value="MANUAL_NOTE" ${item.inspectionMode === "MANUAL_NOTE" ? "selected" : ""}>담당자 수기 소명형 ('수기 검수(내부확인)' 배지)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">정산 반영 귀속월 (target_month)</label>
+          <select id="editTargetMonth" data-dev-flag="proto-only" data-dev-note="귀속월 — 개발은 스케줄 target_month 그대로(정책 질문 Q-INST002-3)" class="select" ${isApproved ? "disabled" : ""}>
+            ${["2026-10", "2026-11", "2026-09"].includes(item.targetMonth) ? "" : `<option value="${item.targetMonth}" selected>${item.targetMonth} (승인 완료 귀속월)</option>`}
+            <option value="2026-10" ${item.targetMonth === "2026-10" ? "selected" : ""}>2026-10 (미마감 · 정산 배치 실행됨 → 승인 시 정산서 자동 재연산)</option>
+            <option value="2026-11" ${item.targetMonth === "2026-11" ? "selected" : ""}>2026-11 (차월 예정)</option>
+            <option value="2026-09" ${item.targetMonth === "2026-09" ? "selected" : ""}>2026-09 (마감 완료 Locked=True · 선택 시 차단)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">첨부 증빙 파일 또는 수기 검수 소명 근거 (수기 소명 시 필수 입력 · 감사 로그 보존)</label>
+        ${item.inspectionMode === "EVIDENCE_FILE" ? `
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">
+            <input type="text" id="editEvidenceFile" data-dev-flag="proto-only" data-dev-note="증빙 파일 — 개발 1차 미지원(정책 질문 Q-INST002-5)" class="input" style="flex:1;" value="${item.evidenceFileName || ""}" placeholder="첨부 증빙 파일명 (예: 완강확인서_202610.pdf)" ${isApproved ? "disabled" : ""} />
+          </div>
+        ` : ""}
+        <textarea id="editMemo" name="review_note" data-dev-note="개발 20자 이상 · 2000자 이하(프로토 10자 — 정책 질문 Q-INST002-1), 개발 id msReviewNote" class="input" placeholder="검수 의견 및 승인 근거를 구체적으로 작성하세요 (수기 검수 시 최소 10자 이상 필수)..." ${isApproved ? "disabled" : ""}>${item.memo || ""}</textarea>
+      </div>
+
+      ${isApproved ? `
+        <div style="background:var(--success-soft); border:1px solid #bbf7d0; border-radius:7px; padding:10px 12px; font-size:12px; color:#15803d;">
+          <div>✔ <strong>승인 완료:</strong> ${item.approvedBy} (${item.approvedAt}) → <strong>${item.targetMonth}</strong> 정산서 이관됨</div>
+          ${item.settleReflect && item.settleReflect.mode === "RECALC" ? `<div style="margin-top:3px;">🔄 <strong>정산서 자동 반영:</strong> ${item.targetMonth} 정산 배치(${item.settleReflect.batchAt}) 이후 승인되어 이 권리자 정산서를 1~11단계 다시 계산했습니다(${item.settleReflect.recalcAt}). ${item.amount > 0 ? `7단계 가산 +${item.amount.toLocaleString()}원, ` : ""}수취인 분할 · 세금 · 이월까지 반영 — <a href="ADMN-SETT-002_baseline.html">월간 정산에서 지급 예정액 확인 ↗</a></div>` : ""}
+          ${item.settleReflect && item.settleReflect.mode === "QUEUED" ? `<div style="margin-top:3px;">⏳ <strong>정산서 반영 예정:</strong> ${item.targetMonth} 정산 배치를 실행할 때 반영됩니다.</div>` : ""}
+          <div style="margin-top:3px; font-size:11.5px;">🔗 <strong>송금 증빙 바인딩(7.2절):</strong> ${item.bankReceiptLinked || "SETT-002 대량이체 결과 대사 시 자동 바인딩"}</div>
+        </div>
+      ` : ""}
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+        <button class="btn" data-dev-route="admin.rights-holders.milestones.draft.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/rights-holders/milestones/{milestone}/draft" data-dev-perm="수정" data-dev-flag="proto-only" onclick="saveDraft('${item.id}')" ${isApproved ? "disabled" : ""}>임시 저장</button>
+        <button class="btn btn-primary" data-dev-route="admin.rights-holders.milestones.update" data-dev-method="PUT" data-dev-url="/sj-admin/rights-holders/milestones" data-dev-perm="수정" data-dev-note="milestone_id · decision=approve · verify_method · review_note — 개발 msApproveBtn. 승인 후 자동 재연산 없음(정책 질문 Q-INST002-2)" onclick="approveMilestone('${item.id}')" ${(isApproved || !g.allPass) ? "disabled" : ""}>
+          ✔ 검수 승인 및 당월 정산서(SETT-002) 이관 확정
+        </button>
+        <button class="btn btn-danger" data-dev-flag="dev-only" data-dev-route="admin.rights-holders.milestones.update" data-dev-method="PUT" data-dev-url="/sj-admin/rights-holders/milestones" data-dev-perm="수정" data-dev-note="decision=reject — 개발 msRejectBtn" onclick="rejectMilestoneItem('${item.id}')" ${isApproved ? "disabled" : ""}>반려</button>
+      </div>
+    `;
+  }
+
+  function renderAudit() {
+    const tbody = document.getElementById("auditTableBody");
+    tbody.innerHTML = state.auditLogs.map(log => `
+      <tr>
+        <td class="mono">${log.time}</td>
+        <td><strong>${log.actor}</strong></td>
+        <td class="mono">${log.targetId}</td>
+        <td><span class="badge badge-neutral">${log.mode}</span></td>
+        <td><strong>${log.action}</strong></td>
+        <td>${log.reason}</td>
+      </tr>
+    `).join("");
+  }
+
+  function selectItem(id) {
+    state.selectedId = id;
+    renderTable();
+    renderDetail();
+  }
+
+  function onIncomeCategoryChange(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    const val = document.getElementById("editIncomeCategory").value;
+    item.incomeCategory = val;
+    if (val === "BUSINESS") {
+      item.incomeClause = "NONE";
+    } else if (val === "OTHER" && (!item.incomeClause || item.incomeClause === "NONE")) {
+      item.incomeClause = item.payeeIsAuthor ? "C15" : "C19";
+    }
+    updateKpis();
+    renderTable();
+    renderDetail();
+  }
+
+  function onIncomeClauseChange(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    item.incomeClause = document.getElementById("editIncomeClause").value;
+    updateKpis();
+    renderTable();
+    renderDetail();
+  }
+
+  function onInspectModeChange(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    item.inspectionMode = document.getElementById("editInspectMode").value;
+    renderTable();
+    renderDetail();
+  }
+
+  // Gate C 해제: 국세청 API 즉시 재조회 시연
+  function recheckNts(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    item.ntsCheckedDaysAgo = 0;
+    item.ntsPass = true;
+    item.ntsStatus = "계속사업자 (면세사업자 · 금일 API 확인 완료)";
+
+    state.auditLogs.unshift({
+      time: "2026-10-14 15:10:00",
+      actor: "재무담당자 (white)",
+      targetId: `${item.id} (${item.contractId})`,
+      mode: "국세청 API 연동",
+      action: "사업자 상태 수시 재조회 (MILESTONE_APPROVAL 트리거)",
+      reason: "90일 유효기간 경과에 따른 즉시 재조회 → 계속사업자 확인 완료 (Gate C 통과)"
+    });
+
+    updateKpis();
+    renderTable();
+    renderDetail();
+    renderAudit();
+    showToast(`✔ [${item.rightsHolderName}] 국세청 상태조회 API 확인 완료 (계속사업자 · Gate C 해제)`);
+  }
+
+  // Gate B 해제: 누락된 약정 대상 매핑 불러오기 시연
+  function fixMissingRsTargets(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    item.targetCount = 1; // LSN-1002-01 (자사지분 50% > 0)
+    updateKpis();
+    renderTable();
+    renderDetail();
+    showToast(`✔ [${item.id}] 자사 지분 > 0% 검증을 통과한 강의 1건이 약정 대상으로 연결되었습니다 (Gate B 해제).`);
+  }
+
+  function saveDraft(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    const tMonth = document.getElementById("editTargetMonth").value;
+    if (LOCKED_MONTHS.includes(tMonth)) {
+      alert(`[마감 상태별 인입 통제]\n선택하신 '${tMonth}'은 이미 정산 마감 확정(Locked = True)된 데이터 기준 월입니다.\n마감된 월에는 약정금 라인을 소급 인입할 수 없습니다.`);
+      return;
+    }
+    item.targetMonth = tMonth;
+    item.memo = document.getElementById("editMemo").value.trim();
+    if (item.inspectionMode === "EVIDENCE_FILE") {
+      const fInput = document.getElementById("editEvidenceFile");
+      if (fInput) item.evidenceFileName = fInput.value.trim();
+    }
+    renderTable();
+    renderDetail();
+    showToast(`[${item.id}] 검수 내역이 임시 저장되었습니다.`);
+  }
+
+  function approveMilestone(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+
+    const tMonth = document.getElementById("editTargetMonth").value;
+    if (LOCKED_MONTHS.includes(tMonth)) {
+      alert(`[마감 상태별 인입 통제]\n선택하신 '${tMonth}'은 이미 정산 마감 확정(Locked = True)된 데이터 기준 월입니다.\n미마감 월(2026-10 등)로 귀속월을 지정하세요.`);
+      return;
+    }
+
+    const g = evaluateGates(item);
+    if (!g.allPass) {
+      alert("3대 승인 게이트(소득 구분 / 지원금 필수값 / 국세청 사업자 상태) 중 통과하지 못한 항목이 있습니다.");
+      return;
+    }
+
+    const memo = document.getElementById("editMemo").value.trim();
+    if (item.inspectionMode === "MANUAL_NOTE" && memo.length < 10) {
+      alert("[담당자 수기 소명형 검수 규칙]\n수기 검수(내부확인) 선택 시 최소 10자 이상의 구체적인 검수 의견 및 승인 근거 작성이 필수입니다.");
+      return;
+    }
+    if (item.inspectionMode === "EVIDENCE_FILE") {
+      const fInput = document.getElementById("editEvidenceFile");
+      if (fInput) item.evidenceFileName = fInput.value.trim();
+      if (!item.evidenceFileName && memo.length < 10) {
+        alert("첨부 증빙 파일명을 입력하거나, 파일이 없는 경우 '담당자 수기 소명형'으로 전환 후 10자 이상 근거를 작성하세요.");
+        return;
+      }
+    }
+
+    item.targetMonth = tMonth;
+    item.memo = memo || `${item.evidenceFileName} 증빙 확인 완료`;
+    item.status = "APPROVED";
+    item.approvedBy = "재무담당자 (white)";
+    item.approvedAt = "2026-10-14 16:05:00";
+    item.bankReceiptLinked = "이체확인증 대기 (SETT-002 대량이체 결과 대사 후 자동 바인딩)";
+    const batchAt = SETTLE_BATCH_AT[item.targetMonth];
+    item.settleReflect = batchAt
+      ? { mode: "RECALC", batchAt: batchAt, recalcAt: item.approvedAt }
+      : { mode: "QUEUED" };
+
+    const modeLabel = item.inspectionMode === "MANUAL_NOTE" ? "수기 검수(내부확인)" : "증빙 첨부 검수";
+    const actionDesc = item.category === "SUPPORT_RS_ONCE"
+      ? `매출연동 지원금 약정 1회 검수 승인 (${item.targetMonth}부터 자동 연산 활성화)`
+      : `약정금 ${item.amount.toLocaleString()}원 검수 승인 → ${item.targetMonth} 정산서 7단계(LUMPSUM_ADD) 이관`;
+
+    state.auditLogs.unshift({
+      time: item.approvedAt,
+      actor: item.approvedBy,
+      targetId: `${item.id} (${item.contractId})`,
+      mode: modeLabel,
+      action: actionDesc,
+      reason: item.memo
+    });
+    if (item.settleReflect.mode === "RECALC") {
+      state.auditLogs.unshift({
+        time: item.approvedAt,
+        actor: "정산 엔진 (자동)",
+        targetId: `${item.targetMonth} 정산서 · ${item.rightsHolderName}`,
+        mode: "자동 재연산",
+        action: `권리자 단위 1~11단계 재연산 — 실행 사유: 약정금 승인 ${item.id}`,
+        reason: `정산 배치(${item.settleReflect.batchAt}) 이후 승인되어 정산서에 자동 반영`
+      });
+    }
+
+    updateKpis();
+    renderTable();
+    renderDetail();
+    renderAudit();
+    if (item.settleReflect.mode === "RECALC") {
+      const detail = `${item.amount > 0 ? `7단계 가산 +${item.amount.toLocaleString()}원` : "매출연동 지원금 약정 반영"} · 수취인 분할 · 세금 · 이월까지 재계산 (승인 건 ${item.id})`;
+      pushRecalcEvents([{ month: item.targetMonth, holderId: item.rightsHolderId, holderName: item.rightsHolderName, contractId: item.contractId,
+        source: "INST-002", sourceId: item.id, reason: "약정금 승인", detail: detail, at: item.approvedAt }]);
+      openRecalcNotice(
+        `<div><strong>${item.targetMonth}</strong> 정산 배치(${item.settleReflect.batchAt})가 이미 실행된 달입니다. 이번 승인으로 아래 권리자의 정산서를 1~11단계 다시 계산했습니다. 배치를 다시 돌리지 않아도 됩니다.</div>`
+        + recalcTable([{ holderName: item.rightsHolderName, contractId: item.contractId, detail: detail }])
+        + `<div style="font-size:12px; color:#64748b;">재연산 기록은 아래 감사 로그와 월간 정산 화면에 남습니다.</div>`);
+    } else {
+      showToast(`✔ [${item.id}] 검수 승인이 확정되어 ${item.targetMonth} 정산서(ADMN-SETT-002)로 이관되었습니다. 다음 정산 배치에서 반영됩니다.`);
+    }
+  }
+
+  // KPI 카드 필터링
+  document.querySelectorAll(".kpi-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".kpi-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      state.kpiFilter = card.dataset.filter;
+      renderTable();
+    });
+  });
+
+  document.getElementById("searchInput").addEventListener("input", renderTable);
+  document.getElementById("typeFilter").addEventListener("change", renderTable);
+
+  // 탭 전환
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const target = btn.dataset.tab;
+      document.querySelectorAll(".tab-panel").forEach(p => {
+        p.classList.toggle("hidden", p.id !== target);
+      });
+    });
+  });
+
+  // SNB 이동
+  document.querySelectorAll(".snb-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const href = item.dataset.href;
+      if (href) window.location.href = href;
+    });
+  });
+
+  // 초기 렌더링
+  updateKpis();
+  renderTable();
+  renderDetail();
+  renderAudit();
+</script>
+<script>
+  function rejectMilestoneItem(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    if (item.status === "APPROVED") {
+      alert("이미 검수 승인되어 정산서(7단계)로 이관된 항목은 반려할 수 없습니다.");
+      return;
+    }
+    const reason = prompt("[ADMN-INST-002-P2 마일스톤 검수 반려 · 보완 요청]\n반려 및 증빙 보완 요청 사유를 10자 이상 입력해 주세요:", "납품 문항 검수표 날인 누락 및 소득 구분(사업소득 vs 기타소득) 재확인 필요");
+    if (!reason || reason.trim().length < 10) {
+      alert("반려 사유를 10자 이상 입력해야 합니다.");
+      return;
+    }
+    item.status = "REJECTED";
+    item.memo = `[반려/보완요청] ${reason.trim()}`;
+    if (typeof state.auditLogs !== "undefined") {
+      state.auditLogs.unshift({
+        time: "2026-10-31 19:45:00",
+        actor: "재무팀 김회계",
+        targetId: item.id,
+        mode: item.inspectionMode,
+        action: "검수 반려 (보완 요청)",
+        memo: item.memo
+      });
+    }
+    if (typeof renderAll === "function") renderAll();
+    if (typeof showToast === "function") showToast(`🚨 [${item.id}] 마일스톤 검수 반려 및 계약 운영자 보완 요청이 등록되었습니다.`);
+  }
+</script>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>
