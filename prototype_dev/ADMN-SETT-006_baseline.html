@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>합격 환급반 정산 관리 — 산준모 백오피스 v8.4 Final</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .content {
+      padding: 22px 28px 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 1640px;
+      margin: 0 auto;
+    }
+
+    /* 알림 배너 */
+    .alert-banner {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 4px solid var(--warn);
+      border-radius: var(--radius);
+      padding: 13px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .alert-banner .alert-title {
+      font-weight: 800;
+      color: #92400e;
+      font-size: 13px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .alert-banner .alert-desc {
+      font-size: 12px;
+      color: #78350f;
+    }
+
+    /* KPI 5단 카드 */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .kpi-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .kpi-card.active {
+      border: 2px solid var(--primary);
+      background: #f8faff;
+    }
+    .kpi-card .k-title {
+      font-size: 12px;
+      color: var(--text-sub);
+      font-weight: 700;
+    }
+    .kpi-card .k-num {
+      font-size: 22px;
+      font-weight: 800;
+      margin-top: 6px;
+      color: var(--text);
+    }
+    .kpi-card .k-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* 탭 바 */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0 16px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 13px 16px;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-sub);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+    .tab-panel.hidden { display: none !important; }
+
+    /* 검색 필터 테이블 */
+    .search-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .search-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .search-table th {
+      width: 125px;
+      background: var(--surface-alt);
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 12px;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .search-table td {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      background: #fff;
+    }
+    .search-table tr:last-child th,
+    .search-table tr:last-child td { border-bottom: none; }
+    .search-table td:last-child { border-right: none; }
+
+    /* 카드 & 툴바 */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-alt);
+      flex-wrap: wrap;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 가로 100% 목록 테이블 */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    table.data-table th,
+    table.data-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    table.data-table th {
+      background: var(--surface-alt);
+      font-weight: 700;
+      color: var(--text-sub);
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+    table.data-table tbody tr {
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    table.data-table tbody tr:hover { background: #f8fafc; }
+    table.data-table tbody tr.selected { background: #eff6ff; }
+    .num {
+      text-align: right !important;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .mono {
+      font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
+    }
+
+    /* 배지 & 버튼 & 인풋 */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-primary { background: var(--primary-soft); color: var(--primary); border: 1px solid #bfdbfe; }
+    .badge-success { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }
+    .badge-warn { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }
+    .badge-danger { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); border: 1px solid #ddd6fe; }
+    .badge-neutral { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: #fff;
+      color: var(--text);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--surface-alt); }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; }
+
+    .input, .select {
+      height: 33px;
+      padding: 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+    }
+
+    /* 페이지네이션 */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      background: #fff;
+      border-top: 1px solid var(--border);
+    }
+    .page-btns { display: flex; gap: 4px; }
+    .page-btn {
+      min-width: 30px;
+      height: 30px;
+      border: 1px solid var(--border-strong);
+      background: #fff;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .page-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* 하단 요약 바 */
+    .savebar {
+      position: fixed;
+      bottom: 0;
+      left: 260px;
+      right: 0;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 90;
+      box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    /* 상세 검수 모달 */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 260px;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10500;
+      padding: 20px;
+    }
+    .modal-backdrop.show { display: flex !important; }
+    .modal-card {
+      background: #fff;
+      border-radius: 12px;
+      width: 940px;
+      max-width: 96%;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 16px 22px;
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-body {
+      padding: 20px 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .modal-footer {
+      padding: 14px 22px;
+      background: var(--surface-alt);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .detail-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .info-box {
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #fff;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 12.5px;
+      gap: 10px;
+    }
+    .info-row:last-child { border-bottom: none; }
+
+    .toast-container {
+      position: fixed;
+      bottom: 68px;
+      right: 24px;
+      z-index: 11000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: #0f172a;
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      border-left: 4px solid var(--primary);
+    }
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-SETT-006", "devCommit": "d562524a", "progress": "일부 구현(2차). 옵션 A 확정만 있고 B · C는 마감 보류(HOLD). 일괄 확정 · 엑셀 · 보완 요청 · 재연산 안내는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.pass-refunds.index", "label": "합격 환급반 관리(정산)"}, {"route": "admin.pass-refunds.index", "label": "합격 환급 심사(회원 쪽, 심사 승인 · 증빙 열람)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+<div id="v4-root-shell">
+  <header class="top-bar v4-gen3-topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="crumb-code">ADMN-SETT-006</span>
+      <span class="crumb-sub">정산 마감 전 사전 대사</span>
+      <span style="color:#cbd5e1;">/</span>
+      <strong class="crumb-title">합격 환급반 정산 관리</strong>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-size:12px;color:#475569;font-weight:600;">환급 정산 귀속월:</span>
+      <select id="topMonthSelect" name="month" data-dev-note="개발은 월 버튼 + #monthPick" data-dev-value="YYYY-MM (정산 귀속월)" class="select" style="font-weight:700;">
+        <option value="2026-10">2026-10 (승인 확정일 기준 귀속)</option>
+        <option value="2026-09">2026-09 (마감 완료)</option>
+      </select>
+      <a class="btn" href="ADMN-RFD-002_baseline.html">⇄ 환불 요청 관리 (CS)</a>
+      <a class="btn btn-primary" href="ADMN-SETT-002_baseline.html">월간 정산 및 집행으로 이동 →</a>
+    </div>
+  </header>
+
+  <main id="v4-page-body">
+    <section class="subview-panel active" data-subpage="list">
+    <div class="content">
+      <!-- 상단 안내 배너 -->
+      <div class="alert-banner">
+        <div>
+          <div class="alert-title">
+            <span>⚠️ 월 최저보장금(MMG) 약정 강사 환급 차감 안내</span>
+            <span class="badge badge-warn">김안전 강사 1건 · 2026-11 반영 대기</span>
+          </div>
+          <div class="alert-desc">
+            <strong>김안전 강사(CT-2026-0715 · 월 최저보장 1,500,000원)</strong>의 합격환급 <strong>HRF-202610-02(옵션 C · 차감 -200,000원)</strong>은 정산 반영월이 <strong>2026-11</strong>입니다. 2026-10은 당월 신규 강사료 2,000,000원이 최저보장액 이상이라 <strong>보전금 0원 · 환급 차감 없음</strong>입니다. 11월 반영 시 최저보장 판정을 먼저 한 뒤 합격환급 분담금을 별도 차감합니다.
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm" data-dev-flag="proto-only" data-dev-note="KPI '해당 건만 보기' — 개발 없음" onclick="filterByKpi('MMG_OVERLAP')">해당 건만 보기</button>
+      </div>
+
+      <!-- KPI 5단 스코어카드 -->
+      <section class="kpi-grid">
+        <div class="kpi-card active" data-filter="ALL" data-dev-flag="proto-only" data-dev-note="KPI '해당 건만 보기' — 개발 없음" onclick="filterByKpi('ALL')">
+          <div class="k-title">당월 환급 정산 대상</div>
+          <div class="k-num" id="kpiTotalCnt">4건</div>
+          <div class="k-sub">원 결제월 소급 금지 · 승인월 귀속</div>
+        </div>
+        <div class="kpi-card" data-filter="PENDING" data-dev-flag="proto-only" data-dev-note="KPI '해당 건만 보기' — 개발 없음" onclick="filterByKpi('PENDING')">
+          <div class="k-title">⏳ 정산 차감 승인 대기</div>
+          <div class="k-num" style="color:var(--warn);" id="kpiPendingCnt">2건</div>
+          <div class="k-sub">4대 제출증빙 심사 통과 · 정산반영 대기</div>
+        </div>
+        <div class="kpi-card" data-filter="OPT_BC" data-dev-flag="proto-only" data-dev-note="KPI '해당 건만 보기' — 개발 없음" onclick="filterByKpi('OPT_BC')">
+          <div class="k-title">🔻 강사 분담 대상 (옵션 B · C)</div>
+          <div class="k-num" style="color:var(--danger);" id="kpiOptBcCnt">3건 (-382,800원)</div>
+          <div class="k-sub">원 결제 시점 정산율 기준 차감</div>
+        </div>
+        <div class="kpi-card" data-filter="OPT_A" data-dev-flag="proto-only" data-dev-note="KPI '해당 건만 보기' — 개발 없음" onclick="filterByKpi('OPT_A')">
+          <div class="k-title">🛡️ 플랫폼 전액 부담 (옵션 A)</div>
+          <div class="k-num" style="color:var(--primary);" id="kpiOptACnt">1건 (0원 차감)</div>
+          <div class="k-sub">강사 정산 차감 없음 (당사 마케팅비)</div>
+        </div>
+        <div class="kpi-card" data-filter="MMG_OVERLAP" data-dev-flag="proto-only" data-dev-note="KPI '해당 건만 보기' — 개발 없음" onclick="filterByKpi('MMG_OVERLAP')">
+          <div class="k-title">📌 최저보장(MMG) 적용 강사 건</div>
+          <div class="k-num" style="color:var(--purple);" id="kpiMmgCnt">1건</div>
+          <div class="k-sub">최저보장 보전금 산정 후 별도 차감</div>
+        </div>
+      </section>
+
+      <!-- 상단 탭 -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tabWorkspace" data-dev-name="tab" data-dev-value="workspace">1. 합격 환급 정산 반영 목록 (계약별 분담 옵션 A/B/C)</button>
+        <button class="tab-btn" data-tab="tabRules" data-dev-name="tab" data-dev-value="mmg">2. 최저보장금(MMG) · 개발지원금 차감 및 잔여한도 복원 기준</button>
+        <button class="tab-btn" data-tab="tabAudit" data-dev-name="tab" data-dev-value="audit">3. 환급 정산 차감 처리 이력</button>
+      </div>
+
+      <!-- 탭 1: 검색 필터 + 가로 100% 전체폭 목록 -->
+      <section id="tabWorkspace" class="tab-panel">
+        <!-- 검색 필터 테이블 -->
+        <div class="search-card">
+          <table class="search-table">
+            <tbody>
+              <tr>
+                <th>원 결제월 조회</th>
+                <td>
+                  <select id="fOriginMonth" data-dev-flag="proto-only" data-dev-note="원 결제월 필터 — 개발 없음" class="select" onchange="renderTable()">
+                    <option value="ALL">전체 결제월</option>
+                    <option value="2026-02">2026-02 결제분</option>
+                    <option value="2026-03">2026-03 결제분</option>
+                    <option value="2026-04">2026-04 결제분</option>
+                    <option value="2026-05">2026-05 결제분</option>
+                    <option value="2026-06">2026-06 결제분</option>
+                  </select>
+                </td>
+                <th>귀속 강사 (권리자)</th>
+                <td>
+                  <select id="fInstructor" data-dev-flag="proto-only" data-dev-note="귀속 강사 필터 — 개발 없음" class="select" onchange="renderTable()">
+                    <option value="ALL">전체 강사</option>
+                    <option value="RH-0025">정종대 (개인 면세사업자)</option>
+                    <option value="RH-0019">김안전 (개인 프리랜서)</option>
+                    <option value="RH-0046">이건설 (개인 프리랜서)</option>
+                  </select>
+                </td>
+                <th>계약 분담 방식</th>
+                <td>
+                  <select id="burdenFilter" name="burden" data-dev-value="'' 전체 · A 플랫폼 전액 · B 비율 공동 부담 · C 매출 취소 (프로토타입 값 OPTION_A/B/C 유지)" class="select" onchange="renderTable()">
+                    <option value="ALL">전체 분담 방식</option>
+                    <option value="OPTION_A">옵션 A (플랫폼 100% 부담)</option>
+                    <option value="OPTION_B">옵션 B (강사·플랫폼 공동 분담)</option>
+                    <option value="OPTION_C">옵션 C (매출 취소 차감)</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <th>정산 반영 상태</th>
+                <td>
+                  <select id="fStatus" data-dev-flag="proto-only" data-dev-note="상태 필터 — 개발 없음. 개발 settle_review_status: PENDING 검수 대기 · CONFIRMED 차감 확정 · HOLD 마감 보류(B · C)" class="select" onchange="renderTable()">
+                    <option value="ALL">전체 상태</option>
+                    <option value="REVIEW">🔍 심사 대기</option>
+                    <option value="SUPPLEMENT">📨 보완 요청</option>
+                    <option value="PENDING">⏳ 차감 승인 대기</option>
+                    <option value="APPROVED">✔ 정산 반영 완료</option>
+                  </select>
+                </td>
+                <th>통합 검색어</th>
+                <td colspan="3">
+                  <div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" id="searchInput" data-dev-flag="proto-only" data-dev-note="통합 검색 — 개발 없음" class="input" style="width:360px;" placeholder="환급번호, 심사번호(PASS-*), 원 주문번호, 수험생명, 상품명 검색..." oninput="renderTable()">
+                    <button type="button" class="btn btn-primary" data-dev-route="admin.settlement.pass-refunds.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pass-refunds" data-dev-perm="조회" data-dev-note="목록 조회 — 개발 KEEP: month · tab · burden" onclick="renderTable()">조회</button>
+                    <button type="button" class="btn" data-dev-route="admin.settlement.pass-refunds.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pass-refunds" data-dev-perm="조회" onclick="resetFilters()">조건 초기화</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 가로 100% 전체폭 목록 카드 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>📋 합격 환급 정산 대상 목록</span>
+              <span style="font-size:12px; font-weight:500; color:var(--text-muted);" id="listCountLabel">(총 6건 조회됨 · 행 또는 [상세·검수] 버튼을 클릭하면 4대 제출 증빙과 차감 계산 내역을 확인합니다)</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button type="button" class="btn btn-primary" data-dev-route="admin.settlement.pass-refunds.bulk.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/pass-refunds/bulk" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="일괄 확정 — 개발은 건별 update만(검수 의견 필수)" onclick="approveSelectedItems()">✔ 선택 건 일괄 정산반영 확정</button>
+              <button type="button" class="btn" data-dev-route="admin.settlement.pass-refunds.download (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pass-refunds/download" data-dev-perm="다운로드" data-dev-flag="proto-only" onclick="showToast('당월 합격환급 강사별 차감 내역 엑셀(CSV) 다운로드가 시작되었습니다.')">📥 정산 대사용 엑셀 다운로드</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:36px; text-align:center;"><input type="checkbox" id="chkAll" data-dev-flag="proto-only" data-dev-note="일괄 선택 — 개발 없음" onchange="toggleCheckAll(this)"></th>
+                  <th style="width:155px;">환급정산번호 / 심사번호</th>
+                  <th style="width:140px;">원 주문번호 (결제월)</th>
+                  <th style="width:150px;">수험생 (인정 진도율)</th>
+                  <th>환급반 상품명</th>
+                  <th style="width:210px;">4대 제출증빙 확인 (심사연동)</th>
+                  <th style="width:175px;">귀속 강사 / 분담 방식</th>
+                  <th class="num" style="width:130px;">환급 대상액<br><span style="font-weight:500; font-size:10.5px;">(세후 실지급액)</span></th>
+                  <th class="num" style="width:120px;">강사료(R/S) 차감액</th>
+                  <th class="num" style="width:130px;">개발지원금 차감<br><span style="font-weight:500; font-size:10.5px;">(잔여한도 복원)</span></th>
+                  <th style="width:110px;">정산 상태</th>
+                  <th style="width:95px; text-align:center;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="refundTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <span style="font-size:12px; color:var(--text-muted);">페이지당 20건 표시 · 전체 <strong>6</strong>건 중 1~6건</span>
+            <div class="page-btns">
+              <button type="button" class="page-btn">‹</button>
+              <button type="button" class="page-btn active">1</button>
+              <button type="button" class="page-btn">›</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 2: 최저보장금(MMG) 및 개발지원금 차감·한도복원 기준 -->
+      <section id="tabRules" class="tab-panel hidden">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header">
+            <div class="card-title">📌 1. 월 최저보장금(MMG) 약정 강사의 합격환급 차감 순서 기준 (예시 — 신규 강사료가 최저보장액 1,500,000원에 못 미치는 달)</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>적용 구분</th>
+                  <th class="num">당월 신규 강사료</th>
+                  <th class="num">최저보장(150만) 산정 기준액</th>
+                  <th class="num">플랫폼 최저보장 보전금</th>
+                  <th class="num">합격환급 분담 차감액</th>
+                  <th class="num">강사 최종 세전 수령액</th>
+                  <th>정산 적용 결과</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>✅ 당사 정산 적용 기준 (최저보장금 우선 산정 → 환급금 차감)</strong></td>
+                  <td class="num">300,000원</td>
+                  <td class="num"><strong>300,000원</strong> (환급차감 제외)</td>
+                  <td class="num"><strong>+1,200,000원</strong></td>
+                  <td class="num" style="color:var(--danger); font-weight:700;">-200,000원</td>
+                  <td class="num"><strong>1,300,000원</strong></td>
+                  <td><span class="badge badge-success">정상 적용</span> 강사가 환급분 20만원을 정상 부담하며 플랫폼 보전금(120만원) 왜곡 없음</td>
+                </tr>
+                <tr>
+                  <td><span style="color:var(--text-muted);">⚠️ 비교 참고 (환급 차감액을 최저보장 기준에서 먼저 뺄 경우)</span></td>
+                  <td class="num">300,000원</td>
+                  <td class="num">100,000원 (30만-20만)</td>
+                  <td class="num">+1,400,000원 (+20만 증가)</td>
+                  <td class="num">기준매출에서 기차감</td>
+                  <td class="num">1,500,000원 (실제 분담 0원)</td>
+                  <td><span class="badge badge-danger">적용 제외</span> 플랫폼이 보전금 증가분(+20만원)까지 이중 부담하게 되므로 차단</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📌 2. 개발지원금 환급분 차감 및 약정 잔여 한도 복원 기준 (이건설 강사 사례 · D-9 규칙)</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:160px;">계산 순서</th>
+                  <th>계산 방식 설명</th>
+                  <th style="width:320px;">이건설 강사 (SFA-2026-015 · HRF-202610-04) 당월 적용 값</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Step 1. 지원금 환급 차감 산출</strong></td>
+                  <td>원 결제 시점에 지급 확정되었던 지원금 배분액에 계약 분담비율을 곱하여 당월 차감액 산출 (원 주문 강좌가 지원금 대상이 아니면 0원 — 정종대 HRF-01 · 03의 환급반 CRS-1004는 자사 지분 0%라 차감 0원)</td>
+                  <td>원거래 확정 지원금 14,450원(144,500원 × 10%) × 분담 100% → <strong style="color:var(--danger);">-14,450원 차감</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Step 2. 약정 잔여 한도 복원</strong></td>
+                  <td>강사가 반납(차감)한 지원금만큼 총 약정 한도에서 소진되었던 한도를 다시 복원 (`총한도 − 기존 소진액 + 당월 차감 복원액`)</td>
+                  <td>3,000,000 − 2,850,000 + 14,450 = <strong style="color:var(--primary);">164,450원 (복원 후 사용가능 한도)</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Step 3. 당월 최종 지원금 확정</strong></td>
+                  <td>복원된 잔여 한도 내에서 당월 신규 발생 지원금을 확정한 뒤, Step 1의 환급 차감액을 공제하여 최종 지급</td>
+                  <td>당월 신규 400,000원 → 한도 164,450원으로 캡(초과 235,550원 소멸) − 환급차감 14,450원 = <strong>150,000원 확정</strong> (잔여 한도 0 · 약정 종결)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 3: 처리 이력 -->
+      <section id="tabAudit" class="tab-panel hidden" data-dev-route="admin.admin-logs.index" data-dev-method="GET" data-dev-url="/sj-admin/admin-logs" data-dev-perm="조회(관리자 로그 메뉴)" data-dev-note="개발 감사 탭은 관리자 로그로 이동(sub_action pass_refund_settle_confirm) — 화면 안 이력 표는 프로토타입만">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📜 합격 환급 정산 차감 처리 이력</div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:155px;">처리 일시</th>
+                  <th style="width:140px;">처리자</th>
+                  <th style="width:130px;">환급정산 번호</th>
+                  <th style="width:180px;">분담 방식 / 강사</th>
+                  <th>처리 내역</th>
+                  <th>확인 증빙 및 근거</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 하단 고정 요약 바 -->
+    <footer class="savebar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="badge badge-primary">당월 합격환급 정산 차감 요약</span>
+        <span id="footerSummary"></span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="btn btn-primary" onclick="location.href='ADMN-SETT-002_baseline.html'">월간 정산 및 집행으로 이동 →</button>
+      </div>
+    </footer>
+    </section>
+
+    <!-- 합격환급 심사 상세 (ADMN-RFD-001-S1) — RFD-001은 SETT-006으로 일원화(v6.13). 화면설계서 v12 별도 페이지(S), SJM_PAGE -->
+    <section class="subview-panel" data-subpage="detail">
+      <div class="content">
+        <div class="subpage-head" style="margin-bottom:0;">
+          <button type="button" class="btn btn-sm" onclick="SJM_PAGE.back()">← 합격 환급 정산 목록</button>
+          <span class="crumb-code">ADMN-RFD-001-S1</span>
+          <h2 class="subpage-title" id="hrfDetailTitle">합격환급 심사 상세</h2>
+          <span id="hrfDetailStatus" class="badge badge-warn">승인 대기</span>
+        </div>
+        <div id="hrfDetailBody" style="display:flex; flex-direction:column; gap:16px;"></div>
+        <div class="subpage-foot" id="hrfDetailFoot" style="margin-top:0;"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- 보완 요청 (합격환급 심사 상세 안 작은 팝업) — 통합설계서 Flow 4-2 Step 2: 서류 미비 시 [보완 요청] 알림톡 → 수험생 재업로드 -->
+<div id="supplementModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="supplementTitle">
+  <div class="modal-card" style="width:580px;">
+    <div class="modal-header">
+      <strong id="supplementTitle" style="font-size:15px;">보완 요청</strong>
+      <button type="button" class="btn btn-sm" onclick="closeSupplementModal()">✕ 닫기</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12.5px; color:var(--text-sub); line-height:1.6;">보완 요청을 보내면 수험생에게 <strong>[보완 요청] 알림톡</strong>이 발송되고, 수험생이 서류를 다시 올리면 심사 대기로 돌아옵니다.</div>
+      <div>
+        <div style="font-weight:700; font-size:12px; color:var(--text-sub); margin-bottom:6px;">보완할 항목</div>
+        <div id="supplementItems" style="display:flex; flex-direction:column; gap:6px; font-size:12.5px;"></div>
+      </div>
+      <div>
+        <label for="supplementReason" style="display:block; font-weight:700; font-size:12px; color:var(--text-sub); margin-bottom:6px;">보완 요청 사유 (알림톡에 표시) <span style="color:var(--danger);">*</span></label>
+        <textarea id="supplementReason" name="reason" class="input" rows="3" style="width:100%; resize:vertical;" placeholder="예) 합격증 사본의 성명이 흐려 확인이 어렵습니다. 선명한 사본으로 다시 올려 주세요."></textarea>
+        <div id="supplementError" style="display:none; margin-top:4px; color:var(--danger); font-size:12px; font-weight:700;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" onclick="closeSupplementModal()">취소</button>
+      <button type="button" class="btn btn-primary" id="supplementSendBtn" data-dev-route="admin.pass-refunds.supplements.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/pass-refunds/{passRefund}/supplements" data-dev-perm="등록" data-dev-flag="proto-only" onclick="sendSupplementRequest()">보완 요청 알림톡 발송</button>
+    </div>
+  </div>
+</div>
+
+<div id="recalcNoticeModal" data-dev-flag="proto-only" data-dev-note="정산서 자동 재연산 안내 — 개발 없음(localStorage sjm.settle.recalcEvents.v1)" class="modal-backdrop recalc-notice" role="dialog" aria-modal="true" aria-labelledby="recalcNoticeTitle" style="position:fixed; inset:0; background:rgba(15,23,42,0.55); display:none; align-items:center; justify-content:center; z-index:11000; padding:20px;">
+  <div style="background:#fff; border-radius:12px; width:680px; max-width:96%; max-height:86vh; display:flex; flex-direction:column; box-shadow:0 20px 45px rgba(15,23,42,0.25); overflow:hidden;">
+    <div style="padding:14px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; gap:8px;"><strong id="recalcNoticeTitle" style="font-size:15px;">정산서 자동 재연산 안내</strong><button type="button" class="btn btn-sm" onclick="closeRecalcNotice()">✕ 닫기</button></div>
+    <div id="recalcNoticeBody" style="padding:16px 20px; overflow-y:auto; font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:10px;"></div>
+    <div style="padding:12px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:8px;"><a class="btn" href="ADMN-SETT-002_baseline.html">월간 정산에서 확인 ↗</a><button type="button" class="btn btn-primary" onclick="closeRecalcNotice()">확인</button></div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+  const BURDEN_LABELS = {
+    OPTION_A: "옵션 A (플랫폼 100% 부담 · 강사 차감 없음)",
+    OPTION_B: "옵션 B (강사·플랫폼 비율 공동 분담)",
+    OPTION_C: "옵션 C (환급금 전액 매출 취소 차감)"
+  };
+
+  const state = {
+    selectedId: "HRF-202610-01",
+    kpiFilter: "ALL",
+    items: [
+      {
+        id: "HRF-202610-01",
+        rfdApproveId: "PASS-2026-0041",
+        orderId: "SJM20260309-0112",
+        originPaidMonth: "2026-03",
+        studentName: "홍길동",
+        studentUid: "hong88",
+        examNo: "26-01-09821",
+        courseName: "[환급반] CRS-1004 2026 산업안전기사 필기+실기 100% 합격 환급반 (총결제 450,000원 / 교재 PROD-BK-1006 ×2 40,000원 제외)",
+        productId: "CRS-1004",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자)",
+        contractId: "CT-2026-0501",
+        burdenType: "OPTION_B",
+        totalPaidAmount: 450000,
+        excludedBookAmount: 40000,
+        studentRefundAmount: 410000,
+        withholdingTax22: 90200,
+        netPayoutToStudent: 319800,
+        snapshotShare: 100,
+        snapshotRsRate: 50,
+        snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 50,
+        deductBasicRs: 205000,
+        deductSupport: 0,
+        capRestoreYn: false,
+        mmgOverlapFlag: false,
+        progressRate: "92.4% (기준 90% 충족)",
+        certImageFile: "합격증사본_국가기술자격_홍길동_2026.jpg",
+        certName: "홍길동",
+        reviewOutlinkUrl: "https://cafe.naver.com/sanjunmo/984120",
+        reviewPlatformId: "플랫폼·산준모 카페 수기 등록 확인",
+        bankbookCopyFile: "통장사본_KB국민은행_홍길동.png",
+        bankNameTier1: "KB국민은행 (시중 1금융권)",
+        bankAccountRealName: "123-45-****-890 (예금주: 홍길동 · 실명 일치)",
+        appliedMonth: "2026-10",
+        status: "APPROVED",
+        memo: "옵션 B — 환급금 410,000원 × 원거래 지분 100% × 요율 50% = 강사료 차감 205,000원. 원 주문 강좌 CRS-1004는 정종대 지분 100%(자사 0%)라 개발지원금 대상이 아니어서(SFA-2026-009 대상은 CRS-1002 · PROD-BK-1004) 원거래 지원금 0원 → 지원금 차감 0원 · 한도 복원 없음. 2026-10-26 승인"
+      },
+      {
+        id: "HRF-202610-02",
+        rfdApproveId: "PASS-2026-0039",
+        orderId: "SJM20260411-0309",
+        originPaidMonth: "2026-04",
+        studentName: "최안전",
+        studentUid: "safe_choi",
+        examNo: "26-01-44120",
+        courseName: "[환급반] 김안전 산업안전 핵심이론 패스 (강좌 실결제 400,000원)",
+        productId: "",
+        rightsHolderId: "RH-0019",
+        rightsHolderName: "김안전 (개인 프리랜서)",
+        contractId: "CT-2026-0715",
+        burdenType: "OPTION_C",
+        totalPaidAmount: 438000,
+        excludedBookAmount: 38000,
+        studentRefundAmount: 400000,
+        withholdingTax22: 88000,
+        netPayoutToStudent: 312000,
+        snapshotShare: 100,
+        snapshotRsRate: 50,
+        snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 0,
+        deductBasicRs: 200000,
+        deductSupport: 0,
+        capRestoreYn: false,
+        mmgOverlapFlag: true,
+        progressRate: "100.0% (기준 90% 충족)",
+        certImageFile: "합격증사본_큐넷확인서_최안전.png",
+        certName: "최안전",
+        reviewOutlinkUrl: "https://cafe.naver.com/sanjunmo/983910",
+        reviewPlatformId: "플랫폼·산준모 카페 수기 등록 확인",
+        bankbookCopyFile: "통장사본_신한은행_최안전.jpg",
+        bankNameTier1: "신한은행 (시중 1금융권)",
+        bankAccountRealName: "110-382-****91 (예금주: 최안전 · 실명 일치)",
+        appliedMonth: "2026-11",
+        status: "PENDING",
+        memo: "4대 제출자료 확인 완료. 정산 반영월 2026-11 지정(10월 정산 제외) — 11월 정산서에서 월 최저보장금(MMG 1,500,000원) 판정을 먼저 한 뒤 매출 취소 차감(환급금 400,000원 × 지분 100% × 요율 50% = 200,000원)을 별도 반영"
+      },
+      {
+        id: "HRF-202610-03",
+        rfdApproveId: "PASS-2026-0035",
+        orderId: "SJM20260214-0055",
+        originPaidMonth: "2026-02",
+        studentName: "이수석",
+        studentUid: "top_lee",
+        examNo: "26-01-10294",
+        courseName: "[환급반] CRS-1004 2026 산업안전기사 필기+실기 100% 합격 환급반 (2026-02 오픈 특가 · 강좌 실결제 240,000원 / 교재 PROD-BK-1006 ×2 40,000원 제외)",
+        productId: "CRS-1004",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자)",
+        contractId: "CT-2026-0501",
+        burdenType: "OPTION_B",
+        totalPaidAmount: 280000,
+        excludedBookAmount: 40000,
+        studentRefundAmount: 240000,
+        withholdingTax22: 52800,
+        netPayoutToStudent: 187200,
+        snapshotShare: 100,
+        snapshotRsRate: 50,
+        snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 50,
+        deductBasicRs: 120000,
+        deductSupport: 0,
+        capRestoreYn: false,
+        mmgOverlapFlag: false,
+        progressRate: "95.2% (기준 90% 충족)",
+        certImageFile: "합격증사본_산업안전기사_이수석.jpg",
+        certName: "이수석",
+        reviewOutlinkUrl: "https://cafe.naver.com/sanjunmo/983102",
+        reviewPlatformId: "플랫폼·산준모 카페 수기 등록 확인",
+        bankbookCopyFile: "통장사본_우리은행_이수석.png",
+        bankNameTier1: "우리은행 (시중 1금융권)",
+        bankAccountRealName: "1002-841-****12 (예금주: 이수석 · 실명 일치)",
+        appliedMonth: "2026-10",
+        status: "APPROVED",
+        memo: "원 결제월(2026-02) 스냅샷 적용 — 환급금 240,000원 × 지분 100% × 요율 50% = 강사료 차감 120,000원. 원 주문 강좌 CRS-1004는 자사 지분 0%라 개발지원금 대상이 아니어서 원거래 지원금 0원 → 지원금 차감 0원 · 한도 복원 없음"
+      },
+      {
+        id: "HRF-202610-04",
+        rfdApproveId: "PASS-2026-0029",
+        orderId: "SJM20260512-0210",
+        originPaidMonth: "2026-05",
+        studentName: "최유진",
+        studentUid: "yj_choi",
+        examNo: "26-01-07119",
+        courseName: "[합격환급 대상] CRS-2603 2026 건설안전기사 필기 핵심이론 + 계산문제 특강 (강좌 실결제 144,500원 / 교재 PROD-BK-3003 ×2 50,000원 제외) · D-9 규칙(복원 한도 당월 사용) 시연",
+        productId: "CRS-2603",
+        rightsHolderId: "RH-0046",
+        rightsHolderName: "이건설 (개인 프리랜서)",
+        contractId: "CT-2026-0712",
+        burdenType: "OPTION_B",
+        totalPaidAmount: 194500,
+        excludedBookAmount: 50000,
+        studentRefundAmount: 144500,
+        withholdingTax22: 31790,
+        netPayoutToStudent: 112710,
+        snapshotShare: 60,
+        snapshotRsRate: 50,
+        snapshotSupportRate: 10,
+        snapshotSupportAlloc: 14450,
+        supportBurdenRatio: 100,
+        rsNote: "= 환급금 144,500원 × 지분 60% × 요율 50% (원 단위 미만 내림)",
+        deductBasicRs: 43350,
+        deductSupport: 14450,
+        capRestoreYn: true,
+        mmgOverlapFlag: false,
+        progressRate: "91.8% (기준 90% 충족)",
+        certImageFile: "합격증사본_건설안전기사_최유진.jpg",
+        certName: "최유진",
+        reviewOutlinkUrl: "https://cafe.naver.com/sanjunmo/982400",
+        reviewPlatformId: "플랫폼·산준모 카페 수기 등록 확인",
+        bankbookCopyFile: "통장사본_하나은행_최유진.jpg",
+        bankNameTier1: "하나은행 (시중 1금융권)",
+        bankAccountRealName: "391-910***-**107 (예금주: 최유진 · 실명 일치)",
+        appliedMonth: "2026-10",
+        status: "APPROVED",
+        memo: "옵션 B — 강사료 차감 43,350원 = 환급금 144,500원 × 원거래 지분 60% × 요율 50%(내림), 원거래 확정 지원금 14,450원(= 144,500원 × 10% 내림) × 분담 100% = 개발지원금 차감 14,450원 · 잔여 한도 +14,450원 복원(SFA-2026-015). D-9 규칙(복원 한도 당월 사용) 시연 — 복원 한도는 같은 달 지원금 확정에 사용. 2026-10-25 승인"
+      },
+      {
+        id: "HRF-202610-05",
+        rfdApproveId: "PASS-2026-0044",
+        orderId: "SJM20260603-0088",
+        originPaidMonth: "2026-06",
+        studentName: "정하늘",
+        studentUid: "sky_jung",
+        examNo: "26-01-55210",
+        courseName: "[환급반] CRS-1004 2026 산업안전기사 필기+실기 100% 합격 환급반 (2026-06 막차 특가 · 강좌 실결제 180,000원 / 교재 PROD-BK-1006 ×2 40,000원 제외)",
+        productId: "CRS-1004",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자)",
+        contractId: "CT-2026-0501",
+        burdenType: "OPTION_A",
+        totalPaidAmount: 220000,
+        excludedBookAmount: 40000,
+        studentRefundAmount: 180000,
+        withholdingTax22: 39600,
+        netPayoutToStudent: 140400,
+        snapshotShare: 100,
+        snapshotRsRate: 50,
+        snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 0,
+        deductBasicRs: 0,
+        deductSupport: 0,
+        capRestoreYn: false,
+        mmgOverlapFlag: false,
+        progressRate: "96.0% (기준 90% 충족)",
+        certImageFile: "합격증사본_산업안전기사_정하늘.png",
+        certName: "정하늘",
+        reviewOutlinkUrl: "https://cafe.naver.com/sanjunmo/984511",
+        reviewPlatformId: "플랫폼·산준모 카페 수기 등록 확인",
+        bankbookCopyFile: "통장사본_IBK기업은행_정하늘.png",
+        bankNameTier1: "IBK기업은행 (시중 1금융권)",
+        bankAccountRealName: "221-08****-01-011 (예금주: 정하늘 · 실명 일치)",
+        appliedMonth: "2026-10",
+        status: "APPROVED",
+        memo: "6월 막차 특가 프로모션 옵션 A(플랫폼 부담) — 강사 정산 차감 0원. 4대 제출 증빙 확인 후 2026-10-26 승인"
+      },
+      {
+        id: "HRF-202610-06",
+        rfdApproveId: "",
+        orderId: "SJM20260518-0127",
+        originPaidMonth: "2026-05",
+        studentName: "한승우",
+        studentUid: "hanseungwoo",
+        examNo: "26-02-31877",
+        courseName: "[환급반] CRS-1004 2026 산업안전기사 필기+실기 100% 합격 환급반 (총결제 450,000원 / 교재 PROD-BK-1006 ×2 40,000원 제외)",
+        productId: "CRS-1004",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자)",
+        contractId: "CT-2026-0501",
+        burdenType: "OPTION_B",
+        totalPaidAmount: 450000,
+        excludedBookAmount: 40000,
+        studentRefundAmount: 410000,
+        withholdingTax22: 90200,
+        netPayoutToStudent: 319800,
+        snapshotShare: 100,
+        snapshotRsRate: 50,
+        snapshotSupportRate: 0,
+        snapshotSupportAlloc: 0,
+        supportBurdenRatio: 50,
+        deductBasicRs: 205000,
+        deductSupport: 0,
+        capRestoreYn: false,
+        mmgOverlapFlag: false,
+        progressRate: "93.1%",
+        certImageFile: "합격증사본_산업안전기사_한승우.jpg",
+        certName: "한승우",
+        reviewOutlinkUrl: "https://cafe.naver.com/sanjunmo/985032",
+        reviewPlatformId: "플랫폼·산준모 카페 수기 등록 확인",
+        bankbookCopyFile: "통장사본_KB국민은행_한승우.png",
+        bankNameTier1: "KB국민은행 (시중 1금융권)",
+        bankAccountRealName: "531-21-****-447 (예금주: 한승우)",
+        appliedMonth: "",
+        status: "REVIEW",
+        memo: "2026-10-24 합격환급 신청 접수(USER-MY-011) — 4대 증빙 제출, 심사 대기. 심사 승인 시 승인월 정산 차감 대기열로 넘어감(옵션 B 예상 차감 = 410,000원 × 지분 100% × 요율 50% = 205,000원, 원 주문 강좌 CRS-1004 자사 지분 0%라 지원금 차감 0원)"
+      }
+    ],
+    auditLogs: [
+      {
+        time: "2026-10-24 09:31:00",
+        actor: "수험생 신청 (USER-MY-011)",
+        targetId: "HRF-202610-06",
+        burden: "옵션 B / 정종대",
+        action: "합격환급 신청 접수 — 4대 증빙 제출, 심사 대기 (정산 반영월은 심사 승인월로 지정)",
+        basis: "합격증 사본·카페 합격수기 링크·KB국민은행 통장사본·실명계좌 제출"
+      },
+      {
+        time: "2026-10-26 10:05:00",
+        actor: "재무팀장 (조정식)",
+        targetId: "HRF-202610-05",
+        burden: "옵션 A / 정종대",
+        action: "플랫폼 전액 부담(옵션 A) 확정 — 강사 정산 차감 0원",
+        basis: "합격증 사본·카페 수기 링크·IBK기업은행 통장사본·실명계좌 4종 검증 완료"
+      },
+      {
+        time: "2026-10-26 10:00:00",
+        actor: "재무팀장 (조정식)",
+        targetId: "HRF-202610-01",
+        burden: "옵션 B / 정종대",
+        action: "강사료 차감(-205,000원 = 410,000원 × 지분 100% × 요율 50%) 확정 · 개발지원금 차감 0원(원 주문 강좌 CRS-1004 자사 지분 0% — 지원금 대상 아님)",
+        basis: "합격증 사본·카페 합격수기 링크·KB국민은행 통장사본·실명계좌 4종 검증 완료 (원결제 2026-03 기준)"
+      },
+      {
+        time: "2026-10-25 16:30:00",
+        actor: "재무팀장 (조정식)",
+        targetId: "HRF-202610-04",
+        burden: "옵션 B / 이건설",
+        action: "강사료 차감(-43,350원 = 144,500원 × 지분 60% × 요율 50%) 및 개발지원금 차감(-14,450원 = 원거래 확정 지원금 14,450원 × 분담 100%) · 잔여 지원금 한도 복원(+14,450원 · 복원 한도는 같은 달 사용) 확정",
+        basis: "합격증 사본·카페 수기 링크·하나은행 통장사본·실명계좌 검증 완료 (원결제 2026-05 기준, 제세공과금 22% 공제 후 112,710원 지급)"
+      },
+      {
+        time: "2026-10-13 16:40:00",
+        actor: "CS담당자 (김검수)",
+        targetId: "HRF-202610-02",
+        burden: "옵션 C / 김안전",
+        action: "4대 증빙 확인 완료 · 정산 반영월 2026-11 지정 (매출 취소 차감 200,000원은 11월 정산서에서 최저보장(MMG) 판정 후 별도 반영)",
+        basis: "합격증 사본·산준모 카페 수기 링크·신한은행 통장사본·실명계좌 4종 대조 완료"
+      },
+      {
+        time: "2026-10-12 11:20:00",
+        actor: "재무팀장 (조정식)",
+        targetId: "HRF-202610-03",
+        burden: "옵션 B / 정종대",
+        action: "강사료 차감(-120,000원 = 240,000원 × 지분 100% × 요율 50%) 확정 · 개발지원금 차감 0원(원 주문 강좌 CRS-1004 자사 지분 0% — 지원금 대상 아님)",
+        basis: "합격증 사본·카페 합격수기 링크·우리은행 통장사본·실명계좌 4종 검증 완료 (원결제 2026-02 기준)"
+      }
+    ]
+  };
+
+  function fmt(n) {
+    return Number(n || 0).toLocaleString("ko-KR") + "원";
+  }
+
+  function filterByKpi(filterKey) {
+    state.kpiFilter = filterKey;
+    document.querySelectorAll(".kpi-card[data-filter]").forEach(c => {
+      c.classList.toggle("active", c.getAttribute("data-filter") === filterKey);
+    });
+    renderTable();
+  }
+
+  function resetFilters() {
+    state.kpiFilter = "ALL";
+    document.querySelectorAll(".kpi-card[data-filter]").forEach(c => {
+      c.classList.toggle("active", c.getAttribute("data-filter") === "ALL");
+    });
+    if (document.getElementById("fOriginMonth")) document.getElementById("fOriginMonth").value = "ALL";
+    if (document.getElementById("fInstructor")) document.getElementById("fInstructor").value = "ALL";
+    if (document.getElementById("burdenFilter")) document.getElementById("burdenFilter").value = "ALL";
+    if (document.getElementById("fStatus")) document.getElementById("fStatus").value = "ALL";
+    if (document.getElementById("searchInput")) document.getElementById("searchInput").value = "";
+    renderTable();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("refundTableBody");
+    if (!tbody) return;
+    const q = (document.getElementById("searchInput")?.value || "").trim().toLowerCase();
+    const bFilter = document.getElementById("burdenFilter")?.value || "ALL";
+    const mFilter = document.getElementById("fOriginMonth")?.value || "ALL";
+    const iFilter = document.getElementById("fInstructor")?.value || "ALL";
+    const sFilter = document.getElementById("fStatus")?.value || "ALL";
+
+    const filtered = state.items.filter(item => {
+      if (state.kpiFilter === "PENDING" && item.status !== "PENDING") return false;
+      if (state.kpiFilter === "OPT_BC" && !(item.burdenType === "OPTION_B" || item.burdenType === "OPTION_C")) return false;
+      if (state.kpiFilter === "OPT_A" && item.burdenType !== "OPTION_A") return false;
+      if (state.kpiFilter === "MMG_OVERLAP" && !item.mmgOverlapFlag) return false;
+      if (bFilter !== "ALL" && item.burdenType !== bFilter) return false;
+      if (mFilter !== "ALL" && item.originPaidMonth !== mFilter) return false;
+      if (iFilter !== "ALL" && item.rightsHolderId !== iFilter) return false;
+      if (sFilter !== "ALL" && item.status !== sFilter) return false;
+      if (q) {
+        const hay = `${item.id} ${item.rfdApproveId} ${item.orderId} ${item.studentName} ${item.studentUid} ${item.rightsHolderName} ${item.courseName}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    const lbl = document.getElementById("listCountLabel");
+    if (lbl) lbl.textContent = `(총 ${filtered.length}건 조회됨 · 행 또는 [상세·검수] 버튼을 클릭하면 4대 제출 증빙과 차감 계산 내역을 확인합니다)`;
+
+    tbody.innerHTML = filtered.map(item => {
+      const burdenBadge = item.burdenType === "OPTION_A"
+        ? `<span class="badge badge-primary">옵션 A (플랫폼 100%)</span>`
+        : item.burdenType === "OPTION_B"
+          ? `<span class="badge badge-warn">옵션 B (강사·플랫폼 공동분담)</span>`
+          : `<span class="badge badge-danger">옵션 C (매출 취소차감)</span>`;
+
+      const sm = STATUS_META[item.status] || STATUS_META.PENDING;
+      const statusBadge = `<span class="badge ${sm.badge}">${sm.list}</span>`;
+
+      const overlapTag = item.mmgOverlapFlag
+        ? `<span class="badge badge-purple" style="margin-left:4px;">최저보장(MMG) 강사</span>`
+        : "";
+
+      return `
+        <tr style="cursor:pointer;" data-dev-route="admin.settlement.pass-refunds.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pass-refunds/{claim}" data-dev-perm="조회" onclick="openHrfDetailPage('${item.id}')">
+          <td style="text-align:center;" onclick="event.stopPropagation();">
+            <input type="checkbox" class="row-chk" value="${item.id}" ${item.status === "PENDING" ? "" : "disabled"}>
+          </td>
+          <td>
+            <strong>${item.id}</strong>
+            <div style="margin-top:2px;"><span class="badge badge-neutral">심사: ${item.rfdApproveId}</span></div>
+          </td>
+          <td class="mono">
+            <strong>${item.orderId}</strong>
+            <div style="color:var(--text-muted);">원 결제월: ${item.originPaidMonth}</div>
+          </td>
+          <td>
+            <strong>${item.studentName}</strong> <span style="color:var(--text-muted); font-size:11.5px;">(${item.studentUid})</span>
+            <div style="font-size:11.5px; color:${progressInfo(item).met ? "var(--success)" : "var(--danger)"}; font-weight:700; margin-top:2px;">진도율 ${progressInfo(item).label}${item.progressAdjusted ? ` <span class="badge badge-purple">진도율 보정 포함</span>` : ""}</div>
+          </td>
+          <td>
+            <div style="font-weight:700; color:var(--text);">${item.courseName}</div>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">수험번호: ${item.examNo} · 귀속은행: ${item.bankNameTier1}</div>
+          </td>
+          <td>
+            <div style="display:flex; flex-wrap:wrap; gap:4px;">
+              <span class="badge badge-success">합격증사본 O</span>
+              <span class="badge badge-purple">카페수기링크 O</span>
+              <span class="badge badge-primary">통장·1금융실명 O</span>
+            </div>
+          </td>
+          <td>
+            <strong>${item.rightsHolderName}</strong> ${overlapTag}
+            <div style="margin-top:4px;">${burdenBadge}</div>
+          </td>
+          <td class="num">
+            <strong>${fmt(item.studentRefundAmount)}</strong>
+            <div style="font-size:11px; color:var(--text-muted);">실입금: ${fmt(item.netPayoutToStudent)}</div>
+          </td>
+          <td class="num" style="color:${item.deductBasicRs > 0 ? "var(--danger)" : "var(--text-muted)"}; font-weight:700;">
+            ${item.deductBasicRs > 0 ? "-" + fmt(item.deductBasicRs) : "0원 (차감없음)"}
+          </td>
+          <td class="num" style="color:${item.deductSupport > 0 ? "var(--danger)" : "var(--text-muted)"}; font-weight:700;">
+            ${item.deductSupport > 0 ? "-" + fmt(item.deductSupport) : "0원"}
+            ${item.capRestoreYn ? `<div style="font-size:11px; color:var(--primary);">+한도복원 ${fmt(item.deductSupport)}</div>` : ""}
+          </td>
+          <td>${statusBadge}${item.appliedMonth && item.appliedMonth !== curMonth() ? `<div style="margin-top:4px;"><span class="badge badge-neutral">정산 반영월 ${item.appliedMonth}</span></div>` : ""}</td>
+          <td style="text-align:center;" onclick="event.stopPropagation();">
+            <button type="button" class="btn btn-sm ${item.status === "APPROVED" ? "" : "btn-primary"}" data-dev-route="admin.settlement.pass-refunds.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pass-refunds/{claim}" data-dev-perm="조회" onclick="openHrfDetailPage('${item.id}')">
+              ${item.status === "PENDING" ? "상세 · 승인" : (item.status === "APPROVED" ? "상세 보기" : "상세 · 심사")}
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    updateFooterSummary();
+  }
+
+  // 심사 · 정산 반영 상태 — REVIEW(심사 대기) → [심사 승인] → PENDING(정산 차감 승인 대기) → [당월 정산 차감 확정 승인] → APPROVED
+  //                         └ [보완 요청] → SUPPLEMENT(수험생 재업로드 대기) → 재업로드 시 REVIEW   (통합설계서 Flow 4-2 Step 2 · 3)
+  const STATUS_META = {
+    REVIEW: { badge: "badge-neutral", list: "🔍 심사 대기", detail: "🔍 4대 증빙 · 명의 3중 대조 심사 대기" },
+    SUPPLEMENT: { badge: "badge-danger", list: "📨 보완 요청", detail: "📨 보완 요청 — 수험생 재업로드 대기" },
+    PENDING: { badge: "badge-warn", list: "⏳ 승인 대기", detail: "⏳ 정산 차감 승인 대기" },
+    APPROVED: { badge: "badge-success", list: "✔ 정산반영 완료", detail: "✔ 당월 정산 반영 완료" }
+  };
+
+  // 상품별 합격환급 인정 진도율(target_progress_rate) · 출석일수 기준 — 상품 설정(ADMN-PROD-005 '환급 인정 진도율')의 값.
+  // 상품에 값이 없으면 기본 90%(통합설계서 S4-01 · 개정 v3.2.14 '90% 고정 아님'). 출석일수 기준이 없는 상품은 진도율만 판정한다.
+  const REFUND_TARGET_DEFAULT = 90;
+  const REFUND_RULES = {
+    "CRS-1004": { targetProgress: 90, attendanceDays: 0 },
+    "CRS-2603": { targetProgress: 90, attendanceDays: 0 }
+  };
+  function refundRuleOf(item) {
+    const r = REFUND_RULES[item.productId] || {};
+    const target = Number(r.targetProgress) > 0 ? Number(r.targetProgress) : REFUND_TARGET_DEFAULT;
+    return { target, attendance: Number(r.attendanceDays) || 0, isDefault: !(Number(r.targetProgress) > 0) };
+  }
+  function progressInfo(item) {
+    const rule = refundRuleOf(item);
+    const rate = parseFloat(item.progressRate);
+    const met = !isNaN(rate) && rate >= rule.target;
+    return { rate, rule, met, label: `${isNaN(rate) ? "-" : rate.toFixed(1) + "%"} (목표 ${rule.target}% ${met ? "충족" : "미달"})` };
+  }
+  // 명의 3중 대조: 회원 실명 = 합격증 성명 = 예금주 실명 (통합설계서 3.4.2 · S4-01)
+  function nameCheckOf(item) {
+    const member = item.memberRealName || item.studentName || "";
+    const cert = item.certName || "";
+    const holder = item.accountHolder || ((item.bankAccountRealName || "").match(/예금주:\s*([^\s·)]+)/) || [])[1] || "";
+    return { member, cert, holder, ok: !!member && member === cert && member === holder };
+  }
+  function evidenceOf(item) {
+    const list = [
+      { key: "cert", label: "합격증 사본", ok: !!item.certImageFile },
+      { key: "review", label: "합격수기 아웃링크", ok: !!item.reviewOutlinkUrl },
+      { key: "bankbook", label: "통장 사본", ok: !!item.bankbookCopyFile },
+      { key: "account", label: "1금융권 은행명 · 실명 계좌", ok: !!(item.bankNameTier1 && item.bankAccountRealName) }
+    ];
+    return { list, ok: list.every(x => x.ok) };
+  }
+  function reviewGate(item) {
+    const p = progressInfo(item), n = nameCheckOf(item), e = evidenceOf(item);
+    const why = [];
+    if (!p.met) why.push(`진도율 목표 ${p.rule.target}% 미달`);
+    if (!e.ok) why.push("4대 증빙 미제출 " + e.list.filter(x => !x.ok).map(x => x.label).join(", "));
+    if (!n.ok) why.push("명의 3중 대조 불일치");
+    if (item.status === "SUPPLEMENT") why.push("보완 요청 후 수험생 재업로드 대기");
+    return { ok: why.length === 0 && item.status === "REVIEW", why, p, n, e };
+  }
+  function nowStamp() {
+    const d = new Date(), z = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+  }
+  function burdenShort(item) {
+    return `${item.burdenType.replace("OPTION_", "옵션 ")} / ${item.rightsHolderName.split(" ")[0]}`;
+  }
+
+  /* RFD-001-S1 합격환급 심사 상세 — 목록 행 · [상세] 버튼에서 페이지로 연다 */
+  function openHrfDetailPage(id) {
+    SJM_PAGE.go("detail", { id });
+  }
+
+  function fillHrfDetail(id) {
+    const item = state.items.find(x => x.id === id);
+    const titleEl = document.getElementById("hrfDetailTitle");
+    const badgeEl = document.getElementById("hrfDetailStatus");
+    const bodyEl = document.getElementById("hrfDetailBody");
+    const footEl = document.getElementById("hrfDetailFoot");
+    if (!item) {
+      titleEl.textContent = "합격환급 심사 상세";
+      badgeEl.className = "badge badge-neutral";
+      badgeEl.textContent = "없음";
+      bodyEl.innerHTML = `<div class="info-box">환급정산 건을 찾을 수 없습니다 (${id || "번호 없음"}). 목록에서 다시 선택해 주세요.</div>`;
+      footEl.innerHTML = `<button type="button" class="btn" onclick="SJM_PAGE.back()">목록</button>`;
+      return;
+    }
+    state.selectedId = id;
+    const sm = STATUS_META[item.status] || STATUS_META.PENDING;
+    const g = reviewGate(item);
+    const shipping = Math.max(0, item.totalPaidAmount - item.excludedBookAmount - item.studentRefundAmount);
+    const ok = (b, yes, no) => `<span class="badge ${b ? "badge-success" : "badge-danger"}">${b ? yes : no}</span>`;
+    const nameRow = (label, val) => `
+          <div class="info-row">
+            <span style="color:var(--text-sub); font-weight:600;">${label}</span>
+            <span><strong>${val || "(미확인)"}</strong> ${ok(!!val && val === g.n.member, "일치", "불일치")}</span>
+          </div>`;
+
+    titleEl.textContent = `${item.studentName} (${item.id}) — 합격환급 심사 상세`;
+    badgeEl.className = "badge " + sm.badge;
+    badgeEl.textContent = sm.detail;
+
+    const supHist = (item.supplements || []).map(s => `
+          <div class="info-row"><span style="color:var(--text-sub);">${s.at} · ${s.actor}</span><span>${s.items.join(", ")} — ${s.reason}</span></div>`).join("");
+
+    bodyEl.innerHTML = `
+      <div class="detail-2col">
+        <!-- 1. 진도율 판정 · 4대 증빙 -->
+        <div class="info-box" style="background:#f8fafc;">
+          <div style="font-weight:800; font-size:13px; color:#1e3a8a; margin-bottom:8px;">📋 1. 진도율 판정 · 수험생 4대 필수 제출 자료</div>
+          <div class="info-row">
+            <span style="color:var(--text-sub); font-weight:600;">수험생 / 수험번호</span>
+            <span><strong>${item.studentName}</strong> (${item.studentUid} · 수험번호 <code>${item.examNo}</code>)</span>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub); font-weight:600;">인정 진도율 (상품 목표 ${g.p.rule.target}%)</span>
+            <span>${ok(g.p.met, `${g.p.rate.toFixed(1)}% · 목표 충족`, `${isNaN(g.p.rate) ? "-" : g.p.rate.toFixed(1) + "%"} · 목표 미달`)}${item.progressAdjusted ? ` <span class="badge badge-purple">진도율 보정 포함</span>` : ""}</span>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub); font-weight:600;">목표 진도율 출처</span>
+            <span style="font-size:12px;">상품 <code>${item.productId || "-"}</code> 환급 인정 진도율 설정값 ${g.p.rule.isDefault ? "(상품 값 없음 → 기본 90%)" : `${g.p.rule.target}%`}</span>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub); font-weight:600;">출석일수 기준</span>
+            <span style="font-size:12px;">${g.p.rule.attendance ? `${item.attendanceDays || 0}일 / 기준 ${g.p.rule.attendance}일 ${ok((item.attendanceDays || 0) >= g.p.rule.attendance, "충족", "미달")}` : "상품에 출석일수 기준 없음 — 진도율만 판정"}</span>
+          </div>
+          <div class="info-row">
+            <span style="color:#1e40af; font-weight:700;">[1] 합격증 사본</span>
+            <span>📎 <code>${item.certImageFile}</code> <button type="button" class="btn btn-sm" data-dev-route="admin.pass-refunds.files.show" data-dev-method="GET" data-dev-url="/sj-admin/pass-refunds/{passRefund}/files/{file}" data-dev-perm="조회(합격 환급 심사 메뉴)" onclick="showToast('합격증 사본 이미지 원본을 열람합니다: ${item.certImageFile}')">이미지 보기</button></span>
+          </div>
+          <div class="info-row">
+            <span style="color:#1e40af; font-weight:700;">[2] 플랫폼 · 산준모 카페 합격수기 링크</span>
+            <span><a href="${item.reviewOutlinkUrl}" target="_blank" rel="noopener" style="color:var(--primary); font-weight:700; text-decoration:underline;">카페 수기 새창 열기 ↗</a> <span class="badge badge-purple">${item.reviewPlatformId}</span></span>
+          </div>
+          <div class="info-row">
+            <span style="color:#1e40af; font-weight:700;">[3] 환급금 입금용 통장 사본</span>
+            <span>📎 <code>${item.bankbookCopyFile}</code> <button type="button" class="btn btn-sm" data-dev-route="admin.pass-refunds.files.show" data-dev-method="GET" data-dev-url="/sj-admin/pass-refunds/{passRefund}/files/{file}" data-dev-perm="조회(합격 환급 심사 메뉴)" onclick="showToast('통장 사본 이미지를 열람합니다: ${item.bankbookCopyFile}')">사본 보기</button></span>
+          </div>
+          <div class="info-row">
+            <span style="color:#1e40af; font-weight:700;">[4] 시중 1금융권 은행 · 실명 계좌</span>
+            <span>🏦 <strong>${item.bankNameTier1}</strong> · <code>${item.bankAccountRealName}</code></span>
+          </div>
+        </div>
+
+        <!-- 2. 명의 3중 대조 · 심사 결과 -->
+        <div class="info-box" id="hrfNameCheck">
+          <div style="font-weight:800; font-size:13px; color:var(--text); margin-bottom:8px;">🪪 2. 명의 3중 대조 (회원 실명 = 합격증 성명 = 예금주 실명)</div>
+          <div class="info-row">
+            <span style="color:var(--text-sub); font-weight:600;">회원 실명 (기준)</span>
+            <span><strong>${g.n.member}</strong></span>
+          </div>
+          ${nameRow("합격증 성명", g.n.cert)}
+          ${nameRow("예금주 실명", g.n.holder)}
+          <div class="info-row" style="background:${g.n.ok ? "#f0fdf4" : "#fef2f2"}; padding:8px 10px; border-radius:6px; margin-top:4px;">
+            <span style="font-weight:700; color:${g.n.ok ? "#166534" : "#991b1b"};">대조 결과</span>
+            <strong id="hrfNameResult" style="color:${g.n.ok ? "#166534" : "#991b1b"};">${g.n.ok ? "통과 — 심사 승인 가능" : "불일치 — 심사 승인 불가 (보완 요청)"}</strong>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub); font-weight:600;">심사 번호 / 심사 결과</span>
+            <span>${item.rfdApproveId ? `<code>${item.rfdApproveId}</code> ` : ""}${item.status === "REVIEW" || item.status === "SUPPLEMENT" ? `<span class="badge ${sm.badge}">${sm.list}</span>` : `<span class="badge badge-success">심사 승인 완료</span>`}</span>
+          </div>
+          ${g.why.length && (item.status === "REVIEW" || item.status === "SUPPLEMENT") ? `<div class="info-row"><span style="color:var(--danger); font-weight:700;">승인 불가 사유</span><span style="color:var(--danger); font-size:12px;">${g.why.join(" · ")}</span></div>` : ""}
+          ${supHist ? `<div style="font-weight:700; font-size:12px; color:var(--text-sub); margin-top:10px;">보완 요청 이력</div>${supHist}` : ""}
+        </div>
+      </div>
+
+      <div class="detail-2col">
+        <!-- 3. 수강생 환급금 (22% 원천징수) -->
+        <div class="info-box">
+          <div style="font-weight:800; font-size:13px; color:var(--text); margin-bottom:8px;">💰 3. 수강생 환급금 산정 (기타소득 22% 원천징수)</div>
+          <div class="info-row">
+            <span style="color:var(--text-sub);">원 주문번호 / 원 결제월</span>
+            <span><code>${item.orderId}</code> (원 결제월: <strong>${item.originPaidMonth}</strong> → 정산 반영월: <strong>${item.appliedMonth || "심사 승인월로 지정"}</strong>)</span>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub);">환급 기준 모수 = 패키지 실결제액 − 포함 교재 실결제액 − 배송비</span>
+            <span>${fmt(item.totalPaidAmount)} − ${fmt(item.excludedBookAmount)} − ${fmt(shipping)} = <strong>${fmt(item.studentRefundAmount)}</strong></span>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub);">원천징수 22% (소득세 20% + 지방소득세 2%, 필요경비 의제 없음)</span>
+            <span>-${fmt(item.withholdingTax22)}</span>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub);">과세최저한 (5만 원 이하 비과세)</span>
+            <span>${item.studentRefundAmount <= 50000 ? "비과세 대상" : "해당 없음 (5만 원 초과)"}</span>
+          </div>
+          <div class="info-row" style="background:#f0fdf4; padding:8px 10px; border-radius:6px; margin-top:4px;">
+            <span style="color:#166534; font-weight:700;">세후 실지급액 (수험생 계좌 입금)</span>
+            <strong style="color:var(--success); font-size:13.5px;">${fmt(item.netPayoutToStudent)}</strong>
+          </div>
+        </div>
+
+        <!-- 4. 강사 정산 분담 (옵션 A/B/C) -->
+        <div class="info-box">
+          <div style="font-weight:800; font-size:13px; color:var(--text); margin-bottom:8px;">🧾 4. 강사 정산 차감액 산출 명세 (계약 분담 옵션)</div>
+          <div class="info-row">
+            <span style="color:var(--text-sub);">귀속 강사 / 계약 분담 방식</span>
+            <span><strong>${item.rightsHolderName}</strong> · <strong style="color:var(--primary);">${BURDEN_LABELS[item.burdenType]}</strong></span>
+          </div>
+          <div class="info-row">
+            <span style="color:var(--text-sub);">원거래 스냅샷 (원 결제일 기준)</span>
+            <span>귀속 지분 <strong>${item.snapshotShare}%</strong> · 강의 R/S 요율 <strong>${item.snapshotRsRate}%</strong>${item.snapshotSupportAlloc ? ` · 확정 지원금 <strong>${fmt(item.snapshotSupportAlloc)}</strong> (요율 ${item.snapshotSupportRate}%)` : ""}</span>
+          </div>
+          <div class="info-row" style="background:#fef2f2; padding:8px 10px; border-radius:6px; margin-top:4px;">
+            <span style="color:#991b1b; font-weight:700;">강사료(R/S) 환급분 차감액${item.burdenType === "OPTION_A" ? "" : (item.rsNote ? ` <span style="font-weight:500;">(${item.rsNote})</span>` : ` <span style="font-weight:500;">= 환급금 ${fmt(item.studentRefundAmount)} × 지분 ${item.snapshotShare}% × 요율 ${item.snapshotRsRate}%</span>`)}</span>
+            <strong style="color:var(--danger); font-size:13.5px;">${item.deductBasicRs > 0 ? "-" + fmt(item.deductBasicRs) : (item.burdenType === "OPTION_A" ? "0원 (플랫폼 전액 부담)" : "0원")}</strong>
+          </div>
+          <div class="info-row" style="background:#eff6ff; padding:8px 10px; border-radius:6px; margin-top:4px;">
+            <span style="color:#1e40af; font-weight:700;">개발지원금 차감 및 잔여 한도 복원액${item.deductSupport > 0 ? ` <span style="font-weight:500;">= 원거래 확정 지원금 ${fmt(item.snapshotSupportAlloc)} × 분담 ${item.supportBurdenRatio}%</span>` : ""}</span>
+            <strong style="color:var(--primary); font-size:13px;">${item.deductSupport > 0 ? "-" + fmt(item.deductSupport) + " (잔여 한도 +" + fmt(item.deductSupport) + " 복원)" : "0원"}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label style="display:block; font-weight:700; font-size:12px; color:var(--text-sub); margin-bottom:6px;">정산 검수 메모</label>
+        <input type="text" id="detailMemoInput" name="opinion" data-dev-note="개발 검수 의견 — 필수 10~500자(PassRefundSettleRequest), 감사 로그 reason" class="input" style="width:100%;" value="${item.memo || ""}">
+      </div>
+    `;
+
+    const inReview = item.status === "REVIEW" || item.status === "SUPPLEMENT";
+    footEl.innerHTML = `
+      <button type="button" class="btn" onclick="SJM_PAGE.back()">목록</button>
+      ${inReview ? `
+      <button type="button" class="btn" data-dev-flag="proto-only" data-dev-note="보완 요청 — 개발 심사는 action verify · approve · reject · memo만(반려 reject_reason · reject_detail)" onclick="openSupplementModal('${item.id}')">📨 보완 요청</button>
+      <button type="button" class="btn btn-primary" id="hrfReviewApproveBtn" data-dev-route="admin.pass-refunds.update" data-dev-method="PUT" data-dev-url="/sj-admin/pass-refunds/{passRefund}" data-dev-perm="수정(합격 환급 심사 메뉴)" data-dev-note="PassRefundReviewRequest action=approve + checks[](8종) · exam_year · exam_round · admin_memo" onclick="approveReview('${item.id}')" ${g.ok ? "" : "disabled"} title="${g.ok ? "" : g.why.join(" · ")}">✔ 심사 승인</button>` : `
+      <button type="button" class="btn btn-primary" id="hrfDeductApproveBtn" data-dev-route="admin.settlement.pass-refunds.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/pass-refunds/{claim}" data-dev-perm="수정" data-dev-note="opinion 필수. 옵션 A만 rs · support 차감 0으로 확정, B · C는 검증 오류(마감 보류 HOLD) — 정책 질문 D-SETT" onclick="approveSettlementDeduct('${item.id}')" ${item.status === "PENDING" ? "" : "disabled"}>
+        ${item.status === "APPROVED" ? "✔ 당월 정산 반영 완료됨" : "✔ 당월 정산 차감 확정 승인"}
+      </button>`}
+    `;
+  }
+
+  /* [심사 승인] — 진도율 충족 · 4대 증빙 · 명의 3중 대조 통과 시에만. 세후 실지급액 확정 → 승인월 정산 차감 대기열(정산 차감 승인 대기) */
+  function approveReview(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    const g = reviewGate(item);
+    if (!g.ok) { showToast("심사 승인 불가 — " + g.why.join(" · ")); return; }
+    const memoEl = document.getElementById("detailMemoInput");
+    if (memoEl) item.memo = memoEl.value;
+    item.status = "PENDING";
+    item.appliedMonth = curMonth();
+    if (!item.rfdApproveId) {
+      const max = state.items.reduce((m, x) => Math.max(m, parseInt(String(x.rfdApproveId || "").split("-").pop(), 10) || 0), 0);
+      item.rfdApproveId = "PASS-2026-" + String(max + 1).padStart(4, "0");
+    }
+    state.auditLogs.unshift({
+      time: nowStamp(),
+      actor: "CS담당자 (김검수)",
+      targetId: item.id,
+      burden: burdenShort(item),
+      action: `심사 승인(${item.rfdApproveId}) — 진도율 ${g.p.rate.toFixed(1)}%(목표 ${g.p.rule.target}%) 충족 · 명의 3중 대조 통과 → 세후 실지급액 ${fmt(item.netPayoutToStudent)} 확정, ${item.appliedMonth} 정산 차감 승인 대기`,
+      basis: "4대 제출 증빙(합격증 사본·합격수기 링크·통장 사본·1금융권 실명계좌) 및 명의 3중 대조(회원 실명 = 합격증 성명 = 예금주) 확인"
+    });
+    renderTable();
+    renderAuditLogs();
+    fillHrfDetail(id);
+    showToast(`[${item.id}] 심사 승인 — 정산 차감 승인 대기로 넘어갔습니다.`);
+  }
+
+  /* [보완 요청] 팝업(P) — 서류 미비 · 명의 불일치 시 알림톡 발송, 수험생 재업로드 대기 */
+  function openSupplementModal(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    const g = reviewGate(item);
+    const opts = g.e.list.map(x => ({ label: x.label, on: !x.ok })).concat([{ label: "명의 불일치 (합격증 성명 · 예금주)", on: !g.n.ok }]);
+    document.getElementById("supplementTitle").textContent = `보완 요청 — ${item.studentName} (${item.id})`;
+    document.getElementById("supplementItems").innerHTML = opts.map((o, i) =>
+      `<label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" class="sup-item" name="items[]" value="${o.label}" ${o.on ? "checked" : ""}> ${o.label}</label>`).join("");
+    document.getElementById("supplementReason").value = "";
+    const err = document.getElementById("supplementError");
+    err.style.display = "none"; err.textContent = "";
+    const m = document.getElementById("supplementModal");
+    m.dataset.id = id;
+    m.classList.add("show");
+    m.style.setProperty("display", "flex", "important");
+    m.removeAttribute("aria-hidden");
+  }
+  function closeSupplementModal() {
+    const m = document.getElementById("supplementModal");
+    m.classList.remove("show");
+    m.style.setProperty("display", "none", "important");
+  }
+  function sendSupplementRequest() {
+    const m = document.getElementById("supplementModal");
+    const item = state.items.find(x => x.id === m.dataset.id);
+    if (!item) return;
+    const items = Array.from(document.querySelectorAll("#supplementItems .sup-item:checked")).map(x => x.value);
+    const reason = document.getElementById("supplementReason").value.trim();
+    const err = document.getElementById("supplementError");
+    const msg = !items.length ? "보완할 항목을 하나 이상 고르세요." : (!reason ? "보완 요청 사유를 입력하세요(수험생 알림톡에 표시됩니다)." : "");
+    if (msg) { err.textContent = msg; err.style.display = "block"; return; }
+    const at = nowStamp();
+    item.status = "SUPPLEMENT";
+    item.supplements = (item.supplements || []).concat([{ at, actor: "CS담당자 (김검수)", items, reason }]);
+    state.auditLogs.unshift({
+      time: at,
+      actor: "CS담당자 (김검수)",
+      targetId: item.id,
+      burden: burdenShort(item),
+      action: `[보완 요청] 알림톡 발송 — ${items.join(", ")}`,
+      basis: reason
+    });
+    closeSupplementModal();
+    renderTable();
+    renderAuditLogs();
+    fillHrfDetail(item.id);
+    showToast(`[${item.id}] 보완 요청 알림톡을 발송했습니다. 수험생이 서류를 다시 올리면 심사 대기로 돌아옵니다.`);
+  }
+
+  function toggleCheckAll(master) {
+    document.querySelectorAll(".row-chk:not(:disabled)").forEach(chk => {
+      chk.checked = master.checked;
+    });
+  }
+
+  // 정산 배치(SETT-002)를 이미 돌린 미마감 월 — 이 달 확정분은 분담 강사 정산서를 자동 재연산(정산 01권 15.3절)
+  const SETTLE_BATCH_AT = { "2026-10": "2026-10-14 15:45:00" };
+  // 정산서 자동 재연산 기록 — 월간 정산(SETT-002)이 같은 키를 읽어 배치 이후 재연산된 권리자를 표시
+  const RECALC_EVENTS_KEY = "sjm.settle.recalcEvents.v1";
+  function pushRecalcEvents(events) {
+    try {
+      const prev = JSON.parse(localStorage.getItem(RECALC_EVENTS_KEY) || "[]");
+      localStorage.setItem(RECALC_EVENTS_KEY, JSON.stringify(events.concat(prev)));
+    } catch (e) {}
+  }
+  function recalcTable(rows) {
+    const th = 'style="text-align:left; padding:7px 8px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-weight:700;"';
+    const td = 'style="padding:7px 8px; border-bottom:1px solid #e2e8f0; vertical-align:top;"';
+    return `<table style="width:100%; border-collapse:collapse; font-size:12.5px;"><thead><tr><th ${th}>권리자</th><th ${th}>계약</th><th ${th}>반영 내용</th></tr></thead><tbody>`
+      + rows.map(r => `<tr><td ${td}><strong>${r.holderName}</strong></td><td ${td} class="mono" nowrap>${r.contractId}</td><td ${td}>${r.detail}</td></tr>`).join("")
+      + `</tbody></table>`;
+  }
+  function openRecalcNotice(html) {
+    const m = document.getElementById("recalcNoticeModal");
+    document.getElementById("recalcNoticeBody").innerHTML = html;
+    m.classList.add("show");
+    m.style.setProperty("display", "flex", "important");
+    m.removeAttribute("aria-hidden");
+  }
+  function closeRecalcNotice() {
+    const m = document.getElementById("recalcNoticeModal");
+    m.classList.remove("show");
+    m.style.setProperty("display", "none", "important");
+  }
+
+  // 확정 건 중 강사 정산이 바뀌는 권리자(옵션 B · C)만 권리자별 1회 재연산하고 알림 모달로 안내. 재연산이 없으면 false
+  function reflectToSettlement(items, at) {
+    const affected = {}, noImpact = [], queued = [];
+    items.forEach(item => {
+      if (item.burdenType === "OPTION_A") { noImpact.push(item); return; }
+      const batchAt = SETTLE_BATCH_AT[item.appliedMonth];
+      if (!batchAt) { queued.push(item); return; }
+      const key = item.appliedMonth + "|" + item.rightsHolderId;
+      if (!affected[key]) affected[key] = { month: item.appliedMonth, batchAt: batchAt, holderId: item.rightsHolderId, holderName: item.rightsHolderName, contractId: item.contractId, rs: 0, support: 0, restore: false, ids: [] };
+      const a = affected[key];
+      a.rs += item.deductBasicRs; a.support += item.deductSupport; a.restore = a.restore || (item.capRestoreYn && item.deductSupport > 0); a.ids.push(item.id);
+    });
+    const list = Object.values(affected);
+    if (!list.length) return false;
+    list.forEach(a => {
+      a.detail = `강사료 차감 -${fmt(a.rs)}${a.support ? ` · 지원금 차감 -${fmt(a.support)}` : ""}${a.restore ? " · 지원금 한도 복원" : ""} → 1~11단계 재계산 (확정 건 ${a.ids.join(", ")})`;
+      state.auditLogs.unshift({
+        time: at,
+        actor: "정산 엔진 (자동)",
+        targetId: `${a.month} 정산서`,
+        burden: a.holderName,
+        action: `권리자 단위 1~11단계 재연산 — 실행 사유: 합격 환급 확정 ${a.ids.join(", ")}`,
+        basis: `정산 배치(${a.batchAt}) 이후 확정되어 정산서에 자동 반영`
+      });
+    });
+    pushRecalcEvents(list.map(a => ({ month: a.month, holderId: a.holderId, holderName: a.holderName, contractId: a.contractId,
+      source: "SETT-006", sourceId: a.ids.join(", "), reason: "합격 환급 확정", detail: a.detail, at: at })));
+    openRecalcNotice(
+      `<div><strong>${list[0].month}</strong> 정산 배치(${list[0].batchAt})가 이미 실행된 달입니다. 이번 확정으로 강사 정산이 바뀌는 권리자 ${list.length}명의 정산서를 1~11단계 다시 계산했습니다. 배치를 다시 돌리지 않아도 됩니다.</div>`
+      + recalcTable(list)
+      + (noImpact.length ? `<div>강사 정산 영향 없음 <strong>${noImpact.length}건</strong> — 옵션 A(플랫폼 100% 부담)라 재연산하지 않았습니다.</div>` : "")
+      + (queued.length ? `<div>정산 배치 전 월 <strong>${queued.length}건</strong> — 다음 정산 배치에서 반영됩니다.</div>` : "")
+      + `<div style="font-size:12px; color:#64748b;">재연산 기록은 아래 감사 로그와 월간 정산 화면에 남습니다.</div>`);
+    return true;
+  }
+
+  function approveSelectedItems() {
+    const checkedIds = Array.from(document.querySelectorAll(".row-chk:checked")).map(el => el.value);
+    if (checkedIds.length === 0) {
+      showToast("일괄 정산반영 확정할 대기 건을 먼저 선택해 주세요.");
+      return;
+    }
+    const newlyApproved = [];
+    checkedIds.forEach(id => {
+      const item = state.items.find(x => x.id === id);
+      if (item && item.status === "PENDING") {
+        item.status = "APPROVED";
+        newlyApproved.push(item);
+        state.auditLogs.unshift({
+          time: "2026-10-18 15:20:00",
+          actor: "재무팀장 (조정식)",
+          targetId: item.id,
+          burden: `${item.burdenType} / ${item.rightsHolderName}`,
+          action: `[일괄 승인] 강사료 차감(-${fmt(item.deductBasicRs)}) 및 개발지원금 차감(-${fmt(item.deductSupport)}) 정산 반영 확정`,
+          basis: "4대 제출 증빙(합격증 사본·산준모 카페 합격수기 링크·통장사본·1금융권 실명계좌) 확인 완료"
+        });
+      }
+    });
+    const recalculated = reflectToSettlement(newlyApproved, "2026-10-18 15:20:00");
+    renderTable();
+    renderAuditLogs();
+    if (!recalculated) showToast(`선택한 ${checkedIds.length}건의 합격환급 정산 차감 내역이 일괄 확정되었습니다.`);
+  }
+
+  function approveSettlementDeduct(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item || item.status !== "PENDING") return;
+    const memoVal = document.getElementById("detailMemoInput")?.value || item.memo;
+    item.memo = memoVal;
+    item.status = "APPROVED";
+    state.auditLogs.unshift({
+      time: "2026-10-18 15:15:10",
+      actor: "재무팀장 (조정식)",
+      targetId: item.id,
+      burden: `${item.burdenType} / ${item.rightsHolderName}`,
+      action: `강사료 차감(-${fmt(item.deductBasicRs)}) 및 개발지원금 차감(-${fmt(item.deductSupport)}) 정산 반영 승인`,
+      basis: "4대 제출 증빙(합격증 사본·산준모 카페 합격수기 링크·통장사본·1금융권 실명계좌) 확인 완료"
+    });
+    SJM_PAGE.back();
+    const recalculated = reflectToSettlement([item], "2026-10-18 15:15:10");
+    renderTable();
+    renderAuditLogs();
+    if (!recalculated) showToast(`[${item.id}] 합격환급 정산 차감 내역이 확정되었습니다.`);
+  }
+
+  function renderAuditLogs() {
+    const tbody = document.getElementById("auditTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = state.auditLogs.map(log => `
+      <tr>
+        <td class="mono">${log.time}</td>
+        <td><strong>${log.actor}</strong></td>
+        <td class="mono"><strong>${log.targetId}</strong></td>
+        <td><span class="badge badge-neutral">${log.burden}</span></td>
+        <td>${log.action}</td>
+        <td style="color:var(--text-sub);">${log.basis}</td>
+      </tr>
+    `).join("");
+  }
+
+  function curMonth() {
+    return document.getElementById("topMonthSelect")?.value || "2026-10";
+  }
+
+  function updateFooterSummary() {
+    const el = document.getElementById("footerSummary");
+    const pendingEl = document.getElementById("kpiPendingCnt");
+    const month = curMonth();
+    const cur = state.items.filter(x => x.appliedMonth === month);
+    const later = state.items.filter(x => x.appliedMonth > month);
+    const totalBasic = cur.reduce((acc, x) => acc + x.deductBasicRs, 0);
+    const totalSup = cur.reduce((acc, x) => acc + x.deductSupport, 0);
+    const pendingCnt = state.items.filter(x => x.status === "PENDING").length;
+    const bc = cur.filter(x => x.burdenType === "OPTION_B" || x.burdenType === "OPTION_C");
+    const bcSum = bc.reduce((acc, x) => acc + x.deductBasicRs + x.deductSupport, 0);
+    const setText = (id, v) => { const n = document.getElementById(id); if (n) n.textContent = v; };
+    setText("kpiTotalCnt", `${cur.length}건`);
+    setText("kpiOptBcCnt", `${bc.length}건 (-${bcSum.toLocaleString("ko-KR")}원)`);
+    setText("kpiOptACnt", `${cur.filter(x => x.burdenType === "OPTION_A").length}건 (0원 차감)`);
+    setText("kpiMmgCnt", `${state.items.filter(x => x.mmgOverlapFlag).length}건`);
+    if (pendingEl) pendingEl.textContent = `${pendingCnt}건`;
+    if (el) {
+      el.innerHTML = `${month} 반영 <strong>${cur.length}건</strong>${later.length ? ` (익월 이후 반영 <strong>${later.length}건</strong> 별도)` : ""} · 승인 대기 <strong>${pendingCnt}건</strong> · 강사료 총 차감액: <strong style="color:#fca5a5;">-${fmt(totalBasic)}</strong> · 개발지원금 차감(잔여한도 복원): <strong style="color:#93c5fd;">-${fmt(totalSup)}</strong>`;
+    }
+  }
+
+  function showToast(msg) {
+    const wrap = document.getElementById("toastContainer");
+    if (!wrap) return;
+    const div = document.createElement("div");
+    div.className = "toast";
+    div.textContent = msg;
+    wrap.appendChild(div);
+    setTimeout(() => div.remove(), 3200);
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".tab-btn[data-tab]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn[data-tab]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        const target = btn.getAttribute("data-tab");
+        document.querySelectorAll(".tab-panel").forEach(p => {
+          p.classList.toggle("hidden", p.id !== target);
+        });
+      });
+    });
+
+    renderTable();
+    renderAuditLogs();
+
+    if (window.SJM_PAGE) {
+      SJM_PAGE.register("detail", { code: "ADMN-RFD-001-S1", title: p => "합격환급 심사 상세" + (p.id ? " — " + p.id : ""), onShow: p => fillHrfDetail(p.id || null) });
+      SJM_PAGE.start();
+    }
+  });
+</script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>

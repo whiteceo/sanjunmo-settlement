@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>물류비 대사 (3PL) — 산준모 백오피스</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --bg-body: #F3F5F9; --bg-card: #FFFFFF; --bg-subtle: #F8FAFC;
+      --text-main: #0F172A; --text-sub: #475569; --text-muted: #64748B;
+      --border: #E2E8F0; --border-strong: #CBD5E1;
+      --primary: #2563EB; --primary-hover: #1D4ED8;
+      --success: #16A34A; --warning: #D97706; --danger: #DC2626;
+      --radius-md: 8px; --radius-lg: 12px; --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 13px; line-height: 1.5; min-width: 1440px; }
+    #v4-root-shell { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+    .top-bar.v4-gen3-topbar { height: 60px; background: #FFF; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 100; }
+    .crumb-wrap { display: flex; align-items: center; gap: 10px; }
+    .crumb-code { background: #1E293B; color: #F8FAFC; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+    .crumb-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .crumb-sub { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
+    .main-container { padding: 24px 28px 60px; max-width: 1640px; width: 100%; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); }
+    .kpi-card.clickable { cursor: pointer; }
+    .kpi-card.warn { border-color: #FDBA74; background: #FFF7ED; }
+    .kpi-card .k-title { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+    .kpi-card .k-num { font-family: "Pretendard", sans-serif; font-size: 22px; font-weight: 800; color: var(--text-main); text-align: left; margin-bottom: 6px; }
+    .kpi-card .k-sub { font-size: 11.5px; color: var(--text-muted); }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: #FAFBFD; }
+    .card-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card-actions { display: flex; gap: 8px; align-items: center; }
+    .card-body { padding: 18px 20px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .control-bar { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; background: #FFF; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 20px; margin-bottom: 18px; }
+    .control-bar label { font-size: 12px; font-weight: 800; color: var(--text-sub); }
+    .file-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg-subtle); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; font-size: 12px; font-weight: 700; }
+    .scope-note { background: #F8FAFC; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 18px; font-size: 12px; color: var(--text-sub); line-height: 1.6; }
+    .warn-box { background: #FFF7ED; border: 1px solid #FED7AA; border-left: 4px solid var(--warning); border-radius: var(--radius-md); padding: 12px 16px; margin: 16px 20px; font-size: 12.5px; color: #7C2D12; line-height: 1.6; }
+    .danger-box { background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid var(--danger); border-radius: var(--radius-md); padding: 12px 16px; margin: 16px 20px; font-size: 12.5px; color: #991B1B; line-height: 1.6; }
+    .empty-state { padding: 48px 20px; text-align: center; color: var(--text-sub); }
+    .empty-state p { margin-bottom: 14px; font-size: 13.5px; font-weight: 700; }
+
+    .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+    .tab-btn { padding: 10px 18px; font-size: 13px; font-weight: 800; color: var(--text-sub); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .f-input, .f-select { height: 34px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 12.5px; font-family: inherit; color: var(--text-main); background: #FFF; }
+    .btn { height: 34px; padding: 0 14px; border-radius: 6px; font-size: 12.5px; font-weight: 700; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; text-decoration: none; white-space: nowrap; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-primary { background: var(--primary); color: #FFF; }
+    .btn-outline { background: #FFF; border-color: var(--border-strong); color: var(--text-main); }
+    .btn-danger { background: #FEF2F2; border-color: #FECACA; color: var(--danger); }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+    .badge-green { background: #DCFCE7; color: #15803D; }
+    .badge-amber { background: #FEF3C7; color: #B45309; }
+    .badge-red { background: #FEE2E2; color: #B91C1C; }
+    .badge-gray { background: #F1F5F9; color: #475569; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th { background: #F8FAFC; color: var(--text-sub); font-weight: 700; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .data-table td.num, .data-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .data-table tr.mismatch td { background: #FFF1F2; color: #D81B3C; }
+    .data-table tr.mismatch td .btn { color: var(--text-main); }
+    .data-table tr.total td { background: #F8FAFC; font-weight: 800; }
+    .plus { color: var(--success); font-weight: 700; }
+    .minus { color: var(--danger); font-weight: 700; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-backdrop.open { display: flex; }
+    .modal-box { background: #FFF; border-radius: var(--radius-lg); width: 100%; max-width: 620px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25); overflow: hidden; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .modal-header h3 { font-size: 15px; font-weight: 800; }
+    .modal-body { padding: 18px 20px; max-height: 70vh; overflow-y: auto; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); background: #FAFBFD; }
+    .form-row { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: start; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+    .form-row:last-child { border-bottom: none; }
+    .form-row > label { font-size: 12px; font-weight: 700; color: var(--text-sub); padding-top: 8px; }
+    .form-error { display: none; background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+
+    #toast-box { position: fixed; bottom: 24px; right: 24px; background: #0F172A; color: #FFF; padding: 12px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 700; display: none; z-index: 12000; }
+    code { background: #F1F5F9; padding: 2px 5px; border-radius: 4px; font-size: 11.5px; }
+
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-SETT-011", "devCommit": "d562524a", "progress": "개발 미구현(2차, DECISIONS 107 물류비 대사 1차 제외) — 테이블만 있음(logistics_settlements · logistics_settlement_items · book_purchase_costs). 이름은 모두 (규칙), 동작은 전부 주황 표시", "menus": [{"route": "admin.settlement.logistics-reconciliations.index (규칙)", "label": "물류비 대사(3PL)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="crumb-wrap">
+        <span class="crumb-code" id="top-crumb-code">ADMN-SETT-011</span>
+        <h1 class="crumb-title">물류비 대사 (3PL)</h1>
+        <span class="crumb-sub">정산 마감 전 사전 대사 &gt; 물류비 대사 (3PL) · 3PL 파트너: <span id="tpl-partner"></span></span>
+      </div>
+      <a class="btn btn-outline btn-sm" href="ADMN-ORD-001_baseline.html">주문 · 배송 · 3PL 관리 →</a>
+    </header>
+
+    <div id="v4-page-body" class="main-container">
+      <div class="scope-note">
+        월 1회(익월 초) 3PL 수수료 명세서를 받아 지급해야 할 물류비가 맞는지 검수합니다. 물류비 대사 완료는 월간 정산(ADMN-SETT-002) 마감의 선행 조건이 아니며,
+        3PL 물류비와 도서 매입 대금은 대량이체 지급 리스트에 넣지 않고 회계 시스템 매입채무(AP) 결제로 지급합니다. 출고 · 송장 · 사입 원가 · 매입처 원본은 이 화면에서 고치지 않습니다.
+      </div>
+
+      <div class="control-bar">
+        <div>
+          <label for="month-select">정산 월</label>
+          <select class="f-select" id="month-select" name="month" data-dev-value="YYYY-MM = logistics_settlements.settlement_month" onchange="changeMonth(this.value)">
+            <option value="2026-10">2026년 10월 (명세서 미수령)</option>
+            <option value="2026-09" selected>2026년 09월</option>
+          </select>
+        </div>
+        <div>
+          <label>3PL 명세서</label>
+          <span id="file-slot"></span>
+        </div>
+        <div style="display:flex; gap:8px; margin-left:auto;">
+          <button type="button" class="btn btn-outline" id="btn-upload" data-dev-route="admin.settlement.logistics-reconciliations.statements.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/settlement/logistics-reconciliations/statements" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="statement_file (규칙) — 개발 #layerStatementUpload · #statementUploadForm (규칙)" onclick="uploadStatement()">명세서 업로드</button>
+          <button type="button" class="btn btn-primary" id="btn-run" data-dev-route="admin.settlement.logistics-reconciliations.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/settlement/logistics-reconciliations" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="대사 실행 — PG 재대사와 같은 모양" onclick="runRecon()">대사 실행</button>
+        </div>
+        <div style="width:100%; font-size:11.5px; color:var(--text-muted);" id="run-meta"></div>
+        <div style="width:100%; font-size:12px; color:var(--text-sub);" id="tpl-terms"></div>
+      </div>
+
+      <div class="tabs">
+        <button type="button" class="tab-btn active" id="tabBtn-out" data-dev-route="admin.settlement.logistics-reconciliations.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-name="tab" data-dev-value="outbound (규칙)" onclick="switchTab('out')">1. 출고 · 수수료 대사</button>
+        <button type="button" class="tab-btn" id="tabBtn-ship" data-dev-route="admin.settlement.logistics-reconciliations.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-name="tab" data-dev-value="shipping (규칙)" onclick="switchTab('ship')">2. 배송비 · 반품 대사</button>
+        <button type="button" class="tab-btn" id="tabBtn-book" data-dev-route="admin.settlement.logistics-reconciliations.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-name="tab" data-dev-value="books (규칙)" onclick="switchTab('book')">3. 도서 매입 계산서 대조</button>
+      </div>
+
+      <!-- 1. 출고 · 수수료 대사 -->
+      <section class="tab-panel active" id="tab-out">
+        <div id="out-empty" class="card" style="display:none;">
+          <div class="empty-state">
+            <p>3PL 수수료 명세서를 업로드하면 대사를 실행할 수 있습니다.</p>
+            <button type="button" class="btn btn-primary" data-dev-route="admin.settlement.logistics-reconciliations.statements.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/settlement/logistics-reconciliations/statements" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="statement_file (규칙) — 개발 #layerStatementUpload · #statementUploadForm (규칙)" onclick="uploadStatement()">명세서 업로드</button>
+          </div>
+        </div>
+        <div id="out-body">
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="k-title"><span>DB 출고 건 (송장)</span><span class="badge badge-blue">주문 · 배송 원장</span></div>
+              <div class="k-num" id="kpi-db">0건</div>
+              <div class="k-sub">주문 · 배송 · 3PL 관리의 출고 · 송장 기준</div>
+            </div>
+            <div class="kpi-card">
+              <div class="k-title"><span>3PL 청구 건</span><span class="badge badge-gray">명세서 기준</span></div>
+              <div class="k-num" id="kpi-claim">0건</div>
+              <div class="k-sub">송장번호 → 주문번호 → 수령인 · 출고일 순서로 매칭</div>
+            </div>
+            <div class="kpi-card clickable" id="kpi-mis-card" data-dev-route="admin.settlement.logistics-reconciliations.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="match_status ≠ matched" onclick="showMismatchOnly()">
+              <div class="k-title"><span>불일치</span><span class="badge badge-amber">검수 대상</span></div>
+              <div class="k-num" id="kpi-mis">0건</div>
+              <div class="k-sub" id="kpi-mis-sub">누르면 불일치만 봅니다</div>
+            </div>
+            <div class="kpi-card">
+              <div class="k-title"><span>청구 수수료 합계</span><span class="badge badge-gray">과세 매입</span></div>
+              <div class="k-num" id="kpi-fee">0원</div>
+              <div class="k-sub">3PL 세금계산서 수취 후 회계 시스템에서 지급</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <select class="f-select" id="flt-status" name="match_status" data-dev-note="'불일치 전체'(MISMATCH)는 개발 컬럼 값 없음 — matched 제외로 조회" data-dev-value="matched 일치 · billed_only 3PL만 · ours_only DB만 · qty_diff 수량 차이 · price_diff 단가 차이 (프로토타입 값 MATCH · ONLY_3PL · ONLY_DB · DIFF 유지)" onchange="renderOut()">
+                  <option value="ALL">대사 상태 전체</option>
+                  <option value="MATCH">일치</option>
+                  <option value="MISMATCH">불일치 전체</option>
+                  <option value="ONLY_3PL">3PL만 존재</option>
+                  <option value="ONLY_DB">DB만 존재</option>
+                  <option value="DIFF">수량 · 단가 차이</option>
+                </select>
+                <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.settlement.logistics-reconciliations.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations" data-dev-perm="조회" data-dev-flag="proto-only" onclick="resetOutFilter()">초기화</button>
+                <strong id="out-summary" style="color:var(--text-sub);"></strong>
+              </div>
+              <div class="toolbar-right">
+                <span id="lock-badge"></span>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width:44px;">No</th>
+                  <th style="width:70px;">출고일</th>
+                  <th style="width:130px;">송장번호</th>
+                  <th>주문번호 · 수령인</th>
+                  <th class="num" style="width:56px;">수량</th>
+                  <th style="width:80px;">DB 출고</th>
+                  <th style="width:80px;">3PL 청구</th>
+                  <th class="num" style="width:80px;">단가</th>
+                  <th style="width:110px;">차이</th>
+                  <th style="width:200px;">처리 결과 · 메모</th>
+                  <th style="width:70px;">처리</th>
+                </tr>
+              </thead>
+              <tbody id="out-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. 배송비 · 반품 대사 (ADMN-SETT-011-S1) -->
+      <section class="tab-panel" id="tab-ship">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🚚 배송비 · 반품 대사 — 고객 결제 배송비(수취) vs 3PL 청구 배송비(지급)</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th style="width:200px;">구분</th><th class="num" style="width:150px;">고객 결제 (수취)</th><th class="num" style="width:150px;">3PL 청구 (지급)</th><th class="num" style="width:130px;">차액</th><th>비고</th></tr>
+            </thead>
+            <tbody id="ship-tbody"></tbody>
+          </table>
+          <div class="scope-note" style="margin:14px 20px;">
+            배송비 품목은 권리자 정산 대상에서 제외되어 플랫폼 물류 운영비로 귀속됩니다. 고객 배송비와 3PL 물류 대금은 별개 거래로, 자동 상계하지 않습니다.
+            무료배송 프로모션 건은 물류 손실이 아니라 마케팅 비용으로 분리 계상합니다.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">↩️ 반품 귀책 불일치 — 귀책 판정 (CS)</div>
+            <span id="ret-count" class="badge badge-amber"></span>
+          </div>
+          <div class="warn-box" id="ret-alert"></div>
+          <table class="data-table">
+            <thead>
+              <tr><th style="width:170px;">주문번호 · 수령인</th><th style="width:150px;">DB 반품 사유</th><th style="width:150px;">3PL 회수 사유</th><th class="num" style="width:100px;">고객 공제액</th><th style="width:140px;">귀책 판정</th><th>판정 사유</th><th style="width:90px;">처리</th></tr>
+            </thead>
+            <tbody id="ret-tbody"></tbody>
+          </table>
+          <div class="scope-note" style="margin:14px 20px;">
+            고객 귀책(단순 변심)은 3PL 입고 검수 후 반품 배송비를 환불금에서 공제합니다 — 편도 3,000원, 최초 무료배송 혜택을 취소하는 주문은 왕복 6,000원(주문당 1회). 도서 인세 원장에는 판매 수량만 −1 처리합니다. 회사 귀책(오배송 · 파손 · 하자)은 고객 공제 없이 회사가 부담합니다.
+            판정이 고객 귀책에서 바뀌면 이 화면에서 환불액을 고치지 않고 환불 요청 관리로 반환 조정을 요청합니다.
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. 도서 매입 계산서 대조 (ADMN-SETT-011-S1) -->
+      <section class="tab-panel" id="tab-book">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📚 도서 매입 계산서 대조 — 입고 기준 매입액 vs 수취 전자계산서</div>
+            <div class="card-actions">
+              <a class="btn btn-outline btn-sm" href="ADMN-BOOK-001_baseline.html">사입 원가는 도서 공급 원장에서 수정 →</a>
+              <a class="btn btn-outline btn-sm" href="ADMN-VEND-001_baseline.html">매입처 마스터 (거래처 관리) →</a>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:44px;">No</th>
+                <th>도서명 (상품코드)</th>
+                <th style="width:120px;">매입처</th>
+                <th class="num" style="width:80px;">입고 수량</th>
+                <th class="num" style="width:100px;">사입 원가(권)</th>
+                <th class="num" style="width:130px;">입고 기준 매입액</th>
+                <th class="num" style="width:130px;">수취 계산서 금액</th>
+                <th class="num" style="width:100px;">차액</th>
+                <th style="width:100px;">수취 상태</th>
+                <th style="width:140px;">처리</th>
+              </tr>
+            </thead>
+            <tbody id="book-tbody"></tbody>
+          </table>
+          <div class="danger-box" id="closed-supplier-box"></div>
+          <div class="scope-note" style="margin:14px 20px;">
+            이 탭은 매입 대금을 계산하거나 지급하지 않고 수취 계산서의 상태와 금액만 대조합니다. 기준 금액은 당월 입고 수량 × 사입 원가(입고일 기준 유효 버전)이며, 도서는 면세 전자계산서로 수취합니다.
+            금액이 다르면 매입처에 수정 계산서를 요청합니다(당사는 공급받는 자이므로 정정 증빙을 발행하지 않습니다).
+          </div>
+        </div>
+      </section>
+
+      <div class="card">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <button type="button" class="btn btn-outline" data-dev-route="admin.settlement.logistics-reconciliations.download (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations/download" data-dev-perm="다운로드" data-dev-flag="proto-only" data-dev-note="사유 필수(ReasonRequest, 공통 #layerReason)" onclick="downloadExcel('3PL 명세 엑셀')">3PL 명세 엑셀</button>
+            <button type="button" class="btn btn-outline" data-dev-route="admin.settlement.logistics-reconciliations.download (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations/download" data-dev-perm="다운로드" data-dev-flag="proto-only" data-dev-note="사유 필수(ReasonRequest, 공통 #layerReason)" onclick="downloadExcel('매입 계산서 수취 명세 엑셀')">매입 계산서 수취 명세 엑셀</button>
+            <span id="complete-hint" style="font-size:12px; color:var(--text-muted);"></span>
+          </div>
+          <div class="toolbar-right">
+            <button type="button" class="btn btn-primary" id="btn-complete" data-dev-route="admin.settlement.logistics-reconciliations.lock.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/logistics-reconciliations/{settlement}/lock" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="logistics_settlements.is_locked · confirmed_at — 매출 마감(SETT-004) 이후에만 잠금(재무 마감 2단계)" onclick="completeRecon()">대사 완료 처리</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🕘 처리 이력</div>
+          <span style="font-size:12px; color:var(--text-muted);">명세서 업로드 · 대사 실행 · 불일치 처리 · 계산서 상태 변경 · 엑셀 다운로드 · 대사 완료는 시스템 감사 로그에 남습니다.</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th style="width:150px;">일시</th><th style="width:160px;">관리자</th><th>내용</th></tr></thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 출고 불일치 처리 -->
+  <div class="modal-backdrop" id="layerLogisticsResolve">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="resolve-title">불일치 처리</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('layerLogisticsResolve')">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-error" id="resolve-error"></div>
+        <div class="form-row"><label>대상</label><div id="resolve-target" style="padding-top:8px;"></div></div>
+        <div class="form-row"><label>원장 확인</label><div style="padding-top:4px;"><a class="btn btn-outline btn-sm" href="ADMN-ORD-001_baseline.html" target="_blank">배송 상세에서 실제 출고 확인 ↗</a></div></div>
+        <div class="form-row">
+          <label>처리 결과 *</label>
+          <div>
+            <select class="f-select" id="resolve-result" name="resolve_result" data-dev-note="(규칙) 처리 결과 PAY 승인 지급 · DEDUCT 차감 요청 · CARRY 차월 이월 — 저장 칸 · 코드값 개발 없음(정책 질문 D-SETT)" style="width:100%;">
+              <option value="">선택</option>
+              <option value="PAY">승인 지급 (청구 인정)</option>
+              <option value="DEDUCT">차감 요청 (3PL 소명 요청)</option>
+              <option value="CARRY">차월 이월 (미청구 대기)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>메모 *</label>
+          <div><textarea class="f-input" id="resolve-memo" name="memo" data-dev-note="logistics_settlement_items.memo — 사유 없이 종결 불가(컬럼 주석)" rows="3" style="width:100%; height:auto; padding:8px 10px;" placeholder="왜 이렇게 처리했는지 남겨 주세요. 다음 달 같은 논쟁을 막는 근거가 됩니다."></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('layerLogisticsResolve')">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.settlement.logistics-reconciliations.items.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/logistics-reconciliations/items/{item}" data-dev-perm="수정" data-dev-flag="proto-only" id="logisticsResolveSubmit" onclick="saveResolve()">처리 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-box"></div>
+
+  <script>
+    const ADMIN = '이재무 (fin_manager)';
+    const NOW = '2026.10.22 10:40';
+    const RESULT_LABEL = { PAY: '승인 지급', DEDUCT: '차감 요청', CARRY: '차월 이월' };
+    const STATUS_LABEL = { MATCH: '일치', ONLY_3PL: '3PL만 존재', ONLY_DB: 'DB만 존재', DIFF: '수량 · 단가 차이' };
+
+    // 월별 대사 데이터 — 10월분 명세서는 11월 초에 받으므로 아직 없음
+    const MONTHS = {
+      '2026-09': {
+        file: { name: '3pl_202609_cj_paju.xlsx', at: '10.03 10:12', by: '이재무', version: 1 },
+        runAt: '10.03 10:15', runBy: '이재무',
+        dbCount: 1842, claimCount: 1849, fee: 3698000, completed: false,
+        rows: [
+          { no: 1, date: '09.03', waybill: '6841-2201-0031', order: 'SJM-20260902-004010 · 홍*동', qty: 1, db: '출고', claim: '청구', price: 2000, status: 'MATCH', diff: '일치' },
+          { no: 2, date: '09.08', waybill: '6841-2201-0198', order: 'SJM-20260907-004188 · 김*연', qty: 1, db: '미출고', claim: '청구', price: 2000, status: 'ONLY_3PL', diff: '3PL만 존재' },
+          { no: 3, date: '09.11', waybill: '6841-2201-0244', order: 'SJM-20260910-004221 · 박*우', qty: 2, db: '2건', claim: '3건', price: 2000, status: 'DIFF', diff: '+2,000' },
+          { no: 4, date: '09.15', waybill: '6841-2201-0402', order: 'SJM-20260914-004301 · 이*준', qty: 1, db: '출고', claim: '청구', price: 2000, status: 'MATCH', diff: '일치' },
+          { no: 5, date: '09.19', waybill: '—', order: 'SJM-20260918-004377 · 최*아', qty: 1, db: '출고', claim: '미청구', price: 0, status: 'ONLY_DB', diff: 'DB만 존재' },
+          { no: 6, date: '09.24', waybill: '6841-2201-0611', order: 'SJM-20260923-004455 · 정*늘', qty: 1, db: '출고', claim: '청구', price: 2000, status: 'MATCH', diff: '일치' },
+          { no: 7, date: '09.25', waybill: '6841-2201-0655', order: 'SJM-20260924-004470 · 강*재', qty: 1, db: '미출고', claim: '청구', price: 2000, status: 'ONLY_3PL', diff: '3PL만 존재' },
+          { no: 8, date: '09.26', waybill: '6841-2201-0702', order: 'SJM-20260925-004498 · 오*훈', qty: 1, db: '1건', claim: '1건', price: 2500, status: 'DIFF', diff: '단가 +500' },
+          { no: 9, date: '09.27', waybill: '6841-2201-0733', order: 'SJM-20260926-004512 · 윤*연', qty: 1, db: '출고', claim: '청구', price: 2000, status: 'MATCH', diff: '일치' },
+          { no: 10, date: '09.29', waybill: '—', order: 'SJM-20260928-004560 · 한*우', qty: 1, db: '출고', claim: '미청구', price: 0, status: 'ONLY_DB', diff: 'DB만 존재' },
+          { no: 11, date: '09.30', waybill: '6841-2201-0790', order: 'SJM-20260929-004588 · 서*민', qty: 1, db: '미출고', claim: '청구', price: 2000, status: 'ONLY_3PL', diff: '3PL만 존재' },
+          { no: 12, date: '09.30', waybill: '6841-2201-0801', order: 'SJM-20260929-004590 · 문*희', qty: 1, db: '출고', claim: '청구', price: 2000, status: 'MATCH', diff: '일치' }
+        ],
+        ship: [
+          { kind: '정상 출고 배송비', recv: 4884000, pay: 3270000, note: '1,628건 × 3,000원 수취 / 1,635건 × 2,000원 청구 (3PL 청구 1,849건 중 무료배송 214건은 아래 행으로 분리)' },
+          { kind: '무료배송 프로모션', recv: 0, pay: 428000, note: '214건 × 2,000원 · 정상 출고 청구와 중복 없이 분리 계상 · 회사 부담 마케팅 비용' },
+          { kind: '반품 — 고객 귀책', recv: 114000, pay: 124000, note: '31건 · 단순 변심 편도 3,000원 24건 + 무료배송 혜택 취소 왕복 6,000원 7건(주문당 1회) 환불금에서 공제 / 3PL 회수비 4,000원 · 인세 원장은 판매 수량만 −1' },
+          { kind: '반품 — 회사 귀책', recv: 0, pay: 36000, note: '9건 · 오배송 · 파손 · 고객 공제 없음(회사 전액 부담)' }
+        ],
+        returns: [
+          { order: 'SJM-20260905-004102 · 김*수', dbReason: '단순 변심', plReason: '파손 회수', deduct: 3000, judge: '', memo: '' },
+          { order: 'SJM-20260912-004260 · 이*정', dbReason: '단순 변심 · 무료배송 혜택 취소', plReason: '파손 회수', deduct: 6000, judge: '', memo: '' },
+          { order: 'SJM-20260921-004418 · 박*현', dbReason: '단순 변심', plReason: '파손 회수', deduct: 3000, judge: '', memo: '' }
+        ],
+        books: [
+          { no: 1, title: '산업안전기사 필기 핵심요약 (PROD-BK-2011)', supplier: 'SUP-0004', qty: 800, cost: 17500, invoice: 14000000, state: 'DONE' },
+          { no: 2, title: '산업안전기사 실기 필답형 문제집 (PROD-BK-2012)', supplier: 'SUP-0004', qty: 600, cost: 18200, invoice: 10920000, state: 'DONE' },
+          { no: 3, title: '산업안전기사 작업형 실전 (PROD-BK-2013)', supplier: 'SUP-0005', qty: 300, cost: 16800, invoice: 4957200, state: 'MISMATCH' },
+          { no: 4, title: '산업안전기사 필기 빈출문제집 (PROD-BK-2014)', supplier: 'SUP-0006', qty: 200, cost: 15000, invoice: 3150000, state: 'REQUESTED' },
+          { no: 5, title: '산업안전 법령집 2026 (PROD-BK-2015)', supplier: 'SUP-0004', qty: 100, cost: 12000, invoice: null, state: 'NONE' },
+          { no: 6, title: '건설안전기사 실기 작업형 워크북 (PROD-BK-2016)', supplier: 'SUP-0008', qty: 120, cost: 14500, invoice: null, state: 'NONE' }
+        ]
+      },
+      '2026-10': null
+    };
+
+    const BOOK_STATE = { NONE: ['badge-gray', '미수취'], DONE: ['badge-green', '수취 완료'], MISMATCH: ['badge-red', '금액 불일치'], REQUESTED: ['badge-amber', '재요청 중'] };
+
+    let LOGS = [
+      { dt: '2026.10.03 10:15', admin: '이재무 (fin_manager)', text: '2026년 09월 대사 실행 — DB 1,842건 / 3PL 1,849건' },
+      { dt: '2026.10.03 10:12', admin: '이재무 (fin_manager)', text: '3PL 명세서 업로드 3pl_202609_cj_paju.xlsx (버전 1)' }
+    ];
+
+    let month = '2026-09';
+    let editingNo = null;
+
+    const won = n => n.toLocaleString('ko-KR');
+    const signed = n => n === 0 ? '0' : `<span class="${n > 0 ? 'plus' : 'minus'}">${n > 0 ? '+' : '−'}${won(Math.abs(n))}</span>`;
+    const cur = () => MONTHS[month];
+    const isMismatch = r => r.status !== 'MATCH';
+
+    function addLog(text) {
+      LOGS.unshift({ dt: NOW, admin: ADMIN, text });
+      renderLogs();
+    }
+
+    function renderLogs() {
+      document.getElementById('log-tbody').innerHTML = LOGS.map(l => `<tr><td>${l.dt}</td><td>${l.admin}</td><td>${l.text}</td></tr>`).join('');
+    }
+
+    const M = window.SJM_MASTER;
+    const supName = id => M.vendors.name(id);
+    const supClosed = id => { const v = M.vendors.get(id); return v && v.status === '폐업' ? v.checkedAt : null; };
+
+    function renderControl() {
+      // 3PL 파트너 · 계약 단가는 거래처 관리(물류 대행 양식)에서 읽는다
+      const tpls = M.vendors.byForm('LOGISTICS').filter(v => v.on);
+      document.getElementById('tpl-partner').innerHTML = tpls.length ? tpls.map(v => `<a href="ADMN-VEND-001_baseline.html?id=${v.id}">${v.name}</a>`).join(' · ') : '등록된 물류 대행사 없음';
+      document.getElementById('tpl-terms').innerHTML = tpls.map(v => `계약 단가(거래처 관리): 출고 건당 ${won(Number(v.terms.outFee))}원 · 반품 회수 ${won(Number(v.terms.returnFee))}원 · 보관료 월 ${won(Number(v.terms.storage))}원(보관료 별도 정산 · 이 대사 범위 밖) — 3PL 청구 단가가 이와 다르면 불일치로 봅니다.`).join('<br/>');
+      const m = cur();
+      const slot = document.getElementById('file-slot');
+      slot.innerHTML = m ? `<span class="file-chip">📄 ${m.file.name} 🔒 · 업로드 ${m.file.at} · ${m.file.by} · 버전 ${m.file.version}</span>` : '<span class="file-chip" style="color:var(--text-muted);">아직 업로드된 명세서가 없습니다</span>';
+      document.getElementById('run-meta').textContent = m ? `마지막 대사 실행: ${m.runAt} · ${m.runBy}` : '';
+      document.getElementById('btn-run').disabled = !m || m.completed;
+      document.getElementById('btn-upload').disabled = !!(m && m.completed);
+    }
+
+    function renderOut() {
+      const m = cur();
+      document.getElementById('out-empty').style.display = m ? 'none' : 'block';
+      document.getElementById('out-body').style.display = m ? 'block' : 'none';
+      if (!m) return;
+      const mis = m.rows.filter(isMismatch);
+      document.getElementById('kpi-db').textContent = won(m.dbCount) + '건';
+      document.getElementById('kpi-claim').textContent = won(m.claimCount) + '건';
+      document.getElementById('kpi-mis').textContent = mis.length + '건';
+      document.getElementById('kpi-mis-card').classList.toggle('warn', mis.length > 0);
+      document.getElementById('kpi-mis-sub').textContent = `처리 완료 ${mis.filter(r => r.result).length} / ${mis.length}건 · 누르면 불일치만 봅니다`;
+      document.getElementById('kpi-fee').textContent = won(m.fee) + '원';
+      const f = document.getElementById('flt-status').value;
+      const list = m.rows.filter(r => f === 'ALL' || (f === 'MISMATCH' ? isMismatch(r) : r.status === f));
+      document.getElementById('out-summary').textContent = `불일치 ${mis.length}건 (3PL만 ${mis.filter(r => r.status === 'ONLY_3PL').length} · DB만 ${mis.filter(r => r.status === 'ONLY_DB').length} · 수량 · 단가 차 ${mis.filter(r => r.status === 'DIFF').length}) · 청구 ${won(m.claimCount)}건 − DB ${won(m.dbCount)}건 = 건수 차 ${m.claimCount - m.dbCount}건은 수량 차이 건의 초과분을 포함해 집계하므로 불일치 건수와 다릅니다 · ${list.length}건 표시`;
+      document.getElementById('lock-badge').innerHTML = m.completed ? '<span class="badge badge-green">대사 완료 · 확정 잠금</span>' : '<span class="badge badge-amber">대사 진행 중</span>';
+      const tbody = document.getElementById('out-tbody');
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:28px; color:var(--text-muted);">조건에 맞는 건이 없습니다. <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.settlement.logistics-reconciliations.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/logistics-reconciliations" data-dev-perm="조회" data-dev-flag="proto-only" onclick="resetOutFilter()">조건 초기화</button></td></tr>';
+        return;
+      }
+      tbody.innerHTML = list.map(r => `
+        <tr class="${isMismatch(r) ? 'mismatch' : ''}">
+          <td>${r.no}</td>
+          <td>${r.date}</td>
+          <td>${r.waybill}</td>
+          <td>${r.order}</td>
+          <td class="num">${r.qty}</td>
+          <td>${r.db}</td>
+          <td>${r.claim}</td>
+          <td class="num">${won(r.price)}</td>
+          <td>${r.diff}</td>
+          <td>${r.result ? `<span class="badge badge-blue">${RESULT_LABEL[r.result]}</span> ${r.memo}` : (isMismatch(r) ? '미처리' : '—')}</td>
+          <td>${isMismatch(r) ? `<button type="button" class="btn btn-outline btn-sm" ${m.completed ? 'disabled' : ''} data-dev-flag="proto-only" data-dev-note="logistics_settlement_items 행 처리" onclick="openResolve(${r.no})">확인</button>` : '—'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderShip() {
+      const m = cur();
+      const tbody = document.getElementById('ship-tbody');
+      if (!m) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:28px; color:var(--text-muted);">이 달은 아직 3PL 명세서가 없어 배송비 · 반품 대사 내역이 없습니다.</td></tr>';
+        document.getElementById('ret-tbody').innerHTML = '';
+        document.getElementById('ret-alert').style.display = 'none';
+        document.getElementById('ret-count').textContent = '';
+        return;
+      }
+      const sum = m.ship.reduce((a, s) => ({ recv: a.recv + s.recv, pay: a.pay + s.pay }), { recv: 0, pay: 0 });
+      tbody.innerHTML = m.ship.map(s => `<tr><td><strong>${s.kind}</strong></td><td class="num">${won(s.recv)}</td><td class="num">${won(s.pay)}</td><td class="num">${signed(s.recv - s.pay)}</td><td>${s.note}</td></tr>`).join('') +
+        `<tr class="total"><td>합계</td><td class="num">${won(sum.recv)}</td><td class="num">${won(sum.pay)}</td><td class="num">${signed(sum.recv - sum.pay)}</td><td>물류 마진(손실) — 손익 지표로 사용</td></tr>`;
+      const open = m.returns.filter(r => !r.judge).length;
+      document.getElementById('ret-count').textContent = `미판정 ${open}건 / ${m.returns.length}건`;
+      const alertBox = document.getElementById('ret-alert');
+      alertBox.style.display = 'block';
+      alertBox.innerHTML = `<strong>반품 차감 물류비 검토 필요 — ${m.returns.length}건.</strong> DB에는 '단순 변심'(고객 귀책)으로 기록돼 반품 배송비(편도 3,000원 · 무료배송 혜택 취소 건은 왕복 6,000원)를 공제했지만, 3PL 회수 명세에는 '파손 회수'로 청구됐습니다. 귀책이 뒤집히면 공제한 반품 배송비를 고객에게 반환해야 합니다.`;
+      document.getElementById('ret-tbody').innerHTML = m.returns.map((r, i) => `
+        <tr>
+          <td>${r.order}</td>
+          <td>${r.dbReason}</td>
+          <td>${r.plReason}</td>
+          <td class="num">${won(r.deduct)}</td>
+          <td>
+            <select class="f-select" id="judge-${i}" style="height:28px;" ${r.judge ? 'disabled' : ''}>
+              <option value="">선택</option>
+              <option value="CUSTOMER" ${r.judge === 'CUSTOMER' ? 'selected' : ''}>고객 귀책 유지</option>
+              <option value="COMPANY" ${r.judge === 'COMPANY' ? 'selected' : ''}>자사 귀책</option>
+              <option value="3PL" ${r.judge === '3PL' ? 'selected' : ''}>3PL 귀책</option>
+            </select>
+          </td>
+          <td>${r.judge ? r.memo : `<input class="f-input" id="judge-memo-${i}" style="width:100%; height:28px;" placeholder="판정 사유 (필수)" />`}</td>
+          <td>${r.judge ? (r.judge === 'CUSTOMER' ? '<span class="badge badge-gray">판정 완료</span>' : '<a class="btn btn-outline btn-sm" href="ADMN-RFD-002_baseline.html">반환 조정 ↗</a>') : `<button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.settlement.logistics-reconciliations.returns.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/logistics-reconciliations/returns/{item}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="반품 귀책 판정 · 고객 공제액 — 저장 칸 개발 테이블에 없음" onclick="saveJudge(${i})">판정 저장</button>`}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderBooks() {
+      const m = cur();
+      const tbody = document.getElementById('book-tbody');
+      const box = document.getElementById('closed-supplier-box');
+      if (!m) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:28px; color:var(--text-muted);">이 달의 도서 입고 · 매입 계산서 대조 내역이 없습니다.</td></tr>';
+        box.style.display = 'none';
+        return;
+      }
+      let base = 0, inv = 0;
+      tbody.innerHTML = m.books.map(b => {
+        const expected = b.qty * b.cost;
+        base += expected;
+        if (b.invoice !== null) inv += b.invoice;
+        const diff = b.invoice === null ? null : b.invoice - expected;
+        let action = '—';
+        if (b.state === 'MISMATCH') action = `<button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.settlement.logistics-reconciliations.book-invoices.reissue.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/settlement/logistics-reconciliations/book-invoices/{bookPurchaseCost}/reissue" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="book_purchase_costs.match_status calc_diff 건" onclick="requestReissue(${b.no})">수정 계산서 요청</button>`;
+        else if (b.state === 'NONE' && !supClosed(b.supplier)) action = `<button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.settlement.logistics-reconciliations.book-invoices.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/logistics-reconciliations/book-invoices/{bookPurchaseCost}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="계산서 수취 상태 저장 칸 개발 테이블에 없음 — 매입처는 publisher 문자열(suppliers.id 연결 없음)" onclick="receiveInvoice(${b.no})">수취 등록</button>`;
+        else if (supClosed(b.supplier)) action = '<a class="btn btn-outline btn-sm" href="ADMN-SETT-008_baseline.html">폐업 확인 ↗</a>';
+        return `
+          <tr>
+            <td>${b.no}</td>
+            <td><strong>${b.title}</strong></td>
+            <td><a href="ADMN-VEND-001_baseline.html?id=${b.supplier}">${supName(b.supplier)}</a> <code>${b.supplier}</code>${supClosed(b.supplier) ? ' <span class="badge badge-red">폐업</span>' : ''}</td>
+            <td class="num">${won(b.qty)}</td>
+            <td class="num">${won(b.cost)}</td>
+            <td class="num">${won(expected)}</td>
+            <td class="num">${b.invoice === null ? '—' : won(b.invoice)}</td>
+            <td class="num">${diff === null ? '—' : signed(diff)}</td>
+            <td><span class="badge ${BOOK_STATE[b.state][0]}">${BOOK_STATE[b.state][1]}</span></td>
+            <td>${action}</td>
+          </tr>`;
+      }).join('') + `<tr class="total"><td></td><td>합계</td><td></td><td></td><td></td><td class="num">${won(base)}</td><td class="num">${won(inv)}</td><td></td><td colspan="2">미수취 ${m.books.filter(b => b.state === 'NONE').length}건 · 불일치 ${m.books.filter(b => b.state === 'MISMATCH').length}건 · 재요청 ${m.books.filter(b => b.state === 'REQUESTED').length}건</td></tr>`;
+      const closed = m.books.filter(b => supClosed(b.supplier));
+      box.style.display = closed.length ? 'block' : 'none';
+      box.innerHTML = closed.map(b => `⚠ <strong>${supName(b.supplier)}</strong> — 국세청 상태조회 결과 폐업(확인 ${supClosed(b.supplier)}, 거래처 관리) · 신규 발주 차단. 미수취 계산서는 공급시기 · 폐업일 · 정정 사유로 수취 가능 여부를 먼저 판정하고, 수취가 불가할 때만 증빙불비 소명 대상(사업자등록 확인 이력)으로 넘깁니다.`).join('<br/>');
+    }
+
+    function renderComplete() {
+      const m = cur();
+      const btn = document.getElementById('btn-complete');
+      const hint = document.getElementById('complete-hint');
+      if (!m) { btn.disabled = true; hint.textContent = '명세서를 업로드하고 대사를 실행해야 완료할 수 있습니다.'; return; }
+      if (m.completed) { btn.disabled = true; hint.textContent = '이 달의 물류비 대사 결과가 확정 잠금되었습니다.'; return; }
+      const left = m.rows.filter(r => isMismatch(r) && !r.result).length;
+      btn.disabled = false;
+      hint.textContent = left ? `출고 불일치 ${left}건에 처리 결과 · 메모가 남아야 완료할 수 있습니다.` : '불일치 처리가 모두 끝났습니다. 도서 매입 계산서 미수취 · 불일치 건은 완료를 막지 않고 수취 추적 대상으로 남습니다.';
+    }
+
+    function renderAll() {
+      renderControl();
+      renderOut();
+      renderShip();
+      renderBooks();
+      renderComplete();
+      renderLogs();
+    }
+
+    function switchTab(tab) {
+      ['out', 'ship', 'book'].forEach(t => {
+        document.getElementById('tabBtn-' + t).classList.toggle('active', t === tab);
+        document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      });
+      document.getElementById('top-crumb-code').textContent = tab === 'out' ? 'ADMN-SETT-011' : 'ADMN-SETT-011-S1';
+      // 선택 탭을 ?tab= 으로 유지 — 새로고침 · 링크 공유에서 같은 탭이 열린다
+      const params = new URLSearchParams(window.location.search);
+      params.set('tab', tab);
+      try { history.replaceState(null, '', '?' + params.toString()); } catch (e) {}
+      window.scrollTo(0, 0);
+    }
+
+    function changeMonth(v) {
+      month = v;
+      document.getElementById('flt-status').value = 'ALL';
+      renderAll();
+    }
+
+    function resetOutFilter() {
+      document.getElementById('flt-status').value = 'ALL';
+      renderOut();
+    }
+
+    function showMismatchOnly() {
+      document.getElementById('flt-status').value = 'MISMATCH';
+      switchTab('out');
+      renderOut();
+    }
+
+    function uploadStatement() {
+      const m = cur();
+      if (!m) {
+        showToast('2026년 10월분 3PL 명세서는 11월 초에 수령합니다. 받으면 원본 그대로 업로드해 주세요.');
+        return;
+      }
+      m.file.version += 1;
+      m.file.at = '10.22 10:40';
+      m.file.by = '이재무';
+      addLog(`3PL 명세서 재업로드 ${m.file.name} (버전 ${m.file.version}, 이전 버전 보관)`);
+      renderControl();
+      showToast(`명세서를 버전 ${m.file.version}로 올렸습니다. 이전 파일은 덮어쓰지 않고 보관됩니다. 대사를 다시 실행해 주세요.`);
+    }
+
+    function runRecon() {
+      const m = cur();
+      if (!m) return;
+      m.runAt = '10.22 10:40';
+      m.runBy = '이재무';
+      addLog(`${month.replace('-', '년 ')}월 대사 실행 — DB ${won(m.dbCount)}건 / 3PL ${won(m.claimCount)}건 · 불일치 ${m.rows.filter(isMismatch).length}건`);
+      renderAll();
+      showToast('송장번호 → 주문번호 → 수령인 · 출고일 순서로 다시 매칭했습니다.');
+    }
+
+    function openModalEl(id) {
+      const el = document.getElementById(id);
+      el.style.removeProperty('display');
+      el.classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function openResolve(no) {
+      const r = cur().rows.find(x => x.no === no);
+      editingNo = no;
+      document.getElementById('resolve-title').textContent = `불일치 처리 — No ${r.no} (${STATUS_LABEL[r.status]})`;
+      document.getElementById('resolve-target').innerHTML = `${r.date} · 송장 ${r.waybill} · ${r.order}<br/>DB ${r.db} / 3PL ${r.claim} · 차이 ${r.diff}`;
+      document.getElementById('resolve-result').value = r.result || (r.status === 'ONLY_DB' ? 'CARRY' : '');
+      document.getElementById('resolve-memo').value = r.memo || '';
+      document.getElementById('resolve-error').style.display = 'none';
+      openModalEl('layerLogisticsResolve');
+    }
+
+    function saveResolve() {
+      const r = cur().rows.find(x => x.no === editingNo);
+      const result = document.getElementById('resolve-result').value;
+      const memo = document.getElementById('resolve-memo').value.trim();
+      const err = document.getElementById('resolve-error');
+      if (!result) { err.textContent = '처리 결과를 선택해 주세요.'; err.style.display = 'block'; return; }
+      if (!memo) { err.textContent = '처리 메모를 입력해 주세요. 불일치 건은 메모 없이 종결할 수 없습니다.'; err.style.display = 'block'; return; }
+      r.result = result;
+      r.memo = memo;
+      addLog(`출고 불일치 No ${r.no}(${r.order}) — ${RESULT_LABEL[result]} · ${memo}`);
+      closeModal('layerLogisticsResolve');
+      renderOut();
+      renderComplete();
+      showToast(`No ${r.no} 처리 결과(${RESULT_LABEL[result]})를 저장했습니다.`);
+    }
+
+    function saveJudge(i) {
+      const r = cur().returns[i];
+      const judge = document.getElementById('judge-' + i).value;
+      const memo = (document.getElementById('judge-memo-' + i).value || '').trim();
+      if (!judge || !memo) { showToast('귀책 판정과 판정 사유를 모두 입력해 주세요.'); return; }
+      r.judge = judge;
+      r.memo = memo;
+      addLog(`반품 귀책 판정 ${r.order} — ${judge === 'CUSTOMER' ? '고객 귀책 유지' : judge === 'COMPANY' ? '자사 귀책' : '3PL 귀책'} · ${memo}`);
+      renderShip();
+      showToast(judge === 'CUSTOMER' ? '고객 귀책을 유지했습니다. 공제액은 그대로입니다.' : `귀책이 바뀌어 공제한 ${won(r.deduct)}원 반환 조정을 환불 요청 관리로 넘겼습니다.`);
+    }
+
+    function requestReissue(no) {
+      const b = cur().books.find(x => x.no === no);
+      b.state = 'REQUESTED';
+      addLog(`매입 계산서 금액 불일치 — ${supName(b.supplier)}에 ${b.title} 수정 계산서 요청 (재요청 중)`);
+      renderBooks();
+      showToast(`${supName(b.supplier)}에 수정 계산서 발행을 요청했습니다. 상태가 '재요청 중'으로 바뀌었습니다.`);
+    }
+
+    function receiveInvoice(no) {
+      const b = cur().books.find(x => x.no === no);
+      b.invoice = b.qty * b.cost;
+      b.state = 'DONE';
+      addLog(`매입 계산서 수취 등록 — ${supName(b.supplier)} ${b.title} ${won(b.invoice)}원 (면세 전자계산서)`);
+      renderBooks();
+      showToast(`${b.title} 면세 전자계산서 수취를 등록했습니다.`);
+    }
+
+    function downloadExcel(label) {
+      addLog(`${label} 다운로드 (${month.replace('-', '년 ')}월)`);
+      showToast(`${label}을(를) 내려받았습니다.`);
+    }
+
+    function completeRecon() {
+      const m = cur();
+      if (!m) return;
+      const left = m.rows.filter(r => isMismatch(r) && !r.result).length;
+      if (left) { showToast(`출고 불일치 ${left}건에 처리 결과 · 메모가 남아야 완료할 수 있습니다.`); return; }
+      m.completed = true;
+      addLog(`${month.replace('-', '년 ')}월 물류비 대사 완료 처리 — 결과 확정 잠금`);
+      renderAll();
+      showToast('물류비 대사를 완료했습니다. 3PL 세금계산서를 받은 뒤 회계 시스템에서 지급합니다.');
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+      const tab = new URLSearchParams(window.location.search).get('tab');
+      if (['out', 'ship', 'book'].includes(tab)) switchTab(tab);
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

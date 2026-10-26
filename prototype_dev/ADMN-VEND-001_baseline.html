@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>거래처 관리 — 산준모 백오피스</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --bg-body: #F3F5F9; --bg-card: #FFFFFF; --bg-subtle: #F8FAFC;
+      --text-main: #0F172A; --text-sub: #475569; --text-muted: #64748B;
+      --border: #E2E8F0; --border-strong: #CBD5E1;
+      --primary: #2563EB; --primary-hover: #1D4ED8;
+      --success: #16A34A; --warning: #D97706; --danger: #DC2626;
+      --radius-md: 8px; --radius-lg: 12px; --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-body); color: var(--text-main); font-size: 13px; line-height: 1.5; min-width: 1440px; }
+    #v4-root-shell { margin-left: 260px; min-height: 100vh; display: flex; flex-direction: column; }
+    .top-bar.v4-gen3-topbar { height: 60px; background: #FFF; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 100; }
+    .crumb-wrap { display: flex; align-items: center; gap: 10px; }
+    .crumb-code { background: #1E293B; color: #F8FAFC; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px; }
+    .crumb-title { font-size: 16px; font-weight: 800; color: var(--text-main); }
+    .crumb-sub { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
+    .main-container { padding: 24px 28px 60px; max-width: 1640px; width: 100%; }
+
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 20px; overflow: hidden; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #FAFBFD; }
+    .card-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card-actions { display: flex; gap: 8px; align-items: center; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 20px; border-bottom: 1px solid var(--border); }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .scope-note { background: #F8FAFC; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 18px; font-size: 12px; color: var(--text-sub); line-height: 1.6; }
+    .tabs { display: flex; align-items: center; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+    .tab-btn { padding: 10px 18px; font-size: 13px; font-weight: 800; color: var(--text-sub); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tabs .tab-link { margin-left: auto; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .f-input, .f-select { height: 34px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 12.5px; font-family: inherit; color: var(--text-main); background: #FFF; }
+    .btn { height: 34px; padding: 0 14px; border-radius: 6px; font-size: 12.5px; font-weight: 700; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: inherit; text-decoration: none; white-space: nowrap; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn-primary { background: var(--primary); color: #FFF; }
+    .btn-outline { background: #FFF; border-color: var(--border-strong); color: var(--text-main); }
+    .btn-danger { background: #FEF2F2; border-color: #FECACA; color: var(--danger); }
+
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; margin: 1px 2px 1px 0; }
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+    .badge-green { background: #DCFCE7; color: #15803D; }
+    .badge-amber { background: #FEF3C7; color: #B45309; }
+    .badge-red { background: #FEE2E2; color: #B91C1C; }
+    .badge-gray { background: #F1F5F9; color: #475569; }
+    .badge-purple { background: #EDE9FE; color: #6D28D9; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th { background: #F8FAFC; color: var(--text-sub); font-weight: 700; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .data-table th.c, .data-table td.c { text-align: center; }
+    .data-table tr.row-off td { color: #94A3B8; background: #FAFAFA; }
+    .data-table tr.row-click { cursor: pointer; }
+    .data-table tr.row-click:hover td { background: #F8FAFC; }
+    .data-table tr.selected td { background: #EFF6FF; }
+    .data-table tr.changed td { background: #FFFBEB; }
+
+    .role-layout { display: grid; grid-template-columns: 420px 1fr; gap: 20px; align-items: start; }
+    .role-head { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .role-head h3 { font-size: 16px; font-weight: 800; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .role-head p { font-size: 12px; color: var(--text-sub); }
+    .perm-check { width: 16px; height: 16px; cursor: pointer; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-backdrop.open { display: flex; }
+    .modal-box { background: #FFF; border-radius: var(--radius-lg); width: 100%; max-width: 640px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25); overflow: hidden; }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+    .modal-header h3 { font-size: 15px; font-weight: 800; }
+    .modal-body { padding: 18px 20px; max-height: 70vh; overflow-y: auto; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); background: #FAFBFD; }
+    .form-row { display: grid; grid-template-columns: 130px 1fr; gap: 12px; align-items: start; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+    .form-row:last-child { border-bottom: none; }
+    .form-row > label { font-size: 12px; font-weight: 700; color: var(--text-sub); padding-top: 8px; }
+    .form-help { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+    .check-group { display: flex; flex-wrap: wrap; gap: 6px 14px; padding-top: 7px; }
+    .check-group label { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; }
+    .form-error { display: none; background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C; border-radius: var(--radius-md); padding: 10px 12px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
+    .impact-list { margin: 6px 0 12px 18px; font-size: 12.5px; line-height: 1.8; }
+    .impact-title { font-size: 12.5px; font-weight: 800; margin-top: 6px; }
+
+    #toast-box { position: fixed; bottom: 24px; right: 24px; background: #0F172A; color: #FFF; padding: 12px 18px; border-radius: 8px; font-size: 12.5px; font-weight: 700; display: none; z-index: 12000; max-width: 560px; }
+    code { background: #F1F5F9; padding: 2px 5px; border-radius: 4px; font-size: 11.5px; }
+
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-VEND-001", "devCommit": "d562524a", "progress": "독립 화면 개발 미구현 — 이름은 (규칙). 가장 가까운 구현: 도서 공급 원장 매입처 탭(admin.book-supply.index ?tab=suppliers) + 매입처 등록(admin.book-supply.suppliers.store). 유형 관리 · 수정 · 거래 중지 · 국세청 조회는 주황 표시", "menus": [{"route": "admin.vendors.index (규칙)", "label": "거래처 관리"}, {"route": "admin.book-supply.index", "label": "도서 공급 원장(매입처 탭 ③ — 개발 구현분)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="crumb-wrap">
+        <span class="crumb-code" id="top-crumb-code">ADMN-VEND-001</span>
+        <h1 class="crumb-title">거래처 관리</h1>
+        <span class="crumb-sub">권리자 · 거래처 · 지분 매핑 &gt; 거래처 관리 (매입처 · 물류 대행사 · 공급 파트너)</span>
+      </div>
+      <a class="btn btn-outline btn-sm" href="ADMN-INST-001_baseline.html">권리자 계약 원장 →</a>
+    </header>
+
+    <div id="v4-page-body" class="main-container">
+      <div class="scope-note">
+        <strong>거래처</strong>는 권리자 계약 원장에 올리지 않는 거래 상대방입니다 — 도서 · 상품 매입처, 물류 대행사(3PL), 이후 생기는 공급 파트너.
+        수익을 배분받는 계약 당사자(강사 · 저자 · 위탁 도서의 위탁사 등)는 권리자 계약 원장(ADMN-INST-001)에 등록합니다.
+        거래처 대금(매입 대금 · 물류비)은 월간 정산 대량이체가 아니라 회계 시스템 매입채무(AP) 결제로 지급합니다. 거래처 유형은 운영하면서 추가할 수 있습니다.
+      </div>
+
+      <div class="card">
+        <div class="toolbar" style="border-bottom:none;">
+          <div class="toolbar-left" id="kpi-row"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🏢 거래처 원장</div>
+          <div class="card-actions">
+            <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.vendors.types.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/vendors/types" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="거래처 유형 테이블 없음 — 규칙상 vendor_types" onclick="openTypeModal()">거래처 유형 관리</button>
+            <button type="button" class="btn btn-primary btn-sm" data-dev-note="null = 등록, id = 수정. 수정은 개발 라우트 없음(admin.vendors.update (규칙) PUT /vendors/{vendor})" onclick="openVendorModal(null)">＋ 거래처 등록</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="f-select" id="flt-type" name="type" data-dev-note="(규칙) vendor_type_id" onchange="renderVendors()"></select>
+            <select class="f-select" id="flt-status" name="status" data-dev-value="active 거래 중 · suspended 거래 중지 (규칙, 프로토타입 값 ON · OFF 유지)" onchange="renderVendors()">
+              <option value="ALL">상태 전체</option>
+              <option value="ON">거래 중</option>
+              <option value="OFF">거래 중지</option>
+            </select>
+            <input class="f-input" id="flt-keyword" name="keyword" style="width:240px;" placeholder="거래처명 · 코드 · 사업자등록번호" oninput="renderVendors()" />
+            <span id="vendor-summary" style="font-weight:700; color:var(--text-sub);"></span>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:100px;">거래처 코드</th>
+              <th>거래처명</th>
+              <th style="width:140px;">유형</th>
+              <th style="width:130px;">사업자등록번호</th>
+              <th style="width:150px;">사업자 상태 (국세청)</th>
+              <th style="width:250px;">거래 조건</th>
+              <th style="width:170px;">쓰는 화면</th>
+              <th style="width:80px;">상태</th>
+              <th style="width:70px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="vendor-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🕘 거래처 변경 이력</div>
+          <span style="font-size:12px; color:var(--text-muted);">등록 · 수정 · 거래 중지 · 국세청 상태조회 · 유형 변경은 시스템 감사 로그에 남습니다.</span>
+        </div>
+        <table class="data-table">
+          <thead><tr><th style="width:150px;">변경 일시</th><th style="width:170px;">관리자</th><th style="width:150px;">대상</th><th>변경 내용</th></tr></thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 거래처 등록 · 수정 -->
+  <div class="modal-backdrop" id="layerVendor">
+    <div class="modal-box" style="max-width:700px;">
+      <div class="modal-header">
+        <h3 id="vendor-modal-title">거래처 등록</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('layerVendor')">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-error" id="vendor-error"></div>
+        <div class="form-row"><label>거래처 유형 *</label><div><select class="f-select" id="vf-type" name="vendor_type_id" data-dev-note="(규칙)" style="width:100%;" onchange="renderTermsForm()"></select><div class="form-help" id="vf-type-help"></div></div></div>
+        <div class="form-row"><label>거래처 코드</label><div><input class="f-input" id="vf-id" name="code" data-dev-note="SUP-%04d 자동 채번(개발 SupplierService와 같은 방식)" readonly style="width:160px; background:var(--bg-subtle);" /><div class="form-help">최초 저장 시 자동 채번되며 바꿀 수 없습니다.</div></div></div>
+        <div class="form-row"><label>거래처명 *</label><div><input class="f-input" id="vf-name" name="name" data-dev-note="SupplierRequest ≤100" maxlength="40" style="width:100%;" /></div></div>
+        <div class="form-row"><label>사업자등록번호 *</label><div style="display:flex; gap:8px; align-items:center;"><input class="f-input" id="vf-biz" name="business_no" data-dev-note="digits:10 · 중복 불가" style="width:180px;" placeholder="000-00-00000" oninput="onBizInput()" /><button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.vendors.nts-verify (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/vendors/{vendor}/nts-verify" data-dev-perm="수정(nts-verify 접미사)" data-dev-flag="proto-only" data-dev-note="개발 매입처 탭 '사업자 확인' 버튼은 disabled(준비 중) — 등록 시 business_status PENDING_VERIFICATION" onclick="checkNts()">국세청 상태조회</button><span id="vf-nts" style="font-size:12px;"></span></div></div>
+        <div class="form-row"><label>대표자 · 과세유형</label><div style="display:flex; gap:8px;"><input class="f-input" id="vf-ceo" name="ceo_name" style="width:160px;" placeholder="대표자" /><select class="f-select" id="vf-tax" data-dev-flag="proto-only" data-dev-note="과세유형 직접 선택 — 개발은 입력받지 않고 국세청 응답으로만 채움(정책 질문 D-SETT)" data-dev-name="payee_tax_type"><option>일반과세</option><option>간이과세</option><option>면세</option></select></div></div>
+        <div class="form-row"><label>연락처 · 거래 시작일</label><div style="display:flex; gap:8px;"><input class="f-input" id="vf-contact" name="contact_email" data-dev-note="개발은 담당 메일(email) — 프로토타입은 연락처" style="width:180px;" /><input class="f-input" id="vf-since" name="started_at" data-dev-note="(규칙) 거래 시작일 — 개발 매입처는 개업일자 open_date" type="date" style="width:160px;" /></div></div>
+        <div class="form-row" data-dev-flag="dev-only" data-dev-note="개발 SupplierRequest open_date · bank_name · account_no(암호화 저장 · 마스킹) · account_holder · cost_account_type"><label>개업일자 · 계좌</label><div style="display:flex; flex-direction:column; gap:8px;"><div style="display:flex; gap:8px;"><input class="f-input" type="date" name="open_date" style="width:160px;" title="개업일자" /><select class="f-select" name="cost_account_type"><option value="INVENTORY_PURCHASE">재고자산 취득</option><option value="BUYOUT_RIGHT">무형 판권 취득</option></select></div><div style="display:flex; gap:8px;"><input class="f-input" name="bank_name" style="width:140px;" placeholder="은행" /><input class="f-input" name="account_no" style="width:200px;" placeholder="계좌번호 (숫자 · -)" /><input class="f-input" name="account_holder" style="width:140px;" placeholder="예금주" /></div></div></div>
+        <div class="form-row"><label>거래 조건</label><div id="vf-terms" data-dev-note="개발은 지급 조건 문자열 한 칸(≤100) — 프로토타입 구조화 입력(vt-rate 등)" data-dev-name="settlement_terms"></div></div>
+        <div class="form-row" id="vf-susp-row" style="display:none;"><label>휴업 사업자 승인</label><div style="border:1px solid var(--warning); background:#FFFBEB; border-radius:6px; padding:10px 12px;"><div style="font-size:12.5px; font-weight:700; color:var(--warning);">국세청 확인 결과 휴업 사업자입니다. 거래 중으로 저장하려면 재무 책임자 승인이 필요합니다.</div><label style="display:block; margin-top:8px; font-size:12.5px;"><input type="checkbox" id="vf-susp-ok" name="suspend_approved" data-dev-note="(규칙) 재무 책임자 승인" data-dev-value="1" /> 재무 책임자 승인을 받았습니다</label><input class="f-input" id="vf-susp-reason" name="suspend_reason" data-dev-note="(규칙)" maxlength="100" style="width:100%; margin-top:6px;" placeholder="승인 사유 (필수, 변경 이력에 남습니다)" /></div></div>
+        <div class="form-row"><label>수취 증빙</label><div id="vf-evidence" style="padding-top:8px;"></div></div>
+        <div class="form-row"><label>상태</label><div class="check-group"><label><input type="radio" name="vf-on" value="ON" data-dev-name="status" data-dev-value="active (규칙)" checked onchange="updateSuspBox()" /> 거래 중</label><label><input type="radio" name="vf-on" value="OFF" data-dev-note="거래 상태 칸 개발 없음 — business_status 기반 발주 가능 / 신규 발주 차단" data-dev-name="status" data-dev-value="suspended (규칙)" onchange="updateSuspBox()" /> 거래 중지 (발주 · 출고 지시 대상에서 빠짐)</label></div></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('layerVendor')">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.book-supply.suppliers.store" data-dev-method="POST" data-dev-url="/sj-admin/book-supply/suppliers" data-dev-perm="등록(도서 공급 원장 메뉴)" data-dev-note="개발 구현분은 매입처 등록만(#supplierForm). 거래처 관리 경로는 admin.vendors.store | admin.vendors.update (규칙) — 수정 라우트 없음" id="vendorSubmit" onclick="saveVendor()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 거래처 유형 관리 -->
+  <div class="modal-backdrop" id="layerVendorType">
+    <div class="modal-box" style="max-width:720px;">
+      <div class="modal-header">
+        <h3>거래처 유형 관리</h3>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('layerVendorType')">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-error" id="type-error"></div>
+        <table class="data-table">
+          <thead><tr><th style="width:70px;">코드</th><th>유형 이름</th><th style="width:150px;">거래 조건 양식</th><th style="width:150px;">수취 증빙</th><th class="c" style="width:60px;">거래처</th><th style="width:110px;">상태</th></tr></thead>
+          <tbody id="type-tbody"></tbody>
+        </table>
+        <div style="display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;">
+          <input class="f-input" id="nt-name" name="name" data-dev-note="(규칙) vendor_types.name" style="flex:1; min-width:180px;" placeholder="새 유형 이름 (예: 교구 공급사)" />
+          <select class="f-select" id="nt-form" name="terms_form" data-dev-value="purchase · logistics · general (규칙, 프로토타입 값 PURCHASE · LOGISTICS · GENERAL 유지)"><option value="PURCHASE">매입 (공급률 · 결제 조건)</option><option value="LOGISTICS">물류 대행 (건당 단가 · 회수 · 보관)</option><option value="GENERAL">일반 (메모)</option></select>
+          <select class="f-select" id="nt-evidence" name="evidence_type" data-dev-value="tax_invoice 전자세금계산서 · invoice 전자계산서 (규칙)"><option>전자세금계산서(과세)</option><option>전자계산서(면세)</option></select>
+          <button type="button" class="btn btn-outline" data-dev-route="admin.vendors.types.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/vendors/types" data-dev-perm="등록" data-dev-flag="proto-only" onclick="addType()">유형 추가</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('layerVendorType')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-box"></div>
+
+  <script>
+    const M = window.SJM_MASTER;
+    const NOW = '2026.10.22 14:10';
+    const TODAY = '2026-10-22';
+    const ADMIN = '이재무 (fin_manager)';
+    const FORM_LABEL = { PURCHASE: '매입 (공급률 · 결제 조건)', LOGISTICS: '물류 대행 (건당 단가 · 회수 · 보관)', GENERAL: '일반 (메모)' };
+    // 거래처를 쓰는 화면 — 유형 이름이 아니라 거래 조건 양식으로 정한다
+    const USED_BY = {
+      PURCHASE: '<a href="ADMN-BOOK-001_baseline.html">도서 공급 원장</a> · <a href="ADMN-PROD-007_baseline.html">일반상품</a>',
+      LOGISTICS: '<a href="ADMN-SETT-011_baseline.html">물류비 대사</a> · <a href="ADMN-CONF-005_baseline.html">외부 계정</a>',
+      GENERAL: '—'
+    };
+
+    let LOGS = [
+      { dt: '2026.10.03 10:20', admin: '이재무 (fin_manager)', target: 'SUP-0020', text: '거래 조건: 출고 건당 단가 2,000원 · 반품 회수 4,000원 (2025-11 계약 갱신분 반영)' },
+      { dt: '2026.06.01 09:10', admin: '이재무 (fin_manager)', target: 'SUP-0008', text: '국세청 상태조회 폐업(2026.05.31) 확인 · 상태: 거래 중 → 거래 중지' }
+    ];
+
+    let editingId = null;
+    let ntsResult = null;   // 모달 안 국세청 상태조회 결과
+
+    const won = v => Number(v || 0).toLocaleString('ko-KR');
+    function addLog(target, text) { LOGS.unshift({ dt: NOW, admin: ADMIN, target, text }); renderLogs(); }
+
+    function termsText(v) {
+      const t = M.vendors.type(v.type);
+      const x = v.terms || {};
+      if (!t) return '—';
+      if (t.form === 'PURCHASE') return `매입 공급률 ${x.rate || '—'}% · ${x.pay || '결제 조건 미정'}`;
+      if (t.form === 'LOGISTICS') return `출고 건당 ${won(x.outFee)}원 · 반품 회수 ${won(x.returnFee)}원 · 보관 월 ${won(x.storage)}원 · ${x.cycle || ''}`;
+      return x.memo || '—';
+    }
+
+    function statusBadge(v) {
+      const cls = v.status === '계속' ? 'badge-green' : v.status === '폐업' ? 'badge-red' : 'badge-amber';
+      return `<span class="badge ${cls}">${v.status}</span><div style="font-size:11px; color:var(--text-muted);">확인 ${v.checkedAt || '—'}</div>`;
+    }
+
+    function renderKpis() {
+      const all = M.vendors.list();
+      const on = all.filter(v => v.on);
+      const warn = all.filter(v => v.on && v.status !== '계속');
+      const kpi = (label, val, sub, color) => `<div style="padding:4px 18px 4px 0; margin-right:18px; border-right:1px solid var(--border);"><div style="font-size:12px; color:var(--text-sub); font-weight:700;">${label}</div><div style="font-size:22px; font-weight:800; color:${color || 'var(--text-main)'};">${val}</div><div style="font-size:11.5px; color:var(--text-muted);">${sub}</div></div>`;
+      document.getElementById('kpi-row').innerHTML =
+        kpi('거래 중 거래처', on.length + '곳', `전체 ${all.length}곳 · 거래 중지 ${all.length - on.length}곳`) +
+        kpi('거래처 유형', M.vendors.activeTypes().length + '종', M.vendors.activeTypes().map(t => `${t.name} ${M.vendors.byType(t.id).length}`).join(' · ')) +
+        kpi('국세청 확인 필요', warn.length + '곳', '거래 중인데 휴업 · 폐업으로 확인된 거래처', warn.length ? 'var(--danger)' : '');
+    }
+
+    function renderTypeFilter() {
+      const sel = document.getElementById('flt-type');
+      const cur = sel.value || 'ALL';
+      sel.innerHTML = '<option value="ALL">유형 전체</option>' + M.vendors.types().map(t => `<option value="${t.id}">${t.name}${t.on ? '' : ' (미사용)'}</option>`).join('');
+      sel.value = M.vendors.type(cur) ? cur : 'ALL';
+    }
+
+    function renderVendors() {
+      const ft = document.getElementById('flt-type').value;
+      const fs = document.getElementById('flt-status').value;
+      const kw = document.getElementById('flt-keyword').value.trim().toLowerCase();
+      const list = M.vendors.list().filter(v => (ft === 'ALL' || v.type === ft) && (fs === 'ALL' || (fs === 'ON') === v.on) &&
+        (!kw || [v.id, v.name, v.bizNo].some(x => String(x).toLowerCase().includes(kw))));
+      document.getElementById('vendor-summary').textContent = `${list.length}곳 표시`;
+      document.getElementById('vendor-tbody').innerHTML = list.length ? list.map(v => {
+        const t = M.vendors.type(v.type);
+        return `
+        <tr class="row-click ${v.on ? '' : 'row-off'}" onclick="if (!event.target.closest('a,button')) openVendorModal('${v.id}')">
+          <td><code>${v.id}</code></td>
+          <td><strong>${v.name}</strong><div style="font-size:11px; color:var(--text-muted);">${v.ceo || ''} · ${v.taxType} · ${v.contact || ''}</div></td>
+          <td><span class="badge ${t && t.form === 'LOGISTICS' ? 'badge-purple' : 'badge-blue'}">${t ? t.name : v.type}</span></td>
+          <td>${v.bizNo}</td>
+          <td>${statusBadge(v)}</td>
+          <td style="font-size:12px;">${termsText(v)}</td>
+          <td style="font-size:12px;">${t ? USED_BY[t.form] : '—'}</td>
+          <td><span class="badge ${v.on ? 'badge-green' : 'badge-gray'}" style="white-space:nowrap;">${v.on ? '거래 중' : '거래 중지'}</span></td>
+          <td><button type="button" class="btn btn-outline btn-sm" data-dev-note="null = 등록, id = 수정. 수정은 개발 라우트 없음(admin.vendors.update (규칙) PUT /vendors/{vendor})" onclick="openVendorModal('${v.id}')">수정</button></td>
+        </tr>`;
+      }).join('') : '<tr><td colspan="9" style="text-align:center; padding:28px; color:var(--text-muted);">조건에 맞는 거래처가 없습니다.</td></tr>';
+    }
+
+    function renderLogs() {
+      document.getElementById('log-tbody').innerHTML = LOGS.map(l => `<tr><td>${l.dt}</td><td>${l.admin}</td><td><code>${l.target}</code></td><td>${l.text}</td></tr>`).join('');
+    }
+
+    function renderAll() { renderKpis(); renderTypeFilter(); renderVendors(); renderLogs(); }
+
+    // ---------- 거래처 등록 · 수정 ----------
+    // 휴업 사업자를 거래 중으로 저장할 때만 재무 책임자 승인 칸을 보인다
+    function curStatus() {
+      if (ntsResult) return ntsResult.status;
+      const prev = editingId ? M.vendors.get(editingId) : null;
+      const biz = document.getElementById('vf-biz').value.trim();
+      return prev && prev.bizNo === biz ? prev.status : null;
+    }
+    function updateSuspBox() {
+      const on = document.querySelector('input[name="vf-on"]:checked').value === 'ON';
+      document.getElementById('vf-susp-row').style.display = (on && curStatus() === '휴업') ? '' : 'none';
+    }
+
+    function openVendorModal(id) {
+      editingId = id;
+      ntsResult = null;
+      const v = id ? M.vendors.get(id) : null;
+      document.getElementById('vendor-modal-title').textContent = v ? `거래처 수정 — ${v.id}` : '거래처 등록';
+      document.getElementById('vendor-error').style.display = 'none';
+      const typeSel = document.getElementById('vf-type');
+      typeSel.innerHTML = M.vendors.types().filter(t => t.on || (v && v.type === t.id)).map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      typeSel.value = v ? v.type : M.vendors.activeTypes()[0].id;
+      typeSel.disabled = !!v;
+      document.getElementById('vf-type-help').textContent = v ? '유형을 바꾸려면 이 거래처를 거래 중지하고 새 유형으로 등록합니다(거래 이력 보존).' : '';
+      document.getElementById('vf-id').value = v ? v.id + ' 🔒' : M.vendors.nextId() + ' (저장 시 확정)';
+      document.getElementById('vf-name').value = v ? v.name : '';
+      document.getElementById('vf-biz').value = v ? v.bizNo : '';
+      document.getElementById('vf-ceo').value = v ? v.ceo : '';
+      document.getElementById('vf-tax').value = v ? v.taxType : '일반과세';
+      document.getElementById('vf-contact').value = v ? v.contact : '';
+      document.getElementById('vf-since').value = v ? v.since : TODAY;
+      document.getElementById('vf-nts').innerHTML = v ? `${v.status} · 확인 ${v.checkedAt}` : '<span style="color:var(--warning);">미확인 — 저장 전에 조회해 주십시오.</span>';
+      document.querySelectorAll('input[name="vf-on"]').forEach(r => { r.checked = r.value === (v && !v.on ? 'OFF' : 'ON'); });
+      renderTermsForm(v ? v.terms : null);
+      document.getElementById('vf-susp-ok').checked = false;
+      document.getElementById('vf-susp-reason').value = '';
+      updateSuspBox();
+      openModalEl('layerVendor');
+    }
+
+    function renderTermsForm(terms) {
+      const t = M.vendors.type(document.getElementById('vf-type').value);
+      const x = terms || {};
+      let html = '';
+      if (t.form === 'PURCHASE') {
+        html = `<div style="display:flex; gap:8px; flex-wrap:wrap;"><input class="f-input" id="vt-rate" type="number" min="1" max="100" style="width:120px;" placeholder="공급률 %" value="${x.rate || ''}" /><input class="f-input" id="vt-pay" style="flex:1; min-width:220px;" placeholder="결제 조건 (예: 월말 마감 · 익월 10일)" value="${x.pay || ''}" /></div><div class="form-help">도서 매입 원가는 교재 관리의 사입 원가 · 도서 공급 원장 기준값과 함께 씁니다.</div>`;
+      } else if (t.form === 'LOGISTICS') {
+        html = `<div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;"><input class="f-input" id="vt-out" type="number" placeholder="출고 건당 단가(원)" value="${x.outFee || ''}" /><input class="f-input" id="vt-ret" type="number" placeholder="반품 회수 단가(원)" value="${x.returnFee || ''}" /><input class="f-input" id="vt-sto" type="number" placeholder="월 보관료(원)" value="${x.storage || ''}" /><input class="f-input" id="vt-cycle" placeholder="정산 주기" value="${x.cycle || '월 1회 (익월 초 명세서)'}" /></div><div class="form-help">물류비 대사(ADMN-SETT-011)가 이 단가로 3PL 청구를 검수합니다.</div>`;
+      } else {
+        html = `<input class="f-input" id="vt-memo" style="width:100%;" placeholder="거래 조건 메모" value="${x.memo || ''}" />`;
+      }
+      document.getElementById('vf-terms').innerHTML = html;
+      document.getElementById('vf-evidence').textContent = t.evidence;
+    }
+
+    function readTerms(form) {
+      const g = id => (document.getElementById(id) || {}).value || '';
+      if (form === 'PURCHASE') return { rate: g('vt-rate'), pay: g('vt-pay') };
+      if (form === 'LOGISTICS') return { outFee: g('vt-out'), returnFee: g('vt-ret'), storage: g('vt-sto'), cycle: g('vt-cycle') };
+      return { memo: g('vt-memo') };
+    }
+
+    // 사업자등록번호를 바꾸면 이전 국세청 조회 결과는 다른 번호의 결과이므로 무효 처리한다
+    function onBizInput() {
+      const biz = document.getElementById('vf-biz').value.trim();
+      const prev = editingId ? M.vendors.get(editingId) : null;
+      if (ntsResult && ntsResult.biz !== biz) ntsResult = null;
+      updateSuspBox();
+      if (ntsResult) return;
+      const el = document.getElementById('vf-nts');
+      if (prev && biz === prev.bizNo) el.innerHTML = `${prev.status} · 확인 ${prev.checkedAt}`;
+      else if (prev) el.innerHTML = '<span style="color:var(--warning);">사업자등록번호가 바뀌어 이전 조회 결과는 무효입니다 — 국세청 상태조회를 다시 해 주십시오.</span>';
+      else el.innerHTML = '<span style="color:var(--warning);">미확인 — 저장 전에 조회해 주십시오.</span>';
+    }
+
+    function checkNts() {
+      const biz = document.getElementById('vf-biz').value.trim();
+      if (!/^\d{3}-\d{2}-\d{5}$/.test(biz)) { document.getElementById('vf-nts').innerHTML = '<span style="color:var(--danger);">사업자등록번호 형식(000-00-00000)을 확인해 주십시오.</span>'; return; }
+      // 시연: 기존에 폐업 · 휴업으로 확인된 번호는 그 상태, 끝 5자리가 77777인 번호는 휴업, 그 밖은 계속사업자
+      const known = M.vendors.list().find(v => v.bizNo === biz);
+      const status = known && (known.status === '폐업' || known.status === '휴업') ? known.status : (biz.endsWith('-77777') ? '휴업' : '계속');
+      ntsResult = { status, checkedAt: TODAY, biz };
+      document.getElementById('vf-nts').innerHTML = `<span style="color:${status === '계속' ? 'var(--success)' : status === '휴업' ? 'var(--warning)' : 'var(--danger)'}; font-weight:700;">${status}</span> · 확인 ${TODAY}`;
+      updateSuspBox();
+    }
+
+    function saveVendor() {
+      const err = document.getElementById('vendor-error');
+      const fail = msg => { err.textContent = msg; err.style.display = 'block'; };
+      const typeId = document.getElementById('vf-type').value;
+      const t = M.vendors.type(typeId);
+      const name = document.getElementById('vf-name').value.trim();
+      const bizNo = document.getElementById('vf-biz').value.trim();
+      const on = document.querySelector('input[name="vf-on"]:checked').value === 'ON';
+      if (!name) return fail('거래처명을 입력해 주십시오.');
+      if (!/^\d{3}-\d{2}-\d{5}$/.test(bizNo)) return fail('사업자등록번호 형식(000-00-00000)을 확인해 주십시오.');
+      if (M.vendors.list().some(v => v.bizNo === bizNo && v.id !== editingId)) return fail('같은 사업자등록번호의 거래처가 이미 있습니다.');
+      const prev = editingId ? M.vendors.get(editingId) : null;
+      if (prev && prev.bizNo !== bizNo && !(ntsResult && ntsResult.biz === bizNo)) return fail('사업자등록번호가 바뀌었습니다. 새 번호로 국세청 상태조회를 다시 한 뒤 저장해 주십시오.');
+      const status = ntsResult ? ntsResult.status : (prev ? prev.status : null);
+      if (!status) return fail('국세청 상태조회를 먼저 해 주십시오. 폐업 사업자와는 거래를 시작할 수 없고, 휴업 사업자는 재무 책임자 승인 후에만 거래 중으로 둘 수 있습니다.');
+      if (on && status === '폐업') return fail('폐업으로 확인된 사업자는 거래 중으로 둘 수 없습니다. 미수취 계산서는 사업자등록 확인 이력(ADMN-SETT-008)에서 처리합니다.');
+      const suspReason = document.getElementById('vf-susp-reason').value.trim();
+      if (on && status === '휴업') {
+        if (!document.getElementById('vf-susp-ok').checked) return fail('휴업 사업자는 재무 책임자 승인 후에만 거래 중으로 저장할 수 있습니다. 승인 확인에 체크해 주십시오.');
+        if (!suspReason) return fail('휴업 사업자 거래 승인 사유를 입력해 주십시오.');
+      }
+      const terms = readTerms(t.form);
+      if (t.form === 'LOGISTICS' && !(Number(terms.outFee) > 0)) return fail('물류 대행사는 출고 건당 단가를 입력해야 물류비 대사를 할 수 있습니다.');
+      const data = {
+        type: typeId, name, bizNo, on, terms,
+        ceo: document.getElementById('vf-ceo').value.trim(),
+        taxType: document.getElementById('vf-tax').value,
+        contact: document.getElementById('vf-contact').value.trim(),
+        since: document.getElementById('vf-since').value,
+        status, checkedAt: ntsResult ? ntsResult.checkedAt : prev.checkedAt
+      };
+      if (prev) {
+        const changes = [];
+        if (prev.name !== name) changes.push(`거래처명: ${prev.name} → ${name}`);
+        if (prev.bizNo !== bizNo) changes.push(`사업자등록번호: ${prev.bizNo} → ${bizNo} (국세청 재조회 완료)`);
+        if (termsText(prev) !== termsText(Object.assign({}, prev, { terms }))) changes.push(`거래 조건: ${termsText(prev)} → ${termsText(Object.assign({}, prev, { terms }))}`);
+        if (prev.on !== on) changes.push(`상태: ${prev.on ? '거래 중 → 거래 중지' : '거래 중지 → 거래 중'}`);
+        if (ntsResult) changes.push(`국세청 상태조회: ${status}`);
+        if (on && status === '휴업') changes.push(`휴업 사업자 거래 승인(재무 책임자) · 사유: ${suspReason}`);
+        M.vendors.save(M.vendors.list().map(v => v.id === prev.id ? Object.assign({}, v, data) : v));
+        if (changes.length) addLog(prev.id, changes.join(' / '));
+        showToast(`${prev.id} 거래처를 저장했습니다.`);
+      } else {
+        const id = M.vendors.nextId();
+        M.vendors.save(M.vendors.list().concat([Object.assign({ id }, data)]));
+        addLog(id, `신규 등록 · ${t.name} · ${name} · 국세청 ${status}` + (on && status === '휴업' ? ` · 휴업 사업자 거래 승인(재무 책임자) · 사유: ${suspReason}` : ''));
+        showToast(`${id} ${name}을(를) 등록했습니다.`);
+      }
+      closeModal('layerVendor');
+      renderAll();
+    }
+
+    // ---------- 거래처 유형 ----------
+    function openTypeModal() {
+      document.getElementById('type-error').style.display = 'none';
+      renderTypes();
+      openModalEl('layerVendorType');
+    }
+
+    function renderTypes() {
+      document.getElementById('type-tbody').innerHTML = M.vendors.types().map(t => `
+        <tr class="${t.on ? '' : 'row-off'}">
+          <td><code>${t.id}</code></td>
+          <td><strong>${t.name}</strong></td>
+          <td style="font-size:12px;">${FORM_LABEL[t.form]}</td>
+          <td style="font-size:12px;">${t.evidence}</td>
+          <td class="c">${M.vendors.byType(t.id).length}</td>
+          <td><select class="f-select" style="height:28px;" data-dev-route="admin.vendors.types.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/vendors/types/{type}" data-dev-perm="수정" data-dev-flag="proto-only" onchange="setTypeStatus('${t.id}', this.value)"><option value="ON" ${t.on ? 'selected' : ''}>사용</option><option value="OFF" ${t.on ? '' : 'selected'}>미사용</option></select></td>
+        </tr>`).join('');
+    }
+
+    function setTypeStatus(id, value) {
+      const t = M.vendors.type(id);
+      const err = document.getElementById('type-error');
+      err.style.display = 'none';
+      const active = M.vendors.byType(id).filter(v => v.on);
+      if (value === 'OFF' && active.length) {
+        err.textContent = `이 유형으로 거래 중인 거래처 ${active.length}곳(${active.map(v => v.name).join(', ')})이 있습니다. 먼저 거래 중지해 주십시오.`;
+        err.style.display = 'block';
+        renderTypes();
+        return;
+      }
+      if (t.on !== (value === 'ON')) {
+        M.vendors.saveTypes(M.vendors.types().map(x => x.id === id ? Object.assign({}, x, { on: value === 'ON' }) : x));
+        addLog(id, `거래처 유형 ${t.name}: ${t.on ? '사용 → 미사용' : '미사용 → 사용'}`);
+        renderAll();
+        renderTypes();
+      }
+    }
+
+    function addType() {
+      const name = document.getElementById('nt-name').value.trim();
+      const form = document.getElementById('nt-form').value;
+      const evidence = document.getElementById('nt-evidence').value;
+      const err = document.getElementById('type-error');
+      err.style.display = 'none';
+      if (!name) { err.textContent = '유형 이름을 입력해 주십시오.'; err.style.display = 'block'; return; }
+      if (M.vendors.types().some(t => t.name === name)) { err.textContent = '같은 이름의 유형이 이미 있습니다.'; err.style.display = 'block'; return; }
+      const id = M.vendors.nextTypeId();
+      M.vendors.saveTypes(M.vendors.types().concat([{ id, name, form, evidence, on: true, order: M.vendors.types().length + 1 }]));
+      addLog(id, `거래처 유형 추가 · ${name} · ${FORM_LABEL[form]} · ${evidence}`);
+      document.getElementById('nt-name').value = '';
+      renderAll();
+      renderTypes();
+      showToast(`거래처 유형 '${name}'을(를) 추가했습니다.`);
+    }
+
+    // ---------- 공통 ----------
+    function openModalEl(id) {
+      const el = document.getElementById(id);
+      el.style.removeProperty('display');
+      el.classList.add('open');
+    }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      box.textContent = msg;
+      box.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAll();
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('type') && M.vendors.type(p.get('type'))) { document.getElementById('flt-type').value = p.get('type'); renderVendors(); }
+      if (p.get('id') && M.vendors.get(p.get('id'))) openVendorModal(p.get('id'));
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

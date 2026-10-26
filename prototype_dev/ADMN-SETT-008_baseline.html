@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>사업자등록 확인 이력 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+      --snb-bg: #0f172a;
+      --snb-text: #cbd5e1;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .app-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+
+    /* 표준 SNB (업무 여정 1~4단계 정렬) */
+    .snb {
+      background: var(--snb-bg);
+      color: var(--snb-text);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .snb-brand {
+      padding: 4px 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .snb-brand .title {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .snb-brand .subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+    .snb-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      padding: 0 10px;
+      margin-bottom: 6px;
+      letter-spacing: 0.4px;
+    }
+    .snb-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .snb-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 7px;
+      color: var(--snb-text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12.5px;
+    }
+    .snb-item:hover {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+    .snb-item.active {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+    .snb-code {
+      font-size: 10.5px;
+      opacity: 0.75;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+    }
+
+    /* Main */
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding-bottom: 84px;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .topbar-left { display: flex; flex-direction: column; gap: 4px; }
+    .breadcrumb {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .page-title {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-primary { background: var(--primary-soft); color: var(--primary); border: 1px solid #bfdbfe; }
+    .badge-success { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }
+    .badge-warn { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }
+    .badge-danger { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
+    .badge-purple { background: var(--purple-soft); color: var(--purple); border: 1px solid #ddd6fe; }
+    .badge-neutral { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .btn:hover:not(:disabled) { background: var(--surface-alt); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .btn-sm { padding: 4px 9px; font-size: 11.5px; }
+
+    .content {
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .policy-banner {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .kpi-card:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .kpi-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+      background: #f8fbff;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Card & Table */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-alt);
+    }
+    .card-title { font-size: 14px; font-weight: 700; }
+    .filter-bar {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+    }
+    .input, .select {
+      padding: 6px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      background: #fff;
+      color: var(--text);
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--surface-alt);
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+    tr:hover td { background: #f8fafc; }
+    tr.selected td { background: #eff6ff; }
+    .mono { font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-size: 11.5px; }
+
+    /* Workspace Split */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.32fr 1.03fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .detail-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 78px;
+    }
+    .detail-body {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+    }
+
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 145px 1fr;
+      gap: 7px 12px;
+      font-size: 12.5px;
+    }
+    .kv-label { color: var(--text-muted); font-weight: 600; }
+    .json-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 11.5px;
+      padding: 11px 13px;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+    textarea.input { resize: vertical; min-height: 60px; font-family: inherit; }
+
+    /* Savebar */
+    .savebar {
+      position: fixed;
+      bottom: 0;
+      left: 250px;
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 30;
+      backdrop-filter: blur(6px);
+    }
+    .savebar-status { display: flex; align-items: center; gap: 12px; font-size: 12.5px; }
+
+    .toast-container {
+      position: fixed;
+      bottom: 72px;
+      right: 24px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      border-left: 4px solid var(--primary);
+    }
+    .hidden { display: none !important; }
+  
+    /* Modal Backdrop & Card */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6);
+      display: none; align-items: center; justify-content: center; z-index: 2000;
+      backdrop-filter: blur(2px);
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);
+      width: min(780px, 95vw); max-height: 85vh; display: flex; flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25); overflow: hidden;
+    }
+
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  
+
+  
+
+
+
+
+
+
+<link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-SETT-008", "devCommit": "d562524a", "progress": "구현(전환 승인 · 보류는 권리자 건만, 위탁자 · 매입처는 2차). 정기 일괄 조회 · 재시도 즉시 호출 · 세무 판정 보류 해제는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.nts.index", "label": "사업자등록 확인 이력"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">정산 마감 전 사전 대사</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-SETT-008</span>
+      <h1 class="crumb-title" id="header-screen-title">사업자등록 상태 조회 · 확인 이력 (국세청 홈택스 대사)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <button class="btn" id="btnBatchCheck" data-dev-flag="proto-only" data-dev-note="정기 일괄 상태조회 — 개발은 배치 · 스케줄러(nts_periodic_check_schedule), 화면 라우트 없음">🔄 정기 일괄 상태조회 실행 (10월 15일 분기 배치)</button> <button class="btn btn-primary" id="btnReprocessQueue" data-dev-flag="proto-only" data-dev-note="재시도 큐 즉시 재호출 — 개발 라우트 없음(queue_status queued · retrying · resolved · abandoned)">⚡ 실패 재시도 큐(1건) 즉시 재호출</button>
+    </div></header><div id="v4-page-body">
+  
+  
+  
+<div class="app-layout">
+  <!-- 좌측 SNB (업무 여정 1~4단계 표준) -->
+  
+
+  <!-- 우측 메인 영역 -->
+  <div class="main">
+    
+
+    <div class="content">
+      <!-- 17.1절 · 17.5절 핵심 원칙 배너 -->
+      <div class="policy-banner">
+        <div>
+          <strong>📌 [정산 기준 국세청 오픈API 연동 및 선관주의 보존 원칙]</strong>
+          당사는 과세유형을 수기로 판정·선택하지 않으며, 국세청 API 응답을 확인·보존(보존 계층 2: 10년)합니다.
+          <strong>과세유형 전환 감지 시 원장을 자동 덮어쓰지 않고 담당자 확인 후 신규 유효일자 행을 생성</strong>하며(효력일 미반환 시 <code>7월 1일</code>로 일괄 가정 금지), <strong>폐업 감지 시 증빙 리마인더를 중단하고 미지급 정산금을 강제 정산 트리거로 이관</strong>합니다.
+        </div>
+        <span class="badge badge-neutral">유효기간 90일 (100건 청크 · 200ms 간격)</span>
+      </div>
+
+      <!-- KPI 카드 -->
+      <section class="kpi-grid">
+        <div class="kpi-card active" data-filter="ALL">
+          <div class="k-title">전체 조회 대상 거래처</div>
+          <div class="k-num" id="kpiAll">8곳</div>
+          <div class="k-sub">권리자 · 위탁자 · 도서 매입처</div>
+        </div>
+        <div class="kpi-card" data-filter="CHANGE_DETECTED" data-dev-route="admin.settlement.nts.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/nts" data-dev-perm="조회" data-dev-name="review" data-dev-value="unreviewed">
+          <div class="k-title">⚠️ 과세유형 전환 감지 (승인 대기)</div>
+          <div class="k-num" id="kpiChange" style="color:var(--warn);">2건</div>
+          <div class="k-sub">자동 덮어쓰기 차단 · 효력일 검증</div>
+        </div>
+        <div class="kpi-card" data-filter="CLOSED_SUSPENDED">
+          <div class="k-title">🚨 폐업 · 휴업 감지 (강제정산/차단)</div>
+          <div class="k-num" id="kpiClosed" style="color:var(--danger);">2건</div>
+          <div class="k-sub">리마인더 중단 · 강제 정산 트리거</div>
+        </div>
+        <div class="kpi-card" data-filter="PENDING_REVIEW">
+          <div class="k-title">🟣 세무 판정 보류 격리 (법인면세 등)</div>
+          <div class="k-num" id="kpiReview" style="color:var(--purple);">1건</div>
+          <div class="k-sub">비영리/법인면세 수익사업 확인 필요</div>
+        </div>
+        <div class="kpi-card" data-filter="NORMAL">
+          <div class="k-title">🟢 계속사업자 · 유효기간(90일) 정상</div>
+          <div class="k-num" id="kpiNormal" style="color:var(--success);">3건</div>
+          <div class="k-sub">원장 과세유형 일치 · 마감 가능</div>
+        </div>
+      </section>
+
+      <!-- 탭 -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tabHistory" data-dev-name="tab" data-dev-value="history">1. 사업자 상태조회 · 과세유형 전환 감지 및 버전 승인 워크스페이스</button>
+        <button class="tab-btn" data-tab="tabMapping" data-dev-name="tab" data-dev-value="mapping">2. 국세청 과세유형 코드(01~07) ↔ 세무 매트릭스(TX-05~TX-11) 매핑 설정표 </button>
+        <button class="tab-btn" data-tab="tabRetry" data-dev-name="tab" data-dev-value="params">3. 네트워크 장애 재시도 큐 및 배치 스케줄 파라미터 (정산 기준 · 부록 B)</button>
+      </div>
+
+      <!-- 탭 1: 메인 워크스페이스 -->
+      <section id="tabHistory" class="tab-panel">
+        <div class="workspace-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">권리자 · 위탁자 · 매입처 국세청 오픈API 확인 이력 목록</div>
+              <span style="font-size:11.5px; color:var(--text-muted);">행을 클릭하여 API 원문 스냅샷 확인 및 과세유형 버전 전환 승인을 처리하세요.</span>
+            </div>
+            <div class="filter-bar">
+              <input type="text" id="searchInput" name="keyword" data-dev-note="b_no · rights_holders.name LIKE" class="input" placeholder="거래처명, 사업자등록번호, 식별자 검색..." style="width:230px;">
+              <select id="partnerTypeFilter" name="subject_type" data-dev-value="RIGHTS_HOLDER 권리자 · CONSIGNOR 위탁자 · SUPPLIER 매입처 (프로토타입 값 한글 라벨 유지)" class="select">
+                <option value="ALL">전체 거래처 구분</option>
+                <option value="권리자">권리자 (강사 · 저자)</option>
+                <option value="위탁자">위탁자 (위탁 도서 출판사)</option>
+                <option value="매입처">매입처 (사입 도서 총판)</option>
+              </select>
+              <select id="triggerFilter" name="trigger_type" data-dev-note="프로토타입 '정산 마감 전 90일'은 개발 값 없음 · PURCHASE_ORDER · CONSIGNMENT_REG는 프로토타입 없음(정책 질문 D-SETT)" data-dev-value="CONTRACT_REG · PERIODIC · AD_HOC · MILESTONE_APPROVAL · PURCHASE_ORDER · CONSIGNMENT_REG" class="select">
+                <option value="ALL">전체 조회 트리거</option>
+                <option value="정기 재조회">정기 재조회 (6/15 전환 · 분기 폐업)</option>
+                <option value="계약 등록/갱신">계약 등록 · 갱신 시점 (1차 게이트)</option>
+                <option value="마감 전 90일 경과" data-dev-flag="proto-only" data-dev-note="개발 trigger_type에 없음">정산 마감 전 90일 유효기간 경과</option>
+              </select>
+              <select class="select" name="review" data-dev-flag="dev-only" data-dev-note="개발 change_review_status 필터">
+                <option value="">전체 확인 상태</option>
+                <option value="unreviewed">미확인</option>
+                <option value="approved">승인</option>
+                <option value="held">보류</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>거래처 구분 / 명칭</th>
+                    <th>사업자등록번호</th>
+                    <th>납세자 상태 (국세청)</th>
+                    <th>원장 과세유형 → API 응답 유형</th>
+                    <th>매트릭스 케이스</th>
+                    <th>전환 효력일 / 폐업일</th>
+                    <th>통제 상태</th>
+                  </tr>
+                </thead>
+                <tbody id="ntsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 우측 상세 패널 -->
+          <div class="detail-panel">
+            <div class="card-header">
+              <div class="card-title">국세청 API 응답 스냅샷 및 전환·폐업 후속 통제</div>
+              <span id="detailBadge" class="badge badge-neutral">선택됨</span>
+            </div>
+            <div class="detail-body" id="detailBody"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 2: 17.3절 과세유형 매핑 설정 테이블 (nts_tax_type_map) -->
+      <section id="tabMapping" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">국세청 과세유형 코드(tax_type_cd) ↔ 세무 판정 매트릭스 자동 매핑 설정표 (정산 기준 · 읽기 전용)</div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                코드에 문자열을 하드코딩하지 않고 설정 테이블(<code>nts_tax_type_map</code>)로 관리하며, 도서 재화 공급(위탁자·매입처)은 과세유형과 무관하게 도서 면세(<code>TX-11</code>)를 우선 적용합니다.
+              </div>
+            </div>
+            <span class="badge badge-primary">수기 과세유형 선택 금지 </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>국세청 코드</th>
+                  <th>국세청 과세유형 명칭 (API 응답)</th>
+                  <th>수취인 과세유형 (한글 · 코드)</th>
+                  <th>세금계산서 발급 가능</th>
+                  <th>자동 연결 매트릭스 케이스 및 예외 규칙 </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono"><strong>01</strong></td>
+                  <td>부가가치세 일반과세자</td>
+                  <td>일반과세자 (<code>GENERAL</code>)</td>
+                  <td><span class="badge badge-success">가능 (true)</span></td>
+                  <td>기본 <strong>TX-07</strong> (세금계산서 권리자 발행) / 법인·단체가 인세 수취 시 <strong>TX-09</strong> / 도서 재화 공급 시 <strong>TX-11</strong></td>
+                </tr>
+                <tr>
+                  <td class="mono"><strong>02</strong></td>
+                  <td>부가가치세 간이과세자</td>
+                  <td>간이과세자-영수증발급 (<code>SIMPLIFIED_RECEIPT</code>)</td>
+                  <td><span class="badge badge-neutral">불가 (false)</span></td>
+                  <td><strong>TX-05</strong> (부가가치세 미가산 · 영수증 대사 경로, 인적용역 해당 시 원천징수 병행)</td>
+                </tr>
+                <tr>
+                  <td class="mono"><strong>07</strong></td>
+                  <td>부가가치세 간이과세자(세금계산서 발급사업자)</td>
+                  <td>간이과세자-세금계산서발급 (<code>SIMPLIFIED_INVOICE</code>)</td>
+                  <td><span class="badge badge-success">가능 (true)</span></td>
+                  <td><strong>TX-06</strong> (세금계산서 권리자 발행 경로 · 당사가 4,800만 원 기준을 직접 계산하지 않고 API 코드로 직결)</td>
+                </tr>
+                <tr>
+                  <td class="mono"><strong>04</strong></td>
+                  <td>부가가치세 면세사업자</td>
+                  <td>면세사업자 (<code>EXEMPT</code>)</td>
+                  <td><span class="badge badge-neutral">불가 (계산서 대상)</span></td>
+                  <td>개인 사업자는 <strong>TX-08</strong> (면세 계산서 권리자 발행) / <strong>법인(법인번호 보유)은 인적용역 면세 배제 → 후보 TX-09 또는 TX-07 부여 후 <code>세무 판정 보류(PENDING_REVIEW)</code> 격리</strong></td>
+                </tr>
+                <tr>
+                  <td class="mono"><strong>05 / 06</strong></td>
+                  <td>비영리법인 또는 고유번호 부여 단체</td>
+                  <td>비영리·고유번호 단체 (<code>NON_PROFIT_ORG</code>)</td>
+                  <td><span class="badge badge-warn">확인 필요</span></td>
+                  <td>인세·매절은 후보 <strong>TX-09</strong>, 강의·약정·지원금은 후보 <strong>TX-07</strong> 부여 후 <strong><code>세무 판정 보류(PENDING_REVIEW)</code>로 격리 (마감 차단)</strong></td>
+                </tr>
+                <tr>
+                  <td class="mono"><strong>03 / 빈값</strong></td>
+                  <td>과세특례자(03) 또는 미등록 번호(빈값)</td>
+                  <td>판정 보류 / 등록 차단</td>
+                  <td><span class="badge badge-danger">차단 (false)</span></td>
+                  <td>미등록 빈값은 <strong>계약·발주 저장 즉시 차단</strong> / 과세특례자(03) 및 미정의 코드는 격리 후 재무 알럿 발송</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 3: 17.6절 네트워크 장애 재시도 큐 및 배치 파라미터 -->
+      <section id="tabRetry" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">국세청 오픈API 호출 제어 파라미터(부록 B) 및 지수 백오프 재시도 큐 </div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                API 장애 시 정산 배치를 무한 대기시키지 않고 재시도 큐에 적재하며, 마감 실행 시점에 유효기간(90일)이 경과한 미확인 건이 남아 있으면 해당 거래처의 마감만 선택 차단합니다(유효기간 내 확인 건은 스냅샷으로 마감 진행).
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>파라미터 한글 명칭</th>
+                  <th>시스템 파라미터 코드</th>
+                  <th>설정 기준값</th>
+                  <th>운영 통제 규칙 (정산 기준 · 부록 B)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>국세청 확인 유효 일수</strong></td>
+                  <td class="mono">nts_check_validity_days</td>
+                  <td><strong>90일</strong></td>
+                  <td>최종 확인일로부터 90일 경과 시 약정금 승인(INST-002) 및 정산 마감(SETT-002) 시점 자동 재조회 트리거</td>
+                </tr>
+                <tr>
+                  <td><strong>국세청 배치 청크 크기 / 호출 간격</strong></td>
+                  <td class="mono">nts_batch_chunk_size / nts_batch_interval_ms</td>
+                  <td><strong>100건 / 200ms</strong></td>
+                  <td>POST 바디 배열 1회 최대 100건 묶음 호출, 청크 간 200ms 스로틀링 적용</td>
+                </tr>
+                <tr>
+                  <td><strong>국세청 재시도 최대 횟수</strong></td>
+                  <td class="mono">nts_retry_max_count</td>
+                  <td><strong>3회 (지수 백오프)</strong></td>
+                  <td>타임아웃(5초) 및 5xx 오류 시 3회 재시도 후 실패 시 재시도 큐 적재 + 담당자 수동 재호출 지원</td>
+                </tr>
+                <tr>
+                  <td><strong>국세청 정기 재조회 일정</strong></td>
+                  <td class="mono">nts_periodic_check_schedule</td>
+                  <td><strong>매년 6/15 · 1/4/10월 15일</strong></td>
+                  <td>6월 15일(전수 조회) / 1·4·10월 15일(분기별 감지) · <span id="manual-tax-override-guide" style="color:#1d4ed8;font-weight:700;">※ API 장애·신규사업자·비영리 특수건은 [사유(20자↑)+사업자등록증 첨부] 후 재무책임자 수기 예외 지정 허용</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 하단 고정 바 -->
+    <footer class="savebar">
+      <div class="savebar-status">
+        <span id="footerBadge" class="badge badge-warn">검토 필요 항목 존재</span>
+        <span id="footerText"></span>
+      </div>
+      <div>
+        <button class="btn btn-sm" onclick="location.href='ADMN-SETT-002_baseline.html'">월간 정산 및 집행(SETT-002)으로 이동 →</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+
+
+</div></div><script>
+  const state = {
+    selectedId: "NTS-202610-01",
+    kpiFilter: "ALL",
+    records: [
+      {
+        id: "NTS-202610-01",
+        partnerType: "권리자",
+        partnerId: "RH-0028",
+        partnerName: "박소방 교육연구소 (강사 사업자)",
+        bizNo: "120-18-99401",
+        corpNo: "",
+        triggerName: "정기 재조회",
+        checkedAt: "2026-10-14 09:05:12",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "간이과세자-영수증발급 (SIMPLIFIED_RECEIPT)",
+        apiTaxTypeLabel: "간이과세자-세금계산서발급 (SIMPLIFIED_INVOICE)",
+        apiTaxTypeCd: "07",
+        matrixCaseLabel: "세금계산서 발급 간이과세자 (TX-06)",
+        invoiceEligibleText: "발급 가능 (true)",
+        taxTypeChangeDt: "2026-07-01",
+        invoiceApplyDt: "2026-07-01",
+        endDt: "-",
+        controlStatus: "CHANGE_DETECTED", // CHANGE_DETECTED | CHANGE_UNKNOWN_DATE | CLOSED | PENDING_REVIEW | NORMAL
+        controlStatusLabel: "과세유형 전환 감지 (승인 대기)",
+        memo: "직전 과세기간 공급대가 4,800만 원 이상으로 세금계산서 발급 간이과세자(코드 07, TX-06)로 전환 감지됨. 2026-07-01 효력일로 신규 버전 행 생성 대기.",
+        rawJson: {
+          b_no: "1201899401",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "부가가치세 간이과세자(세금계산서 발급사업자)",
+          tax_type_cd: "07",
+          end_dt: "",
+          utcc_yn: "N",
+          tax_type_change_dt: "20260701",
+          invoice_apply_dt: "20260701",
+          rbf_tax_type: "부가가치세 간이과세자",
+          rbf_tax_type_cd: "02"
+        }
+      },
+      {
+        id: "NTS-202610-02",
+        partnerType: "권리자",
+        partnerId: "RH-0035",
+        partnerName: "최화공 기술학원 (강사 사업자)",
+        bizNo: "214-09-44182",
+        corpNo: "",
+        triggerName: "마감 전 90일 경과",
+        checkedAt: "2026-10-14 10:12:00",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "간이과세자-영수증발급 (SIMPLIFIED_RECEIPT)",
+        apiTaxTypeLabel: "일반과세자 (GENERAL)",
+        apiTaxTypeCd: "01",
+        matrixCaseLabel: "일반과세 사업자 (TX-07)",
+        invoiceEligibleText: "발급 가능 (true)",
+        taxTypeChangeDt: "", // API 응답에 전환일자가 비어 있는 케이스 시연! (17.5절: 7월 1일 일괄 가정 금지)
+        invoiceApplyDt: "",
+        endDt: "-",
+        controlStatus: "CHANGE_UNKNOWN_DATE",
+        controlStatusLabel: "전환 감지 · 효력일 불명 (확인 필요)",
+        memo: "일반과세자(01)로 응답되었으나 국세청 응답 내 최근 과세유형 전환일자(tax_type_change_dt)가 빈 값임. 7월 1일로 일괄 가정하지 않고 정정 사업자등록증으로 실제 전환 효력일을 확인해야 함.",
+        rawJson: {
+          b_no: "2140944182",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "부가가치세 일반과세자",
+          tax_type_cd: "01",
+          end_dt: "",
+          utcc_yn: "N",
+          tax_type_change_dt: "",
+          invoice_apply_dt: "",
+          rbf_tax_type: "부가가치세 간이과세자",
+          rbf_tax_type_cd: "02"
+        }
+      },
+      {
+        id: "NTS-202610-03",
+        partnerType: "위탁자",
+        partnerId: "RH-0039",
+        partnerName: "대영안전출판사 (위탁 도서 공급자)",
+        bizNo: "105-81-77210",
+        corpNo: "110111-4829102",
+        triggerName: "정기 재조회",
+        checkedAt: "2026-10-14 09:05:45",
+        bStt: "폐업자 (03)",
+        ledgerTaxTypeLabel: "일반과세자 (GENERAL)",
+        apiTaxTypeLabel: "일반과세자 (폐업)",
+        apiTaxTypeCd: "01",
+        matrixCaseLabel: "도서 재화 공급 면세 (TX-11 고정)",
+        invoiceEligibleText: "폐업으로 신규 요청 중단",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "2026-09-28",
+        controlStatus: "CLOSED",
+        controlStatusLabel: "폐업 감지 (리마인더 중단 · 강제정산)",
+        closure: { label: "폐업일자", date: "2026-09-28", unpaid: 1420000, unapproved: 2, missingInvoice: 1, followUp: "강제 정산 트리거(7.3절) 연동 완료 · 10월 지급 대상" },
+        memo: "2026-09-28 폐업 확인됨. 17.5절에 따라 미승인 증빙 리마인더를 즉시 중단하고, 미지급 정산금은 강제 정산 트리거(7.3절) 대상으로 선정함. 수취 계산서 확보 불가 시 채널 4 증빙불비 소명 절차로 전환.",
+        rawJson: {
+          b_no: "1058177210",
+          b_stt: "폐업자",
+          b_stt_cd: "03",
+          tax_type: "부가가치세 일반과세자",
+          tax_type_cd: "01",
+          end_dt: "20260928",
+          utcc_yn: "N",
+          tax_type_change_dt: "",
+          invoice_apply_dt: ""
+        }
+      },
+      {
+        id: "NTS-202610-04",
+        partnerType: "위탁자",
+        partnerId: "RH-0051",
+        partnerName: "사단법인 한국소방학회 (도서 위탁)",
+        bizNo: "110-82-04912",
+        corpNo: "110121-0029184",
+        triggerName: "계약 등록/갱신",
+        checkedAt: "2026-10-10 14:20:00",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "비영리·고유번호 단체 (NON_PROFIT_ORG)",
+        apiTaxTypeLabel: "비영리법인·고유번호 단체 (코드 05)",
+        apiTaxTypeCd: "05",
+        matrixCaseLabel: "도서 재화 공급 면세 (TX-11 고정)",
+        invoiceEligibleText: "면세 계산서 수취 대상 (도서 재화 공급)",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "-",
+        controlStatus: "NORMAL",
+        controlStatusLabel: "정상 일치 (도서 면세 TX-11 고정)",
+        memo: "국세청 과세유형 코드 05(비영리법인) 응답이나, 위탁 도서 공급 계약(CT-2026-0801)은 17.3절 공급 성격 우선 규칙에 따라 과세유형과 무관하게 도서 면세 계산서 수취(TX-11)로 고정함. 세무 판정 보류 대상 아님.",
+        rawJson: {
+          b_no: "1108204912",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "수익사업을 영위하지 않는 비영리법인이거나 고유번호가 부여된 단체",
+          tax_type_cd: "05",
+          end_dt: "",
+          utcc_yn: "N"
+        }
+      },
+      {
+        id: "NTS-202610-05",
+        partnerType: "권리자",
+        partnerId: "RH-0025",
+        partnerName: "정종대 (개인 면세사업자)",
+        bizNo: "214-19-99881",
+        corpNo: "",
+        triggerName: "계약 등록/갱신",
+        checkedAt: "2026-10-14 15:10:00",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "면세사업자 (EXEMPT)",
+        apiTaxTypeLabel: "면세사업자 (EXEMPT · 코드 04)",
+        apiTaxTypeCd: "04",
+        matrixCaseLabel: "면세사업자 계산서 권리자 발행 (TX-08)",
+        invoiceEligibleText: "세금계산서 불가 (계산서 대상)",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "-",
+        controlStatus: "NORMAL",
+        controlStatusLabel: "정상 일치 (90일 유효기간 내)",
+        memo: "진위확인 및 상태조회 완료. 원장 과세유형(면세사업자, TX-08)과 100% 일치.",
+        rawJson: {
+          b_no: "2141999881",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "부가가치세 면세사업자",
+          tax_type_cd: "04",
+          end_dt: "",
+          utcc_yn: "N"
+        }
+      },
+      {
+        id: "NTS-202610-06",
+        partnerType: "매입처",
+        partnerId: "SUP-0003",
+        partnerName: "한국자격교재총판 (사입도서 매입처)",
+        bizNo: "214-81-33201",
+        corpNo: "",
+        triggerName: "정기 재조회",
+        checkedAt: "2026-10-14 09:05:30",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "일반과세자 (GENERAL)",
+        apiTaxTypeLabel: "일반과세자 (GENERAL · 코드 01)",
+        apiTaxTypeCd: "01",
+        matrixCaseLabel: "도서 재화 공급 면세 (TX-11 고정)",
+        invoiceEligibleText: "면세 계산서 수취 대상",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "-",
+        controlStatus: "NORMAL",
+        controlStatusLabel: "정상 일치 (도서 면세 TX-11 고정)",
+        memo: "17.3절 공급 성격 우선 규칙: 매입처의 과세유형은 일반과세자(01)이나 도서 재화 공급이므로 부가세 가산 없이 도서 면세 계산서 수취(TX-11)로 고정됨.",
+        rawJson: {
+          b_no: "2148133201",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "부가가치세 일반과세자",
+          tax_type_cd: "01",
+          end_dt: "",
+          utcc_yn: "N"
+        }
+      },
+      {
+        id: "NTS-202610-07",
+        partnerType: "권리자",
+        partnerId: "RH-0052",
+        partnerName: "사단법인 한국산업안전교육협회 (강의·인세 단체)",
+        bizNo: "108-82-30417",
+        corpNo: "110121-0031507",
+        triggerName: "계약 등록/갱신",
+        checkedAt: "2026-10-10 14:20:00",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "비영리·고유번호 단체 (NON_PROFIT_ORG)",
+        apiTaxTypeLabel: "비영리법인·고유번호 단체 (코드 05)",
+        apiTaxTypeCd: "05",
+        matrixCaseLabel: "후보 TX-09(인세) / TX-07(강의) 보류",
+        invoiceEligibleText: "수익사업 영위 확인 필요",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "-",
+        controlStatus: "PENDING_REVIEW",
+        controlStatusLabel: "세무 판정 보류 (PENDING_REVIEW 격리)",
+        memo: "국세청 과세유형 코드 05(비영리법인) 응답. 17.3절 규칙에 따라 인세 라인은 후보 TX-09, 강의 라인은 후보 TX-07을 부여하되 세무 판정 보류(PENDING_REVIEW)로 격리함. 수익사업 개시신고 및 세금계산서 발급 가능 여부 확인 후 확정 가능.",
+        rawJson: {
+          b_no: "1088230417",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "수익사업을 영위하지 않는 비영리법인이거나 고유번호가 부여된 단체",
+          tax_type_cd: "05",
+          end_dt: "",
+          utcc_yn: "N"
+        }
+      },
+      {
+        id: "NTS-202610-08",
+        partnerType: "권리자",
+        partnerId: "RH-0036",
+        partnerName: "박기술 교육원 (강사 사업자)",
+        bizNo: "312-91-55270",
+        corpNo: "",
+        triggerName: "정기 재조회",
+        checkedAt: "2026-10-14 09:06:10",
+        bStt: "휴업자 (02)",
+        ledgerTaxTypeLabel: "일반과세자 (GENERAL)",
+        apiTaxTypeLabel: "일반과세자 (휴업)",
+        apiTaxTypeCd: "01",
+        matrixCaseLabel: "일반과세 사업자 (TX-07)",
+        invoiceEligibleText: "휴업 중 신규 요청 보류",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "2026-10-05",
+        controlStatus: "SUSPENDED",
+        controlStatusLabel: "휴업 감지 (신규 증빙 요청 보류 · 정산금 보류)",
+        closure: { label: "휴업일자", date: "2026-10-05", unpaid: 640000, unapproved: 1, missingInvoice: 1, followUp: "정산금 지급 보류 · 재무책임자 승인 후 지급 (휴업자 예외 승인 대기)" },
+        memo: "2026-10-05 휴업 신고 확인됨. 신규 증빙 발행 요청은 보류하고, 미지급 정산금은 재무책임자 승인 전까지 지급 보류함. 재개업 확인 시 보류 해제.",
+        rawJson: {
+          b_no: "3129155270",
+          b_stt: "휴업자",
+          b_stt_cd: "02",
+          tax_type: "부가가치세 일반과세자",
+          tax_type_cd: "01",
+          end_dt: "20261005",
+          utcc_yn: "N"
+        }
+      }
+    ]
+  };
+
+  function showToast(msg) {
+    const wrap = document.getElementById("toastContainer");
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), 3300);
+  }
+
+  function maskBizNo(b) {
+    const d = String(b || "").replace(/\D/g, "");
+    return d.length === 10 ? `${d.slice(0, 3)}-${d.slice(3, 5)}-***${d.slice(8)}` : (b || "");
+  }
+  function maskCorpNo(c) {
+    const d = String(c || "").replace(/\D/g, "");
+    return d.length === 13 ? `${d.slice(0, 6)}-*******` : (c || "");
+  }
+
+  function closureTableHtml(r) {
+    const c = r.closure;
+    if (!c) return "";
+    const th = 'style="text-align:left; padding:5px 8px; border:1px solid #fecaca;"';
+    const td = 'style="padding:5px 8px; border:1px solid #fecaca;"';
+    return `
+      <table style="width:100%; border-collapse:collapse; margin-top:8px; font-size:12px; background:#fff;">
+        <tr><th ${th}>${c.label}</th><td ${td}>${c.date}</td></tr>
+        <tr><th ${th}>미지급 정산금 잔액</th><td ${td}>${c.unpaid.toLocaleString("ko-KR")}원</td></tr>
+        <tr><th ${th}>미승인 증빙 건수</th><td ${td}>${c.unapproved}건</td></tr>
+        <tr><th ${th}>미수취 계산서 건수</th><td ${td}>${c.missingInvoice}건</td></tr>
+        <tr><th ${th}>후속 처리 상태</th><td ${td}>${c.followUp}</td></tr>
+      </table>`;
+  }
+
+  function updateKpis() {
+    const all = state.records;
+    const changeList = all.filter(r => r.controlStatus === "CHANGE_DETECTED" || r.controlStatus === "CHANGE_UNKNOWN_DATE");
+    const closedList = all.filter(r => r.controlStatus === "CLOSED" || r.controlStatus === "SUSPENDED");
+    const reviewList = all.filter(r => r.controlStatus === "PENDING_REVIEW");
+    const normalList = all.filter(r => r.controlStatus === "NORMAL");
+
+    document.getElementById("kpiAll").textContent = `${all.length}곳`;
+    document.getElementById("kpiChange").textContent = `${changeList.length}건`;
+    document.getElementById("kpiClosed").textContent = `${closedList.length}건`;
+    document.getElementById("kpiReview").textContent = `${reviewList.length}건`;
+    document.getElementById("kpiNormal").textContent = `${normalList.length}건`;
+
+    const actionNeeded = changeList.length + reviewList.length;
+    const footerBadge = document.getElementById("footerBadge");
+    const footerText = document.getElementById("footerText");
+
+    if (actionNeeded === 0) {
+      footerBadge.className = "badge badge-success";
+      footerBadge.textContent = "전 거래처 과세유형·세무 버전 확정 완료";
+      footerText.innerHTML = `미승인 과세유형 전환 <strong>0건</strong>, 세무 판정 보류 <strong>0건</strong> (폐업 · 휴업 감지 ${closedList.length}건은 후속 처리 연동 완료)`;
+    } else {
+      footerBadge.className = "badge badge-warn";
+      footerBadge.textContent = `마감 전 확인 필요 (${actionNeeded}건)`;
+      footerText.innerHTML = `과세유형 전환 승인 대기 <strong>${changeList.length}건</strong>, 비영리/법인면세 세무 판정 보류 <strong>${reviewList.length}건</strong>을 확정해야 해당 거래처의 월간 정산 마감이 가능합니다.`;
+    }
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("ntsTableBody");
+    const q = document.getElementById("searchInput").value.trim().toLowerCase();
+    const pFilter = document.getElementById("partnerTypeFilter").value;
+    const tFilter = document.getElementById("triggerFilter").value;
+
+    const filtered = state.records.filter(r => {
+      if (state.kpiFilter === "CHANGE_DETECTED" && !(r.controlStatus === "CHANGE_DETECTED" || r.controlStatus === "CHANGE_UNKNOWN_DATE")) return false;
+      if (state.kpiFilter === "CLOSED_SUSPENDED" && !(r.controlStatus === "CLOSED" || r.controlStatus === "SUSPENDED")) return false;
+      if (state.kpiFilter === "PENDING_REVIEW" && r.controlStatus !== "PENDING_REVIEW") return false;
+      if (state.kpiFilter === "NORMAL" && r.controlStatus !== "NORMAL") return false;
+
+      if (pFilter !== "ALL" && r.partnerType !== pFilter) return false;
+      if (tFilter !== "ALL" && r.triggerName !== tFilter) return false;
+      if (q) {
+        const hay = `${r.partnerName} ${r.bizNo} ${r.partnerId}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    tbody.innerHTML = filtered.map(r => {
+      const isSel = r.id === state.selectedId ? "selected" : "";
+      let statusBadge = "";
+      if (r.controlStatus === "NORMAL") statusBadge = `<span class="badge badge-success">${r.controlStatusLabel}</span>`;
+      if (r.controlStatus === "CHANGE_DETECTED") statusBadge = `<span class="badge badge-warn">${r.controlStatusLabel}</span>`;
+      if (r.controlStatus === "CHANGE_UNKNOWN_DATE") statusBadge = `<span class="badge badge-danger">${r.controlStatusLabel}</span>`;
+      if (r.controlStatus === "SUSPENDED") statusBadge = `<span class="badge badge-danger">${r.controlStatusLabel}</span>`;
+      if (r.controlStatus === "CLOSED") statusBadge = `<span class="badge badge-danger">${r.controlStatusLabel}</span>`;
+      if (r.controlStatus === "PENDING_REVIEW") statusBadge = `<span class="badge badge-purple">${r.controlStatusLabel}</span>`;
+
+      const bSttHtml = (r.bStt.includes("폐업") || r.bStt.includes("휴업"))
+        ? `<strong style="color:var(--danger);">${r.bStt}</strong>`
+        : `<span style="color:var(--success); font-weight:600;">${r.bStt}</span>`;
+
+      const effDateHtml = (r.controlStatus === "CLOSED" || r.controlStatus === "SUSPENDED")
+        ? `<span style="color:var(--danger); font-weight:700;">${r.controlStatus === "SUSPENDED" ? "휴업일" : "폐업일"}: ${r.endDt}</span>`
+        : (r.controlStatus === "CHANGE_UNKNOWN_DATE"
+            ? `<span style="color:var(--danger); font-weight:700;">효력일 미반환 (수기확인)</span>`
+            : `<span class="mono">${r.taxTypeChangeDt}</span>`);
+
+      return `
+        <tr class="${isSel}" data-dev-note="개발은 우측 상세 패널 없음 — 행의 [승인 검토] 버튼(.layer__open data-log-id)으로 모달" onclick="selectRecord('${r.id}')" style="cursor:pointer;">
+          <td>
+            <div><span class="badge badge-neutral">${r.partnerType}</span> <strong>${r.partnerName}</strong></div>
+            <div class="mono" style="color:var(--text-muted); margin-top:2px;">${r.partnerId} · ${r.triggerName}</div>
+          </td>
+          <td class="mono"><strong>${maskBizNo(r.bizNo)}</strong></td>
+          <td>${bSttHtml}</td>
+          <td>
+            <div style="font-size:11.5px; color:var(--text-muted);">원장: ${r.ledgerTaxTypeLabel}</div>
+            <div style="font-weight:700; color:var(--primary);">응답: ${r.apiTaxTypeLabel}</div>
+          </td>
+          <td><span style="font-size:12px; font-weight:600;">${r.matrixCaseLabel}</span></td>
+          <td>${effDateHtml}</td>
+          <td>${statusBadge}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderDetail() {
+    const r = state.records.find(x => x.id === state.selectedId);
+    const body = document.getElementById("detailBody");
+    const badge = document.getElementById("detailBadge");
+
+    if (!r) return;
+    badge.textContent = r.controlStatusLabel;
+    badge.className = r.controlStatus === "NORMAL" ? "badge badge-success" : "badge badge-warn";
+
+    let actionPanel = "";
+    if (r.controlStatus === "CHANGE_DETECTED" || r.controlStatus === "CHANGE_UNKNOWN_DATE") {
+      actionPanel = `
+        <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="font-weight:700; color:#92400e;">
+            🔄 [17.5절] 과세유형 전환 확인 및 신규 유효일자 버전 행 생성 (기마감월 소급 금지)
+          </div>
+          <div style="font-size:12px; color:#78350f;">
+            국세청 응답 과세유형이 기존 원장과 다릅니다. 자동 덮어쓰지 않으며, 전환 효력일을 확정하여 기존 행을 종료하고 신규 유효일자 행을 추가(Insert)합니다.
+          </div>
+          <div class="form-group">
+            <label class="form-label">전환 효력 시작일자 (API 응답값 기준 · 미반환 시 정정 사업자등록증 확인 후 입력)</label>
+            <input type="date" id="inputEffDate" data-dev-note="전환 효력일 — 개발은 API 응답 tax_type_change_dt 사용, 입력 없음" class="input" value="${r.taxTypeChangeDt && r.taxTypeChangeDt !== '-' ? r.taxTypeChangeDt : ''}" />
+          </div>
+          <div style="display:flex; justify-content:flex-end;">
+            <button class="btn btn-primary" data-dev-route="admin.settlement.nts.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/nts/tax-type" data-dev-perm="수정" data-dev-note="개발 .layer__open[data-target=layerNtsReview][data-log-id] — 권리자 건만(위탁자 · 매입처 2차)" onclick="approveTaxTypeChange('${r.id}')">
+              ✔ 과세유형 신규 버전 행 생성 및 전환 승인
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (r.controlStatus === "PENDING_REVIEW") {
+      actionPanel = `
+        <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="font-weight:700; color:#5b21b6;">
+            🟣 [17.3절] 비영리법인·고유번호 단체(05·06) 세무 판정 보류 해제
+          </div>
+          <div style="font-size:12px; color:#4c1d95;">
+            고유번호증 및 수익사업 개시신고 여부를 확인하여 후보 케이스(강의 <code>TX-07</code> / 인세 <code>TX-09</code>)의 세무 판정 상태를 확정(<code>DECIDED</code>)으로 전환합니다.
+          </div>
+          <div class="form-group">
+            <label class="form-label">재무 확인 근거 메모 (필수)</label>
+            <textarea id="inputReviewMemo" name="memo" data-dev-note="(규칙) 세무 판정 확정 근거" class="input" placeholder="예: 수익사업 개시신고 확인증 및 전자세금계산서 발급 가능 단체임을 확인하여 TX-07/TX-09 확정함.">수익사업 개시신고필증 제출 확인 완료 → 세금계산서 권리자 발행(TX-07/TX-09) 확정</textarea>
+          </div>
+          <div style="display:flex; justify-content:flex-end;">
+            <button class="btn btn-primary" data-dev-route="admin.settlement.nts.tax-decision.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/nts/tax-decision" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="세무 판정 보류(PENDING_REVIEW) 해제 — 개발 경로 없음" onclick="resolvePendingReview('${r.id}')">
+              ✔ 세무 판정 확정 (PENDING_REVIEW → DECIDED)
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (r.controlStatus === "SUSPENDED") {
+      actionPanel = `
+        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px 14px; font-size:12px; color:#991b1b;">
+          <strong>🚨 [17.5절 휴업 사업자 후속 통제 작동 중]</strong><br>
+          1) 신규 증빙 발행 요청은 보류되고, 재개업이 확인되면 보류가 해제됩니다<br>
+          2) 미지급 정산금은 재무책임자 승인 전까지 지급 보류됩니다(휴업자 예외 승인)
+          ${closureTableHtml(r)}
+        </div>
+      `;
+    } else if (r.controlStatus === "CLOSED") {
+      actionPanel = `
+        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:12px 14px; font-size:12px; color:#991b1b;">
+          <strong>🚨 [17.5절 폐업 사업자 후속 통제 작동 중]</strong><br>
+          1) 신규 증빙 발행 요청 및 미제출 리마인더 발송 자동 중단됨<br>
+          2) 미지급 정산금 잔액은 <strong>강제 정산 트리거(7.3절)</strong>에 의해 최소 지급 하한(100,000원)과 무관하게 당월 지급 실행 대상으로 이관됨<br>
+          3) 폐업일(${r.endDt}) 이후 공급분 및 수취 계산서 미확보 건은 채널 4(증빙불비 소명 절차)로 분기됨
+          ${closureTableHtml(r)}
+        </div>
+      `;
+    }
+
+    body.innerHTML = `
+      <div class="kv-grid">
+        <div class="kv-label">거래처 명칭 / 구분</div>
+        <div><strong>${r.partnerName}</strong> <span class="badge badge-neutral">${r.partnerType} (${r.partnerId})</span></div>
+        <div class="kv-label">사업자등록번호</div>
+        <div class="mono"><strong>${maskBizNo(r.bizNo)}</strong> ${r.corpNo ? `(법인번호: ${maskCorpNo(r.corpNo)})` : ""}</div>
+        <div class="kv-label">최종 API 확인 시각</div>
+        <div class="mono">${r.checkedAt} (${r.triggerName})</div>
+        <div class="kv-label">납세자 상태 (국세청)</div>
+        <div><strong>${r.bStt}</strong></div>
+        <div class="kv-label">원장 과세유형</div>
+        <div>${r.ledgerTaxTypeLabel}</div>
+        <div class="kv-label">API 응답 과세유형</div>
+        <div><strong style="color:var(--primary);">${r.apiTaxTypeLabel}</strong></div>
+        <div class="kv-label">연결 세무 매트릭스</div>
+        <div><strong>${r.matrixCaseLabel}</strong></div>
+        <div class="kv-label">세금계산서 발급 가능</div>
+        <div>${r.invoiceEligibleText}</div>
+      </div>
+
+      ${actionPanel}
+
+      <div class="form-group">
+        <label class="form-label">📦 국세청 오픈API 응답 원문 스냅샷 (api_response_snapshot · 10년 보존)</label>
+        <div class="json-box">${JSON.stringify(r.rawJson, (k, v) => k === "b_no" ? maskBizNo(v) : v, 2)}</div>
+      </div>
+    `;
+  }
+
+  function selectRecord(id) {
+    state.selectedId = id;
+    renderTable();
+    renderDetail();
+  }
+
+  let pendingTaxChangeId = null;
+
+  function approveTaxTypeChange(id) {
+    const r = state.records.find(x => x.id === id);
+    if (!r) return;
+    const effDate = document.getElementById("inputEffDate").value;
+    if (!effDate) {
+      alert("[17.5절 효력일 통제]\n전환 효력 시작일자가 비어 있습니다. 국세청 응답에 전환일이 없는 경우 임의로 7월 1일을 기본값으로 넣지 않으며, 정정된 사업자등록증에서 실제 효력일을 확인하여 입력해야 합니다.");
+      return;
+    }
+    pendingTaxChangeId = id;
+    document.getElementById("mdl-partner-name").textContent = r.partnerName;
+    document.getElementById("mdl-biz-no").textContent = maskBizNo(r.bizNo);
+    document.getElementById("mdl-prev-tax").textContent = r.ledgerTaxTypeLabel;
+    document.getElementById("mdl-new-tax").textContent = r.apiTaxTypeLabel + " — " + r.matrixCaseLabel;
+
+    const eff = new Date(effDate);
+    eff.setDate(eff.getDate() - 1);
+    const prevEndStr = eff.toISOString().split('T')[0];
+
+    document.getElementById("mdl-prev-period").textContent = `2026-01-01 ~ ${prevEndStr}`;
+    document.getElementById("mdl-new-period").textContent = `${effDate} ~ 9999-12-31`;
+
+    document.getElementById("layerNtsReview").classList.add("open");
+  }
+
+  function closeTaxTransitionModal() {
+    document.getElementById("layerNtsReview").classList.remove("open");
+    pendingTaxChangeId = null;
+  }
+
+  function confirmTaxTypeTransition() {
+    if (!pendingTaxChangeId) return;
+    const r = state.records.find(x => x.id === pendingTaxChangeId);
+    if (!r) return;
+    const effDate = document.getElementById("inputEffDate").value;
+
+    r.taxTypeChangeDt = effDate;
+    r.ledgerTaxTypeLabel = r.apiTaxTypeLabel;
+    r.controlStatus = "NORMAL";
+    r.controlStatusLabel = `전환 승인 완료 (효력일: ${effDate})`;
+
+    closeTaxTransitionModal();
+    updateKpis();
+    renderTable();
+    renderDetail();
+    showToast(`✔ [17.5절 행분할 승인] [${r.partnerName}] 기존 행 종료 및 ${effDate}자 신규 유효일자 버전 행 생성이 확정되었습니다.`);
+  }
+
+  function resolvePendingReview(id) {
+    const r = state.records.find(x => x.id === id);
+    if (!r) return;
+    const memo = document.getElementById("inputReviewMemo").value.trim();
+    if (memo.length < 10) {
+      alert("세무 판정 확정 근거를 10자 이상 입력해 주세요.");
+      return;
+    }
+    r.controlStatus = "NORMAL";
+    r.controlStatusLabel = "세무 판정 확정 완료 (DECIDED)";
+    r.matrixCaseLabel = "법인·단체 확정 (TX-07 / TX-09 DECIDED)";
+
+    updateKpis();
+    renderTable();
+    renderDetail();
+    showToast(`✔ [${r.partnerName}] 세무 판정 보류(PENDING_REVIEW)가 해제되어 정상 마감이 가능합니다.`);
+  }
+
+  document.getElementById("btnBatchCheck").addEventListener("click", () => {
+    showToast("🔄 국세청 상태조회 API 일괄 배치(100건 청크 · 200ms 간격)를 호출하여 최신 상태를 동기화했습니다.");
+  });
+
+  document.getElementById("btnReprocessQueue").addEventListener("click", () => {
+    showToast("⚡ 네트워크 타임아웃 재시도 큐(1건) 재호출 성공 → 계속사업자 응답 스냅샷이 저장되었습니다.");
+  });
+
+  document.querySelectorAll(".kpi-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".kpi-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      state.kpiFilter = card.dataset.filter;
+      renderTable();
+    });
+  });
+
+  document.getElementById("searchInput").addEventListener("input", renderTable);
+  document.getElementById("partnerTypeFilter").addEventListener("change", renderTable);
+  document.getElementById("triggerFilter").addEventListener("change", renderTable);
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const target = btn.dataset.tab;
+      document.querySelectorAll(".tab-panel").forEach(p => {
+        p.classList.toggle("hidden", p.id !== target);
+      });
+    });
+  });
+
+  document.querySelectorAll(".snb-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const href = item.dataset.href;
+      if (href) window.location.href = href;
+    });
+  });
+
+  updateKpis();
+  renderTable();
+  renderDetail();
+</script>
+  <!-- [ADMN-SETT-008-P1] 과세유형 전환 승인 및 행 분할 확인 모달 -->
+  <div id="layerNtsReview" class="modal-backdrop">
+    <div class="modal-card">
+      <div style="padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-size:15px; font-weight:800; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+            <span>[ADMN-SETT-008-P1] 과세유형 전환 승인 및 유효일자 행 분할 확정</span>
+            <span class="badge badge-primary">국세청 과세유형 검증</span>
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">
+            국세청 API 과세유형 전환 감지 건에 대해 기존 행을 종료하고 신규 유효일자 행을 분할 생성합니다.
+          </div>
+        </div>
+        <button type="button" class="btn btn-sm" onclick="closeTaxTransitionModal()">✕</button>
+      </div>
+      <div style="padding:18px 20px; overflow-y:auto; max-height:calc(85vh - 130px);">
+        <!-- 국세청 과세유형 검증 안내 박스 -->
+        <div style="background:#FEF2F2; border:1.5px solid #FECACA; border-radius:8px; padding:12px 14px; margin-bottom:16px; font-size:12px; color:#991B1B; line-height:1.55;">
+          <strong>⚠️ 정산 기준 하드락 규칙:</strong> 국세청 API 응답의 <code>tax_type_change_dt</code>가 빈값("")일 때 7월 1일 등으로 일괄 가정하는 것을 엄격히 금지하며, 수취한 정정 사업자등록증상 실제 전환 효력일을 기준으로 기존 행 종료 및 신규 행을 분할 생성합니다.
+        </div>
+
+        <div style="margin-bottom:14px; font-size:12.5px;">
+          대상 거래처: <strong id="mdl-partner-name">-</strong> (사업자번호: <code id="mdl-biz-no" class="mono">-</code>)
+        </div>
+
+        <!-- Before / After 행 분할 프리뷰 테이블 -->
+        <div class="table-wrap" style="margin-bottom:14px;">
+          <table style="width:100%; border-collapse:collapse; font-size:12px;">
+            <thead>
+              <tr style="background:var(--bg); border-bottom:1px solid var(--border); text-align:left;">
+                <th style="padding:8px 10px; width:130px;">버전 구분</th>
+                <th style="padding:8px 10px;">과세유형 (세무 매트릭스)</th>
+                <th style="padding:8px 10px; width:190px;">유효 기간 (start ~ end)</th>
+                <th style="padding:8px 10px; width:140px;">원장 상태 (Status)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--border); background:#FFFDF7;">
+                <td style="padding:10px;"><strong>[기존 행 종료]</strong></td>
+                <td style="padding:10px;" id="mdl-prev-tax">간이과세자-영수증발급 (세금계산서 발급불가, TX-05)</td>
+                <td style="padding:10px;"><code class="mono" id="mdl-prev-period">2026-01-01 ~ 2026-06-30</code></td>
+                <td style="padding:10px;"><span class="badge badge-warn">CLOSED_BY_TRANSITION</span></td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--border); background:#F0FDF4;">
+                <td style="padding:10px;"><strong>[신규 행 생성]</strong></td>
+                <td style="padding:10px;"><strong style="color:var(--primary);" id="mdl-new-tax">일반과세자 (부가세 10% 별도, TX-07)</strong></td>
+                <td style="padding:10px;"><code class="mono" id="mdl-new-period" style="font-weight:700; color:var(--success);">2026-07-01 ~ 9999-12-31</code></td>
+                <td style="padding:10px;"><span class="badge badge-success">ACTIVE · DECIDED</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="font-size:11.5px; color:var(--text-muted); line-height:1.4;">
+          ※ 승인 즉시 기 마감 정산월은 소급 변경되지 않으며, 효력일 이후 인입되는 정산 라인부터 신규 과세유형(TX-06 또는 TX-07)으로 전자세금계산서 발행 요청이 적용됩니다.
+        </div>
+      </div>
+      <div data-dev-flag="dev-only" data-dev-note="개발 #ntsReviewForm: log_id · explanation(20~2000자) · hold(1 보류 / 0 승인)" style="padding:0 20px 14px;">
+        <input type="hidden" id="ntsReviewLogId" name="log_id" value="" />
+        <input type="hidden" id="ntsReviewHold" name="hold" value="0" />
+        <div class="form-group">
+          <label class="form-label" for="ntsReviewExplanation">소명 내용 (20자 이상) <span id="ntsReviewCount" style="color:var(--text-muted); font-weight:500;">0자</span></label>
+          <textarea id="ntsReviewExplanation" name="explanation" class="input" rows="3" placeholder="전환 근거(정정 사업자등록증 확인 등)를 20자 이상 입력하세요."></textarea>
+        </div>
+      </div>
+      <div style="padding:12px 20px; background:var(--bg); border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px;">
+        <button type="button" class="btn" onclick="closeTaxTransitionModal()">취소</button>
+        <button type="button" class="btn" id="ntsReviewHoldBtn" data-dev-route="admin.settlement.nts.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/nts/tax-type" data-dev-perm="수정" data-dev-flag="dev-only" data-dev-note="hold=1 보류 — 원장 미변경 · 마감 보류 유지">보류</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.settlement.nts.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/nts/tax-type" data-dev-perm="수정" data-dev-note="개발 #ntsReviewApproveBtn · hold=0. 승인 후 tab=history로 복귀(조건 유지)" id="ntsReviewApproveBtn" onclick="confirmTaxTypeTransition()">✔ 정산 기준 행 분할 승인 및 PENDING_REVIEW 해제 확정</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>

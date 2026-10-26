@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>수취인 분할 관리 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --bg: #f3f6fb;
+      --card: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --sub: #64748b;
+      --line: #dbe3ef;
+      --line-strong: #b8c6db;
+      --pri: #1d4ed8;
+      --pri-soft: #eff6ff;
+      --ok: #15803d;
+      --ok-soft: #f0fdf4;
+      --ok-line: #86efac;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
+      --warn-line: #fcd34d;
+      --bad: #b91c1c;
+      --bad-soft: #fef2f2;
+      --bad-line: #fca5a5;
+      --purple: #6d28d9;
+      --purple-soft: #f5f3ff;
+      --teal: #0f766e;
+      --teal-soft: #f0fdfa;
+      --snb-bg: #0b1324;
+      --snb-ink: #cbd5e1;
+      --snb-active: #2563eb;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+      --radius: 12px;
+      --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.48;
+      font-size: 13.5px;
+    }
+    .layout { display: grid; grid-template-columns: 272px 1fr; min-height: 100vh; }
+
+    /* 좌측 SNB (4단계 업무 여정 표준) */
+    .snb {
+      background: var(--snb-bg);
+      color: var(--snb-ink);
+      padding: 20px 14px;
+      display: flex; flex-direction: column; gap: 14px;
+      border-right: 1px solid #1e293b;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 8px 14px; border-bottom: 1px solid #1e293b;
+    }
+    .brand-logo {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      display: grid; place-items: center;
+      color: #fff; font-weight: 800; font-size: 15px;
+    }
+    .brand-title { font-weight: 800; color: #fff; font-size: 14.5px; line-height: 1.25; }
+    .brand-sub { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .nav-group { display: flex; flex-direction: column; gap: 3px; }
+    .nav-label {
+      font-size: 10.5px; font-weight: 700; color: #64748b;
+      text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px;
+    }
+    .nav-btn {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 11px; border-radius: 8px;
+      color: #cbd5e1; text-decoration: none;
+      font-size: 12.5px; font-weight: 600;
+      cursor: pointer; border: none; background: transparent;
+      width: 100%; text-align: left; transition: 0.15s;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-btn.active { background: var(--snb-active); color: #fff; font-weight: 700; }
+    .nav-code {
+      font-family: var(--mono); font-size: 10.5px;
+      padding: 2px 6px; border-radius: 4px;
+      background: rgba(15, 23, 42, 0.45); color: #94a3b8;
+    }
+    .nav-btn.active .nav-code { background: rgba(255,255,255,0.2); color: #fff; }
+
+    /* Main */
+    .main { display: flex; flex-direction: column; min-width: 0; }
+    .topbar {
+      background: #fff; border-bottom: 1px solid var(--line);
+      padding: 16px 26px; display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; position: sticky; top: 0; z-index: 20;
+    }
+    .title-area h1 { margin: 0; font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .title-area p { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 999px;
+      font-size: 11.5px; font-weight: 700; white-space: nowrap;
+    }
+    .b-pri { background: var(--pri-soft); color: var(--pri); border: 1px solid #bfdbfe; }
+    .b-ok { background: var(--ok-soft); color: var(--ok); border: 1px solid var(--ok-line); }
+    .b-warn { background: var(--warn-soft); color: var(--warn); border: 1px solid var(--warn-line); }
+    .b-bad { background: var(--bad-soft); color: var(--bad); border: 1px solid var(--bad-line); }
+    .b-pur { background: var(--purple-soft); color: var(--purple); border: 1px solid #ddd6fe; }
+    .b-teal { background: var(--teal-soft); color: var(--teal); border: 1px solid #99f6e4; }
+    .b-dark { background: #0f172a; color: #fff; }
+    .b-gray { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 13px; border-radius: 8px;
+      font-size: 12.5px; font-weight: 700;
+      border: 1px solid var(--line-strong);
+      background: #fff; color: var(--ink);
+      cursor: pointer; transition: 0.15s; white-space: nowrap;
+    }
+    .btn:hover { background: #f8fafc; }
+    .btn-pri { background: var(--pri); color: #fff; border-color: var(--pri); }
+    .btn-pri:hover { background: #1e40af; }
+    .btn-pur { background: var(--purple); color: #fff; border-color: var(--purple); }
+    .btn-pur:hover { background: #5b21b6; }
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; border-radius: 6px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .content { padding: 20px 26px 96px; display: flex; flex-direction: column; gap: 18px; }
+
+    /* KPI Strip */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .kpi-card:hover { border-color: var(--pri); transform: translateY(-1px); }
+    .kpi-card.active { border: 2px solid var(--pri); background: #f8fbff; }
+
+    /* Tabs */
+    .tabs {
+      display: flex; gap: 6px; border-bottom: 1px solid var(--line);
+      background: #fff; padding: 0 18px; border-radius: 10px 10px 0 0;
+      border: 1px solid var(--line); border-bottom: none;
+    }
+    .tab-btn {
+      padding: 13px 16px; font-size: 13px; font-weight: 800;
+      color: var(--muted); background: transparent; border: none;
+      border-bottom: 3px solid transparent; cursor: pointer;
+    }
+    .tab-btn.active { color: var(--pri); border-bottom-color: var(--pri); }
+
+    .card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+    }
+    .card-hd {
+      padding: 14px 18px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: #f8fafc;
+    }
+    .card-hd h3 { margin: 0; font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card-bd { padding: 18px; }
+
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid var(--line);
+    }
+    .input, .select {
+      padding: 7px 11px; border-radius: 7px; border: 1px solid var(--line-strong);
+      font-size: 12.5px; font-family: var(--font); background: #fff;
+    }
+    .input:disabled, .select:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th {
+      background: #f8fafc; color: var(--muted); font-weight: 800;
+      text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap;
+    }
+    td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    tr.clickable-row:hover td { background: #f0f7ff; cursor: pointer; }
+    .num { text-align: right; font-family: var(--mono); font-weight: 700; }
+    .code { font-family: var(--mono); font-size: 11.5px; color: #334155; }
+
+    /* Visual Ratio Bar */
+    .ratio-bar-wrap {
+      width: 100%; height: 10px; background: #e2e8f0; border-radius: 999px;
+      overflow: hidden; display: flex; margin-top: 6px;
+    }
+    .ratio-seg-0 { background: #2563eb; }
+    .ratio-seg-1 { background: #7c3aed; }
+    .ratio-seg-2 { background: #0d9488; }
+
+    /* Context Summary Header in Editor */
+    .contract-summary-banner {
+      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+      border: 1px solid #bfdbfe; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+
+    .alert-box {
+      padding: 13px 16px; border-radius: 10px; margin-bottom: 14px;
+      font-size: 12.5px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .alert-bad { background: var(--bad-soft); border: 1px solid var(--bad-line); color: #7f1d1d; }
+    .alert-ok { background: var(--ok-soft); border: 1px solid var(--ok-line); color: #14532d; }
+    .alert-warn { background: var(--warn-soft); border: 1px solid var(--warn-line); color: #78350f; }
+
+    .sim-box {
+      background: #f8fafc; border: 1px solid var(--line);
+      border-radius: 10px; padding: 15px 18px; margin-top: 18px;
+    }
+
+    /* Modal Backdrop & Box */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+      display: none; place-items: center; z-index: 60; padding: 20px;
+    }
+    .modal-backdrop.open { display: grid; }
+    .modal {
+      background: #fff; border-radius: 14px; width: min(920px, 96vw);
+      max-height: 88vh; display: flex; flex-direction: column;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.28); overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .modal-hd {
+      padding: 16px 20px; border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      background: #f8fafc;
+    }
+    .modal-hd h3 { margin: 0; font-size: 15.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .modal-bd { padding: 18px 20px; overflow-y: auto; flex: 1; }
+    .modal-ft {
+      padding: 13px 20px; border-top: 1px solid var(--line);
+      background: #f8fafc; display: flex; justify-content: flex-end; gap: 8px;
+    }
+
+    .signer-card {
+      border: 1px solid var(--line); border-radius: 10px; padding: 13px 16px;
+      margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; transition: 0.15s; background: #fff;
+    }
+    .signer-card:hover { border-color: var(--pri); background: #f8fbff; }
+
+    /* Savebar */
+    .savebar {
+      position: fixed; bottom: 0; left: 272px; right: 0;
+      background: #0f172a; color: #fff;
+      padding: 12px 26px; display: flex; align-items: center; justify-content: space-between;
+      z-index: 30; border-top: 1px solid #334155;
+    }
+
+    #toast {
+      position: fixed; bottom: 72px; right: 26px;
+      background: #0f172a; color: #fff; padding: 11px 16px;
+      border-radius: 8px; font-size: 12.5px; font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25); display: none; z-index: 100;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  
+
+  
+
+
+
+
+
+
+<link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-SETT-007", "devCommit": "d562524a", "progress": "구현(SETT-007 · S1 편집 · 저장 · 시뮬레이터). 분할 '계산'은 2차 — 1차 정산은 PAYEE_SPLIT 보류. 비율 프리셋 · 잔여 채움 · 감사 로그 표는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.payee-splits.index", "label": "수취인 분할 지분 설정"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">권리자 · 거래처 · 지분 매핑</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-SETT-007</span>
+      <h1 class="crumb-title" id="header-screen-title">수취인 분할 관리 (2계층 공동수취 · 에이전시 지분 분할)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <button class="btn" data-dev-route="admin.settlement.payee-splits.create" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/create" data-dev-perm="등록" data-dev-note="개발은 계약 선택 별도 페이지(create.blade.php) — 모달 아님" onclick="openContractPickerModal()">🔍 대상 계약 검색 · 신규 분할 설정 (모달)</button> <button class="btn btn-pri" data-dev-route="admin.settlement.payee-splits.create" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/create" data-dev-perm="등록" data-dev-note="개발은 계약 선택 별도 페이지(create.blade.php) — 모달 아님" onclick="openContractPickerModal()">+ 신규 수취인 분할 등록</button>
+    </div></header><div id="v4-page-body">
+  
+  
+
+  
+  <!-- 좌측 SNB (업무 여정 4단계 표준) -->
+  
+
+  <!-- 우측 메인 -->
+  <main class="main">
+    
+
+    <div class="content">
+      <!-- 상단 KPI 카드 4종 (클릭 시 목록 필터링) -->
+      <div class="kpi-grid">
+        <div class="kpi-card active" id="kpi-ALL" data-dev-route="admin.settlement.payee-splits.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits" data-dev-perm="조회" data-dev-note="KPI → status 필터(개발 ?status= 버튼)" onclick="applyListFilter('ALL')">
+          <div class="k-title"><span>전체 관리 대상 계약</span><span class="badge b-pri">전체 보기</span></div>
+          <div class="k-num">5건</div>
+          <div class="k-sub">분할 수취 · 단독 수취 · 상속 승계 · 선급금 차단</div>
+        </div>
+        <div class="kpi-card" id="kpi-SPLIT" data-dev-route="admin.settlement.payee-splits.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits" data-dev-perm="조회" data-dev-note="KPI → status 필터(개발 ?status= 버튼)" onclick="applyListFilter('SPLIT')">
+          <div class="k-title"><span>2계층 분할 수취 활성 계약</span><span class="badge b-ok">복수 수취인</span></div>
+          <div class="k-num" style="color:var(--ok);">2건</div>
+          <div class="k-sub">강사+소속사 70:30 분할(Case 7) · 공동 상속 60:40</div>
+        </div>
+        <div class="kpi-card" id="kpi-SUCCESSION" data-dev-route="admin.settlement.payee-splits.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits" data-dev-perm="조회" data-dev-note="KPI → status 필터(개발 ?status= 버튼)" onclick="applyListFilter('SUCCESSION')">
+          <div class="k-title"><span>사망·상속 수취인 승계 계약</span><span class="badge b-pur">권리 승계 기준</span></div>
+          <div class="k-num" style="color:var(--purple);">1건</div>
+          <div class="k-sub">승계 확정일 기준 저작자 본인 여부(payee_is_author) 전환</div>
+        </div>
+        <div class="kpi-card" id="kpi-BLOCKED" data-dev-route="admin.settlement.payee-splits.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits" data-dev-perm="조회" data-dev-note="KPI → status 필터(개발 ?status= 버튼)" onclick="applyListFilter('BLOCKED')">
+          <div class="k-title"><span>선급금 미종결 분할 차단 계약</span><span class="badge b-bad">선급금 상계 보호</span></div>
+          <div class="k-num" style="color:var(--bad);">2건</div>
+          <div class="k-sub">CT-2026-0412 · CT-2026-0501 · 미상계 선급금 잔액 존재 시 분할 등록 서버 차단</div>
+        </div>
+      </div>
+
+      <!-- 상단 뷰 전환 탭 (ADMN-SETT-001과 동일한 UX 패턴) -->
+      <div>
+        <div class="tabs">
+          <button class="tab-btn active" id="tabBtn-list" data-dev-route="admin.settlement.payee-splits.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits" data-dev-perm="조회" onclick="switchView('list')">1. 계약별 수취인 분할 현황 목록 (진입 화면)</button>
+          <button class="tab-btn" id="tabBtn-editor" data-dev-route="admin.settlement.payee-splits.edit" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/{contract}" data-dev-perm="수정(edit 접미사)" data-dev-note="개발은 편집 별도 페이지(S1)" onclick="switchView('editor')">2. 선택 계약 2계층 수취인 분할 편집 워크스페이스</button>
+          <button class="tab-btn" id="tabBtn-rules" data-dev-note="8단계 비분할 격리 규칙 표는 개발 편집 페이지에 있음. 감사 로그 표는 프로토타입만(개발 별도 표 없음, admin_logs 추정)" onclick="switchView('rules')">3. 8단계 비분할 격리 규칙 및 감사 로그 (CONF-010 연동)</button>
+        </div>
+
+        <!-- VIEW 1: 계약별 수취인 분할 현황 목록 -->
+        <div class="card" id="viewPanel-list" style="border-top-left-radius:0;">
+          <div class="filter-bar">
+            <span style="font-weight:800; font-size:12.5px;">분할 상태 필터:</span>
+            <select id="listFilterSelect" name="status" data-dev-value="ALL · SPLIT · SINGLE · SUCCESSION · BLOCKED" class="select" onchange="applyListFilter(this.value)">
+              <option value="ALL">전체 계약 보기 (5건)</option>
+              <option value="SPLIT">2계층 분할 수취 활성 (2인 이상 분할)</option>
+              <option value="SINGLE">단독 수취 (원 권리자 100.00% · 분할 가능)</option>
+              <option value="SUCCESSION">사망·상속 수취인 승계 계약</option>
+              <option value="BLOCKED">🚨 선급금 미종결로 분할 차단된 계약 </option>
+            </select>
+            <input type="text" id="listSearchInput" name="keyword" class="input" style="width:280px;" placeholder="계약번호, 원 권리자명, 소속사/수취인명 검색..." oninput="renderListTable()">
+            <div style="margin-left:auto; display:flex; gap:8px;">
+              <button class="btn btn-sm btn-pri" data-dev-route="admin.settlement.payee-splits.create" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/create" data-dev-perm="등록" data-dev-note="개발은 계약 선택 별도 페이지(create.blade.php) — 모달 아님" onclick="openContractPickerModal()">🔍 계약 검색 모달로 바로 선택하기</button>
+            </div>
+          </div>
+
+          <div class="card-bd" style="padding:0;">
+            <table>
+              <thead>
+                <tr>
+                  <th>계약 식별자 / 계약명</th>
+                  <th>1계층 원 권리자 (저작자)</th>
+                  <th>현재 2계층 수취인 구성 및 비율 시각화</th>
+                  <th>선급금 원장 상태 (정산 기준 상호차단)</th>
+                  <th>합계 검증</th>
+                  <th>관리 액션</th>
+                </tr>
+              </thead>
+              <tbody id="listTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VIEW 2: 선택 계약 2계층 수취인 분할 상세 편집 워크스페이스 -->
+        <div class="card" id="viewPanel-editor" style="display:none; border-top-left-radius:0;">
+          <div class="card-hd">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <button class="btn btn-sm" onclick="switchView('list')">← 현황 목록으로 돌아가기</button>
+              <h3>2계층 수취인 분할 지분 워크스페이스</h3>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:12px; color:var(--muted); font-weight:700;">현재 편집 중인 계약:</span>
+              <span class="badge b-pri code" id="currentContractBadge" style="font-size:12.5px;">CT-2026-0715</span>
+              <button class="btn btn-sm btn-pri" data-dev-route="admin.settlement.payee-splits.create" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/create" data-dev-perm="등록" data-dev-note="개발은 계약 선택 별도 페이지(create.blade.php) — 모달 아님" onclick="openContractPickerModal()">🔍 다른 계약 검색·변경 (모달)</button>
+            </div>
+          </div>
+
+          <div class="card-bd" id="editorBodyContainer"></div>
+        </div>
+
+        <!-- VIEW 3: 8단계 비분할 격리 규칙 및 감사 로그 -->
+        <div class="card" id="viewPanel-rules" style="display:none; border-top-left-radius:0;">
+          <div class="card-hd">
+            <h3>⚖️ 8단계(PAYEE_SPLIT) 분할 대상 포함·제외 매트릭스 및 변경 감사 이력</h3>
+            <span class="badge b-dark">ADMN-CONF-010 연동</span>
+          </div>
+          <div class="card-bd">
+            <h4 style="margin:0 0 10px; font-size:13.5px;">1) 정산 항목별 2계층 수취인 분할 적용 여부 (정산 기준 8단계)</h4>
+            <table style="margin-bottom:22px;">
+              <thead>
+                <tr>
+                  <th>정산 구성 항목</th>
+                  <th>2계층 분할 여부 (<code>payee_split_base</code>)</th>
+                  <th>연산 및 귀속 처리 규칙</th>
+                  <th>근거 조항 / QA</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>4단계 이후 세전 순액 (온라인 강좌 R/S · 자사 발행 도서 인세)</strong></td>
+                  <td><span class="badge b-ok">분할 대상 포함</span></td>
+                  <td>라인별로 <code>내림(라인 세전액 × 분할 비율)</code> 산출 후 마지막 수취인(<code>split_ratio</code> 내림차순 → <code>수취인번호</code> 오름차순)에게 총액 역산 잔여액 배정</td>
+                  <td class="code">공동 계약 분할 검증</td>
+                </tr>
+                <tr>
+                  <td><strong>5단계 확정 매출연동 개발지원금 및 7단계 비정기 가산금</strong></td>
+                  <td><span class="badge b-ok">분할 대상 포함</span></td>
+                  <td>기본 R/S와 합산하지 않고 라인 단위로 독립 분할·절사한 뒤, 9단계에서 수취인별 세무 유형 및 <code>payee_is_author</code> 지위 독립 적용</td>
+                  <td class="code">원 단위 절사 및 역산 기준</td>
+                </tr>
+                <tr>
+                  <td><strong>6단계 선급금 상계액 (<code>PREPAY_OFFSET</code>)</strong></td>
+                  <td><span class="badge b-bad">비분할 격리 (상호 차단)</span></td>
+                  <td>선급금은 원 권리자 개인 채권이므로 제3자 수취인에게 전이 불가. <strong>선급금 잔액 &gt; 0원 계약은 수취인 분할 등록 자체를 차단</strong></td>
+                  <td class="code">선급금 미상계 시 분할 차단</td>
+                </tr>
+                <tr>
+                  <td><strong>전월 이월액 (<code>PRE_TAX</code> 세전 미지급 / <code>POST_TAX</code> 세후 지급대기) 및 전속계약금 반환액</strong></td>
+                  <td><span class="badge b-bad">비분할 격리 (수취인 고유 보존)</span></td>
+                  <td>이월 원장의 원귀속 수취인 단위로 보존하며, 당월 8단계에서 타 수취인에게 재분할하지 않고 9단계/10단계/11단계로 직결</td>
+                  <td class="code">부록 검증규칙 / Case 3-B</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h4 style="margin:0 0 10px; font-size:13.5px;">2) 2계층 수취인 분할 지분율 변경 · 상속 승계 감사 로그 (<code>ADMN_AUDIT_LOG</code>)</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>기록 시각</th>
+                  <th>계약번호 / 원 권리자</th>
+                  <th>작업 유형</th>
+                  <th>변경 전 값 (Before)</th>
+                  <th>변경 후 값 (After)</th>
+                  <th>변경 사유 및 작업자</th>
+                </tr>
+              </thead>
+              <tbody id="auditTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 하단 고정 저장/검증 게이트 바 -->
+    <footer class="savebar">
+      <div id="gateStatusArea" style="display:flex; align-items:center; gap:12px;"></div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn" style="background:#1e293b; color:#fff; border-color:#475569;" data-dev-route="admin.settlement.payee-splits.create" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/create" data-dev-perm="등록" data-dev-note="개발은 계약 선택 별도 페이지(create.blade.php) — 모달 아님" onclick="openContractPickerModal()">🔍 대상 계약 변경 (모달)</button>
+        <button class="btn btn-pri" id="btnSaveSplit" data-dev-route="admin.settlement.payee-splits.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/payee-splits/{contract}" data-dev-perm="수정" data-dev-note="reason + splits[i][payee_id · split_ratio · start_date · end_date · note] 구성 전체 교체. 저장해도 1차 정산은 PAYEE_SPLIT 보류" onclick="saveCurrentSplit()">💾 2계층 수취인 분할 비율 트랜잭션 저장 (100.00% 검증)</button>
+      </div>
+    </footer>
+  </main>
+
+
+<!-- ===================================================================== -->
+<!-- MODAL 1: 대상 계약 검색 및 선택 모달 (유효 계약 마스터 active_contracts) -->
+<!-- ===================================================================== -->
+<div class="modal-backdrop" id="contractPickerModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h3>🔍 대상 계약 검색 및 선택 (유효 계약 마스터 <code>active_contracts</code>)</h3>
+      <button class="btn btn-sm" onclick="closeModal('contractPickerModal')">✕ 닫기</button>
+    </div>
+    <div class="modal-bd">
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:11px 14px; margin-bottom:14px; font-size:12.5px; color:#1e3a8a;">
+        💡 <strong>[계약 선택 안내 ]</strong> 계약 코드를 직접 입력할 필요 없이 아래 목록에서 검색하여 선택하세요. <strong>미상계 선급금 잔액이 남아 있는 계약</strong>은 선급금 상계 완결 전까지 수취인 분할 추가가 차단됩니다. <strong>도서 위탁 계약</strong>은 위탁자에게 귀속되는 판매대금이라 수취인 분할 대상이 아닙니다(위탁자가 여럿이면 위탁 계약을 나눠 등록).
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <input type="text" id="modalContractSearch" name="keyword" class="input" style="flex:1;" placeholder="계약번호(CT-...), 권리자명(김안전, 정종대 등), 소속사명 검색..." oninput="renderContractPickerList()">
+        <select id="modalContractFilter" name="status" data-dev-note="개발 계약 선택 페이지도 목록과 같은 status(ALL · SPLIT · SINGLE · SUCCESSION · BLOCKED) — 프로토타입 AVAILABLE 값은 개발 없음" class="select" onchange="renderContractPickerList()">
+          <option value="ALL">전체 유효 계약</option>
+          <option value="AVAILABLE">분할 설정 가능 계약만 (선급금 0원)</option>
+          <option value="BLOCKED">선급금 미종결 차단 계약 확인</option>
+        </select>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>계약번호 / 계약명</th>
+            <th>1계층 원 권리자</th>
+            <th>공동 서명 후보 풀</th>
+            <th>선급금 잔액 </th>
+            <th>현재 분할 상태</th>
+            <th>선택</th>
+          </tr>
+        </thead>
+        <tbody id="modalContractTbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-ft">
+      <button class="btn" onclick="closeModal('contractPickerModal')">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================================== -->
+<!-- MODAL 2: 계약서 내 공동 서명 수취인 검색·추가 모달 (4.1절 조인 그룹)      -->
+<!-- ===================================================================== -->
+<div class="modal-backdrop" id="coSignerModal">
+  <div class="modal" style="width:min(780px, 95vw);">
+    <div class="modal-hd">
+      <h3>👥 공동 서명 수취인 선택 모달 (계약 합의 당사자 일치 원칙 · 정산 기준)</h3>
+      <button class="btn btn-sm" onclick="closeModal('coSignerModal')">✕ 닫기</button>
+    </div>
+    <div class="modal-bd">
+      <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-radius:8px; padding:11px 14px; margin-bottom:14px; font-size:12.5px; color:#4c1d95;">
+        🔒 <strong>[정산 기준 계약 합의 당사자 일치 원칙]</strong> 임의의 제3자 계정을 입력할 수 없으며, <strong>현재 계약서(<span id="modalSignerContractId" class="code"></span>)에 공동 서명인 또는 적법 승계인으로 연결된 권리자</strong>에서만 선택하여 추가할 수 있습니다. 수취인은 권리자 계약 원장에 권리자로 등록하고 이 계약에 연결해야 목록에 나타납니다. <a href="ADMN-INST-001_baseline.html#payees" style="font-weight:700;">권리자 계약 원장에서 수취인 등록 →</a>
+      </div>
+      <div id="coSignerCardList"></div>
+    </div>
+    <div class="modal-ft">
+      <button class="btn" onclick="closeModal('coSignerModal')">닫기</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+
+
+
+</div></div><script>
+  const CONTRACTS = [
+    {
+      id: "CT-2026-0715",
+      title: "2026 산업안전기사 실기 공동 매니지먼트 전속계약 (Case 7)",
+      primaryHolderId: "RH-0019",
+      primaryHolderName: "김안전 (개인 프리랜서 · 원 저작자)",
+      primaryTaxCase: "사업소득 원천징수 3.3% (TX-02)",
+      status: "ACTIVE",
+      category: "SPLIT",
+      advanceRemaining: 0,
+      advanceStatusText: "선급금 원장 없음 (잔액 0원 · 분할 설정 가능)",
+      effectiveStart: "2026-01-01",
+      effectiveEnd: "2027-12-31",
+      simBaseAmount: 2000000,
+      self: [
+        { payeeId: "RH-0019", name: "김안전 (원 권리자 본인)", role: "원 저작자 (강사)", entityType: "개인 프리랜서 (비사업자)", taxCase: "사업소득 원천징수 3.3% (TX-02)", isAuthor: true, successionYn: false, successionDate: "" },
+      ],
+      splits: [
+        { payeeId: "RH-0019", ratio: 70.00, startDate: "2026-01-01", endDate: "2026-12-31", note: "1계층 원 저작자 직접 수취분 (70%)" },
+        { payeeId: "RH-0071", ratio: 30.00, startDate: "2026-01-01", endDate: "2026-12-31", note: "공동서명 소속사 매니지먼트 배분 (30% · Case 7)" }
+      ],
+      changeReason: "계약서 제8조(공동 서명인 수익 분할 특약)에 따른 강사 70% : 소속사 30% 분할 등록"
+    },
+    {
+      id: "CT-2025-1102",
+      title: "산업위생관리기사 기본서 저작권 및 강의 계약 (상속 승계 · 16.1절)",
+      primaryHolderId: "RH-0018",
+      primaryHolderName: "고(故) 박위생 → 상속인 박승계 외 1명",
+      primaryTaxCase: "기타소득 인세/승계 (TX-03)",
+      status: "ACTIVE",
+      category: "SUCCESSION",
+      advanceRemaining: 0,
+      advanceStatusText: "선급금 원장 없음 (잔액 0원 · 상속 수취인 분할 활성)",
+      effectiveStart: "2025-11-01",
+      effectiveEnd: "2026-12-31",
+      simBaseAmount: 1500000,
+      self: [
+      ],
+      splits: [
+        { payeeId: "RH-0076", ratio: 60.00, startDate: "2026-09-01", endDate: "2026-12-31", note: "상속재산분할협의서 기준 배우자 60% (승계 확정일 2026-09-01)" },
+        { payeeId: "RH-0077", ratio: 40.00, startDate: "2026-09-01", endDate: "2026-12-31", note: "상속재산분할협의서 기준 자녀 40% (이전 원거래 환불은 D-1 스냅샷 적용)" }
+      ],
+      changeReason: "저작자 사망에 따른 상속인 권리 승계 확정 (승계 확정일 2026-09-01 기준 payee_is_author = false 전환)"
+    },
+    {
+      id: "CT-2026-0412",
+      title: "산준교육 콘텐츠 주식회사 산업안전 법인 강의·인세 통합 계약",
+      primaryHolderId: "RH-0012",
+      primaryHolderName: "산준교육 콘텐츠 주식회사 (법인 · 일반과세)",
+      primaryTaxCase: "일반과세 세금계산서 권리자 발행 (TX-07 / 인세 TX-09)",
+      status: "ACTIVE",
+      category: "SINGLE",
+      advanceRemaining: 8500000,
+      advanceStatusText: "🚨 미상계 선급금 잔액 8,500,000원 존재 (선급금 원장 미종결 — 선급금 미상계 시 분할 차단)",
+      effectiveStart: "2026-01-01",
+      effectiveEnd: "2026-12-31",
+      simBaseAmount: 3000000,
+      self: [
+        { payeeId: "RH-0012", name: "산준교육 콘텐츠 주식회사 (본사)", role: "원 권리자 법인", entityType: "법인 일반과세자 (120-88-00001)", taxCase: "일반과세 세금계산서 권리자 발행 (TX-07)", isAuthor: false, successionYn: false, successionDate: "" },
+      ],
+      splits: [
+        { payeeId: "RH-0012", ratio: 100.00, startDate: "2026-01-01", endDate: "2026-12-31", note: "단일 법인 100% 수취 (공동서명 계열사 추가 가능)" }
+      ],
+      changeReason: "단일 법인 권리자 100% 수취"
+    },
+    {
+      id: "CT-2026-0702",
+      title: "최그래픽 위험물 실기 3D 시뮬레이션 공동제작 계약",
+      primaryHolderId: "RH-0042",
+      primaryHolderName: "최그래픽 (개인 프리랜서 · 기여자)",
+      primaryTaxCase: "사업소득 원천징수 3.3% (TX-02)",
+      status: "ACTIVE",
+      category: "SINGLE",
+      advanceRemaining: 0,
+      advanceStatusText: "선급금 원장 없음 (잔액 0원 · 에이전시 분할 추가 가능)",
+      effectiveStart: "2026-05-01",
+      effectiveEnd: "2027-04-30",
+      simBaseAmount: 1000000,
+      self: [
+        { payeeId: "RH-0042", name: "최그래픽 (본인)", role: "원 권리자 (기여자)", entityType: "개인 프리랜서", taxCase: "사업소득 원천징수 3.3% (TX-02)", isAuthor: false, successionYn: false, successionDate: "" },
+      ],
+      splits: [
+        { payeeId: "RH-0042", ratio: 100.00, startDate: "2026-05-01", endDate: "2027-04-30", note: "기여자 본인 100% 단독 수취" }
+      ],
+      changeReason: "초기 계약 본인 100% 수취"
+    },
+    {
+      id: "CT-2026-0501",
+      title: "2026 정종대 산업안전기사 통합 강의 및 자사저작권 도서 지원금 계약",
+      primaryHolderId: "RH-0025",
+      primaryHolderName: "정종대 (개인 면세사업자 · 원 저작자)",
+      primaryTaxCase: "면세사업자 전자계산서 + 원천징수 (TX-08)",
+      status: "ACTIVE",
+      category: "BLOCKED",
+      advanceRemaining: 3500000,
+      advanceStatusText: "🚨 미상계 선급금 잔액 3,500,000원 존재 (선급금 원장 미종결 — 분할 차단 · 2026-10 정산 마감 시 전액 상계 예정)",
+      effectiveStart: "2025-01-01",
+      effectiveEnd: "2027-12-31",
+      simBaseAmount: 4500000,
+      self: [
+        { payeeId: "RH-0025", name: "정종대 (원 권리자 단독)", role: "원 저작자", entityType: "개인 면세사업자 (214-19-99881)", taxCase: "면세 전자계산서 권리자 발행 (TX-08)", isAuthor: true, successionYn: false, successionDate: "" },
+      ],
+      splits: [
+        { payeeId: "RH-0025", ratio: 100.00, startDate: "2025-01-01", endDate: "2027-12-31", note: "선급금 잔액 0원 종결 전까지 원 권리자 100% 단독 귀속 강제" }
+      ],
+      changeReason: "선급금 미종결 계약으로 원 권리자 100% 고정 (5.3절)"
+    }
+  ];
+
+  // 공동 서명 수취인 · 상속 승계인은 권리자 계약 원장(ADMN-INST-001)에 권리자로 등록 · 연결된 사람만 고른다.
+  // 계약 데이터에는 원 권리자 본인(self)만 두고, 나머지는 공통 기준정보(SJM_MASTER)에서 그때그때 읽는다
+  function masterCoSigners(contractId) {
+    const M = window.SJM_MASTER;
+    if (!M) return [];
+    return M.rightsHolders.coSigners(contractId).map(h => ({
+      payeeId: h.id, name: h.name, role: h.link.role, entityType: h.entity, taxCase: h.taxCase,
+      isAuthor: !!h.isAuthor, successionYn: h.link.kind === "SUCCESSOR", successionDate: h.link.since || ""
+    }));
+  }
+  CONTRACTS.forEach(c => Object.defineProperty(c, "coSigners", { get: () => c.self.concat(masterCoSigners(c.id)) }));
+
+  // 마감 확정(Locked) 월 — 이 달까지 걸치는 시작일로는 분할을 바꾸지 않는다(01권 4.3 소급 변경 통제, SETT-001과 같은 기준)
+  const LOCKED_THROUGH_MONTH = "2026-09";
+  const FIRST_OPEN_DATE = "2026-10-01"; // 마감 뒤 첫 날 — 새로 넣는 수취인 행의 기본 시작일
+  // 종료 기준(end_basis, 01권 4.2 payee_splits): 계약 종료 연동이면 종료일을 계약 현재 종료일로 따른다
+  function splitEnd(c, s) { return s.endBasis === "CONTRACT_LINKED" ? c.effectiveEnd : s.endDate; }
+  function splitKey(c, s) { return `${s.payeeId}|${Number(s.ratio).toFixed(2)}|${s.startDate}|${s.endBasis}|${splitEnd(c, s)}`; }
+  function prevDayIso(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() - 1);
+    return dt.toISOString().slice(0, 10);
+  }
+  CONTRACTS.forEach(c => {
+    c.splits.forEach(s => { if (!s.endBasis) s.endBasis = s.endDate === c.effectiveEnd ? "CONTRACT_LINKED" : "FIXED_DATE"; });
+    c.savedSplits = c.splits.map(s => ({ ...s })); // 마지막 저장 버전 — 소급 변경 판정 기준
+  });
+  // 위탁 계약(도서 위탁)은 2계층 수취인 분할 대상이 아니다 — 위탁자가 여럿이면 위탁 계약 자체를 나눠 등록(01권 4.1)
+  function consignContracts() {
+    const M = window.SJM_MASTER;
+    if (!M) return [];
+    const out = [];
+    M.rightsHolders.list().forEach(h => (h.contracts || []).forEach(k => {
+      if ((k.types || []).includes("도서 위탁") && !CONTRACTS.some(c => c.id === k.no)) out.push({ id: k.no, holderId: h.id, holderName: h.name });
+    }));
+    return out;
+  }
+
+  const AUDIT_LOGS = [
+    {
+      ts: "2026-09-02 10:05:11",
+      contractId: "CT-2025-1102",
+      holder: "고(故) 박위생 (RH-0018)",
+      action: "수취인 상속 승계 및 저작자 지위(payee_is_author) 전환",
+      before: '{"payee_id":"RH-0018","payee_is_author":true,"ratio":100.00}',
+      after: '{"succession_date":"2026-09-01","payees":[{"id":"RH-0076","ratio":60.00},{"id":"RH-0077","ratio":40.00}]}',
+      actor: "법무·재무 승인 (상속재산분할협의서 접수)"
+    },
+    {
+      ts: "2025-12-29 14:10:22",
+      contractId: "CT-2026-0715",
+      holder: "김안전 (RH-0019)",
+      action: "2계층 수취인 분할 비율 등록 (Case 7)",
+      before: '[{"payee_id":"RH-0019","ratio":100.00}]',
+      after: '[{"payee_id":"RH-0019","ratio":70.00},{"payee_id":"RH-0071","ratio":30.00}]',
+      actor: "재무팀 박정산 (계약서 제8조 공동서명 특약 반영)"
+    }
+  ];
+
+  let listFilter = "ALL";
+  let selectedContractId = "CT-2026-0715";
+
+  function fmt(n) {
+    return Number(n || 0).toLocaleString("ko-KR") + "원";
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => { t.style.display = "none"; }, 2800);
+  }
+
+  function goNav(file) {
+    window.location.href = file;
+  }
+
+  function switchView(viewId) {
+    ["list", "editor", "rules"].forEach(id => {
+      document.getElementById("tabBtn-" + id).classList.toggle("active", id === viewId);
+      document.getElementById("viewPanel-" + id).style.display = (id === viewId) ? "block" : "none";
+    });
+    if (viewId === "list") renderListTable();
+    /* Init SETT-007 Audits and Pickers */
+    if (typeof renderAuditTable === 'function') renderAuditTable();
+    if (typeof renderContractPickerList === 'function') renderContractPickerList();
+    if (viewId === "editor") renderEditorWorkspace();
+    if (viewId === "rules") renderAuditTable();
+  }
+
+  function getSelectedContract() {
+    return CONTRACTS.find(c => c.id === selectedContractId) || CONTRACTS[0];
+  }
+
+  function applyListFilter(f) {
+    listFilter = f;
+    document.getElementById("listFilterSelect").value = f;
+    document.querySelectorAll(".kpi-card").forEach(el => el.classList.remove("active"));
+    const kpiEl = document.getElementById("kpi-" + f);
+    if (kpiEl) kpiEl.classList.add("active");
+    switchView("list");
+  }
+
+  /* VIEW 1: 계약별 수취인 분할 현황 목록 렌더링 */
+  function renderListTable() {
+    const kw = (document.getElementById("listSearchInput").value || "").trim().toLowerCase();
+    const tbody = document.getElementById("listTbody");
+
+    const filtered = CONTRACTS.filter(c => {
+      if (listFilter === "SPLIT" && c.splits.length < 2) return false;
+      if (listFilter === "SINGLE" && (c.splits.length > 1 || c.advanceRemaining > 0)) return false;
+      if (listFilter === "SUCCESSION" && c.category !== "SUCCESSION") return false;
+      if (listFilter === "BLOCKED" && c.advanceRemaining <= 0) return false;
+      if (kw) {
+        const hay = `${c.id} ${c.title} ${c.primaryHolderName} ${c.coSigners.map(s => s.name).join(" ")}`.toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
+      return true;
+    });
+
+    tbody.innerHTML = filtered.map(c => {
+      const isBlocked = c.advanceRemaining > 0;
+      const totalRatio = c.splits.reduce((a, b) => a + Number(b.ratio || 0), 0);
+      const ratioOk = Math.abs(totalRatio - 100) < 0.001;
+
+      const splitBadges = c.splits.map((s, idx) => {
+        const signer = c.coSigners.find(cs => cs.payeeId === s.payeeId) || {};
+        const bClass = idx === 0 ? "b-pri" : (idx === 1 ? "b-pur" : "b-teal");
+        return `<span class="badge ${bClass}">${signer.name || s.payeeId}: ${Number(s.ratio).toFixed(2)}%</span>`;
+      }).join(" ");
+
+      const segHtml = c.splits.map((s, idx) =>
+        `<div class="ratio-seg-${idx % 3}" style="width:${Math.min(100, s.ratio)}%;"></div>`
+      ).join("");
+
+      return `
+        <tr class="clickable-row" data-dev-route="admin.settlement.payee-splits.edit" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/{contract}" data-dev-perm="수정(edit 접미사)" onclick="openContractEditor('${c.id}')">
+          <td>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="code" style="font-weight:800; color:var(--pri); font-size:12.5px;">${c.id}</span>
+              ${c.category === "SUCCESSION" ? '<span class="badge b-pur">상속 승계</span>' : ""}
+              ${c.splits.length >= 2 && c.category !== "SUCCESSION" ? `<span class="badge b-ok">${c.splits.length}인 분할 수취</span>` : ""}
+            </div>
+            <div style="font-weight:700; margin-top:3px;">${c.title}</div>
+          </td>
+          <td>
+            <div style="font-weight:700;">${c.primaryHolderName}</div>
+            <div style="font-size:11.5px; color:var(--muted); margin-top:2px;">${c.primaryTaxCase}</div>
+          </td>
+          <td style="min-width:280px;">
+            <div style="display:flex; flex-wrap:wrap; gap:5px;">${splitBadges}</div>
+            <div class="ratio-bar-wrap">${segHtml}</div>
+          </td>
+          <td>
+            ${isBlocked
+              ? `<span class="badge b-bad">🚨 미상계 선급금 ${fmt(c.advanceRemaining)} (분할 차단)</span>`
+              : '<span class="badge b-gray">선급금 잔액 0원 (분할 가능)</span>'}
+          </td>
+          <td>
+            <span class="badge ${ratioOk ? 'b-ok' : 'b-bad'}">합계 ${totalRatio.toFixed(2)}%</span>
+          </td>
+          <td onclick="event.stopPropagation();">
+            <button class="btn btn-sm ${isBlocked ? '' : 'btn-pri'}" data-dev-route="admin.settlement.payee-splits.edit" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/{contract}" data-dev-perm="수정(edit 접미사)" onclick="openContractEditor('${c.id}')">
+              ${isBlocked ? '상세/차단사유 보기 →' : '분할 비율 편집 →'}
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    updateFooterGate(getSelectedContract());
+  }
+
+  function openContractEditor(contractId) {
+    selectedContractId = contractId;
+    document.getElementById("currentContractBadge").textContent = contractId;
+    switchView("editor");
+  }
+
+  /* VIEW 2: 상세 편집 워크스페이스 렌더링 */
+  function renderEditorWorkspace() {
+    const c = getSelectedContract();
+    document.getElementById("currentContractBadge").textContent = c.id;
+    const isBlocked = c.advanceRemaining > 0;
+    const totalRatio = c.splits.reduce((a, b) => a + Number(b.ratio || 0), 0);
+    const ratioDiff = (100 - totalRatio).toFixed(2);
+    const isRatioValid = Math.abs(totalRatio - 100) < 0.001;
+
+    // 8단계 정렬: split_ratio 내림차순 -> payee_id 오름차순 (13.3절)
+    const sortedSplits = [...c.splits].sort((a, b) => {
+      if (b.ratio !== a.ratio) return b.ratio - a.ratio;
+      return a.payeeId.localeCompare(b.payeeId);
+    });
+
+    let allocatedSum = 0;
+    const simRows = sortedSplits.map((s, idx) => {
+      const signer = c.coSigners.find(cs => cs.payeeId === s.payeeId) || {};
+      const isLast = (idx === sortedSplits.length - 1);
+      const splitAmt = isLast
+        ? (c.simBaseAmount - allocatedSum)
+        : Math.floor(c.simBaseAmount * (Number(s.ratio || 0) / 100));
+      allocatedSum += splitAmt;
+
+      let vat = 0, wht = 0, netPay = splitAmt;
+      if ((signer.taxCase || "").includes("TX-07")) {
+        vat = Math.floor(splitAmt * 0.10);
+        netPay = splitAmt + vat;
+      } else if ((signer.taxCase || "").includes("TX-02") || (signer.taxCase || "").includes("TX-04")) {
+        const incTax = Math.floor(splitAmt * 0.03);
+        const locTax = Math.floor(incTax * 0.10);
+        wht = incTax + locTax;
+        netPay = splitAmt - wht;
+      } else if ((signer.taxCase || "").includes("기타소득")) {
+        const incTax = Math.floor(splitAmt * 0.20);
+        const locTax = Math.floor(incTax * 0.10);
+        wht = incTax + locTax;
+        netPay = splitAmt - wht;
+      }
+      return { s, signer, isLast, splitAmt, vat, wht, netPay };
+    });
+
+    const container = document.getElementById("editorBodyContainer");
+    container.innerHTML = `
+      <!-- 상단 선택 계약 요약 배너 -->
+      <div class="contract-summary-banner">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="badge b-dark code">${c.id}</span>
+            <strong style="font-size:15px;">${c.title}</strong>
+            <span class="badge b-pri">유효기간: ${c.effectiveStart} ~ ${c.effectiveEnd}</span>
+          </div>
+          <div style="font-size:12.5px; color:var(--muted); margin-top:6px;">
+            • <strong>1계층 원 권리자:</strong> ${c.primaryHolderName} (${c.primaryTaxCase})<br/>
+            • <strong>계약서 등록 공동 서명인 풀(4.1절):</strong> ${c.coSigners.map(cs => `${cs.name}[${cs.role}]`).join(" · ")}
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          <button class="btn btn-sm" data-dev-route="admin.settlement.payee-splits.create" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/create" data-dev-perm="등록" data-dev-note="개발은 계약 선택 별도 페이지(create.blade.php) — 모달 아님" onclick="openContractPickerModal()">🔍 다른 계약 선택하기 (모달)</button>
+          <button class="btn btn-sm" onclick="goNav('ADMN-INST-001_baseline.html')">↗ 권리자 계약 원장(INST-001) 열기</button>
+        </div>
+      </div>
+
+      <!-- 선급금 상호차단 또는 100% 정합성 배너 -->
+      ${isBlocked ? `
+        <div class="alert-box alert-bad">
+          <div>
+            <div style="font-weight:800; font-size:13.5px;">🚫 [제5장 선급금 미상계 시 분할 차단 하드락] 미상계 선급금 잔액(${fmt(c.advanceRemaining)})이 존재하여 수취인 분할 설정이 차단되었습니다.</div>
+            <div style="margin-top:4px;">
+              선급금은 원 권리자(${c.primaryHolderName}) 개인에 대한 채권이므로 제3자(소속사·에이전시)에게 상계 부담이 전이되는 것을 방지하기 위해, <strong>선급금 잔액이 0원으로 종결되기 전까지 2계층 수취인 분할 비율(<code>payee_splits</code>)을 추가하거나 변경할 수 없습니다.</strong>
+            </div>
+          </div>
+          <span class="badge b-bad">서버 검증 차단</span>
+        </div>
+      ` : `
+        <div class="alert-box ${isRatioValid ? 'alert-ok' : 'alert-warn'}">
+          <div>
+            <div style="font-weight:800;">
+              ${isRatioValid
+                ? '✅ [4.1절 정합성 통과] 공동 서명 수취인 분할 비율 합계가 정확히 100.00%입니다.'
+                : `⚠️ [저장 차단] 현재 수취인 분할 비율 합계가 ${totalRatio.toFixed(2)}%입니다. (100.00%까지 ${ratioDiff > 0 ? '+' + ratioDiff : ratioDiff}% 조정 필요)`}
+            </div>
+            <div style="font-size:12px; margin-top:3px;">
+              선급금 원장 상태: <strong>${c.advanceStatusText}</strong> · 우측 버튼으로 공동 서명 수취인을 모달에서 선택 추가하거나 원클릭 비율 프리셋을 적용하세요.
+            </div>
+          </div>
+          <span class="badge ${isRatioValid ? 'b-ok' : 'b-bad'}" style="font-size:13px; padding:6px 12px;">합계 ${totalRatio.toFixed(2)}%</span>
+        </div>
+      `}
+
+      <!-- 액션 툴바: 수취인 모달 추가 + 원클릭 비율 프리셋 -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+          <span style="font-size:12px; font-weight:800; color:var(--muted);">⚡ 빠른 비율 프리셋:</span>
+          <button class="btn btn-sm" ${isBlocked ? 'disabled' : ''} data-dev-flag="proto-only" data-dev-note="비율 프리셋 — 개발 없음" onclick="applyPresetRatio([70, 30])">70% : 30% (강사:소속사 표준)</button>
+          <button class="btn btn-sm" ${isBlocked ? 'disabled' : ''} data-dev-flag="proto-only" data-dev-note="비율 프리셋 — 개발 없음" onclick="applyPresetRatio([80, 20])">80% : 20%</button>
+          <button class="btn btn-sm" ${isBlocked ? 'disabled' : ''} data-dev-flag="proto-only" data-dev-note="비율 프리셋 — 개발 없음" onclick="applyPresetRatio([60, 40])">60% : 40%</button>
+          <button class="btn btn-sm" ${isBlocked ? 'disabled' : ''} data-dev-flag="proto-only" data-dev-note="비율 프리셋 — 개발 없음" onclick="applyPresetRatio([50, 50])">50% : 50%</button>
+          <button class="btn btn-sm" ${isBlocked ? 'disabled' : ''} data-dev-flag="proto-only" data-dev-note="잔여 지분 마지막 행 채움 — 개발 없음" onclick="fillRemainingToLast()">⚖️ 마지막 행에 잔여 지분 자동 채움 (100.00%)</button>
+        </div>
+        <div>
+          <button class="btn btn-pur" ${isBlocked ? 'disabled' : ''} data-dev-note="개발은 이 화면에서 공동 서명 풀을 직접 등록(POST admin.settlement.payee-splits.store: payee_id · role · entity_type · tax_case · is_author · succession_yn · succession_date) · 제외(DELETE …destroy). 정본은 계약 원장에서 고르기만 — 등록 주체 정책 질문 D-SETT, 추가하지 않음" onclick="openCoSignerModal()">
+            👥 + 공동 서명 수취인 검색·추가 (모달)
+          </button>
+        </div>
+      </div>
+
+      <!-- 수취인 분할 편집 테이블 -->
+      <table>
+        <thead>
+          <tr>
+            <th>수취인 (공동 서명인 그룹 · 4.1절)</th>
+            <th>사업자/소득 구분 및 세무 매트릭스 (11장 독립 적용)</th>
+            <th>저작자 본인 여부 / 승계 확정일</th>
+            <th class="num" style="width:140px;">2계층 분할 비율 (%)</th>
+            <th style="width:130px;">적용 시작일</th>
+            <th style="width:150px;">종료 기준</th>
+            <th style="width:130px;">적용 종료일</th>
+            <th>비고 메모</th>
+            <th style="width:64px;">제거</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${c.splits.map((sp, idx) => {
+            const signer = c.coSigners.find(cs => cs.payeeId === sp.payeeId) || c.coSigners[0];
+            return `
+              <tr>
+                <td>
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="badge b-gray code">${signer.payeeId}</span>
+                    <strong>${signer.name}</strong>
+                  </div>
+                  <div style="font-size:11.5px; color:var(--muted); margin-top:3px;">${signer.role} · ${signer.entityType}</div>
+                </td>
+                <td>
+                  <span class="badge ${signer.taxCase.includes('TX-07') ? 'b-pri' : (signer.taxCase.includes('기타소득') ? 'b-pur' : 'b-teal')}">
+                    ${signer.taxCase}
+                  </span>
+                </td>
+                <td>
+                  ${signer.isAuthor
+                    ? '<span class="badge b-ok">저작자 본인 (payee_is_author = true)</span>'
+                    : '<span class="badge b-warn">비저작자/소속사/승계인 (payee_is_author = false)</span>'}
+                  ${signer.successionYn
+                    ? `<div style="font-size:11px; color:var(--purple); font-weight:700; margin-top:3px;">승계 확정일: ${signer.successionDate} (이전 환불은 원 스냅샷 D-1)</div>`
+                    : ""}
+                </td>
+                <td class="num">
+                  <input type="number" step="0.01" min="0.01" max="100" class="input num" style="width:115px; font-weight:800;"
+                    value="${Number(sp.ratio).toFixed(2)}" ${isBlocked ? 'disabled' : ''}
+                    name="splits[${idx}][split_ratio]" data-dev-value="0.01~100 · 소수 2자리 · 합계 100.00" oninput="updateSplitRatio(${idx}, this.value)" />
+                </td>
+                <td>
+                  <input type="date" class="input" value="${sp.startDate}" ${isBlocked ? 'disabled' : ''} name="splits[${idx}][start_date]" onchange="getSelectedContract().splits[${idx}].startDate = this.value" />
+                </td>
+                <td>
+                  <select class="select" ${isBlocked ? 'disabled' : ''} data-dev-flag="proto-only" data-dev-note="종료 기준(계약 종료 연동 · 지정일) — 개발은 end_date nullable만(빈 값 = 기한 없음)" onchange="updateEndBasis(${idx}, this.value)">
+                    <option value="CONTRACT_LINKED" ${sp.endBasis === 'CONTRACT_LINKED' ? 'selected' : ''}>계약 종료 연동</option>
+                    <option value="FIXED_DATE" ${sp.endBasis === 'FIXED_DATE' ? 'selected' : ''}>지정일</option>
+                  </select>
+                </td>
+                <td>
+                  <input type="date" class="input" value="${splitEnd(c, sp)}" ${isBlocked || sp.endBasis === 'CONTRACT_LINKED' ? 'disabled' : ''} name="splits[${idx}][end_date]" onchange="getSelectedContract().splits[${idx}].endDate = this.value" />
+                </td>
+                <td>
+                  <input type="text" class="input" style="width:100%;" value="${sp.note || ''}" ${isBlocked ? 'disabled' : ''} name="splits[${idx}][note]" oninput="getSelectedContract().splits[${idx}].note = this.value" />
+                </td>
+                <td style="text-align:center;">
+                  <button class="btn btn-sm" ${isBlocked || c.splits.length <= 1 ? 'disabled' : ''} data-dev-note="개발 [data-split-remove] — 저장 전 화면 안" onclick="removePayeeRow(${idx})">✕</button>
+                </td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+
+      <div style="margin-top:12px; display:flex; align-items:center; gap:10px;">
+        <label style="font-weight:800; font-size:12.5px; white-space:nowrap;">변경 사유 (감사 로그 필수):</label>
+        <input type="text" class="input" style="flex:1;" value="${c.changeReason || ''}" ${isBlocked ? 'disabled' : ''}
+          placeholder="계약서 조항, 부속합의서 체결일, 상속 승계 사유 등을 10자 이상 입력하세요."
+          id="reason" name="reason" data-dev-note="PayeeSplitRequest 10~255자" oninput="getSelectedContract().changeReason = this.value" />
+      </div>
+
+      <!-- 8단계 & 9단계 실시간 시뮬레이터 -->
+      <div class="sim-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <strong style="font-size:13.5px; color:var(--pri);">🧮 8단계(PAYEE_SPLIT) 총액 역산 배분 & 9단계(TAX) 수취인별 세무 독립 판정 미리보기 (Case 7 · 13.2~13.3절)</strong>
+            <div style="font-size:11.5px; color:var(--muted);">
+              정렬 기준: <code>분할 비율(split_ratio) 내림차순 → 수취인 식별자(payee_id) 오름차순</code> · 선행 수취인 <code>내림(Floor)</code> 후 마지막 수취인 <code>[총액 - 선행 합계]</code> 역산
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:12px; font-weight:700;">시뮬레이션 세전 기준액 (<code>payee_split_base</code>):</span>
+            <input type="number" step="100000" class="input num" style="width:145px;" value="${c.simBaseAmount}" id="simBase" name="base_amount" data-dev-route="admin.settlement.payee-splits.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/{contract}/simulate" data-dev-perm="조회" data-dev-note="개발 #simRun 버튼으로 fetch(JSON, 저장 안 함) → #simResult" oninput="updateSimBase(this.value)" />
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>배분 순번 (13.3절 정렬)</th>
+              <th>수취인</th>
+              <th class="num">분할 비율</th>
+              <th>산출 공식 (13.2절 총액 역산)</th>
+              <th class="num">8단계 과세표준 (<code>taxable_base</code>)</th>
+              <th class="num">9단계 부가가치세 (10%)</th>
+              <th class="num">9단계 원천징수세액</th>
+              <th class="num">11단계 예상 실지급액</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${simRows.map((r, i) => `
+              <tr>
+                <td><span class="badge ${r.isLast ? 'b-pur' : 'b-gray'}">${i + 1}순위 ${r.isLast ? '(마지막 · 총액역산)' : '(내림 Floor)'}</span></td>
+                <td><strong>${r.signer.name}</strong> <span class="code">(${r.s.payeeId})</span></td>
+                <td class="num">${Number(r.s.ratio).toFixed(2)}%</td>
+                <td class="code">${r.isLast ? `총액(${fmt(c.simBaseAmount)}) - 선행합계` : `내림(${fmt(c.simBaseAmount)} × ${r.s.ratio}%)`}</td>
+                <td class="num" style="color:var(--pri);">${fmt(r.splitAmt)}</td>
+                <td class="num" style="color:var(--teal);">${r.vat > 0 ? '+' + fmt(r.vat) : '0원'}</td>
+                <td class="num" style="color:var(--bad);">${r.wht > 0 ? '-' + fmt(r.wht) : '0원'}</td>
+                <td class="num" style="color:var(--ok); font-size:13px;">${fmt(r.netPay)}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+
+    updateFooterGate(c);
+  }
+
+  function updateFooterGate(c) {
+    const isBlocked = c.advanceRemaining > 0;
+    const totalRatio = c.splits.reduce((a, b) => a + Number(b.ratio || 0), 0);
+    const isRatioValid = Math.abs(totalRatio - 100) < 0.001;
+    const gateArea = document.getElementById("gateStatusArea");
+    const btnSave = document.getElementById("btnSaveSplit");
+
+    if (isBlocked) {
+      gateArea.innerHTML = `
+        <span class="badge b-bad">저장 하드락 (5.3절)</span>
+        <span style="font-size:12.5px;">선택 계약(<strong>${c.id}</strong>)에 미상계 선급금 잔액(<strong>${fmt(c.advanceRemaining)}</strong>)이 남아 있어 수취인 분할 저장이 차단됩니다.</span>
+      `;
+      btnSave.disabled = true;
+    } else if (!isRatioValid) {
+      gateArea.innerHTML = `
+        <span class="badge b-warn">합계 불일치 (${totalRatio.toFixed(2)}%)</span>
+        <span style="font-size:12.5px;">선택 계약(<strong>${c.id}</strong>)의 2계층 수취인 분할 비율 합계가 <strong>100.00%</strong>가 되어야 저장이 활성화됩니다.</span>
+      `;
+      btnSave.disabled = true;
+    } else {
+      gateArea.innerHTML = `
+        <span class="badge b-ok">검증 통과 (100.00%)</span>
+        <span style="font-size:12.5px;">선택 계약(<strong>${c.id}</strong>): 공동 서명 당사자 일치(4.1절) · 선급금 미보유(5.3절) · 분할 합계 100.00% 검증 통과</span>
+      `;
+      btnSave.disabled = false;
+    }
+  }
+
+  /* MODAL 1: 대상 계약 검색·선택 모달 제어 */
+  function openContractPickerModal() {
+    document.getElementById("contractPickerModal").classList.add("open");
+    renderContractPickerList();
+  }
+
+  function renderContractPickerList() {
+    const kw = (document.getElementById("modalContractSearch").value || "").trim().toLowerCase();
+    const flt = document.getElementById("modalContractFilter").value;
+    const tbody = document.getElementById("modalContractTbody");
+
+    const rows = CONTRACTS.filter(c => {
+      if (flt === "AVAILABLE" && c.advanceRemaining > 0) return false;
+      if (flt === "BLOCKED" && c.advanceRemaining <= 0) return false;
+      if (kw) {
+        const hay = `${c.id} ${c.title} ${c.primaryHolderName} ${c.coSigners.map(s => s.name).join(" ")}`.toLowerCase();
+        if (!hay.includes(kw)) return false;
+      }
+      return true;
+    });
+
+    tbody.innerHTML = rows.map(c => {
+      const isBlocked = c.advanceRemaining > 0;
+      return `
+        <tr>
+          <td>
+            <span class="code" style="font-weight:800; color:var(--pri);">${c.id}</span>
+            <div style="font-weight:700; margin-top:2px;">${c.title}</div>
+          </td>
+          <td>${c.primaryHolderName}</td>
+          <td>
+            ${c.coSigners.map(cs => `<span class="badge b-gray" style="margin:2px;">${cs.name} (${cs.role})</span>`).join("")}
+          </td>
+          <td>
+            ${isBlocked
+              ? `<span class="badge b-bad">미상계 ${fmt(c.advanceRemaining)}</span>`
+              : '<span class="badge b-ok">잔액 0원</span>'}
+          </td>
+          <td><span class="badge b-pri">${c.splits.length}인 수취 중</span></td>
+          <td>
+            <button class="btn btn-sm ${isBlocked ? '' : 'btn-pri'}" data-dev-route="admin.settlement.payee-splits.edit" data-dev-method="GET" data-dev-url="/sj-admin/settlement/payee-splits/{contract}" data-dev-perm="수정(edit 접미사)" onclick="pickContractFromModal('${c.id}')">
+              ${isBlocked ? '차단상태 확인' : '이 계약 선택'}
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("") + (flt === "ALL" ? consignContracts().filter(k => !kw || `${k.id} ${k.holderName}`.toLowerCase().includes(kw)).map(k => `
+        <tr class="consign-excluded" style="color:var(--muted);">
+          <td><span class="code" style="font-weight:800;">${k.id}</span><div style="font-weight:700; margin-top:2px;">도서 위탁 계약</div></td>
+          <td>${k.holderName} <span class="code">(${k.holderId})</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge b-gray">분할 대상 아님</span></td>
+          <td><button class="btn btn-sm" disabled title="위탁 정산금은 위탁자 귀속 — 위탁자가 여럿이면 위탁 계약을 나눠 등록">선택 불가</button></td>
+        </tr>
+      `).join("") : "");
+  }
+
+  function pickContractFromModal(contractId) {
+    closeModal("contractPickerModal");
+    openContractEditor(contractId);
+    showToast(`'${contractId}' 계약의 2계층 수취인 분할 워크스페이스를 열었습니다.`);
+  }
+
+  /* MODAL 2: 계약서 내 공동 서명 수취인 검색·추가 모달 제어 */
+  function openCoSignerModal() {
+    const c = getSelectedContract();
+    if (c.advanceRemaining > 0) return;
+    document.getElementById("modalSignerContractId").textContent = c.id;
+    const listEl = document.getElementById("coSignerCardList");
+    const usedIds = c.splits.map(s => s.payeeId);
+
+    listEl.innerHTML = c.coSigners.map(cs => {
+      const alreadyAdded = usedIds.includes(cs.payeeId);
+      return `
+        <div class="signer-card">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="badge b-dark code">${cs.payeeId}</span>
+              <strong style="font-size:14px;">${cs.name}</strong>
+              <span class="badge b-pri">${cs.role}</span>
+              ${cs.isAuthor ? '<span class="badge b-ok">저작자 본인</span>' : '<span class="badge b-warn">비저작자/소속사/승계인</span>'}
+            </div>
+            <div style="font-size:12px; color:var(--muted); margin-top:4px;">
+              사업자/유형: ${cs.entityType} · 적용 세무: <strong>${cs.taxCase}</strong>
+            </div>
+          </div>
+          <div>
+            ${alreadyAdded
+              ? '<span class="badge b-ok">✔ 현재 분할 행에 포함됨</span>'
+              : `<button class="btn btn-sm btn-pri" data-dev-note="개발은 분할 행 splits[i][payee_id] select에서 풀 수취인 선택(저장 전 화면 안)" onclick="addSignerFromModal('${cs.payeeId}')">+ 분할 수취인으로 추가</button>`}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("coSignerModal").classList.add("open");
+  }
+
+  function addSignerFromModal(payeeId) {
+    const c = getSelectedContract();
+    if (c.splits.some(s => s.payeeId === payeeId)) return;
+    const currentSum = c.splits.reduce((a, b) => a + Number(b.ratio || 0), 0);
+    const remain = Math.max(0, +(100 - currentSum).toFixed(2));
+    c.splits.push({
+      payeeId,
+      ratio: remain > 0 ? remain : 30.00,
+      startDate: c.effectiveStart > FIRST_OPEN_DATE ? c.effectiveStart : FIRST_OPEN_DATE,
+      endBasis: "CONTRACT_LINKED",
+      endDate: c.effectiveEnd,
+      note: "공동 서명 수취인 모달 선택 추가"
+    });
+    if (c.splits.length === 2 && currentSum === 100) {
+      c.splits[0].ratio = 70.00;
+      c.splits[1].ratio = 30.00;
+    }
+    closeModal("coSignerModal");
+    renderEditorWorkspace();
+    showToast(`공동 서명 수취인(${payeeId})이 추가되고 합계 100.00% 기준으로 자동 배분되었습니다.`);
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove("open");
+  }
+
+  /* 비율 프리셋 및 행 편집 */
+  function applyPresetRatio(ratios) {
+    const c = getSelectedContract();
+    if (c.advanceRemaining > 0) return;
+    while (c.splits.length < ratios.length && c.splits.length < c.coSigners.length) {
+      const used = c.splits.map(s => s.payeeId);
+      const nextSigner = c.coSigners.find(cs => !used.includes(cs.payeeId));
+      if (nextSigner) {
+        c.splits.push({
+          payeeId: nextSigner.payeeId,
+          ratio: 0,
+          startDate: c.effectiveStart > FIRST_OPEN_DATE ? c.effectiveStart : FIRST_OPEN_DATE,
+          endBasis: "CONTRACT_LINKED",
+          endDate: c.effectiveEnd,
+          note: "공동 서명인 프리셋 배분"
+        });
+      } else break;
+    }
+    ratios.forEach((r, idx) => {
+      if (c.splits[idx]) c.splits[idx].ratio = r;
+    });
+    renderEditorWorkspace();
+    showToast(`빠른 비율 프리셋(${ratios.join("% : ")}%)이 적용되었습니다.`);
+  }
+
+  function fillRemainingToLast() {
+    const c = getSelectedContract();
+    if (c.splits.length === 0) return;
+    let sumExceptLast = 0;
+    for (let i = 0; i < c.splits.length - 1; i++) {
+      sumExceptLast += Number(c.splits[i].ratio || 0);
+    }
+    c.splits[c.splits.length - 1].ratio = Math.max(0, +(100 - sumExceptLast).toFixed(2));
+    renderEditorWorkspace();
+    showToast("마지막 수취인 행에 잔여 지분을 자동 배정하여 합계 100.00%를 맞추었습니다.");
+  }
+
+  function updateSplitRatio(idx, val) {
+    const c = getSelectedContract();
+    c.splits[idx].ratio = parseFloat(val) || 0;
+    renderEditorWorkspace();
+  }
+
+  function updateEndBasis(idx, val) {
+    const c = getSelectedContract();
+    c.splits[idx].endBasis = val;
+    if (val === "CONTRACT_LINKED") c.splits[idx].endDate = c.effectiveEnd;
+    renderEditorWorkspace();
+  }
+
+  function removePayeeRow(idx) {
+    const c = getSelectedContract();
+    if (c.splits.length <= 1) return;
+    c.splits.splice(idx, 1);
+    if (c.splits.length === 1) c.splits[0].ratio = 100.00;
+    renderEditorWorkspace();
+  }
+
+  function updateSimBase(val) {
+    const c = getSelectedContract();
+    c.simBaseAmount = Math.max(0, parseInt(val, 10) || 0);
+    renderEditorWorkspace();
+  }
+
+  function saveCurrentSplit() {
+    const c = getSelectedContract();
+    if (c.advanceRemaining > 0) {
+      alert("[5.3절 차단] 선급금 미종결 계약에는 수취인 분할을 저장할 수 없습니다.");
+      return;
+    }
+    const reason = (c.changeReason || "").trim();
+    if (reason.length < 10) {
+      alert("[감사 통제] 변경 사유를 최소 10자 이상 입력해 주세요.");
+      return;
+    }
+    // 소급 변경 통제(01권 4.3): 마지막 저장 버전과 달라진 행이 마감 확정 월에 걸치면 저장 차단 → 마감 후 정정(SETT-005, SPLIT_ERR)
+    const savedKeys = c.savedSplits.map(s => splitKey(c, s));
+    const curKeys = c.splits.map(s => splitKey(c, s));
+    const changedRows = c.splits.filter((s, i) => !savedKeys.includes(curKeys[i]));
+    const removedRows = c.savedSplits.filter((s, i) => !curKeys.includes(savedKeys[i]));
+    if (!changedRows.length && !removedRows.length) {
+      showToast("마지막 저장 버전과 달라진 내용이 없습니다.");
+      return;
+    }
+    const lockedRow = changedRows.find(s => !s.startDate || s.startDate.slice(0, 7) <= LOCKED_THROUGH_MONTH);
+    if (lockedRow) {
+      alert(`[소급 변경 차단] 마감 확정(${LOCKED_THROUGH_MONTH}까지) 월에 걸치는 분할은 바꿀 수 없습니다 — ${lockedRow.payeeId} 행(시작 ${lockedRow.startDate}).\n바뀐 행의 적용 시작일을 ${FIRST_OPEN_DATE} 이후로 지정하세요. 마감된 달의 정정은 마감 후 정정(조정 라인 등록, 사유 SPLIT_ERR)으로 처리합니다.`);
+      return;
+    }
+    const versionStart = changedRows.map(s => s.startDate).sort()[0] || FIRST_OPEN_DATE;
+    const beforeJson = JSON.stringify(c.savedSplits.map(s => ({ payee_id: s.payeeId, ratio: s.ratio, start: s.startDate, end_basis: s.endBasis, end: splitEnd(c, s) })));
+    c.savedSplits = c.splits.map(s => ({ ...s }));
+    AUDIT_LOGS.unshift({
+      ts: "2026-10-15 17:05:00",
+      contractId: c.id,
+      holder: c.primaryHolderName,
+      action: "2계층 수취인 분할 비율 트랜잭션 저장 (100.00%)",
+      before: `기존 버전 ${prevDayIso(versionStart)} 종료 처리 · ${beforeJson}`,
+      after: JSON.stringify(c.splits.map(s => ({ payee_id: s.payeeId, ratio: s.ratio, start: s.startDate, end_basis: s.endBasis, end: splitEnd(c, s) }))),
+      actor: `재무담당자 (${reason})`
+    });
+    showToast(`[저장 완료] ${c.id} 계약의 2계층 수취인 분할 비율(100.00%)이 저장되었습니다.`);
+    renderListTable();
+    /* Init SETT-007 Audits and Pickers */
+    if (typeof renderAuditTable === 'function') renderAuditTable();
+    if (typeof renderContractPickerList === 'function') renderContractPickerList();
+  }
+
+  function renderAuditTable() {
+    const tbody = document.getElementById("auditTbody");
+    tbody.innerHTML = AUDIT_LOGS.map(l => `
+      <tr>
+        <td class="code">${l.ts}</td>
+        <td><strong class="code" style="color:var(--pri);">${l.contractId}</strong><br/><span style="font-size:11.5px; color:var(--muted);">${l.holder}</span></td>
+        <td><span class="badge b-pri">${l.action}</span></td>
+        <td class="code" style="font-size:11px; color:var(--muted);">${l.before}</td>
+        <td class="code" style="font-size:11px; color:var(--ok); font-weight:700;">${l.after}</td>
+        <td>${l.actor}</td>
+      </tr>
+    `).join("");
+  }
+
+  (function init() {
+    const params = new URLSearchParams(window.location.search);
+    const cid = params.get("contractId");
+    renderListTable();
+    /* Init SETT-007 Audits and Pickers */
+    if (typeof renderAuditTable === 'function') renderAuditTable();
+    if (typeof renderContractPickerList === 'function') renderContractPickerList();
+    if (cid && CONTRACTS.some(c => c.id === cid)) {
+      openContractEditor(cid);
+    } else if (cid && consignContracts().some(k => k.id === cid)) {
+      showToast(`${cid}는 도서 위탁 계약이라 수취인 분할 대상이 아닙니다(위탁자가 여럿이면 위탁 계약을 나눠 등록합니다).`);
+    }
+  })();
+</script><script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>
