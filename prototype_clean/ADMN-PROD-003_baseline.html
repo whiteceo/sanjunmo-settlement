@@ -640,11 +640,11 @@ code, pre, kbd, samp,
           </button>
           <button type="button" class="subview-btn" data-view="detail" onclick="switchSubview('detail')">
             <span class="code-tag">003-S2</span>
-            <span>강좌 상세</span>
+            <span>강좌 상세 조회</span>
           </button>
           <button type="button" class="subview-btn" data-view="form" onclick="switchSubview('form')">
-            <span class="code-tag">003-S1</span>
-            <span>단과 강좌 등록/수정</span>
+            <span class="code-tag">003-S2</span>
+            <span>단과 강좌 등록 · 수정</span>
           </button>
         </div>
     </div></header><div id="v4-page-body">
@@ -803,7 +803,8 @@ code, pre, kbd, samp,
       </section>
 
       <!-- ========================================================================= -->
-      <!-- [SUBVIEW 2] ADMN-PROD-003-S2 : 단과 강좌 상세 조회                          -->
+      <!-- [SUBVIEW 2] ADMN-PROD-003-S2(조회) : 단과 강좌 상세 조회                    -->
+      <!-- v12에는 상세 전용 코드가 없다(행 클릭 → S2에 강좌 로드). 같은 S2를 조회 · [수정] 두 단계로 나눈 것 -->
       <!-- ========================================================================= -->
       <section id="subview-detail" class="subview-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -815,7 +816,7 @@ code, pre, kbd, samp,
           </div>
           <div style="display:flex; gap:8px;">
             <a class="btn btn-soft" href="ADMN-SETT-001_baseline.html">정산 지분 매핑 (ADMN-SETT-001)</a>
-            <button type="button" class="btn btn-primary" onclick="editCurrentDetailCourse()">강좌 정보 수정 (003-S1)</button>
+            <button type="button" class="btn btn-primary" onclick="editCurrentDetailCourse()">강좌 정보 수정 (003-S2)</button>
           </div>
         </div>
 
@@ -962,7 +963,7 @@ code, pre, kbd, samp,
       </section>
 
       <!-- ========================================================================= -->
-      <!-- [SUBVIEW 3] ADMN-PROD-003-S1 : 단과 강좌 등록 / 수정                        -->
+      <!-- [SUBVIEW 3] ADMN-PROD-003-S2 : 단과 강좌 등록 / 수정 (3번 섹션 = 커리큘럼 구성 003-S1) -->
       <!-- ========================================================================= -->
       <section id="subview-form" class="subview-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -1216,7 +1217,7 @@ code, pre, kbd, samp,
         <div class="card">
           <div class="card-header">
             <div class="card-title-group">
-              <h3 class="card-title">3. 커리큘럼 구성 (섹션 · 차시 매핑)</h3>
+              <h3 class="card-title">3. 커리큘럼 구성 (ADMN-PROD-003-S1 · 섹션 · 차시 매핑)</h3>
               <span class="card-subtitle">섹션(대단원)을 추가하고 ADMN-PROD-002(강의 관리)에 등록된 강의를 매핑합니다.</span>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
@@ -1885,7 +1886,7 @@ code, pre, kbd, samp,
     }
 
     /* =========================================================================
-       4. 서브뷰 전환 (003 목록 / 003-S2 상세 / 003-S1 등록·수정)
+       4. 서브뷰 전환 (003 목록 / 003-S2 상세 조회 / 003-S2 등록·수정 — 커리큘럼 003-S1은 폼 안 섹션)
        ========================================================================= */
     function switchSubview(viewName) {
       document.querySelectorAll(".subview-panel").forEach(p => p.classList.remove("active"));
@@ -1908,7 +1909,7 @@ code, pre, kbd, samp,
         titleEl.textContent = "단과 강좌 상세 조회";
         renderDetailView();
       } else if (viewName === "form") {
-        codeEl.textContent = "ADMN-PROD-003-S1";
+        codeEl.textContent = "ADMN-PROD-003-S2";
         titleEl.textContent = "단과 강좌 등록 / 수정";
         renderFormSections();
         renderFormTextbooks();
@@ -2031,7 +2032,7 @@ code, pre, kbd, samp,
     }
 
     function openNewCourseForm() {
-      document.getElementById("form-mode-title").textContent = "신규 단과 강좌 등록 (ADMN-PROD-003-S1)";
+      document.getElementById("form-mode-title").textContent = "신규 단과 강좌 등록 (ADMN-PROD-003-S2)";
       document.getElementById("f-code").value = "CRS-AUTO (저장 시 자동채번)";
       document.getElementById("f-created-at").value = "2026-10-15";
       document.getElementById("f-title").value = "";
@@ -2051,7 +2052,7 @@ code, pre, kbd, samp,
     }
 
     function populateFormWithCourse(c) {
-      document.getElementById("form-mode-title").textContent = `단과 강좌 수정 — ${c.code} (ADMN-PROD-003-S1)`;
+      document.getElementById("form-mode-title").textContent = `단과 강좌 수정 — ${c.code} (ADMN-PROD-003-S2)`;
       document.getElementById("f-code").value = c.code;
       document.getElementById("f-created-at").value = c.createdAt;
       document.getElementById("f-cat1").value = c.cat1;
@@ -2168,7 +2169,7 @@ code, pre, kbd, samp,
     }
 
     /* =========================================================================
-       7. 등록/수정(ADMN-PROD-003-S1) 가격 계산 · 하드락 · 커리큘럼 빌더
+       7. 등록/수정(ADMN-PROD-003-S2) 가격 계산 · 하드락 · 커리큘럼 빌더(003-S1)
        ========================================================================= */
     function recalcCoursePrice() {
       const listPrice = Number(document.getElementById("f-list-price").value || 0);

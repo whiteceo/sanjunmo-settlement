@@ -750,7 +750,7 @@ code, pre, kbd, samp,
             <div class="card-body">
               <div class="toolbar">
                 <div class="toolbar-left">
-                  <span style="font-size:13px;">전체 <b id="ordListCount">35</b>건 <span style="color:var(--text-muted);font-weight:400;">(2026.02.01~10.26 · 실결제 <code>실결제금액</code> 기준 · 주문 라인 분리 표기)</span></span>
+                  <span style="font-size:13px;">전체 <b id="ordListCount">36</b>건 <span style="color:var(--text-muted);font-weight:400;">(2026.02.01~10.26 · 실결제 <code>실결제금액</code> 기준 · 주문 라인 분리 표기)</span></span>
                 </div>
                 <div class="toolbar-right">
                   <select class="form-select" style="width:105px;">
@@ -1009,7 +1009,7 @@ code, pre, kbd, samp,
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">💳 1. 주문 · 결제 및 과·면세 안분 정보 (정가 → 쿠폰 → 포인트 → 배송비 → 실결제금액)</h3>
-              <span class="badge b-green" id="detailExemptionBadge">헤더 표기: EXEMPT (교육·도서 통합면세 · 강좌 교육면세 0% + 도서 면세 0% 분할)</span>
+              <span class="badge b-green" id="detailExemptionBadge">헤더 표기: MIXED (복합 · 품목별 분리 — 강좌 교육면세 0% · 교재 도서면세 0%)</span>
             </div>
             <div class="card-body">
               <table class="kv-table">
@@ -2908,6 +2908,36 @@ code, pre, kbd, samp,
         shipFee: 0,
         paidAmount: 220000,
         refs: ["합격환급 HRF-202610-05 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260518-0127",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "05.18 20:14",
+        buyer: "한승우",
+        receiver: "한승우",
+        phone: "010-4646-8282",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 정가 450,000 → 판매가 410,000 · 합격환급 신청 심사 대기", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 410000, discount: 0, linePaid: 410000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 한승우 · 서울 마포구 월드컵북로 396",
+        paidAmt: "450,000원",
+        priceNote: "정가 450,000",
+        payMethod: "신용/체크카드",
+        paySub: "KB국민카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260518-0127",
+        paidAtFull: "2026.05.18 20:14:47",
+        pgTid: "tvivarepublica20260518201447",
+        listTotal: 450000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 450000,
+        refs: ["합격환급 HRF-202610-06 (ADMN-SETT-006) · 심사 대기"]
       }
     ];
 
@@ -3416,6 +3446,10 @@ code, pre, kbd, samp,
       const typeLabel = { "인강": "인강 단독", "교재": "교재 단독", "복합": "복합(패키지)", "일반상품": "일반상품" }[o.type] || o.type;
       set("dtOrderNo", o.orderNo);
       set("dtOrderType", typeLabel);
+      // 면세 근거 exemption_basis — 헤더 표기 전용(통합설계서 3.3.2). 정산은 품목(order_item) 단위로 분리한다
+      const exb = orderExemptionBasis(o.lines);
+      const exEl = document.getElementById("detailExemptionBadge");
+      if (exEl) { exEl.className = `badge ${exb.cls}`; exEl.textContent = `헤더 표기: ${exb.label}`; }
       const stCls = o.status === "결제대기" ? "b-purple" : (o.status === "반품수거중" ? "b-red" : (o.status === "배송중" ? "b-blue" : (o.status === "환불완료" ? "b-gray" : (o.status === "배송준비중" ? "b-amber" : "b-green"))));
       document.getElementById("dtOrderStatus").innerHTML = `<span class="badge ${stCls}">${o.status}</span>` + (o.shipLocked ? ` <span class="badge b-gray" id="dtLockSubBadge">🔒 출고지시 완료</span>` : "");
       set("dtBuyerInfo", `${o.buyer} (${o.phone})`);
@@ -3458,6 +3492,17 @@ code, pre, kbd, samp,
       if (rp && o.hasDelivery) rp.value = o.phone;
       const rl = document.getElementById("dtRefundLink");
       if (rl) rl.textContent = o.refs && o.refs.length ? `연결: ${o.refs.join(" · ")}` : "진행 중인 환불 요청 없음";
+    }
+
+    /* exemption_basis: 배송비 라인을 뺀 품목으로 판정 — 강좌만 EDU_SERVICE · 교재만 BOOK_GOODS · 둘 이상 섞이면 MIXED.
+       일반상품만 있는 주문은 정본 값(3종)에 해당하지 않아 '면세 품목 없음'으로 표시한다(확인 필요 — changes/T4.md) */
+    function orderExemptionBasis(lines) {
+      const kinds = new Set((lines || []).filter(l => l.itemType !== "SHIPPING_FEE" && l.tag !== "배송비").map(l => l.itemType));
+      const lec = kinds.has("LECTURE"), book = kinds.has("BOOK"), goods = kinds.has("GOODS_ITEM");
+      if (lec && !book && !goods) return { code: "EDU_SERVICE", cls: "b-green", label: "EDU_SERVICE (인강 단독 · 교육용역 면세 0%)" };
+      if (book && !lec && !goods) return { code: "BOOK_GOODS", cls: "b-green", label: "BOOK_GOODS (교재 단독 · 도서 면세 0%)" };
+      if ((lec || book) && kinds.size > 1) return { code: "MIXED", cls: "b-green", label: `MIXED (복합 · 품목별 분리 — ${[lec && "강좌 교육면세 0%", book && "교재 도서면세 0%", goods && "일반상품 과세 10%"].filter(Boolean).join(" · ")})` };
+      return { code: "", cls: "b-gray", label: "— (면세 품목 없음 · 일반상품 과세 10%)" };
     }
 
     function loadOrderDetailPreset(key) {

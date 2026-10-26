@@ -518,7 +518,7 @@ code, pre, kbd, samp,
 
       <div>
         <label style="font-weight:800; font-size:12.5px; display:flex; justify-content:space-between;">
-          <span>구체적 열람 사유 수기 입력 (필수 · 최소 10자 이상)</span>
+          <span>구체적 열람 사유 수기 입력 (필수 · 공백 제외 10자 이상 · 같은 글자 반복 불가)</span>
           <span id="reasonCharCount" class="code" style="color:var(--bad);">0 / 최소 10자</span>
         </label>
         <textarea id="unmaskReasonInput" class="textarea" rows="3" style="width:100%; margin-top:6px;" placeholder="예: 2026-10 귀속 원천세 신고서 작성 중 주민등록번호 오류 검증을 위한 열람 (단순 '확인용', '테스트' 등 10자 미만 입력 시 차단)" oninput="updateReasonCounter()"></textarea>
@@ -945,6 +945,7 @@ code, pre, kbd, samp,
     document.getElementById("modalTargetSummary").textContent = `[${rec.id}] ${rec.name} — ${actionName}`;
     document.getElementById("unmaskReasonInput").value = "";
     updateReasonCounter();
+    document.getElementById("unmaskReasonModal").style.removeProperty("display");
     document.getElementById("unmaskReasonModal").classList.add("open");
   }
 
@@ -953,14 +954,23 @@ code, pre, kbd, samp,
     updateReasonCounter();
   }
 
+  // 사유 검사 공용 규칙(USER-001과 같음): 공백 제외 10자 이상 · 서로 다른 글자 3개 이상(같은 글자 반복 거부)
+  function reasonCheck(text) {
+    const s = String(text || "").replace(/\s/g, "");
+    const len = s.length;
+    const distinct = new Set(Array.from(s)).size;
+    if (len < 10) return { ok: false, len: len, msg: `공백 제외 ${len}자 / 최소 10자` };
+    if (distinct < 3) return { ok: false, len: len, msg: `같은 글자 반복은 사유로 인정하지 않습니다 (공백 제외 ${len}자)` };
+    return { ok: true, len: len, msg: `공백 제외 ${len}자 · 입력 완료` };
+  }
+
   function updateReasonCounter() {
-    const val = (document.getElementById("unmaskReasonInput").value || "").trim();
-    const len = val.length;
+    const chk = reasonCheck(document.getElementById("unmaskReasonInput").value);
     const counter = document.getElementById("reasonCharCount");
     const btn = document.getElementById("btnConfirmUnmask");
 
-    counter.textContent = `${len}자 / 최소 10자 필수`;
-    if (len >= 10) {
+    counter.textContent = chk.msg;
+    if (chk.ok) {
       counter.style.color = "var(--ok)";
       btn.disabled = false;
     } else {
@@ -977,8 +987,8 @@ code, pre, kbd, samp,
   function confirmUnmaskAction() {
     if (!pendingAction) return;
     const reason = (document.getElementById("unmaskReasonInput").value || "").trim();
-    if (reason.length < 10) {
-      alert("[3.4절 감사 통제] 열람 사유를 최소 10자 이상 구체적으로 입력해야 합니다.");
+    if (!reasonCheck(reason).ok) {
+      alert("[3.4절 감사 통제] 열람 사유를 공백 제외 10자 이상, 같은 글자 반복 없이 구체적으로 입력해야 합니다.");
       return;
     }
 
@@ -1034,6 +1044,7 @@ code, pre, kbd, samp,
         </div>
       </div>
     `;
+    document.getElementById("docViewerModal").style.removeProperty("display");
     document.getElementById("docViewerModal").classList.add("open");
   }
 

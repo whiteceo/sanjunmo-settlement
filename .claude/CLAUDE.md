@@ -89,4 +89,7 @@
 - 역할 그룹 · 1:1 문의 분류 이름을 화면에 직접 적지 않는다. `common-master.js`(`window.SJM_MASTER`)에서 읽는다. 관리 화면에서 바꾼 값은 브라우저 localStorage에 남으므로, Playwright 검증은 새 브라우저 컨텍스트로 시작하고 화면 간 반영은 같은 컨텍스트 안에서 확인한다.
 - 일부 HTML은 줄 끝(CRLF/LF)이 섞여 있다. 일괄 수정 스크립트가 줄 끝을 한 가지로 맞추면 내용 변화 없는 파일까지 바뀐다. 한 줄 안의 치환은 원문 그대로(`newline=""`) 적용하고, 여러 줄 치환이 필요하면 대상 파일의 줄 끝이 한 가지인지 먼저 확인한다(v6.24).
 - clean 문구 치환기는 원문자(`①~⑭`)를 지우므로 샘플 데이터에도 쓰지 않는다("3번"처럼 쓴다).
+- 여러 세션이 같은 작업 폴더를 쓰므로 `mirror_patch.py`는 옮길 파일 이름을 반드시 지정한다. 생략하면 다른 세션이 고치는 중인 clean 파일까지 prototype에 옮긴다. 공통 파일(`common-*.js` · `common-v84.css`)은 폴더별 내용이 달라 mirror 대상에 넣지 않는다(2026-10-27).
+- Git Bash의 `grep -c $'\r'`는 CRLF 파일에서도 0을 낼 수 있다. 줄 끝은 Python(`b.count(b'\r\n')`)으로 확인한다(2026-10-27).
+- 하위 화면(S) 페이지 전환은 공통 `SJM_PAGE`(`common-snb.js`)로 한다. 사용법 · 함정은 `scripts/qa/reports/review/findings/PAGE_PATTERN.md`(2026-10-27).
 - 앱 파일 미리보기 · 앱 브라우저에 HTML을 파일로 바로 열거나 구글 드라이브 미리보기로 보면 정적 사본이라 `common-snb.js` 등 옆 파일이 안 붙어 SNB가 보이지 않는다. 앱에서는 미리보기 설정 `prototype`(`.claude/launch.json`, `http://localhost:8765/prototype_clean/...`)으로, 그 밖에는 크롬으로 파일을 직접 연다(2026-10-26).

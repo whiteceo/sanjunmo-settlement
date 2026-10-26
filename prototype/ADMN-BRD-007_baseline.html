@@ -121,6 +121,7 @@ code, pre, kbd, samp,
     </header>
 
     <div id="v4-page-body" class="main-container">
+      <section class="subview-panel active" data-subpage="list">
       <div class="access-notice">
         <strong>🔒 '1:1 문의 분류' 쓰기 권한을 가진 역할 그룹만 쓰는 화면입니다(기본값: 최고 관리자).</strong> 분류와 자동 배정 화면을 바꾸면 이후 접수되는 문의가 다른 담당 부서 큐로 들어가므로, 권한은 운영자 권한 관리의 역할 그룹 · 권한에서 정합니다.<br />
         여기서 추가 · 수정한 분류는 사용자 1:1 문의 작성 화면의 분류 드롭다운과 1:1 문의 허브의 분기 라우팅에 즉시 반영됩니다.
@@ -154,7 +155,7 @@ code, pre, kbd, samp,
           <div class="card-title">📂 분류 마스터</div>
           <div class="card-actions">
             <button type="button" class="btn btn-outline btn-sm" onclick="openMajorModal()">대분류 관리</button>
-            <button type="button" class="btn btn-primary btn-sm" onclick="openCatModal(null)">＋ 분류 추가</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="openCatPage(null)">＋ 분류 추가</button>
           </div>
         </div>
         <div class="toolbar">
@@ -203,63 +204,63 @@ code, pre, kbd, samp,
           <tbody id="log-tbody"></tbody>
         </table>
       </div>
-    </div>
-  </div>
+      </section>
 
-  <!-- 분류 등록 · 수정 (ADMN-BRD-007-S1) -->
-  <div class="modal-backdrop" id="modal-cat-form">
-    <div class="modal-box" style="max-width:680px;">
-      <div class="modal-header">
-        <h3 id="cat-form-title">분류 등록</h3>
-        <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('modal-cat-form')">닫기 ✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-error" id="cat-form-error"></div>
-        <div class="form-row">
-          <label>대분류 *</label>
-          <div><select class="f-select" id="cf-major" style="width:100%;" onchange="previewCatCode()"></select></div>
+      <!-- 분류 등록 · 수정 (ADMN-BRD-007-S1) — 화면설계서 v12 별도 페이지(S), SJM_PAGE -->
+      <section class="subview-panel" data-subpage="form">
+        <div class="subpage-head">
+          <button type="button" class="btn btn-outline btn-sm" onclick="SJM_PAGE.back()">← 분류 목록</button>
+          <span class="crumb-code">ADMN-BRD-007-S1</span>
+          <h2 class="subpage-title" id="cat-form-title">분류 등록</h2>
         </div>
-        <div class="form-row">
-          <label>소분류 명칭 *</label>
-          <div>
-            <input class="f-input" id="cf-name" maxlength="40" style="width:100%;" placeholder="예: 상담 필요 (관리자 판단)" />
-            <div class="form-help">사용자 문의 작성 화면 드롭다운에 이 문구가 그대로 노출됩니다.</div>
+        <div class="card subpage-card" style="max-width:760px;">
+            <div class="form-error" id="cat-form-error"></div>
+            <div class="form-row">
+              <label>대분류 *</label>
+              <div><select class="f-select" id="cf-major" style="width:100%;" onchange="previewCatCode()"></select></div>
+            </div>
+            <div class="form-row">
+              <label>소분류 명칭 *</label>
+              <div>
+                <input class="f-input" id="cf-name" maxlength="40" style="width:100%;" placeholder="예: 상담 필요 (관리자 판단)" />
+                <div class="form-help">사용자 문의 작성 화면 드롭다운에 이 문구가 그대로 노출됩니다.</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>분류 코드 *</label>
+              <div>
+                <input class="f-input" id="cf-code" style="width:220px;" readonly />
+                <div class="form-help">최초 저장 시 자동 채번되며 이후 변경할 수 없습니다.</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>자동 배정 화면 *</label>
+              <div>
+                <select class="f-select" id="cf-screen" style="width:100%;"></select>
+                <div class="form-help">접수 건은 1:1 문의 허브 목록에 들어오고, 상세를 열면 이 화면의 분기 패널이 함께 열립니다.</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>담당 부서 큐 *</label>
+              <div><div class="check-group" id="cf-depts"></div><div class="form-help">운영자 권한 관리(ADMN-CONF-005)에서 '1:1 문의 담당 큐'로 지정한 역할 그룹입니다. 여러 부서를 고르면 모든 부서 큐에 함께 올라가고, 먼저 답변에 들어간 담당자가 처리합니다(선점).</div></div>
+            </div>
+            <div class="form-row">
+              <label>상태</label>
+              <div class="check-group">
+                <label><input type="radio" name="cf-status" value="ON" checked /> 사용</label>
+                <label><input type="radio" name="cf-status" value="OFF" /> 미사용 (드롭다운에서 숨김)</label>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>노출 순서</label>
+              <div><input class="f-input" id="cf-order" type="number" min="1" style="width:100px;" /></div>
+            </div>
+          <div class="subpage-foot">
+            <button type="button" class="btn btn-outline" onclick="SJM_PAGE.back()">취소</button>
+            <button type="button" class="btn btn-primary" onclick="saveCat()">저장</button>
           </div>
         </div>
-        <div class="form-row">
-          <label>분류 코드 *</label>
-          <div>
-            <input class="f-input" id="cf-code" style="width:220px;" readonly />
-            <div class="form-help">최초 저장 시 자동 채번되며 이후 변경할 수 없습니다.</div>
-          </div>
-        </div>
-        <div class="form-row">
-          <label>자동 배정 화면 *</label>
-          <div>
-            <select class="f-select" id="cf-screen" style="width:100%;"></select>
-            <div class="form-help">접수 건은 1:1 문의 허브 목록에 들어오고, 상세를 열면 이 화면의 분기 패널이 함께 열립니다.</div>
-          </div>
-        </div>
-        <div class="form-row">
-          <label>담당 부서 큐 *</label>
-          <div><div class="check-group" id="cf-depts"></div><div class="form-help">운영자 권한 관리(ADMN-CONF-005)에서 '1:1 문의 담당 큐'로 지정한 역할 그룹입니다. 여러 부서를 고르면 모든 부서 큐에 함께 올라가고, 먼저 답변에 들어간 담당자가 처리합니다(선점).</div></div>
-        </div>
-        <div class="form-row">
-          <label>상태</label>
-          <div class="check-group">
-            <label><input type="radio" name="cf-status" value="ON" checked /> 사용</label>
-            <label><input type="radio" name="cf-status" value="OFF" /> 미사용 (드롭다운에서 숨김)</label>
-          </div>
-        </div>
-        <div class="form-row">
-          <label>노출 순서</label>
-          <div><input class="f-input" id="cf-order" type="number" min="1" style="width:100px;" /></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline" onclick="closeModal('modal-cat-form')">취소</button>
-        <button type="button" class="btn btn-primary" onclick="saveCat()">저장</button>
-      </div>
+      </section>
     </div>
   </div>
 
@@ -376,7 +377,7 @@ code, pre, kbd, samp,
         return;
       }
       tbody.innerHTML = list.map(c => `
-        <tr class="row-click ${c.on ? '' : 'row-off'}" onclick="if (event.target.type !== 'checkbox') openCatModal('${c.code}')">
+        <tr class="row-click ${c.on ? '' : 'row-off'}" onclick="if (event.target.type !== 'checkbox') openCatPage('${c.code}')">
           <td><input type="checkbox" class="cat-check" value="${c.code}" /></td>
           <td><code>${c.code}</code></td>
           <td>${majorOf(c.major) ? majorOf(c.major).name : c.major}</td>
@@ -385,7 +386,7 @@ code, pre, kbd, samp,
           <td>${c.depts.map(d => `<span class="badge ${M.roles.get(d) && M.roles.get(d).on ? 'badge-blue' : 'badge-gray'}">${M.roles.name(d)}</span>`).join('')}</td>
           <td><span class="badge ${c.on ? 'badge-green' : 'badge-gray'}">${c.on ? '사용' : '미사용'}</span></td>
           <td>${c.order}</td>
-          <td><button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openCatModal('${c.code}')">수정</button></td>
+          <td><button type="button" class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openCatPage('${c.code}')">수정</button></td>
         </tr>
       `).join('');
     }
@@ -453,7 +454,12 @@ code, pre, kbd, samp,
       document.getElementById('cf-code').value = nextCatCode(document.getElementById('cf-major').value) + ' (저장 시 확정)';
     }
 
-    function openCatModal(code) {
+    // 분류 등록 · 수정 페이지(S1)로 이동 — 내용 채우기는 fillCatForm(SJM_PAGE onShow)
+    function openCatPage(code) {
+      SJM_PAGE.go('form', code ? { id: code } : { mode: 'new' });
+    }
+
+    function fillCatForm(code) {
       editingCode = code;
       const c = code ? CATS.find(x => x.code === code) : null;
       document.getElementById('cat-form-title').textContent = c ? `분류 수정 — ${c.code}` : '분류 등록';
@@ -477,7 +483,6 @@ code, pre, kbd, samp,
       document.getElementById('cf-order').value = c ? c.order : CATS.filter(x => x.major === majorSel.value).length + 1;
       if (c) document.getElementById('cf-code').value = c.code + ' 🔒';
       else previewCatCode();
-      openModalEl('modal-cat-form');
     }
 
     function catFormError(msg) {
@@ -532,8 +537,8 @@ code, pre, kbd, samp,
         addLog(code, `신규 등록 · 자동 배정 화면: ${screenOf(screen).name} · 담당 부서 큐: ${depts.map(M.roles.name).join(' · ')}`);
         showToast(`${code} 분류를 등록했습니다. 사용자 문의 작성 화면에 즉시 반영됩니다.`);
       }
-      closeModal('modal-cat-form');
       renderAll();
+      SJM_PAGE.back();
     }
 
     function openMajorModal() {
@@ -614,11 +619,19 @@ code, pre, kbd, samp,
 
     document.addEventListener('DOMContentLoaded', () => {
       renderAll();
-      // 목록 외 진입: ?id=분류코드 → 수정 모드, ?mode=new → 등록 모드
+      SJM_PAGE.register('form', {
+        code: 'ADMN-BRD-007-S1',
+        title: p => (p.id ? '1:1 문의 분류 수정' : '1:1 문의 분류 등록'),
+        onShow: p => fillCatForm(p.id && CATS.some(c => c.code === p.id) ? p.id : null)
+      });
+      SJM_PAGE.start();
+      // 목록 외 진입(예전 주소 호환): ?id=분류코드 → 수정, ?mode=new → 등록
       const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-      if (id && CATS.some(c => c.code === id)) openCatModal(id);
-      else if (params.get('mode') === 'new') openCatModal(null);
+      if (!params.get('view')) {
+        const id = params.get('id');
+        if (id && CATS.some(c => c.code === id)) SJM_PAGE.go('form', { id }, { replace: true });
+        else if (params.get('mode') === 'new') SJM_PAGE.go('form', { mode: 'new' }, { replace: true });
+      }
     });
   </script>
 <script>

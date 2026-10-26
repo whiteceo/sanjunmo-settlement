@@ -1158,6 +1158,7 @@ code, pre, kbd, samp,
                   <th>ISBN-13 <span class="req-star">*</span></th>
                   <td>
                     <input type="text" id="f-isbn" class="form-input" style="width:220px;" value="979-11-98765-01-2">
+                    <div class="field-hint" id="isbn-lock-hint" style="margin-top:4px;">결제 · 출고가 1건이라도 생기면 ISBN을 바꿀 수 없습니다.</div>
                   </td>
                 </tr>
                 <tr>
@@ -1268,6 +1269,66 @@ code, pre, kbd, samp,
                       <input type="number" id="f-royalty-rate" class="form-input text-right" value="10" min="0" max="50" step="0.5" oninput="recalcSupplyNumbers()">
                       <span class="input-unit">% (권당 <strong id="f-royalty-amt">3,800</strong>원)</span>
                     </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>기본 할인율 (0~10%) <span class="req-star">*</span></th>
+                  <td>
+                    <div class="input-with-unit" style="width:140px;">
+                      <input type="number" id="f-discount-rate" class="form-input text-right" value="0" min="0" max="10" step="1" oninput="recalcSupplyNumbers()">
+                      <span class="input-unit">% (정수)</span>
+                    </div>
+                    <div class="field-hint">도서정가제 상한 10%까지 · 추가 쿠폰 · 포인트는 0% 고정. 교재 관리(PROD-004)의 할인율과 같은 값입니다.</div>
+                  </td>
+                  <th>실판매가 (자동)</th>
+                  <td>
+                    <div class="input-with-unit" style="width:200px;">
+                      <input type="text" id="f-sale-price" class="form-input text-right" style="font-weight:800;" value="38,000" readonly="">
+                      <span class="input-unit">원 (면세)</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>가격 결정 주체 (자동)</th>
+                  <td>
+                    <span class="badge badge-info" id="f-price-owner">당사 (SELF)</span>
+                    <div class="field-hint" id="f-price-owner-hint">자사 발행 · 사입 · 비매품 도서의 정가는 당사가 정합니다.</div>
+                  </td>
+                  <th>정산 대상 여부 (자동)</th>
+                  <td>
+                    <span class="badge badge-sale" id="f-settlement-required">정산 대상</span>
+                    <div class="field-hint">공급 형태에서 자동으로 정합니다(자사 발행 · 위탁 = 정산 대상, 사입 · 비매품 = 정산 비대상). 직접 입력하지 않습니다.</div>
+                  </td>
+                </tr>
+                <tr id="row-consign-terms" style="display:none;">
+                  <th>위탁 정산 기준가 <span class="req-star">*</span></th>
+                  <td>
+                    <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                      <label class="option-label"><input type="radio" name="f-consign-base" value="PAID_AMOUNT" checked=""><span>실결제액 기준 (기본)</span></label>
+                      <label class="option-label"><input type="radio" name="f-consign-base" value="LIST_PRICE"><span>도서 정가 기준</span></label>
+                    </div>
+                    <div class="field-hint">권리자 계약 원장(ADMN-INST-001) 위탁 계약의 정산 기준가와 같게 둡니다.</div>
+                  </td>
+                  <th>위탁 재고 회수 조건</th>
+                  <td>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                      <input type="text" id="f-return-owner" class="form-input" style="width:170px;" placeholder="회수 담당 (위탁자 / 당사 물류)">
+                      <div class="input-with-unit" style="width:130px;">
+                        <input type="number" id="f-return-days" class="form-input text-right" value="14" min="0" step="1">
+                        <span class="input-unit">일 이내</span>
+                      </div>
+                    </div>
+                    <div class="field-hint">구매확정(D+7) 뒤 반품은 위탁자 재고로 회수합니다. 정산금 차감(환불)과 따로 실물 회수 상태(consignment_return_status)를 반품 건별로 추적합니다.</div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>초기 재고</th>
+                  <td colspan="3">
+                    <div class="input-with-unit" style="width:160px;">
+                      <input type="number" id="f-init-stock" class="form-input text-right" value="" min="0" step="1" placeholder="0">
+                      <span class="input-unit">권</span>
+                    </div>
+                    <div class="field-hint" id="f-init-stock-hint">신규 SKU 등록 때만 입력합니다. 등록 뒤 입고 · 재고 조정은 교재 관리(ADMN-PROD-004)에서 합니다.</div>
                   </td>
                 </tr>
                 <tr>
@@ -1782,7 +1843,7 @@ code, pre, kbd, samp,
         price.value = price.dataset.prev || 38000;
         if (!opts.keepRate) rate.value = type === "위탁판매" ? 65 : 30;
       }
-      price.readOnly = bundled;
+      price.readOnly = bundled || (type === "위탁판매" && isRegisteredSku());
       rate.readOnly = bundled;
       const royLocked = !(type === "자체출판(인세)" && !currentOwnCopyright());
       if (royLocked) roy.value = 0;
@@ -1806,6 +1867,43 @@ code, pre, kbd, samp,
     function lockSupplyType(locked) {
       document.querySelectorAll('input[name="f-supply-type"]').forEach(r => { r.disabled = locked; });
       document.getElementById("supply-lock-box").style.display = locked ? "block" : "none";
+      /* 결제 · 출고 1건 이상이면 ISBN 변경 영구 차단(공급 형태와 같은 판매 이력 기준) */
+      const isbn = document.getElementById("f-isbn");
+      isbn.readOnly = locked;
+      document.getElementById("isbn-lock-hint").textContent = locked
+        ? "🔒 판매(결제 · 출고) 이력이 있어 ISBN을 바꿀 수 없습니다. 개정판은 새 ISBN · 새 SKU로 등록합니다."
+        : "결제 · 출고가 1건이라도 생기면 ISBN을 바꿀 수 없습니다.";
+    }
+    /* 정가 결정 주체 · 정산 대상 여부 · 위탁 조건 · 초기 재고 — 공급 형태와 SKU 상태에서 파생 */
+    const SETTLEMENT_REQUIRED = { "자체출판(인세)": true, "위탁판매": true, "사입판매": false, "비매품(번들)": false };
+    function isRegisteredSku() {
+      const sku = document.getElementById("f-sku").value;
+      return !sku.includes("AUTO") && ledgerData.some(x => x.sku === sku);
+    }
+    function refreshDerivedFields(type) {
+      const consign = type === "위탁판매";
+      const owner = document.getElementById("f-price-owner");
+      owner.textContent = consign ? "위탁자 (CONSIGNOR)" : "당사 (SELF)";
+      owner.className = "badge " + (consign ? "badge-preorder" : "badge-info");
+      document.getElementById("f-price-owner-hint").textContent = consign
+        ? (isRegisteredSku() ? "🔒 위탁 도서의 정가는 위탁자가 정하므로 이 화면에서 바꿀 수 없습니다." : "위탁자가 정한 정가를 등록합니다. 등록 뒤에는 이 화면에서 정가를 바꿀 수 없습니다.")
+        : "자사 발행 · 사입 · 비매품 도서의 정가는 당사가 정합니다.";
+      const req = SETTLEMENT_REQUIRED[type];
+      const reqEl = document.getElementById("f-settlement-required");
+      reqEl.textContent = req ? "정산 대상" : "정산 비대상";
+      reqEl.className = "badge " + (req ? "badge-sale" : "badge-end");
+      document.getElementById("row-consign-terms").style.display = consign ? "" : "none";
+      const registered = isRegisteredSku();
+      document.getElementById("f-price").readOnly = type === "비매품(번들)" || (consign && registered);
+      const stock = document.getElementById("f-init-stock");
+      stock.readOnly = registered;
+      if (registered) stock.value = "";
+      stock.placeholder = registered ? "PROD-004 관리" : "0";
+      document.getElementById("f-discount-rate").readOnly = type === "비매품(번들)";
+      if (type === "비매품(번들)") document.getElementById("f-discount-rate").value = 0;
+    }
+    function setConsignBase(v) {
+      document.querySelectorAll('input[name="f-consign-base"]').forEach(r => { r.checked = (r.value === (v || "PAID_AMOUNT")); });
     }
     function issueNewSkuFromLocked() {
       lockSupplyType(false);
@@ -1848,6 +1946,10 @@ code, pre, kbd, samp,
       document.getElementById("f-price").value = found.price;
       document.getElementById("f-supply-rate").value = found.supplyRate || 60;
       document.getElementById("f-royalty-rate").value = found.royaltyRate || 0;
+      document.getElementById("f-discount-rate").value = found.discountRate || 0;
+      setConsignBase(found.consignBasePrice);
+      document.getElementById("f-return-owner").value = found.returnOwner || "";
+      document.getElementById("f-return-days").value = found.returnDays != null ? found.returnDays : 14;
       applySupplyTypeUi(found.supplyType, { keepRate: true });
       if (found.supplyType === "사입판매" && !found.costConfirmed) {
         const vr = selectedVendorRate();
@@ -1912,6 +2014,9 @@ code, pre, kbd, samp,
 
       document.getElementById("f-supply-cost").value = formatNumber(supplyCost);
       document.getElementById("f-royalty-amt").textContent = formatNumber(royaltyAmt);
+      const discountRate = Number(document.getElementById("f-discount-rate").value || 0);
+      document.getElementById("f-sale-price").value = formatNumber(Math.floor(price * (100 - Math.min(Math.max(discountRate, 0), 10)) / 100));
+      refreshDerivedFields(currentSupplyType());
       document.getElementById("f-margin-summary").textContent =
         `권당 ${formatNumber(marginAmt)}원 (이익률 ${marginRate}%) = 정가 ${formatNumber(price)}원 - 공급/제조원가 ${formatNumber(supplyCost)}원(${supplyRate}%) - 저자인세 ${formatNumber(royaltyAmt)}원(${royaltyRate}%)`;
       if (currentSupplyType() === "비매품(번들)") {
@@ -1978,6 +2083,19 @@ code, pre, kbd, samp,
       const supplyRate = Number(document.getElementById("f-supply-rate").value || 0);
       const supplyCost = Math.round(price * (supplyRate / 100));
       const royaltyRate = Number(document.getElementById("f-royalty-rate").value || 0);
+      const discountRate = Number(document.getElementById("f-discount-rate").value || 0);
+      if (!Number.isInteger(discountRate) || discountRate < 0 || discountRate > 10) {
+        showToast("도서 기본 할인율은 0~10% 정수만 저장할 수 있습니다(도서정가제 상한).");
+        return;
+      }
+      const stockRaw = document.getElementById("f-init-stock").value;
+      const initStock = stockRaw === "" ? null : Number(stockRaw);
+      if (initStock !== null && (!Number.isInteger(initStock) || initStock < 0)) {
+        showToast("초기 재고는 0 이상의 정수로 입력하세요.");
+        return;
+      }
+      const supplyTypeNow = currentSupplyType();
+      const consignBase = (document.querySelector('input[name="f-consign-base"]:checked') || {}).value || "PAID_AMOUNT";
 
       const payload = {
         sku: finalSku,
@@ -1994,6 +2112,14 @@ code, pre, kbd, samp,
         supplyRate,
         supplyCost,
         royaltyRate,
+        discountRate,
+        salePrice: Math.floor(price * (100 - discountRate) / 100),
+        priceOwner: supplyTypeNow === "위탁판매" ? "CONSIGNOR" : "SELF",
+        settlementRequired: !!SETTLEMENT_REQUIRED[supplyTypeNow],
+        consignBasePrice: supplyTypeNow === "위탁판매" ? consignBase : null,
+        returnOwner: supplyTypeNow === "위탁판매" ? document.getElementById("f-return-owner").value.trim() : "",
+        returnDays: supplyTypeNow === "위탁판매" ? Number(document.getElementById("f-return-days").value || 0) : null,
+        initStock,
         costConfirmed: true,
         step1Ok: currentLedgerEntryMode === "INST_TEMP",
         step3Ok: true,

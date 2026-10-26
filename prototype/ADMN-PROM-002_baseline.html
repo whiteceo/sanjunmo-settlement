@@ -799,13 +799,16 @@ code, pre, kbd, samp,
                       <th>타겟 그룹 (USER-006)</th>
                       <td>
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                          <select class="form-select" style="width:280px;">
-                            <option>태그: 무료회원 × 최근 30일 로그인 (대상 4,208명)</option>
-                            <option>태그: 산업안전기사 필기 수강완료 × 실기 미결제 (대상 1,120명)</option>
-                            <option>태그: 산준모 네이버 카페 인증 회원 (대상 8,940명)</option>
+                          <select id="tg-select" class="form-select" style="width:360px;" onchange="updateTargetGroupCount()">
+                            <optgroup label="태그 타겟">
+                            <option data-cnt="4208">태그: 무료회원 × 최근 30일 로그인 (대상 4,208명)</option>
+                            <option data-cnt="1120">태그: 산업안전기사 필기 수강완료 × 실기 미결제 (대상 1,120명)</option>
+                            <option data-cnt="8940">태그: 산준모 네이버 카페 인증 회원 (대상 8,940명)</option>
+                            </optgroup>
+                            <optgroup label="저장 그룹 (USER-006 그룹·태그)" id="tg-saved-groups"></optgroup>
                           </select>
-                          <button type="button" class="btn btn-sm" onclick="showToast('ADMN-USER-006 그룹·태그 타겟 미리보기: 총 4,208명 매칭됨')">그룹 선택 · 미리보기</button>
-                          <span class="badge badge-blue">대상 4,208명 (중복 보유자 자동 스킵)</span>
+                          <button type="button" class="btn btn-sm" onclick="showToast('ADMN-USER-006 그룹·태그 타겟 미리보기: 총 ' + currentTargetCount().toLocaleString() + '명 매칭됨')">그룹 선택 · 미리보기</button>
+                          <span class="badge badge-blue" id="tg-count-badge">대상 4,208명 (중복 보유자 자동 스킵)</span>
                         </div>
                       </td>
                     </tr>
@@ -1637,10 +1640,66 @@ code, pre, kbd, samp,
       setTimeout(() => { t.style.display = "none"; }, 3200);
     }
 
+    // 저장 그룹(USER-006 그룹·태그) — 공통 데이터(SJM_MASTER.groups)가 있으면 그것을, 없으면 USER-001과 같은 코드·이름의 샘플을 쓴다
+    const SAVED_GROUPS_SAMPLE = [
+      { code: "GRP-2026-01", name: "환급반 중도이탈 위험군 케어 그룹", mode: "DYNAMIC", members: 412, consent: 388 },
+      { code: "GRP-2026-02", name: "카페 인증 미결제 전환 타겟 그룹", mode: "DYNAMIC", members: 1204, consent: 1089 },
+      { code: "GRP-2026-03", name: "2026년 2회 정기시험 응시자 스냅샷", mode: "STATIC", members: 2140, consent: 1950 }
+    ];
+    function getSavedGroups() {
+      return (window.SJM_MASTER && Array.isArray(SJM_MASTER.groups) && SJM_MASTER.groups.length) ? SJM_MASTER.groups : SAVED_GROUPS_SAMPLE;
+    }
+    function savedGroupLabel(g) {
+      const mode = g.mode === "STATIC" ? "[정적 · 명단 고정]" : "[동적 · 매일 06:00]";
+      return mode + " " + g.code + " " + (g.name || "") + " (대상 " + Number(g.members || 0).toLocaleString() + "명)";
+    }
+    function fillSavedGroups() {
+      const og = document.getElementById("tg-saved-groups");
+      if (!og) return;
+      og.innerHTML = "";
+      getSavedGroups().forEach(g => {
+        const o = document.createElement("option");
+        o.value = g.code;
+        o.setAttribute("data-cnt", g.members || 0);
+        o.textContent = savedGroupLabel(g);
+        og.appendChild(o);
+      });
+    }
+    function currentTargetCount() {
+      const sel = document.getElementById("tg-select");
+      const o = sel && sel.options[sel.selectedIndex];
+      return o ? Number(o.getAttribute("data-cnt") || 0) : 0;
+    }
+    function updateTargetGroupCount() {
+      const b = document.getElementById("tg-count-badge");
+      if (b) b.textContent = "대상 " + currentTargetCount().toLocaleString() + "명 (중복 보유자 자동 스킵)";
+    }
+    // USER-001 그룹 → [쿠폰 발급] 진입(?target=group&grp=GRP-…&cnt=…) 시 대량 발급 폼을 열고 그룹을 미리 선택
+    function applyTargetGroupParam(grp, cnt) {
+      openFormNew();
+      setIssueMethod("BULK");
+      const sel = document.getElementById("tg-select");
+      if (!sel || !grp) { updateTargetGroupCount(); return; }
+      let opt = Array.prototype.find.call(sel.options, o => o.value === grp);
+      if (!opt) {
+        opt = document.createElement("option");
+        opt.value = grp;
+        opt.setAttribute("data-cnt", Number(cnt) || 0);
+        opt.textContent = grp + " (USER-006에서 넘어온 그룹, 대상 " + (Number(cnt) || 0).toLocaleString() + "명)";
+        document.getElementById("tg-saved-groups").appendChild(opt);
+      }
+      sel.value = grp;
+      updateTargetGroupCount();
+      showToast("저장 그룹 " + grp + "을(를) 수동 대량 발급 타겟으로 불러왔습니다. (대상 " + currentTargetCount().toLocaleString() + "명)");
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       const params = new URLSearchParams(window.location.search);
       const v = params.get("view");
-      if (v === "point") {
+      fillSavedGroups();
+      if (params.get("target") === "group") {
+        applyTargetGroupParam(params.get("grp"), params.get("cnt"));
+      } else if (v === "point") {
         switchSubView("point");
       } else if (v === "form") {
         openFormNew();

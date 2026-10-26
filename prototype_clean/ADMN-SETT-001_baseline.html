@@ -916,7 +916,7 @@ function analyzeUnit(unitKey, supportAgreements = [], productObj = null){
     return {slices:[], errors:[], warnings:["강좌 포함 비매품 도서(BUNDLED)는 정산기준금이 0원으로 고정되며, 1계층 권리자는 자사(엘캠퍼스) 100%로 자동 매핑됩니다(별도 인세 지분 매핑 없음)."], mismatchCount:0, isAuto:true, currentSum:0};
   }
   if(productObj && productObj.kind === "BOOK" && productObj.supplyType === "CONSIGNMENT"){
-    return {slices:[], errors:[], warnings:["위탁 도서(CONSIGNMENT)는 1계층 인세 지분 매핑 대상이 아니며 위탁 판매대금으로 별도 정산합니다."], mismatchCount:0, isAuto:true, currentSum:0};
+    return {slices:[], errors:[], warnings:["위탁 도서(CONSIGNMENT)는 위탁자 1인 100%로 고정 매핑되며(인세 지분 편집 없음) 위탁 도서 판매대금 정산으로 처리합니다."], mismatchCount:0, isAuto:true, currentSum:0};
   }
   if(productObj && productObj.kind !== "COURSE" && (productObj.ownCopyright || productObj.supplyType === "PURCHASED_RESALE")){
     return {slices:[{start:"2025-01-01", end:"2099-12-31", totalShare:100, internalShare:100, supportRateSum:supportAgreements[0]?.rate||0, status:"OK", count:1}], errors:[], warnings:[], mismatchCount:0, isAuto:true, currentSum:100};
@@ -995,7 +995,7 @@ function evaluateProduct(p){
   } else {
     const res = analyzeUnit(p.id, p.supportAgreements, p);
     const status = res.isAuto ? "AUTO" : (res.errors.length > 0 ? "UNMAPPED" : (res.mismatchCount > 0 ? "MISMATCH" : "OK"));
-    const summaryText = p.supplyType === "CONSIGNMENT" ? "위탁정산 분리"
+    const summaryText = p.supplyType === "CONSIGNMENT" ? "위탁자 1인 100% 고정"
       : p.supplyType === "BUNDLED" ? "자사 100% 자동 고정 (비매품)"
       : p.ownCopyright ? "자사저작권 100% + 지원금 15%"
       : p.kind === "GOODS" ? "일반 상품 자사 100% 고정"
@@ -1209,7 +1209,7 @@ function renderDetailView(){
       ? "일반 상품(소비재)은 자사 100.00%로 자동 고정되며 권리자 정산에 인입되지 않습니다. 매출은 일반 상품 판매매출로 자사 마감 집계(ADMN-SETT-009)에 둡니다."
       : p.supplyType === "PURCHASED_RESALE"
       ? "매입 재판매(PURCHASED_RESALE) 도서는 자사 100.00%로 자동 고정되며 인세 정산 엔진에 인입되지 않습니다."
-      : `위탁 판매(CONSIGNMENT) 도서는 1계층 지분 매핑 대상이 아니며 위탁 정산으로 직접 처리됩니다.${p.consignorHolderId ? ` 위탁자: ${getHolder(p.consignorHolderId)?.name || p.consignorHolderId} (${p.consignContractId})` : ""}`;
+      : `위탁 판매(CONSIGNMENT) 도서는 위탁자 1인 100%로 고정 매핑되며 위탁 도서 판매대금 정산으로 처리됩니다(인세 지분 편집 없음).${p.consignorHolderId ? ` 위탁자: ${getHolder(p.consignorHolderId)?.name || p.consignorHolderId} (${p.consignContractId})` : ""}`;
   } else {
     $("autoLockBanner").hidden = true;
   }
@@ -1241,7 +1241,7 @@ function renderDetailView(){
       const effEnd = effectiveEndDate(r);
       const mismatch = c && !c.id.startsWith("CT-INTERNAL") && effEnd !== c.currentEnd;
       return `<tr>
-        <td><span class="chip ${r.locked?"":"info"}">${r.locked?"자동고정":"편집가능"}</span></td>
+        <td><span class="chip ${r.locked?"":r.draft?"warn":"info"}">${r.locked?"자동고정":r.draft?"미저장":"저장됨"}</span></td>
         <td><b>${esc(h?.name || r.holderId)}</b><div class="note">${esc(r.holderId)}</div></td>
         <td>${esc(c?.title || r.contractId)}<div class="note">${esc(r.contractId)} (모계약 종료: ${esc(c?.currentEnd||"—")})</div></td>
         <td class="num"><b>${pct(r.share)}</b></td>
@@ -1251,8 +1251,10 @@ function renderDetailView(){
         <td>${c?.id.startsWith("CT-INTERNAL")?'<span class="chip">상시</span>':mismatch?'<span class="chip warn">불일치</span>':'<span class="chip ok">일치</span>'}</td>
         <td>${esc(r.reason)}</td>
         <td class="nowrap">${r.locked?"잠금":
-          `<button type="button" class="btn sm" data-action="editRow" data-id="${esc(r.id)}">수정</button>
-           <button type="button" class="btn sm danger" data-action="deleteRow" data-id="${esc(r.id)}">삭제</button>`
+          `<button type="button" class="btn sm" data-action="editRow" data-id="${esc(r.id)}">${r.draft?"수정":"변경"}</button>
+           ${r.draft
+             ? `<button type="button" class="btn sm danger" data-action="deleteRow" data-id="${esc(r.id)}">삭제</button>`
+             : `<button type="button" class="btn sm danger" data-action="endRow" data-id="${esc(r.id)}">종료</button>`}`
         }</td>
       </tr>`;
     }).join("") || `<tr><td colspan="10" class="empty">아직 매핑된 권리자가 없습니다. 우측 상단 <b>[+ 권리자 지분 행 추가]</b> 버튼을 눌러 매핑을 시작하세요.</td></tr>`}</tbody>
@@ -1315,6 +1317,47 @@ function showModalErr(msg){
   return false;
 }
 
+/* 저장된 행 종료: 행을 지우지 않고 종료일 + 변경 사유를 남긴다(01권 4.3 L196 · L199) */
+function openEndRowModal(rowId){
+  const unitKey = currentUnitKey();
+  const row = (state.mappings[unitKey] || []).find(r => r.id === rowId);
+  if(!row || row.draft) return;
+  const curEnd = effectiveEndDate(row);
+  openModal("권리자 지분 행 종료 (이력 보존)", `
+    <div class="alert warn">저장된 행은 지우지 않고 종료일을 걸어 이력으로 남깁니다. 종료일 다음 날부터 이 권리자 몫이 빠지므로, 같은 기간을 다른 행으로 채워야 구간 합계 100.00%가 맞습니다.</div>
+    <div class="row c2">
+      <div>
+        <label class="lbl">대상 행</label>
+        <div class="fc" style="background:#f8fafc">${esc(row.id)} · ${esc(getHolder(row.holderId)?.name || row.holderId)} · ${pct(row.share)} · ${esc(row.start)} ~ ${esc(curEnd)}</div>
+      </div>
+      <div>
+        <label class="lbl" for="m_endDate">종료일 (필수)</label>
+        <input class="fc" id="m_endDate" name="endDate" type="date" value="${esc(curEnd < "2099-12-31" ? curEnd : "")}" required>
+        <div class="note">마감 확정(${LOCKED_THROUGH_MONTH}까지 Locked) 월 안으로는 종료할 수 없습니다. 지난 달 정정은 마감 후 정정(조정 라인 등록)으로 처리합니다.</div>
+      </div>
+    </div>
+    <div>
+      <label class="lbl" for="m_endReason">종료 사유 (필수)</label>
+      <input class="fc" id="m_endReason" name="endReason" type="text" maxlength="200" required placeholder="예: 공동 강사 계약 해지 합의(2026-10-20)">
+    </div>
+  `, data => {
+    const endDate = data.get("endDate");
+    const reason = (data.get("endReason") || "").trim();
+    if(!endDate) return showModalErr("종료일을 입력하세요.");
+    if(endDate < row.start) return showModalErr(`종료일은 시작일(${row.start}) 이후여야 합니다.`);
+    if(endDate.slice(0,7) <= LOCKED_THROUGH_MONTH) return showModalErr("마감 확정("+LOCKED_THROUGH_MONTH+"까지 Locked) 월 안으로는 종료할 수 없습니다. 마감 후 정정(조정 라인 등록)으로 처리하세요.");
+    if(!reason) return showModalErr("종료 사유를 입력하세요.");
+    const before = `${row.endBasis} ${curEnd}`;
+    row.endBasis = "FIXED_DATE";
+    row.end = endDate;
+    row.reason = `종료: ${reason}`;
+    state.dirty = true;
+    logAudit(unitKey, "권리자 지분 행 종료 (이력 보존)", `${row.id} ${row.holderId} ${pct(row.share)} 종료 ${before} → ${endDate} · 사유: ${reason}`);
+    refresh();
+    return true;
+  });
+}
+
 function openRowModal(rowId = null){
   const unitKey = currentUnitKey();
   const rows = state.mappings[unitKey] || [];
@@ -1332,7 +1375,9 @@ function openRowModal(rowId = null){
     reason:"신규 상품 권리자 지분 매핑"
   };
 
-  openModal(current ? "권리자 지분 행 수정" : "권리자 지분 행 추가", `
+  const savedRow = current && !current.draft; // 저장된 행 — 직접 덮어쓰지 않고 종료 + 새 행(01권 4.3)
+  openModal(current ? (savedRow ? "권리자 지분 행 변경 (기존 행 종료 + 새 행 추가)" : "권리자 지분 행 수정 (미저장 행)") : "권리자 지분 행 추가", `
+    ${savedRow ? `<div class="alert warn">저장된 행은 직접 고치지 않습니다. 권리자 · 계약 · 지분율을 바꾸면 기존 행은 <b>유효 시작일 전날</b>로 종료되고 바꾼 값으로 새 행이 추가됩니다(이력 보존). 유효 시작일에 변경 적용일(기존 시작일 ${esc(current.start)} 이후)을 넣으세요. 종료일 · 종료 기준 · 사유만 바꾸면 기존 행의 종료 조건만 바뀝니다.</div>` : ""}
     <div class="row c2">
       <div>
         <label class="lbl" for="m_holderId">권리자 선택</label>
@@ -1393,13 +1438,45 @@ function openRowModal(rowId = null){
     const reason = (data.get("reason") || "").trim();
     if(!reason) return showModalErr("변경 사유를 입력하세요.");
 
-    const itemObj = {id: current ? current.id : "MAP-"+(++state.seq), holderId, contractId, share, start, endBasis, end, reason, locked:false};
     if(!state.mappings[unitKey]) state.mappings[unitKey] = [];
+    if(savedRow){
+      /* 저장된 행: Update 금지 — 종료일 설정 + 신규 행 Insert로 이력 보존(01권 4.3 도서 지분의 유효일자 · 강의 지분 동일) */
+      const coreChanged = current.holderId !== holderId || current.contractId !== contractId || Number(current.share) !== share;
+      if(coreChanged){
+        if(!start || start <= current.start){
+          return showModalErr(`권리자 · 계약 · 지분율을 바꾸려면 유효 시작일을 기존 시작일(${current.start}) 이후 변경 적용일로 지정하세요. 기존 행은 그 전날로 종료되고 새 행이 추가됩니다.`);
+        }
+        const oldEnd = effectiveEndDate(current);
+        if(start > oldEnd){
+          return showModalErr(`기존 행은 ${oldEnd}에 이미 끝납니다. 그 뒤 기간은 [+ 권리자 지분 행 추가]로 등록하세요.`);
+        }
+        const closeEnd = prevDayIso(start);
+        current.endBasis = "FIXED_DATE";
+        current.end = closeEnd;
+        const newRow = {id:"MAP-"+(++state.seq), holderId, contractId, share, start, endBasis, end, reason, locked:false, draft:true};
+        const rows = state.mappings[unitKey];
+        rows.splice(rows.indexOf(current) + 1, 0, newRow);
+        state.dirty = true;
+        logAudit(unitKey, "권리자 지분 변경 (기존 행 종료 + 새 행 추가)", `${current.id} ${current.holderId} ${pct(current.share)} → ${closeEnd} 종료 / ${newRow.id} ${holderId} (${contractId}) ${pct(share)} ${start}부터 · 사유: ${reason}`);
+        refresh();
+        return true;
+      }
+      if(start !== current.start){
+        return showModalErr(`저장된 행의 시작일(${current.start})은 바꾸지 않습니다. 기간을 줄이려면 종료일을 바꾸고, 새 기간은 행을 추가하세요.`);
+      }
+      const before = `${current.endBasis} ${effectiveEndDate(current)}`;
+      Object.assign(current, {endBasis, end, reason});
+      state.dirty = true;
+      logAudit(unitKey, "권리자 지분 종료 조건 변경", `${current.id} ${holderId} 종료 ${before} → ${endBasis} ${end} · 사유: ${reason}`);
+      refresh();
+      return true;
+    }
+    const itemObj = {id: current ? current.id : "MAP-"+(++state.seq), holderId, contractId, share, start, endBasis, end, reason, locked:false, draft:true};
     if(current) Object.assign(current, itemObj);
     else state.mappings[unitKey].push(itemObj);
 
     state.dirty = true;
-    logAudit(unitKey, current ? "권리자 지분 수정" : "권리자 지분 추가", `${holderId} (${contractId}) → ${pct(share)} · 사유: ${reason}`);
+    logAudit(unitKey, current ? "권리자 지분 수정 (미저장 행)" : "권리자 지분 추가", `${holderId} (${contractId}) → ${pct(share)} · 사유: ${reason}`);
     refresh();
     return true;
   });
@@ -1444,11 +1521,16 @@ document.addEventListener("click", e => {
   if(action === "addShareRow") openRowModal(null);
   if(action === "editRow") openRowModal(btn.dataset.id);
   if(action === "deleteRow"){
+    /* 미저장 행만 실제 삭제 — 저장된 행은 [종료]로 이력을 남긴다(01권 4.3) */
     const unitKey = currentUnitKey();
-    state.mappings[unitKey] = (state.mappings[unitKey] || []).filter(r => r.id !== btn.dataset.id);
+    const target = (state.mappings[unitKey] || []).find(r => r.id === btn.dataset.id);
+    if(!target || !target.draft) return;
+    state.mappings[unitKey] = state.mappings[unitKey].filter(r => r.id !== btn.dataset.id);
     state.dirty = true;
+    logAudit(unitKey, "권리자 지분 미저장 행 삭제", `${target.id} ${target.holderId} ${pct(target.share)}`);
     refresh();
   }
+  if(action === "endRow") openEndRowModal(btn.dataset.id);
   if(action === "quickFillRemainder"){
     const unitKey = currentUnitKey();
     const rows = state.mappings[unitKey] || [];
@@ -1466,7 +1548,8 @@ document.addEventListener("click", e => {
       endBasis:"FIXED_DATE",
       end:baseEnd,
       reason:`잔여 자사(엘캠퍼스) 지분 ${pct(remain)} 자동 배정`,
-      locked:false
+      locked:false,
+      draft:true
     });
     state.mappings[unitKey] = rows;
     state.dirty = true;
@@ -1481,7 +1564,7 @@ document.addEventListener("click", e => {
     if(!src.length) return toast("현재 강의에 매핑된 행이 없습니다.");
     p.lessons.forEach(l => {
       if(l.id !== state.selectedLessonId){
-        state.mappings[l.id] = src.map(r => ({...r, id:"MAP-"+(++state.seq)}));
+        state.mappings[l.id] = src.map(r => ({...r, id:"MAP-"+(++state.seq), draft:true}));
       }
     });
     state.dirty = true;
@@ -1524,6 +1607,7 @@ document.addEventListener("click", e => {
     const unitKey = currentUnitKey();
     const {errors} = analyzeUnit(unitKey, p.supportAgreements, p);
     if(errors.length) return toast("100.00% 검증 오류를 먼저 해결하세요.");
+    (state.mappings[unitKey] || []).forEach(r => { delete r.draft; });
     state.dirty = false;
     state.savedAt = stamp();
     state.savedSnapshot = JSON.parse(JSON.stringify(state.mappings[unitKey]));

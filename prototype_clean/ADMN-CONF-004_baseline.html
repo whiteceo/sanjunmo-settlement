@@ -519,9 +519,9 @@ code, pre, kbd, samp,
                 <option value="SEG_EXPIRE_7D" data-cnt="84">수강만료 7일 전 도래 회원 (84명)</option>
                 <option value="SEG_WINNERS" data-cnt="6">이벤트 당첨자 명단 (6명)</option>
                 <optgroup label="USER-006 그룹·태그 타겟">
-                  <option value="GRP-2026-01" data-cnt="412">[동적 · 매일 06:00] GRP-2026-01 환급반 중도이탈 위험군 케어 그룹 (412명)</option>
-                  <option value="GRP-2026-02" data-cnt="1204">[동적 · 매일 06:00] GRP-2026-02 카페 인증 미결제 전환 타겟 그룹 (1,204명)</option>
-                  <option value="GRP-2026-03" data-cnt="2140">[정적 · 명단 고정] GRP-2026-03 2026년 2회 정기시험 응시자 스냅샷 (2,140명)</option>
+                  <option value="GRP-2026-01" data-cnt="412" data-consent="388">[동적 · 매일 06:00] GRP-2026-01 환급반 중도이탈 위험군 케어 그룹 (412명)</option>
+                  <option value="GRP-2026-02" data-cnt="1204" data-consent="1089">[동적 · 매일 06:00] GRP-2026-02 카페 인증 미결제 전환 타겟 그룹 (1,204명)</option>
+                  <option value="GRP-2026-03" data-cnt="2140" data-consent="1950">[정적 · 명단 고정] GRP-2026-03 2026년 2회 정기시험 응시자 스냅샷 (2,140명)</option>
                 </optgroup>
               </select>
               <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">그룹·태그 타겟은 회원 관리(USER-006)에서 만든 동적 그룹(매일 06:00 갱신)·정적 그룹(명단 고정)을 그대로 불러오며, 광고성 발송 시 마케팅 미동의 회원은 자동 제외됩니다.</div>
@@ -1035,8 +1035,32 @@ code, pre, kbd, samp,
     const opt = sel.options[sel.selectedIndex];
     const cnt = Number(opt.getAttribute('data-cnt') || 100);
     const cost = cnt * 9;
+    const consent = opt.getAttribute('data-consent');
+    const consentTxt = consent ? ` · 광고성 발송 시 수신 동의 ${Number(consent).toLocaleString()}명만 발송` : '';
     document.getElementById('send-Summary-text').textContent =
-      `예상 발송 대상: ${cnt.toLocaleString()}명 (알림톡 단가 9원 기준 예상 비용: ${cost.toLocaleString()}원)`;
+      `예상 발송 대상: ${cnt.toLocaleString()}명 (알림톡 단가 9원 기준 예상 비용: ${cost.toLocaleString()}원${consentTxt})`;
+  }
+
+  // USER-001 그룹 → [알림톡 발송] 진입(?view=send&target=group&grp=GRP-…&cnt=수신 동의 인원) 시 그룹 미리 선택
+  function selectSendGroup(grp, cnt) {
+    const sel = document.getElementById('send-target-seg');
+    if (!sel || !grp) return;
+    let opt = Array.prototype.find.call(sel.options, o => o.value === grp);
+    if (!opt) {
+      const og = sel.querySelector('optgroup');
+      const g = (window.SJM_MASTER && Array.isArray(SJM_MASTER.groups)) ? SJM_MASTER.groups.find(x => x.code === grp) : null;
+      opt = document.createElement('option');
+      opt.value = grp;
+      opt.setAttribute('data-cnt', g ? g.members : (Number(cnt) || 0));
+      if (g || cnt) opt.setAttribute('data-consent', g ? g.consent : Number(cnt));
+      opt.textContent = g
+        ? `${g.mode === 'STATIC' ? '[정적 · 명단 고정]' : '[동적 · 매일 06:00]'} ${g.code} ${g.name} (${Number(g.members).toLocaleString()}명)`
+        : `${grp} USER-006에서 넘어온 그룹 (수신 동의 ${(Number(cnt) || 0).toLocaleString()}명)`;
+      (og || sel).appendChild(opt);
+    }
+    sel.value = grp;
+    updateSendTargetCount();
+    showToast(`저장 그룹 ${grp}을(를) 수신 타겟으로 불러왔습니다.`);
   }
 
   function jumpToSendWithTpl(code) {
@@ -1107,6 +1131,11 @@ code, pre, kbd, samp,
     const view = params.get('view') || params.get('tab');
     if (view === 'ADMN-CONF-004-S1' || view === 'send') switchTab('send');
     else if (view === 'ADMN-CONF-007' || view === 'hist') switchTab('hist');
+    const grp = params.get('grp');
+    if (grp) {
+      if (view !== 'ADMN-CONF-004-S1' && view !== 'send') switchTab('send');
+      selectSendGroup(grp, params.get('cnt'));
+    }
   });
 </script>
 <script>

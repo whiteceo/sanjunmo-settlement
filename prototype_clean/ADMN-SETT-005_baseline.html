@@ -311,7 +311,7 @@
     /* Workspace Split */
     .workspace-grid {
       display: grid;
-      grid-template-columns: 1.28fr 1.07fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 16px;
       align-items: start;
     }
@@ -431,8 +431,10 @@
       border-left: 4px solid var(--primary);
     }
     .hidden { display: none !important; }
-    /* v6.0 SETT-005: 공통 모달 숨김 규칙보다 우선해 신규 조정 모달 표시 */
-    #newAdjModal.modal-backdrop:not(.hidden) { display: flex !important; }
+    /* v6.68 SETT-005-S1: 조정 라인 등록 · 상세는 모달이 아니라 페이지(SJM_PAGE) */
+    .adj-form-body { padding: 14px 0 4px; display: flex; flex-direction: column; gap: 14px; }
+    #adjDetailCard .detail-body { max-height: none; overflow: visible; padding: 14px 0 4px; }
+    .subpage-foot .foot-note { margin-right: auto; font-size: 11.5px; color: var(--text-sub); align-self: center; }
   
 /* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
 :root {
@@ -479,8 +481,9 @@ code, pre, kbd, samp,
       <h1 class="crumb-title" id="header-screen-title">정산 수동 조정 (마감 후 소급 · 계정 간 대체)</h1>
     </div>
     <div class="top-bar-right" id="v4-topbar-right-slot">
-      <button class="btn" onclick="location.href='ADMN-SETT-002_baseline.html'">← 월간 정산 및 집행(SETT-002)</button> <button class="btn btn-primary" id="btnOpenNewAdjModal">+ 신규 수동 조정 · 계정 대체 등록</button>
+      <button class="btn" onclick="location.href='ADMN-SETT-002_baseline.html'">← 월간 정산 및 집행(SETT-002)</button> <button class="btn btn-primary" id="btnOpenNewAdjPage">+ 신규 수동 조정 · 계정 대체 등록</button>
     </div></header><div id="v4-page-body">
+<section class="subview-panel active" data-subpage="list">
   
   
   
@@ -546,7 +549,7 @@ code, pre, kbd, samp,
           <div class="card">
             <div class="card-header">
               <div class="card-title">정산 수동 조정 및 계정 대체 전표 목록</div>
-              <button class="btn btn-sm btn-primary" onclick="openNewAdjModal()">+ 신규 수동 조정 등록</button>
+              <button class="btn btn-sm btn-primary" onclick="openNewAdjPage()">+ 신규 수동 조정 등록</button>
             </div>
             <div class="filter-bar">
               <input type="text" id="searchInput" class="input" placeholder="조정ID, 수취인명, 원 정산서ID 검색..." style="width:220px;">
@@ -578,15 +581,6 @@ code, pre, kbd, samp,
                 <tbody id="adjTableBody"></tbody>
               </table>
             </div>
-          </div>
-
-          <!-- 우측 상세 및 승인 패널 -->
-          <div class="detail-panel">
-            <div class="card-header">
-              <div class="card-title">수동 조정 상세 규격 및 1:N 증빙 정정 연동</div>
-              <span id="detailBadge" class="badge badge-neutral">선택됨</span>
-            </div>
-            <div class="detail-body" id="detailBody"></div>
           </div>
         </div>
       </section>
@@ -693,19 +687,43 @@ code, pre, kbd, samp,
   </div>
 </div>
 
-<!-- 신규 수동 조정 · 계정 간 대체 등록 모달 (10.2절 ~ 10.4절 필수 입력 폼) -->
-<div id="newAdjModal" class="modal-backdrop hidden">
-  <div class="modal-card">
-    <div class="card-header">
-      <div>
-        <div class="card-title">🔧 [ADMN-SETT-005-S1] 조정 라인 등록 · 수정 — 원 발생월/반영월 · 사유 · 4채널 증빙 정정</div>
+</section>
+
+<!-- 조정 라인 등록 · 상세 (ADMN-SETT-005-S1) — 화면설계서 v12 별도 페이지(S), SJM_PAGE -->
+<section class="subview-panel" data-subpage="form">
+<div class="app-layout">
+  <div class="main">
+    <div class="content">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-sm" onclick="SJM_PAGE.back()">← 수동 조정 목록</button>
+        <span class="crumb-code">ADMN-SETT-005-S1</span>
+        <h2 class="subpage-title" id="adjPageTitle">조정 라인 등록</h2>
+        <span id="detailBadge" class="badge badge-neutral hidden"></span>
+      </div>
+
+      <!-- 등록 (10.2절 ~ 10.4절 필수 입력 폼) -->
+      <div class="card subpage-card" id="adjNewCard">
         <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
           원 정산서(<code>원정산번호</code>)를 선택하면 수취인 세무 유형과 원 발생 귀속월(<code>origin_month</code>)이 자동 바인딩되며, 마감된 월은 미마감 당월(<code>2026-10</code>)로만 반영됩니다.
         </div>
+    <div class="adj-form-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">조정 유형 (필수)</label>
+          <select id="newAdjType" class="select" onchange="updateNewModalPreview()">
+            <option value="CURRENT_MANUAL">당월 수동 조정</option>
+            <option value="PRIOR_CORRECTION">전월 정정 (마감 후 전기오류수정 · 차월 반영)</option>
+            <option value="ACCOUNT_TRANSFER">세전 · 세후 계정 간 대체 (재무 책임자 승인)</option>
+            <option value="PRO_RATA">지원금 이행률 정산 PRO_RATA (재무 책임자 승인)</option>
+            <option value="SUPPORT_CAP_MANUAL">지원금 한도 수기 조정 (재무 책임자 승인)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">수취인 (원 정산서에서 자동)</label>
+          <input type="text" id="newPayee" class="input" readonly style="background:#f1f5f9;">
+        </div>
       </div>
-      <button class="btn btn-sm" onclick="closeNewAdjModal()">✕ 닫기</button>
-    </div>
-    <div class="modal-body">
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">참조 원 정산서 선택 (원정산번호 · 필수)</label>
@@ -780,6 +798,12 @@ code, pre, kbd, samp,
         </div>
       </div>
 
+      <div class="form-group hidden" id="newTaxEvidenceGroup">
+        <label class="form-label">과세유형 오인 정정 근거 — 사업자 상태 API 재조회 결과 스냅샷 첨부 (필수)</label>
+        <input type="file" id="newTaxTypeEvidence" class="input" accept=".pdf,.png,.jpg,.jpeg">
+        <div style="font-size:11px; color:var(--text-muted);">당초 증빙은 채널 1 또는 채널 2로 정정하고, 재조회 결과를 정정 근거로 남깁니다.</div>
+      </div>
+
       <div class="form-row-3">
         <div class="form-group">
           <label class="form-label">원 발생 귀속월 (origin_month)</label>
@@ -816,13 +840,21 @@ code, pre, kbd, samp,
         </div>
         <div class="form-group">
           <label class="form-label">소득 구분 상위 축 · 호 구분</label>
-          <select id="newIncomeCategory" class="select">
+          <select id="newIncomeCategory" class="select" onchange="updateNewModalPreview()">
             <option value="사업소득 (BUSINESS)">사업소득 (BUSINESS)</option>
+            <option value="기타소득-저작자 외 저작권 대가 (OTHER · C05)">기타소득-저작자 외 저작권 대가 (OTHER · C05)</option>
             <option value="기타소득-원작자 (OTHER · C15)">기타소득-원작자 (OTHER · C15)</option>
+            <option value="기타소득-사례금 (OTHER · C17)">기타소득-사례금 (OTHER · C17)</option>
             <option value="기타소득-일시용역 (OTHER · C19)">기타소득-일시용역 (OTHER · C19)</option>
             <option value="원천징수 비대상 (재화/법인)">원천징수 비대상 (재화/법인)</option>
           </select>
         </div>
+      </div>
+
+      <div class="form-group hidden" id="newTaxKeyGroup">
+        <label class="form-label">과세최저한 판정 단위 키 (tax_threshold_unit_key · 기타소득 자동)</label>
+        <input type="text" id="newTaxThresholdKey" class="input mono" readonly style="background:#f1f5f9;">
+        <div style="font-size:11px; color:var(--text-muted);">원 정산서 라인의 판정 단위(같은 계약 · 같은 상품의 월 집계 또는 단발 과업)를 그대로 이어받아 과세최저한을 따로 판정합니다.</div>
       </div>
 
       <!-- 실시간 승인 단계 및 4채널 증빙 정정 자동 판정 미리보기 -->
@@ -836,15 +868,24 @@ code, pre, kbd, samp,
         </div>
       </div>
     </div>
-    <div class="modal-footer">
-      <span style="font-size:11.5px; color:var(--text-sub);">* 등록 시 감사 로그(<code>ADMN-CONF-010</code>)에 원 정산서 연결 및 작업자 소명이 즉시 기록됩니다.</span>
-      <div style="display:flex; gap:8px;">
-        <button class="btn" onclick="closeNewAdjModal()">취소</button>
-        <button class="btn btn-primary" onclick="submitNewAdjustment()">✔ 수동 조정 레코드 등록</button>
+        <div class="subpage-foot">
+          <span class="foot-note">* 등록 시 감사 로그(<code>ADMN-CONF-010</code>)에 원 정산서 연결 및 작업자 소명이 즉시 기록됩니다.</span>
+          <button type="button" class="btn" onclick="SJM_PAGE.back()">취소</button>
+          <button type="button" class="btn btn-primary" onclick="submitNewAdjustment()">✔ 수동 조정 레코드 등록</button>
+        </div>
+      </div>
+
+      <!-- 상세 · 승인 (목록 행) -->
+      <div class="card subpage-card hidden" id="adjDetailCard">
+        <div class="detail-body" id="detailBody"></div>
+        <div class="subpage-foot">
+          <button type="button" class="btn" onclick="SJM_PAGE.back()">← 수동 조정 목록</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
+</section>
 
 <div class="toast-container" id="toastContainer"></div>
 
@@ -868,6 +909,17 @@ code, pre, kbd, samp,
     CONSIGN_FEE_ERR: "위탁 수수료율 오류 (CONSIGN_FEE_ERR)"
   };
 
+  // 조정 유형 (03권 16.1 L349 · 02권 10.3 L367) — 계정 간 대체 · 지원금 이행률 정산 · 지원금 한도 수기 조정은 금액과 무관하게 재무 책임자 승인
+  const ADJ_TYPE_MAP = {
+    CURRENT_MANUAL: "당월 수동 조정",
+    PRIOR_CORRECTION: "전월 정정 (마감 후 전기오류수정)",
+    ACCOUNT_TRANSFER: "세전 · 세후 계정 간 대체",
+    PRO_RATA: "지원금 이행률 정산 (PRO_RATA)",
+    SUPPORT_CAP_MANUAL: "지원금 한도 수기 조정"
+  };
+  const ADJ_TYPE_2ND = ["ACCOUNT_TRANSFER", "PRO_RATA", "SUPPORT_CAP_MANUAL"];
+  const CLOSED_THROUGH_MONTH = "2026-09"; // 마감 확정(Locked) 월 — 반영 기준월은 2026-10 이후만
+
   const state = {
     selectedId: "ADJ-202610-01",
     kpiFilter: "ALL",
@@ -880,6 +932,7 @@ code, pre, kbd, samp,
         matrixCaseLabel: "면세사업자 계산서(권리자 발행) + 원천징수 (TX-08)",
         reasonCode: "RATE_ERR",
         reasonLabel: "요율 오류 (RATE_ERR)",
+        adjType: "PRIOR_CORRECTION",
         originMonth: "2026-08",
         appliedMonth: "2026-10",
         accountTypeLabel: "세전 계정 (PRE_TAX)",
@@ -906,6 +959,7 @@ code, pre, kbd, samp,
         matrixCaseLabel: "면세사업자 계산서(권리자 발행) + 원천징수 (TX-08)",
         reasonCode: "ACCOUNT_TRANSFER",
         reasonLabel: "계정 간 대체 전표 (ACCOUNT_TRANSFER)",
+        adjType: "ACCOUNT_TRANSFER",
         originMonth: "2026-09",
         appliedMonth: "2026-10",
         accountTypeLabel: "세전(PRE_TAX) → 세후(POST_TAX) 대체",
@@ -931,6 +985,7 @@ code, pre, kbd, samp,
         matrixCaseLabel: "개인 저자 사업소득 인세 (TX-03)",
         reasonCode: "BOOK_SUPPLY_ERR",
         reasonLabel: "도서 공급 형태 오등록 (BOOK_SUPPLY_ERR)",
+        adjType: "PRIOR_CORRECTION",
         originMonth: "2026-09",
         appliedMonth: "2026-10",
         accountTypeLabel: "세전 계정 (PRE_TAX)",
@@ -956,6 +1011,7 @@ code, pre, kbd, samp,
         matrixCaseLabel: "법인 일반과세자 세금계산서(권리자 발행) (TX-07)",
         reasonCode: "PRO_RATA_SETTLE",
         reasonLabel: "지원금 해지 이행률 정산 (PRO_RATA)",
+        adjType: "PRO_RATA",
         originMonth: "2026-10",
         appliedMonth: "2026-10",
         accountTypeLabel: "세전 계정 (PRE_TAX · 7단계 수당 가산)",
@@ -982,6 +1038,7 @@ code, pre, kbd, samp,
         matrixCaseLabel: "위탁 도서 공급 면세 + 수수료 과세 (TX-11)",
         reasonCode: "CONSIGN_FEE_ERR",
         reasonLabel: "위탁 수수료율 오류 (CONSIGN_FEE_ERR)",
+        adjType: "PRIOR_CORRECTION",
         originMonth: "2026-09",
         appliedMonth: "2026-10",
         accountTypeLabel: "위탁 정산금 (위탁도서 정산)",
@@ -1079,7 +1136,7 @@ code, pre, kbd, samp,
         : `<span class="badge badge-neutral">1차 담당자 단독 승인</span>`;
 
       return `
-        <tr class="${isSel}" onclick="selectItem('${item.id}')" style="cursor:pointer;">
+        <tr class="${isSel}" onclick="openAdjPage('${item.id}')" style="cursor:pointer;">
           <td>
             <div class="mono" style="font-weight:700;">${item.id}</div>
             <div class="mono" style="color:var(--text-muted);">원정산서: ${item.originSettlementId}</div>
@@ -1087,6 +1144,7 @@ code, pre, kbd, samp,
           <td>
             <div style="font-weight:700;">${item.payeeName}</div>
             <div style="font-size:11.5px; color:var(--primary); font-weight:600;">${item.reasonLabel}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${ADJ_TYPE_MAP[item.adjType] || ""}</div>
           </td>
           <td class="mono">
             원발생: <strong>${item.originMonth}</strong><br>
@@ -1123,6 +1181,8 @@ code, pre, kbd, samp,
         <div class="mono"><strong>${item.id}</strong> (원 정산서: ${item.originSettlementId})</div>
         <div class="kv-label">대상 수취인</div>
         <div><strong>${item.payeeName}</strong> (${item.matrixCaseLabel})</div>
+        <div class="kv-label">조정 유형</div>
+        <div><strong>${ADJ_TYPE_MAP[item.adjType] || "—"}</strong></div>
         <div class="kv-label">조정 사유 구분</div>
         <div><strong style="color:var(--primary);">${item.reasonLabel}</strong></div>
         <div class="kv-label">원 발생월 → 반영 기준월</div>
@@ -1132,6 +1192,10 @@ code, pre, kbd, samp,
         </div>
         <div class="kv-label">계정 구분 / 과·면세</div>
         <div><strong>${item.accountTypeLabel}</strong> / ${item.taxTypeLabel} / ${item.incomeCategoryLabel}</div>
+        ${item.taxThresholdUnitKey ? `<div class="kv-label">과세최저한 판정 단위 키</div>
+        <div class="mono">${item.taxThresholdUnitKey}</div>` : ""}
+        ${item.taxTypeEvidence ? `<div class="kv-label">과세유형 오인 정정 근거</div>
+        <div>📎 ${item.taxTypeEvidence}</div>` : ""}
         <div class="kv-label">조정 금액</div>
         <div class="mono" style="font-size:15px; font-weight:800; color:${item.amount >= 0 ? 'var(--primary)' : 'var(--danger)'};">
           ${item.amount >= 0 ? "+" + item.amount.toLocaleString() : item.amount.toLocaleString()}원
@@ -1198,18 +1262,33 @@ code, pre, kbd, samp,
     `).join("");
   }
 
-  function selectItem(id) {
+  // 조정 라인 상세 · 승인 (S1 페이지)
+  function openAdjPage(id) {
+    SJM_PAGE.go("form", { id });
+  }
+
+  function showAdjDetail(id) {
     state.selectedId = id;
-    renderTable();
+    document.getElementById("adjNewCard").classList.add("hidden");
+    document.getElementById("adjDetailCard").classList.remove("hidden");
+    document.getElementById("detailBadge").classList.remove("hidden");
+    document.getElementById("adjPageTitle").textContent = `조정 라인 상세 · 승인 — ${id}`;
     renderDetail();
   }
 
-  // 신규 수동 조정 등록 모달 제어
-  function openNewAdjModal(preselectStmtId) {
-    const modal = document.getElementById("newAdjModal");
-    modal.classList.remove("hidden");
-    modal.style.removeProperty("display"); // v6.0 SETT-005: 공통 모달 인라인 잠금 해제
-    modal.classList.add("open"); // v6.1 SETT-005: 공통 핫픽스 로드 시점 잠금 예외 대상
+  // 신규 조정 라인 등록 (S1 페이지)
+  function openNewAdjPage(preselectStmtId) {
+    SJM_PAGE.go("form", preselectStmtId ? { mode: "new", fromStmt: preselectStmtId } : { mode: "new" });
+  }
+
+  function fillNewAdjForm(preselectStmtId) {
+    document.getElementById("adjNewCard").classList.remove("hidden");
+    document.getElementById("adjDetailCard").classList.add("hidden");
+    document.getElementById("detailBadge").classList.add("hidden");
+    document.getElementById("adjPageTitle").textContent = "조정 라인 등록";
+    document.getElementById("newExplanation").value = "";
+    document.getElementById("newCharCount").textContent = "0";
+    document.getElementById("newTaxTypeEvidence").value = "";
     if (preselectStmtId) {
       const sel = document.getElementById("newOriginStmt");
       for (let i = 0; i < sel.options.length; i++) {
@@ -1222,16 +1301,17 @@ code, pre, kbd, samp,
     onNewOriginStmtChange();
   }
 
-  function closeNewAdjModal() {
-    document.getElementById("newAdjModal").classList.remove("open"); // v6.1 SETT-005
-    document.getElementById("newAdjModal").classList.add("hidden");
-  }
-
   function onNewOriginStmtChange() {
     const sel = document.getElementById("newOriginStmt");
     const opt = sel.options[sel.selectedIndex];
     const originMonth = opt.getAttribute("data-origin-month") || "2026-09";
     document.getElementById("newOriginMonth").value = originMonth;
+    document.getElementById("newPayee").value = `${opt.getAttribute("data-payee-name") || ""} · ${opt.getAttribute("data-payee-id") || ""}`;
+    // 마감된 달의 원 정산서면 전월 정정, 미마감 당월이면 당월 수동 조정을 기본으로 고른다(유형은 바꿀 수 있음)
+    const typeSel = document.getElementById("newAdjType");
+    if (typeSel.value === "CURRENT_MANUAL" || typeSel.value === "PRIOR_CORRECTION") {
+      typeSel.value = originMonth <= CLOSED_THROUGH_MONTH ? "PRIOR_CORRECTION" : "CURRENT_MANUAL";
+    }
     updateNewModalPreview();
   }
 
@@ -1242,9 +1322,17 @@ code, pre, kbd, samp,
     const reasonCode = document.getElementById("newReasonCode").value;
     const amt = Number(document.getElementById("newAdjAmount").value || 0);
     const accType = document.getElementById("newAccountType").value;
+    const adjType = document.getElementById("newAdjType").value;
+    const incCat = document.getElementById("newIncomeCategory").value;
+
+    document.getElementById("newTaxEvidenceGroup").classList.toggle("hidden", reasonCode !== "TAX_TYPE_ERR");
+    const isOther = incCat.includes("OTHER");
+    document.getElementById("newTaxKeyGroup").classList.toggle("hidden", !isOther);
+    document.getElementById("newTaxThresholdKey").value = isOther ? taxThresholdKeyFor(opt.value, incCat) : "";
 
     const isSpecial2nd =
       Math.abs(amt) > 1000000 ||
+      ADJ_TYPE_2ND.includes(adjType) ||
       reasonCode === "ACCOUNT_TRANSFER" ||
       reasonCode === "SUPPORT_CAP_ERR" ||
       reasonCode === "PRO_RATA_SETTLE" ||
@@ -1271,6 +1359,12 @@ code, pre, kbd, samp,
     `;
   }
 
+  // 과세최저한 판정 단위 키 — 원 정산서 라인의 키를 이어받는다(OTHER 라인만)
+  function taxThresholdKeyFor(stmtId, incCat) {
+    const clause = (incCat.match(/C\d{2}/) || [""])[0];
+    return `${stmtId}-LINE-${clause}`;
+  }
+
   document.getElementById("newExplanation").addEventListener("input", (e) => {
     document.getElementById("newCharCount").textContent = e.target.value.trim().length;
   });
@@ -1295,14 +1389,29 @@ code, pre, kbd, samp,
     const accType = document.getElementById("newAccountType").value;
     const taxType = document.getElementById("newTaxType").value;
     const incCat = document.getElementById("newIncomeCategory").value;
+    const adjType = document.getElementById("newAdjType").value;
+    const evidenceFile = document.getElementById("newTaxTypeEvidence").files[0];
 
     if (amt === 0) {
       alert("조정 금액은 0원이 될 수 없습니다.");
       return;
     }
+    if (adjType === "PRIOR_CORRECTION" && originMonth > CLOSED_THROUGH_MONTH) {
+      alert(`[10.1절 차월 조정] 전월 정정은 마감된 달(${CLOSED_THROUGH_MONTH}까지)의 원 정산서를 골라야 합니다. 미마감 당월 정산서는 '당월 수동 조정'으로 등록하세요.`);
+      return;
+    }
+    if (adjType === "CURRENT_MANUAL" && originMonth <= CLOSED_THROUGH_MONTH) {
+      alert(`[10.1절 마감 불변] ${originMonth}는 마감된 달입니다. 마감분 오류는 '전월 정정'으로 등록해 ${appliedMonth} 정산서에 반영합니다.`);
+      return;
+    }
+    if (reasonCode === "TAX_TYPE_ERR" && !evidenceFile) {
+      alert("[10.4절 과세유형 오인] 사업자 상태 API 재조회 결과 스냅샷을 정정 근거로 첨부해야 등록할 수 있습니다.");
+      return;
+    }
 
     const isSpecial2nd =
       Math.abs(amt) > 1000000 ||
+      ADJ_TYPE_2ND.includes(adjType) ||
       reasonCode === "ACCOUNT_TRANSFER" ||
       reasonCode === "SUPPORT_CAP_ERR" ||
       reasonCode === "PRO_RATA_SETTLE" ||
@@ -1317,11 +1426,14 @@ code, pre, kbd, samp,
       matrixCaseLabel: matrix,
       reasonCode,
       reasonLabel: REASON_MAP[reasonCode] || reasonCode,
+      adjType,
       originMonth,
       appliedMonth,
       accountTypeLabel: accType,
       taxTypeLabel: taxType,
       incomeCategoryLabel: incCat,
+      taxThresholdUnitKey: incCat.includes("OTHER") ? taxThresholdKeyFor(originStmtId, incCat) : "",
+      taxTypeEvidence: reasonCode === "TAX_TYPE_ERR" && evidenceFile ? evidenceFile.name : "",
       amount: amt,
       requireSecondApproval: isSpecial2nd,
       requireReasonText: isSpecial2nd
@@ -1349,18 +1461,16 @@ code, pre, kbd, samp,
       actor: "재무담당자 (white)",
       targetId: newId,
       summary: `${newItem.reasonLabel} / ${amt >= 0 ? "+" : ""}${amt.toLocaleString()}원`,
-      action: `신규 수동 조정 등록 (원정산서: ${originStmtId}, 원귀속: ${originMonth} → 반영: ${appliedMonth})`,
+      action: `신규 수동 조정 등록 — ${ADJ_TYPE_MAP[adjType]} (원정산서: ${originStmtId}, 원귀속: ${originMonth} → 반영: ${appliedMonth})`,
       explanation: exp
     });
 
-    closeNewAdjModal();
     document.getElementById("newExplanation").value = "";
     document.getElementById("newCharCount").textContent = "0";
 
     updateKpis();
-    renderTable();
-    renderDetail();
     renderAudit();
+    SJM_PAGE.back();
     showToast(`✔ [${newId}] 신규 수동 조정 건이 등록되었습니다.`);
   }
 
@@ -1400,7 +1510,7 @@ code, pre, kbd, samp,
     showToast(`✔ [${item.id}] ${item.statusLabel} 처리되어 ${item.appliedMonth} 정산서 및 증빙 정정 채널에 반영되었습니다.`);
   }
 
-  document.getElementById("btnOpenNewAdjModal").addEventListener("click", () => openNewAdjModal());
+  document.getElementById("btnOpenNewAdjPage").addEventListener("click", () => openNewAdjPage());
 
   document.querySelectorAll(".kpi-card").forEach(card => {
     card.addEventListener("click", () => {
@@ -1432,18 +1542,39 @@ code, pre, kbd, samp,
     });
   });
 
-  // URL 쿼리스트링(?fromStmt=STMT-...)으로 진입 시 자동으로 신규 조정 모달 오픈
+  // 하위 화면(S1) 페이지 등록 · ?view= 진입 · 기존 ?fromStmt=STMT-... 진입(월간 정산 및 집행에서 원 정산서 지정)
   window.addEventListener("DOMContentLoaded", () => {
+    SJM_PAGE.register("form", {
+      code: "ADMN-SETT-005-S1",
+      title: p => (p.id ? "조정 라인 상세 · 승인" : "조정 라인 등록"),
+      onShow: p => {
+        if (p.id && state.items.some(x => x.id === p.id)) showAdjDetail(p.id);
+        else fillNewAdjForm(p.fromStmt || null);
+      }
+    });
+    SJM_PAGE.start({
+      onShow: () => {
+        renderTable();
+        // 목록 주소에는 원 정산서 지정(fromStmt)을 남기지 않는다 — 새로 고침 때 등록 페이지가 다시 열리지 않게
+        setTimeout(() => {
+          const q = new URLSearchParams(window.location.search);
+          if (!q.has("view") && q.has("fromStmt")) {
+            q.delete("fromStmt");
+            const qs = q.toString();
+            try { history.replaceState(history.state, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash); } catch (e) {}
+          }
+        }, 0);
+      }
+    });
     const params = new URLSearchParams(window.location.search);
     const fromStmt = params.get("fromStmt");
-    if (fromStmt) {
-      openNewAdjModal(fromStmt);
+    if (fromStmt && !params.get("view")) {
+      SJM_PAGE.go("form", { mode: "new", fromStmt }, { replace: true });
     }
   });
 
   updateKpis();
   renderTable();
-  renderDetail();
   renderAudit();
 </script><script>
 /* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */

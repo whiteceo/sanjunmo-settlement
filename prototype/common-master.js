@@ -39,7 +39,12 @@
   var MENUS = [
     { key: "dash", label: "운영 현황 대시보드", screens: "DASH-001" },
     { key: "stat", label: "매출 · 상품 통계", screens: "STAT-001" },
-    { key: "user", label: "회원 · 수강 관리", screens: "USER-001~006" },
+    // 회원 관리 메뉴는 5개로 나눈다(white 결정 32, 2026-10-27 — 개발 메뉴 구조와 맞춤). user 키는 회원 목록 · 상세로 유지
+    { key: "user", label: "회원 목록 · 상세", screens: "USER-001 · 002" },
+    { key: "usercourse", label: "회원 수강 · 기기 제어", screens: "USER-003" },
+    { key: "userprogress", label: "진도율 · 이어보기", screens: "USER-004" },
+    { key: "userblacklist", label: "블랙리스트 · 부정사용 제재", screens: "USER-005" },
+    { key: "usergroup", label: "회원 그룹 · 태그", screens: "USER-006" },
     { key: "order", label: "주문 · 배송 관리", screens: "ORD-001" },
     { key: "shipout", label: "출고 지시 · 송장 업로드", screens: "ORD-001 (출고 지시 · 송장)" },
     { key: "refund", label: "환불 요청 · 심사", screens: "RFD-002" },
@@ -94,6 +99,13 @@
       desc: "출고 대상 조회 · 송장 업로드 (금액 비노출)",
       perms: { shipout: "RW" } }
   ];
+
+  // 회원 하위 메뉴 4개는 최초값에서 user 값과 같게(나누기 전과 접근 권한이 같도록, 결정 32)
+  var USER_SUB_MENUS = ["usercourse", "userprogress", "userblacklist", "usergroup"];
+  ROLE_SEED.forEach(function (g) {
+    if (g.perms === ALL || !g.perms.user) return;
+    USER_SUB_MENUS.forEach(function (k) { if (g.perms[k] === undefined) g.perms[k] = g.perms.user; });
+  });
 
   // 1:1 문의 분류 최초값 — 담당 부서 큐(depts)는 역할 그룹 ID로 가리킨다(그룹 이름이 바뀌어도 연결 유지)
   var MAJOR_SEED = [
@@ -185,6 +197,8 @@
   (function () {
     var cur = roleStore.get(), changed = false;
     cur.forEach(function (g) {
+      // 결정 32 회원 메뉴 분리 — 저장된 역할 그룹(운영자가 만든 그룹 포함)의 user 값을 새 하위 메뉴 키에 보충
+      if (g.perms && g.perms.user !== undefined) USER_SUB_MENUS.forEach(function (k) { if (g.perms[k] === undefined) { g.perms[k] = g.perms.user; changed = true; } });
       ROLE_SEED.forEach(function (sg) {
         if (sg.id !== g.id) return;
         g.perms = g.perms || {};
@@ -402,11 +416,13 @@
   //   playbackMaxCreditedSpeed · limitedForward: 진도 인정 최대 배속 · 앞으로 건너뛰기 제한 — 설정 화면 CONF-003
   //   lqnaMode: 학습 Q&A 운영 방식 CAFE(네이버 카페 아웃링크) / INTERNAL(자체 학습 Q&A, 파트너 센터에서 강사 답변) — 설정 화면 CONF-003
   //   reviewRewardP · reviewBestRewardP · freePointCapP: 후기 보상 · 베스트 후기 보상 · 무상 포인트 잔액 상한 — 설정 화면 PROM-002 포인트 정책
+  //   manualPointExpiryDays · manualPointExpiryDefault: 수동 포인트 지급 만료 기간 선택지(일) · 기본 선택 — 설정 화면 CONF-003, 쓰는 화면 USER-001(white 결정 2026-10-27)
   var SETTINGS_SEED = {
     remaskMemberSec: 600, remaskHolderSec: 30,
     playbackMaxCreditedSpeed: 2.0, limitedForward: true,
     reviewRewardP: 1000, reviewBestRewardP: 5000, freePointCapP: 200000,
-    lqnaMode: "CAFE"
+    lqnaMode: "CAFE",
+    manualPointExpiryDays: [30, 90, 180], manualPointExpiryDefault: 90
   };
   var settingsStore = store("sjm.master.settings.v1", SETTINGS_SEED);
   var settings = {
@@ -416,5 +432,22 @@
     reset: function () { settingsStore.reset(); }
   };
 
-  window.SJM_MASTER = { menus: MENUS, roles: roles, inquiry: inquiry, vendors: vendors, rightsHolders: rightsHolders, settings: settings };
+  // 회원 저장 그룹(ADMN-USER-006-S2) — 쿠폰 대상(PROM-002) · 알림톡 대상(CONF-004)이 같은 목록을 읽는다(v6.68, 회원관리 스레드 요청)
+  //   mode: DYNAMIC(사용 시점 조건 재평가) / STATIC(저장 시점 명단 고정), op: 태그 조합 AND / OR, consent: 광고성 수신 동의 인원
+  var GROUP_SEED = [
+    { code: "GRP-2026-01", name: "환급반 중도이탈 위험군 케어 그룹", tags: ["TAG-PASS-2026", "TAG-LOW-PROG", "TAG-INACTIVE-14D"], op: "AND", mode: "DYNAMIC", members: 412, consent: 388, updated: "2026.10.18 06:00" },
+    { code: "GRP-2026-02", name: "카페 인증 미결제 전환 타겟 그룹", tags: ["TAG-CAFE-AUTH", "TAG-FREE-30D"], op: "AND", mode: "DYNAMIC", members: 1204, consent: 1089, updated: "2026.10.18 06:00" },
+    { code: "GRP-2026-03", name: "2026년 2회 정기시험 응시자 스냅샷", tags: ["TAG-PASS-2026", "TAG-CAFE-AUTH"], op: "OR", mode: "STATIC", members: 2140, consent: 1950, updated: "2026.09.15 11:20" }
+  ];
+  var groupStore = store("sjm.master.groups.v1", GROUP_SEED);
+  var groups = {
+    list: function () { return clone(groupStore.get()); },
+    get: function (code) { var g = groupStore.get().filter(function (x) { return x.code === code; })[0]; return g ? clone(g) : null; },
+    /** 저장(같은 code면 갱신, 없으면 추가) */
+    save: function (g) { var cur = groupStore.get(), i = cur.map(function (x) { return x.code; }).indexOf(g.code); if (i >= 0) cur[i] = g; else cur.push(g); groupStore.set(cur); },
+    remove: function (code) { groupStore.set(groupStore.get().filter(function (x) { return x.code !== code; })); },
+    reset: function () { groupStore.reset(); }
+  };
+
+  window.SJM_MASTER = { menus: MENUS, roles: roles, inquiry: inquiry, vendors: vendors, rightsHolders: rightsHolders, settings: settings, groups: groups };
 })();

@@ -821,6 +821,8 @@ code, pre, kbd, samp,
 
   <div id="v4-page-body" class="main-container">
 
+    <section class="subview-panel active" data-subpage="list">
+
     <p class="page-desc">고객센터 게시판(공지/FAQ/상품 Q&amp;A/학습 Q&amp;A) 및 이벤트 당첨자 발표 게시·경품 지급 원장을 관리합니다.</p>
 
     <div class="domain-switch-bar">
@@ -893,7 +895,7 @@ code, pre, kbd, samp,
 
           <div class="filter-right">
 
-            <button class="btn btn-primary" onclick="openNoticeModal()">+ 공지사항 신규 등록</button>
+            <button class="btn btn-primary" onclick="openNoticePage(null)">+ 공지사항 신규 등록</button>
 
           </div>
 
@@ -971,7 +973,7 @@ code, pre, kbd, samp,
 
             <button class="btn btn-outline" onclick="openFaqCategoryModal()">⚙️ FAQ 카테고리 관리 (추가/수정/순서)</button>
 
-            <button class="btn btn-primary" onclick="openFaqModal()">+ FAQ 문답 등록</button>
+            <button class="btn btn-primary" onclick="openFaqPage(null)">+ FAQ 문답 등록</button>
 
           </div>
 
@@ -1212,97 +1214,257 @@ code, pre, kbd, samp,
 
 
         <div class="filter-grid">
-
           <div class="filter-left">
-
-            <select id="winner-post-select" onchange="renderWinnerView()">
-
-            </select>
-
-            <select id="winner-status-filter" onchange="renderWinnerTable()">
-
-              <option value="ALL">지급상태 전체</option>
-
-              <option value="PENDING">지급대기</option>
-
-              <option value="COMPLETED">지급완료</option>
-
-            </select>
-
+            <span style="font-weight:800; font-size:14px;">당첨자 발표 공고 목록</span>
+            <span style="font-size:12px; color:var(--text-sub);">발표를 열면 발표 글 · 노출 설정과 당첨자 명단 · 경품 지급을 한 화면에서 처리합니다.</span>
           </div>
-
           <div class="filter-right">
-
-            <button class="btn btn-outline" onclick="openWinnerPostModal('EDIT')">📝 현재 발표글/노출설정 수정</button>
-
-            <button class="btn btn-primary" onclick="openWinnerPostModal('NEW')">+ 신규 당첨자 발표 등록</button>
-
+            <button class="btn btn-primary" onclick="openWinnerPage(null)">+ 신규 당첨자 발표 등록</button>
           </div>
-
         </div>
-
       </div>
-
-
-
-      <!-- 선택된 발표글 요약 배너 -->
-
-      <div class="card" id="winner-post-summary" style="background:#f8fafc;"></div>
-
-
-
-      <!-- 당첨자 명단 및 지급 액션 테이블 -->
 
       <div class="card" style="padding:0; overflow:hidden;">
-
-        <div style="padding:14px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-
-          <div style="font-weight:800; font-size:14px;">당첨자 명단 및 경품 지급 원장</div>
-
-          <div style="display:flex; gap:8px;">
-
-            <button class="btn btn-outline btn-sm" onclick="openAddWinnerRowModal()">+ 당첨자 개별/엑셀 추가</button>
-
-            <button class="btn btn-success btn-sm" onclick="batchGrantSelectedWinners()">⚡ 선택 당첨자 일괄 즉시 지급 (포인트/기프티콘)</button>
-
-          </div>
-
-        </div>
-
         <table class="data-table">
-
           <thead>
-
             <tr>
-
-              <th style="width:42px;"><input type="checkbox" id="win-chk-all" onclick="toggleAllWinnerChecks(this.checked)" /></th>
-
-              <th style="width:90px;">등수/구분</th>
-
-              <th style="width:160px;">당첨 회원 (원본)</th>
-
-              <th style="width:170px;">프론트 노출 (자동 마스킹)</th>
-
-              <th style="width:120px;">경품 유형</th>
-
-              <th>지급 경품명 / 수량</th>
-
-              <th style="width:120px;">지급 상태</th>
-
-              <th style="width:170px;">지급일시 / 송장번호</th>
-
-              <th style="width:150px;">개별 액션</th>
-
+              <th style="width:110px;">발표 번호</th>
+              <th style="width:250px;">연결 이벤트 (ADMN-PROM-001)</th>
+              <th>당첨자 발표 제목</th>
+              <th style="width:110px;">발표 상태</th>
+              <th style="width:100px;">발표일</th>
+              <th style="width:170px;">노출 위치</th>
+              <th style="width:120px;">당첨자 / 지급</th>
+              <th style="width:90px;">관리</th>
             </tr>
-
           </thead>
-
-          <tbody id="winner-tbody"></tbody>
-
+          <tbody id="winner-post-tbody"></tbody>
         </table>
-
       </div>
 
+    </section>
+
+    </section>
+
+    <!-- ==================== 하위 화면(S) — 화면설계서 v12 별도 페이지, SJM_PAGE (common-snb.js) ==================== -->
+
+    <!-- 공지사항 등록 · 수정 (ADMN-BRD-001-S1) -->
+    <section class="subview-panel" data-subpage="notice-form">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 공지사항 목록</button>
+        <span class="crumb-code">ADMN-BRD-001-S1</span>
+        <h2 class="subpage-title" id="notice-modal-title">공지사항 등록</h2>
+      </div>
+      <div class="card subpage-card" style="max-width:960px;">
+        <input type="hidden" id="notice-edit-id" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">공지 분류 *</label>
+            <select id="notice-form-cat">
+              <option value="일반공지">일반공지</option>
+              <option value="시험일정">시험일정</option>
+              <option value="시스템점검">시스템점검</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">상단 고정 및 노출</label>
+            <div style="display:flex; gap:14px; align-items:center; height:36px;">
+              <label><input type="checkbox" id="notice-form-pin" /> 상단 고정 공지</label>
+              <label><input type="checkbox" id="notice-form-visible" checked /> 즉시 노출</label>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">상단 고정은 최대 5건까지 지정할 수 있습니다. 즉시 노출을 끄면 숨김(비노출) 상태로 저장됩니다.</div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">공지 제목 *</label>
+            <input type="text" id="notice-form-title" placeholder="공지사항 제목을 입력하세요" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">공지 본문 (웹 에디터) *</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execEditorCmd('notice-form-body','bold')"><b>B</b></button>
+                <button type="button" onclick="execEditorCmd('notice-form-body','underline')"><u>U</u></button>
+              </div>
+              <div id="notice-form-body" class="rich-area" contenteditable="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" onclick="saveNoticeItem()">저장</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ 문답 등록 · 수정 (ADMN-BRD-006-S1) — 카테고리 설정은 목록의 팝업(modal-faq-cat) 그대로 -->
+    <section class="subview-panel" data-subpage="faq-form">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← FAQ 목록</button>
+        <span class="crumb-code">ADMN-BRD-006-S1</span>
+        <h2 class="subpage-title" id="faq-modal-title">FAQ 문답 등록</h2>
+      </div>
+      <div class="card subpage-card" style="max-width:960px;">
+        <input type="hidden" id="faq-edit-id" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">FAQ 카테고리 선택 *</label>
+            <select id="faq-form-cat"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">노출 옵션</label>
+            <div style="display:flex; gap:14px; align-items:center; height:36px;">
+              <label><input type="checkbox" id="faq-form-top" /> 자주 찾는 질문 TOP 고정</label>
+              <label><input type="checkbox" id="faq-form-visible" checked /> 프론트 노출</label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">질문 (Question) *</label>
+            <input type="text" id="faq-form-q" placeholder="수강생이 자주 묻는 질문을 입력하세요" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">답변 (Answer — 웹 에디터) *</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execEditorCmd('faq-form-a','bold')"><b>B</b></button>
+                <button type="button" onclick="execEditorCmd('faq-form-a','underline')"><u>U</u></button>
+                <button type="button" onclick="insertSampleLink('faq-form-a')">🔗 안내 링크 삽입</button>
+              </div>
+              <div id="faq-form-a" class="rich-area" contenteditable="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" onclick="saveFaqItem()">저장</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 당첨자 발표 등록 · 수정 (ADMN-BRD-009-S1) — 발표 글 · 노출 설정 + 당첨자 명단 추가 · 경품 지급 원장을 한 페이지로 -->
+    <section class="subview-panel" data-subpage="winner-post">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 당첨자 발표 목록</button>
+        <span class="crumb-code">ADMN-BRD-009-S1</span>
+        <h2 class="subpage-title" id="winner-post-modal-title">신규 이벤트 당첨자 발표 등록</h2>
+      </div>
+      <div class="card subpage-card">
+        <div style="font-weight:800; font-size:14px; margin:10px 0 12px;">발표 글 · 노출 설정</div>
+        <input type="hidden" id="winpost-mode" value="NEW" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">연결할 프로모션/이벤트 (ADMN-PROM-001) *</label>
+            <select id="winpost-event-code"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">발표 상태 및 예약일시</label>
+            <div style="display:flex; gap:8px;">
+              <select id="winpost-status" style="width:140px;">
+                <option value="PUBLISHED">즉시 게시 (노출)</option>
+                <option value="SCHEDULED">예약 게시</option>
+                <option value="DRAFT">임시저장 (비노출)</option>
+              </select>
+              <input type="date" id="winpost-date" value="2026-10-19" style="flex:1;" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">당첨자 발표 제목 *</label>
+            <input type="text" id="winpost-title" placeholder="예: [당첨자 발표] 2026 산준모 합격기원 수강신청 댓글 이벤트 당첨 안내" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">사용자 웹(Front) 노출 위치 및 알림 연동 *</label>
+            <div style="display:flex; flex-wrap:wrap; gap:18px; padding:10px 14px; background:#f8fafc; border:1px solid var(--border); border-radius:8px;">
+              <label><input type="checkbox" id="winpost-exp-event" checked /> <strong>이벤트 &gt; 당첨자 발표 탭 (USER-PROM-001)</strong> 노출</label>
+              <label><input type="checkbox" id="winpost-exp-notice" checked /> <strong>고객센터 &gt; 공지사항 (USER-CS-001)</strong> 상단 동시 노출</label>
+              <label><input type="checkbox" id="winpost-send-alim" checked /> 게시와 동시에 당첨자 개별 알림톡(<code>ADMN-CONF-004</code>) 발송</label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">발표 안내 본문 (웹 에디터 — 경품 수령 유의사항 및 제세공과금 안내) *</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execEditorCmd('winpost-body','bold')"><b>B</b></button>
+                <button type="button" onclick="execEditorCmd('winpost-body','underline')"><u>U</u></button>
+                <button type="button" onclick="insertWinnerTemplateText()">📋 표준 당첨 안내문 템플릿 삽입</button>
+              </div>
+              <div id="winpost-body" class="rich-area" contenteditable="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" onclick="saveWinnerPost()">발표글 저장 및 프론트 반영</button>
+        </div>
+      </div>
+
+      <div class="card" id="winner-ledger-empty" style="display:none; color:var(--text-sub);">
+        <strong>당첨자 명단 및 경품 지급 원장</strong> — 발표글을 먼저 저장하면 이 화면에서 당첨자 명단을 추가하고 경품을 지급할 수 있습니다.
+      </div>
+
+      <!-- 당첨자 명단 및 지급 액션 테이블 -->
+      <div class="card" id="winner-ledger" style="padding:0; overflow:hidden;">
+        <div style="padding:14px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="font-weight:800; font-size:14px;">당첨자 명단 및 경품 지급 원장 <span id="winner-ledger-sum" style="font-weight:600; font-size:12px; color:var(--text-sub);"></span></div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <select id="winner-status-filter" onchange="renderWinnerTable()">
+              <option value="ALL">지급상태 전체</option>
+              <option value="PENDING">지급대기</option>
+              <option value="COMPLETED">지급완료</option>
+            </select>
+            <button type="button" class="btn btn-outline btn-sm" onclick="toggleWinnerRowForm(true)">+ 당첨자 개별/엑셀 추가</button>
+            <button type="button" class="btn btn-success btn-sm" onclick="batchGrantSelectedWinners()">⚡ 선택 당첨자 일괄 즉시 지급 (포인트/기프티콘)</button>
+          </div>
+        </div>
+        <!-- 당첨자 명단 추가 (자동 마스킹 적용) — 예전 별도 팝업을 페이지 안 입력 영역으로 -->
+        <div id="winner-row-form" style="display:none; padding:14px 18px; border-bottom:1px solid var(--border); background:#f8fafc;">
+          <div style="font-weight:800; margin-bottom:10px;">+ 당첨자 대상 추가 (자동 마스킹 적용)</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">등수 / 구분 *</label>
+              <input type="text" id="winrow-rank" value="1등" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">경품 지급 유형 *</label>
+              <select id="winrow-type">
+                <option value="POINT">포인트 즉시 적립 (ADMN-PROM-003 연동)</option>
+                <option value="GIFTICON">모바일 기프티콘 (알림톡/MMS 발송)</option>
+                <option value="PHYSICAL">실물 경품 (배송지 수집 / 송장 입력)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">당첨 회원명 / ID *</label>
+              <input type="text" id="winrow-name" placeholder="예: 김산준 (sanjun99)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">휴대폰 번호 *</label>
+              <input type="text" id="winrow-phone" placeholder="예: 010-8821-4512" />
+            </div>
+            <div class="form-group full">
+              <label class="form-label">지급 경품명 / 포인트 금액 *</label>
+              <input type="text" id="winrow-prize" placeholder="예: 학습지원 무상 포인트 10,000P 또는 스타벅스 아메리카노" />
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="toggleWinnerRowForm(false)">취소</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="addWinnerRow()">당첨자 명단 추가</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:42px;"><input type="checkbox" id="win-chk-all" onclick="toggleAllWinnerChecks(this.checked)" /></th>
+              <th style="width:90px;">등수/구분</th>
+              <th style="width:160px;">당첨 회원 (원본)</th>
+              <th style="width:170px;">프론트 노출 (자동 마스킹)</th>
+              <th style="width:120px;">경품 유형</th>
+              <th>지급 경품명 / 수량</th>
+              <th style="width:120px;">지급 상태</th>
+              <th style="width:170px;">지급일시 / 송장번호</th>
+              <th style="width:150px;">개별 액션</th>
+            </tr>
+          </thead>
+          <tbody id="winner-tbody"></tbody>
+        </table>
+      </div>
     </section>
 
   </div>
@@ -1379,305 +1541,7 @@ code, pre, kbd, samp,
 
 
 
-<!-- ==================== 모달 2: FAQ 문답 등록/수정 ==================== -->
-
-<div class="modal-backdrop" id="modal-faq-form">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h3 id="faq-modal-title">FAQ 문답 등록</h3>
-
-      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-faq-form')">닫기 ✕</button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <input type="hidden" id="faq-edit-id" />
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label class="form-label">FAQ 카테고리 선택 *</label>
-
-          <select id="faq-form-cat"></select>
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">노출 옵션</label>
-
-          <div style="display:flex; gap:14px; align-items:center; height:36px;">
-
-            <label><input type="checkbox" id="faq-form-top" /> 자주 찾는 질문 TOP 고정</label>
-
-            <label><input type="checkbox" id="faq-form-visible" checked /> 프론트 노출</label>
-
-          </div>
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">질문 (Question) *</label>
-
-          <input type="text" id="faq-form-q" placeholder="수강생이 자주 묻는 질문을 입력하세요" />
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">답변 (Answer — 웹 에디터) *</label>
-
-          <div class="rich-editor-shell">
-
-            <div class="rich-toolbar">
-
-              <button type="button" onclick="execEditorCmd('faq-form-a','bold')"><b>B</b></button>
-
-              <button type="button" onclick="execEditorCmd('faq-form-a','underline')"><u>U</u></button>
-
-              <button type="button" onclick="insertSampleLink('faq-form-a')">🔗 안내 링크 삽입</button>
-
-            </div>
-
-            <div id="faq-form-a" class="rich-area" contenteditable="true"></div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="modal-footer">
-
-      <button class="btn btn-outline" onclick="closeModal('modal-faq-form')">취소</button>
-
-      <button class="btn btn-primary" onclick="saveFaqItem()">저장</button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- ==================== 모달 3: 이벤트 당첨자 발표 등록/수정 (ADMN-BRD-009) ==================== -->
-
-<div class="modal-backdrop" id="modal-winner-post">
-
-  <div class="modal-box" style="max-width:900px;">
-
-    <div class="modal-header">
-
-      <h3 id="winner-post-modal-title">[ADMN-BRD-009] 이벤트 당첨자 발표 등록 및 노출 설정</h3>
-
-      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-winner-post')">닫기 ✕</button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <input type="hidden" id="winpost-mode" value="NEW" />
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label class="form-label">연결할 프로모션/이벤트 (ADMN-PROM-001) *</label>
-
-          <select id="winpost-event-code">
-
-            <option value="EVT-2026-101">[EVT-2026-101] 2026 산준모 합격기원 수강신청 댓글 이벤트</option>
-
-            <option value="EVT-2026-102">[EVT-2026-102] 산업안전기사 빈출문제 무료특강 출석체크 이벤트</option>
-
-            <option value="EVT-2026-105">[EVT-2026-105] 가을 대비 프리패스 얼리버드 경품 추첨</option>
-
-            <option value="EVT-2026-109">[EVT-2026-109] 신규 가입 학습지원 포인트 추첨 이벤트</option>
-
-          </select>
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">발표 상태 및 예약일시</label>
-
-          <div style="display:flex; gap:8px;">
-
-            <select id="winpost-status" style="width:140px;">
-
-              <option value="PUBLISHED">즉시 게시 (노출)</option>
-
-              <option value="SCHEDULED">예약 게시</option>
-
-              <option value="DRAFT">임시저장 (비노출)</option>
-
-            </select>
-
-            <input type="date" id="winpost-date" value="2026-10-19" style="flex:1;" />
-
-          </div>
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">당첨자 발표 제목 *</label>
-
-          <input type="text" id="winpost-title" placeholder="예: [당첨자 발표] 2026 산준모 합격기원 수강신청 댓글 이벤트 당첨 안내" />
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">사용자 웹(Front) 노출 위치 및 알림 연동 *</label>
-
-          <div style="display:flex; flex-wrap:wrap; gap:18px; padding:10px 14px; background:#f8fafc; border:1px solid var(--border); border-radius:8px;">
-
-            <label><input type="checkbox" id="winpost-exp-event" checked /> <strong>이벤트 &gt; 당첨자 발표 탭 (USER-PROM-001)</strong> 노출</label>
-
-            <label><input type="checkbox" id="winpost-exp-notice" checked /> <strong>고객센터 &gt; 공지사항 (USER-CS-001)</strong> 상단 동시 노출</label>
-
-            <label><input type="checkbox" id="winpost-send-alim" checked /> 게시와 동시에 당첨자 개별 알림톡(<code>ADMN-CONF-004</code>) 발송</label>
-
-          </div>
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">발표 안내 본문 (웹 에디터 — 경품 수령 유의사항 및 제세공과금 안내) *</label>
-
-          <div class="rich-editor-shell">
-
-            <div class="rich-toolbar">
-
-              <button type="button" onclick="execEditorCmd('winpost-body','bold')"><b>B</b></button>
-
-              <button type="button" onclick="execEditorCmd('winpost-body','underline')"><u>U</u></button>
-
-              <button type="button" onclick="insertWinnerTemplateText()">📋 표준 당첨 안내문 템플릿 삽입</button>
-
-            </div>
-
-            <div id="winpost-body" class="rich-area" contenteditable="true"></div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="modal-footer">
-
-      <button class="btn btn-outline" onclick="closeModal('modal-winner-post')">취소</button>
-
-      <button class="btn btn-primary" onclick="saveWinnerPost()">발표글 저장 및 프론트 반영</button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- ==================== 모달 4: 당첨자 명단 추가 / 실물 송장 입력 ==================== -->
-
-<div class="modal-backdrop" id="modal-winner-row">
-
-  <div class="modal-box" style="max-width:620px;">
-
-    <div class="modal-header">
-
-      <h3>+ 당첨자 대상 추가 (자동 마스킹 적용)</h3>
-
-      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-winner-row')">닫기 ✕</button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label class="form-label">등수 / 구분 *</label>
-
-          <input type="text" id="winrow-rank" value="1등" />
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">경품 지급 유형 *</label>
-
-          <select id="winrow-type">
-
-            <option value="POINT">포인트 즉시 적립 (ADMN-PROM-003 연동)</option>
-
-            <option value="GIFTICON">모바일 기프티콘 (알림톡/MMS 발송)</option>
-
-            <option value="PHYSICAL">실물 경품 (배송지 수집 / 송장 입력)</option>
-
-          </select>
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">당첨 회원명 / ID *</label>
-
-          <input type="text" id="winrow-name" placeholder="예: 김산준 (sanjun99)" />
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">휴대폰 번호 *</label>
-
-          <input type="text" id="winrow-phone" placeholder="예: 010-8821-4512" />
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">지급 경품명 / 포인트 금액 *</label>
-
-          <input type="text" id="winrow-prize" placeholder="예: 학습지원 무상 포인트 10,000P 또는 스타벅스 아메리카노" />
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <div class="modal-footer">
-
-      <button class="btn btn-outline" onclick="closeModal('modal-winner-row')">취소</button>
-
-      <button class="btn btn-primary" onclick="addWinnerRow()">당첨자 명단 추가</button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- ==================== 모달: 상품 Q&A 답변 등록 (ADMN-BRD-003-S1) ==================== -->
+<!-- ==================== 모달: 상품 Q&A 답변 등록 (ADMN-BRD-003-S1) — 건별 판단: 목록을 보며 빠르게 처리하는 답변이라 모달 유지 ==================== -->
 <div class="modal-backdrop" id="modal-pqna">
   <div class="modal-box" style="max-width:720px;">
     <div class="modal-header">
@@ -1687,6 +1551,7 @@ code, pre, kbd, samp,
     <div class="modal-body">
       <div class="ctx-note" id="pqna-modal-product"></div>
       <div class="ctx-note" id="pqna-modal-order" style="background:#f8fafc; border-color:#e2e8f0; color:#334155;"></div>
+      <div class="ctx-note" id="pqna-modal-damage" style="display:none; background:#fef2f2; border-color:#fecaca; color:#991b1b;"></div>
       <div class="ctx-note" id="pqna-modal-handler"></div>
       <div class="form-grid">
         <div class="form-group full">
@@ -1721,103 +1586,54 @@ code, pre, kbd, samp,
   </div>
 </div>
 
-<!-- ==================== 모달 5: 공지사항 등록/수정 ==================== -->
-
-<div class="modal-backdrop" id="modal-notice-form">
-
-  <div class="modal-box">
-
+<!-- ==================== 모달: 학습 Q&A 질문 상세 · 답변 (ADMN-BRD-004-S1, 운영자 · 조교용 — 강사용은 파트너 센터 같은 모달) ==================== -->
+<div class="modal-backdrop" id="modal-lqna">
+  <div class="modal-box" style="max-width:720px;">
     <div class="modal-header">
-
-      <h3 id="notice-modal-title">공지사항 등록</h3>
-
-      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-notice-form')">닫기 ✕</button>
-
+      <h3 id="lqna-page-title">학습 Q&amp;A 질문 상세 · 답변</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-lqna')">닫기 ✕</button>
     </div>
-
     <div class="modal-body">
-
-      <input type="hidden" id="notice-edit-id" />
-
+      <div class="ctx-note" id="lqna-mode-note"></div>
+      <div class="ctx-note" id="lqna-perm-note" style="background:#f8fafc; border-color:#e2e8f0; color:#334155;"></div>
       <div class="form-grid">
-
         <div class="form-group">
-
-          <label class="form-label">공지 분류 *</label>
-
-          <select id="notice-form-cat">
-
-            <option value="일반공지">일반공지</option>
-
-            <option value="시험일정">시험일정</option>
-
-            <option value="시스템점검">시스템점검</option>
-
-          </select>
-
+          <label class="form-label">질문 번호 · 답변 상태</label>
+          <div id="lqna-d-id" style="min-height:36px; display:flex; align-items:center; gap:8px; font-weight:700;"></div>
         </div>
-
         <div class="form-group">
-
-          <label class="form-label">상단 고정 및 노출</label>
-
-          <div style="display:flex; gap:14px; align-items:center; height:36px;">
-
-            <label><input type="checkbox" id="notice-form-pin" /> 상단 고정 공지</label>
-
-            <label><input type="checkbox" id="notice-form-visible" checked /> 즉시 노출</label>
-
-          </div>
-
-          <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">상단 고정은 최대 5건까지 지정할 수 있습니다. 즉시 노출을 끄면 숨김(비노출) 상태로 저장됩니다.</div>
-
+          <label class="form-label">질문자</label>
+          <div id="lqna-d-asker" style="min-height:36px; display:flex; align-items:center; flex-wrap:wrap; gap:6px;"></div>
         </div>
-
+        <div class="form-group">
+          <label class="form-label">대상 강좌 / 담당 강사</label>
+          <div id="lqna-d-course" style="min-height:36px; display:flex; align-items:center;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">강의 타임스탬프</label>
+          <div id="lqna-d-ts" style="min-height:36px; display:flex; align-items:center;"></div>
+        </div>
         <div class="form-group full">
-
-          <label class="form-label">공지 제목 *</label>
-
-          <input type="text" id="notice-form-title" placeholder="공지사항 제목을 입력하세요" />
-
+          <label class="form-label">질문 제목</label>
+          <div id="lqna-d-title" style="padding:12px 14px; border:1px solid var(--border); border-radius:8px; background:#f8fafc; line-height:1.6; font-weight:700;"></div>
         </div>
-
+        <div class="form-group">
+          <label class="form-label">처리 역할 그룹 (시연용 선택)</label>
+          <select id="lqna-role" onchange="applyLqnaPerm()"></select>
+          <div id="lqna-role-note" style="font-size:11.5px; color:#991b1b; margin-top:4px;"></div>
+        </div>
         <div class="form-group full">
-
-          <label class="form-label">공지 본문 (웹 에디터) *</label>
-
-          <div class="rich-editor-shell">
-
-            <div class="rich-toolbar">
-
-              <button type="button" onclick="execEditorCmd('notice-form-body','bold')"><b>B</b></button>
-
-              <button type="button" onclick="execEditorCmd('notice-form-body','underline')"><u>U</u></button>
-
-            </div>
-
-            <div id="notice-form-body" class="rich-area" contenteditable="true"></div>
-
-          </div>
-
+          <label class="form-label">답변 본문 *</label>
+          <textarea id="lqna-answer" rows="6" style="width:100%;" placeholder="수강생이 이해하기 쉽게 답변을 작성해 주세요."></textarea>
         </div>
-
       </div>
-
     </div>
-
     <div class="modal-footer">
-
-      <button class="btn btn-outline" onclick="closeModal('modal-notice-form')">취소</button>
-
-      <button class="btn btn-primary" onclick="saveNoticeItem()">저장</button>
-
+      <button class="btn btn-outline" onclick="closeModal('modal-lqna')">취소</button>
+      <button class="btn btn-primary" id="lqna-save" onclick="saveLqnaAnswer()">답변 등록</button>
     </div>
-
   </div>
-
 </div>
-
-
 
 <div class="toast-box" id="toast-box"></div>
 
@@ -1926,15 +1742,23 @@ code, pre, kbd, samp,
 
     { id: 'QNA-4412', course: '2026 산업안전기사 필기 초단기 완성 / 이준호 강사', ts: '03강 18:42', title: '하인리히 재해코스트 방식에서 직접비:간접비 비율 적용 질문입니다.', user: '김태영 (tykim)', status: 'WAITING' },
 
-    { id: 'QNA-4411', course: '2026 건설안전기사 실기 작업형 마스터 / 박성진 강사', ts: '07강 24:10', title: '강관비계 벽이음 설치 간격 기준표 수치 확인 부탁드립니다.', user: '윤서연 (syyoon)', status: 'DONE' },
+    { id: 'QNA-4411', course: '2026 건설안전기사 실기 작업형 마스터 / 박성진 강사', ts: '07강 24:10', title: '강관비계 벽이음 설치 간격 기준표 수치 확인 부탁드립니다.', user: '윤서연 (syyoon)', status: 'DONE', answer: '가설공사 표준안전 작업지침 기준으로 강관비계 벽이음은 수직 5m · 수평 5m 이내 간격입니다. 강의 07강 24:10 화면의 표 수치가 이 기준입니다.' },
 
-    { id: 'QNA-4410', course: '2026 인간공학 및 시스템안전공학 핵심 / 이준호 강사', ts: '11강 09:15', title: 'FTA 최소컷셋(Minimal Cut Set) 구하는 공식 예제 질문', user: '한승우 (swhan)', status: 'DONE' }
+    { id: 'QNA-4410', course: '2026 인간공학 및 시스템안전공학 핵심 / 이준호 강사', ts: '11강 09:15', title: 'FTA 최소컷셋(Minimal Cut Set) 구하는 공식 예제 질문', user: '한승우 (swhan)', status: 'DONE', answer: '최소컷셋은 FT를 불 대수로 정리한 뒤 흡수법칙으로 중복을 지워 구합니다. 11강 09:15 예제를 기준으로 교재 3장 풀이를 함께 보시면 됩니다.' }
 
   ];
 
 
 
   // 5. 이벤트 당첨자 발표 및 지급 원장 (ADMN-BRD-009)
+  // 연결 이벤트는 이벤트 · 기획전 관리(ADMN-PROM-001)의 '이벤트' 구분 항목이며 코드는 PROM-001 형식(PRM-연월-이름)을 쓴다(v6.68, 구 EVT-* 폐기)
+  const WIN_EVENTS = [
+    { code: 'PRM-2610-CHEERUP', name: '2026 제3회 실기 시험 대비 수험생 합격다짐 댓글 이벤트' },
+    { code: 'PRM-2610-WISHCMT', name: '2026 산준모 합격기원 수강신청 댓글 이벤트' },
+    { code: 'PRM-2610-ATTEND', name: '산업안전기사 빈출문제 무료특강 출석체크 이벤트' },
+    { code: 'PRM-2610-EARLYBIRD', name: '가을 대비 프리패스 얼리버드 경품 추첨' },
+    { code: 'PRM-2610-NEWJOIN', name: '신규 가입 학습지원 포인트 추첨 이벤트' }
+  ];
 
   let WINNER_POSTS = [
 
@@ -1942,7 +1766,7 @@ code, pre, kbd, samp,
 
       postId: 'WIN-2026-01',
 
-      eventCode: 'EVT-2026-101',
+      eventCode: 'PRM-2610-WISHCMT',
 
       eventName: '2026 산준모 합격기원 수강신청 댓글 이벤트',
 
@@ -1978,7 +1802,7 @@ code, pre, kbd, samp,
 
       postId: 'WIN-2026-02',
 
-      eventCode: 'EVT-2026-102',
+      eventCode: 'PRM-2610-ATTEND',
 
       eventName: '산업안전기사 빈출문제 무료특강 출석체크 이벤트',
 
@@ -2036,15 +1860,26 @@ code, pre, kbd, samp,
 
 
 
-  function switchTab(tab) {
-
+  // 탭(목록 화면) 상태만 바꾼다 — 하위 화면(S)에서 돌아갈 탭을 기억하고, 상단 코드 · 제목은 switchTab이 바꾼다
+  let activeTab = 'notice';
+  function setTabState(tab) {
+    activeTab = tab;
     document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-
     document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-
     document.getElementById('tab-btn-' + tab).classList.add('active');
-
     document.getElementById('view-' + tab).classList.add('active');
+  }
+  // 하위 화면(S)에서 목록으로 — 목록 주소에 원래 탭(?view=탭)을 남긴다
+  function backToList() {
+    SJM_PAGE.back();
+    try {
+      const q = new URLSearchParams(window.location.search);
+      q.set('view', activeTab);
+      history.replaceState(history.state, '', window.location.pathname + '?' + q.toString() + window.location.hash);
+    } catch (e) { /* file:// 등 주소 기록이 막혀도 화면 전환은 유지 */ }
+  }
+  function switchTab(tab) {
+    setTabState(tab);
 
 
 
@@ -2104,7 +1939,7 @@ code, pre, kbd, samp,
 
         <td>
 
-          <button class="btn btn-outline btn-sm" onclick="openNoticeModal(${n.id})">수정</button>
+          <button class="btn btn-outline btn-sm" onclick="openNoticePage(${n.id})">수정</button>
 
           <button class="btn btn-outline btn-sm" onclick="toggleNoticePin(${n.id})">${n.pinned ? '고정해제' : '상단고정'}</button>
 
@@ -2118,7 +1953,11 @@ code, pre, kbd, samp,
 
 
 
-  function openNoticeModal(id) {
+  // 공지사항 등록 · 수정 페이지(S1)로 이동 — 내용 채우기는 fillNoticeForm(SJM_PAGE onShow)
+  function openNoticePage(id) {
+    SJM_PAGE.go('notice-form', id ? { id } : { mode: 'new' });
+  }
+  function fillNoticeForm(id) {
 
     const item = NOTICES.find(n => n.id === id);
 
@@ -2136,7 +1975,6 @@ code, pre, kbd, samp,
 
     document.getElementById('notice-form-body').innerHTML = item ? item.body : '<p>공지 내용을 입력하세요.</p>';
 
-    document.getElementById('modal-notice-form').classList.add('open');
 
   }
 
@@ -2172,9 +2010,9 @@ code, pre, kbd, samp,
 
     }
 
-    closeModal('modal-notice-form');
-
     renderNotices();
+
+    backToList();
 
     showToast('공지사항이 저장되었습니다.');
 
@@ -2285,7 +2123,7 @@ code, pre, kbd, samp,
 
         <td>
 
-          <button class="btn btn-outline btn-sm" onclick="openFaqModal(${f.id})">수정</button>
+          <button class="btn btn-outline btn-sm" onclick="openFaqPage(${f.id})">수정</button>
 
           <button class="btn btn-outline btn-sm" onclick="deleteFaq(${f.id})">삭제</button>
 
@@ -2461,7 +2299,11 @@ code, pre, kbd, samp,
 
 
 
-  function openFaqModal(id) {
+  // FAQ 문답 등록 · 수정 페이지(S1)로 이동 — 내용 채우기는 fillFaqForm(SJM_PAGE onShow)
+  function openFaqPage(id) {
+    SJM_PAGE.go('faq-form', id ? { id } : { mode: 'new' });
+  }
+  function fillFaqForm(id) {
 
     renderFaqCategoriesPills();
 
@@ -2481,7 +2323,6 @@ code, pre, kbd, samp,
 
     document.getElementById('faq-form-a').innerHTML = item ? item.a : '<p>답변 내용을 입력하세요.</p>';
 
-    document.getElementById('modal-faq-form').classList.add('open');
 
   }
 
@@ -2515,11 +2356,11 @@ code, pre, kbd, samp,
 
     }
 
-    closeModal('modal-faq-form');
-
     renderFaqCategoriesPills();
 
     renderFaqs();
+
+    backToList();
 
     showToast('FAQ 문답이 저장되었습니다.');
 
@@ -2647,6 +2488,7 @@ code, pre, kbd, samp,
     renderPqna();
     showToast(`선택한 ${ids.length}건을 숨김 처리했습니다. 상품 상세에서 더 이상 노출되지 않습니다.`);
   }
+  // 상품 Q&A 답변(BRD-003-S1) — 건별 판단: 목록 맥락을 유지하며 빠르게 처리하는 답변이라 모달
   function openPqnaModal(id) {
     const p = PQNA_LIST.find(x => x.id === id);
     if (!p) return;
@@ -2669,6 +2511,11 @@ code, pre, kbd, samp,
     document.getElementById('pqna-modal-answer').value = p.answer || '';
     document.getElementById('pqna-modal-errata').style.display = p.type === '오탈자/내용 오류' ? 'block' : 'none';
     document.getElementById('pqna-modal-save').textContent = p.status === 'WAITING' ? '답변 등록 · 알림톡 발송' : '답변 수정 저장';
+    // 파손 다발 경고(같은 상품 파손/오배송 문의 30일 내 5건 이상) — 답변 화면에도 표시(통합 설계서 상품 Q&A 관리)
+    const dmg = PQNA_LIST.filter(x => pqnaInLast30(x) && x.type === '파손/오배송' && x.productId === p.productId).length;
+    const dEl = document.getElementById('pqna-modal-damage');
+    dEl.style.display = dmg >= 5 ? 'block' : 'none';
+    dEl.innerHTML = dmg >= 5 ? `<strong>⚠️ 파손 다발 상품:</strong> 이 상품의 최근 30일 파손/오배송 문의 ${dmg}건 — 포장 개선 또는 인쇄 불량 회수 여부를 검토하세요.` : '';
     const modal = document.getElementById('modal-pqna');
     modal.style.removeProperty('display');
     modal.classList.add('open');
@@ -2716,7 +2563,7 @@ code, pre, kbd, samp,
 
         <td><span class="badge ${q.status === 'DONE' ? 'badge-green' : 'badge-amber'}">${q.status === 'DONE' ? '답변완료' : '답변대기'}</span></td>
 
-        <td><button class="btn btn-outline btn-sm" onclick="answerQna('${q.id}')">답변관리</button></td>
+        <td><button class="btn btn-outline btn-sm" onclick="openLqnaModal('${q.id}')">답변관리</button></td>
 
       </tr>
 
@@ -2726,188 +2573,157 @@ code, pre, kbd, samp,
 
 
 
-  function answerQna(id) {
-    const item = QNA_LIST.find(q => q.id === id);
-    if (item) {
-      item.status = 'DONE';
-      renderQna();
-      showToast(`${id} 질문에 강사 답변이 등록되었습니다.`);
-    }
+  // 학습 Q&A 질문 상세 · 답변(BRD-004-S1, 운영자 · 조교용) — 건별 판단: 목록에서 질문 하나씩 답하는 짧은 처리라 모달(강사용 파트너 센터도 모달). 정본 범위만: 질문자 개인정보 마스킹 · 권한(역할 그룹 학습 Q&A 쓰기) · 운영 방식(카페 / 자체, 운영 설정 lqnaMode)
+  // 강사는 파트너 센터(ADMN-PTNR-001)에서 본인 강좌 질문에 답변한다. 답변 알림톡 · 보류 · 에스컬레이션은 정본에 없어 두지 않음
+  const LQNA_CAFE_URL = 'https://cafe.naver.com/sanjunmo';
+  let lqnaEditingId = null;
+  function lqnaMode() {
+    const m = M && M.settings ? M.settings.get('lqnaMode') : '';
+    return m === 'INTERNAL' ? 'INTERNAL' : 'CAFE';
+  }
+  function openLqnaModal(id) {
+    if (!fillLqnaDetail(id)) return;
+    const modal = document.getElementById('modal-lqna');
+    modal.style.removeProperty('display');
+    modal.classList.add('open');
+  }
+  // 학습 Q&A 메뉴 권한이 있는 내부 역할 그룹(쓰기 W = 답변, 읽기 R = 조회만)
+  function lqnaRoleGroups() {
+    return M.roles.active().filter(g => g.side === 'INTERNAL' && M.roles.perm(g.id, 'lqna'));
+  }
+  function fillLqnaDetail(id) {
+    const q = QNA_LIST.find(x => x.id === id);
+    if (!q) return false;
+    lqnaEditingId = id;
+    const cafe = lqnaMode() === 'CAFE';
+    document.getElementById('lqna-page-title').textContent = `학습 Q&A 질문 상세 · 답변 (${q.id})`;
+    document.getElementById('lqna-mode-note').innerHTML = cafe
+      ? `<strong>현재 학습 Q&A는 산준모 네이버 카페 질문게시판에서 운영 중입니다.</strong> 운영 방식(카페 / 자체 학습 Q&A)은 운영 설정에서 정하며, 이 화면은 자체 학습 Q&A 전환 후 화면 미리보기입니다. 여기서 등록한 답변은 수강생에게 발송되지 않습니다. <a href="${LQNA_CAFE_URL}" target="_blank" rel="noopener" id="lqna-cafe-link" style="font-weight:700; color:var(--primary);">네이버 카페 질문게시판 바로가기</a>`
+      : '<strong>자체 학습 Q&A로 운영 중입니다.</strong> 운영 방식(카페 / 자체 학습 Q&A)은 운영 설정에서 정합니다.';
+    const groups = lqnaRoleGroups();
+    const wNames = groups.filter(g => M.roles.has(g.id, 'lqna', 'W')).map(g => g.name);
+    const rNames = groups.filter(g => !M.roles.has(g.id, 'lqna', 'W')).map(g => g.name);
+    document.getElementById('lqna-perm-note').innerHTML = `<strong>답변 권한:</strong> '학습 Q&A' 쓰기 권한이 있는 역할 그룹(${wNames.join(' · ') || '없음'})만 답변합니다${rNames.length ? ` — ${rNames.join(' · ')}은(는) 조회만 합니다` : ''}. 권한은 운영자 권한 관리에서 정하고, 강사는 파트너 센터에서 본인 강좌 질문에만 답변합니다.`;
+    const sel = document.getElementById('lqna-role');
+    sel.innerHTML = groups.map(g => `<option value="${g.id}">${g.name} (${M.roles.has(g.id, 'lqna', 'W') ? '답변' : '조회만'})</option>`).join('');
+    // 기본은 학습 Q&A 담당 큐(조교 등) 중 쓰기 권한 그룹 — 조교는 내부 직원 소속으로 학습 Q&A를 처리(통합 설계서 조교와 강사)
+    const firstW = groups.find(g => g.queue && M.roles.has(g.id, 'lqna', 'W')) || groups.find(g => M.roles.has(g.id, 'lqna', 'W'));
+    if (firstW) sel.value = firstW.id;
+    document.getElementById('lqna-d-id').innerHTML = `${q.id} <span class="badge ${q.status === 'DONE' ? 'badge-green' : 'badge-amber'}">${q.status === 'DONE' ? '답변완료' : '답변대기'}</span>`;
+    // 질문자 회원 개인정보는 항상 마스킹(이름 · 아이디만 가려서, 연락처 · 이메일은 표시하지 않음)
+    const mm = q.user.match(/^([^\(]+)\(([^\)]+)\)/);
+    const nm = mm ? mm[1].trim() : q.user;
+    const uid = mm ? mm[2].trim() : '';
+    document.getElementById('lqna-d-asker').innerHTML = `<span id="lqna-asker-masked" style="font-weight:700;">${maskName(nm)}${uid ? ' · 아이디 ' + maskId(uid) : ''}</span> <span style="font-size:11.5px; color:var(--text-sub);">(연락처 · 이메일은 표시하지 않습니다)</span>`;
+    document.getElementById('lqna-d-course').textContent = q.course;
+    document.getElementById('lqna-d-ts').innerHTML = `<span class="badge badge-blue">▶ ${q.ts}</span>`;
+    document.getElementById('lqna-d-title').textContent = q.title;
+    document.getElementById('lqna-answer').value = q.answer || '';
+    document.getElementById('lqna-save').textContent = q.status === 'DONE' ? '답변 수정 저장' : '답변 등록';
+    applyLqnaPerm();
+    return true;
+  }
+  function applyLqnaPerm() {
+    const role = document.getElementById('lqna-role').value;
+    const canW = !!role && M.roles.has(role, 'lqna', 'W');
+    document.getElementById('lqna-answer').readOnly = !canW;
+    document.getElementById('lqna-save').disabled = !canW;
+    document.getElementById('lqna-role-note').textContent = canW ? '' : `${role ? M.roles.name(role) : '선택한 역할 그룹'}은(는) 학습 Q&A 읽기 권한만 있어 답변할 수 없습니다.`;
+  }
+  function saveLqnaAnswer() {
+    const q = QNA_LIST.find(x => x.id === lqnaEditingId);
+    if (!q) return;
+    const role = document.getElementById('lqna-role').value;
+    if (!role || !M.roles.has(role, 'lqna', 'W')) { showToast('학습 Q&A 쓰기 권한이 있는 역할 그룹만 답변할 수 있습니다.'); return; }
+    const answer = document.getElementById('lqna-answer').value.trim();
+    if (!answer) { showToast('답변 본문을 입력해 주세요.'); return; }
+    const first = q.status !== 'DONE';
+    q.answer = answer;
+    q.status = 'DONE';
+    closeModal('modal-lqna');
+    renderQna();
+    showToast(lqnaMode() === 'CAFE'
+      ? `${q.id} 답변을 ${first ? '등록' : '수정'}했습니다. (전환 후 화면 미리보기 — 수강생에게는 발송되지 않습니다)`
+      : `${q.id} 답변을 ${first ? '등록' : '수정'}했습니다.`);
   }
   // 이벤트 당첨자 발표 및 지급 관리 (ADMN-BRD-009)
 
-  function populateWinnerSelect() {
-
-    const sel = document.getElementById('winner-post-select');
-
-    const currentVal = sel.value;
-
-    sel.innerHTML = WINNER_POSTS.map(p => `<option value="${p.postId}">[${p.postId}] ${p.title} (${p.winners.length}명)</option>`).join('');
-
-    if (currentVal && WINNER_POSTS.some(p => p.postId === currentVal)) {
-
-      sel.value = currentVal;
-
-    }
-
-    document.getElementById('cnt-winner').textContent = WINNER_POSTS.length;
-
+  // 당첨자 발표 목록(탭) · 발표 페이지(S1) — 지금 연 발표는 currentWinnerPostId
+  let currentWinnerPostId = null;
+  const WIN_STATUS = { PUBLISHED: ['badge-green', '프론트 게시중'], SCHEDULED: ['badge-amber', '예약 게시'], DRAFT: ['badge-slate', '임시저장'] };
+  function winEventName(code) {
+    const ev = WIN_EVENTS.find(e => e.code === code);
+    return ev ? ev.name : code;
   }
-
-
-
   function getSelectedWinnerPost() {
-
-    const id = document.getElementById('winner-post-select').value;
-
-    return WINNER_POSTS.find(p => p.postId === id) || WINNER_POSTS[0];
-
+    return WINNER_POSTS.find(p => p.postId === currentWinnerPostId) || null;
   }
 
-
-
+  // 탭: KPI + 발표 공고 목록 (열려 있는 발표 페이지가 있으면 명단도 다시 그림)
   function renderWinnerView() {
-
-    populateWinnerSelect();
-
-    const post = getSelectedWinnerPost();
-
-    if (!post) return;
-
-
-
-    // 전체 KPI 계산
-
     const allWinners = WINNER_POSTS.flatMap(p => p.winners);
-
     const doneCnt = allWinners.filter(w => w.status === 'COMPLETED').length;
-
+    document.getElementById('cnt-winner').textContent = WINNER_POSTS.length;
     document.getElementById('win-kpi-posts').textContent = WINNER_POSTS.length + '건';
-
     document.getElementById('win-kpi-total').textContent = allWinners.length + '명';
-
     document.getElementById('win-kpi-done').textContent = doneCnt + '명';
-
     document.getElementById('win-kpi-wait').textContent = (allWinners.length - doneCnt) + '명';
-
-
-
-    // 선택된 발표글 요약 배너
-
-    document.getElementById('winner-post-summary').innerHTML = `
-
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:14px; flex-wrap:wrap;">
-
-        <div>
-
-          <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
-
-            <span class="badge badge-purple">${post.eventCode}</span>
-
-            <span class="badge ${post.status === 'PUBLISHED' ? 'badge-green' : 'badge-amber'}">${post.status === 'PUBLISHED' ? '프론트 게시중' : '예약/임시저장'}</span>
-
-            <span style="font-size:12px; color:var(--text-sub);">발표일: ${post.date}</span>
-
-          </div>
-
-          <div style="font-size:15px; font-weight:800; margin-bottom:6px;">${post.title}</div>
-
-          <div style="font-size:12px; color:var(--text-sub); margin-bottom:8px;">${post.body}</div>
-
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-
-            <span class="badge ${post.exposeEventTab ? 'badge-blue' : 'badge-slate'}">이벤트 &gt; 당첨자 발표 탭(USER-PROM-001): ${post.exposeEventTab ? '노출 ON' : 'OFF'}</span>
-
-            <span class="badge ${post.exposeNoticeTop ? 'badge-blue' : 'badge-slate'}">고객센터 &gt; 공지사항(USER-CS-001) 동시 노출: ${post.exposeNoticeTop ? 'ON' : 'OFF'}</span>
-
-            <span class="badge ${post.sendAlimtalk ? 'badge-green' : 'badge-slate'}">당첨자 개별 알림톡(ADMN-CONF-004): ${post.sendAlimtalk ? '발송 연동됨' : '미발송'}</span>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    `;
-
-
-
-    renderWinnerTable();
-
+    document.getElementById('winner-post-tbody').innerHTML = WINNER_POSTS.map(p => {
+      const st = WIN_STATUS[p.status] || ['badge-slate', p.status];
+      const done = p.winners.filter(w => w.status === 'COMPLETED').length;
+      return `
+      <tr class="row-click" style="cursor:pointer;" data-post="${p.postId}" onclick="openWinnerPage('${p.postId}')">
+        <td style="font-weight:700;">${p.postId}</td>
+        <td><span class="badge badge-purple">${p.eventCode}</span><div style="font-size:12px; margin-top:4px;">${p.eventName}</div></td>
+        <td style="font-weight:700;">${p.title}</td>
+        <td><span class="badge ${st[0]}">${st[1]}</span></td>
+        <td>${p.date}</td>
+        <td style="font-size:12px;">이벤트 탭 ${p.exposeEventTab ? 'ON' : 'OFF'} · 공지 상단 ${p.exposeNoticeTop ? 'ON' : 'OFF'}</td>
+        <td>${p.winners.length}명 · 지급 ${done}명</td>
+        <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openWinnerPage('${p.postId}')">관리</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-sub);">등록된 당첨자 발표가 없습니다.</td></tr>';
+    if (getSelectedWinnerPost()) renderWinnerTable();
   }
 
-
-
+  // 발표 페이지: 당첨자 명단 및 경품 지급 원장
   function renderWinnerTable() {
-
     const post = getSelectedWinnerPost();
-
     if (!post) return;
-
     const st = document.getElementById('winner-status-filter').value;
-
     const list = post.winners.filter(w => st === 'ALL' || w.status === st);
-
     const typeLabel = { POINT: '포인트 즉시적립', GIFTICON: '모바일 기프티콘', PHYSICAL: '실물 배송경품' };
-
     const typeBadge = { POINT: 'badge-blue', GIFTICON: 'badge-purple', PHYSICAL: 'badge-amber' };
-
-
-
+    const doneCnt = post.winners.filter(w => w.status === 'COMPLETED').length;
+    document.getElementById('winner-ledger-sum').textContent = `· ${post.winners.length}명 (지급완료 ${doneCnt}명 · 지급대기 ${post.winners.length - doneCnt}명)`;
+    document.getElementById('win-chk-all').checked = false;
     document.getElementById('winner-tbody').innerHTML = list.map(w => `
-
       <tr>
-
         <td><input type="checkbox" class="win-row-chk" value="${w.id}" ${w.status === 'COMPLETED' ? 'disabled' : ''} /></td>
-
         <td style="font-weight:700;">${w.rank}</td>
-
         <td>${w.userName} (${w.userId})<br/><span style="font-size:11px; color:var(--text-sub);">${w.phone}</span></td>
-
         <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; color:#1e40af; font-weight:700;">
-
           ${maskName(w.userName)} (${maskId(w.userId)})<br/>
-
           <span style="font-size:11px;">${maskPhone(w.phone)}</span>
-
         </td>
-
         <td><span class="badge ${typeBadge[w.type] || 'badge-slate'}">${typeLabel[w.type] || w.type}</span></td>
-
         <td style="font-weight:700;">${w.prize}</td>
-
         <td>
-
           <span class="badge ${w.status === 'COMPLETED' ? 'badge-green' : 'badge-amber'}">
-
             ${w.status === 'COMPLETED' ? '지급완료' : '지급대기'}
-
           </span>
-
         </td>
-
         <td style="font-size:11.5px; color:var(--text-sub);">${w.meta}</td>
-
         <td>
-
           ${w.status === 'COMPLETED'
-
             ? `<button class="btn btn-outline btn-sm" disabled>지급완료됨</button>`
-
             : w.type === 'PHYSICAL'
-
               ? `<button class="btn btn-warning btn-sm" onclick="registerTrackingForWinner(${w.id})">🚚 송장번호 등록</button>`
-
               : `<button class="btn btn-primary btn-sm" onclick="grantSingleWinner(${w.id})">즉시 지급/발송</button>`
-
           }
-
         </td>
-
       </tr>
-
-    `).join('');
-
+    `).join('') || '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-sub);">당첨자 명단이 없습니다. [+ 당첨자 개별/엑셀 추가]로 등록하세요.</td></tr>';
   }
 
 
@@ -3020,50 +2836,44 @@ code, pre, kbd, samp,
 
 
 
-  function openWinnerPostModal(mode) {
-
-    document.getElementById('winpost-mode').value = mode;
-
-    if (mode === 'EDIT') {
-
-      const post = getSelectedWinnerPost();
-
+  // 당첨자 발표 페이지(S1)로 이동 — 내용 채우기는 fillWinnerPage(SJM_PAGE onShow)
+  function openWinnerPage(postId) {
+    SJM_PAGE.go('winner-post', postId ? { id: postId } : { mode: 'new' });
+  }
+  function fillWinnerPage(postId) {
+    const post = postId ? WINNER_POSTS.find(p => p.postId === postId) : null;
+    currentWinnerPostId = post ? post.postId : null;
+    document.getElementById('winpost-mode').value = post ? 'EDIT' : 'NEW';
+    const evSel = document.getElementById('winpost-event-code');
+    const evs = WIN_EVENTS.slice();
+    if (post && !evs.some(e => e.code === post.eventCode)) evs.push({ code: post.eventCode, name: post.eventName });
+    evSel.innerHTML = evs.map(e => `<option value="${e.code}">[${e.code}] ${e.name}</option>`).join('');
+    if (post) {
       document.getElementById('winner-post-modal-title').textContent = `[ADMN-BRD-009] 당첨자 발표글 수정 (${post.postId})`;
-
-      document.getElementById('winpost-event-code').value = post.eventCode;
-
+      evSel.value = post.eventCode;
       document.getElementById('winpost-status').value = post.status;
-
       document.getElementById('winpost-date').value = post.date;
-
       document.getElementById('winpost-title').value = post.title;
-
       document.getElementById('winpost-exp-event').checked = post.exposeEventTab;
-
       document.getElementById('winpost-exp-notice').checked = post.exposeNoticeTop;
-
       document.getElementById('winpost-send-alim').checked = post.sendAlimtalk;
-
       document.getElementById('winpost-body').innerHTML = `<p>${post.body}</p>`;
-
     } else {
-
       document.getElementById('winner-post-modal-title').textContent = '[ADMN-BRD-009] 신규 이벤트 당첨자 발표 등록';
-
+      evSel.selectedIndex = 0;
+      document.getElementById('winpost-status').value = 'PUBLISHED';
+      document.getElementById('winpost-date').value = '2026-10-19';
       document.getElementById('winpost-title').value = '[당첨자 발표] 2026 가을 대비 프리패스 얼리버드 경품 추첨 결과 안내';
-
       document.getElementById('winpost-exp-event').checked = true;
-
       document.getElementById('winpost-exp-notice').checked = true;
-
       document.getElementById('winpost-send-alim').checked = true;
-
       insertWinnerTemplateText();
-
     }
-
-    document.getElementById('modal-winner-post').classList.add('open');
-
+    toggleWinnerRowForm(false);
+    document.getElementById('winner-status-filter').value = 'ALL';
+    document.getElementById('winner-ledger').style.display = post ? '' : 'none';
+    document.getElementById('winner-ledger-empty').style.display = post ? 'none' : '';
+    if (post) renderWinnerTable();
   }
 
 
@@ -3093,181 +2903,59 @@ code, pre, kbd, samp,
 
 
   function saveWinnerPost() {
-
     const mode = document.getElementById('winpost-mode').value;
-
     const eventCode = document.getElementById('winpost-event-code').value;
-
     const status = document.getElementById('winpost-status').value;
-
     const date = document.getElementById('winpost-date').value;
-
     const title = document.getElementById('winpost-title').value.trim();
-
     const exposeEventTab = document.getElementById('winpost-exp-event').checked;
-
     const exposeNoticeTop = document.getElementById('winpost-exp-notice').checked;
-
     const sendAlimtalk = document.getElementById('winpost-send-alim').checked;
-
     const body = document.getElementById('winpost-body').innerText.trim();
-
-
-
     if (!title) { alert('당첨자 발표 제목을 입력해주세요.'); return; }
-
-
-
     if (mode === 'EDIT') {
-
       const post = getSelectedWinnerPost();
-
-      Object.assign(post, { eventCode, status, date, title, exposeEventTab, exposeNoticeTop, sendAlimtalk, body });
-
-    } else {
-
-      const newPostId = 'WIN-2026-0' + (WINNER_POSTS.length + 1);
-
-      WINNER_POSTS.unshift({
-
-        postId: newPostId,
-
-        eventCode,
-
-        eventName: eventCode,
-
-        title,
-
-        status,
-
-        date,
-
-        exposeEventTab,
-
-        exposeNoticeTop,
-
-        sendAlimtalk,
-
-        body,
-
-        winners: [
-
-          { id: Date.now(), rank: '1등 (포인트)', userName: '홍길동', userId: 'gildong88', phone: '010-5512-9081', type: 'POINT', prize: '학습지원 무상 포인트 30,000P', status: 'PENDING', meta: '즉시 지급 대기' }
-
-        ]
-
-      });
-
-      if (exposeNoticeTop) {
-
-        NOTICES.unshift({
-
-          id: Date.now() % 1000 + 300,
-
-          pinned: true,
-
-          cat: '당첨자발표연동',
-
-          title,
-
-          file: '-',
-
-          views: 1,
-
-          visible: true,
-
-          date,
-
-          body
-
-        });
-
-        renderNotices();
-
-      }
-
-      populateWinnerSelect();
-
-      document.getElementById('winner-post-select').value = newPostId;
-
+      Object.assign(post, { eventCode, eventName: winEventName(eventCode), status, date, title, exposeEventTab, exposeNoticeTop, sendAlimtalk, body });
+      renderWinnerView();
+      if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+      backToList();
+      showToast('당첨자 발표글 및 프론트 노출 설정이 저장되었습니다.');
+      return;
     }
-
-
-
-    closeModal('modal-winner-post');
-
+    const newPostId = 'WIN-2026-0' + (WINNER_POSTS.length + 1);
+    WINNER_POSTS.unshift({ postId: newPostId, eventCode, eventName: winEventName(eventCode), title, status, date, exposeEventTab, exposeNoticeTop, sendAlimtalk, body, winners: [] });
+    if (exposeNoticeTop) {
+      NOTICES.unshift({ id: Date.now() % 1000 + 300, pinned: true, cat: '당첨자발표연동', title, file: '-', views: 1, visible: true, date, body });
+      renderNotices();
+    }
     renderWinnerView();
-    /* Init FAQ Cat Modal */
     if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
-
-    showToast('당첨자 발표글 및 프론트 노출 설정이 저장되었습니다.');
-
+    // 새 발표는 같은 페이지에서 이어서 당첨자 명단을 추가하도록 수정 화면으로 바꾼다
+    SJM_PAGE.go('winner-post', { id: newPostId }, { replace: true });
+    showToast(`${newPostId} 발표글이 저장되었습니다. 아래 당첨자 명단에서 당첨자를 추가하세요.`);
   }
 
-
-
-  function openAddWinnerRowModal() {
-
-    document.getElementById('modal-winner-row').classList.add('open');
-
+  // 당첨자 명단 추가 입력 영역(페이지 안) 열기 · 닫기
+  function toggleWinnerRowForm(show) {
+    document.getElementById('winner-row-form').style.display = show ? 'block' : 'none';
   }
-
-
 
   function addWinnerRow() {
-
     const post = getSelectedWinnerPost();
-
+    if (!post) return;
     const rank = document.getElementById('winrow-rank').value.trim() || '당첨';
-
     const type = document.getElementById('winrow-type').value;
-
     const nameRaw = document.getElementById('winrow-name').value.trim() || '신규회원 (newuser1)';
-
     const phone = document.getElementById('winrow-phone').value.trim() || '010-1234-5678';
-
     const prize = document.getElementById('winrow-prize').value.trim() || '학습지원 무상 포인트 10,000P';
-
-
-
     const match = nameRaw.match(/^([^\(]+)\(([^\)]+)\)/);
-
     const userName = match ? match[1].trim() : nameRaw;
-
     const userId = match ? match[2].trim() : 'user_' + (Date.now() % 1000);
-
-
-
-    post.winners.push({
-
-      id: Date.now(),
-
-      rank,
-
-      userName,
-
-      userId,
-
-      phone,
-
-      type,
-
-      prize,
-
-      status: 'PENDING',
-
-      meta: '신규 등록 (지급 대기)'
-
-    });
-
-    closeModal('modal-winner-row');
-
+    post.winners.push({ id: Date.now(), rank, userName, userId, phone, type, prize, status: 'PENDING', meta: '신규 등록 (지급 대기)' });
+    toggleWinnerRowForm(false);
     renderWinnerView();
-    /* Init FAQ Cat Modal */
     if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
-
     showToast('당첨자 명단에 추가되었으며 프론트 마스킹이 자동 적용되었습니다.');
-
   }
 
 
@@ -3329,8 +3017,6 @@ code, pre, kbd, samp,
     renderPqna();
     renderQna();
 
-    populateWinnerSelect();
-
     renderWinnerView();
     /* Init FAQ Cat Modal */
     if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
@@ -3346,6 +3032,27 @@ code, pre, kbd, samp,
       switchTab(view);
 
     }
+
+    // 하위 화면(S) 페이지 — 주소 ?view=notice-form · faq-form · winner-post (&id=). 상품 Q&A 답변 · 학습 Q&A 상세는 건별 판단으로 모달
+    // (탭 주소 ?view=notice · faq · pqna · qna · winner 와 이름이 겹치지 않게 구분)
+    const findIn = (list, key, v) => list.some(x => String(x[key]) === String(v));
+    SJM_PAGE.register('list', { onShow: () => switchTab(activeTab) });
+    SJM_PAGE.register('notice-form', {
+      code: 'ADMN-BRD-001-S1',
+      title: p => (p.id && findIn(NOTICES, 'id', p.id) ? '공지사항 수정' : '공지사항 등록'),
+      onShow: p => { setTabState('notice'); fillNoticeForm(p.id && findIn(NOTICES, 'id', p.id) ? Number(p.id) : null); }
+    });
+    SJM_PAGE.register('faq-form', {
+      code: 'ADMN-BRD-006-S1',
+      title: p => (p.id && findIn(FAQS, 'id', p.id) ? 'FAQ 문답 수정' : 'FAQ 문답 등록'),
+      onShow: p => { setTabState('faq'); fillFaqForm(p.id && findIn(FAQS, 'id', p.id) ? Number(p.id) : null); }
+    });
+    SJM_PAGE.register('winner-post', {
+      code: 'ADMN-BRD-009-S1',
+      title: p => (p.id && findIn(WINNER_POSTS, 'postId', p.id) ? '당첨자 발표 수정' : '당첨자 발표 등록'),
+      onShow: p => { setTabState('winner'); fillWinnerPage(p.id && findIn(WINNER_POSTS, 'postId', p.id) ? p.id : null); }
+    });
+    SJM_PAGE.start();
 
   });
 

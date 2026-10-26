@@ -281,6 +281,33 @@ code, pre, kbd, samp,
           </div>
         </div>
 
+        <div class="card" id="card-manual-point-expiry">
+          <div class="card-header">
+            <div class="card-title"><span>🎁 수동 무상 포인트 유효기간 선택지</span></div>
+            <button type="button" class="btn btn-sm btn-primary" onclick="saveManualPointExpiry()">💾 유효기간 선택지 저장</button>
+          </div>
+          <div class="card-body">
+            <table class="kv-table">
+              <tbody>
+                <tr>
+                  <th>선택지 (일) *</th>
+                  <td>
+                    <input type="text" id="mpe-days" class="f-input" style="width:180px;" placeholder="30, 90, 180" />
+                    <span style="font-size:11.5px; color:var(--text-muted); margin-left:6px;">쉼표로 구분 · 지급일 기준 일수 · 최대 5개</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th>기본 선택 *</th>
+                  <td><select id="mpe-default" class="f-select" style="width:120px;"></select></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
+              ※ 회원 상세(<code>ADMN-USER-002</code>) 수동 무상 포인트 지급 팝업의 유효기간은 이 선택지 중에서만 고릅니다(임의 날짜 · 무기한 불가). 이미 지급한 포인트의 만료일은 바뀌지 않습니다.
+            </div>
+          </div>
+        </div>
+
         <div class="card" id="card-lqna-mode">
           <div class="card-header">
             <div class="card-title"><span>💬 학습 Q&amp;A 운영 방식</span></div>
@@ -458,6 +485,38 @@ code, pre, kbd, samp,
       tbody.prepend(tr);
       showToast('개인정보 재마스킹 시간이 저장되었습니다. 다음 열람부터 적용됩니다.');
     }
+    function parseExpiryDays(text) {
+      const parts = String(text).split(',').map(s => s.trim()).filter(Boolean);
+      const days = parts.map(Number);
+      if (!days.length || days.length > 5 || days.some(d => !Number.isInteger(d) || d < 1 || d > 3650)) return null;
+      return Array.from(new Set(days)).sort((a, b) => a - b);
+    }
+    function fillExpiryDefault(days, selected) {
+      const sel = document.getElementById('mpe-default');
+      sel.innerHTML = days.map(d => `<option value="${d}">지급일 +${d}일</option>`).join('');
+      sel.value = String(days.includes(selected) ? selected : days[0]);
+    }
+    function loadManualPointExpiry() {
+      const st = sjmSettings(); if (!st) return;
+      const days = st.get('manualPointExpiryDays') || [30, 90, 180];
+      document.getElementById('mpe-days').value = days.join(', ');
+      fillExpiryDefault(days, Number(st.get('manualPointExpiryDefault')));
+    }
+    function saveManualPointExpiry() {
+      const days = parseExpiryDays(document.getElementById('mpe-days').value);
+      if (!days) { showToast('선택지는 1~3650 사이 정수를 쉼표로 구분해 1~5개 입력해 주세요.'); return; }
+      const def = Number(document.getElementById('mpe-default').value);
+      const st = sjmSettings(); const prev = (st.get('manualPointExpiryDays') || []).join(' · ');
+      st.set('manualPointExpiryDays', days);
+      st.set('manualPointExpiryDefault', days.includes(def) ? def : days[0]);
+      document.getElementById('mpe-days').value = days.join(', ');
+      fillExpiryDefault(days, st.get('manualPointExpiryDefault'));
+      const tbody = document.getElementById('player-hist-tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>2026.10.18 15:55</td><td>최고 관리자 (admin_root)</td><td>수동 무상 포인트 유효기간 선택지</td><td>${prev || '-'}일</td><td><strong>${days.join(' · ')}일 (기본 +${st.get('manualPointExpiryDefault')}일)</strong></td>`;
+      tbody.prepend(tr);
+      showToast('수동 무상 포인트 유효기간 선택지가 저장되었습니다. 회원 상세 지급 팝업에 바로 반영됩니다.');
+    }
 
     function renderIpWhitelist() {
       document.getElementById('kpi-ip-cnt').textContent = WHITELIST_IPS.length + ' 건';
@@ -505,6 +564,8 @@ code, pre, kbd, samp,
     document.addEventListener('DOMContentLoaded', () => {
       renderIpWhitelist();
       loadSettingsToForm();
+      loadManualPointExpiry();
+      document.getElementById('mpe-days').addEventListener('input', function () { const d = parseExpiryDays(this.value); if (d) fillExpiryDefault(d, Number(document.getElementById('mpe-default').value)); });
       ['pv-member-sec', 'pv-holder-sec'].forEach(id => document.getElementById(id).addEventListener('input', updatePrivacyHints));
       const params = new URLSearchParams(window.location.search);
       if (params.get('view') === 'auth') switchConfTab('auth');

@@ -11,7 +11,7 @@
     - 운영자 SNB(common-snb.js)는 로드하지 않는다: common-snb.js는 body 맨 앞에 운영자 SNB를 무조건 넣는다.
       그래서 이 화면은 clean 문구 치환기를 거치지 않으며, 처음부터 운영 문구로 작성한다.
     - 권리자 정보는 window.SJM_MASTER.rightsHolders, 역할 그룹 이름은 SJM_MASTER.roles, 학습 Q&A 운영 단계는 SJM_MASTER.settings.get("lqnaMode")에서 읽는다.
-    - 본인 정산서는 ADMN-SETT-002 권리자 정산서(?view=partner-stmt, openStatementModalS2 'PARTNER_SESSION')와 같은 내용. SETT-002의 모달 방식은 개발 참고용으로 그대로 둔다.
+    - 본인 정산서는 ADMN-SETT-002 권리자 정산서(SETT-002-S2, ?view=partner-stmt)와 같은 내용. SETT-002는 v6.68에서 S1 · S2를 페이지로 바꿨고, 이 화면 안의 정산서 보기는 모달로 둔다(파트너 화면은 common-snb.js · SJM_PAGE를 쓰지 않음).
   -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />

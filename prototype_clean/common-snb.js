@@ -419,7 +419,8 @@
     /\s*·\s*\d+(?:\.\d+)?절/g,
     /\s*\(\s*(?:Case\s*\d+[^)]*|부록\s*[A-Z][^)]*|QA\s*D-\d+[^)]*)\)/gi,
     // (member_status), (goods_stock_log), (own_copyright_yn) 등 영문 snake_case DB 컬럼 괄호 제거
-    /\s*\(\s*[a-z]+_[a-z0-9_]+(?:\s*=\s*[^)]+)?\s*\)/g,
+    // — 컬럼 꼴 접미사로 끝나는 것만 지운다. 회원 아이디(safe_choi 등)처럼 운영자가 봐야 하는 값은 남긴다(v6.68)
+    /\s*\(\s*(?:[a-z]+_[a-z0-9]+_[a-z0-9_]+|[a-z]+(?:_[a-z0-9]+)*_(?:yn|cd|code|status|state|type|log|id|at|date|dt|amount|amt|rate|ratio|flag|key|no|cnt|count|basis|scope|policy|method|category|clause|base|total|balance|limit|reason|unit|mode|channel|account|ledger|snapshot|history|treatment|owner|price|qty))(?:\s*=\s*[^)]+)?\s*\)/g,
     // Table: xxx 배지 텍스트 제거
     /^\s*Table:\s*[a-z0-9_]+\s*$/i,
     // 잔여 화면코드 접두사 및 기술 코드 제거
@@ -832,5 +833,91 @@
     if (e.key === 'Escape') {
       window.closeAllModals();
     }
+  });
+})();
+
+/* =========================================================================
+   SJM_PAGE (v6.68) — 하위 화면(S)을 같은 HTML 안의 페이지로 전환하는 공통 도구
+   화면설계서 v12가 별도 페이지(S)로 정한 등록 · 상세는 모달이 아니라 이 방식으로 연다.
+   사용법 · 함정: scripts/qa/reports/review/findings/PAGE_PATTERN.md
+   - 패널: #v4-page-body 안의 <section class="subview-panel" data-subpage="이름">
+   - 목록 패널 이름은 'list'(처음부터 active). 상단 화면 코드 · 제목은 목록일 때 원래 값으로 돌아간다.
+   - 주소: ?view=이름(&id=…) — 새로 고침 · 다른 화면 링크로 바로 들어오고, 브라우저 뒤로 가기로 목록에 돌아간다.
+   ========================================================================= */
+(function () {
+  var pages = {};
+  var base = null;
+  var current = 'list';
+  var pageKeys = {}; // go()로 주소에 넣은 화면 고유 키(holder 등) — 목록으로 돌아갈 때 함께 지운다
+
+  function crumbEls() {
+    return {
+      code: document.getElementById('top-crumb-code') || document.querySelector('.top-bar .crumb-code'),
+      title: document.querySelector('.top-bar .crumb-title')
+    };
+  }
+
+  function show(name, params) {
+    var def = pages[name];
+    if (!def) return false;
+    var el = crumbEls();
+    // 목록을 떠날 때마다 그 순간의 상단 코드 · 제목을 기억한다 — 탭 묶음 화면은 탭마다 제목이 달라서(v6.68)
+    if (!base || (current === 'list' && name !== 'list')) base = { code: el.code ? el.code.textContent : '', title: el.title ? el.title.textContent : '' };
+    document.querySelectorAll('#v4-page-body > .subview-panel[data-subpage]').forEach(function (p) {
+      p.classList.toggle('active', p.getAttribute('data-subpage') === name);
+    });
+    // clean: 상단 화면 코드 자리는 화면 이름으로 치환돼 있으므로 그대로 두고 제목만 바꾼다(prototype은 코드도 S 코드로 바꿈)
+    if (el.title) el.title.textContent = name === 'list' ? base.title : (typeof def.title === 'function' ? def.title(params || {}) : (def.title || base.title));
+    current = name;
+    if (typeof def.onShow === 'function') def.onShow(params || {});
+    window.scrollTo(0, 0);
+    return true;
+  }
+
+  function urlFor(name, params) {
+    var q = new URLSearchParams(window.location.search);
+    ['view', 'id', 'mode'].concat(Object.keys(pageKeys)).forEach(function (k) { q.delete(k); });
+    pageKeys = {};
+    if (name !== 'list') {
+      q.set('view', name);
+      Object.keys(params || {}).forEach(function (k) { if (params[k] !== null && params[k] !== undefined && params[k] !== '') { q.set(k, params[k]); pageKeys[k] = true; } });
+    }
+    var s = q.toString();
+    return window.location.pathname + (s ? '?' + s : '') + window.location.hash;
+  }
+
+  window.SJM_PAGE = {
+    /** 하위 화면 등록: name = data-subpage 값, def = { code: 'ADMN-…-S1', title: '…' 또는 function(params), onShow: function(params) } */
+    register: function (name, def) { pages[name] = def || {}; },
+    /** 하위 화면으로 이동(주소 기록). opts.replace = 기록 대신 바꾸기 */
+    go: function (name, params, opts) {
+      if (!show(name, params)) return;
+      try {
+        var st = { sjmPage: name, params: params || {} };
+        if (opts && opts.replace) history.replaceState(st, '', urlFor(name, params));
+        else history.pushState(st, '', urlFor(name, params));
+      } catch (e) { /* file:// 등에서 주소 기록이 막혀도 화면 전환은 유지 */ }
+    },
+    /** 목록으로 돌아가기 */
+    back: function () { this.go('list'); },
+    current: function () { return current; },
+    /** 등록이 끝난 뒤 한 번 호출: 목록을 등록하고 ?view= 진입을 처리한다 */
+    start: function (listDef) {
+      if (!pages.list) pages.list = listDef || {};
+      var q = new URLSearchParams(window.location.search);
+      var v = q.get('view');
+      if (v && pages[v]) {
+        var params = {};
+        q.forEach(function (val, key) { if (key !== 'view') params[key] = val; });
+        this.go(v, params, { replace: true });
+        pageKeys = {}; // 직접 진입 주소에 원래 있던 키(role 등)는 목록으로 돌아가도 지우지 않는다
+      }
+    }
+  };
+
+  window.addEventListener('popstate', function (e) {
+    var st = e.state;
+    if (st && st.sjmPage) show(st.sjmPage, st.params);
+    else show('list');
   });
 })();

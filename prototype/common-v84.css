@@ -858,3 +858,14 @@ body.partner-isolated-mode .s2-modal-backdrop {
 .s2-modal-backdrop.force-closed {
   display: none !important;
 }
+
+/* =========================================================================
+   SUBPAGE (v6.68) — 하위 화면(S) 페이지 전환 공통 스타일 (SJM_PAGE, common-snb.js)
+   ========================================================================= */
+#v4-page-body > .subview-panel[data-subpage] { display: none; }
+#v4-page-body > .subview-panel[data-subpage].active { display: block; }
+.subpage-head { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; flex-wrap: wrap; }
+.subpage-head .subpage-title { font-size: 17px; font-weight: 700; margin: 0; }
+.subpage-head .crumb-code { font-size: 11.5px; }
+.subpage-card { padding: 8px 22px 18px; }
+.subpage-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border, #e2e8f0); }

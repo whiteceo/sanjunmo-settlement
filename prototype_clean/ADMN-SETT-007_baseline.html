@@ -487,7 +487,7 @@ code, pre, kbd, samp,
     </div>
     <div class="modal-bd">
       <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:11px 14px; margin-bottom:14px; font-size:12.5px; color:#1e3a8a;">
-        💡 <strong>[계약 선택 안내 ]</strong> 계약 코드를 직접 입력할 필요 없이 아래 목록에서 검색하여 선택하세요. <strong>미상계 선급금 잔액이 남아 있는 계약</strong>은 선급금 상계 완결 전까지 수취인 분할 추가가 차단됩니다.
+        💡 <strong>[계약 선택 안내 ]</strong> 계약 코드를 직접 입력할 필요 없이 아래 목록에서 검색하여 선택하세요. <strong>미상계 선급금 잔액이 남아 있는 계약</strong>은 선급금 상계 완결 전까지 수취인 분할 추가가 차단됩니다. <strong>도서 위탁 계약</strong>은 위탁자에게 귀속되는 판매대금이라 수취인 분할 대상이 아닙니다(위탁자가 여럿이면 위탁 계약을 나눠 등록).
       </div>
       <div style="display:flex; gap:10px; margin-bottom:12px;">
         <input type="text" id="modalContractSearch" class="input" style="flex:1;" placeholder="계약번호(CT-...), 권리자명(김안전, 정종대 등), 소속사명 검색..." oninput="renderContractPickerList()">
@@ -664,6 +664,33 @@ code, pre, kbd, samp,
     }));
   }
   CONTRACTS.forEach(c => Object.defineProperty(c, "coSigners", { get: () => c.self.concat(masterCoSigners(c.id)) }));
+
+  // 마감 확정(Locked) 월 — 이 달까지 걸치는 시작일로는 분할을 바꾸지 않는다(01권 4.3 소급 변경 통제, SETT-001과 같은 기준)
+  const LOCKED_THROUGH_MONTH = "2026-09";
+  const FIRST_OPEN_DATE = "2026-10-01"; // 마감 뒤 첫 날 — 새로 넣는 수취인 행의 기본 시작일
+  // 종료 기준(end_basis, 01권 4.2 payee_splits): 계약 종료 연동이면 종료일을 계약 현재 종료일로 따른다
+  function splitEnd(c, s) { return s.endBasis === "CONTRACT_LINKED" ? c.effectiveEnd : s.endDate; }
+  function splitKey(c, s) { return `${s.payeeId}|${Number(s.ratio).toFixed(2)}|${s.startDate}|${s.endBasis}|${splitEnd(c, s)}`; }
+  function prevDayIso(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() - 1);
+    return dt.toISOString().slice(0, 10);
+  }
+  CONTRACTS.forEach(c => {
+    c.splits.forEach(s => { if (!s.endBasis) s.endBasis = s.endDate === c.effectiveEnd ? "CONTRACT_LINKED" : "FIXED_DATE"; });
+    c.savedSplits = c.splits.map(s => ({ ...s })); // 마지막 저장 버전 — 소급 변경 판정 기준
+  });
+  // 위탁 계약(도서 위탁)은 2계층 수취인 분할 대상이 아니다 — 위탁자가 여럿이면 위탁 계약 자체를 나눠 등록(01권 4.1)
+  function consignContracts() {
+    const M = window.SJM_MASTER;
+    if (!M) return [];
+    const out = [];
+    M.rightsHolders.list().forEach(h => (h.contracts || []).forEach(k => {
+      if ((k.types || []).includes("도서 위탁") && !CONTRACTS.some(c => c.id === k.no)) out.push({ id: k.no, holderId: h.id, holderName: h.name });
+    }));
+    return out;
+  }
 
   const AUDIT_LOGS = [
     {
@@ -923,6 +950,7 @@ code, pre, kbd, samp,
             <th>저작자 본인 여부 / 승계 확정일</th>
             <th class="num" style="width:140px;">2계층 분할 비율 (%)</th>
             <th style="width:130px;">적용 시작일</th>
+            <th style="width:150px;">종료 기준</th>
             <th style="width:130px;">적용 종료일</th>
             <th>비고 메모</th>
             <th style="width:64px;">제거</th>
@@ -962,7 +990,13 @@ code, pre, kbd, samp,
                   <input type="date" class="input" value="${sp.startDate}" ${isBlocked ? 'disabled' : ''} onchange="getSelectedContract().splits[${idx}].startDate = this.value" />
                 </td>
                 <td>
-                  <input type="date" class="input" value="${sp.endDate}" ${isBlocked ? 'disabled' : ''} onchange="getSelectedContract().splits[${idx}].endDate = this.value" />
+                  <select class="select" ${isBlocked ? 'disabled' : ''} onchange="updateEndBasis(${idx}, this.value)">
+                    <option value="CONTRACT_LINKED" ${sp.endBasis === 'CONTRACT_LINKED' ? 'selected' : ''}>계약 종료 연동</option>
+                    <option value="FIXED_DATE" ${sp.endBasis === 'FIXED_DATE' ? 'selected' : ''}>지정일</option>
+                  </select>
+                </td>
+                <td>
+                  <input type="date" class="input" value="${splitEnd(c, sp)}" ${isBlocked || sp.endBasis === 'CONTRACT_LINKED' ? 'disabled' : ''} onchange="getSelectedContract().splits[${idx}].endDate = this.value" />
                 </td>
                 <td>
                   <input type="text" class="input" style="width:100%;" value="${sp.note || ''}" ${isBlocked ? 'disabled' : ''} oninput="getSelectedContract().splits[${idx}].note = this.value" />
@@ -1106,7 +1140,16 @@ code, pre, kbd, samp,
           </td>
         </tr>
       `;
-    }).join("");
+    }).join("") + (flt === "ALL" ? consignContracts().filter(k => !kw || `${k.id} ${k.holderName}`.toLowerCase().includes(kw)).map(k => `
+        <tr class="consign-excluded" style="color:var(--muted);">
+          <td><span class="code" style="font-weight:800;">${k.id}</span><div style="font-weight:700; margin-top:2px;">도서 위탁 계약</div></td>
+          <td>${k.holderName} <span class="code">(${k.holderId})</span></td>
+          <td>—</td>
+          <td>—</td>
+          <td><span class="badge b-gray">분할 대상 아님</span></td>
+          <td><button class="btn btn-sm" disabled title="위탁 정산금은 위탁자 귀속 — 위탁자가 여럿이면 위탁 계약을 나눠 등록">선택 불가</button></td>
+        </tr>
+      `).join("") : "");
   }
 
   function pickContractFromModal(contractId) {
@@ -1158,7 +1201,8 @@ code, pre, kbd, samp,
     c.splits.push({
       payeeId,
       ratio: remain > 0 ? remain : 30.00,
-      startDate: c.effectiveStart,
+      startDate: c.effectiveStart > FIRST_OPEN_DATE ? c.effectiveStart : FIRST_OPEN_DATE,
+      endBasis: "CONTRACT_LINKED",
       endDate: c.effectiveEnd,
       note: "공동 서명 수취인 모달 선택 추가"
     });
@@ -1186,7 +1230,8 @@ code, pre, kbd, samp,
         c.splits.push({
           payeeId: nextSigner.payeeId,
           ratio: 0,
-          startDate: c.effectiveStart,
+          startDate: c.effectiveStart > FIRST_OPEN_DATE ? c.effectiveStart : FIRST_OPEN_DATE,
+          endBasis: "CONTRACT_LINKED",
           endDate: c.effectiveEnd,
           note: "공동 서명인 프리셋 배분"
         });
@@ -1217,6 +1262,13 @@ code, pre, kbd, samp,
     renderEditorWorkspace();
   }
 
+  function updateEndBasis(idx, val) {
+    const c = getSelectedContract();
+    c.splits[idx].endBasis = val;
+    if (val === "CONTRACT_LINKED") c.splits[idx].endDate = c.effectiveEnd;
+    renderEditorWorkspace();
+  }
+
   function removePayeeRow(idx) {
     const c = getSelectedContract();
     if (c.splits.length <= 1) return;
@@ -1242,13 +1294,30 @@ code, pre, kbd, samp,
       alert("[감사 통제] 변경 사유를 최소 10자 이상 입력해 주세요.");
       return;
     }
+    // 소급 변경 통제(01권 4.3): 마지막 저장 버전과 달라진 행이 마감 확정 월에 걸치면 저장 차단 → 마감 후 정정(SETT-005, SPLIT_ERR)
+    const savedKeys = c.savedSplits.map(s => splitKey(c, s));
+    const curKeys = c.splits.map(s => splitKey(c, s));
+    const changedRows = c.splits.filter((s, i) => !savedKeys.includes(curKeys[i]));
+    const removedRows = c.savedSplits.filter((s, i) => !curKeys.includes(savedKeys[i]));
+    if (!changedRows.length && !removedRows.length) {
+      showToast("마지막 저장 버전과 달라진 내용이 없습니다.");
+      return;
+    }
+    const lockedRow = changedRows.find(s => !s.startDate || s.startDate.slice(0, 7) <= LOCKED_THROUGH_MONTH);
+    if (lockedRow) {
+      alert(`[소급 변경 차단] 마감 확정(${LOCKED_THROUGH_MONTH}까지) 월에 걸치는 분할은 바꿀 수 없습니다 — ${lockedRow.payeeId} 행(시작 ${lockedRow.startDate}).\n바뀐 행의 적용 시작일을 ${FIRST_OPEN_DATE} 이후로 지정하세요. 마감된 달의 정정은 마감 후 정정(조정 라인 등록, 사유 SPLIT_ERR)으로 처리합니다.`);
+      return;
+    }
+    const versionStart = changedRows.map(s => s.startDate).sort()[0] || FIRST_OPEN_DATE;
+    const beforeJson = JSON.stringify(c.savedSplits.map(s => ({ payee_id: s.payeeId, ratio: s.ratio, start: s.startDate, end_basis: s.endBasis, end: splitEnd(c, s) })));
+    c.savedSplits = c.splits.map(s => ({ ...s }));
     AUDIT_LOGS.unshift({
       ts: "2026-10-15 17:05:00",
       contractId: c.id,
       holder: c.primaryHolderName,
       action: "2계층 수취인 분할 비율 트랜잭션 저장 (100.00%)",
-      before: "기존 스냅샷 버전 종료 처리",
-      after: JSON.stringify(c.splits.map(s => ({ payee_id: s.payeeId, ratio: s.ratio }))),
+      before: `기존 버전 ${prevDayIso(versionStart)} 종료 처리 · ${beforeJson}`,
+      after: JSON.stringify(c.splits.map(s => ({ payee_id: s.payeeId, ratio: s.ratio, start: s.startDate, end_basis: s.endBasis, end: splitEnd(c, s) }))),
       actor: `재무담당자 (${reason})`
     });
     showToast(`[저장 완료] ${c.id} 계약의 2계층 수취인 분할 비율(100.00%)이 저장되었습니다.`);
@@ -1281,6 +1350,8 @@ code, pre, kbd, samp,
     if (typeof renderContractPickerList === 'function') renderContractPickerList();
     if (cid && CONTRACTS.some(c => c.id === cid)) {
       openContractEditor(cid);
+    } else if (cid && consignContracts().some(k => k.id === cid)) {
+      showToast(`${cid}는 도서 위탁 계약이라 수취인 분할 대상이 아닙니다(위탁자가 여럿이면 위탁 계약을 나눠 등록합니다).`);
     }
   })();
 </script><script>

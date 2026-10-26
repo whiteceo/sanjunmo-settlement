@@ -675,7 +675,9 @@ code, pre, kbd, samp,
                 <input class="fc" id="payeeAccount" value="예시은행 123-***-******" readonly="" style="flex:1">
                 <button class="btn" type="button" data-action="pii" data-kind="account">열람</button>
               </div>
-              <div class="note">계좌 변경은 수취인 관리에서 처리합니다. 실제 계좌번호는 이 HTML에 포함하지 않습니다.</div>
+              <label class="lbl" for="accountHolder">예금주명</label>
+              <input class="fc" id="accountHolder" value="산준교육 콘텐츠 주식회사" readonly="" data-field="">
+              <div class="note">계좌 · 예금주 변경은 수취인 관리에서 처리합니다. 실제 계좌번호는 이 HTML에 포함하지 않습니다.</div>
             </div>
 
             <div id="businessFields">
@@ -685,6 +687,17 @@ code, pre, kbd, samp,
               <input class="fc" id="representative" value="김예시" maxlength="50" data-field="">
               <label class="lbl" for="openingDate">개업일</label>
               <input class="fc" id="openingDate" type="date" value="2024-01-01" data-field="">
+              <div id="corpNoWrap">
+                <label class="lbl" for="corpNo">법인등록번호</label>
+                <input class="fc" id="corpNo" value="000000-0000000" maxlength="14" placeholder="13자리 · 고유번호 단체는 비움" data-field="">
+              </div>
+              <label class="lbl" for="bizCategory">업태 · 업종</label>
+              <div class="inline">
+                <input class="fc" id="bizCategory" placeholder="업태" maxlength="50" style="flex:1" data-field="">
+                <input class="fc" id="bizItem" placeholder="업종" maxlength="50" style="flex:1" data-field="">
+              </div>
+              <label class="lbl" for="bizAddress">사업장 주소</label>
+              <input class="fc" id="bizAddress" placeholder="사업자등록증상 사업장 주소" maxlength="200" data-field="">
               <div class="inline" style="margin-top:10px">
                 <button class="btn pr" type="button" data-action="verify">국세청 진위 확인 · 모의</button>
                 <span id="ntsBadge" class="chip warn">확인 필요</span>
@@ -704,6 +717,26 @@ code, pre, kbd, samp,
                 <option value="NO">본인 아님 · 권리 승계 증빙 필요</option>
               </select>
               <div class="note">실제 주민등록번호는 이 화면설계에 저장하거나 표시하지 않습니다.</div>
+            </div>
+
+            <div id="contactFields">
+              <div id="personContact" hidden="">
+                <label class="lbl" for="settleEmail">정산 알림 이메일</label>
+                <input class="fc" id="settleEmail" type="email" placeholder="정산서 PDF 발송처" maxlength="100" data-field="">
+                <label class="lbl" for="mobilePhone">휴대전화</label>
+                <input class="fc" id="mobilePhone" placeholder="010-0000-0000" maxlength="20" data-field="">
+                <label class="lbl" for="homeAddress">거주지 주소</label>
+                <input class="fc" id="homeAddress" maxlength="200" data-field="">
+              </div>
+              <div id="businessContact">
+                <label class="lbl" for="contactPhone">담당자 연락처</label>
+                <input class="fc" id="contactPhone" placeholder="02-000-0000" maxlength="20" data-field="">
+                <label class="lbl" for="contactEmail">담당자 이메일</label>
+                <input class="fc" id="contactEmail" type="email" placeholder="정산서 PDF 발송처" maxlength="100" data-field="">
+                <label class="lbl" for="invoiceEmail">세금계산서 · 계산서 수신 이메일</label>
+                <input class="fc" id="invoiceEmail" type="email" maxlength="100" data-field="">
+              </div>
+              <div class="note">정산서 PDF는 계정 유무와 관계없이 이 이메일로 발송합니다.</div>
             </div>
 
             <div>
@@ -755,6 +788,46 @@ code, pre, kbd, samp,
                 <div class="eff" id="ntsDateView">—</div>
               </div>
             </div>
+            <div class="row c4" id="ntsMoreRow">
+              <div>
+                <label class="lbl">과세유형 코드</label>
+                <div class="eff" id="ntsCodeView">—</div>
+              </div>
+              <div>
+                <label class="lbl">최근 과세유형 전환일자</label>
+                <div class="eff" id="taxChangeView">—</div>
+              </div>
+              <div>
+                <label class="lbl">세금계산서 적용일자</label>
+                <div class="eff" id="invoiceApplyView">—</div>
+              </div>
+              <div>
+                <label class="lbl">확인 유효기간 · 90일</label>
+                <div class="eff" id="ntsValidView">—</div>
+              </div>
+            </div>
+            <div class="row c2" id="certCheckRow">
+              <div>
+                <label class="lbl" for="certTaxType">사업자등록증 과세유형 표기 · 담당자 확인</label>
+                <select class="fc" id="certTaxType" data-field="">
+                  <option value="">확인 전</option>
+                  <option value="GENERAL">일반과세자</option>
+                  <option value="SIMPLE">간이과세자</option>
+                  <option value="EXEMPT">면세사업자</option>
+                  <option value="SPECIAL">과세특례자</option>
+                  <option value="UNIQUE">고유번호증 · 비영리 단체</option>
+                </select>
+                <div class="note">제출받은 사업자등록증의 과세유형 표기를 고릅니다. 국세청 응답과 다르면 저장을 막고, 응답 기준으로 정정된 사업자등록증을 다시 받습니다.</div>
+              </div>
+              <div>
+                <label class="lbl">확인 결과</label>
+                <div class="eff" id="ntsResultView">국세청 확인 전</div>
+              </div>
+            </div>
+            <details id="ntsRawWrap" style="margin-top:8px">
+              <summary class="sub" style="cursor:pointer">국세청 응답 원문 · 펼치기</summary>
+              <textarea class="fc" id="ntsRawView" readonly="" rows="14" style="font-family:monospace;font-size:11px;margin-top:6px">국세청 확인 전입니다.</textarea>
+            </details>
             <div class="note">국세청 응답 속성은 읽기 전용입니다. VAT와 원천징수는 별도 판정하며, 면세 개인사업자도 원천징수 검토를 생략하지 않습니다.</div>
           </div>
 
@@ -921,6 +994,23 @@ code, pre, kbd, samp,
                 </select>
               </div>
             </div>
+            <div class="row c3">
+              <div>
+                <label class="lbl" for="exclusiveIncome">전속계약금 소득 구분</label>
+                <select class="fc" id="exclusiveIncome" data-field="">
+                  <option value="BUSINESS">사업소득 · 기본</option>
+                  <option value="C17">기타소득 · 제17호 사례금 / C17</option>
+                  <option value="C19">기타소득 · 제19호 인적용역 / C19</option>
+                </select>
+              </div>
+              <div id="exclusiveIncomeWrap" hidden="" style="grid-column:span 2">
+                <label class="lbl" for="exclusiveIncomeReason">일회성 대가 소명 · 계약 문언 근거</label>
+                <textarea class="fc" id="exclusiveIncomeReason" placeholder="계약 문언상 일회성 대가임을 기록합니다." data-field=""></textarea>
+                <button class="btn" type="button" data-action="approveExclusiveIncome" style="margin-top:8px">재무 책임자 승인 · 모의</button>
+                <span class="chip" id="exclusiveIncomeApproval">미승인</span>
+              </div>
+            </div>
+            <div class="note">전속계약은 계약금 지급 뒤 강의 수익 배분이 계속되므로 사업소득이 기본입니다. 기타소득으로 등록하려면 소명과 재무 책임자 승인이 필요합니다.</div>
             <div class="cardhead" style="margin-top:15px">
               <h3>회차별 지급 마일스톤</h3>
               <button class="btn sm" type="button" data-action="milestone" data-kind="exclusive">회차 추가</button>
@@ -1020,6 +1110,18 @@ code, pre, kbd, samp,
                 </select>
               </div>
             </div>
+            <div class="row c3">
+              <div>
+                <label class="lbl" for="supportIncome">지원금 소득 구분</label>
+                <select class="fc" id="supportIncome" data-field="">
+                  <option value="BUSINESS">사업소득 · 기본</option>
+                  <option value="C19">기타소득 · 제19호 / C19</option>
+                </select>
+              </div>
+              <div style="grid-column:span 2">
+                <div class="note" style="margin-top:22px">매출연동형은 매월 반복 발생하므로 사업소득이 기본입니다. 일시금 · 분할형은 계약 문언에 따라 기타소득(C19 등)으로 지정할 수 있으며, 신고 산출물은 라인 단위로 나뉩니다.</div>
+              </div>
+            </div>
 
             <div id="supportRS">
               <div class="row c4">
@@ -1043,6 +1145,19 @@ code, pre, kbd, samp,
                 <div>
                   <label class="lbl" for="supportEndDate">약정 종료일</label>
                   <input class="fc" id="supportEndDate" type="date" disabled="" data-field="">
+                </div>
+              </div>
+              <div class="row c3">
+                <div>
+                  <label class="lbl" for="supportScope">정산 범위 (settlement_scope)</label>
+                  <select class="fc" id="supportScope" data-field="">
+                    <option value="PIPELINE_1_1_ONLY">온라인 강좌 수익배분만 · 기본</option>
+                    <option value="PIPELINE_2_1_ONLY">자사 발행 도서 인세만</option>
+                    <option value="PIPELINE_1_1_2_1" selected="">온라인 강좌 + 자사 발행 도서 합산</option>
+                  </select>
+                </div>
+                <div style="grid-column:span 2">
+                  <div class="note" style="margin-top:22px">요율 기준 모수는 기본 요율과 같은 기준금 하나입니다. 위탁 도서 판매대금은 어떤 정산 범위에서도 지원금 모수에 넣지 않습니다. 도서가 포함되면 대상 도서는 자사 발행이면서 자사 지분이 0%보다 커야 합니다.</div>
                 </div>
               </div>
 
@@ -1127,6 +1242,9 @@ code, pre, kbd, samp,
                 <label class="lbl">월 최저보장 · MMG</label>
                 <label class="check"><input type="checkbox" id="mmgEnabled" data-field="">사용</label>
                 <div class="note">금액은 BASIC 라인별로 등록합니다.</div>
+                <label class="lbl" for="mmgAnnualCap">연간 보전 총액 상한 · 원</label>
+                <input class="fc" id="mmgAnnualCap" type="number" min="0" placeholder="비우면 상한 없음" data-field="">
+                <div class="note">누적 보전금이 상한을 넘으면 알림이 나가고, 초과분 보전은 재무 승인으로 넘어갑니다.</div>
               </div>
               <div>
                 <label class="lbl" for="vatTreatment">VAT 지급 기준</label>
@@ -1230,6 +1348,15 @@ code, pre, kbd, samp,
                 <div id="buyoutTargets"></div>
               </div>
             </div>
+            <div class="row c2">
+              <div>
+                <label class="lbl">원가 계정 구분 · 자동</label>
+                <div class="eff" id="buyoutCostAccount">무형 판권 취득 (BUYOUT_RIGHT)</div>
+              </div>
+              <div>
+                <div class="note" style="margin-top:22px">매절 대금은 무형 판권 취득으로 기록합니다. 사입 도서 매입 원가(재고자산 취득 INVENTORY_PURCHASE)와 손익 분석에서 섞지 않습니다.</div>
+              </div>
+            </div>
             <div class="fixed">매출 귀속은 자사 권리자 100%입니다. 매입 대금 지급과 매출 권리자 매핑을 별도로 관리합니다.</div>
           </div>
         </section>
@@ -1245,8 +1372,8 @@ code, pre, kbd, samp,
               <div>
                 <label class="lbl" for="consignmentFeeType">수수료 방식</label>
                 <select class="fc" id="consignmentFeeType" data-field="">
-                  <option value="DEDUCT">수수료 차감 후 지급</option>
-                  <option value="INVOICE">총액 지급 후 수수료 청구</option>
+                  <option value="NET_DEDUCT">수수료 차감 후 지급</option>
+                  <option value="GROSS_SETTLE">총액 지급 후 수수료 청구</option>
                 </select>
               </div>
               <div>
@@ -1260,6 +1387,18 @@ code, pre, kbd, samp,
               <div>
                 <label class="lbl">위탁 계약 기간</label>
                 <div class="eff" id="consignmentPeriod">모계약 연동</div>
+              </div>
+            </div>
+            <div class="row c2">
+              <div>
+                <span class="lbl">위탁 정산 기준가</span>
+                <div class="seg">
+                  <label><input type="radio" name="consignmentBasePrice" value="PAID_AMOUNT" checked="" data-field="">실결제액 기준 · 기본</label>
+                  <label><input type="radio" name="consignmentBasePrice" value="LIST_PRICE" data-field="">도서 정가 기준</label>
+                </div>
+              </div>
+              <div>
+                <div class="note" style="margin-top:22px">위탁 판매대금을 실결제액(할인 판매가)과 도서 정가 중 무엇으로 정산할지 계약별로 정합니다.</div>
               </div>
             </div>
             <div class="row c3">
@@ -1307,6 +1446,15 @@ code, pre, kbd, samp,
               <div>
                 <label class="lbl">지급 행</label>
                 <button class="btn" type="button" data-action="allowance">수당 행 추가</button>
+              </div>
+            </div>
+            <div class="row c3">
+              <div>
+                <label class="lbl" for="allowanceIncome">활동 성격 · 소득 구분</label>
+                <select class="fc" id="allowanceIncome" data-field="">
+                  <option value="BUSINESS">정기 활동 · 사업소득</option>
+                  <option value="C19">단발 활동 · 기타소득 C19</option>
+                </select>
               </div>
             </div>
             <div class="tablewrap" id="allowanceTable"></div>
@@ -1535,6 +1683,7 @@ const state = {
   ntsHistory:[],
   suspendedApproved:false,
   vatApproved:false,
+  exclusiveIncomeApproved:false,
   payeeSplit:false,
   saved:null,
   savedAt:null,
@@ -1651,12 +1800,55 @@ function modalError(text){
 }
 
 /* 화면 갱신 */
+/* 국세청 과세유형 코드(tax_type_cd) 매핑 — 판정은 코드 기준, 명칭은 표시 · 이력용(03권 17.2 · 17.3).
+   cert = 사업자등록증 과세유형 표기 교차 검증 값, hold = 판정 보류 격리(ALWAYS 항상 / SUPPLY 도서 재화 공급 외) */
+const NTS_TAX_CODES = {
+  "01":{tax:"GENERAL",label:"일반과세",invoice:true,cert:"GENERAL"},
+  "02":{tax:"SIMPLE_RECEIPT",label:"간이 · 발급 불가",invoice:false,cert:"SIMPLE"},
+  "07":{tax:"SIMPLE_INVOICE",label:"간이 · 발급 가능",invoice:true,cert:"SIMPLE"},
+  "04":{tax:"EXEMPT",label:"면세",invoice:false,cert:"EXEMPT"},
+  "03":{tax:"",label:"과세특례자",invoice:false,cert:"SPECIAL",hold:"ALWAYS"},
+  "05":{tax:"",label:"비영리법인 · 국가기관 등",invoice:false,cert:"UNIQUE",hold:"SUPPLY"},
+  "06":{tax:"",label:"고유번호 단체",invoice:false,cert:"UNIQUE",hold:"SUPPLY"}
+};
+const NTS_VALID_DAYS = 90; // nts_check_validity_days
+const NTS_MISMATCH = "국세청 등록 정보와 일치하지 않습니다. 사업자등록증의 사업자등록번호·대표자명·개업일자를 확인해 주세요";
+const isoPlus = (iso,days) => {
+  const t = utcDay(iso);
+  return Number.isFinite(t) ? new Date((t+days)*86400000).toISOString().slice(0,10) : "";
+};
+const ntsValidUntil = nts => isoPlus(nts?.checkedOn, NTS_VALID_DAYS);
+const ntsExpired = nts => !!nts?.valid && !!nts.checkedOn && today() > ntsValidUntil(nts);
+const corpDigits = () => val("corpNo").replace(/\D/g,"");
+/* 도서 위탁만 있는 계약 — 재화 공급이라 매트릭스 케이스는 TX-11 고정(공급 성격 우선) */
+const goodsOnly = () => termOn("Consignment") &&
+  ["Online","Royalty","Exclusive","Development","Buyout","Allowance","Advance"].every(t=>!termOn(t));
+function ntsHold(nts){
+  if(!nts?.valid || !nts.match || nts.code==="") return "";
+  const m = NTS_TAX_CODES[nts.code];
+  if(!m) return `과세유형 코드 ${nts.code}는 매핑 표에 없어 판정 보류로 격리하고 담당자에게 알립니다. 비슷한 유형으로 임의 매핑하지 않습니다.`;
+  if(m.hold==="ALWAYS") return "과세특례자(03)는 판정 보류로 격리하고 담당자에게 알립니다.";
+  if(goodsOnly()) return "";
+  if(m.hold==="SUPPLY") return `과세유형 코드 ${nts.code}(${m.label}): 인세 · 매절 라인은 후보 TX-09, 강의 R/S · 약정금 · 개발지원금 라인은 후보 TX-07로 두고 판정 보류로 격리합니다. 수익사업 영위 여부와 증빙 종류를 확정하기 전까지 마감을 차단합니다.`;
+  if(nts.code==="04" && val("bizType")==="CORP" && corpDigits()) return "면세사업자 법인: 인세 · 매절 라인은 후보 TX-09, 강의 R/S · 약정금 · 개발지원금 라인은 후보 TX-07로 두고 판정 보류로 격리합니다. 과세사업 겸영 등록과 세금계산서 발급 가능 여부를 확인합니다.";
+  return "";
+}
+
 function refresh(){
   const business = radio("partyType") === "BUSINESS";
   const internal = business && val("bizType") === "INTERNAL";
   $("businessSubtype").hidden = !business;
   $("businessFields").hidden = !business || internal;
   $("personFields").hidden = business;
+  $("corpNoWrap").hidden = val("bizType") !== "CORP";
+  $("contactFields").hidden = internal;
+  $("personContact").hidden = business;
+  $("businessContact").hidden = !business;
+  ["ntsMoreRow","certCheckRow","ntsRawWrap"].forEach(id => { $(id).hidden = !business || internal; });
+  $("mmgAnnualCap").disabled = !checked("mmgEnabled");
+  $("exclusiveIncomeWrap").hidden = val("exclusiveIncome") === "BUSINESS";
+  $("exclusiveIncomeApproval").textContent = state.exclusiveIncomeApproved ? "승인됨 · 모의" : "미승인";
+  $("exclusiveIncomeApproval").className = "chip " + (state.exclusiveIncomeApproved?"ok":"warn");
   $("incomeClauseWrap").hidden = val("incomeCategory") !== "OTHER";
   document.querySelectorAll("[data-term]").forEach(input=>{
     const section = $(input.dataset.term);
@@ -1706,8 +1898,18 @@ function refresh(){
   $("consignmentPeriod").textContent = `${val("contractStart")} ~ ${val("initialEnd") || "미정"}`;
 
   const nts = state.nts;
-  $("ntsBadge").className = "chip " + (nts?.valid ? "ok" : "warn");
-  $("ntsBadge").textContent = nts?.valid ? "응답 확인" : "확인 필요";
+  $("ntsBadge").className = "chip " + (nts?.valid ? (nts.match && nts.code!=="" && !ntsExpired(nts) ? "ok" : "ng") : "warn");
+  $("ntsBadge").textContent = nts?.failed ? "API 실패 · 확인 대기" : !nts?.valid ? "확인 필요" :
+    !nts.match ? "진위 불일치" : nts.code==="" ? "미등록 번호" : ntsExpired(nts) ? "유효기간 경과 · 재확인" : "응답 확인";
+  $("ntsCodeView").textContent = nts?.valid ? (nts.code==="" ? "빈 값 · 미등록" : nts.code) : "—";
+  $("taxChangeView").textContent = nts?.valid ? (nts.changeDt || "응답 없음") : "—";
+  $("invoiceApplyView").textContent = nts?.valid ? (nts.applyDt || "응답 없음") : "—";
+  $("ntsValidView").textContent = nts?.valid ? `${nts.checkedOn} ~ ${ntsValidUntil(nts)}${ntsExpired(nts)?" · 경과":""}` : "—";
+  const hold = ntsHold(nts);
+  $("ntsResultView").textContent = nts?.failed ? "API 최종 실패 · 신규 등록은 사업자등록증 첨부 후 확인 대기로만 임시 등록" :
+    !nts?.valid ? "국세청 확인 전" :
+    `${nts.input.bizNumber} · ${nts.input.bizName || "상호 미입력"} · ${nts.input.representative} · ${nts.match?"진위 일치":"진위 불일치"} · ${nts.statusLabel} · ${nts.taxLabel}${hold?" · 판정 보류 격리":""}`;
+  $("ntsRawView").value = nts?.raw ? JSON.stringify(nts.raw,null,2) : "국세청 확인 전입니다.";
   $("taxTypeView").textContent = internal ? "자사 귀속" : !business ? "개인 · 라인별 판정" : nts?.valid ? nts.taxLabel : "국세청 확인 후 자동 설정";
   $("bizStatusView").textContent = internal ? "자사" : !business ? "해당 없음" : nts?.valid ? nts.statusLabel : "미확인";
   $("invoiceView").textContent = internal || !business ? "해당 없음" : nts?.valid ? (nts.invoice?"가능":"불가") : "미확인";
@@ -1918,8 +2120,8 @@ function renderNtsHistory(){
     <tbody>${state.ntsHistory.map((r,i)=>`<tr>
       <td>${esc(r.time)}</td>
       <td>${esc(r.input.bizNumber)}<div class="note">${esc(r.input.representative)} · ${esc(r.input.openingDate)}</div></td>
-      <td><span class="chip ${r.match?"ok":"ng"}">${r.match?"일치":"불일치"}</span></td>
-      <td>${esc(r.statusLabel)}</td><td>${esc(r.taxLabel)}</td>
+      <td><span class="chip ${r.failed?"warn":r.match?"ok":"ng"}">${r.failed?"호출 실패":r.match?"일치":"불일치"}</span></td>
+      <td>${esc(r.statusLabel)}</td><td>${esc(r.taxLabel)}${r.code!==undefined?`<div class="note">코드 ${esc(r.code||"빈 값")}</div>`:""}</td>
       <td>${button("ntsSnapshot","스냅샷",`data-index="${i}"`)}</td>
     </tr>`).join("") || emptyRow(6,"국세청 확인을 실행하면 모의 응답이 기록됩니다.")}</tbody>
   </table>`;
@@ -1942,13 +2144,42 @@ function validation(){
   if(!hasEvidence("CONTRACT")) errors.push("계약서 증빙이 필요합니다.");
   if(!hasEvidence("BANK")&&!internal) errors.push("통장 사본 증빙이 필요합니다.");
 
+  if(!internal){
+    const emailOk=v=>!v||/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v);
+    if(!val("accountHolder").trim()) errors.push("예금주명이 필요합니다.");
+    (business?[["contactEmail","담당자 이메일"],["invoiceEmail","계산서 수신 이메일"]]:[["settleEmail","정산 알림 이메일"]]).forEach(([id,name])=>{
+      if(!emailOk(val(id).trim())) errors.push(`${name} 형식을 확인하세요.`);
+    });
+    if(!val(business?"contactEmail":"settleEmail").trim()) warnings.push("정산서 PDF를 보낼 이메일이 없습니다.");
+  }
+
   if(business&&!internal){
     if(!val("bizNumber").trim()||!val("representative").trim()||!val("openingDate")) errors.push("사업자번호·대표자명·개업일을 입력하세요.");
-    if(!state.nts?.valid) errors.push("현재 사업자 정보로 국세청 진위 확인이 필요합니다.");
+    if(val("bizType")==="CORP"){
+      if(corpDigits()&&corpDigits().length!==13) errors.push("법인등록번호는 숫자 13자리로 입력하세요.");
+      if(!corpDigits()) warnings.push("법인등록번호가 비어 있습니다. 법인은 국세청 확인에 함께 보냅니다(법인등록번호가 없는 고유번호 단체는 비워 둡니다).");
+    }
+    if(state.nts?.failed){
+      if(val("contractStatus")!=="DRAFT") errors.push("국세청 API 확인이 실패했습니다. 신규 등록(작성 중)이 아닌 계약은 다시 확인한 뒤 저장합니다.");
+      else if(!hasEvidence("BUSINESS")) errors.push("국세청 API 확인이 최종 실패했습니다. 사업자등록증을 첨부하면 확인 대기(PENDING_VERIFICATION)로 임시 등록할 수 있습니다.");
+      else warnings.push("확인 대기(PENDING_VERIFICATION) 임시 등록: 국세청 확인이 끝날 때까지 정산 마감 · 지급 대상에서 제외합니다.");
+    }
+    else if(!state.nts?.valid) errors.push("현재 사업자 정보로 국세청 진위 확인이 필요합니다.");
     else{
-      if(!state.nts.match) errors.push("국세청 진위 확인 불일치입니다.");
-      if(state.nts.status==="CLOSED") errors.push("폐업 사업자는 신규 계약 저장을 차단합니다.");
-      if(state.nts.status==="SUSPENDED"&&!state.suspendedApproved) errors.push("휴업 사업자는 재무 책임자 승인이 필요합니다.");
+      if(!state.nts.match) errors.push(NTS_MISMATCH);
+      if(state.nts.code==="") errors.push("국세청에 등록되지 않은 사업자등록번호입니다. 등록을 차단합니다 — 사업자등록증을 다시 확인해 주세요.");
+      else{
+        if(state.nts.status==="CLOSED") errors.push("폐업 사업자는 신규 계약 저장을 차단합니다.");
+        if(state.nts.status==="SUSPENDED"&&!state.suspendedApproved) errors.push("휴업 사업자는 재무 책임자 승인이 필요합니다.");
+        const code=NTS_TAX_CODES[state.nts.code];
+        if(state.nts.match&&code){
+          if(!val("certTaxType")) errors.push("사업자등록증의 과세유형 표기를 확인해 선택하세요.");
+          else if(val("certTaxType")!==code.cert) errors.push("사업자등록증 과세유형 표기가 국세청 응답과 다릅니다. 응답 기준으로 정정된 사업자등록증을 제출받으세요.");
+        }
+        if(ntsExpired(state.nts)) errors.push(`국세청 확인 후 ${NTS_VALID_DAYS}일이 지났습니다(${state.nts.checkedOn} 확인). 계약 원장을 수정하려면 국세청 진위 확인을 다시 실행하세요.`);
+        const hold=ntsHold(state.nts);
+        if(hold&&val("taxDecision")!=="DECIDED") warnings.push(hold);
+      }
     }
     if(!hasEvidence("BUSINESS")) errors.push("사업자등록증 증빙이 필요합니다.");
   }
@@ -1983,6 +2214,7 @@ function validation(){
     }
   }
   if(termOn("Online")&&checked("vatException")&&!state.vatApproved) errors.push("VAT 가산 예외 약정의 재무 책임자 승인이 필요합니다.");
+  if(termOn("Online")&&checked("mmgEnabled")&&val("mmgAnnualCap")!==""&&num("mmgAnnualCap")<0) errors.push("MMG 연간 보전 총액 상한은 0 이상으로 입력하세요(비우면 상한 없음).");
 
   if(termOn("Royalty")){
     if(!state.books.length) errors.push("인세 계약 대상 저서를 1건 이상 등록하세요.");
@@ -1996,6 +2228,10 @@ function validation(){
     if(sum!==num("exclusiveTotal")) errors.push("전속계약금 회차 합계와 총 약정액이 다릅니다.");
     if(val("exclusiveStructure")==="LUMP"&&state.schedules.exclusive.length!==1) errors.push("일시 지급은 지급 회차가 1건이어야 합니다.");
     if(val("penaltyEnabled")==="YES"&&!val("penaltyTrigger").trim()) errors.push("위약 조항 발동 조건을 입력하세요.");
+    if(val("exclusiveIncome")!=="BUSINESS"){
+      if(!val("exclusiveIncomeReason").trim()) errors.push("전속계약금을 기타소득으로 등록하려면 일회성 대가 소명을 입력하세요.");
+      else if(!state.exclusiveIncomeApproved) errors.push("전속계약금 기타소득 등록은 재무 책임자 승인이 필요합니다.");
+    }
   }
 
   if(termOn("Development")){
@@ -2022,6 +2258,17 @@ function validation(){
       if(val("supportEndBasis")==="FIXED_DATE"&&!val("supportEndDate")) errors.push("지원금 약정 종료일을 입력하세요.");
       if(val("supportEndBasis")==="FIXED_DATE"&&support.some(r=>r.start>val("supportEndDate")||(r.end&&r.end>val("supportEndDate")))) errors.push("SUPPORT 요율 기간이 약정 종료일을 초과합니다.");
       if(!val("supportTerminationPolicy")) warnings.push("지원금 종료 처리 정책이 아직 선택되지 않았습니다.");
+      /* 정산 범위(settlement_scope) — 01권 5.2: 도서 포함 시 대상 도서는 자사 발행 · 자사 지분 > 0, 도서 0건이면 경고만 */
+      const scope=val("supportScope");
+      const scopeBook=scope!=="PIPELINE_1_1_ONLY", scopeCourse=scope!=="PIPELINE_2_1_ONLY";
+      const targets=state.mapping.support.map(item).filter(Boolean);
+      targets.forEach(p=>{
+        if(p.type==="COURSE"&&!scopeCourse) errors.push(`${p.name}: 정산 범위가 자사 발행 도서 인세만이라 강의를 지원금 대상으로 둘 수 없습니다.`);
+        if(p.type!=="COURSE"&&!scopeBook) errors.push(`${p.name}: 정산 범위에 자사 발행 도서 인세가 없어 도서를 지원금 대상으로 둘 수 없습니다.`);
+        if(p.type!=="COURSE"&&scopeBook&&p.type!=="OWN_PUBLISHED") errors.push(`${p.name}: 정산 범위의 도서 대상은 자사 발행 도서만 지정할 수 있습니다.`);
+      });
+      if(scopeBook&&!targets.some(p=>p.type==="OWN_PUBLISHED")) warnings.push("정산 범위에 자사 발행 도서 인세가 들어 있지만 대상 도서가 없습니다. 출간 전 선계약이면 그대로 저장할 수 있습니다.");
+      if(val("supportIncome")!=="BUSINESS") warnings.push("매출연동형 지원금은 사업소득이 기본입니다. 기타소득으로 지정한 근거를 확인하세요.");
       /* v4.0.0 (D-15/D-16): 권리자 본인의 도서 인세 계약(state.books)이 없더라도 자사 저작권 보유 도서(자사 저작권 보유, 자사 지분 > 0%)는 개별 지정 매핑 정상 허용 */
     }else{
       const sum=state.schedules.support.reduce((s,r)=>s+r.amount,0);
@@ -2040,6 +2287,7 @@ function validation(){
     if(!state.mapping.consignment.length) errors.push("위탁 도서를 선택하세요.");
     if(num("consignmentRate")<0||num("consignmentRate")>100) errors.push("위탁 수수료율은 0~100% 범위입니다.");
     if(checked("returnTracking")&&!val("returnOwner").trim()) errors.push("위탁 반품 회수 담당을 입력하세요.");
+    if(!business) errors.push("사업자등록이 없는 개인은 도서 위탁 계약을 등록할 수 없습니다(미등록 개인 도서 공급자 원칙 차단).");
   }
   if(termOn("Allowance")&&!state.allowances.length) warnings.push("기타 수당이 적용 상태이나 지급 행이 없습니다.");
   if(state.payeeSplit&&advanceOpen()) errors.push("미종결 선급금 원장과 수취인 분할이 함께 존재할 수 없습니다.");
@@ -2446,36 +2694,72 @@ function clawbackModal(){
 function verifyModal(){
   if(radio("partyType")!=="BUSINESS"||val("bizType")==="INTERNAL") return toast("개인 또는 자사 귀속은 이 사업자 진위 확인 대상이 아닙니다.");
   if(!val("bizNumber").trim()||!val("representative").trim()||!val("openingDate")) return toast("사업자번호·대표자명·개업일을 입력하세요.");
+  const corp=val("bizType")==="CORP"?corpDigits():"";
   openModal("국세청 진위 확인 · 모의 응답 선택",`
-    <div class="fixed">${esc(val("bizNumber"))} · ${esc(val("representative"))} · ${esc(val("openingDate"))}</div>
+    <div class="fixed">${esc(val("bizNumber"))} · ${esc(val("representative"))} · ${esc(val("openingDate"))}${corp?` · 법인등록번호 ${esc(val("corpNo"))}`:""}</div>
     <div class="row c2">
-      <div>${selectField("진위 결과","match",[["YES","입력 일치"],["NO","입력 불일치"]])}</div>
+      <div>${selectField("진위 결과","match",[["YES","입력 일치"],["NO","입력 불일치"],["FAIL","API 호출 실패 · 3회 재시도 후"]])}</div>
       <div>${selectField("사업자 상태","status",[["ACTIVE","계속사업자"],["SUSPENDED","휴업"],["CLOSED","폐업"]])}</div>
     </div>
-    ${selectField("과세유형 응답","tax",[
-      ["GENERAL","일반과세"],
-      ["SIMPLE_RECEIPT","간이과세 · 세금계산서 발급 불가"],
-      ["SIMPLE_INVOICE","간이과세 · 세금계산서 발급 가능"],
-      ["EXEMPT","면세사업자"]
-    ])}
-    <div class="alert warn">실제 API 검증이 아닙니다. 테스트할 응답을 선택하면 자동 설정 속성과 저장 차단 상태를 표시합니다.</div>
+    ${selectField("과세유형 코드 응답 (tax_type_cd)","tax",[
+      ["01","01 · 일반과세자"],
+      ["02","02 · 간이과세자 · 세금계산서 발급 불가"],
+      ["07","07 · 간이과세자 · 세금계산서 발급사업자"],
+      ["04","04 · 면세사업자"],
+      ["03","03 · 과세특례자"],
+      ["05","05 · 비영리법인 · 국가기관 등"],
+      ["06","06 · 고유번호 단체"],
+      ["","빈 값 · 국세청 미등록 번호"],
+      ["99","목록에 없는 코드 · 매핑 불가 예시"]
+    ],"01")}
+    <div class="row c3">
+      <div>${field("최근 과세유형 전환일자","changeDt","date","")}</div>
+      <div>${field("세금계산서 적용일자","applyDt","date","")}</div>
+      <div>${field("조회일 · 시연","checkedOn","date",today(),'required')}</div>
+    </div>
+    <div class="alert warn">실제 API 검증이 아닙니다. 테스트할 응답을 선택하면 자동 설정 속성과 저장 차단 상태를 표시합니다. 조회일을 90일 전으로 두면 유효기간 경과를 볼 수 있습니다.</div>
   `,data=>{
-    const tax=data.get("tax"),status=data.get("status");
-    const taxLabel={
-      GENERAL:"일반과세",SIMPLE_RECEIPT:"간이 · 발급 불가",
-      SIMPLE_INVOICE:"간이 · 발급 가능",EXEMPT:"면세"
-    }[tax];
+    const input={bizNumber:val("bizNumber"),representative:val("representative"),openingDate:val("openingDate"),corpNo:corp,bizName:val("holderName").trim()};
+    const request={b_no:input.bizNumber.replace(/\D/g,""),start_dt:input.openingDate.replace(/-/g,""),p_nm:input.representative,corp_no:corp,b_nm:input.bizName};
+    if(data.get("match")==="FAIL"){
+      const prev=state.nts;
+      state.ntsHistory.unshift({valid:false,failed:true,match:false,statusLabel:"호출 실패",taxLabel:"—",time:stamp(),mode:"DEMO",input,raw:{request,error:"5xx · 3회 재시도 후 실패 · 재시도 큐 적재"}});
+      if(prev?.valid&&!ntsExpired(prev)){
+        changed("국세청 확인 · 모의","API 호출 실패 · 유효기간 안의 기존 확인 결과 유지");
+        toast("API 호출이 실패해 유효기간 안의 기존 확인 결과를 유지합니다.");
+        return true;
+      }
+      state.nts={valid:false,failed:true,match:false,time:stamp(),mode:"DEMO",input,raw:{request,error:"5xx · 3회 재시도 후 실패"}};
+      state.suspendedApproved=false;
+      changed("국세청 확인 · 모의","API 호출 실패 · 확인 대기 경로");
+      return true;
+    }
+    const checkedOn=data.get("checkedOn");
+    if(!checkedOn) return modalError("조회일을 입력하세요.");
+    const code=data.get("tax"),known=NTS_TAX_CODES[code];
+    const status=code===""?"":data.get("status");
+    const taxLabel=code===""?"미등록 번호":known?known.label:`매핑 불가 코드 ${code}`;
+    const statusLabel={ACTIVE:"계속사업자",SUSPENDED:"휴업",CLOSED:"폐업"}[status]||"미등록";
+    const changeDt=code===""?"":data.get("changeDt"),applyDt=code===""?"":data.get("applyDt");
     const result={
-      valid:true,match:data.get("match")==="YES",status,
-      statusLabel:{ACTIVE:"계속사업자",SUSPENDED:"휴업",CLOSED:"폐업"}[status],
-      tax,taxLabel,invoice:tax==="GENERAL"||tax==="SIMPLE_INVOICE",
-      time:stamp(),mode:"DEMO",
-      input:{bizNumber:val("bizNumber"),representative:val("representative"),openingDate:val("openingDate")}
+      valid:true,match:data.get("match")==="YES",status,statusLabel,
+      code,tax:known?.tax||"",taxLabel,invoice:!!known?.invoice,changeDt,applyDt,checkedOn,
+      time:stamp(),mode:"DEMO",input,
+      raw:{request,response:{valid:data.get("match")==="YES"?"01":"02",status:{
+        b_no:request.b_no,b_stt:status?statusLabel:"",b_stt_cd:{ACTIVE:"01",SUSPENDED:"02",CLOSED:"03"}[status]||"",
+        tax_type:code===""?"국세청에 등록되지 않은 사업자등록번호입니다.":taxLabel,tax_type_cd:code,
+        tax_type_change_dt:changeDt.replace(/-/g,""),invoice_apply_dt:applyDt.replace(/-/g,""),end_dt:""}}}
     };
     state.nts=result;
     state.ntsHistory.unshift(JSON.parse(JSON.stringify(result)));
     state.suspendedApproved=false;
-    changed("국세청 확인 · 모의",`${result.match?"일치":"불일치"} · ${result.statusLabel} · ${taxLabel}`);
+    const hold=ntsHold(result);
+    if(hold){
+      $("taxDecision").value="PENDING_REVIEW";
+      if(!known||known.hold==="ALWAYS") $("matrixCase").value="";
+      else $("matrixCase").value="후보 TX-09(인세 · 매절) · TX-07(강의 R/S · 약정금 · 지원금)";
+    }
+    changed("국세청 확인 · 모의",`${result.match?"일치":"불일치"} · ${statusLabel} · ${taxLabel}${hold?" · 판정 보류 격리":""}`);
     return true;
   },"모의 응답 반영");
 }
@@ -2531,6 +2815,9 @@ function collectSnapshot(){
       consignmentPeriod:{start:val("contractStart"),end:val("initialEnd")},
       supportEffectiveEnd:val("supportEndBasis")==="CONTRACT_LINKED"?null:val("supportEndDate"),
       taxProfile:state.nts,
+      verificationStatus:state.nts?.failed?"PENDING_VERIFICATION":state.nts?.valid?"VERIFIED":"UNVERIFIED",
+      ntsValidUntil:state.nts?.valid?ntsValidUntil(state.nts):null,
+      costAccountType:termOn("Buyout")?"BUYOUT_RIGHT":null,
       payeeSplit:state.payeeSplit,
       advanceTotals:advanceTotals()
     },
@@ -2543,7 +2830,7 @@ function collectSnapshot(){
     termination:state.termination,
     evidence:state.evidence,
     memos:state.memos,
-    approvals:{suspended:state.suspendedApproved,vat:state.vatApproved}
+    approvals:{suspended:state.suspendedApproved,vat:state.vatApproved,exclusiveIncome:state.exclusiveIncomeApproved}
   };
 }
 function save(){
@@ -2639,6 +2926,12 @@ const actions={
     if(!val("vatExceptionReason").trim()) return toast("VAT 예외 약정 승인 사유를 입력하세요.");
     state.vatApproved=true;
     changed("VAT 예외 약정 승인 · 모의",val("vatExceptionReason").trim());
+  },
+  approveExclusiveIncome:()=>{
+    if(!isFinance()) return toast("재무 책임자 시연 권한이 필요합니다.");
+    if(!val("exclusiveIncomeReason").trim()) return toast("일회성 대가 소명을 입력하세요.");
+    state.exclusiveIncomeApproved=true;
+    changed("전속계약금 기타소득 등록 승인 · 모의",`${val("exclusiveIncome")} · ${val("exclusiveIncomeReason").trim()}`);
   },
   pii:btn=>piiModal(btn.dataset.kind),
   evidence:()=>evidenceModal(),
@@ -2736,12 +3029,13 @@ document.addEventListener("change",event=>{
     return;
   }
   if(el.matches("[data-field]")){
-    if(["bizNumber","representative","openingDate"].includes(el.id)||el.name==="partyType"||el.id==="bizType"){
-      if(state.nts) state.nts.valid=false;
+    if(["bizNumber","representative","openingDate","corpNo"].includes(el.id)||el.name==="partyType"||el.id==="bizType"){
+      if(state.nts){state.nts.valid=false;state.nts.failed=false;}
       state.suspendedApproved=false;
     }
     if(el.id==="suspendedReason") state.suspendedApproved=false;
     if(el.id==="vatExceptionReason"||el.id==="vatException") state.vatApproved=false;
+    if(el.id==="exclusiveIncome"||el.id==="exclusiveIncomeReason") state.exclusiveIncomeApproved=false;
     changed();
   }
 });
@@ -2755,12 +3049,13 @@ document.addEventListener("input",event=>{
 if(el.matches("[data-field]")){
     state.dirty=true;
 
-    if(["bizNumber","representative","openingDate"].includes(el.id)){
-      if(state.nts) state.nts.valid=false;
+    if(["bizNumber","representative","openingDate","corpNo"].includes(el.id)){
+      if(state.nts){state.nts.valid=false;state.nts.failed=false;}
       state.suspendedApproved=false;
     }
     if(el.id==="suspendedReason") state.suspendedApproved=false;
     if(el.id==="vatExceptionReason") state.vatApproved=false;
+    if(el.id==="exclusiveIncomeReason") state.exclusiveIncomeApproved=false;
 
     renderGate();
   }
@@ -2867,11 +3162,11 @@ const DETAIL_BASE = detailCopy({
   rates:state.rates, books:state.books, advances:state.advances, mapping:state.mapping,
   schedules:state.schedules, allowances:state.allowances, payeeSplit:state.payeeSplit,
   terms:Object.fromEntries(DETAIL_TERMS.map(t=>[t,checked("on"+t)])),
-  mmg:checked("mmgEnabled"), minPayout:num("minPayout"), advanceNature:val("advanceNature"), royaltyRate:num("royaltyDefaultRate"),
+  mmg:checked("mmgEnabled"), mmgCap:val("mmgAnnualCap"), minPayout:num("minPayout"), advanceNature:val("advanceNature"), royaltyRate:num("royaltyDefaultRate"),
   support:{agreement:val("supportAgreement"),method:val("supportMethod"),offset:val("supportOffset"),capType:val("supportCapType"),
-    cap:num("supportCap"),restore:checked("supportRestore"),...state.supportLedger},
-  consignment:{feeType:val("consignmentFeeType"),rate:num("consignmentRate")},
-  exclusive:{total:num("exclusiveTotal"),start:val("exclusiveStart"),end:val("exclusiveEnd"),structure:val("exclusiveStructure")}
+    cap:num("supportCap"),restore:checked("supportRestore"),scope:val("supportScope"),income:val("supportIncome"),...state.supportLedger},
+  consignment:{feeType:val("consignmentFeeType"),rate:num("consignmentRate"),basePrice:radio("consignmentBasePrice"),returnOwner:val("returnOwner")},
+  exclusive:{total:num("exclusiveTotal"),start:val("exclusiveStart"),end:val("exclusiveEnd"),structure:val("exclusiveStructure"),income:val("exclusiveIncome")}
 });
 const detailPreset = over => Object.assign(detailCopy(DETAIL_BASE), {
   rates:[], books:[], advances:[], mapping:{support:[],buyout:[],consignment:[]},
@@ -2911,13 +3206,13 @@ const CONTRACT_DETAIL = {
     ],
     books:[{id:"BC-0712-1",code:"BK-REQ-2026-0016",title:"2026 건설안전기사 실기 작업형 고득점 핵심노트",expected:"2026-12-01",sku:"",rate:10,basis:"LIST_PRICE",locked:false}],
     mapping:{support:["CRS-2603"],buyout:[],consignment:[]},
-    support:{agreement:"SFA-2026-015",method:"REVENUE_SHARE",offset:"NON_OFFSET",capType:"CAPPED",cap:3000000,restore:true,net:2850000,consumed:2850000,paid:2755950}
+    support:{agreement:"SFA-2026-015",method:"REVENUE_SHARE",offset:"NON_OFFSET",capType:"CAPPED",cap:3000000,restore:true,scope:"PIPELINE_1_1_ONLY",net:2850000,consumed:2850000,paid:2755950}
   }),
   /* Case 10 — 안전기술출판(개인 면세사업자) · 위탁 도서 PROD-BK-3003 · 수수료 25% 차감 지급 */
   "CT-2026-0705": detailPreset({
     terms:{Consignment:true}, support:NO_SUPPORT,
     mapping:{support:[],buyout:[],consignment:["PROD-BK-3003"]},
-    consignment:{feeType:"DEDUCT",rate:25}
+    consignment:{feeType:"NET_DEDUCT",rate:25,returnOwner:"위탁자 · 안전기술출판 (반품 실물 위탁자 재고로 회수)"}
   }),
   /* Case 8-B 구조 — 정종대(TX-08) · 강좌 CRS-1002 지분 70 · R/S 50% · 지원금 SFA-2026-009 15% · 교재 PROD-BK-1006 인세 10% · 선급금 대여금 잔액 3,500,000원 · 전속계약금 MS-2026-005 */
   "CT-2026-0501": detailPreset({
@@ -2934,14 +3229,14 @@ const CONTRACT_DETAIL = {
       {id:"ADV-CT0501-1",month:"2025-01",type:"PAY",nature:"LOAN",income:"BUSINESS",amount:5000000,status:"CONFIRMED",memo:"선급금 PP-2026-001 지급 (대여금)",ref:"",evidence:""},
       {id:"ADV-CT0501-2",month:"2026-09",type:"OFFSET",nature:"LOAN",income:"BUSINESS",amount:1500000,status:"CONFIRMED",memo:"월 정산 자동 상계 누계 (2026-09 마감까지)",ref:"",evidence:""}
     ],
-    support:{agreement:"SFA-2026-009",method:"REVENUE_SHARE",offset:"CONDITIONAL",capType:"CAPPED",cap:15000000,restore:true,net:4850000,consumed:4850000,paid:4699950}
+    support:{agreement:"SFA-2026-009",method:"REVENUE_SHARE",offset:"CONDITIONAL",capType:"CAPPED",cap:15000000,restore:true,scope:"PIPELINE_1_1_2_1",net:4850000,consumed:4850000,paid:4699950}
   }),
   /* [v6.63 W4] 최그래픽 · 매출연동 개발지원금 무한도형 5% (SFA-2026-012) · 대상 자사 100% 강좌 CRS-1012 · 9월까지 대상 매출 없음(누계 0) */
   "CT-2026-0702": detailPreset({
     terms:{Development:true},
     rates:[{id:"RATE-S-0702",type:"SUPPORT",agreement:"SFA-2026-012",start:"2026-05-01",end:"",rate:5,basis:"REVENUE",mmg:0,reason:"매출연동 개발지원금 5% (무한도형) · 대상 CRS-1012 (자사 지분 100%)",locked:true}],
     mapping:{support:["CRS-1012"],buyout:[],consignment:[]},
-    support:{agreement:"SFA-2026-012",method:"REVENUE_SHARE",offset:"CONDITIONAL",capType:"UNLIMITED",cap:0,restore:false,net:0,consumed:0,paid:0}
+    support:{agreement:"SFA-2026-012",method:"REVENUE_SHARE",offset:"CONDITIONAL",capType:"UNLIMITED",cap:0,restore:false,scope:"PIPELINE_1_1_ONLY",net:0,consumed:0,paid:0}
   }),
   /* [v6.63 W4] 고 박위생 · 자사 발행 교재 PROD-BK-1008 인세 10%(정가 기준) · 상속인 수취인 분할 60:40(2026-09-01~ · ADMN-SETT-007) */
   "CT-2025-1102": detailPreset({
@@ -2964,16 +3259,26 @@ function applyContractDetail(contractId){
   $("terminationDate").value = d.terminationDate || "";
   DETAIL_TERMS.forEach(t => { $("on"+t).checked = !!d.terms[t]; });
   $("mmgEnabled").checked = !!d.mmg;
+  $("mmgAnnualCap").value = d.mmgCap || "";
   $("minPayout").value = d.minPayout;
   $("advanceNature").value = d.advanceNature;
   $("royaltyDefaultRate").value = d.royaltyRate;
   const s = d.support;
   $("supportAgreement").value = s.agreement; $("supportMethod").value = s.method; $("supportOffset").value = s.offset;
   $("supportCapType").value = s.capType; $("supportCap").value = s.cap; $("supportRestore").checked = !!s.restore;
+  /* 정산 범위 — 프리셋 값, 없으면 지원금 대상(강의 → 1.1 · 자사 발행 도서 → 2.1)에서 정한다 */
+  const scopeCourse = d.mapping.support.some(id => item(id)?.type === "COURSE");
+  const scopeBook = d.mapping.support.some(id => item(id)?.type === "OWN_PUBLISHED");
+  $("supportScope").value = s.scope || (scopeBook ? (scopeCourse ? "PIPELINE_1_1_2_1" : "PIPELINE_2_1_ONLY") : "PIPELINE_1_1_ONLY");
+  $("supportIncome").value = s.income || "BUSINESS";
   state.supportLedger = {net:s.net, consumed:s.consumed, paid:s.paid};
   $("consignmentFeeType").value = d.consignment.feeType; $("consignmentRate").value = d.consignment.rate;
+  $("returnOwner").value = d.consignment.returnOwner || "";
+  const basePrice = document.querySelector(`input[name="consignmentBasePrice"][value="${d.consignment.basePrice || "PAID_AMOUNT"}"]`);
+  if(basePrice) basePrice.checked = true;
   const e = d.exclusive;
   $("exclusiveTotal").value = e.total; $("exclusiveStart").value = e.start; $("exclusiveEnd").value = e.end; $("exclusiveStructure").value = e.structure;
+  $("exclusiveIncome").value = e.income || "BUSINESS"; $("exclusiveIncomeReason").value = ""; state.exclusiveIncomeApproved = false;
 }
 
 const contractCatalog = [
@@ -3452,6 +3757,10 @@ function loadContractPreset(contractId){
   $("bizType").value = c.bizType;
   if(c.bizNo) $("bizNumber").value = c.bizNo;
   if(c.rep) $("representative").value = c.rep;
+  /* 예금주 — 법인은 상호, 개인 · 개인사업자는 대표자(성명) 예시. 사업자등록증 과세유형 확인은 계약마다 새로 */
+  $("accountHolder").value = c.bizType === "CORP" ? c.holderName : (c.rep || c.holderName);
+  $("certTaxType").value = "";
+  state.nts = null; state.suspendedApproved = false;
   $("contractStart").value = c.start;
   $("initialEnd").value = c.end;
   $("taxDecision").value = c.taxDecision;

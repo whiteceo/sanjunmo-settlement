@@ -701,8 +701,8 @@ code, pre, kbd, samp,
             <span>교재 목록</span>
           </button>
           <button type="button" class="subview-btn" data-view="detail" onclick="switchSubview('detail')">
-            <span class="code-tag">004-S2</span>
-            <span>교재 상세 · 재고이력</span>
+            <span class="code-tag">004-S1</span>
+            <span>교재 상세 조회 · 재고이력</span>
           </button>
           <button type="button" class="subview-btn" data-view="form" onclick="switchSubview('form')">
             <span class="code-tag">004-S1</span>
@@ -897,7 +897,8 @@ code, pre, kbd, samp,
       </section>
 
       <!-- ========================================================================= -->
-      <!-- [SUBVIEW 2] ADMN-PROD-004-S2 : 교재 상세 · 재고 수불 이력                   -->
+      <!-- [SUBVIEW 2] ADMN-PROD-004-S1(조회) : 교재 상세 · 재고 수불 이력             -->
+      <!-- v12에는 상세 전용 코드가 없다(PROD-004는 S1 교재 등록 · 수정뿐). 같은 S1을 조회 · [수정] 두 단계로 나눈 것(PROD-003과 같은 방식) -->
       <!-- ========================================================================= -->
       <section id="subview-detail" class="subview-panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
@@ -1167,6 +1168,7 @@ code, pre, kbd, samp,
                       <input type="text" id="f-isbn" class="form-input" style="width:175px;" value="979-11-98765-01-2" placeholder="979-11-XXXXX-XX-X">
                       <button type="button" class="btn btn-outline btn-sm" onclick="validateIsbnField()">ISBN 검증</button>
                     </div>
+                    <div class="field-hint" id="f-isbn-lock-msg" style="display:none;">🔒 결제 · 출고 이력이 있는 교재 — ISBN 변경 영구 차단. 개정판은 새 ISBN · 새 SKU로 등록하고 구판은 판매종료로 내립니다.</div>
                   </td>
                 </tr>
               </tbody>
@@ -1192,6 +1194,7 @@ code, pre, kbd, samp,
                       <input type="number" id="f-list-price" class="form-input text-right" value="38000" min="0" step="500" oninput="syncBookSalePrice()">
                       <span class="input-unit">원</span>
                     </div>
+                    <div class="field-hint" id="f-price-rule-msg" style="display:none;"></div>
                   </td>
                   <th>도서 할인율 (0~10%)</th>
                   <td>
@@ -1232,6 +1235,7 @@ code, pre, kbd, samp,
                       <span class="masked-cost" id="f-cost-preview">🔒 매입원가 마스킹 (재무팀 전용)</span>
                       <a href="ADMN-BOOK-001_baseline.html" class="btn btn-outline btn-sm">ADMN-BOOK-001에서 공급원가 관리 →</a>
                     </div>
+                    <div class="field-hint" id="f-supply-lock-msg" style="display:none;">🔒 결제 · 출고 이력이 있는 교재 — 공급 형태 변경 영구 차단(정산 라우팅 고정).</div>
                   </td>
                 </tr>
               </tbody>
@@ -1959,7 +1963,7 @@ code, pre, kbd, samp,
         titleEl.textContent = "교재 관리 (목록)";
         renderBookList();
       } else if (viewName === "detail") {
-        codeEl.textContent = "ADMN-PROD-004-S2";
+        codeEl.textContent = "ADMN-PROD-004-S1";
         titleEl.textContent = "교재 상세 · 재고 수불 이력";
         renderDetailView();
       } else if (viewName === "form") {
@@ -2093,6 +2097,7 @@ code, pre, kbd, samp,
 
     function openNewBookForm() {
       document.getElementById("form-mode-title").textContent = "신규 교재 등록 — 3-Way 바인딩 모드 (ADMN-PROD-004-S1)";
+      applyBookEditLocks(null);
       selectEntryMode("INST_TEMP");
       document.getElementById("f-book-discount-rate").value = 0;
       syncBookSalePrice();
@@ -2268,6 +2273,7 @@ code, pre, kbd, samp,
       checkZeroStockHardLock();
       syncEndOfSaleLock();
       syncBookSalePrice();
+      applyBookEditLocks(b);
     }
 
     function renderDetailView() {
@@ -2445,6 +2451,63 @@ code, pre, kbd, samp,
       return r;
     }
     function bookSalePrice(price, rate) { return Math.floor(price * (100 - rate) / 100); }
+
+    /* 판매 후 잠금 · 정가 권한 (통합설계서 [S2-03] · 01권 6.2절 재정가 · 정가 결정 권한, 8절 위탁 도서)
+       - 결제 · 출고가 1건이라도 있으면 ISBN · 공급 형태 변경 영구 차단(book_supply_type_change_allowed_yn = false)
+       - 위탁 도서 정가는 위탁자가 정한다(price_owner = CONSIGNOR) → 이 화면에서 변경 불가
+       - 재정가(정가 변경)는 발행일로부터 12개월이 지난 뒤에만(출판문화산업 진흥법 제22조 제2항, book_reprice_min_months = 12) */
+    const BOOK_TODAY = "2026-10-22";
+    const BOOK_REPRICE_MIN_MONTHS = 12;
+    /* 프로토타입은 주문 · 출고 원장이 없어 판매 상태로 판정한다(판매대기 = 판매 개시 전). 개발은 주문 품목 · 출고 존재 여부로 판정 */
+    function bookHasOrders(b) { return Boolean(b) && b.status !== "판매대기"; }
+    function bookRepriceDate(b) {
+      const [y, m, d] = String(b.pubDate || "").split("-").map(Number);
+      if (!y) return "";
+      const t = new Date(y, m - 1 + BOOK_REPRICE_MIN_MONTHS, d);
+      return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
+    }
+    function applyBookEditLocks(b) {
+      window.__editBook = b || null;
+      const isbn = document.getElementById("f-isbn");
+      const sup = document.getElementById("f-supply-ledger");
+      const vendor = document.getElementById("f-supply-vendor");
+      const price = document.getElementById("f-list-price");
+      const locked = bookHasOrders(b);
+      const consign = Boolean(b) && b.supplyType === "위탁판매";
+      isbn.readOnly = locked;
+      sup.disabled = locked;
+      vendor.disabled = locked;
+      price.readOnly = consign;
+      isbn.style.background = locked ? "#f1f5f9" : "";
+      price.style.background = consign ? "#f1f5f9" : "";
+      document.getElementById("f-isbn-lock-msg").style.display = locked ? "block" : "none";
+      document.getElementById("f-supply-lock-msg").style.display = locked ? "block" : "none";
+      const pm = document.getElementById("f-price-rule-msg");
+      if (!b) {
+        pm.textContent = "";
+      } else if (consign) {
+        pm.textContent = "🔒 위탁 도서 — 정가는 위탁자(출판사)가 정합니다. 이 화면에서 바꿀 수 없습니다.";
+      } else {
+        const rd = bookRepriceDate(b);
+        pm.textContent = rd && rd <= BOOK_TODAY
+          ? `재정가 가능(발행일 ${b.pubDate} + 12개월 경과) — 정가를 바꾸면 정가 변경 이력(시행일)으로 남습니다(ADMN-BOOK-001).`
+          : `재정가는 발행일로부터 12개월이 지난 ${rd}부터 가능합니다. 그 전에는 정가를 바꿀 수 없습니다.`;
+      }
+      pm.style.display = pm.textContent ? "block" : "none";
+    }
+    /* 저장 시 서버 검증과 같은 판정 — 위반이면 사유 문구, 통과면 "" */
+    function bookEditRuleError(prev, next) {
+      if (bookHasOrders(prev)) {
+        if (next.isbn !== prev.isbn) return `[${prev.sku}] 결제 · 출고 이력이 있는 교재는 ISBN을 바꿀 수 없습니다.\n개정판은 새 ISBN · 새 SKU로 등록하고 구판은 판매종료로 내립니다.`;
+        if (next.supplyType !== prev.supplyType) return `[${prev.sku}] 결제 · 출고 이력이 있는 교재는 공급 형태를 바꿀 수 없습니다(정산 라우팅 고정).`;
+      }
+      if (next.price !== Number(prev.price)) {
+        if (prev.supplyType === "위탁판매") return `[${prev.sku}] 위탁 도서의 정가는 위탁자(출판사)가 정합니다. 이 화면에서 바꿀 수 없습니다.`;
+        const rd = bookRepriceDate(prev);
+        if (rd && rd > BOOK_TODAY) return `[${prev.sku}] 재정가는 발행일(${prev.pubDate})로부터 12개월이 지난 ${rd}부터 할 수 있습니다.\n(출판문화산업 진흥법 제22조 제2항)`;
+      }
+      return "";
+    }
     function syncBookSalePrice() {
       const price = Number(document.getElementById("f-list-price").value || 0);
       document.getElementById("f-sale-price").value = formatNumber(bookSalePrice(price, bookDiscountRate()));
@@ -2517,6 +2580,13 @@ code, pre, kbd, samp,
       const finalSku = isNew ? nextBookSku(supplyTypeVal) : rawSku;
       const prevBook = booksData.find(b => b.sku === finalSku);
       const price = Number(document.getElementById("f-list-price").value || 0);
+      /* 등록된 교재를 수정할 때만(수정 진입 = window.__editBook) 판매 후 잠금 · 정가 권한 규칙을 검사 */
+      const editingRegistered = Boolean(!isNew && prevBook && window.__editBook && window.__editBook.sku === prevBook.sku);
+      const repriced = editingRegistered && price !== Number(prevBook.price);
+      if (editingRegistered) {
+        const ruleErr = bookEditRuleError(prevBook, { isbn: document.getElementById("f-isbn").value.trim(), supplyType: supplyTypeVal, price });
+        if (ruleErr) { alert(ruleErr); return; }
+      }
       const stock = Number(document.getElementById("f-stock-qty").value || 0);
       const status = document.querySelector('input[name="f-book-status"]:checked').value;
 
@@ -2565,7 +2635,7 @@ code, pre, kbd, samp,
       updateTopStepperByBook(payload);
       showToast(isDirect
         ? `[${finalSku}] 선등록 완료 (판매대기). 후속 작업으로 ADMN-BOOK-001 원가 입력 및 ADMN-SETT-001 권리자 매핑을 진행하세요.`
-        : `교재 [${finalSku}] 저장 및 3원장 연동이 완료되었습니다.`);
+        : `교재 [${finalSku}] 저장 및 3원장 연동이 완료되었습니다.` + (repriced ? ` 재정가 ${formatNumber(prevBook.price)}원 → ${formatNumber(price)}원은 정가 변경 이력(시행일 ${BOOK_TODAY})으로 남습니다.` : ""));
       switchSubview("list");
     }
 

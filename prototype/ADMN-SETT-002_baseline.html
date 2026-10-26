@@ -335,80 +335,10 @@
     /* Workspace Split */
     .workspace-grid {
       display: grid;
-      grid-template-columns: 1.32fr 1.03fr;
+      grid-template-columns: minmax(0, 1fr); /* v6.68: 우측 인라인 정산서 요약 패널은 S1 페이지로 합침 */
       gap: 16px;
       align-items: start;
     }
-    .statement-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 78px;
-    }
-    .statement-body {
-      padding: 16px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      max-height: calc(100vh - 180px);
-      overflow-y: auto;
-    }
-
-    /* 6.5절 통합 요약 카드 */
-    .summary-hero {
-      background: #f8fbff;
-      border: 1px solid #bfdbfe;
-      border-radius: 9px;
-      padding: 14px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .summary-hero-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-    .summary-hero-amount {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--primary);
-      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
-    }
-    .summary-sub-row {
-      display: flex;
-      gap: 16px;
-      font-size: 12px;
-      color: var(--text-sub);
-      border-top: 1px dashed #cbd5e1;
-      padding-top: 7px;
-    }
-    .diff-reason-box {
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      border-radius: 6px;
-      padding: 7px 10px;
-      font-size: 11.5px;
-      color: #92400e;
-    }
-
-    .step-list {
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .step-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 7px 12px;
-      border-bottom: 1px solid var(--border);
-      font-size: 12px;
-    }
-    .step-row:last-child { border-bottom: none; }
-    .step-row.highlight { background: var(--surface-alt); font-weight: 700; }
-
     /* Modal (이월 원장 상세 모달 · 16.1절 필수 규격) */
     .modal-backdrop {
       position: fixed;
@@ -581,57 +511,43 @@
 
   
     /* === [Step 2] ADMN-SETT-002-S1 통합 정산서 상세 · 마감 워크스페이스 스타일 === */
-    .s1-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.65);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 3100;
-      padding: 16px;
-    }
-    .s1-modal-backdrop.open {
-      display: flex;
-    }
-    .s1-modal-dialog {
-      background: #f8fafc;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      width: 100%;
-      max-width: 1480px;
-      max-height: 94vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.35);
-      overflow: hidden;
-    }
-    .s1-modal-header {
-      padding: 14px 22px;
+    /* v6.68 S1 · S2 하위 페이지(SJM_PAGE) — 예전 모달 창 대신 본문 페이지 */
+    #v4-page-body > .stmt-subpage { padding: 22px 28px 32px; box-sizing: border-box; }
+    .stmt-page-bar {
+      padding: 10px 16px;
       background: #0f172a;
       color: #ffffff;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 8px 12px;
       flex-wrap: wrap;
+      margin-bottom: 14px;
     }
-    .s1-modal-body {
-      padding: 18px 22px;
-      overflow-y: auto;
+    .stmt-page-bar.s2 { background: #1e293b; }
+    .s1-page-body {
       display: flex;
       flex-direction: column;
       gap: 16px;
     }
-    .s1-modal-footer {
-      padding: 12px 22px;
-      background: #ffffff;
-      border-top: 1px solid #cbd5e1;
-      display: flex;
-      align-items: center;
+    .stmt-page-foot {
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 10px;
+      position: sticky;
+      bottom: 0;
+      background: #F8FAFC;
+      padding-bottom: 12px;
+      z-index: 5;
+    }
+    .s1-exec-strip {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 18px;
+      padding: 0 16px 14px;
+      font-size: 12px;
+      color: #334155;
     }
     .s1-card {
       background: #ffffff;
@@ -735,44 +651,10 @@
 
   
     /* === [Step 3] ADMN-SETT-002-S2 권리자 제공 정산서 (외부 제공본 · 파트너 열람 뷰) 스타일 === */
-    .s2-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.68);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 3150;
-      padding: 16px;
-    }
-    .s2-modal-backdrop.open {
-      display: flex;
-    }
-    .s2-modal-dialog {
-      background: #e2e8f0;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      width: 100%;
-      max-width: 1180px;
-      max-height: 94vh;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.4);
-      overflow: hidden;
-    }
-    .s2-modal-header {
-      padding: 14px 22px;
-      background: #1e293b;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .s2-modal-body {
+    .s2-page-body {
       padding: 24px;
-      overflow-y: auto;
+      background: #e2e8f0;
+      border-radius: 12px;
       display: flex;
       justify-content: center;
     }
@@ -826,16 +708,6 @@
       align-items: center;
       justify-content: space-between;
     }
-    .s2-modal-footer {
-      padding: 12px 22px;
-      background: #ffffff;
-      border-top: 1px solid #cbd5e1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
 
   
 /* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
@@ -863,10 +735,8 @@ code, pre, kbd, samp,
 
   
   /* === [SETT-002-MODAL-AND-SHEET-FIX] === */
-  /* P1 / S1 / S2 모달 다이얼로그가 우측 본문 영역(calc(100vw - 260px)) 안에 완벽히 들어오도록 크기·스크롤 보정 */
-  .p1-modal-dialog,
-  .s1-modal-dialog,
-  .s2-modal-dialog {
+  /* P1 모달 다이얼로그가 우측 본문 영역(calc(100vw - 260px)) 안에 완벽히 들어오도록 크기·스크롤 보정 (S1 · S2는 v6.68부터 페이지) */
+  .p1-modal-dialog {
     width: 100% !important;
     max-width: min(1320px, calc(100vw - 308px)) !important;
     max-height: calc(100vh - 40px) !important;
@@ -876,15 +746,17 @@ code, pre, kbd, samp,
     overflow: hidden !important;
     box-sizing: border-box !important;
   }
-  body.partner-isolated-mode .p1-modal-dialog,
-  body.partner-isolated-mode .s1-modal-dialog,
-  body.partner-isolated-mode .s2-modal-dialog {
+  body.partner-isolated-mode .p1-modal-dialog {
     max-width: min(1240px, calc(100vw - 48px)) !important;
   }
+  /* 파트너 격리 진입(?view=partner-stmt): SNB · 상단 바를 숨기므로 본문을 화면 전체 폭으로 */
+  body.partner-isolated-mode #v4-root-shell {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
 
-  .p1-modal-body,
-  .s1-modal-body,
-  .s2-modal-body {
+  .p1-modal-body {
     flex: 1 1 auto !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
@@ -910,14 +782,14 @@ code, pre, kbd, samp,
   }
 
   /* S1 / S2 내부 테이블이 카드 폭을 넘어가지 않도록 가로 스크롤 래퍼 및 자동 줄바꿈 보장 */
-  .s1-modal-body table,
+  .s1-page-body table,
   .s2-paper-sheet table,
   .p1-modal-body table {
     width: 100% !important;
     border-collapse: collapse !important;
     table-layout: auto !important;
   }
-  .s1-modal-body th, .s1-modal-body td,
+  .s1-page-body th, .s1-page-body td,
   .s2-paper-sheet th, .s2-paper-sheet td,
   .p1-modal-body th, .p1-modal-body td {
     word-break: keep-all !important;
@@ -925,9 +797,7 @@ code, pre, kbd, samp,
   }
 
   /* S1/S2 상단 헤더 바가 좁은 화면에서도 줄바꿈되도록 처리 */
-  .p1-modal-header,
-  .s1-modal-header,
-  .s2-modal-header {
+  .p1-modal-header {
     flex-wrap: wrap !important;
     gap: 8px 12px !important;
     height: auto !important;
@@ -961,9 +831,10 @@ code, pre, kbd, samp,
       <select id="monthSelect" class="select" style="font-weight:700;">
           <option value="2026-10" selected="">데이터 기준 월: 2026-10</option>
           <option value="2026-09">데이터 기준 월: 2026-09 (마감 잠금됨)</option>
-        </select> <button class="btn" id="btnRunEngine">⚙️ 1~11단계 통합 연산 배치 재실행</button> <button class="btn btn-primary" id="btnOpenStatementS1" onclick="openStatementModalS1(getSelectedPayeeKey())">📑 통합 정산서 상세·마감 (S1)</button> <button class="btn" id="btnOpenStatementS2" style="border-color:#c4b5fd; background:#f5f3ff; color:#6d28d9; font-weight:700;" onclick="openStatementModalS2(getSelectedPayeeKey())">📤 권리자 제공 정산서 (S2)</button>
+        </select> <button class="btn" id="btnRunEngine">⚙️ 1~11단계 통합 연산 배치 재실행</button> <button class="btn btn-primary" id="btnOpenStatementS1" onclick="openStatementPageS1(getSelectedPayeeKey())">📑 통합 정산서 상세·마감 (S1)</button> <button class="btn" id="btnOpenStatementS2" style="border-color:#c4b5fd; background:#f5f3ff; color:#6d28d9; font-weight:700;" onclick="openStatementPageS2(getSelectedPayeeKey())">📤 권리자 제공 정산서 (S2)</button>
         <button class="btn" id="btnOpenCarryModal">📋 이월 발생 내역 원장 (ADMN-SETT-002-P1)</button> <button class="btn btn-primary" id="btnLockSettlement">🔒 당월 정산 마감 확정 (Locked = True)</button>
     </div></header><div id="v4-page-body">
+      <section class="subview-panel active" data-subpage="list">
   
   
   
@@ -1077,7 +948,7 @@ code, pre, kbd, samp,
           <div class="card">
             <div class="card-header">
               <div class="card-title">2026-10 수취인별 정산 집계 목록 (1~11단계 연산 결과)</div>
-              <span style="font-size:11.5px; color:var(--text-muted);">각 행의 <strong>[🔧 수동 조정]</strong> 클릭 시 해당 정산서 기준으로 SETT-005 등록 모달이 즉시 열립니다.</span>
+              <span style="font-size:11.5px; color:var(--text-muted);">행을 누르면 <strong>통합 정산서 상세 · 마감(S1)</strong> 페이지가 열립니다. <strong>[🔧 수동 조정]</strong>은 해당 정산서 기준으로 SETT-005 등록 모달을 바로 엽니다.</span>
             </div>
             <div class="filter-bar">
               <input type="text" id="searchInput" class="input" placeholder="수취인명, 권리자ID, 계약ID 검색..." style="width:220px;">
@@ -1100,7 +971,7 @@ code, pre, kbd, samp,
                     <th class="num">6단계 선급금상계</th>
                     <th class="num">11단계 최종 실지급(청구)</th>
                     <th>집행 판정</th>
-                    <th>수동 조정 연동</th>
+                    <th>상세 · 수동 조정</th>
                   </tr>
                 </thead>
                 <tbody id="statementTableBody"></tbody>
@@ -1108,19 +979,6 @@ code, pre, kbd, samp,
             </div>
           </div>
 
-          <!-- 우측 통합 정산서 상세 (6.5절 규격) -->
-          <div class="statement-panel">
-            <div class="card-header">
-              <div class="card-title" id="stmtTitle">통합 정산서 상세 (정산 기준)</div>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span id="stmtBadge" class="badge badge-primary">선택됨</span>
-                <button type="button" class="btn btn-sm btn-primary" id="btnPanelOpenS1" style="margin-right:4px;" onclick="openStatementModalS1(getSelectedPayeeKey())">🔍 상세·마감 워크스페이스 (S1)</button> <button type="button" class="btn btn-sm" id="btnPanelOpenS2" style="margin-right:4px; border-color:#c4b5fd; background:#f5f3ff; color:#6d28d9; font-weight:700;" onclick="openStatementModalS2(getSelectedPayeeKey())">📤 권리자 정산서 (S2)</button>
-                <button class="btn btn-sm" id="btnHeaderCarryP1" onclick="openCarryoverModalP1(getSelectedPayeeKey(), 'OPERATOR')">📋 이 권리자 이월 내역(P1)</button>
-                <button class="btn btn-sm" id="btnHeaderManualAdj" title="선택된 정산서 기준으로 수동 조정(SETT-005) 등록">🔧 이 정산서 수동 조정 등록 →</button>
-              </div>
-            </div>
-            <div class="statement-body" id="stmtBody"></div>
-          </div>
         </div>
       </section>
 
@@ -1299,6 +1157,246 @@ code, pre, kbd, samp,
     </footer>
   </div>
 </div>
+      </section>
+
+      <!-- ADMN-SETT-002-S1 통합 정산서 상세 · 마감 (운영자 전용) — 화면설계서 v12 별도 페이지(S), SJM_PAGE (v6.68). 예전 모달 창 · 1번 탭 우측 요약 패널을 합침 -->
+      <section class="subview-panel stmt-subpage" data-subpage="s1">
+        <div class="subpage-head">
+          <button type="button" class="btn btn-outline btn-sm" id="btnS1Back" onclick="SJM_PAGE.back()">← 정산 목록</button>
+          <span class="crumb-code">ADMN-SETT-002-S1</span>
+          <h2 class="subpage-title" id="s1HeaderTitle">통합 정산서 상세 · 마감 (운영자 전용 원장)</h2>
+        </div>
+        <div class="stmt-page-bar">
+          <div class="s1-month-nav" title="동일 수취인의 이전/다음 정산 귀속월 정산서로 전환">
+          <button type="button" onclick="shiftS1Month(-1)">◀ 이전월</button>
+          <span id="s1CurrentMonthLabel" style="color:#fff;">2026년 10월 귀속</span>
+          <button type="button" onclick="shiftS1Month(1)">다음월 ▶</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <label style="font-size:12px; color:#cbd5e1; font-weight:600;">수취인 선택 (메인 목록 동기화):</label>
+            <select id="selS1Holder" class="select" style="background:#1e293b; color:#fff; border-color:#475569; min-width:300px;" onchange="openStatementPageS1(this.value, true)">
+              <option value="RH-0025">정종대 (개인 면세사업자) (RH-0025 · 강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계))</option>
+              <option value="RH-0012">산준교육 콘텐츠 주식회사 (법인 · 일반과세) (RH-0012 · 강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계))</option>
+              <option value="RH-0051">한국소방학회 (도서 위탁) (RH-0051 · 위탁 도서 판매대금 정산 (수수료 차감지급))</option>
+              <option value="RH-0042">최그래픽 (개인 프리랜서 · 기여자) (RH-0042 · 매출연동 개발지원금 단독 (무한도형))</option>
+              <option value="RH-0015">이전기 (해지 강사 · 청구) (RH-0015 · 강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계))</option>
+              <option value="RH-0055">이중도 (중도해지 강사) (RH-0055 · 강좌(1.1) + 최저보장 MMG 보전(비상계 보호) + 해지 미상계 선급금 강제청구 분리)</option>
+              <option value="RH-0063">한도해 (일시 삽화·자문 · 기타소득) (RH-0063 · 마일스톤 약정금(7단계) + 전월 세후 이월 합산)</option>
+              <option value="RH-0047">박보건 (개인 프리랜서 · 강사) (RH-0047 · 강좌(1.1) + 대여금 선급금 상계(6단계))</option>
+              <option value="RH-0048">최지도 (개인 프리랜서 · 강사 겸 저자) (RH-0048 · 강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계)</option>
+              <option value="RH-0019">김안전 (개인 프리랜서 · 수취인 분할 70 : 30) (RH-0019 · 강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30))</option>
+              <option value="RH-0046">이건설 (개인 프리랜서 · 강사) (RH-0046 · 강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 지원금 공제 · 한도 복원)</option>
+              <option value="RH-0044">안전기술출판 (도서 위탁 · 개인 면세사업자) (RH-0044 · 위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급))</option>
+              <option value="RH-0031">이안전 (개인 프리랜서 · 공동저자) (RH-0031 · 공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%))</option>
+              <option value="RH-0018">고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40) (RH-0018 · 교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40))</option>
+            </select>
+            <label style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#e2e8f0; cursor:pointer; background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:6px;">
+              <input type="checkbox" id="chkS1ShowAllTables" onchange="renderStatementS1()" />
+              <span>0원/미해당 테이블 전체 보기</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="s1-page-body">
+          <!-- [마커 1] 수취인 · 계약 · 지급계좌 · 선급금 요약 마스터 헤더 -->
+          <div class="s1-card">
+            <div class="s1-card-head">
+              <div class="s1-card-title">
+                <span>👤 수취인 · 적용 계약 · 지급 계좌 · 기준 한도 마스터 정보</span>
+                <span class="badge badge-primary" id="s1TaxCaseBadge"></span>
+                <span class="badge badge-success" id="s1LockStatusBadge"></span>
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <span style="font-size:11.5px; color:#64748b;" id="s1ActiveTablesSummary"></span>
+                <button type="button" class="btn btn-sm" onclick="unmaskS1Identity()">🔓 실명번호·계좌 마스킹 해제 (ADMN-USER-007)</button>
+              </div>
+            </div>
+            <div class="s1-meta-grid" id="s1MasterMetaGrid"></div>
+            <div class="s1-exec-strip" id="s1ExecStatusBox"></div>
+          </div>
+
+          <!-- [마커 2] 6.5절 통합 정산 요약 스코어보드 및 과세표준 vs 실지급액 차액 등식 -->
+          <div class="s1-card">
+            <div class="s1-card-head">
+              <div class="s1-card-title">📊 정산 기준 정산 기준 통합 정산 요약 및 과세표준 vs 실지급액 대조 등식 (메인 목록 100% 동기화)</div>
+              <span style="font-size:11.5px; color:#475569;">※ 산출 중간값 DECIMAL(18,4) 유지 후 라인 합산 1회 Floor 절사 (정산 기준)</span>
+            </div>
+            <div class="s1-score-grid" id="s1SummaryScoreGrid"></div>
+            <div class="s1-diff-banner" id="s1DiffEquationBanner"></div>
+          </div>
+
+          <!-- 케이스별 조건부 테이블 컨테이너 (A ~ F) -->
+          <div id="s1DynamicTablesContainer" style="display:flex; flex-direction:column; gap:14px;"></div>
+
+          <!-- [마커 4] 1~11단계 연산 엔진 워터폴 -->
+          <div class="s1-card">
+            <div class="s1-card-head">
+              <div class="s1-card-title">⚙️ 정산 기준 정산 기준 1~11단계 정산 연산 워터폴 및 세액·상계 산식 검증</div>
+              <span style="font-size:11.5px; color:#64748b;">목록의 6 · 8 · 9 · 11단계 수치와 1원 단위까지 동일합니다</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="table" style="width:100%; border-collapse:collapse; font-size:12px;">
+                <thead>
+                  <tr style="background:#f8fafc; text-align:left; border-bottom:1px solid #dbe3ef;">
+                    <th style="padding:8px 12px;">단계 (Step Code)</th>
+                    <th style="padding:8px 12px;">연산 항목 및 적용 파이프라인</th>
+                    <th style="padding:8px 12px;">적용 수식 · 한도 캡 · 절사 규칙 (SSOT 검증 근거)</th>
+                    <th style="padding:8px 12px; text-align:right;">단계 변동액</th>
+                    <th style="padding:8px 12px; text-align:right;">단계 후 누적 잔액</th>
+                  </tr>
+                </thead>
+                <tbody id="s1WaterfallBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- [마커 5 & 마커 6] 세무 증빙 매핑 현황 및 재무 담당자 검토 메모 -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+            <div class="s1-card">
+              <div class="s1-card-head">
+                <div class="s1-card-title">🧾 세무 증빙 발행·수취 매핑 및 원천세 신고 귀속</div>
+                <span class="badge badge-primary">세무 판정 매트릭스</span>
+              </div>
+              <div style="padding:14px 16px; font-size:12.5px;" id="s1EvidenceDetailBox"></div>
+            </div>
+
+            <div class="s1-card">
+              <div class="s1-card-head">
+                <div class="s1-card-title">📝 재무팀 검토 메모 및 마감 후 수동 조정(ADMN-SETT-005) 연동</div>
+                <a href="ADMN-SETT-005_baseline.html" class="btn btn-sm" id="s1ManualAdjLink">🔧 이 정산서 수동 조정 등록 (SETT-005) →</a>
+              </div>
+              <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
+                <div id="s1AuditMemoHistory" style="font-size:12px; color:#334155; background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0;"></div>
+                <div style="display:flex; gap:8px;">
+                  <input type="text" id="inpS1NewMemo" class="input" style="flex:1;" placeholder="재무 검토 의견 또는 특이사항 메모 입력..." />
+                  <button type="button" class="btn btn-sm btn-primary" onclick="saveS1AuditMemo()">메모 등록</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="subpage-foot stmt-page-foot">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-sm" id="btnS1OpenP1" onclick="openCarryoverModalP1(document.getElementById('selS1Holder').value, 'OPERATOR')">📋 이월 발생 내역 상세 모달 (ADMN-SETT-002-P1)</button>
+            <button type="button" class="btn btn-sm" id="btnS1ToS2" style="border-color:#c4b5fd; background:#f5f3ff; color:#6d28d9; font-weight:700;" onclick="openStatementPageS2(document.getElementById('selS1Holder').value)">📤 권리자 제공 정산서 미리보기·발송 (ADMN-SETT-002-S2)</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn btn-sm" onclick="showToast('📄 내부 보관용 통합 정산서 상세(ADMN-SETT-002-S1) PDF 다운로드가 시작되었습니다.')">📥 내부 정산서 PDF 출력</button>
+            <button type="button" class="btn btn-sm btn-primary" id="btnS1ConfirmSingle" onclick="confirmSingleStatementS1()">🔒 개별 정산서 검토 완료 · 마감 확정</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADMN-SETT-002-S2 권리자 제공 정산서 — 화면설계서 v12 별도 페이지(S), SJM_PAGE (v6.68). 운영자 미리보기(?view=s2) · 파트너 격리 진입(?view=partner-stmt, SNB · 상단 바 숨김) 겸용 -->
+      <section class="subview-panel stmt-subpage" data-subpage="s2">
+        <div class="subpage-head">
+          <button type="button" class="btn btn-outline btn-sm" id="btnS2Back" onclick="SJM_PAGE.back()">← 정산 목록</button>
+          <span class="crumb-code">ADMN-SETT-002-S2</span>
+          <h2 class="subpage-title" id="s2HeaderMainTitle">권리자 제공 정산서 (외부 제공본 PDF · 이메일 발송)</h2>
+          <span class="badge badge-success" style="font-size:11px;" id="s2ScopeBadge">✔ 자사 귀속분(RH-INTERNAL) 및 타 권리자 지분 자동 제외 완료</span>
+        </div>
+        <div class="stmt-page-bar s2">
+          <!-- 귀속월 이동 네비게이터 -->
+          <div class="s1-month-nav" title="정산 귀속월 선택">
+          <button type="button" onclick="shiftS2Month(-1)">◀ 이전월</button>
+          <span id="s2CurrentMonthLabel" style="color:#fff;">2026년 10월 귀속</span>
+          <button type="button" onclick="shiftS2Month(1)">다음월 ▶</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <!-- 운영자 프리뷰 모드에서만 노출되는 수취인 선택 드롭다운 (파트너 로그인 시 숨김 처리되어 타 권리자 열람 원천 차단) -->
+            <div id="s2OperatorHolderSelectWrap" style="display:flex; align-items:center; gap:8px;">
+              <label style="font-size:12px; color:#cbd5e1; font-weight:600;">발송 대상 권리자 선택:</label>
+              <select id="selS2Holder" class="select" style="background:#0f172a; color:#fff; border-color:#475569; min-width:270px;" onchange="openStatementPageS2(this.value, true)">
+              <option value="RH-0025">정종대 (개인 면세사업자) (RH-0025 · 강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계))</option>
+              <option value="RH-0012">산준교육 콘텐츠 주식회사 (법인 · 일반과세) (RH-0012 · 강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계))</option>
+              <option value="RH-0051">한국소방학회 (도서 위탁) (RH-0051 · 위탁 도서 판매대금 정산 (수수료 차감지급))</option>
+              <option value="RH-0042">최그래픽 (개인 프리랜서 · 기여자) (RH-0042 · 매출연동 개발지원금 단독 (무한도형))</option>
+              <option value="RH-0015">이전기 (해지 강사 · 청구) (RH-0015 · 강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계))</option>
+              <option value="RH-0055">이중도 (중도해지 강사) (RH-0055 · 강좌(1.1) + 최저보장 MMG 보전(비상계 보호) + 해지 미상계 선급금 강제청구 분리)</option>
+              <option value="RH-0063">한도해 (일시 삽화·자문 · 기타소득) (RH-0063 · 마일스톤 약정금(7단계) + 전월 세후 이월 합산)</option>
+              <option value="RH-0047">박보건 (개인 프리랜서 · 강사) (RH-0047 · 강좌(1.1) + 대여금 선급금 상계(6단계))</option>
+              <option value="RH-0048">최지도 (개인 프리랜서 · 강사 겸 저자) (RH-0048 · 강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계)</option>
+              <option value="RH-0019">김안전 (개인 프리랜서 · 수취인 분할 70 : 30) (RH-0019 · 강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30))</option>
+              <option value="RH-0046">이건설 (개인 프리랜서 · 강사) (RH-0046 · 강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 지원금 공제 · 한도 복원)</option>
+              <option value="RH-0044">안전기술출판 (도서 위탁 · 개인 면세사업자) (RH-0044 · 위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급))</option>
+              <option value="RH-0031">이안전 (개인 프리랜서 · 공동저자) (RH-0031 · 공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%))</option>
+              <option value="RH-0018">고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40) (RH-0018 · 교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40))</option>
+              </select>
+            </div>
+            <!-- 파트너 로그인 세션일 때 노출되는 본인 계정 고정 배지 및 로그아웃 버튼 -->
+            <div id="s2PartnerSessionBar" style="display:none; align-items:center; gap:8px;">
+              <span class="badge badge-primary" id="s2PartnerSessionLabel">👤 파트너 로그인: 정종대 (Data Scope: RH-0025 격리)</span>
+              <a href="ADMN-LOGIN-001_baseline.html" class="btn btn-sm" style="background:#334155; color:#fff; border:none; text-decoration:none;">로그아웃</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="s2-page-body">
+          <div class="s2-paper-sheet" id="s2PrintableSheet">
+            <!-- 정산서 공식 문서 헤더 -->
+            <div class="s2-doc-header">
+              <div>
+                <div style="font-size:11.5px; color:#64748b; font-weight:700;">SANJUNMO OFFICIAL SETTLEMENT STATEMENT (EXTERNAL)</div>
+                <h2 style="margin:4px 0 0; font-size:22px; font-weight:900; color:#0f172a;" id="s2DocMainTitle">2026년 10월 귀속 권리자 정산 내역서</h2>
+              </div>
+              <div style="text-align:right; font-size:12px; color:#475569;">
+                <div>문서번호: <strong style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;" id="s2DocNo">STMT-EXT-202610-PY0025A</strong></div>
+                <div>발행일자: <strong>2026-10-31</strong> | 정산 대상기간: <strong>2026-10-01 ~ 2026-10-31</strong></div>
+              </div>
+            </div>
+
+            <!-- 공급받는자(당사) & 권리자(수취인) 양측 정보 -->
+            <div class="s2-party-grid">
+              <div class="s2-party-box">
+                <div class="s2-party-title">🏢 정산 발행 기관 (플랫폼사)</div>
+                <div><strong>상호(법인명):</strong> 주식회사 엘캠퍼스 (산준모닷컴)</div>
+                <div><strong>사업자등록번호:</strong> 120-88-00000 | <strong>대표이사:</strong> 김영호</div>
+                <div><strong>소재지 및 문의처:</strong> 서울특별시 금천구 가산디지털1로 (재무팀: settlement@sanjunmo.com)</div>
+              </div>
+              <div class="s2-party-box" id="s2RecipientPartyBox"></div>
+            </div>
+
+            <!-- 종합 정산 요약표 -->
+            <div>
+              <div class="s2-sec-title">
+                <span>1. 당월 정산 종합 요약 (증빙 발행 기준액 및 실지급액 안내)</span>
+                <span style="font-size:11.5px; color:#2563eb; font-weight:600;" id="s2TaxGuideBadge"></span>
+              </div>
+              <div id="s2SummaryBox"></div>
+            </div>
+
+            <!-- 케이스별 조건부 상세 테이블 영역 -->
+            <div id="s2ConditionalTablesArea" style="display:flex; flex-direction:column; gap:18px;"></div>
+
+            <!-- 하단 안내 -->
+            <div style="margin-top:8px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:11.5px; color:#475569; line-height:1.6;">
+              <strong>[정산 산출 및 세무 증빙 안내]</strong><br>
+              • 본 정산서는 권리자 본인의 계약 지분 및 귀속 실적만 발췌하여 제공되며, 당사 내부 귀속분 및 제3자 권리자 정보는 포함되지 않습니다.<br>
+              • 도서정가제 준수 정책에 따라 복합 패키지 상품의 쿠폰·포인트 할인액은 강좌 정산 기준금에서만 차감되며, 교재 정가에는 할인이 전가되지 않습니다.<br>
+              • 선급금 상계액은 기 지급된 선급금에서 차감하는 금액이므로 당월 세무 증빙(전자세금계산서·계산서·원천징수영수증) 발행 기준 금액(과세표준)에는 영향을 주지 않습니다.
+            </div>
+          </div>
+        </div>
+
+        <!-- 하단: 운영자 프리뷰 모드 버튼 vs 파트너 로그인 모드 버튼 분리 -->
+        <div class="subpage-foot stmt-page-foot">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-sm" id="btnS2OpenP1" onclick="openCarryoverModalP1(document.getElementById('selS2Holder').value, 'PARTNER')">📋 지난 정산 이월 발생 내역 보기 (ADMN-SETT-002-P1)</button>
+            <button type="button" id="btnS2SwitchToS1" class="btn btn-sm" onclick="openStatementPageS1(document.getElementById('selS2Holder').value)">🔄 운영자용 통합 정산서 원장(S1)으로 전환</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <!-- 파트너 전용 액션 -->
+            <button type="button" id="btnS2PartnerConfirm" class="btn btn-sm" style="background:#16a34a; color:#fff; border-color:#15803d;" onclick="openTaxSubmitModal('PARTNER')">📤 세금계산서 제출 (승인번호 · PDF)</button>
+            <!-- 운영자 전용 발송 액션 -->
+            <!-- 정본 02권 9.1: 정산 마감 후 정산서와 함께 발행 요청 — 미마감 월은 발송 버튼 비활성 + 이유 표시 -->
+            <span id="s2SendLockNote" style="display:none; align-items:center; gap:6px; font-size:12px; color:#9a3412; background:#fff7ed; border:1px solid #fdba74; border-radius:6px; padding:4px 10px;">⏸️ 미마감 월 — 당월 정산 마감 확정 후 발송할 수 있습니다 <button type="button" class="btn btn-sm" id="btnS2GoLock" onclick="goLockFromS2()">마감 확정하러 가기 →</button></span>
+            <button type="button" id="btnS2OperatorSendMail" class="btn btn-sm" onclick="sendStatementS2()">📧 권리자 이메일·알림톡 발송</button>
+            <!-- 공통 PDF 출력 -->
+            <button type="button" class="btn btn-sm btn-primary" onclick="showToast('📄 권리자 제공용 정산서(ADMN-SETT-002-S2) PDF 파일 다운로드가 완료되었습니다.')">📥 정산서 PDF 다운로드</button>
+          </div>
+        </div>
+      </section>
 
 <!-- [ADMN-SETT-002-P2] 당월 정산 마감 확정 사전 게이트 확인 모달 (16.1절 · 7.4절) -->
 <div id="modal-sett-gate" class="modal-backdrop hidden">
@@ -1937,7 +2035,7 @@ code, pre, kbd, samp,
       const netColor = s.step11NetPayout < 0 ? "var(--danger)" : (s.payoutCategory === "CARRYOVER_HOLD" ? "var(--warn)" : "var(--primary)");
 
       return `
-        <tr class="${isSel}" onclick="selectStatement('${s.id}')" style="cursor:pointer;">
+        <tr class="${isSel}" onclick="openStatementPageS1('${s.id}')" style="cursor:pointer;">
           <td>
             <div style="font-weight:700;">${s.payeeName}</div>
             <div style="font-size:11px; color:var(--text-muted);">${s.contractId} · ${s.matrixCase}</div>
@@ -1955,7 +2053,8 @@ code, pre, kbd, samp,
             ${s.step11NetPayout.toLocaleString()}원
           </td>
           <td>${badgeHtml}${s.closeHold ? '<br><span class="badge badge-warn" style="margin-top:3px;">PG 대사 마감 보류</span>' : ""}</td>
-          <td>
+          <td style="white-space:nowrap;">
+            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation(); openStatementPageS1('${s.id}')">상세</button>
             <button class="btn btn-sm" onclick="goToManualAdjustment(event, '${s.refOriginStmtId}')">
               🔧 수동 조정
             </button>
@@ -1963,106 +2062,6 @@ code, pre, kbd, samp,
         </tr>
       `;
     }).join("");
-  }
-
-  function renderDetail() {
-    const s = state.statements.find(x => x.id === state.selectedId);
-    const body = document.getElementById("stmtBody");
-    const badge = document.getElementById("stmtBadge");
-    if (!s) return;
-
-    badge.textContent = s.payoutStatusLabel;
-    badge.className = s.payoutCategory === "CLAIM_ISSUED" ? "badge badge-danger" : (s.payoutCategory === "CARRYOVER_HOLD" ? "badge badge-warn" : "badge badge-primary");
-
-    const headerAdjBtn = document.getElementById("btnHeaderManualAdj");
-    if (headerAdjBtn) {
-      headerAdjBtn.onclick = (e) => goToManualAdjustment(e, s.refOriginStmtId);
-    }
-
-    body.innerHTML = `
-      <!-- 6.5절 상단 통합 요약 카드 -->
-      <div class="summary-hero">
-        <div class="summary-hero-top">
-          <div>
-            <div style="font-size:11.5px; color:var(--text-muted); font-weight:700;">${s.payeeName} (${s.contractId}) — 11단계 최종 실지급(청구) 확정액</div>
-            <div style="font-size:12px; color:var(--text-sub); margin-top:2px;">${s.matrixCase}</div>
-          </div>
-          <div class="summary-hero-amount" style="color:${s.step11NetPayout < 0 ? 'var(--danger)' : 'var(--primary)'};">
-            ${s.step11NetPayout.toLocaleString()}원
-          </div>
-        </div>
-        <div class="summary-sub-row">
-          <span><strong>8단계 과세표준 합계:</strong> ${s.step8TaxableBaseSum.toLocaleString()}원</span>
-          <span><strong>9단계 부가세:</strong> ${s.step9VatAmount.toLocaleString()}원</span>
-          <span><strong>9단계 원천징수세액:</strong> -${s.step9WithholdingTax.toLocaleString()}원</span>
-        </div>
-        ${s.closeHold ? `<div style="background:#fff7ed; border:1px solid #fdba74; border-radius:7px; padding:8px 12px; font-size:12px; color:#9a3412; margin-bottom:8px;"><strong>⏸️ ${s.closeHold}</strong> — 금액은 계산 결과 그대로이며, 대사 소명 · 승인 전에는 마감 · 이체 예약을 하지 않습니다. <a href="ADMN-SETT-004_baseline.html">PG 대사 화면 ↗</a></div>` : ""}
-        <div class="diff-reason-box">
-          <strong>💡 [과세표준 ↔ 실지급액 차액 사유 자동 명시]</strong><br>
-          ${s.diffReasonNote}
-        </div>
-      </div>
-
-      <!-- 1~11단계 순방향 연산 스텝 브레이크다운 -->
-      <div style="font-weight:700; font-size:12.5px; color:var(--text);">📊 1단계 ~ 11단계 순방향 단방향 연산 명세</div>
-      <div class="step-list">
-        <div class="step-row">
-          <span><strong>1단계 (전월 이월 호출 · CARRY_IN)</strong> — 세전 기초금액 / 세후 지급대기</span>
-          <span class="mono">세전: +${s.step1PreTaxCarry.toLocaleString()}원 / 세후: +${s.step1PostTaxWait.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>2단계 (신규 발생 집계 · ACCRUAL)</strong> — 강좌(1.1) / 인세(2.1) / 지원금(5.1)</span>
-          <span class="mono">강좌: ${(s.step2LectureRs || s.step2ConsignGross || 0).toLocaleString()}원 / 인세: ${s.step2BookRoyalty.toLocaleString()}원 / 지원금: ${s.step2SupportAccrued.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>3단계 (월 최저보장 보정 · MMG_ADJ)</strong> — 순수 신규 강좌 R/S 기준</span>
-          <span class="mono">+${s.step3MmgSubsidy.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>4단계 (환불·환급반 공제 · DEDUCT)</strong> — 원 결제 스냅샷 대칭 역참조</span>
-          <span class="mono" style="color:var(--danger);">기본: ${s.step4LectureDeduct.toLocaleString()}원 / 지원금: ${s.step4SupportDeduct.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>5단계 (지원금 한도 캡 · SUPPORT_CAP)</strong> — 한도 선적용 후 4단계 공제 차감</span>
-          <span class="mono">확정: ${s.step5SupportConfirmed.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>6단계 (선급금 상한선 상계 · PREPAY_OFFSET)</strong> — 적격 세전액(${s.step6PrepayEligible.toLocaleString()}원) 한도</span>
-          <span class="mono" style="color:var(--warn); font-weight:700;">${s.step6PrepayOffset.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>7단계 (비정기 약정금 가산 · LUMPSUM_ADD)</strong> — 전속계약금·일시정산 등</span>
-          <span class="mono">+${s.step7LumpSumAdd.toLocaleString()}원</span>
-        </div>
-        <div class="step-row highlight">
-          <span><strong>8단계 (수취인 분할 및 과세표준 · PAYEE_SPLIT)</strong></span>
-          <span class="mono">${s.step8TaxableBaseSum.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>9단계 (세무 매트릭스 적용 · TAX)</strong> — 부가세 가산 / 소득세·지방세(10%) 원단위 내림</span>
-          <span class="mono">부가세: ${s.step9VatAmount.toLocaleString()}원 / 원천세: -${s.step9WithholdingTax.toLocaleString()}원</span>
-        </div>
-        <div class="step-row">
-          <span><strong>10단계 (반환 차감 및 청구 판정 · CLAIM)</strong> — 세후 대기 합산 및 반환채권 반영</span>
-          <span class="mono">${s.step10PostTaxAdjust >= 0 ? "+" + s.step10PostTaxAdjust.toLocaleString() : s.step10PostTaxAdjust.toLocaleString()}원</span>
-        </div>
-        <div class="step-row highlight" style="background:#eff6ff; color:var(--primary);">
-          <span><strong>11단계 (최종 지급 및 이월 판정 · PAYOUT)</strong> — 최소 지급 기준(100,000원) 대조</span>
-          <span class="mono" style="font-size:13.5px;">${s.step11NetPayout.toLocaleString()}원 (${s.payoutStatusLabel})</span>
-        </div>
-      </div>
-
-      ${s.payeeTransfers && s.payeeTransfers.length ? `
-      <div style="font-size:12px; background:var(--surface-alt); padding:9px 12px; border-radius:7px; border:1px solid var(--border);">
-        <div style="font-weight:700; margin-bottom:4px;">🤝 8단계 수취인 분할 (ADMN-SETT-007)</div>
-        ${s.payeeTransfers.map(p => `<div style="display:flex; justify-content:space-between; gap:8px;"><span>${p.name} (${p.payeeId} · ${p.ratio}% · ${p.taxCase}) — 과세표준 ${p.taxBase.toLocaleString()}원${p.vat ? ` · 부가세 +${p.vat.toLocaleString()}원` : ""}${p.withholding ? ` · 원천세 -${p.withholding.toLocaleString()}원` : ""}</span><strong class="mono">${p.amount.toLocaleString()}원</strong></div>`).join("")}
-      </div>` : ""}
-
-      <div style="font-size:12px; color:var(--text-sub); display:flex; justify-content:space-between; background:var(--surface-alt); padding:9px 12px; border-radius:7px; border:1px solid var(--border);">
-        <span>🏦 <strong>입금 계좌 검증:</strong> ${s.bankInfo}</span>
-        <span><strong>집행 상태:</strong> ${s.bankTransferStatus}</span>
-      </div>
-    `;
   }
 
   // 대량이체 지급 지시 행 — 수취인 분할 정산서는 수취인별로 나눠 이체한다(8단계 PAYEE_SPLIT)
@@ -2124,21 +2123,20 @@ code, pre, kbd, samp,
     document.getElementById("footerSummaryText").innerHTML = `2026-10 통합 연산 완료: 당월 실지급 총액 <strong>${paySum.toLocaleString()}원 (${pay.length}건)</strong> / 지급보류 세전이월 <strong>${carrySum.toLocaleString()}원 (${carry.length}건)</strong> / 공식 청구서 <strong>${claimSum.toLocaleString()}원 (${claim.length}건)</strong>${state.statements.some(s => s.closeHold) ? ` / PG 대사 마감 보류 <strong>${state.statements.filter(s => s.closeHold).length}건</strong>` : ""}`;
   }
 
-  function selectStatement(id) {
-    state.selectedId = id;
-    renderTable();
-    renderDetail();
-  }
-
   let currentGateCase = 'A';
 
   function openSettGateModal() {
     renderGateCase();
-    document.getElementById("modal-sett-gate").classList.remove("hidden");
+    const m = document.getElementById("modal-sett-gate");
+    m.classList.remove("hidden");
+    m.style.removeProperty("display"); // 공통 모달 핫픽스가 로드 시 건 인라인 display:none 해제
+    m.classList.add("open");
   }
 
   function closeSettGateModal() {
-    document.getElementById("modal-sett-gate").classList.add("hidden");
+    const m = document.getElementById("modal-sett-gate");
+    m.classList.remove("open");
+    m.classList.add("hidden");
   }
 
   function switchGateCase(caseType) {
@@ -2180,8 +2178,11 @@ code, pre, kbd, samp,
   function confirmFinalLockFromGate() {
     closeSettGateModal();
     state.isLocked = true;
-    document.getElementById("lockStatusBadge").className = "badge badge-success";
-    document.getElementById("lockStatusBadge").textContent = "2026-10 마감 확정됨 (Locked = True · 선급금 상계/한도소진 확정)";
+    const lockBadge = document.getElementById("lockStatusBadge"); // 화면에 없을 수 있음(예전 배지)
+    if (lockBadge) {
+      lockBadge.className = "badge badge-success";
+      lockBadge.textContent = "2026-10 마감 확정됨 (Locked = True · 선급금 상계/한도소진 확정)";
+    }
     document.getElementById("footerLockBadge").className = "badge badge-success";
     document.getElementById("footerLockBadge").textContent = "마감 잠금됨 (Locked = True)";
     document.getElementById("btnRunEngine").disabled = true;
@@ -2192,9 +2193,8 @@ code, pre, kbd, samp,
       }
     });
 
-    renderDetail();
     renderFirmbanking();
-    showToast("🔒 [ADMN-CONF-010 감사로그 기록] 2026-10 당월 정산 마감 확정(Locked=True) 및 권리자 지급 예약(RESERVED)이 비가역 원장에 영구 반영되었습니다.");
+    showToast("🔒 [ADMN-CONF-010 감사로그 기록] 2026-10 당월 정산 마감 확정(Locked=True) 및 권리자 지급 예약(RESERVED)이 비가역 원장에 영구 반영되었습니다. 이제 권리자 제공 정산서를 발송할 수 있습니다.");
   }
 
   document.getElementById("btnLockSettlement").addEventListener("click", () => {
@@ -2208,7 +2208,6 @@ code, pre, kbd, samp,
   function simulateBankFailure() {
     const target = state.statements[0];
     target.bankTransferStatus = "이체 실패 (계좌오류) → 예약 해제(NONE) · 세전 이월(PRE_TAX) 적재 완료";
-    renderDetail();
     renderFirmbanking();
     showToast("🧪 대량이체 실패 시 마감 원장(Locked)이나 지원금 한도는 되돌리지 않고, 지급 예약(RESERVED)만 해제하여 미지급분을 세전 이월(PRE_TAX)로 적재했습니다.");
   }
@@ -2255,7 +2254,6 @@ code, pre, kbd, samp,
   });
 
   renderTable();
-  renderDetail();
   renderFirmbanking();
   renderKpis();
 </script>
@@ -2368,248 +2366,6 @@ code, pre, kbd, samp,
       <div style="display:flex; gap:8px;">
         <button type="button" class="btn btn-sm" onclick="showToast('📥 이월 발생 내역 데이터 테이블 엑셀(CSV) 다운로드가 완료되었습니다.')">📥 이월 내역 엑셀 다운로드</button>
         <button type="button" class="btn btn-sm btn-primary" onclick="closeCarryoverModalP1()">확인 및 닫기</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- [2] ADMN-SETT-002-S1: 통합 정산서 상세 · 마감 워크스페이스 (운영자 전용) -->
-<div class="s1-modal-backdrop" id="modalStatementS1" onclick="if(event.target===this) closeStatementModalS1()">
-  <div class="s1-modal-dialog">
-    <div class="s1-modal-header">
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <span style="background:#2563eb; color:#fff; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-size:11px; font-weight:700; padding:3px 8px; border-radius:5px;">ADMN-SETT-002-S1</span>
-        <strong style="font-size:16px;" id="s1HeaderTitle">통합 정산서 상세 · 마감 (운영자 전용 원장)</strong>
-        <div class="s1-month-nav" title="동일 수취인의 이전/다음 정산 귀속월 정산서로 전환">
-          <button type="button" onclick="shiftS1Month(-1)">◀ 이전월</button>
-          <span id="s1CurrentMonthLabel" style="color:#fff;">2026년 10월 귀속</span>
-          <button type="button" onclick="shiftS1Month(1)">다음월 ▶</button>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <label style="font-size:12px; color:#cbd5e1; font-weight:600;">수취인 선택 (메인 목록 동기화):</label>
-        <select id="selS1Holder" class="select" style="background:#1e293b; color:#fff; border-color:#475569; min-width:300px;" onchange="renderStatementModalS1()">
-          <option value="RH-0025">정종대 (개인 면세사업자) (RH-0025 · 강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계))</option>
-          <option value="RH-0012">산준교육 콘텐츠 주식회사 (법인 · 일반과세) (RH-0012 · 강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계))</option>
-          <option value="RH-0051">한국소방학회 (도서 위탁) (RH-0051 · 위탁 도서 판매대금 정산 (수수료 차감지급))</option>
-          <option value="RH-0042">최그래픽 (개인 프리랜서 · 기여자) (RH-0042 · 매출연동 개발지원금 단독 (무한도형))</option>
-          <option value="RH-0015">이전기 (해지 강사 · 청구) (RH-0015 · 강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계))</option>
-          <option value="RH-0055">이중도 (중도해지 강사) (RH-0055 · 강좌(1.1) + 최저보장 MMG 보전(비상계 보호) + 해지 미상계 선급금 강제청구 분리)</option>
-          <option value="RH-0063">한도해 (일시 삽화·자문 · 기타소득) (RH-0063 · 마일스톤 약정금(7단계) + 전월 세후 이월 합산)</option>
-          <option value="RH-0047">박보건 (개인 프리랜서 · 강사) (RH-0047 · 강좌(1.1) + 대여금 선급금 상계(6단계))</option>
-          <option value="RH-0048">최지도 (개인 프리랜서 · 강사 겸 저자) (RH-0048 · 강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계)</option>
-          <option value="RH-0019">김안전 (개인 프리랜서 · 수취인 분할 70 : 30) (RH-0019 · 강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30))</option>
-          <option value="RH-0046">이건설 (개인 프리랜서 · 강사) (RH-0046 · 강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 지원금 공제 · 한도 복원)</option>
-          <option value="RH-0044">안전기술출판 (도서 위탁 · 개인 면세사업자) (RH-0044 · 위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급))</option>
-          <option value="RH-0031">이안전 (개인 프리랜서 · 공동저자) (RH-0031 · 공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%))</option>
-          <option value="RH-0018">고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40) (RH-0018 · 교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40))</option>
-        </select>
-        <label style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:#e2e8f0; cursor:pointer; background:rgba(255,255,255,0.1); padding:5px 10px; border-radius:6px;">
-          <input type="checkbox" id="chkS1ShowAllTables" onchange="renderStatementModalS1()" />
-          <span>0원/미해당 테이블 전체 보기</span>
-        </label>
-        <button type="button" class="btn btn-sm" style="background:rgba(255,255,255,0.14); color:#fff; border:none;" onclick="closeStatementModalS1()">✕ 닫기</button>
-      </div>
-    </div>
-
-    <div class="s1-modal-body">
-      <!-- [마커 1] 수취인 · 계약 · 지급계좌 · 선급금 요약 마스터 헤더 -->
-      <div class="s1-card">
-        <div class="s1-card-head">
-          <div class="s1-card-title">
-            <span>👤 수취인 · 적용 계약 · 지급 계좌 · 기준 한도 마스터 정보</span>
-            <span class="badge badge-primary" id="s1TaxCaseBadge"></span>
-            <span class="badge badge-success" id="s1LockStatusBadge"></span>
-          </div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <span style="font-size:11.5px; color:#64748b;" id="s1ActiveTablesSummary"></span>
-            <button type="button" class="btn btn-sm" onclick="unmaskS1Identity()">🔓 실명번호·계좌 마스킹 해제 (ADMN-USER-007)</button>
-          </div>
-        </div>
-        <div class="s1-meta-grid" id="s1MasterMetaGrid"></div>
-      </div>
-
-      <!-- [마커 2] 6.5절 통합 정산 요약 스코어보드 및 과세표준 vs 실지급액 차액 등식 -->
-      <div class="s1-card">
-        <div class="s1-card-head">
-          <div class="s1-card-title">📊 정산 기준 정산 기준 통합 정산 요약 및 과세표준 vs 실지급액 대조 등식 (메인 목록 100% 동기화)</div>
-          <span style="font-size:11.5px; color:#475569;">※ 산출 중간값 DECIMAL(18,4) 유지 후 라인 합산 1회 Floor 절사 (정산 기준)</span>
-        </div>
-        <div class="s1-score-grid" id="s1SummaryScoreGrid"></div>
-        <div class="s1-diff-banner" id="s1DiffEquationBanner"></div>
-      </div>
-
-      <!-- 케이스별 조건부 테이블 컨테이너 (A ~ F) -->
-      <div id="s1DynamicTablesContainer" style="display:flex; flex-direction:column; gap:14px;"></div>
-
-      <!-- [마커 4] 1~11단계 연산 엔진 워터폴 -->
-      <div class="s1-card">
-        <div class="s1-card-head">
-          <div class="s1-card-title">⚙️ 정산 기준 정산 기준 1~11단계 정산 연산 워터폴 및 세액·상계 산식 검증</div>
-          <span style="font-size:11.5px; color:#64748b;">메인 우측 요약 패널의 1~11단계 수치와 1원 단위까지 동일합니다</span>
-        </div>
-        <div style="overflow-x:auto;">
-          <table class="table" style="width:100%; border-collapse:collapse; font-size:12px;">
-            <thead>
-              <tr style="background:#f8fafc; text-align:left; border-bottom:1px solid #dbe3ef;">
-                <th style="padding:8px 12px;">단계 (Step Code)</th>
-                <th style="padding:8px 12px;">연산 항목 및 적용 파이프라인</th>
-                <th style="padding:8px 12px;">적용 수식 · 한도 캡 · 절사 규칙 (SSOT 검증 근거)</th>
-                <th style="padding:8px 12px; text-align:right;">단계 변동액</th>
-                <th style="padding:8px 12px; text-align:right;">단계 후 누적 잔액</th>
-              </tr>
-            </thead>
-            <tbody id="s1WaterfallBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- [마커 5 & 마커 6] 세무 증빙 매핑 현황 및 재무 담당자 검토 메모 -->
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-        <div class="s1-card">
-          <div class="s1-card-head">
-            <div class="s1-card-title">🧾 세무 증빙 발행·수취 매핑 및 원천세 신고 귀속</div>
-            <span class="badge badge-primary">세무 판정 매트릭스</span>
-          </div>
-          <div style="padding:14px 16px; font-size:12.5px;" id="s1EvidenceDetailBox"></div>
-        </div>
-
-        <div class="s1-card">
-          <div class="s1-card-head">
-            <div class="s1-card-title">📝 재무팀 검토 메모 및 마감 후 수동 조정(ADMN-SETT-005) 연동</div>
-            <a href="ADMN-SETT-005_baseline.html" class="btn btn-sm">↗ 수동 조정 원장 이동 (SETT-005)</a>
-          </div>
-          <div style="padding:14px 16px; display:flex; flex-direction:column; gap:8px;">
-            <div id="s1AuditMemoHistory" style="font-size:12px; color:#334155; background:#f8fafc; padding:8px 10px; border-radius:6px; border:1px solid #e2e8f0;"></div>
-            <div style="display:flex; gap:8px;">
-              <input type="text" id="inpS1NewMemo" class="input" style="flex:1;" placeholder="재무 검토 의견 또는 특이사항 메모 입력..." />
-              <button type="button" class="btn btn-sm btn-primary" onclick="saveS1AuditMemo()">메모 등록</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="s1-modal-footer">
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <button type="button" class="btn btn-sm" onclick="openCarryoverModalP1(document.getElementById('selS1Holder').value, 'OPERATOR')">📋 이월 발생 내역 상세 모달 (ADMN-SETT-002-P1)</button>
-        <button type="button" class="btn btn-sm" style="border-color:#c4b5fd; background:#f5f3ff; color:#6d28d9; font-weight:700;" onclick="closeStatementModalS1(); openStatementModalS2(document.getElementById('selS1Holder').value, 'OPERATOR_PREVIEW');">📤 권리자 제공 정산서 미리보기·발송 (ADMN-SETT-002-S2)</button>
-      </div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <button type="button" class="btn btn-sm" onclick="showToast('📄 내부 보관용 통합 정산서 상세(ADMN-SETT-002-S1) PDF 다운로드가 시작되었습니다.')">📥 내부 정산서 PDF 출력</button>
-        <button type="button" class="btn btn-sm btn-primary" onclick="confirmSingleStatementS1()">🔒 개별 정산서 검토 완료 · 마감 확정</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- [3] ADMN-SETT-002-S2: 권리자 제공 정산서 (운영자 발송 프리뷰 모드 vs 파트너 로그인 격리 모드 분리) -->
-<div class="s2-modal-backdrop" id="modalStatementS2" onclick="if(event.target===this && !window.isPartnerIsolatedSession) closeStatementModalS2()">
-  <div class="s2-modal-dialog">
-    <div class="s2-modal-header">
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <span style="background:#7c3aed; color:#fff; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-size:11px; font-weight:700; padding:3px 8px; border-radius:5px;">ADMN-SETT-002-S2</span>
-        <strong style="font-size:15.5px;" id="s2HeaderMainTitle">권리자 제공 정산서 (외부 제공본 PDF · 이메일 발송)</strong>
-        <span class="badge badge-success" style="font-size:11px;" id="s2ScopeBadge">✔ 자사 귀속분(RH-INTERNAL) 및 타 권리자 지분 자동 제외 완료</span>
-        <!-- 귀속월 이동 네비게이터 -->
-        <div class="s1-month-nav" title="정산 귀속월 선택">
-          <button type="button" onclick="shiftS2Month(-1)">◀ 이전월</button>
-          <span id="s2CurrentMonthLabel" style="color:#fff;">2026년 10월 귀속</span>
-          <button type="button" onclick="shiftS2Month(1)">다음월 ▶</button>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-        <!-- 운영자 프리뷰 모드에서만 노출되는 수취인 선택 드롭다운 (파트너 로그인 시 숨김 처리되어 타 권리자 열람 원천 차단) -->
-        <div id="s2OperatorHolderSelectWrap" style="display:flex; align-items:center; gap:8px;">
-          <label style="font-size:12px; color:#cbd5e1; font-weight:600;">발송 대상 권리자 선택:</label>
-          <select id="selS2Holder" class="select" style="background:#0f172a; color:#fff; border-color:#475569; min-width:270px;" onchange="renderStatementModalS2()">
-            <option value="RH-0025">정종대 (개인 면세사업자) (RH-0025 · 강좌(1.1) + 인세(2.1) + 지원금(5.1) + 약정금 · 전속계약금(7단계))</option>
-            <option value="RH-0012">산준교육 콘텐츠 주식회사 (법인 · 일반과세) (RH-0012 · 강좌(1.1) + 공동저자 인세(2.1) + 지원금 종료 일시정산(7단계))</option>
-            <option value="RH-0051">한국소방학회 (도서 위탁) (RH-0051 · 위탁 도서 판매대금 정산 (수수료 차감지급))</option>
-            <option value="RH-0042">최그래픽 (개인 프리랜서 · 기여자) (RH-0042 · 매출연동 개발지원금 단독 (무한도형))</option>
-            <option value="RH-0015">이전기 (해지 강사 · 청구) (RH-0015 · 강좌 R/S(1.1, 해지일 이전 결제분) + 전속계약금 세후 반환(10단계))</option>
-            <option value="RH-0055">이중도 (중도해지 강사) (RH-0055 · 강좌(1.1) + 최저보장 MMG 보전(비상계 보호) + 해지 미상계 선급금 강제청구 분리)</option>
-            <option value="RH-0063">한도해 (일시 삽화·자문 · 기타소득) (RH-0063 · 마일스톤 약정금(7단계) + 전월 세후 이월 합산)</option>
-            <option value="RH-0047">박보건 (개인 프리랜서 · 강사) (RH-0047 · 강좌(1.1) + 대여금 선급금 상계(6단계))</option>
-            <option value="RH-0048">최지도 (개인 프리랜서 · 강사 겸 저자) (RH-0048 · 강좌(1.1) + 자사 발행 교재 인세(2.1) + 대여금 선급금 상계)</option>
-            <option value="RH-0019">김안전 (개인 프리랜서 · 수취인 분할 70 : 30) (RH-0019 · 강좌(1.1) + 8단계 수취인 분할(SETT-007 70 : 30))</option>
-            <option value="RH-0046">이건설 (개인 프리랜서 · 강사) (RH-0046 · 강좌(1.1, 지분 60%) + R/S형 개발지원금(5.1) · 합격환급 옵션 B 지원금 공제 · 한도 복원)</option>
-            <option value="RH-0044">안전기술출판 (도서 위탁 · 개인 면세사업자) (RH-0044 · 위탁 도서 판매대금 정산 (PROD-BK-3003 · 수수료 차감지급))</option>
-            <option value="RH-0031">이안전 (개인 프리랜서 · 공동저자) (RH-0031 · 공동저자 교재 인세(2.1 · PROD-BK-1001 지분 30%))</option>
-            <option value="RH-0018">고(故) 박위생 (상속 승계 · 상속인 분할 60 : 40) (RH-0018 · 교재 인세(2.1) + 8단계 상속인 분할(SETT-007 60 : 40))</option>
-          </select>
-        </div>
-        <!-- 파트너 로그인 세션일 때 노출되는 본인 계정 고정 배지 및 로그아웃 버튼 -->
-        <div id="s2PartnerSessionBar" style="display:none; align-items:center; gap:8px;">
-          <span class="badge badge-primary" id="s2PartnerSessionLabel">👤 파트너 로그인: 정종대 (Data Scope: RH-0025 격리)</span>
-          <a href="ADMN-LOGIN-001_baseline.html" class="btn btn-sm" style="background:#334155; color:#fff; border:none; text-decoration:none;">로그아웃</a>
-        </div>
-        <button type="button" id="btnS2CloseModal" class="btn btn-sm" style="background:rgba(255,255,255,0.14); color:#fff; border:none;" onclick="closeStatementModalS2()">✕ 닫기</button>
-      </div>
-    </div>
-
-    <div class="s2-modal-body">
-      <div class="s2-paper-sheet" id="s2PrintableSheet">
-        <!-- 정산서 공식 문서 헤더 -->
-        <div class="s2-doc-header">
-          <div>
-            <div style="font-size:11.5px; color:#64748b; font-weight:700;">SANJUNMO OFFICIAL SETTLEMENT STATEMENT (EXTERNAL)</div>
-            <h2 style="margin:4px 0 0; font-size:22px; font-weight:900; color:#0f172a;" id="s2DocMainTitle">2026년 10월 귀속 권리자 정산 내역서</h2>
-          </div>
-          <div style="text-align:right; font-size:12px; color:#475569;">
-            <div>문서번호: <strong style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;" id="s2DocNo">STMT-EXT-202610-PY0025A</strong></div>
-            <div>발행일자: <strong>2026-10-31</strong> | 정산 대상기간: <strong>2026-10-01 ~ 2026-10-31</strong></div>
-          </div>
-        </div>
-
-        <!-- 공급받는자(당사) & 권리자(수취인) 양측 정보 -->
-        <div class="s2-party-grid">
-          <div class="s2-party-box">
-            <div class="s2-party-title">🏢 정산 발행 기관 (플랫폼사)</div>
-            <div><strong>상호(법인명):</strong> 주식회사 엘캠퍼스 (산준모닷컴)</div>
-            <div><strong>사업자등록번호:</strong> 120-88-00000 | <strong>대표이사:</strong> 김영호</div>
-            <div><strong>소재지 및 문의처:</strong> 서울특별시 금천구 가산디지털1로 (재무팀: settlement@sanjunmo.com)</div>
-          </div>
-          <div class="s2-party-box" id="s2RecipientPartyBox"></div>
-        </div>
-
-        <!-- 종합 정산 요약표 -->
-        <div>
-          <div class="s2-sec-title">
-            <span>1. 당월 정산 종합 요약 (증빙 발행 기준액 및 실지급액 안내)</span>
-            <span style="font-size:11.5px; color:#2563eb; font-weight:600;" id="s2TaxGuideBadge"></span>
-          </div>
-          <div id="s2SummaryBox"></div>
-        </div>
-
-        <!-- 케이스별 조건부 상세 테이블 영역 -->
-        <div id="s2ConditionalTablesArea" style="display:flex; flex-direction:column; gap:18px;"></div>
-
-        <!-- 하단 안내 -->
-        <div style="margin-top:8px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; font-size:11.5px; color:#475569; line-height:1.6;">
-          <strong>[정산 산출 및 세무 증빙 안내]</strong><br>
-          • 본 정산서는 권리자 본인의 계약 지분 및 귀속 실적만 발췌하여 제공되며, 당사 내부 귀속분 및 제3자 권리자 정보는 포함되지 않습니다.<br>
-          • 도서정가제 준수 정책에 따라 복합 패키지 상품의 쿠폰·포인트 할인액은 강좌 정산 기준금에서만 차감되며, 교재 정가에는 할인이 전가되지 않습니다.<br>
-          • 선급금 상계액은 기 지급된 선급금에서 차감하는 금액이므로 당월 세무 증빙(전자세금계산서·계산서·원천징수영수증) 발행 기준 금액(과세표준)에는 영향을 주지 않습니다.
-        </div>
-      </div>
-    </div>
-
-    <!-- 하단 푸터: 운영자 프리뷰 모드 버튼 vs 파트너 로그인 모드 버튼 분리 -->
-    <div class="s2-modal-footer">
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <button type="button" class="btn btn-sm" onclick="openCarryoverModalP1(document.getElementById('selS2Holder').value, 'PARTNER')">📋 지난 정산 이월 발생 내역 보기 (ADMN-SETT-002-P1)</button>
-        <button type="button" id="btnS2SwitchToS1" class="btn btn-sm" onclick="closeStatementModalS2(); openStatementModalS1(document.getElementById('selS2Holder').value);">🔄 운영자용 통합 정산서 원장(S1)으로 전환</button>
-      </div>
-      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-        <!-- 파트너 전용 액션 -->
-        <button type="button" id="btnS2PartnerConfirm" class="btn btn-sm" style="background:#16a34a; color:#fff; border-color:#15803d;" onclick="openTaxSubmitModal('PARTNER')">📤 세금계산서 제출 (승인번호 · PDF)</button>
-        <!-- 운영자 전용 발송 액션 -->
-        <button type="button" id="btnS2OperatorSendMail" class="btn btn-sm" onclick="showToast('📧 권리자 등록 이메일 및 카카오 알림톡으로 외부 제공용 정산서(PDF)가 발송되었습니다.')">📧 권리자 이메일·알림톡 발송</button>
-        <!-- 공통 PDF 출력 -->
-        <button type="button" class="btn btn-sm btn-primary" onclick="showToast('📄 권리자 제공용 정산서(ADMN-SETT-002-S2) PDF 파일 다운로드가 완료되었습니다.')">📥 정산서 PDF 다운로드</button>
       </div>
     </div>
   </div>
@@ -3610,23 +3366,33 @@ code, pre, kbd, samp,
     }
   }
 
-  // === [2] S1 (통합 정산서 상세 · 마감) 제어 함수 ===
-  function openStatementModalS1(holderId) {
+  // === [2] S1 (통합 정산서 상세 · 마감) 제어 함수 — 화면설계서 v12 별도 페이지(S), SJM_PAGE (v6.68) ===
+  // 주소: ?view=s1&holder=<권리자 ID 또는 정산서 ID>. replace = 같은 페이지 안에서 수취인만 바꿀 때(뒤로 가기 기록을 쌓지 않음)
+  function openStatementPageS1(holderId, replace) {
     if (window.isPartnerIsolatedSession) {
       alert("파트너 권한에서는 운영자 내부 원장(ADMN-SETT-002-S1)에 접근할 수 없습니다.");
       return;
     }
-    const sel = document.getElementById("selS1Holder");
     const normKey = normalizePayeeKey(holderId || getSelectedPayeeKey());
-    if (sel) sel.value = normKey;
-    renderStatementModalS1();
-    const modal = document.getElementById("modalStatementS1");
-    if (modal) modal.classList.add("open");
+    SJM_PAGE.go("s1", { holder: normKey }, replace ? { replace: true } : undefined);
   }
 
-  function closeStatementModalS1() {
-    const modal = document.getElementById("modalStatementS1");
-    if (modal) modal.classList.remove("open");
+  // 목록 선택(state.selectedId)을 이 권리자의 정산서로 맞춘다 — 목록으로 돌아가면 같은 행이 선택돼 있다
+  function syncListSelection(normKey) {
+    const found = state.statements.find(s => s.payeeId === normKey);
+    if (found && state.selectedId !== found.id) {
+      state.selectedId = found.id;
+      renderTable();
+    }
+  }
+
+  function fillStatementS1(holderId) {
+    if (window.isPartnerIsolatedSession) return;
+    const normKey = normalizePayeeKey(holderId || getSelectedPayeeKey());
+    const sel = document.getElementById("selS1Holder");
+    if (sel) sel.value = normKey;
+    syncListSelection(normKey);
+    renderStatementS1();
   }
 
   function shiftS1Month(dir) {
@@ -3638,7 +3404,7 @@ code, pre, kbd, samp,
   function unmaskS1Identity() {
     if (window.S1_unmasked) {
       window.S1_unmasked = false;
-      renderStatementModalS1();
+      renderStatementS1();
       showToast("🔒 개인정보 및 계좌번호 마스킹이 다시 적용되었습니다.");
       return;
     }
@@ -3648,11 +3414,11 @@ code, pre, kbd, samp,
       return;
     }
     window.S1_unmasked = true;
-    renderStatementModalS1();
+    renderStatementS1();
     showToast("✅ 감사 로그 기록 완료: 실명번호 및 지급 계좌번호 마스킹이 해제되었습니다.");
   }
 
-  function renderStatementModalS1() {
+  function renderStatementS1() {
     const holderId = normalizePayeeKey(document.getElementById("selS1Holder").value);
     const c = window.S1_STATEMENT_CASES[holderId] || window.S1_STATEMENT_CASES["RH-0025"];
     const showAll = document.getElementById("chkS1ShowAllTables").checked;
@@ -3660,6 +3426,19 @@ code, pre, kbd, samp,
 
     document.getElementById("s1TaxCaseBadge").textContent = c.taxCode;
     document.getElementById("s1LockStatusBadge").textContent = c.lockStatus;
+
+    // 목록 정산서(state.statements)의 집행 판정 · 지급 상태 · PG 대사 마감 보류 — 예전 1번 탭 우측 요약 패널 항목(v6.68 합침)
+    const st = state.statements.find(s => s.payeeId === c.holderId);
+    const execBox = document.getElementById("s1ExecStatusBox");
+    if (execBox) {
+      execBox.innerHTML = st ? `
+        <span><strong>집행 판정:</strong> <span class="badge ${st.payoutCategory === "CLAIM_ISSUED" ? "badge-danger" : (st.payoutCategory === "CARRYOVER_HOLD" ? "badge-warn" : "badge-primary")}">${st.payoutStatusLabel}</span></span>
+        <span><strong>지급 상태:</strong> ${st.bankTransferStatus}</span>
+        ${st.closeHold ? `<div style="flex-basis:100%; background:#fff7ed; border:1px solid #fdba74; border-radius:7px; padding:8px 12px; color:#9a3412;"><strong>⏸️ ${st.closeHold}</strong> — 금액은 계산 결과 그대로이며, 대사 소명 · 승인 전에는 마감 · 이체 예약을 하지 않습니다. <a href="ADMN-SETT-004_baseline.html">PG 대사 화면 ↗</a></div>` : ""}
+      ` : "";
+    }
+    const adjLink = document.getElementById("s1ManualAdjLink");
+    if (adjLink) adjLink.href = st ? `ADMN-SETT-005_baseline.html?fromStmt=${encodeURIComponent(st.refOriginStmtId)}` : "ADMN-SETT-005_baseline.html";
 
     const ssnText = window.S1_unmasked ? c.ssnRaw : c.ssnMasked;
     const bankText = window.S1_unmasked ? c.bankRaw : c.bankMasked;
@@ -3985,7 +3764,7 @@ code, pre, kbd, samp,
     if (c) {
       c.auditMemos.push(`[2026-10-31 즉시등록] 재무관리자(white): ${inp.value.trim()}`);
       inp.value = "";
-      renderStatementModalS1();
+      renderStatementS1();
       showToast("📝 재무 검토 메모가 통합 정산서 원장에 기록되었습니다.");
     }
   }
@@ -3996,17 +3775,24 @@ code, pre, kbd, samp,
     showToast(`🔒 [${c.holderName}] 2026년 10월 통합 정산서 상세 검토 및 개별 마감(Lock) 확정이 완료되었습니다.`);
   }
 
-  // === [3] S2 (권리자 제공 정산서 · 운영자 프리뷰 vs 파트너 격리 뷰) 제어 함수 ===
-  function openStatementModalS2(holderId, viewContext) {
+  // === [3] S2 (권리자 제공 정산서 · 운영자 프리뷰 vs 파트너 격리 뷰) 제어 함수 — 화면설계서 v12 별도 페이지(S), SJM_PAGE (v6.68) ===
+  // 주소: ?view=s2&holder=… (운영자 미리보기) · ?view=partner-stmt&holder=… (파트너 격리 진입 — 주소 기록 없이 이 패널만 띄움)
+  function openStatementPageS2(holderId, replace) {
+    if (window.isPartnerIsolatedSession) return;
+    const normKey = normalizePayeeKey(holderId || getSelectedPayeeKey());
+    SJM_PAGE.go("s2", { holder: normKey }, replace ? { replace: true } : undefined);
+  }
+
+  function fillStatementS2(holderId, viewContext) {
     const isPartner = window.isPartnerIsolatedSession || viewContext === "PARTNER_SESSION";
     const normKey = normalizePayeeKey(holderId || getSelectedPayeeKey());
     const sel = document.getElementById("selS2Holder");
     if (sel) sel.value = normKey;
 
-    // UI 스코프 격리 적용 (파트너 로그인 시 타 권리자 선택 드롭다운, 닫기 버튼, 운영자 S1 전환 버튼, 발송 버튼 숨김)
+    // UI 스코프 격리 적용 (파트너 로그인 시 타 권리자 선택 드롭다운, 목록으로 버튼, 운영자 S1 전환 버튼, 발송 버튼 숨김)
     const opSelectWrap = document.getElementById("s2OperatorHolderSelectWrap");
     const partnerBar = document.getElementById("s2PartnerSessionBar");
-    const btnClose = document.getElementById("btnS2CloseModal");
+    const btnClose = document.getElementById("btnS2Back");
     const btnSwitchS1 = document.getElementById("btnS2SwitchToS1");
     const btnOpMail = document.getElementById("btnS2OperatorSendMail");
     const btnPartnerConfirm = document.getElementById("btnS2PartnerConfirm");
@@ -4024,24 +3810,51 @@ code, pre, kbd, samp,
         : "권리자 제공 정산서 미리보기 · 발송 (외부 제공본 · ADMN-SETT-002-S2)";
     }
 
-    renderStatementModalS2();
-    const modal = document.getElementById("modalStatementS2");
-    if (modal) modal.classList.add("open");
+    if (!isPartner) syncListSelection(normKey);
+    renderStatementS2();
+    updateS2SendGate();
   }
 
-  function closeStatementModalS2() {
-    if (window.isPartnerIsolatedSession) return;
-    const modal = document.getElementById("modalStatementS2");
-    if (modal) modal.classList.remove("open");
+  // 발송 가능 여부 — 정본 02권 9.1(정산 마감 후 정산서와 함께 발행 요청). 지난달(08 · 09월)은 마감 잠금, 당월(10월)은 월 마감 확정(state.isLocked) 뒤에만
+  function isS2MonthLocked() {
+    const isCurrentMonth = window.S2_monthIdx === window.S1_MONTHS.length - 1;
+    return !isCurrentMonth || state.isLocked;
+  }
+
+  function updateS2SendGate() {
+    const btn = document.getElementById("btnS2OperatorSendMail");
+    const note = document.getElementById("s2SendLockNote");
+    const locked = isS2MonthLocked();
+    if (btn) {
+      btn.disabled = !locked;
+      btn.title = locked ? "" : "미마감 월입니다. 당월 정산 마감 확정 후 발송할 수 있습니다.";
+    }
+    if (note) note.style.display = (!locked && !window.isPartnerIsolatedSession) ? "inline-flex" : "none";
+  }
+
+  function sendStatementS2() {
+    if (!isS2MonthLocked()) {
+      showToast("⏸️ 미마감 월입니다. 목록에서 당월 정산 마감을 확정한 뒤 발송해 주십시오.");
+      return;
+    }
+    showToast("📧 권리자 등록 이메일 및 카카오 알림톡으로 외부 제공용 정산서(PDF)가 발송되었습니다.");
+  }
+
+  // 시연 흐름: S2(미마감) → 목록의 월 마감 게이트 → 마감 확정 → 다시 S2에서 발송
+  function goLockFromS2() {
+    SJM_PAGE.back();
+    if (state.isLocked) return;
+    openSettGateModal();
   }
 
   function shiftS2Month(dir) {
     window.S2_monthIdx = Math.max(0, Math.min(window.S1_MONTHS.length - 1, window.S2_monthIdx + dir));
     document.getElementById("s2CurrentMonthLabel").textContent = window.S1_MONTHS[window.S2_monthIdx];
+    updateS2SendGate();
     showToast(`📅 ${window.S1_MONTHS[window.S2_monthIdx]} 권리자 정산 내역서로 전환되었습니다.`);
   }
 
-  function renderStatementModalS2() {
+  function renderStatementS2() {
     const holderId = normalizePayeeKey(document.getElementById("selS2Holder").value);
     const c = window.S1_STATEMENT_CASES[holderId] || window.S1_STATEMENT_CASES["RH-0025"];
     const sc = c.scores;
@@ -4315,7 +4128,25 @@ code, pre, kbd, samp,
     document.getElementById("s2ConditionalTablesArea").innerHTML = secHtml.join("");
   }
 
-  // URL 파라미터(?view=partner-stmt) 진입 시 파트너 전용 격리 모드로 오픈
+  // 하위 페이지(S1 · S2)에서는 목록 전용 상단 버튼(데이터 기준 월 · 배치 재실행 · 월 마감 등)을 숨긴다
+  function setListToolbar(show) {
+    const slot = document.getElementById("v4-topbar-right-slot");
+    if (!slot) return;
+    if (show) slot.style.removeProperty("display");
+    else slot.style.setProperty("display", "none", "important"); // 공통 CSS가 display를 !important로 지정
+  }
+
+  // 목록으로 돌아오면 주소에 남은 holder(하위 페이지 전용)를 지운다 — 공통 도구는 view · id · mode만 지움. 주소 기록이 끝난 뒤(setTimeout) 현재 기록만 바꾼다
+  function dropHolderParam() {
+    try {
+      const u = new URL(window.location.href);
+      if (!u.searchParams.has("holder") || u.searchParams.has("view")) return;
+      u.searchParams.delete("holder");
+      history.replaceState(history.state, "", u.pathname + u.search + u.hash);
+    } catch (e) { /* file:// 등 주소 기록이 막힌 환경 */ }
+  }
+
+  // URL 파라미터 진입: ?view=s1 · ?view=s2 (&holder=) → SJM_PAGE 하위 페이지 / ?view=partner-stmt(&holder=) → 파트너 전용 격리 모드
   window.addEventListener("DOMContentLoaded", function() {
     const params = new URLSearchParams(window.location.search);
     const v = params.get("view");
@@ -4324,17 +4155,20 @@ code, pre, kbd, samp,
     if (v === "partner-stmt") {
       window.isPartnerIsolatedSession = true;
       document.body.classList.add("partner-isolated-mode");
-      // 파트너 세션에서는 운영자 백오피스(좌측 SNB 및 운영자 메인 컨테이너)를 숨기고 권리자 정산서만 단독 노출
+      // 파트너 세션에서는 운영자 백오피스(좌측 SNB · 상단 바 · 목록)를 숨기고 권리자 정산서(S2 페이지)만 단독 노출 — 주소 기록 없이 패널만 바꾼다
       const snbEl = document.getElementById("v4-master-snb");
-      const rootShell = document.getElementById("v4-root-shell");
+      const topBar = document.getElementById("v4-gen3-topbar");
       if (snbEl) snbEl.style.setProperty("display", "none", "important");
-      if (rootShell) rootShell.style.setProperty("display", "none", "important");
-      openStatementModalS2(holder, "PARTNER_SESSION");
-    } else if (v === "s2") {
-      setTimeout(() => openStatementModalS2(holder, "OPERATOR_PREVIEW"), 120);
-    } else if (v === "s1") {
-      setTimeout(() => openStatementModalS1(holder), 120);
+      if (topBar) topBar.style.setProperty("display", "none", "important");
+      document.querySelectorAll("#v4-page-body > .subview-panel[data-subpage]").forEach(p => {
+        p.classList.toggle("active", p.getAttribute("data-subpage") === "s2");
+      });
+      fillStatementS2(holder, "PARTNER_SESSION");
+      return;
     }
+    SJM_PAGE.register("s1", { code: "ADMN-SETT-002-S1", title: "통합 정산서 상세 · 마감", onShow: p => { setListToolbar(false); fillStatementS1(p.holder || p.id); } });
+    SJM_PAGE.register("s2", { code: "ADMN-SETT-002-S2", title: "권리자 제공 정산서", onShow: p => { setListToolbar(false); fillStatementS2(p.holder || p.id, "OPERATOR_PREVIEW"); } });
+    SJM_PAGE.start({ onShow: () => { setListToolbar(true); setTimeout(dropHolderParam, 0); } });
   });
 </script>
 

@@ -434,6 +434,17 @@ function rewardP(best) { return window.SJM_MASTER ? SJM_MASTER.settings.get(best
     .view-section { display: none; }
 
     .view-section.active { display: block; }
+    /* 운영 안내(clean에서도 노출): info-callout은 clean에서 숨김 처리되므로 별도 클래스 사용 */
+    .ctx-note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
 
 
 
@@ -729,6 +740,8 @@ code, pre, kbd, samp,
 
   <div id="v4-page-body" class="main-container">
 
+    <section class="subview-panel active" data-subpage="list">
+
     <p class="page-desc">수강후기(진도율/별점)와 합격수기(자격증 합격증빙 검수)를 분리 운영하고, 무료특강·빈출문제 등 무료 콘텐츠를 관리합니다.</p>
 
     <div class="domain-switch-bar">
@@ -956,7 +969,7 @@ code, pre, kbd, samp,
 
           <div class="filter-right">
 
-            <button class="btn btn-primary" onclick="openFreeLectureModal()">+ 무료특강 / 빈출문제 등록</button>
+            <button class="btn btn-primary" onclick="openFreeLecturePage(null)">+ 무료특강 / 빈출문제 등록</button>
 
           </div>
 
@@ -1007,153 +1020,85 @@ code, pre, kbd, samp,
 
 
 
-  </div>
-
-</div>
-
-
-
-<!-- ==================== 모달 A: 합격수기 증빙 검수 및 승인 모달 ==================== -->
-
-<div class="modal-backdrop" id="modal-pass-audit">
-
-  <div class="modal-box" style="max-width:760px;">
-
-    <div class="modal-header">
-
-      <h3 id="pe-modal-title">[ADMN-BRD-005-B] 합격수기 자격증 증빙 검수</h3>
-
-      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-pass-audit')">닫기 ✕</button>
-
-    </div>
-
-    <div class="modal-body" id="pe-modal-body"></div>
-
-    <div class="modal-footer">
-
-      <button class="btn btn-danger" onclick="decidePassEssay('REJECTED')">반려 처리 (증빙 불일치/식별불가)</button>
-
-      <button class="btn btn-success" onclick="decidePassEssay('APPROVED')">✓ 합격인증 승인 및 축하 포인트 지급</button>
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- ==================== 모달 B: 무료특강 및 빈출문제 등록/수정 (ADMN-BRD-010) ==================== -->
-
-<div class="modal-backdrop" id="modal-free-lecture">
-
-  <div class="modal-box">
-
-    <div class="modal-header">
-
-      <h3 id="fl-modal-title">[ADMN-BRD-010] 무료특강 및 빈출문제 등록</h3>
-
-      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-free-lecture')">닫기 ✕</button>
-
-    </div>
-
-    <div class="modal-body">
-
-      <input type="hidden" id="fl-edit-id" />
-
-      <div class="form-grid">
-
-        <div class="form-group">
-
-          <label class="form-label">콘텐츠 구분 *</label>
-
-          <select id="fl-form-type">
-
-            <option value="FREE_LECTURE">무료특강 영상 (FREE_LECTURE)</option>
-
-            <option value="FREQ_EXAM">빈출문제 해설 (FREQ_EXAM)</option>
-
-          </select>
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">대상 자격증 종목 / 대비 연도 *</label>
-
-          <div style="display:flex; gap:8px;">
-
-            <select id="fl-form-cert" style="flex:1;">
-
-              <option value="산업안전기사">산업안전기사</option>
-
-              <option value="건설안전기사">건설안전기사</option>
-
-              <option value="위험물산업기사">위험물산업기사</option>
-
-            </select>
-
-            <input type="text" id="fl-form-year" value="2026 대비" style="width:120px;" />
-
-          </div>
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">콘텐츠 제목 *</label>
-
-          <input type="text" id="fl-form-title" placeholder="예: [빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강" />
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">연동 VOD 에셋 코드 / 러닝타임 *</label>
-
-          <input type="text" id="fl-form-vod" placeholder="예: VOD-FREE-2610 (48분)" />
-
-        </div>
-
-        <div class="form-group">
-
-          <label class="form-label">빈출문제 시험지 / 교안 PDF 파일명</label>
-
-          <input type="text" id="fl-form-pdf" placeholder="예: 2026_산안기_빈출문제_50선.pdf" />
-
-        </div>
-
-        <div class="form-group full">
-
-          <label class="form-label">특강/빈출문제 안내 및 핵심 문항 요약 (웹 에디터)</label>
-
-          <div class="rich-editor-shell">
-
-            <div class="rich-toolbar">
-
-              <button type="button" onclick="execCmd('fl-form-body','bold')"><b>B</b></button>
-
-              <button type="button" onclick="execCmd('fl-form-body','underline')"><u>U</u></button>
-
-            </div>
-
-            <div id="fl-form-body" class="rich-area" contenteditable="true" style="min-height:130px;"></div>
-
-          </div>
-
-        </div>
-
+    </section>
+
+    <!-- ==================== 하위 화면(S) — 화면설계서 v12 별도 페이지, SJM_PAGE (common-snb.js) ==================== -->
+
+    <!-- 무료콘텐츠 등록 · 수정 (ADMN-BRD-010-S1) -->
+    <section class="subview-panel" data-subpage="free-lecture">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 무료특강 · 빈출문제 목록</button>
+        <span class="crumb-code">ADMN-BRD-010-S1</span>
+        <h2 class="subpage-title" id="fl-modal-title">[ADMN-BRD-010] 무료특강 및 빈출문제 등록</h2>
       </div>
-
-    </div>
-
-    <div class="modal-footer">
-
-      <button class="btn btn-outline" onclick="closeModal('modal-free-lecture')">취소</button>
-
-      <button class="btn btn-primary" onclick="saveFreeLecture()">저장</button>
-
-    </div>
+      <div class="card subpage-card" style="max-width:960px;">
+        <input type="hidden" id="fl-edit-id" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">콘텐츠 구분 *</label>
+            <select id="fl-form-type">
+              <option value="FREE_LECTURE">무료특강 영상 (FREE_LECTURE)</option>
+              <option value="FREQ_EXAM">빈출문제 해설 (FREQ_EXAM)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">대상 자격증 종목 / 대비 연도 *</label>
+            <div style="display:flex; gap:8px;">
+              <select id="fl-form-cert" style="flex:1;">
+                <option value="산업안전기사">산업안전기사</option>
+                <option value="건설안전기사">건설안전기사</option>
+                <option value="위험물산업기사">위험물산업기사</option>
+              </select>
+              <input type="text" id="fl-form-year" value="2026 대비" style="width:120px;" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">콘텐츠 제목 *</label>
+            <input type="text" id="fl-form-title" placeholder="예: [빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강" />
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">'정답지' 콘텐츠는 제목에 '정답지'를 붙여 표기합니다. 저작권 보호를 위해 제목에는 '빈출문제'로 표기합니다.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">연동 VOD 에셋 코드 / 러닝타임 *</label>
+            <input type="text" id="fl-form-vod" placeholder="예: VOD-FREE-2610 (48분)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">빈출문제 시험지 / 교안 PDF 파일명</label>
+            <input type="text" id="fl-form-pdf" placeholder="예: 2026_산안기_빈출문제_50선.pdf" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">특강/빈출문제 안내 및 핵심 문항 요약 (웹 에디터)</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execCmd('fl-form-body','bold')"><b>B</b></button>
+                <button type="button" onclick="execCmd('fl-form-body','underline')"><u>U</u></button>
+              </div>
+              <div id="fl-form-body" class="rich-area" contenteditable="true" style="min-height:130px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- 파일 · 본문 버전 관리('정답지' 표기 콘텐츠 포함) — 통합 설계서 무료 콘텐츠 시리즈 '정답지' 관리 -->
+        <div style="margin-top:18px;">
+          <div style="font-weight:800; font-size:13.5px; margin-bottom:6px;">파일 · 본문 버전 이력</div>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:8px;">PDF 파일이나 본문을 바꿔 저장하면 새 버전으로 남습니다('정답지' 표기 콘텐츠 포함).</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">버전</th>
+                <th style="width:110px;">저장일</th>
+                <th style="width:260px;">PDF 파일</th>
+                <th>본문 요약</th>
+                <th style="width:200px;">변경 내용</th>
+              </tr>
+            </thead>
+            <tbody id="fl-version-tbody"></tbody>
+          </table>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" onclick="saveFreeLecture()">저장</button>
+        </div>
+      </div>
+    </section>
 
   </div>
 
@@ -1161,6 +1106,23 @@ code, pre, kbd, samp,
 
 
 
+<!-- ==================== 모달 A: 합격수기 증빙 검수 및 승인 (ADMN-BRD-005-S1) — 건별 판단: 증빙 미리보기 · 승인/반려 결정이라 모달 유지 ==================== -->
+<div class="modal-backdrop" id="modal-pass-audit">
+  <div class="modal-box" style="max-width:760px;">
+    <div class="modal-header">
+      <h3 id="pe-modal-title">[ADMN-BRD-005-B] 합격수기 자격증 증빙 검수</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-pass-audit')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="pe-modal-body"></div>
+      <div class="ctx-note" id="pe-reward-note" style="margin-top:14px; margin-bottom:0;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="decidePassEssay('REJECTED')">반려 처리 (증빙 불일치/식별불가)</button>
+      <button class="btn btn-success" id="pe-approve-btn" onclick="decidePassEssay('APPROVED')">✓ 합격인증 승인 및 후기 보상 포인트 지급</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast-box" id="toast-box"></div>
 
@@ -1206,13 +1168,13 @@ code, pre, kbd, samp,
 
   let FREE_LECTURES = [
 
-    { id: 'FL-2604', type: 'FREQ_EXAM', cert: '산업안전기사', year: '2026 대비', title: '[빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강', vod: 'VOD-FREE-104 (52분)', pdf: '2026_산안기_빈출문제_50선.pdf', views: 2410, visible: true, body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.' },
+    { id: 'FL-2604', type: 'FREQ_EXAM', cert: '산업안전기사', year: '2026 대비', title: '[빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강', vod: 'VOD-FREE-104 (52분)', pdf: '2026_산안기_빈출문제_50선.pdf', views: 2410, visible: true, body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', versions: [{ ver: 1, date: '2026-09-25', pdf: '2026_산안기_빈출문제_50선.pdf', body: '핵심 빈출문제 50선 풀이 특강입니다.', note: '최초 등록' }, { ver: 2, date: '2026-10-12', pdf: '2026_산안기_빈출문제_50선.pdf', body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', note: '본문 수정 (출제 경향 반영)' }] },
 
-    { id: 'FL-2603', type: 'FREE_LECTURE', cert: '산업안전기사', year: '2026 대비', title: '[무료특강] 비전공자를 위한 인간공학·시스템안전 계산공식 기초특강', vod: 'VOD-FREE-103 (38분)', pdf: '계산공식_핵심요약집.pdf', views: 1890, visible: true, body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.' },
+    { id: 'FL-2603', type: 'FREE_LECTURE', cert: '산업안전기사', year: '2026 대비', title: '[무료특강] 비전공자를 위한 인간공학·시스템안전 계산공식 기초특강', vod: 'VOD-FREE-103 (38분)', pdf: '계산공식_핵심요약집.pdf', views: 1890, visible: true, body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', versions: [{ ver: 1, date: '2026-09-18', pdf: '계산공식_핵심요약집.pdf', body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2602', type: 'FREQ_EXAM', cert: '건설안전기사', year: '2026 대비', title: '[빈출문제] 건설안전기사 실기 필답형+작업형 최빈출 테마 30선', vod: 'VOD-FREE-102 (64분)', pdf: '2026_건안기_실기_빈출문제30선.pdf', views: 1520, visible: true, body: '건설안전기사 실기 빈출문제 핵심 답안 작성법 해설입니다.' },
+    { id: 'FL-2602', type: 'FREQ_EXAM', cert: '건설안전기사', year: '2026 대비', title: '[빈출문제] 건설안전기사 실기 필답형+작업형 최빈출 테마 30선', vod: 'VOD-FREE-102 (64분)', pdf: '2026_건안기_실기_빈출문제30선.pdf', views: 1520, visible: true, body: '건설안전기사 실기 빈출문제 핵심 답안 작성법 해설입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2026_건안기_실기_빈출문제30선.pdf', body: '건설안전기사 실기 빈출문제 핵심 답안 작성법 해설입니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2601', type: 'FREQ_EXAM', cert: '위험물산업기사', year: '2026 대비', title: '[빈출문제] 제1류~제6류 위험물 성상 및 소화방법 빈출문제 총정리', vod: 'VOD-FREE-101 (45분)', pdf: '위험물_빈출문제_요약노트.pdf', views: 980, visible: true, body: '위험물 유별 핵심 빈출문제 해설입니다.' }
+    { id: 'FL-2601', type: 'FREQ_EXAM', cert: '위험물산업기사', year: '2026 대비', title: '[빈출문제] 제1류~제6류 위험물 성상 및 소화방법 빈출문제 총정리', vod: 'VOD-FREE-101 (45분)', pdf: '위험물_빈출문제_요약노트.pdf', views: 980, visible: true, body: '위험물 유별 핵심 빈출문제 해설입니다.', versions: [{ ver: 1, date: '2026-08-20', pdf: '위험물_빈출문제_요약노트.pdf', body: '위험물 유별 핵심 빈출문제 해설입니다.', note: '최초 등록' }] }
 
   ];
 
@@ -1221,15 +1183,26 @@ code, pre, kbd, samp,
 
 
 
-  function switchTab(tab) {
-
+  // 탭(목록 화면) 상태만 바꾼다 — 하위 화면(S)에서 돌아갈 탭을 기억하고, 상단 코드 · 제목은 switchTab이 바꾼다
+  let activeTab = 'courseReview';
+  function setTabState(tab) {
+    activeTab = tab;
     document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
-
     document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-
     document.getElementById('tab-btn-' + tab).classList.add('active');
-
     document.getElementById('view-' + tab).classList.add('active');
+  }
+  // 하위 화면(S)에서 목록으로 — 목록 주소에 원래 탭(?view=탭)을 남긴다
+  function backToList() {
+    SJM_PAGE.back();
+    try {
+      const q = new URLSearchParams(window.location.search);
+      q.set('view', activeTab);
+      history.replaceState(history.state, '', window.location.pathname + '?' + q.toString() + window.location.hash);
+    } catch (e) { /* file:// 등 주소 기록이 막혀도 화면 전환은 유지 */ }
+  }
+  function switchTab(tab) {
+    setTabState(tab);
 
 
 
@@ -1419,6 +1392,7 @@ code, pre, kbd, samp,
 
 
 
+  // 합격 후기 검증(BRD-005-S1) — 건별 판단: 증빙 미리보기 후 승인/반려를 고르는 짧은 결정이라 모달
   function openPassAuditModal(id) {
 
     const p = PASS_ESSAYS.find(item => item.id === id);
@@ -1473,7 +1447,12 @@ code, pre, kbd, samp,
 
     `;
 
-    document.getElementById('modal-pass-audit').classList.add('open');
+    // 승인 보상 = 후기 보상(무상 P, 유효기간 2년). 금액은 포인트 정책(PROM-002) 운영 설정값 — 베스트 후기 보상과 구분(통합 설계서 포인트 운영 설정값)
+    document.getElementById('pe-reward-note').innerHTML = `<strong>승인 시 지급:</strong> 후기 보상 <strong>${rewardP(false).toLocaleString()}P</strong> — 무상 포인트(유효기간 2년)로 포인트 원장에 적립합니다. 금액은 포인트 정책의 운영 설정값(후기 보상)이며, 베스트 후기 보상(${rewardP(true).toLocaleString()}P)은 베스트로 선정할 때 따로 지급합니다.`;
+    document.getElementById('pe-approve-btn').textContent = `✓ 합격인증 승인 및 후기 보상 ${rewardP(false).toLocaleString()}P 지급`;
+    const modal = document.getElementById('modal-pass-audit');
+    modal.style.removeProperty('display');
+    modal.classList.add('open');
 
   }
 
@@ -1493,7 +1472,7 @@ code, pre, kbd, samp,
 
     showToast(decision === 'APPROVED'
 
-      ? `${p.id} 합격수기 증빙이 승인되어 합격 축하 포인트 ${rewardP(true).toLocaleString()}P가 지급되었습니다.`
+      ? `${p.id} 합격수기 증빙이 승인되어 후기 보상 ${rewardP(false).toLocaleString()}P(무상 P)가 지급되었습니다.`
 
       : `${p.id} 합격수기가 증빙 미비로 반려 처리되었으며 재업로드 안내 알림톡이 발송되었습니다.`);
 
@@ -1549,7 +1528,7 @@ code, pre, kbd, samp,
 
         <td>
 
-          <button class="btn btn-outline btn-sm" onclick="openFreeLectureModal('${item.id}')">수정</button>
+          <button class="btn btn-outline btn-sm" onclick="openFreeLecturePage('${item.id}')">수정</button>
 
         </td>
 
@@ -1561,7 +1540,17 @@ code, pre, kbd, samp,
 
 
 
-  function openFreeLectureModal(id) {
+  // 무료콘텐츠 등록 · 수정 페이지(S1)로 이동 — 내용 채우기는 fillFreeLectureForm(SJM_PAGE onShow)
+  function openFreeLecturePage(id) {
+    SJM_PAGE.go('free-lecture', id ? { id } : { mode: 'new' });
+  }
+  function renderFlVersions(item) {
+    const tb = document.getElementById('fl-version-tbody');
+    const vs = item && item.versions ? item.versions.slice().reverse() : [];
+    tb.innerHTML = vs.map(v => `<tr><td style="font-weight:700;">v${v.ver}${v.ver === item.versions.length ? ' <span class="badge badge-green">현재</span>' : ''}</td><td>${v.date}</td><td>📥 ${v.pdf}</td><td style="font-size:12px; color:var(--text-sub);">${v.body.length > 60 ? v.body.slice(0, 60) + '…' : v.body}</td><td>${v.note}</td></tr>`).join('')
+      || '<tr><td colspan="5" style="text-align:center; padding:16px; color:var(--text-sub);">저장하면 v1로 기록됩니다.</td></tr>';
+  }
+  function fillFreeLectureForm(id) {
 
     const item = FREE_LECTURES.find(f => f.id === id);
 
@@ -1583,7 +1572,7 @@ code, pre, kbd, samp,
 
     document.getElementById('fl-form-body').innerHTML = item ? `<p>${item.body}</p>` : '<p>빈출문제 출제 경향 및 핵심 해설 안내를 입력하세요.</p>';
 
-    document.getElementById('modal-free-lecture').classList.add('open');
+    renderFlVersions(item || null);
 
   }
 
@@ -1610,12 +1599,22 @@ code, pre, kbd, samp,
 
 
     if (!title) { alert('콘텐츠 제목을 입력해주세요.'); return; }
+    // 저작권 보호: 전 화면 '기출문제' 표기 금지 → '빈출문제'(통합 설계서 강사 계약 종료 · 블라인드 절)
+    if (title.includes('기출문제')) { alert("저작권 보호를 위해 '기출문제' 표기는 쓰지 않습니다. '빈출문제'로 바꿔 주세요."); return; }
 
     if (editId) {
 
       const target = FREE_LECTURES.find(f => f.id === editId);
 
-      if (target) Object.assign(target, { type, cert, year, title, vod, pdf, body });
+      if (target) {
+        // PDF 파일 · 본문이 바뀌면 새 버전으로 기록
+        const changed = [];
+        if (target.pdf !== pdf) changed.push('PDF 교체');
+        if (target.body !== body) changed.push('본문 수정');
+        target.versions = target.versions || [];
+        if (changed.length) target.versions.push({ ver: target.versions.length + 1, date: '2026-10-19', pdf, body, note: changed.join(' · ') });
+        Object.assign(target, { type, cert, year, title, vod, pdf, body });
+      }
 
     } else {
 
@@ -1623,15 +1622,16 @@ code, pre, kbd, samp,
 
         id: 'FL-' + (2605 + FREE_LECTURES.length),
 
-        type, cert, year, title, vod, pdf, views: 0, visible: true, body
+        type, cert, year, title, vod, pdf, views: 0, visible: true, body,
+        versions: [{ ver: 1, date: '2026-10-19', pdf, body, note: '최초 등록' }]
 
       });
 
     }
 
-    closeModal('modal-free-lecture');
-
     renderFreeLectures();
+
+    backToList();
 
     showToast('무료특강 / 빈출문제 콘텐츠가 저장되었습니다.');
 
@@ -1697,6 +1697,15 @@ code, pre, kbd, samp,
       switchTab(view);
 
     }
+
+    // 하위 화면(S) 페이지 — 주소 ?view=free-lecture (&id= · &mode=new), 탭 주소(courseReview · passEssay · freeLecture)와 구분. 합격 후기 검증은 건별 판단으로 모달
+    SJM_PAGE.register('list', { onShow: () => switchTab(activeTab) });
+    SJM_PAGE.register('free-lecture', {
+      code: 'ADMN-BRD-010-S1',
+      title: p => (p.id && FREE_LECTURES.some(f => f.id === p.id) ? '무료특강 / 빈출문제 수정' : '무료특강 / 빈출문제 등록'),
+      onShow: p => { setTabState('freeLecture'); fillFreeLectureForm(p.id && FREE_LECTURES.some(f => f.id === p.id) ? p.id : null); }
+    });
+    SJM_PAGE.start();
 
   });
 
