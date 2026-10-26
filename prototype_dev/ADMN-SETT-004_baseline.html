@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PG 정산 원장 대사 — 산준모 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #16a34a;
+      --success-soft: #f0fdf4;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --snb-bg: #0f172a;
+      --snb-text: #cbd5e1;
+      --snb-active: #1e293b;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .app-layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+
+    /* SNB */
+    .snb {
+      background: var(--snb-bg);
+      color: var(--snb-text);
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .snb-brand {
+      padding: 4px 10px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .snb-brand .title {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .snb-brand .subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 3px;
+    }
+    .snb-group-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      padding: 0 10px;
+      margin-bottom: 6px;
+      letter-spacing: 0.4px;
+    }
+    .snb-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .snb-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 7px;
+      color: var(--snb-text);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 12.5px;
+    }
+    .snb-item:hover {
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+    }
+    .snb-item.active {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+    .snb-code {
+      font-size: 10.5px;
+      opacity: 0.75;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+    }
+
+    /* Main */
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding-bottom: 84px;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .topbar-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .breadcrumb {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .page-title {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-primary { background: var(--primary-soft); color: var(--primary); border: 1px solid #bfdbfe; }
+    .badge-success { background: var(--success-soft); color: var(--success); border: 1px solid #bbf7d0; }
+    .badge-warn { background: var(--warn-soft); color: var(--warn); border: 1px solid #fde68a; }
+    .badge-danger { background: var(--danger-soft); color: var(--danger); border: 1px solid #fecaca; }
+    .badge-neutral { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .btn:hover:not(:disabled) { background: var(--surface-alt); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+      border-color: var(--danger);
+    }
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+    .btn-sm { padding: 4px 9px; font-size: 11.5px; }
+
+    .content {
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Gate Banner */
+    .gate-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .gate-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .gate-card.blocked { border-left-color: var(--danger); background: #fffafa; }
+    .gate-card.passed { border-left-color: var(--success); background: #fafffc; }
+    .gate-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .gate-card-title {
+      font-weight: 700;
+      font-size: 13.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .gate-card-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .gate-metrics {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+      font-size: 12px;
+    }
+    .gate-metrics strong { font-size: 14px; }
+
+    /* Policy Callout */
+    .policy-note {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .kpi-card:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .kpi-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+      background: #f8fbff;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-sub);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Card & Table */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-alt);
+    }
+    .card-title { font-size: 14px; font-weight: 700; }
+    .filter-bar {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+    }
+    .input, .select {
+      padding: 6px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      background: #fff;
+      color: var(--text);
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: var(--surface-alt);
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+    tr:hover td { background: #f8fafc; }
+    tr.selected td { background: #eff6ff; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; }
+    .mono { font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-size: 11.5px; }
+
+    /* Split Workspace */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .detail-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 78px;
+    }
+    .detail-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 8px 12px;
+      font-size: 12.5px;
+    }
+    .kv-label { color: var(--text-muted); font-weight: 600; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 12px; font-weight: 700; color: var(--text-sub); }
+    textarea.input { resize: vertical; min-height: 70px; font-family: inherit; }
+
+    /* Savebar */
+    .savebar {
+      position: fixed;
+      bottom: 0;
+      left: 250px;
+      right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 30;
+      backdrop-filter: blur(6px);
+    }
+    .savebar-status { display: flex; align-items: center; gap: 14px; font-size: 12.5px; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 72px;
+      right: 24px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      background: #0f172a;
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+      border-left: 4px solid var(--primary);
+    }
+    .hidden { display: none !important; }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  
+
+  
+
+
+
+
+
+
+<link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-SETT-004", "devCommit": "d562524a", "progress": "구현(SETT-004 워크스페이스 · S1 차이 상세 별도 페이지 · 소명 승인). 단수차액 자동 대체 · 분류만 저장 · 주문번호 검색 · 화면 안 감사 로그 표는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.pg-reconciliations.index", "label": "PG 정산 원장 대사 (show · store · update 같은 메뉴 권한)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">정산 마감 전 사전 대사</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-SETT-004</span>
+      <h1 class="crumb-title" id="header-screen-title">PG 정산 원장 대사 (결제 · 환불 대사 게이트)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <label style="font-size:12px; font-weight:700; color:var(--text-sub);">대사 귀속월:</label> <select id="monthSelect" name="month" data-dev-note="개발 월 버튼 .st-btn.st-btn--sm(.st-btn--pr=현재) · #monthPick" class="select" style="font-weight:700;">
+          <option value="2026-10" selected="">2026-10 (당월 마감 준비중)</option>
+          <option value="2026-09">2026-09 (마감 완료 · Locked)</option>
+        </select> <button class="btn" id="btnRunRecon" data-dev-route="admin.settlement.pg-reconciliations.store" data-dev-method="POST" data-dev-url="/sj-admin/settlement/pg-reconciliations" data-dev-perm="등록" data-dev-note="PgReconciliationRunRequest: month(Y-m) hidden. is_locked 월은 비활성">🔄 PG 원장 배치 재대사 실행</button> <button class="btn btn-primary" id="btnAutoPenny" data-dev-route="admin.settlement.pg-reconciliations.penny.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/settlement/pg-reconciliations/penny" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="1,000원 이내 단수차액 자동 대체 — 개발 미구현(정책 확인)">⚡ 1,000원 이내 단수차액 자동 대체</button>
+    </div></header><div id="v4-page-body">
+  
+  
+  
+<div class="app-layout">
+  <!-- 좌측 SNB (전 화면 공통 네이밍 규칙 *_baseline.html 적용) -->
+  
+
+  <!-- 우측 메인 영역 -->
+  <div class="main">
+    
+
+    <div class="content">
+      <!-- 2단 마감 통제 게이트 배너 -->
+      <section class="gate-banner">
+        <div id="gateCardRightsHolder" class="gate-card blocked">
+          <div class="gate-card-head">
+            <div class="gate-card-title">
+              <span>[Gate 1] 권리자 단위 마감 차단 판정</span>
+              <span class="mono" style="color:var(--text-muted);">(pg_recon_unclassified_max = 0건)</span>
+            </div>
+            <span id="gateBadgeRH" class="badge badge-danger">차단 중</span>
+          </div>
+          <div class="gate-card-desc">
+            미분류(<code>원인 미분류 불일치 (UNKNOWN_MISMATCH)</code>) 상태의 거래가 1건이라도 존재하면 금액(1원 여부)과 무관하게 해당 거래 귀속 권리자의 정산 마감을 차단합니다. 귀속 권리자는 결제일 기준 1계층 지분 매핑(위탁 도서는 위탁자)이며, 한 결제가 여러 권리자에게 귀속되면 외부 권리자 전원을 보류합니다. 주문과 매칭되지 않는 미분류는 Gate 2(전사 총액)로만 판단합니다.
+          </div>
+          <div class="gate-metrics">
+            <span>현재 미분류 건수: <strong id="metricUnclassifiedCount" style="color:var(--danger);">2건</strong> (허용: 0건)</span>
+            <span>마감 차단 권리자: <strong id="metricBlockedHolders">산준교육 콘텐츠 주식회사 (RH-0012), 이안전 (RH-0031), 안전기술출판 (위탁자 · CT-2026-0705) (RH-0044)</strong></span>
+          </div>
+        </div>
+
+        <div id="gateCardCompany" class="gate-card blocked">
+          <div class="gate-card-head">
+            <div class="gate-card-title">
+              <span>[Gate 2] 전사 총액 대사 허용 오차 판정</span>
+              <span class="mono" style="color:var(--text-muted);">(pg_recon_tolerance_company = 1,000원)</span>
+            </div>
+            <span id="gateBadgeComp" class="badge badge-danger">임계값 초과</span>
+          </div>
+          <div class="gate-card-desc">
+            미소명 상태인 전사 대사 차액 절대값 합계가 <code>1,000원</code>을 초과하면 전체 마감을 차단합니다. 원인 코드를 지정하고 소명 승인된 차이는 차단 모수에서 제외됩니다.
+          </div>
+          <div class="gate-metrics">
+            <span>미소명 차액 절대값 합계: <strong id="metricUnresolvedDiff" style="color:var(--danger);">128,520원</strong></span>
+            <span>소명 승인 완료 차액: <strong id="metricApprovedDiff" style="color:var(--success);">11,000원</strong></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8.2절 정책 안내 배너 (토스페이먼츠 5대 결제수단 및 대사 범위 원칙) -->
+      <div class="policy-note">
+        <div>
+          <strong>📌 [정산 기준 · 통합설계서 표 5.1-A 토스페이먼츠 5대 결제수단(신용/체크·계좌이체·가상계좌 DONE·간편결제 5종·휴대폰) 1:1 대사 및 이원화 임계값 통제]</strong>
+          매입 재판매 도서 및 강좌 부속 사은품, 배송비(<code>SHIPPING_FEE</code>)는 정산 엔진 비인입 대상이므로 <strong>정산서 총액과 전사 결제 매출 총액은 구조적으로 일치하지 않습니다.</strong> 본 화면은 오직 <strong>자체 결제 DB(<code>payments / order_items</code>)와 PG사 정산 원장 간의 1:1 대사</strong>만 수행합니다.
+        </div>
+        <span class="badge badge-neutral">3계층 과·면세 분할 승인 연동됨</span>
+      </div>
+
+      <!-- KPI 필터 카드 -->
+      <section class="kpi-grid">
+        <div class="kpi-card active" data-filter="ALL">
+          <div class="k-title">전체 대사 거래 건수 (샘플)</div>
+          <div class="k-num" id="kpiAll">12건</div>
+          <div class="k-sub">PG 원장 ↔ 자체 DB 교차 대사</div>
+        </div>
+        <div class="kpi-card" data-filter="UNKNOWN_MISMATCH">
+          <div class="k-title">🚨 미분류 불일치 (마감 차단)</div>
+          <div class="k-num" id="kpiUnknown" style="color:var(--danger);">2건</div>
+          <div class="k-sub">원인 코드 지정 및 소명 필수</div>
+        </div>
+        <div class="kpi-card" data-filter="PENDING_APPROVAL">
+          <div class="k-title">⚠️ 분류 완료 · 소명 승인 대기</div>
+          <div class="k-num" id="kpiPending" style="color:var(--warn);">2건</div>
+          <div class="k-sub">원인 분류됨 (재무 승인 전)</div>
+        </div>
+        <div class="kpi-card" data-filter="APPROVED_DIFF">
+          <div class="k-title">✅ 소명 승인 완료 (차단 해제)</div>
+          <div class="k-num" id="kpiApproved" style="color:var(--primary);">1건</div>
+          <div class="k-sub">차액 존재하나 사유 소명 완료</div>
+        </div>
+        <div class="kpi-card" data-filter="MATCHED">
+          <div class="k-title">🟢 1:1 완전 일치 (정상)</div>
+          <div class="k-num" id="kpiMatched" style="color:var(--success);">6건</div>
+          <div class="k-sub">차액 0원 · 과면세 분할 일치</div>
+        </div>
+      </section>
+
+      <!-- 탭 네비게이션 -->
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="tabRecon" data-dev-route="admin.settlement.pg-reconciliations.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pg-reconciliations?tab=workspace" data-dev-perm="조회">1. PG 원장 1:1 대사 및 소명 워크스페이스</button>
+        <button class="tab-btn" data-tab="tabTaxSplit" data-dev-route="admin.settlement.pg-reconciliations.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pg-reconciliations?tab=tax" data-dev-perm="조회">2. 복합 결제 3계층 과·면세 분할 및 도서정가제 안분 검증 </button>
+        <button class="tab-btn" data-tab="tabVbank" data-dev-route="admin.settlement.pg-reconciliations.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pg-reconciliations?tab=timing" data-dev-perm="조회">3. 가상계좌 · 실시간 계좌이체 복구 시차 점검 </button>
+        <button class="tab-btn" data-tab="tabAudit" data-dev-route="admin.settlement.pg-reconciliations.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pg-reconciliations?tab=audit" data-dev-perm="조회" data-dev-note="개발 audit 탭은 관리자 로그(admin.admin-logs.index) 이동 버튼만 — 화면 안 로그 표는 프로토타입만">4. 대사 · 소명 감사 로그 (ADMN-CONF-010)</button>
+      </div>
+
+      <!-- 탭 1: 대사 및 소명 워크스페이스 -->
+      <section id="tabRecon" class="tab-panel">
+        <div class="workspace-grid">
+          <!-- 좌측 목록 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">PG 승인·정산 원장 대사 내역</div>
+              <span style="font-size:11.5px; color:var(--text-muted);">행을 클릭하여 우측 패널에서 품목 분할 내역 확인 및 소명 승인을 진행하세요.</span>
+            </div>
+            <div class="filter-bar">
+              <input type="text" id="searchInput" data-dev-flag="proto-only" data-dev-note="주문번호 · TID 검색 — 개발 필터에 없음" class="input" placeholder="PG TID, 주문번호, 권리자명 검색..." style="width:220px;">
+              <select id="reasonFilter" name="reason" data-dev-note="개발 #reason — '' 전체 + REASON_LABELS 5종(값 그대로)" class="select">
+                <option value="ALL" data-dev-value="">전체 차이 원인 코드</option>
+                <option value="UNKNOWN_MISMATCH">UNKNOWN_MISMATCH (미분류)</option>
+                <option value="TIMING_GAP">TIMING_GAP (기간 귀속차)</option>
+                <option value="PARTIAL_CANCEL_PENDING">PARTIAL_CANCEL_PENDING (부분취소 대기)</option>
+                <option value="PG_FEE_DIFF">PG_FEE_DIFF (PG 수수료 차감차)</option>
+                <option value="REFUND_TIMING_DIFF">REFUND_TIMING_DIFF (환불 처리 시차)</option>
+              </select>
+              <select id="methodFilter" name="method" data-dev-note="개발 #method" class="select">
+                <option value="ALL" data-dev-value="">전체 결제수단</option>
+                <option value="CARD">신용카드</option>
+                <option value="VBANK" data-dev-value="VIRTUAL_ACCOUNT">가상계좌</option>
+                <option value="BANK_TR">실시간 계좌이체</option>
+              </select>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>PG TID / 주문번호</th>
+                    <th>수단 / 일시</th>
+                    <th class="num">자체 DB 금액</th>
+                    <th class="num">PG 원장 금액</th>
+                    <th class="num">대사 차액</th>
+                    <th>차이 원인 코드</th>
+                    <th>소명/통제 상태</th>
+                  </tr>
+                </thead>
+                <tbody id="reconTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 우측 상세 및 소명 승인 패널 -->
+          <div class="detail-panel">
+            <div class="card-header">
+              <div class="card-title" id="detailTitle">[ADMN-SETT-004-S1] PG 대사 차이 상세 · 원인 코드 지정 및 소명 확정</div>
+              <span id="detailStatusBadge" class="badge badge-neutral">거래 선택됨</span>
+            </div>
+            <div class="detail-body" id="detailBody" data-dev-route="admin.settlement.pg-reconciliations.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pg-reconciliations/{item}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지 — 귀속 권리자 스냅샷 표(pg_reconciliation_item_holders: 지분 · 몫 · 목록 대표 is_primary) 포함">
+              <!-- JS로 렌더링 -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 2: 3계층 과면세 분할 및 도서정가제 안분 검증 -->
+      <section id="tabTaxSplit" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">주문 품목 단위 3계층 과·면세 분할 승인 및 도서정가제 안분 대사 </div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                복합 결제(MIXED) 시 교재는 기본 할인(최대 10%, `book_discount_rate_limit = 10%`) 반영 실판매가 고정 · 쿠폰 · 포인트 0% → 순수 강좌 결제 풀 안분 → 마지막 강좌 잔여 차액 배정 규칙 검증
+              </div>
+            </div>
+            <span class="badge badge-success">전 품목 분할 검증 통과</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>주문번호 / 품목 ID </th>
+                  <th>품목명 / 유형 (item_type)</th>
+                  <th>1층 공급유형</th>
+                  <th>2층 카테고리</th>
+                  <th>3층 부가세 (법령 근거)</th>
+                  <th class="num">정가</th>
+                  <th class="num">쿠폰·포인트 안분할인</th>
+                  <th class="num">실결제 배분액</th>
+                  <th>정산 파이프라인 귀속</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-1</strong></td>
+                  <td>정종대 산업안전 실전 빈출특강 <code>CRS-1002</code><br><span class="badge badge-neutral">LECTURE</span></td>
+                  <td class="mono">SERVICE (용역)</td>
+                  <td class="mono">EDU (교육용역)</td>
+                  <td><span class="badge badge-primary">면세</span> 부가세법 제26조 제1항 제6호</td>
+                  <td class="num">150,000원</td>
+                  <td class="num">0원 (쿠폰·포인트 미사용)</td>
+                  <td class="num"><strong>150,000원</strong></td>
+                  <td>강좌 수익배분 (정종대 70% · 자사 30%)</td>
+                </tr>
+                <tr>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-2</strong></td>
+                  <td>2026 정종대 산업안전기사 필기 기본서 <code>PROD-BK-1006</code> ×1<br><span class="badge badge-neutral">BOOK (OWN_PUBLISHED)</span></td>
+                  <td class="mono">GOODS (재화)</td>
+                  <td class="mono">BOOK (도서)</td>
+                  <td><span class="badge badge-primary">면세</span> 부가세법 제26조 제1항 제8호</td>
+                  <td class="num">20,000원</td>
+                  <td class="num">0원 (할인차단 0%)</td>
+                  <td class="num"><strong>20,000원</strong></td>
+                  <td>자사 발행 도서 인세 (정종대 100%)</td>
+                </tr>
+                <tr>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-3</strong></td>
+                  <td>산준모 공학용 계산기 &amp; 안전모 실기 키트 <code>GOODS-2026-001</code> ×1<br><span class="badge badge-neutral">GOODS_ITEM</span></td>
+                  <td class="mono">GOODS (재화)</td>
+                  <td class="mono">GENERAL (일반소비재)</td>
+                  <td><span class="badge badge-warn">과세 10%</span> (공급가 10,000 / 세액 1,000)</td>
+                  <td class="num">11,000원</td>
+                  <td class="num">0원</td>
+                  <td class="num"><strong>11,000원</strong></td>
+                  <td>일반상품 매출 (자사 매출 전용)</td>
+                </tr>
+                <tr>
+                  <td class="mono">SJM20261005-0001<br><strong>OI-0001-4</strong></td>
+                  <td>제주 · 도서산간 추가 배송비<br><span class="badge badge-neutral">SHIPPING_FEE</span></td>
+                  <td class="mono">SERVICE (부수용역)</td>
+                  <td class="mono">BOOK 부수 / 혼합</td>
+                  <td><span class="badge badge-neutral">플랫폼 물류비 귀속</span> (제14조 부수공급)</td>
+                  <td class="num">3,000원</td>
+                  <td class="num">0원</td>
+                  <td class="num"><strong>3,000원</strong></td>
+                  <td>권리자 정산 완전 제외</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 3: 가상계좌 및 실시간 계좌이체 시차 점검 -->
+      <section id="tabVbank" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">가상계좌 입금 대기 스냅샷 및 월말/월초 귀속월 분리 대사 </div>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">
+                가상계좌 발급일과 PG 웹훅 입금완료 시점이 월 경계를 넘는 건은 매출 귀속월과 정산 반영월을 분리하여 추적합니다.
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>주문번호 / PG TID</th>
+                  <th>결제수단</th>
+                  <th>발급(청약) 일시</th>
+                  <th>PG 입금완료 웹훅 일시</th>
+                  <th>매출 귀속월</th>
+                  <th>정산 반영월</th>
+                  <th>대사 판정</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="mono">SJM20260930-0998<br>PG-VB-20260930-01</td>
+                  <td>가상계좌 (24h 이내 입금)</td>
+                  <td>2026-09-30 22:15:00</td>
+                  <td>2026-10-01 09:12:40</td>
+                  <td><span class="badge badge-primary">2026-10</span></td>
+                  <td><span class="badge badge-primary">2026-10</span></td>
+                  <td>9월 미결제 대기 스냅샷 → 10월 웹훅 승인 정상 이관</td>
+                </tr>
+                <tr>
+                  <td class="mono">SJM20260930-0412<br>PG-TR-20260930-09</td>
+                  <td>실시간 계좌이체 (망취소 복구)</td>
+                  <td>2026-09-30 23:58:10</td>
+                  <td>2026-10-01 00:04:12 (복구 전문)</td>
+                  <td><span class="badge badge-warn">2026-09</span></td>
+                  <td><span class="badge badge-primary">2026-09 (TIMING_GAP 소명)</span></td>
+                  <td>PG 익영업일 정산 원장 시차 발생 → 기간귀속차 소명 대상</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 탭 4: 감사 로그 -->
+      <section id="tabAudit" class="tab-panel hidden">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">PG 대사 · 원인 분류 · 소명 승인 감사 로그 (ADMN-CONF-010 연동)</div>
+            <a class="btn btn-sm" href="ADMN-CONF-010_baseline.html" data-dev-flag="dev-only" data-dev-route="admin.admin-logs.index" data-dev-method="GET" data-dev-url="/sj-admin/admin-logs" data-dev-perm="조회(관리자 로그 메뉴)">관리자 로그에서 보기 →</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>기록 일시</th>
+                  <th>작업자</th>
+                  <th>대상 PG TID</th>
+                  <th>액션 유형</th>
+                  <th>변경 전 → 변경 후</th>
+                  <th>소명 / 처리 사유</th>
+                </tr>
+              </thead>
+              <tbody id="auditTableBody" data-dev-flag="proto-only" data-dev-note="화면 안 감사 로그 표 — 개발은 admin_logs 화면"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 하단 고정 마감 게이트 바 -->
+    <footer class="savebar">
+      <div class="savebar-status">
+        <span id="footerGateIcon" class="badge badge-danger">마감 게이트 차단 중</span>
+        <span id="footerGateText">
+          미분류 불일치 <strong>2건</strong> 및 전사 미소명 차액 <strong>135,020원</strong>(한도 1,000원 초과)으로 인해 [ADMN-SETT-002 월간 정산 마감] 실행이 잠겨 있습니다.
+        </span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-sm" data-dev-route="admin.settlement.board.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/board" data-dev-perm="조회(월간 정산 메뉴)" onclick="location.href='ADMN-SETT-002_baseline.html'">월간 정산 및 집행(SETT-002) 이동 →</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+
+
+
+</div></div><script>
+  // 합의서 8.2절 표준 차이 원인 코드 사전
+  const REASON_LABELS = {
+    NONE: "일치 (차액 없음)",
+    UNKNOWN_MISMATCH: "UNKNOWN_MISMATCH (미분류 · 마감차단)",
+    TIMING_GAP: "TIMING_GAP (기간 귀속차)",
+    PARTIAL_CANCEL_PENDING: "PARTIAL_CANCEL_PENDING (부분취소 처리 대기)",
+    PG_FEE_DIFF: "PG_FEE_DIFF (PG 수수료 원단위 차감차)",
+    REFUND_TIMING_DIFF: "REFUND_TIMING_DIFF (환불 처리 시차)"
+  };
+
+  // 초기 대사 시연 데이터 (2026-10 기준)
+  const state = {
+    selectedId: "REC-01",
+    kpiFilter: "ALL",
+    records: [
+      {
+        id: "REC-01",
+        pgTid: "PG-INI-20261002-017",
+        orderId: "SJM20261002-0017",
+        method: "CARD",
+        paidAt: "2026-10-02 14:22:10",
+        dbAmount: 56000,
+        pgAmount: 28000,
+        diff: -28000, // 절대값 28,000원 — 원인 미상
+        reasonCode: "UNKNOWN_MISMATCH",
+        approvalStatus: "UNRESOLVED", // UNRESOLVED | PENDING_APPROVAL | APPROVED | MATCHED
+        rightsHolderId: "RH-0012",
+        rightsHolderName: "산준교육 콘텐츠 주식회사 외 1명 (공동저자)",
+        pipeline: "Pipeline 2.1 (교재 인세 · 공동저자 지분)",
+        taxSummary: "BOOK 면세 56,000원",
+        lines: [
+          { productId: "PROD-BK-1001", name: "산업안전 핵심 이론 교재 (공동저자) ×2", amount: 56000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-1001", holderId: "RH-0012", holderName: "산준교육 콘텐츠 주식회사", share: 50, internal: false },
+          { productId: "PROD-BK-1001", holderId: "RH-0031", holderName: "이안전", share: 30, internal: false },
+          { productId: "PROD-BK-1001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 20, internal: true }
+        ],
+        memo: "",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "REC-02",
+        pgTid: "PG-INI-20261018-042",
+        orderId: "SJM20261018-0042",
+        method: "BANK_TR",
+        paidAt: "2026-10-18 23:59:04",
+        dbAmount: 100000,
+        pgAmount: 0,
+        diff: -100000, // 절대값 100,000원
+        reasonCode: "UNKNOWN_MISMATCH",
+        approvalStatus: "UNRESOLVED",
+        rightsHolderId: "RH-0044",
+        rightsHolderName: "안전기술출판 (도서 위탁)",
+        pipeline: "Pipeline 2.2 (위탁 도서)",
+        taxSummary: "BOOK 면세 100,000원",
+        lines: [
+          { productId: "PROD-BK-3003", name: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁) ×4", amount: 100000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-3003", holderId: "RH-0044", holderName: "안전기술출판 (위탁자 · CT-2026-0705)", share: 100, internal: false }
+        ],
+        memo: "",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "REC-03",
+        pgTid: "PG-INI-20261020-088",
+        orderId: "SJM20261020-0305",
+        method: "CARD",
+        paidAt: "2026-10-20 11:05:30",
+        dbAmount: 144000,
+        pgAmount: 144015,
+        diff: 15, // 절대값 15원 (PG 수수료 단수차)
+        reasonCode: "PG_FEE_DIFF",
+        approvalStatus: "PENDING_APPROVAL",
+        rightsHolderId: "RH-0019",
+        rightsHolderName: "김안전 (강사)",
+        pipeline: "Pipeline 1.1 (온라인 강좌)",
+        taxSummary: "EDU 면세 144,000원",
+        lines: [
+          { productId: "CRS-2601", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", amount: 144000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2601", holderId: "RH-0019", holderName: "김안전", share: 100, internal: false }
+        ],
+        memo: "PG사 복합결제 수수료 원단위 절사 차이 15원 발생",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "REC-04",
+        pgTid: "PG-VB-20261015-019",
+        orderId: "SJM20261015-0411",
+        method: "VBANK",
+        paidAt: "2026-10-15 18:40:00",
+        dbAmount: 40000,
+        pgAmount: 39995,
+        diff: -5, // 절대값 5원
+        reasonCode: "PG_FEE_DIFF",
+        approvalStatus: "PENDING_APPROVAL",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자)",
+        pipeline: "Pipeline 2.1 (자사발행 도서)",
+        taxSummary: "BOOK 면세 40,000원",
+        lines: [
+          { productId: "PROD-BK-1006", name: "2026 정종대 산업안전기사 필기 기본서 ×2", amount: 40000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-1006", holderId: "RH-0025", holderName: "정종대", share: 100, internal: false }
+        ],
+        memo: "가상계좌 정산 수수료 원단위 단수 오차 (-5원)",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "REC-05",
+        pgTid: "PG-INI-20261020-112",
+        orderId: "SJM20261020-0502",
+        method: "CARD",
+        paidAt: "2026-10-20 16:10:00",
+        dbAmount: 33000,
+        pgAmount: 44000,
+        diff: 11000,
+        reasonCode: "REFUND_TIMING_DIFF",
+        approvalStatus: "APPROVED",
+        rightsHolderId: "RH-INTERNAL",
+        rightsHolderName: "엘캠퍼스 자사 (일반 소비재)",
+        pipeline: "일반상품 매출 (자사 매출 전용)",
+        taxSummary: "과세 33,000원 (부분취소 -11,000원 반영 · 공급가 30,000 / 세액 3,000)",
+        lines: [
+          { productId: "GOODS-2026-001", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×3 (1개 부분취소)", amount: 33000 }
+        ],
+        attributedHolders: [
+          { productId: "GOODS-2026-001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 100, internal: true }
+        ],
+        memo: "10/21 주문 품목 1개(11,000원) 부분취소 완료되었으나 PG 정산원장은 익영업일 차감 반영됨을 확인함.",
+        approvedBy: "재무팀장 (박정산)",
+        approvedAt: "2026-10-26 10:15:22"
+      },
+      {
+        id: "REC-06",
+        pgTid: "PG-INI-20261005-004",
+        orderId: "SJM20261005-0001",
+        method: "CARD",
+        paidAt: "2026-10-05 09:30:00",
+        dbAmount: 184000,
+        pgAmount: 184000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0025",
+        rightsHolderName: "정종대 (개인 면세사업자) · 자사",
+        pipeline: "Pipeline 1.1 / 2.1 / 일반상품",
+        taxSummary: "MIXED (면세 170,000 + 과세 11,000 + 배송비 3,000)",
+        lines: [
+          { productId: "CRS-1002", name: "정종대 산업안전 실전 빈출특강", amount: 150000 },
+          { productId: "PROD-BK-1006", name: "2026 정종대 산업안전기사 필기 기본서 ×1", amount: 20000 },
+          { productId: "GOODS-2026-001", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×1", amount: 11000 },
+          { productId: "SHIPPING", name: "제주 · 도서산간 추가 배송비", amount: 3000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-1002", holderId: "RH-0025", holderName: "정종대", share: 70, internal: false },
+          { productId: "CRS-1002", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 30, internal: true },
+          { productId: "PROD-BK-1006", holderId: "RH-0025", holderName: "정종대", share: 100, internal: false },
+          { productId: "GOODS-2026-001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 100, internal: true }
+        ],
+        memo: "3계층 과·면세 분할 승인 및 도서정가제 안분 100% 일치",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-05 09:30:05"
+      },
+      {
+        id: "REC-07",
+        pgTid: "PG-INI-20261011-055",
+        orderId: "SJM20261011-0089",
+        method: "CARD",
+        paidAt: "2026-10-11 20:14:11",
+        dbAmount: 36000,
+        pgAmount: 36000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-INTERNAL",
+        rightsHolderName: "엘캠퍼스 자사 (사입도서)",
+        pipeline: "비인입 (PURCHASED_RESALE)",
+        taxSummary: "BOOK 면세 36,000원 (권리자 정산 비인입 · 회계 AP 경로)",
+        lines: [
+          { productId: "PROD-BK-2001", name: "2026 건설안전기사 필기 총정리 (매입 재판매) ×2", amount: 36000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-2001", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 100, internal: true }
+        ],
+        memo: "사입 도서 판매 대사 일치 (정산서 총액 제외 정상)",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-11 20:14:15"
+      },
+      {
+        id: "REC-08",
+        pgTid: "PG-INI-20261019-901",
+        orderId: "",
+        unmatched: true, // 주문과 매칭되지 않는 PG 단독 결제 — 귀속 권리자 특정 불가(02권 8.2)
+        method: "CARD",
+        paidAt: "2026-10-19 08:12:44",
+        dbAmount: 0,
+        pgAmount: 500,
+        diff: 500,
+        reasonCode: "UNKNOWN_MISMATCH",
+        approvalStatus: "UNRESOLVED",
+        rightsHolderId: "",
+        rightsHolderName: "귀속 권리자 없음 (주문 매칭 불가)",
+        pipeline: "미분류 — 권리자 정산 비인입",
+        taxSummary: "구분 불가 (자체 DB 주문 없음)",
+        lines: [],
+        attributedHolders: [],
+        memo: "",
+        approvedBy: null,
+        approvedAt: null
+      },
+      {
+        id: "REC-09",
+        pgTid: "PG-INI-20261003-012",
+        orderId: "SJM20261003-0012",
+        method: "CARD",
+        paidAt: "2026-10-03 10:02:31",
+        dbAmount: 125000,
+        pgAmount: 125000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0047",
+        rightsHolderName: "박보건 (강사)",
+        pipeline: "Pipeline 1.1 (온라인 강좌)",
+        taxSummary: "EDU 면세 125,000원",
+        lines: [
+          { productId: "CRS-2605", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", amount: 125000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2605", holderId: "RH-0047", holderName: "박보건", share: 100, internal: false }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-03 10:02:35"
+      },
+      {
+        id: "REC-10",
+        pgTid: "PG-INI-20261006-031",
+        orderId: "SJM20261006-0031",
+        method: "CARD",
+        paidAt: "2026-10-06 13:45:09",
+        dbAmount: 200000,
+        pgAmount: 200000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0048",
+        rightsHolderName: "최지도 (강사 · 저자)",
+        pipeline: "Pipeline 1.1 (온라인 강좌)",
+        taxSummary: "EDU 면세 200,000원",
+        lines: [
+          { productId: "CRS-2606", name: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", amount: 200000 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2606", holderId: "RH-0048", holderName: "최지도", share: 100, internal: false }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-06 13:45:12"
+      },
+      {
+        id: "REC-11",
+        pgTid: "PG-INI-20261006-035",
+        orderId: "SJM20261006-0035",
+        method: "CARD",
+        paidAt: "2026-10-06 15:20:40",
+        dbAmount: 40000,
+        pgAmount: 40000,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0048",
+        rightsHolderName: "최지도 (강사 · 저자)",
+        pipeline: "Pipeline 2.1 (자사발행 도서)",
+        taxSummary: "BOOK 면세 40,000원",
+        lines: [
+          { productId: "PROD-BK-1007", name: "2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2", amount: 40000 }
+        ],
+        attributedHolders: [
+          { productId: "PROD-BK-1007", holderId: "RH-0048", holderName: "최지도", share: 100, internal: false }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-06 15:20:44"
+      },
+      {
+        id: "REC-12",
+        pgTid: "PG-INI-20261015-147",
+        orderId: "SJM20261015-0147",
+        method: "CARD",
+        paidAt: "2026-10-15 19:08:02",
+        dbAmount: 98500,
+        pgAmount: 98500,
+        diff: 0,
+        reasonCode: "NONE",
+        approvalStatus: "MATCHED",
+        rightsHolderId: "RH-0046",
+        rightsHolderName: "이건설 (강사) · 자사",
+        pipeline: "Pipeline 1.1 / 5.1 (강좌 · 개발지원금 모수)",
+        taxSummary: "EDU 면세 98,500원 (판매가 144,500 − 쿠폰 46,000)",
+        lines: [
+          { productId: "CRS-2603", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강 (쿠폰 -46,000)", amount: 98500 }
+        ],
+        attributedHolders: [
+          { productId: "CRS-2603", holderId: "RH-0046", holderName: "이건설", share: 60, internal: false },
+          { productId: "CRS-2603", holderId: "RH-INTERNAL", holderName: "엘캠퍼스 자사", share: 40, internal: true }
+        ],
+        memo: "",
+        approvedBy: "SYSTEM_AUTO",
+        approvedAt: "2026-10-15 19:08:06"
+      }
+    ],
+    auditLogs: [
+      {
+        time: "2026-10-26 10:15:22",
+        actor: "재무팀장 (박정산)",
+        pgTid: "PG-INI-20261020-112",
+        action: "차이 원인 분류 및 소명 승인",
+        change: "UNKNOWN_MISMATCH → REFUND_TIMING_DIFF (APPROVED)",
+        reason: "10/21 주문 품목 1개(11,000원) 부분취소 완료되었으나 PG 정산원장은 익영업일 차감 반영됨을 확인함."
+      },
+      {
+        time: "2026-10-26 09:00:02",
+        actor: "SYSTEM_BATCH",
+        pgTid: "ALL (2026-10)",
+        action: "PG 정산 원장 1:1 교차 대사 배치 실행",
+        change: "총 12건 대사 → 일치 6건, 차액 발생 6건 검출 (주문 매칭 불가 1건 포함)",
+        reason: "월 마감 사전 검증 스케줄러 자동 실행"
+      }
+    ]
+  };
+
+  function fmtNum(n) {
+    const sign = n > 0 ? "+" : "";
+    return (n === 0 ? "0" : sign + n.toLocaleString("ko-KR")) + "원";
+  }
+
+  function fmtAbs(n) {
+    return Math.abs(n).toLocaleString("ko-KR") + "원";
+  }
+
+  function showToast(msg) {
+    const wrap = document.getElementById("toastContainer");
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), 3200);
+  }
+
+  // 상단 2단 마감 통제 게이트 및 KPI 업데이트
+  function updateGatesAndKpi() {
+    const all = state.records;
+    // 권리자 단위 차단 = 주문과 매칭된 미분류만. 주문 매칭 불가 미분류는 Gate 2(전사 총액)로만 판단(02권 8.2)
+    const unknownList = all.filter(r => r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH" && !r.unmatched);
+    const unmatchedList = all.filter(r => r.unmatched && r.diff !== 0 && r.approvalStatus !== "APPROVED");
+    const pendingList = all.filter(r => r.diff !== 0 && r.reasonCode !== "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED");
+    const blockingHolders = r => {
+      const ext = (r.attributedHolders || []).filter(h => !h.internal);
+      if (!ext.length) return [`${r.rightsHolderName} (${r.rightsHolderId})`];
+      return [...new Map(ext.map(h => [h.holderId, `${h.holderName} (${h.holderId})`])).values()];
+    };
+    const approvedList = all.filter(r => r.diff !== 0 && r.approvalStatus === "APPROVED");
+    const matchedList = all.filter(r => r.diff === 0);
+
+    // 미소명 차액 절대값 합계 (승인 완료되지 않은 모든 차액의 절대값 합)
+    const unresolvedAbsSum = all
+      .filter(r => r.diff !== 0 && r.approvalStatus !== "APPROVED")
+      .reduce((acc, cur) => acc + Math.abs(cur.diff), 0);
+
+    const approvedAbsSum = approvedList.reduce((acc, cur) => acc + Math.abs(cur.diff), 0);
+
+    // KPI 숫자 갱신
+    document.getElementById("kpiAll").textContent = `${all.length}건`;
+    document.getElementById("kpiUnknown").textContent = `${unknownList.length}건` + (unmatchedList.length ? ` + 매칭 불가 ${unmatchedList.length}건` : "");
+    document.getElementById("kpiPending").textContent = `${pendingList.length}건`;
+    document.getElementById("kpiApproved").textContent = `${approvedList.length}건`;
+    document.getElementById("kpiMatched").textContent = `${matchedList.length}건`;
+
+    // Gate 1: 권리자 단위 미분류 한도 (0건)
+    const gateRHCard = document.getElementById("gateCardRightsHolder");
+    const gateRHBadge = document.getElementById("gateBadgeRH");
+    const blockedHolders = [...new Set(unknownList.flatMap(blockingHolders))];
+
+    document.getElementById("metricUnclassifiedCount").textContent = `${unknownList.length}건`;
+    document.getElementById("metricBlockedHolders").textContent =
+      blockedHolders.length > 0 ? blockedHolders.join(", ") : "없음 (전 권리자 마감 가능)";
+
+    if (unknownList.length === 0) {
+      gateRHCard.className = "gate-card passed";
+      gateRHBadge.className = "badge badge-success";
+      gateRHBadge.textContent = "검증 통과 (0건)";
+      document.getElementById("metricUnclassifiedCount").style.color = "var(--success)";
+    } else {
+      gateRHCard.className = "gate-card blocked";
+      gateRHBadge.className = "badge badge-danger";
+      gateRHBadge.textContent = `차단 중 (${unknownList.length}건)`;
+      document.getElementById("metricUnclassifiedCount").style.color = "var(--danger)";
+    }
+
+    // Gate 2: 전사 총액 허용 오차 (1,000원)
+    const gateCompCard = document.getElementById("gateCardCompany");
+    const gateCompBadge = document.getElementById("gateBadgeComp");
+    document.getElementById("metricUnresolvedDiff").textContent = fmtAbs(unresolvedAbsSum);
+    document.getElementById("metricApprovedDiff").textContent = fmtAbs(approvedAbsSum);
+
+    const companyPass = unresolvedAbsSum <= 1000;
+    if (companyPass) {
+      gateCompCard.className = "gate-card passed";
+      gateCompBadge.className = "badge badge-success";
+      gateCompBadge.textContent = unresolvedAbsSum === 0 ? "완전 소명 (0원)" : "허용 오차 이내 (≤1,000원)";
+      document.getElementById("metricUnresolvedDiff").style.color = "var(--success)";
+    } else {
+      gateCompCard.className = "gate-card blocked";
+      gateCompBadge.className = "badge badge-danger";
+      gateCompBadge.textContent = "임계값 초과 (>1,000원)";
+      document.getElementById("metricUnresolvedDiff").style.color = "var(--danger)";
+    }
+
+    // 하단 고정 바 업데이트
+    const footerIcon = document.getElementById("footerGateIcon");
+    const footerText = document.getElementById("footerGateText");
+    if (unknownList.length === 0 && companyPass) {
+      footerIcon.className = "badge badge-success";
+      footerIcon.textContent = "마감 게이트 통과 (Ready)";
+      footerText.innerHTML = `미분류 불일치 <strong>0건</strong> 및 전사 미소명 차액 <strong>${fmtAbs(unresolvedAbsSum)}</strong>(허용 오차 1,000원 이내)으로 [ADMN-SETT-002 월간 정산 마감] 진행이 가능합니다.`;
+    } else {
+      footerIcon.className = "badge badge-danger";
+      footerIcon.textContent = "마감 게이트 차단 중";
+      footerText.innerHTML = `미분류 불일치 <strong>${unknownList.length}건</strong>(허용 0건) 및 전사 미소명 차액 <strong>${fmtAbs(unresolvedAbsSum)}</strong>(허용 1,000원) 해소 전까지 월간 정산 마감이 차단됩니다.`;
+    }
+  }
+
+  // 귀속 권리자 표시 — 결제일 기준 1계층 지분 매핑(위탁 도서는 위탁자). 외부 권리자가 여러 명이면 모두 표시
+  function externalHolders(r) {
+    const seen = new Map();
+    (r.attributedHolders || []).filter(h => !h.internal).forEach(h => { if (!seen.has(h.holderId)) seen.set(h.holderId, h); });
+    return [...seen.values()];
+  }
+
+  function holderSummary(r) {
+    if (r.unmatched) return "귀속 권리자 없음";
+    const ext = externalHolders(r);
+    if (!ext.length) return r.rightsHolderName;
+    return ext.length === 1 ? ext[0].holderName : `${ext.map(h => h.holderName).join(" · ")} (외부 ${ext.length}명)`;
+  }
+
+  function holderDetail(r) {
+    if (r.unmatched) {
+      return `<strong>특정 불가</strong> — 주문과 매칭되지 않아 권리자 단위 차단 대상이 아닙니다. 전사 총액 기준(허용 1,000원)으로만 판단하며, 기준 이내 차액은 단수 차액 조정 계정으로 대체합니다.`;
+    }
+    const ext = externalHolders(r);
+    if (!ext.length) return `<strong>${r.rightsHolderName}</strong> <span class="mono">(${r.rightsHolderId})</span>`;
+    const chips = ext.map(h => `<span class="badge badge-neutral" style="margin:0 4px 4px 0;">${h.holderName} <span class="mono">${h.holderId}</span></span>`).join("");
+    const hold = r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED";
+    return `${chips}${ext.length > 1 ? `<div style="font-size:11.5px; color:${hold ? "var(--danger)" : "var(--text-muted)"}; margin-top:2px;">${hold ? `외부 권리자 ${ext.length}명 모두 마감 보류` : `외부 권리자 ${ext.length}명`}</div>` : (hold ? `<div style="font-size:11.5px; color:var(--danger); margin-top:2px;">마감 보류</div>` : "")}`;
+  }
+
+  function linesTable(r) {
+    if (!r.lines || !r.lines.length) {
+      return `<div style="font-size:12px; color:var(--text-muted); background:var(--surface-alt); border:1px dashed var(--border); border-radius:6px; padding:8px 10px;">주문 품목 없음 — PG 원장에만 있는 결제입니다. 미분류(전사 총액 기준) · 단수 차액 조정 대상입니다.</div>`;
+    }
+    const rows = r.lines.map(l => {
+      const hs = (r.attributedHolders || []).filter(h => h.productId === l.productId);
+      const hTxt = l.productId === "SHIPPING" ? `<span style="color:var(--text-muted);">권리자 정산 제외</span>`
+        : hs.map(h => `${h.holderName} ${h.share}%`).join(" · ");
+      return `<tr><td class="mono" style="padding:5px 6px;">${l.productId}</td><td style="padding:5px 6px;">${l.name}</td><td class="num" style="padding:5px 6px;">${l.amount.toLocaleString()}원</td><td style="padding:5px 6px;">${hTxt}</td></tr>`;
+    }).join("");
+    return `
+      <div>
+        <div class="form-label" style="margin-bottom:4px;">주문 품목 · 귀속 권리자 (결제일 기준 지분 매핑 · ADMN-SETT-001)</div>
+        <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+          <thead><tr style="background:var(--surface-alt);"><th style="text-align:left; padding:5px 6px;">상품 코드</th><th style="text-align:left; padding:5px 6px;">품목</th><th class="num" style="padding:5px 6px;">결제 배분액</th><th style="text-align:left; padding:5px 6px;">귀속 (지분)</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById("reconTableBody");
+    const q = document.getElementById("searchInput").value.trim().toLowerCase();
+    const rFilter = document.getElementById("reasonFilter").value;
+    const mFilter = document.getElementById("methodFilter").value;
+
+    const filtered = state.records.filter(r => {
+      if (state.kpiFilter === "UNKNOWN_MISMATCH" && !(r.diff !== 0 && r.reasonCode === "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED")) return false;
+      if (state.kpiFilter === "PENDING_APPROVAL" && !(r.diff !== 0 && r.reasonCode !== "UNKNOWN_MISMATCH" && r.approvalStatus !== "APPROVED")) return false;
+      if (state.kpiFilter === "APPROVED_DIFF" && !(r.diff !== 0 && r.approvalStatus === "APPROVED")) return false;
+      if (state.kpiFilter === "MATCHED" && r.diff !== 0) return false;
+
+      if (rFilter !== "ALL" && r.reasonCode !== rFilter) return false;
+      if (mFilter !== "ALL" && r.method !== mFilter) return false;
+      if (q) {
+        const hay = `${r.pgTid} ${r.orderId} ${r.rightsHolderName} ${r.rightsHolderId} ${(r.lines || []).map(l => l.productId + " " + l.name).join(" ")} ${(r.attributedHolders || []).map(h => h.holderId + " " + h.holderName).join(" ")}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+
+    tbody.innerHTML = filtered.map(r => {
+      const isSel = r.id === state.selectedId ? "selected" : "";
+      let statusBadge = "";
+      if (r.diff === 0) {
+        statusBadge = `<span class="badge badge-success">일치 (정상)</span>`;
+      } else if (r.unmatched) {
+        statusBadge = r.approvalStatus === "APPROVED"
+          ? `<span class="badge badge-primary">단수 차액 조정 완료</span>`
+          : `<span class="badge badge-neutral">미분류 · 매칭 불가</span><div style="font-size:10.5px; color:var(--text-muted); margin-top:2px;">전사 총액 기준</div>`;
+      } else if (r.reasonCode === "UNKNOWN_MISMATCH") {
+        statusBadge = `<span class="badge badge-danger">권리자 마감 차단</span>`;
+      } else if (r.approvalStatus === "APPROVED") {
+        statusBadge = `<span class="badge badge-primary">소명 승인 완료</span>`;
+      } else {
+        statusBadge = `<span class="badge badge-warn">소명 승인 대기</span>`;
+      }
+
+      const diffColor = r.diff === 0 ? "var(--text-muted)" : (r.approvalStatus === "APPROVED" ? "var(--primary)" : "var(--danger)");
+
+      return `
+        <tr class="${isSel}" data-dev-route="admin.settlement.pg-reconciliations.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pg-reconciliations/{item}?month=&amp;tab=&amp;reason=&amp;method=" data-dev-perm="조회" data-dev-note="개발 [상세] → S1 별도 페이지. 목록 조건 month · tab · reason · method 유지(KEEP)" onclick="selectRecord('${r.id}')" style="cursor:pointer;">
+          <td>
+            <div class="mono" style="font-weight:700;">${r.pgTid}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${r.orderId || "주문 매칭 불가"} · ${holderSummary(r)}</div>
+          </td>
+          <td>
+            <div>${r.method}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${r.paidAt.slice(5, 16)}</div>
+          </td>
+          <td class="num">${r.dbAmount.toLocaleString()}원</td>
+          <td class="num">${r.pgAmount.toLocaleString()}원</td>
+          <td class="num" style="font-weight:700; color:${diffColor};">${fmtNum(r.diff)}</td>
+          <td><span class="mono" style="font-size:11px;">${r.reasonCode}</span></td>
+          <td>${statusBadge}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderDetail() {
+    const r = state.records.find(x => x.id === state.selectedId);
+    const body = document.getElementById("detailBody");
+    const badge = document.getElementById("detailStatusBadge");
+
+    if (!r) {
+      body.innerHTML = `<div style="color:var(--text-muted);">좌측 목록에서 대사 거래를 선택하세요.</div>`;
+      return;
+    }
+
+    if (r.diff === 0) {
+      badge.className = "badge badge-success";
+      badge.textContent = "1:1 완전 일치";
+    } else if (r.unmatched) {
+      badge.className = r.approvalStatus === "APPROVED" ? "badge badge-primary" : "badge badge-neutral";
+      badge.textContent = r.approvalStatus === "APPROVED" ? "단수 차액 조정 완료" : "미분류 · 주문 매칭 불가 (전사 총액 기준)";
+    } else if (r.approvalStatus === "APPROVED") {
+      badge.className = "badge badge-primary";
+      badge.textContent = "소명 승인 완료 (차단 해제)";
+    } else if (r.reasonCode === "UNKNOWN_MISMATCH") {
+      badge.className = "badge badge-danger";
+      badge.textContent = "미분류 · 마감 차단 중";
+    } else {
+      badge.className = "badge badge-warn";
+      badge.textContent = "소명 승인 대기";
+    }
+
+    const isZero = r.diff === 0;
+
+    body.innerHTML = `
+      <div class="kv-grid">
+        <div class="kv-label">PG 승인번호(TID)</div>
+        <div class="mono"><strong>${r.pgTid}</strong></div>
+        <div class="kv-label">자체 주문번호</div>
+        <div class="mono">${r.orderId ? `${r.orderId} (${r.method})` : `없음 — 자체 DB에 매칭되는 주문 없음 (${r.method})`} <span style="color:var(--text-muted);">· 결제일 ${r.paidAt.slice(0, 10)}</span></div>
+        <div class="kv-label">귀속 권리자</div>
+        <div>${holderDetail(r)}</div>
+        <div class="kv-label">연결 파이프라인</div>
+        <div>${r.pipeline}</div>
+        <div class="kv-label">3계층 과·면세 구성</div>
+        <div>${r.taxSummary}</div>
+        <div class="kv-label">자체 DB vs PG 원장</div>
+        <div class="mono">
+          DB: ${r.dbAmount.toLocaleString()}원 / PG: ${r.pgAmount.toLocaleString()}원
+          <strong style="color:${isZero ? 'var(--success)' : 'var(--danger)'}; margin-left:6px;">
+            (차액: ${fmtNum(r.diff)})
+          </strong>
+        </div>
+      </div>
+
+      ${linesTable(r)}
+
+      <hr style="border:none; border-top:1px solid var(--border); margin:4px 0;" />
+
+      <div class="form-group">
+        <label class="form-label">차이 원인 코드 분류 (8.2절 표준 코드)</label>
+        <select id="editReasonCode" name="mismatch_reason_code" data-dev-note="REASON_LABELS 5종(값 그대로)" class="select" ${isZero ? "disabled" : ""}>
+          <option value="UNKNOWN_MISMATCH" ${r.reasonCode === "UNKNOWN_MISMATCH" ? "selected" : ""}>UNKNOWN_MISMATCH — 미분류 (권리자 마감 차단)</option>
+          <option value="TIMING_GAP" ${r.reasonCode === "TIMING_GAP" ? "selected" : ""}>TIMING_GAP — 기간 귀속차 (월말 승인 · 익월 정산)</option>
+          <option value="PARTIAL_CANCEL_PENDING" ${r.reasonCode === "PARTIAL_CANCEL_PENDING" ? "selected" : ""}>PARTIAL_CANCEL_PENDING — 부분취소 처리 대기</option>
+          <option value="PG_FEE_DIFF" ${r.reasonCode === "PG_FEE_DIFF" ? "selected" : ""}>PG_FEE_DIFF — PG 수수료 원단위 차감차</option>
+          <option value="REFUND_TIMING_DIFF" ${r.reasonCode === "REFUND_TIMING_DIFF" ? "selected" : ""}>REFUND_TIMING_DIFF — 환불 처리 시차</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">차이 원인 소명 및 처리 근거 (최소 10자 이상 필수 · 감사 로그 기록)</label>
+        <textarea id="editMemo" name="explanation" data-dev-note="10~500자(trim) · 감사 로그 필수" class="input" placeholder="예: 10/14 복합결제 중 도서 품목(35,000원) 부분취소 웹훅이 PG 정산원장에 익일 반영되어 발생한 시차임..." ${isZero ? "disabled" : ""}>${r.memo || ""}</textarea>
+      </div>
+
+      ${r.approvedBy ? `
+        <div style="background:var(--surface-alt); padding:9px 12px; border-radius:6px; font-size:11.5px; color:var(--text-sub); border:1px solid var(--border);">
+          ✔ <strong>소명 승인자:</strong> ${r.approvedBy} &nbsp;|&nbsp; <strong>승인 일시:</strong> ${r.approvedAt}
+        </div>
+      ` : ""}
+
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:4px;">
+        <button class="btn" data-dev-flag="proto-only" data-dev-note="분류만 임시 저장 — 개발 경로 없음(approval_status PENDING_APPROVAL 값만 있음, 정책 확인)" onclick="saveClassificationOnly('${r.id}')" ${isZero ? "disabled" : ""}>원인 코드만 임시 저장</button>
+        <button class="btn btn-primary" data-dev-route="admin.settlement.pg-reconciliations.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/pg-reconciliations/{item}" data-dev-perm="수정" onclick="approveReconciliation('${r.id}')" ${isZero ? "disabled" : ""}>✔ 소명 승인 확정 (마감 차단 해제)</button>
+      </div>
+    `;
+  }
+
+  function renderAudit() {
+    const tbody = document.getElementById("auditTableBody");
+    tbody.innerHTML = state.auditLogs.map(log => `
+      <tr>
+        <td class="mono">${log.time}</td>
+        <td><strong>${log.actor}</strong></td>
+        <td class="mono">${log.pgTid}</td>
+        <td><span class="badge badge-neutral">${log.action}</span></td>
+        <td class="mono">${log.change}</td>
+        <td>${log.reason}</td>
+      </tr>
+    `).join("");
+  }
+
+  function selectRecord(id) {
+    state.selectedId = id;
+    renderTable();
+    renderDetail();
+  }
+
+  function saveClassificationOnly(id) {
+    const r = state.records.find(x => x.id === id);
+    if (!r) return;
+    const code = document.getElementById("editReasonCode").value;
+    const memo = document.getElementById("editMemo").value.trim();
+
+    const prev = `${r.reasonCode} (${r.approvalStatus})`;
+    r.reasonCode = code;
+    r.memo = memo;
+    r.approvalStatus = code === "UNKNOWN_MISMATCH" ? "UNRESOLVED" : "PENDING_APPROVAL";
+    r.approvedBy = null;
+    r.approvedAt = null;
+
+    state.auditLogs.unshift({
+      time: "2026-10-28 14:30:00",
+      actor: "재무담당자 (white)",
+      pgTid: r.pgTid,
+      action: "차이 원인 코드 분류 저장",
+      change: `${prev} → ${r.reasonCode} (${r.approvalStatus})`,
+      reason: memo || "(사유 미입력 임시저장)"
+    });
+
+    updateGatesAndKpi();
+    renderTable();
+    renderDetail();
+    renderAudit();
+    showToast(`[${r.pgTid}] 원인 코드가 ${code}로 분류 저장되었습니다.`);
+  }
+
+  function approveReconciliation(id) {
+    const r = state.records.find(x => x.id === id);
+    if (!r) return;
+    const code = document.getElementById("editReasonCode").value;
+    const memo = document.getElementById("editMemo").value.trim();
+
+    if (code === "UNKNOWN_MISMATCH") {
+      alert("차이 원인 코드가 'UNKNOWN_MISMATCH(미분류)'인 상태에서는 소명 승인을 확정할 수 없습니다.\n구체적인 차이 원인 코드(기간 귀속차, 부분취소 대기 등)를 먼저 선택하세요.");
+      return;
+    }
+    if (memo.length < 10) {
+      alert("소명 승인 시 최소 10자 이상의 구체적인 차이 소명 근거를 입력해야 합니다 (감사 로그 필수 기록).");
+      return;
+    }
+
+    const prev = `${r.reasonCode} (${r.approvalStatus})`;
+    r.reasonCode = code;
+    r.memo = memo;
+    r.approvalStatus = "APPROVED";
+    r.approvedBy = "재무책임자 (white)";
+    r.approvedAt = "2026-10-28 14:32:10";
+
+    state.auditLogs.unshift({
+      time: r.approvedAt,
+      actor: r.approvedBy,
+      pgTid: r.pgTid,
+      action: "소명 승인 확정 (마감 차단 해제)",
+      change: `${prev} → ${r.reasonCode} (APPROVED)`,
+      reason: memo
+    });
+
+    updateGatesAndKpi();
+    renderTable();
+    renderDetail();
+    renderAudit();
+    showToast(`✔ [${r.pgTid}] 소명 승인이 완료되어 해당 거래의 마감 차단이 해제되었습니다.`);
+  }
+
+  // 1,000원 이내 단수 차액 자동 대체 버튼 (8.2절)
+  document.getElementById("btnAutoPenny").addEventListener("click", () => {
+    const targets = state.records.filter(
+      r => r.diff !== 0 && Math.abs(r.diff) <= 1000 && (r.reasonCode === "PG_FEE_DIFF" || r.unmatched) && r.approvalStatus !== "APPROVED"
+    );
+    if (targets.length === 0) {
+      showToast("현재 자동 대체 대상인 1,000원 이내 PG_FEE_DIFF · 주문 매칭 불가 미승인 건이 없습니다.");
+      return;
+    }
+    targets.forEach(r => {
+      r.approvalStatus = "APPROVED";
+      r.approvedBy = "SYSTEM_AUTO_TOLERANCE (≤1,000원)";
+      r.approvedAt = "2026-10-28 14:35:00";
+      state.auditLogs.unshift({
+        time: r.approvedAt,
+        actor: "재무담당자 (white)",
+        pgTid: r.pgTid,
+        action: "임계값(1,000원) 이내 단수차액 조정계정 자동 대체",
+        change: r.unmatched ? `UNKNOWN_MISMATCH (주문 매칭 불가) → 단수 차액 조정 (${fmtNum(r.diff)})` : `PG_FEE_DIFF (PENDING) → APPROVED (${fmtNum(r.diff)})`,
+        reason: r.unmatched ? "주문 매칭 불가 미분류 — 귀속 권리자 특정 불가, 전사 허용 오차(1,000원) 이내라 단수 차액 조정 계정으로 대체" : (r.memo || "전사 허용 오차(1,000원) 이내 PG 수수료 단수 차액 자동 대체 승인")
+      });
+    });
+    updateGatesAndKpi();
+    renderTable();
+    renderDetail();
+    renderAudit();
+    showToast(`⚡ ${targets.length}건의 소액 단수 차액이 조정 계정으로 대체 승인되었습니다.`);
+  });
+
+  document.getElementById("btnRunRecon").addEventListener("click", () => {
+    showToast("🔄 PG사 원장 API 및 자체 결제 DB(order_items) 교차 대사를 재실행했습니다.");
+  });
+
+  // KPI 카드 클릭 필터
+  document.querySelectorAll(".kpi-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".kpi-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      state.kpiFilter = card.dataset.filter;
+      renderTable();
+    });
+  });
+
+  // 검색 및 셀렉트 필터
+  document.getElementById("searchInput").addEventListener("input", renderTable);
+  document.getElementById("reasonFilter").addEventListener("change", renderTable);
+  document.getElementById("methodFilter").addEventListener("change", renderTable);
+
+  // 탭 전환
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const target = btn.dataset.tab;
+      document.querySelectorAll(".tab-panel").forEach(p => {
+        p.classList.toggle("hidden", p.id !== target);
+      });
+    });
+  });
+
+  // SNB 네비게이션 이동
+  document.querySelectorAll(".snb-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const href = item.dataset.href;
+      if (href) window.location.href = href;
+    });
+  });
+
+  // 초기 렌더링
+  updateGatesAndKpi();
+  renderTable();
+  renderDetail();
+  renderAudit();
+</script><script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>

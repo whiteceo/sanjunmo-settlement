@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>상품별 권리자 매핑 — 산준모 백오피스 v4.0.0</title>
+<style>
+:root{
+  --p:#2563eb;--bd:#cbd5e1;--bl:#e2e8f0;--mu:#64748b;
+  --bg:#f8fafc;--dg:#b91c1c;--ok:#15803d;--warn:#b45309
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:#0f172a;
+  font:13px/1.5 -apple-system,BlinkMacSystemFont,"Pretendard","Segoe UI",sans-serif
+}
+button,input,select,textarea{font:inherit}
+[hidden]{display:none!important}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.45}
+a{color:var(--p)}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.snb{
+  background:#0f172a;color:#cbd5e1;padding:18px 0;
+  position:sticky;top:0;height:100vh;overflow:auto
+}
+.snb .brand{
+  padding:0 18px 14px;font-weight:800;color:white;
+  font-size:14px;border-bottom:1px solid #1e293b
+}
+.snb .grp{padding:14px 18px 4px;font-size:11px;color:#94a3b8;font-weight:700}
+.snb button{
+  display:block;width:100%;border:0;text-align:left;padding:8px 18px;
+  color:#cbd5e1;background:none;font-size:12px
+}
+.snb button small{display:block;color:#94a3b8;font-size:10px}
+.snb button.on{
+  background:#1e293b;color:white;border-left:3px solid var(--p);padding-left:15px
+}
+.snb button:hover:not(.on){background:#1e293b88;color:white}
+.snb .ph{
+  margin:18px;font-size:11px;color:#94a3b8;
+  border:1px dashed #334155;border-radius:4px;padding:8px
+}
+.content{padding:24px 24px 125px;min-width:0}
+.top{
+  max-width:none;width:100%;margin:0 0 12px;display:flex;
+  justify-content:space-between;align-items:flex-start;gap:16px
+}
+h1{font-size:20px;margin:0 0 5px}
+h2{font-size:15px;margin:0}
+h3{font-size:13px;margin:0 0 8px}
+.sub,.note{color:var(--mu);font-size:12px}
+.note{margin-top:6px;font-size:11px}
+.tools,.inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ptabs{
+  max-width:none;width:100%;margin:0 0 14px;display:flex;
+  gap:4px;border-bottom:1px solid var(--bl)
+}
+.ptabs button{
+  border:0;background:none;padding:9px 14px;font-weight:700;
+  color:var(--mu);border-bottom:2px solid transparent
+}
+.ptabs button.on{color:var(--p);border-bottom-color:var(--p)}
+.main{max-width:none;width:100%;margin:0}
+.card{
+  background:white;border:1px solid var(--bl);
+  border-radius:8px;padding:18px;margin-bottom:14px
+}
+.cardhead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.row{display:grid;gap:12px}
+.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.lbl{display:block;font-weight:600;margin:10px 0 5px;color:#334155}
+.fc{
+  width:100%;min-width:0;height:33px;border:1px solid var(--bd);
+  border-radius:4px;padding:5px 9px;background:white;color:#0f172a
+}
+.fc[readonly],.fc:disabled{background:#f1f5f9;color:#475569}
+.chip{
+  display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;
+  border-radius:999px;background:#e2e8f0;color:#334155;white-space:nowrap
+}
+.chip.ok{background:#dcfce7;color:var(--ok)}
+.chip.ng{background:#fee2e2;color:var(--dg)}
+.chip.info{background:#e0f2fe;color:#0369a1}
+.chip.warn{background:#fef3c7;color:var(--warn)}
+.btn{
+  height:32px;padding:0 12px;border-radius:4px;border:1px solid var(--bd);
+  background:white;font-size:12px;font-weight:600;color:#334155
+}
+.btn.pr{background:var(--p);color:white;border-color:var(--p)}
+.btn.sm{height:27px;padding:0 9px;font-size:11px}
+.btn.danger{color:var(--dg);border-color:#fca5a5;background:#fff5f5}
+
+/* 상단 상태 KPI 필터 카드 */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.kpi-card:hover{border-color:#93c5fd;background:#f8fafc}
+.kpi-card.active{border:2px solid var(--p);background:#eff6ff}
+
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th{
+  background:#f8fafc;text-align:left;padding:9px 10px;font-size:12px;
+  color:#475569;border-bottom:1px solid var(--bd);white-space:nowrap
+}
+td{padding:9px 10px;font-size:12px;border-bottom:1px solid var(--bl);vertical-align:middle}
+tr.row-unmapped{background:#fffafa}
+tr.row-hover:hover{background:#f1f5f9;cursor:pointer}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.neg{color:var(--dg)}
+.pos{color:var(--p)}
+.nowrap{white-space:nowrap}
+.empty{text-align:center;padding:26px;color:var(--mu)}
+.fixed{
+  background:#f1f5f9;border-radius:6px;padding:9px 12px;
+  font-size:12px;color:#334155;margin-top:10px
+}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}
+.summary>div{background:#f8fafc;border:1px solid var(--bl);border-radius:6px;padding:10px 12px}
+.summary label{display:block;font-size:11px;color:var(--mu)}
+.summary b{font-size:16px;font-variant-numeric:tabular-nums}
+.alert{border-radius:5px;padding:9px 11px;font-size:12px;margin-top:10px}
+.alert.warn{background:#fff8e6;color:#8a5a00}
+.alert.err{background:#fde8e8;color:#b42318}
+.alert.ok{background:#e3f6ea;color:#107a3c}
+
+/* 상세 워크스페이스 2단 레이아웃 (좌측 강의/단위 목록 + 우측 지분 편집) */
+.workspace{display:grid;grid-template-columns:290px 1fr;gap:14px;align-items:start}
+.workspace.single{grid-template-columns:1fr}
+.unit-list{background:white;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.unit-list header{padding:12px 14px;background:#f8fafc;border-bottom:1px solid var(--bl);font-weight:700;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.unit-item{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  width:100%;padding:11px 14px;border:0;border-bottom:1px solid var(--bl);
+  background:white;text-align:left;font-size:12px
+}
+.unit-item:last-child{border-bottom:0}
+.unit-item:hover{background:#f8fafc}
+.unit-item.on{background:#eff6ff;border-left:4px solid var(--p);padding-left:10px;font-weight:700;color:#1e40af}
+.term{background:white;border:1px solid var(--bd);border-radius:8px;margin-bottom:14px}
+.term>header{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:12px 16px;background:#f8fafc;border-bottom:1px solid var(--bl);
+  border-radius:8px 8px 0 0;flex-wrap:wrap
+}
+.term>header b{font-size:14px}
+.term .body{padding:16px}
+.breadcrumb{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  background:white;border:1px solid var(--bd);border-radius:8px;
+  padding:10px 16px;margin-bottom:14px;flex-wrap:wrap
+}
+.savebar{
+  position:fixed;left:220px;right:0;bottom:0;background:white;
+  border-top:1px solid var(--bd);padding:12px 24px;
+  display:flex;justify-content:space-between;align-items:center;gap:16px;z-index:100
+}
+#gate{font-size:12px;min-width:0}
+#gateDetails{margin-top:3px;color:var(--mu);font-size:11px;max-width:900px}
+.modalback{
+  position:fixed;inset:0;background:rgba(15,23,42,.55);
+  display:flex;align-items:center;justify-content:center;padding:18px;z-index:300
+}
+.modal{
+  background:white;width:820px;max-width:100%;max-height:92vh;
+  border-radius:8px;display:flex;flex-direction:column;overflow:hidden
+}
+.modal>header,.modal>footer{
+  padding:13px 18px;background:#f8fafc;display:flex;
+  align-items:center;justify-content:space-between;gap:12px
+}
+.modal>header{border-bottom:1px solid var(--bl)}
+.modal>footer{border-top:1px solid var(--bl)}
+.modalbody{padding:16px 18px;overflow:auto}
+.modalerror{background:#fde8e8;color:#b42318;padding:8px 12px;margin-top:10px;border-radius:4px}
+.close{border:0;background:none;color:#64748b;font-size:22px;padding:0 5px}
+#toast{
+  position:fixed;right:24px;bottom:100px;background:#0f172a;color:white;
+  border-radius:6px;padding:12px 16px;max-width:480px;z-index:400;
+  box-shadow:0 8px 30px #0f172a22
+}
+pre{
+  white-space:pre-wrap;overflow-wrap:anywhere;background:#0f172a;
+  color:#e2e8f0;border-radius:6px;padding:14px;font-size:12px;max-height:380px;overflow:auto
+}
+@media(max-width:1100px){
+  .layout{grid-template-columns:180px 1fr}
+  .savebar{left:180px}
+  .workspace{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  
+
+  
+
+  
+
+
+
+
+
+
+<link id="v4-common-css" rel="stylesheet" href="common-v84.css">
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-SETT-001", "devCommit": "d562524a", "progress": "구현(SETT-001 목록 · S1 편집 별도 페이지 · P1 위반 모달). 감사 이력 탭 · 모계약 종료일 동기화 · 잔여 지분 자동 채우기 · 스냅샷 · 일반 상품은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.rights-mapping.index", "label": "상품별 권리자 매핑 (show · store · contracts 같은 메뉴 권한)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">권리자 · 거래처 · 지분 매핑</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="header-screen-code">ADMN-SETT-001</span>
+      <h1 class="crumb-title" id="header-screen-title">상품별 권리자 매핑 (1계층 지분율 100.00% 검증)</h1>
+    </div>
+    <div class="top-bar-right" id="v4-topbar-right-slot">
+      <button class="btn" type="button" data-dev-route="admin.settlement.rights-mapping.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping?list[...]" data-dev-perm="조회" data-dev-note="저장 응답 redirect = 직전 검색 조건(LIST_KEYS)" data-action="goList" id="topBackBtn" hidden="">← 전체 상품 목록으로</button>
+    </div></header><div id="v4-page-body">
+  
+  
+
+  
+  <!-- 좌측 SNB ({화면코드}_baseline.html 규칙 통일) -->
+  
+
+  <main class="content">
+    
+
+    <nav class="flow-links" aria-label="관련 화면" style="display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:9px 14px; margin-bottom:12px; font-size:12.5px; line-height:1.5;"><strong style="margin-right:2px;">관련 화면</strong> <a href="ADMN-INST-001_baseline.html" style="font-weight:600;">계약 확인 (권리자 계약 원장)</a> <span aria-hidden="true" style="color:#94a3b8;">›</span> <a href="ADMN-PROD-003_baseline.html" style="font-weight:600;">단과 강좌 판매</a> <span aria-hidden="true" style="color:#94a3b8;">›</span> <a href="ADMN-PROD-004_baseline.html" style="font-weight:600;">교재 판매</a> <span aria-hidden="true" style="color:#94a3b8;">›</span> <a href="ADMN-PROD-005_baseline.html" style="font-weight:600;">패키지 판매</a> <span aria-hidden="true" style="color:#94a3b8;">›</span> <a href="ADMN-SETT-002_baseline.html" style="font-weight:600;">정산 반영 확인 (월간 정산)</a> · <span style="color:#64748b;">지분 합계 100.00%를 맞추면 상품 판매 잠금이 풀립니다</span></nav>
+    <div class="ptabs" role="tablist">
+      <button class="on" data-tab="list" id="tabBtnList" type="button" data-dev-route="admin.settlement.rights-mapping.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping" data-dev-perm="조회">1. 상품 매핑 현황 목록 (강좌 · 도서)</button>
+      <button data-tab="detail" id="tabBtnDetail" type="button" data-dev-route="admin.settlement.rights-mapping.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping/edit?type=course|book&amp;id=" data-dev-perm="조회" data-dev-note="개발은 별도 페이지(#mappingForm). URL은 /edit이지만 이름은 show — 조회 권한으로 열림">2. 선택 상품 권리자 매핑 편집 <span class="chip info" id="tabDetailLabel">미선택</span></button>
+      <button data-tab="audit" id="tabBtnAudit" type="button" data-dev-route="admin.settlement.rights-mapping.history.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping/history" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="개발은 '변경 이력' 버튼 disabled 준비 중">3. 지분 변경 · 감사 이력</button>
+    </div>
+
+    <div class="main">
+      <!-- ==================== [뷰 1] 상품 매핑 현황 목록 (기본 진입 화면) ==================== -->
+      <div id="view-list">
+        <!-- 상단 상태 요약 카드 (클릭 시 목록 필터링) -->
+        <div class="kpi-grid" id="kpiGrid"></div>
+
+        <section class="card">
+          <div class="cardhead">
+            <div>
+              <h2>정산 대상 상품 목록 (강좌 · 도서 SKU)</h2>
+              <div class="note">미매핑 상품(`정산 매핑 미완료`)은 신규 결제·판매가 자동 차단됩니다. 행 또는 <b>[권리자 매핑하기]</b> 버튼을 클릭해 지분을 설정하세요.</div>
+            </div>
+          </div>
+
+          <!-- 검색 및 필터 바 -->
+          <div class="row c4" style="margin-bottom:12px" id="searchForm" data-dev-route="admin.settlement.rights-mapping.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping" data-dev-perm="조회" data-dev-note="개발 #searchForm — 30건/페이지, created_at desc">
+            <div>
+              <label class="lbl" for="fType">상품 구분</label>
+              <select class="fc" id="fType" name="product_type" data-dev-value="'' 전체 · course 강좌 · book 도서 SKU">
+                <option value="ALL" data-dev-value="">전체 (온라인 강좌 + 실물 도서)</option>
+                <option value="COURSE" data-dev-value="course">온라인 강좌 (강좌 수익배분)</option>
+                <option value="BOOK" data-dev-value="book">실물 도서 SKU (도서 인세 / 5.1)</option>
+                <option value="GOODS" data-dev-flag="proto-only" data-dev-note="개발 목록은 강좌 · 도서만(정책 확인 필요)">일반 상품 (자사 매출 · 정산 비대상)</option>
+              </select>
+            </div>
+            <div>
+              <label class="lbl" for="fStatus">매핑 상태 필터</label>
+              <select class="fc" id="fStatus" name="verify_state" data-dev-value="'' · unmapped · share_error · expiring · auto · ok">
+                <option value="ALL" data-dev-value="">전체 상태 보기</option>
+                <option value="UNMAPPED" data-dev-value="unmapped">🚨 미매핑 · 판매차단 (즉시 조치 필요)</option>
+                <option value="MISMATCH" data-dev-flag="proto-only" data-dev-note="개발 목록 값 없음 — 저장 시 PERIOD_RANGE 위반으로만 차단">⚠️ 계약 기간 불일치 · 주의</option>
+                <option value="OK" data-dev-value="ok">✅ 100.00% 매핑 완료 (정상 판매)</option>
+                <option value="AUTO" data-dev-value="auto">🔒 자사 100% 자동 매핑 / 위탁 분리</option>
+              </select>
+            </div>
+            <div style="grid-column:span 2">
+              <label class="lbl" for="fKeyword">상품명 / 상품코드 / 권리자 검색</label>
+              <input class="fc" id="fKeyword" name="keyword" data-dev-note="개발: 강좌 title · code / 도서 title · code · isbn LIKE — 권리자명은 rights_holder_id select로 분리" type="text" placeholder="예: 빈출, CRS-1003, 정종대, PROD-BK...">
+            </div>
+          </div>
+
+          <div class="row c4" style="margin-bottom:12px" data-dev-flag="dev-only" data-dev-note="개발 LIST_KEYS: supply_type · rights_holder_id · valid_on">
+            <div>
+              <label class="lbl" for="devSupplyType">공급 형태</label>
+              <select class="fc" id="devSupplyType" name="supply_type"><option value="">전체</option><option value="OWN_PUBLISHED">자사 발행</option><option value="PURCHASED_RESALE">매입 재판매</option><option value="CONSIGNMENT">위탁</option><option value="BUNDLED">부속</option></select>
+            </div>
+            <div>
+              <label class="lbl" for="devRightsHolder">권리자</label>
+              <select class="fc" id="devRightsHolder" name="rights_holder_id"><option value="">전체 권리자</option></select>
+            </div>
+            <div>
+              <label class="lbl" for="devValidOn">매핑 유효일</label>
+              <input class="fc" id="devValidOn" name="valid_on" type="date" value="2026-10-27">
+            </div>
+          </div>
+          <div class="tablewrap" id="productListTable"></div>
+        </section>
+      </div>
+
+      <!-- ==================== [뷰 2] 선택 상품 권리자 매핑 상세 워크스페이스 ==================== -->
+      <div id="view-detail" hidden="">
+        <!-- 상단 브레드크럼 & 빠른 상품 전환 바 -->
+        <div class="breadcrumb">
+          <div class="inline">
+            <button class="btn sm" type="button" data-dev-route="admin.settlement.rights-mapping.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping?list[...]" data-dev-perm="조회" data-dev-note="저장 응답 redirect = 직전 검색 조건(LIST_KEYS)" data-action="goList">← 상품 목록으로 돌아가기</button>
+            <span id="detailHeaderTitle" style="font-weight:800;font-size:14px"></span>
+            <span id="detailSaleBadge"></span>
+            <span class="sub" data-dev-flag="dev-only" data-dev-note="개발 S1 머리 정보: 마감 경계(site_settings.settlement_closed_month) · 저장 허용 시작 · 계약 원장 링크">마감 경계 2026-09 · 저장 허용 시작 2026-10-01 · <a href="ADMN-INST-001_baseline.html">계약 원장</a></span>
+          </div>
+          <div class="inline">
+            <span class="sub">빠른 상품 전환:</span>
+            <select class="fc" id="quickJumpSelect" name="id" data-dev-note="개발 편집 페이지 쿼리 type · id" style="width:310px;height:30px"></select>
+            <button class="btn sm" type="button" data-dev-route="admin.settlement.rights-mapping.contract-sync.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/rights-mapping/contract-sync" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="모계약 종료일 일괄 동기화 — 개발 미구현" data-action="syncContractDates">모계약 종료일 일괄 동기화</button>
+          </div>
+        </div>
+
+        <div class="workspace" id="workspaceGrid">
+          <!-- 좌측: 강좌 소속 강의(lesson) 리스트 (강좌일 때만 노출) -->
+          <aside class="unit-list" id="lessonSidebar">
+            <header>
+              <span>소속 강의(lesson) 목록</span>
+              <button class="btn sm" type="button" data-dev-note="개발: #checkAllLectures · .js-lecture-group → lecture_ids[] 로 같은 행을 여러 강의에 저장" data-action="copyToAllLessons" title="현재 강의 지분을 모든 강의에 복사">전체 강의 일괄적용</button>
+            </header>
+            <div id="lessonListContainer"></div>
+          </aside>
+
+          <!-- 우측: 선택된 강의(lesson) 또는 도서(SKU) 1계층 권리자 매핑 편집기 -->
+          <div>
+            <section class="term">
+              <header>
+                <div>
+                  <b id="editorUnitTitle"></b>
+                  <span class="chip info" id="editorUnitSub"></span>
+                </div>
+                <div class="inline">
+                  <button class="btn" id="quickFillBtn" type="button" data-dev-flag="proto-only" data-dev-note="잔여 지분 자사 자동 채우기 — 개발 미구현" data-action="quickFillRemainder" hidden="">잔여 지분 자사(엘캠퍼스) 자동 채우기</button>
+                  <button class="btn pr" id="addRowBtn" type="button" data-dev-route="admin.settlement.rights-mapping.contracts" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping/contracts?rights_holder_id=&amp;type=&amp;id=" data-dev-perm="조회" data-dev-note="개발 .layer__open[data-target=layerHolderPick] → 권리자 선택 후 적용 계약 후보(JSON)" data-action="addShareRow">+ 권리자 지분 행 추가</button>
+                </div>
+              </header>
+              <div class="body">
+                <div id="autoLockBanner" class="alert ok" hidden=""></div>
+                <div id="supportBanner" class="alert warn" hidden=""></div>
+
+                <div class="summary" id="unitSummary"></div>
+
+                <div class="tablewrap" id="shareTableWrap"></div>
+
+                <!-- 기간 구간(Timeline Slice) 미니 검증 표 -->
+                <div style="margin-top:18px">
+                  <div class="cardhead" style="margin-bottom:4px">
+                    <h3>기간 구간(Timeline Slice)별 100.00% 및 지원금 재원 검증 결과</h3>
+                    <span class="sub">시작일·종료일 경계별로 자동 분할하여 공백이나 100% 미달 구간을 탐지합니다.</span>
+                  </div>
+                  <div class="tablewrap" id="timelineWrap"></div>
+                </div>
+
+                <div class="fixed">
+                  <b>[편집 및 저장 규칙 요약]</b>
+                  강좌(상품) 단위로 목록에서 진입하되, 실제 저장은 <b>강의(lesson) 행 단위</b> 또는 <b>도서 SKU 단위</b>로 트랜잭션 저장합니다.
+                  모든 활성 기간 구간의 지분 합계가 <b>100.00%</b>가 되면 즉시 해당 상품의 <code>정산 매핑 미완료(판매 차단)</code> 상태가 해제됩니다.
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== [뷰 3] 변경 · 감사 로그 ==================== -->
+      <div id="view-audit" hidden="">
+        <section class="card">
+          <div class="cardhead">
+            <h2>1계층 권리자 지분 매핑 변경 이력 (ADMN-CONF-010 연동)</h2>
+            <button class="btn" type="button" data-dev-flag="proto-only" data-dev-note="최근 저장 스냅샷 JSON — 개발 미구현" data-action="snapshot">최근 저장 스냅샷 JSON 보기</button>
+          </div>
+          <div class="tablewrap" id="auditWrap"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+
+<!-- 하단 고정 검증 게이트 바 -->
+<div class="savebar">
+  <div>
+    <div id="gate" aria-live="polite"></div>
+    <div id="gateDetails"></div>
+    <div class="note" id="savedAt">상품 목록에서 매핑할 상품을 선택하거나, 우측 편집기에서 지분을 저장하세요.</div>
+  </div>
+  <div class="inline" style="flex-shrink:0">
+    <button class="btn" type="button" data-dev-note="개발 P1 #layerMappingViolation — store 422 violations(SHARE_SUM · SIGNER_SCOPE · CONTRACT_INVALID · PERIOD_RANGE · LOCKED_MONTH · PERIOD_DUP · NOT_TARGET · CONSIGNMENT_SINGLE · SUPPLY_TYPE_MISSING), #mvFitWindow 허용 구간으로 맞추기 · #mvGoLedger 계약 원장 이동" data-action="validationModal">검증 상세</button>
+    <button class="btn pr" id="saveButton" data-dev-note="개발 id #btnSave" type="button" data-dev-route="admin.settlement.rights-mapping.store" data-dev-method="POST" data-dev-url="/sj-admin/settlement/rights-mapping" data-dev-perm="등록" data-dev-note="개발 #btnSave fetch JSON {type · id · lecture_ids[] · rows[]} → {ok · message · redirect}" data-action="save">현재 단위(강의/SKU) 매핑 저장</button>
+  </div>
+</div>
+
+<!-- 모달 -->
+<div id="modalBack" class="modalback" hidden="" data-dev-note="공용 모달 — 행 추가는 개발 #layerHolderPick, 검증 상세는 #layerMappingViolation">
+  <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <header>
+      <h2 id="modalTitle"></h2>
+      <button class="close" type="button" data-action="closeModal" aria-label="닫기">×</button>
+    </header>
+    <form id="modalForm">
+      <div class="modalbody">
+        <div id="modalContent"></div>
+        <div id="modalError" class="modalerror" role="alert" hidden=""></div>
+      </div>
+      <footer>
+        <span class="note">ADMN-SETT-001 화면설계 프로토타입</span>
+        <div class="inline">
+          <button class="btn" type="button" data-action="closeModal">닫기</button>
+          <button class="btn pr" id="modalSubmit" type="submit">반영</button>
+        </div>
+      </footer>
+    </form>
+  </section>
+</div>
+<div id="toast" role="status" hidden=""></div>
+
+
+
+
+</div></div><script>
+"use strict";
+
+const FIRST_OPEN_DATE = "2026-10-01";
+const LOCKED_THROUGH_MONTH = "2026-09"; // 마감 확정(Locked) 월 — 01권 4.3
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = v => Number(v || 0).toFixed(2) + "%";
+const stamp = () => new Date().toLocaleString("ko-KR");
+
+/* 권리자 및 유효 계약 마스터 */
+const holders = [
+  {id:"RH-INTERNAL", name:"엘캠퍼스 (자사 권리자 · INTERNAL)", isInternal:true},
+  {id:"RH-0012", name:"산준교육 콘텐츠 (김예시 강사)", isInternal:false},
+  {id:"RH-0025", name:"정종대 강사 (개인 면세사업자)", isInternal:false},
+  {id:"RH-0031", name:"이안전 저자 (공동저자)", isInternal:false},
+  {id:"RH-0047", name:"박보건 강사 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0048", name:"최지도 강사 · 저자 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0019", name:"김안전 강사 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0046", name:"이건설 강사 (개인 프리랜서)", isInternal:false},
+  {id:"RH-0044", name:"안전기술출판 (위탁사 · 개인 면세사업자)", isInternal:false},
+  {id:"RH-0051", name:"사단법인 한국소방학회 (위탁사)", isInternal:false},
+  /* [v6.63 W4] 판매 근거 보강 — 이전기(해지) · 고 박위생(상속 승계) */
+  {id:"RH-0015", name:"이전기 강사 (2026-10-05 해지)", isInternal:false},
+  {id:"RH-0018", name:"고(故) 박위생 (상속 승계)", isInternal:false}
+];
+
+const activeContracts = [
+  {id:"CT-INTERNAL-000", holderId:"RH-INTERNAL", title:"자사 기본 귀속 원장 (상시 유효)", start:"2020-01-01", currentEnd:"2099-12-31"},
+  {id:"CT-2026-0412", holderId:"RH-0012", title:"산준교육 온라인·교재 기본계약", start:"2024-10-15", currentEnd:"2026-10-14"},
+  {id:"CT-2026-0501", holderId:"RH-0025", title:"정종대 강사 온라인 R/S 및 개발지원금 통합계약", start:"2025-01-01", currentEnd:"2027-12-31"},
+  {id:"CT-2026-0610", holderId:"RH-0031", title:"이안전 교재 공동저작 인세 계약", start:"2025-03-01", currentEnd:"2027-02-28"},
+  {id:"CT-2024-1101", holderId:"RH-0047", title:"박보건 강사 온라인 R/S 계약", start:"2024-11-01", currentEnd:"2026-10-31"},
+  {id:"CT-2026-0405", holderId:"RH-0048", title:"최지도 강사 온라인 R/S 및 교재 인세 계약", start:"2026-04-01", currentEnd:"2028-03-31"},
+  {id:"CT-2026-0715", holderId:"RH-0019", title:"김안전 강사 온라인 R/S 공동 매니지먼트 계약 (수취인 분할 70:30)", start:"2026-01-01", currentEnd:"2027-12-31"},
+  {id:"CT-2026-0712", holderId:"RH-0046", title:"이건설 강사 온라인 R/S 및 R/S형 개발지원금 계약", start:"2025-07-01", currentEnd:"2027-06-30"},
+  {id:"CT-2026-0705", holderId:"RH-0044", title:"안전기술출판 도서 위탁 판매 계약", start:"2025-05-01", currentEnd:"2026-11-10"},
+  {id:"CT-2026-0801", holderId:"RH-0051", title:"한국소방학회 도서 위탁 판매 계약", start:"2026-08-01", currentEnd:"2027-07-31"},
+  {id:"CT-2025-0911", holderId:"RH-0015", title:"이전기 강사 온라인 R/S 및 전속 계약 (2026-10-05 해지)", start:"2025-09-11", currentEnd:"2026-10-05"},
+  {id:"CT-2025-1102", holderId:"RH-0018", title:"고 박위생 교재 인세 계약 (상속 승계 · 수취인 분할 60:40)", start:"2025-11-01", currentEnd:"2026-12-31"}
+];
+
+const getHolder = id => holders.find(h => h.id === id);
+const getContract = id => activeContracts.find(c => c.id === id);
+
+/* 정산 대상 상품 카탈로그 (미매핑 신규 강좌·도서 포함!) */
+const products = [
+  {
+    id:"CRS-1003",
+    kind:"COURSE",
+    name:"[신규 런칭] 2027 정종대 산업안전 실기 단기완성 패키지",
+    pipeline:"온라인 강좌 수익배분",
+    registeredDate:"2026-10-12",
+    supportAgreements:[{agreementId:"SFA-2026-009", beneficiary:"정종대 강사", rate:15, start:"2025-01-01", end:"2027-12-31"}],
+    lessons:[
+      {id:"LSN-1003-01", title:"1강. 실기 필답형 핵심 빈출 50선 (미매핑 0%)", runtime:3200},
+      {id:"LSN-1003-02", title:"2강. 작업형 동영상 완벽 대비 (미매핑 0%)", runtime:2900}
+    ]
+  },
+  {
+    id:"PROD-BK-1002",
+    kind:"BOOK",
+    name:"[신규 출간] 2027 산업안전 실전 모의고사 문제집",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    registeredDate:"2026-10-13",
+    supportAgreements:[]
+  },
+  {
+    id:"CRS-1001",
+    kind:"COURSE",
+    name:"산업안전기사 필기 핵심이론 패키지",
+    pipeline:"온라인 강좌 수익배분",
+    price:150000,
+    registeredDate:"2024-10-15",
+    supportAgreements:[{agreementId:"SFA-2026-001", beneficiary:"산준교육 콘텐츠", rate:15, start:"2026-10-01", end:"2026-10-14"}],
+    lessons:[
+      {id:"LSN-1001-01", title:"1강. 안전관리론 핵심체계", runtime:2400},
+      {id:"LSN-1001-02", title:"2강. 인간공학 및 시스템안전", runtime:2100},
+      {id:"LSN-1001-03", title:"3강. 기계위험방지기술 (매핑 종료일 10-10 · 계약 종료일 불일치)", runtime:2700}
+    ]
+  },
+  {
+    id:"CRS-1002",
+    kind:"COURSE",
+    name:"정종대 산업안전 실전 빈출특강",
+    pipeline:"온라인 강좌 수익배분",
+    price:150000,
+    registeredDate:"2025-01-05",
+    supportAgreements:[{agreementId:"SFA-2026-009", beneficiary:"정종대 강사", rate:15, start:"2025-01-01", end:"2027-12-31"}],
+    lessons:[
+      {id:"LSN-1002-01", title:"1강. 빈출 핵심 문제풀이 Part 1", runtime:3000},
+      {id:"LSN-1002-02", title:"2강. 빈출 핵심 문제풀이 Part 2", runtime:2800}
+    ]
+  },
+  {
+    id:"PROD-BK-1001",
+    kind:"BOOK",
+    name:"산업안전 핵심 이론 교재 (공동저자 2인 + 자사 지분)",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    price:28000,
+    registeredDate:"2024-10-20",
+    supportAgreements:[{agreementId:"SFA-2026-001", beneficiary:"산준교육 콘텐츠", rate:15, start:"2026-10-01", end:"2026-10-14"}]
+  },
+  {
+    id:"PROD-BK-1004",
+    kind:"BOOK",
+    name:"산준모 산업안전 실기 빈출문제집 (자사저작권 보유 도서 · 정종대 지원금 15% 연동)",
+    pipeline:"자사 도서(자사 저작권 보유) → 개발지원금",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:true,
+    registeredDate:"2025-01-10",
+    supportAgreements:[{agreementId:"SFA-2026-009", beneficiary:"정종대 강사 (상계 허용 CONDITIONAL)", rate:15, start:"2025-01-01", end:"2027-12-31"}]
+  },
+  {
+    id:"PROD-BK-2001",
+    kind:"BOOK",
+    name:"2026 건설안전기사 필기 총정리 (매입 재판매)",
+    pipeline:"매입 재판매 (정산 비대상 · AP 분리)",
+    supplyType:"PURCHASED_RESALE",
+    ownCopyright:false,
+    price:18000,
+    registeredDate:"2025-02-01",
+    supportAgreements:[]
+  },
+  {
+    id:"PROD-BK-3001",
+    kind:"BOOK",
+    name:"2026 소방설비기사 위탁 수험서 세트 (위탁 판매)",
+    pipeline:"위탁 도서 판매대금 정산",
+    supplyType:"CONSIGNMENT",
+    ownCopyright:false,
+    consignorHolderId:"RH-0051",
+    consignContractId:"CT-2026-0801",
+    registeredDate:"2025-03-10",
+    supportAgreements:[]
+  },
+  {
+    id:"PROD-BK-4001",
+    kind:"BOOK",
+    name:"[비매품] 2026 산업안전 합격 필수 암기노트 (강좌 포함 번들 · BUNDLED)",
+    pipeline:"강좌 포함 비매품 (정산기준금 0원 고정 · 자사 권리자 100% 자동 고정)",
+    supplyType:"BUNDLED",
+    ownCopyright:true,
+    registeredDate:"2025-03-15",
+    supportAgreements:[]
+  },
+  /* [v6.60] 샘플 시나리오 상품 — 코드 · 가격은 ADMN-PROD-003 · 004와 같다(scripts/qa/reports/review/scenario_codes.md) */
+  {
+    id:"CRS-2605",
+    kind:"COURSE",
+    name:"2026 산업안전기사 실기 작업형 동영상 빈출 마스터반",
+    pipeline:"온라인 강좌 수익배분",
+    price:125000,
+    registeredDate:"2026-03-02",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2605-01", title:"1강. 작업형 동영상 출제 유형과 답안 키워드", runtime:2500},
+      {id:"LSN-2605-02", title:"2강. 위험요인 · 안전대책 빈출 장면 30선", runtime:2700},
+      {id:"LSN-2605-03", title:"3강. 보호구 · 방호장치 식별 실전", runtime:2300}
+    ]
+  },
+  {
+    id:"CRS-2606",
+    kind:"COURSE",
+    name:"2026 산업안전지도사 1차 산업안전일반 핵심이론 단과",
+    pipeline:"온라인 강좌 수익배분",
+    price:200000,
+    registeredDate:"2026-04-10",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2606-01", title:"1강. 산업안전일반 출제 경향과 학습 전략", runtime:2400},
+      {id:"LSN-2606-02", title:"2강. 안전관리 조직과 안전보건관리체제", runtime:2600},
+      {id:"LSN-2606-03", title:"3강. 위험성평가 실무와 사례", runtime:2800}
+    ]
+  },
+  {
+    id:"CRS-2601",
+    kind:"COURSE",
+    name:"2026 산업안전기사 필기 한권완성 개념+빈출 단과",
+    pipeline:"온라인 강좌 수익배분",
+    price:144000,
+    registeredDate:"2026-01-12",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2601-01", title:"1강. 안전관리론 핵심 개념 및 재해발생 메커니즘", runtime:2550},
+      {id:"LSN-2601-02", title:"2강. 하인리히 & 버드 재해연쇄성 이론과 빈출 계산문제", runtime:2820},
+      {id:"LSN-2601-03", title:"3강. 인간공학 및 시스템안전공학 FTA/ETA 위험성평가", runtime:2460},
+      {id:"LSN-2601-04", title:"4강. 기계위험방지기술 프레스·전단기·크레인 방호장치", runtime:2610},
+      {id:"LSN-2601-05", title:"5강. 전기 및 화학설비 위험방지 폭발한계 계산 특강", runtime:2310}
+    ]
+  },
+  {
+    id:"CRS-2603",
+    kind:"COURSE",
+    name:"2026 건설안전기사 필기 핵심이론 + 계산문제 특강",
+    pipeline:"온라인 강좌 수익배분",
+    price:144500,
+    registeredDate:"2026-02-04",
+    supportAgreements:[{agreementId:"SFA-2026-015", beneficiary:"이건설 강사 (R/S형 · 비상계 NON_OFFSET)", rate:10, start:"2026-02-04", end:"2027-06-30"}],
+    lessons:[
+      {id:"LSN-2603-01", title:"1강. 건설시공학 · 건설재료학 핵심이론", runtime:2900},
+      {id:"LSN-2603-02", title:"2강. 가설공사 · 비계 · 거푸집 동바리 안전기준", runtime:2700}
+    ]
+  },
+  {
+    id:"PROD-BK-1006",
+    kind:"BOOK",
+    name:"2026 정종대 산업안전기사 필기 기본서",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    price:20000,
+    registeredDate:"2025-12-15",
+    supportAgreements:[]
+  },
+  {
+    id:"PROD-BK-1007",
+    kind:"BOOK",
+    name:"2026 산업안전지도사 1차 산업안전일반 핵심요약집",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    price:20000,
+    registeredDate:"2026-04-10",
+    supportAgreements:[]
+  },
+  {
+    id:"PROD-BK-3003",
+    kind:"BOOK",
+    name:"2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁 판매)",
+    pipeline:"위탁 도서 판매대금 정산",
+    supplyType:"CONSIGNMENT",
+    ownCopyright:false,
+    consignorHolderId:"RH-0044",
+    consignContractId:"CT-2026-0705",
+    price:25000,
+    registeredDate:"2026-02-01",
+    supportAgreements:[]
+  },
+  {
+    id:"GOODS-2026-001",
+    kind:"GOODS",
+    name:"산준모 공학용 계산기 & 안전모 실기 키트",
+    pipeline:"일반 상품 판매매출 (정산 비대상 · 자사 매출 집계)",
+    supplyType:"PURCHASED_RESALE",
+    ownCopyright:false,
+    price:11000,
+    registeredDate:"2026-03-01",
+    supportAgreements:[]
+  },
+  /* [v6.63 W4] 판매 근거 보강 상품 — 코드 · 가격은 ADMN-PROD-003 · 004 · INST-001과 같다(scenario_codes.md) */
+  {
+    id:"CRS-1004",
+    kind:"COURSE",
+    name:"[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반",
+    pipeline:"온라인 강좌 수익배분 (합격환급 조건부 · 2026-06-30 판매종료)",
+    price:410000,
+    registeredDate:"2026-01-20",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-1004-01", title:"1강. 필기 4과목 합격 전략과 빈출 개념", runtime:3300},
+      {id:"LSN-1004-02", title:"2강. 실기 필답형 · 작업형 합격 답안 훈련", runtime:3100}
+    ]
+  },
+  {
+    id:"CRS-1012",
+    kind:"COURSE",
+    name:"2026 위험물산업기사 실기 시뮬레이션 특강",
+    pipeline:"온라인 강좌 수익배분 (자사 100% · 공동제작 기여자 매출연동 지원금 모수)",
+    price:120000,
+    registeredDate:"2026-05-10",
+    supportAgreements:[{agreementId:"SFA-2026-012", beneficiary:"최그래픽 기여자 (매출연동 · 무한도형)", rate:5, start:"2026-05-01", end:"2027-04-30"}],
+    lessons:[
+      {id:"LSN-1012-01", title:"1강. 위험물 취급 공정 3D 시뮬레이션 실습", runtime:2600},
+      {id:"LSN-1012-02", title:"2강. 저장 · 운반 기준 작업형 시뮬레이션", runtime:2400}
+    ]
+  },
+  {
+    id:"CRS-2509",
+    kind:"COURSE",
+    name:"2026 산업안전기사 필기 전기위험방지기술 집중 특강",
+    pipeline:"온라인 강좌 수익배분 (계약 해지 2026-10-05 · 해지 후 판매중지)",
+    price:100000,
+    registeredDate:"2025-09-20",
+    supportAgreements:[],
+    lessons:[
+      {id:"LSN-2509-01", title:"1강. 감전 재해 · 전기설비 방호 핵심", runtime:2500},
+      {id:"LSN-2509-02", title:"2강. 정전기 · 방폭 전기설비 빈출 계산", runtime:2300}
+    ]
+  },
+  {
+    id:"PROD-BK-1008",
+    kind:"BOOK",
+    name:"2026 산업위생관리기사 필기 핵심정리",
+    pipeline:"자사 발행 도서 인세",
+    supplyType:"OWN_PUBLISHED",
+    ownCopyright:false,
+    price:30000,
+    registeredDate:"2025-11-15",
+    supportAgreements:[]
+  }
+];
+
+const state = {
+  seq:500, // 새 매핑 행 번호(MAP-501~) — 샘플 MAP-1xx~4xx와 겹치지 않게
+  activeTab:"list",
+  selectedProductId:"CRS-1003", // 기본 선택을 미매핑 1순위 상품으로 설정
+  selectedLessonId:"LSN-1003-01",
+  dirty:false,
+  savedAt:null,
+  savedSnapshot:null,
+  mappings:{
+    /* 미매핑 신규 강좌 (CRS-1003) -> 1강은 70%만 들어가서 미완결, 2강은 아예 0건 미매핑 */
+    "LSN-1003-01":[
+      {id:"MAP-301", holderId:"RH-0025", contractId:"CT-2026-0501", share:70.00, start:"2026-10-01", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"주강사 정종대 70% 우선 입력 (자사 지분 30% 미입력 상태)", locked:false}
+    ],
+    "LSN-1003-02":[],
+
+    /* 미매핑 신규 출간 도서 (PROD-BK-1002) -> 0건 미매핑 */
+    "PROD-BK-1002":[],
+
+    /* 기간 불일치 강좌 (CRS-1001) */
+    "LSN-1001-01":[
+      {id:"MAP-101", holderId:"RH-0012", contractId:"CT-2026-0412", share:80.00, start:"2024-10-15", endBasis:"CONTRACT_LINKED", end:"2026-10-14", reason:"최초 강좌 런칭 매핑", locked:false},
+      {id:"MAP-102", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:20.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-14", reason:"자사 기획·제작 지분 20%", locked:false}
+    ],
+    "LSN-1001-02":[
+      {id:"MAP-103", holderId:"RH-0012", contractId:"CT-2026-0412", share:80.00, start:"2024-10-15", endBasis:"CONTRACT_LINKED", end:"2026-10-14", reason:"최초 강좌 런칭 매핑", locked:false},
+      {id:"MAP-104", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:20.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-14", reason:"자사 기획·제작 지분 20%", locked:false}
+    ],
+    "LSN-1001-03":[
+      {id:"MAP-105", holderId:"RH-0012", contractId:"CT-2026-0412", share:80.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-10", reason:"종료일 불일치 시연 데이터 (매핑 10-10 종료 · 계약 10-14 종료 — 10월 1~10일 결제분은 유효)", locked:false},
+      {id:"MAP-106", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:20.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-10", reason:"종료일 불일치 시연 데이터 (매핑 10-10 종료)", locked:false}
+    ],
+
+    /* 정상 매핑 완료 강좌 (CRS-1002) */
+    "LSN-1002-01":[
+      {id:"MAP-107", holderId:"RH-0025", contractId:"CT-2026-0501", share:70.00, start:"2025-01-01", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 강사 주강사 지분", locked:false},
+      {id:"MAP-108", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:30.00, start:"2025-01-01", endBasis:"FIXED_DATE", end:"2027-12-31", reason:"자사 지분 30% (지원금 15% 재원 충족)", locked:false}
+    ],
+    "LSN-1002-02":[
+      {id:"MAP-109", holderId:"RH-0025", contractId:"CT-2026-0501", share:70.00, start:"2025-01-01", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 강사 주강사 지분", locked:false},
+      {id:"MAP-110", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:30.00, start:"2025-01-01", endBasis:"FIXED_DATE", end:"2027-12-31", reason:"자사 지분 30%", locked:false}
+    ],
+
+    /* 정상 매핑 완료 도서 (PROD-BK-1001) */
+    "PROD-BK-1001":[
+      {id:"MAP-201", holderId:"RH-0012", contractId:"CT-2026-0412", share:50.00, start:"2024-10-15", endBasis:"CONTRACT_LINKED", end:"2026-10-14", reason:"제1저자 지분 50%", locked:false},
+      {id:"MAP-202", holderId:"RH-0031", contractId:"CT-2026-0610", share:30.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-14", reason:"공동저자 지분 30%", locked:false},
+      {id:"MAP-203", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:20.00, start:"2024-10-15", endBasis:"FIXED_DATE", end:"2026-10-14", reason:"자사 출판 기획 지분 20%", locked:false}
+    ],
+
+    /* 자사 저작권 100% 도서 및 사입/위탁 도서 */
+    "PROD-BK-1004":[
+      {id:"MAP-204", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2025-01-01", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"자사 저작권 보유 도서(자사 저작권 보유) 자사 100% 자동 매핑", locked:true}
+    ],
+    "PROD-BK-2001":[
+      {id:"MAP-205", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2025-01-01", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"매입 재판매(PURCHASED_RESALE) 도서 자사 100% 자동 매핑", locked:true}
+    ],
+    "PROD-BK-3001":[],
+    /* [v6.60] 샘플 시나리오 강좌 — Case 1 박보건 · Case 2 최지도 · Case 7 김안전 · Case 9 이건설(60 · 자사 40) */
+    "LSN-2605-01":[
+      {id:"MAP-401", holderId:"RH-0047", contractId:"CT-2024-1101", share:100.00, start:"2026-03-02", endBasis:"CONTRACT_LINKED", end:"2026-10-31", reason:"박보건 강사 단독 100% (Case 1)", locked:false}
+    ],
+    "LSN-2605-02":[
+      {id:"MAP-402", holderId:"RH-0047", contractId:"CT-2024-1101", share:100.00, start:"2026-03-02", endBasis:"CONTRACT_LINKED", end:"2026-10-31", reason:"박보건 강사 단독 100% (Case 1)", locked:false}
+    ],
+    "LSN-2605-03":[
+      {id:"MAP-403", holderId:"RH-0047", contractId:"CT-2024-1101", share:100.00, start:"2026-03-02", endBasis:"CONTRACT_LINKED", end:"2026-10-31", reason:"박보건 강사 단독 100% (Case 1)", locked:false}
+    ],
+    "LSN-2606-01":[
+      {id:"MAP-404", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 강사 단독 100% (Case 2)", locked:false}
+    ],
+    "LSN-2606-02":[
+      {id:"MAP-405", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 강사 단독 100% (Case 2)", locked:false}
+    ],
+    "LSN-2606-03":[
+      {id:"MAP-406", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 강사 단독 100% (Case 2)", locked:false}
+    ],
+    "LSN-2601-01":[
+      {id:"MAP-407", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-02":[
+      {id:"MAP-408", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-03":[
+      {id:"MAP-409", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-04":[
+      {id:"MAP-410", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2601-05":[
+      {id:"MAP-411", holderId:"RH-0019", contractId:"CT-2026-0715", share:100.00, start:"2026-01-12", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"김안전 강사 단독 100% (2계층 수취인 분할 70:30은 ADMN-SETT-007 · Case 7)", locked:false}
+    ],
+    "LSN-2603-01":[
+      {id:"MAP-412", holderId:"RH-0046", contractId:"CT-2026-0712", share:60.00, start:"2026-02-04", endBasis:"CONTRACT_LINKED", end:"2027-06-30", reason:"이건설 강사 지분 60% (Case 9)", locked:false},
+      {id:"MAP-413", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:40.00, start:"2026-02-04", endBasis:"FIXED_DATE", end:"2027-06-30", reason:"자사 지분 40% (이건설 지원금 10% 재원 충족)", locked:false}
+    ],
+    "LSN-2603-02":[
+      {id:"MAP-414", holderId:"RH-0046", contractId:"CT-2026-0712", share:60.00, start:"2026-02-04", endBasis:"CONTRACT_LINKED", end:"2027-06-30", reason:"이건설 강사 지분 60% (Case 9)", locked:false},
+      {id:"MAP-415", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:40.00, start:"2026-02-04", endBasis:"FIXED_DATE", end:"2027-06-30", reason:"자사 지분 40% (이건설 지원금 10% 재원 충족)", locked:false}
+    ],
+    /* [v6.60] 샘플 시나리오 도서 · 일반 상품 */
+    "PROD-BK-1006":[
+      {id:"MAP-207", holderId:"RH-0025", contractId:"CT-2026-0501", share:100.00, start:"2025-12-15", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 저자 단독 100% (인세 10%)", locked:false}
+    ],
+    "PROD-BK-1007":[
+      {id:"MAP-208", holderId:"RH-0048", contractId:"CT-2026-0405", share:100.00, start:"2026-04-10", endBasis:"CONTRACT_LINKED", end:"2028-03-31", reason:"최지도 저자 단독 100% (인세 10% · Case 2)", locked:false}
+    ],
+    "PROD-BK-3003":[],
+    "GOODS-2026-001":[
+      {id:"MAP-206", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2025-01-01", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"일반 소비재(매입 재판매) 자사 100% 자동 매핑 (Case 12)", locked:true}
+    ],
+    /* [v6.63 W4] 정종대 환급반 (합격환급 원 주문 2026-02~06 결제분 귀속 · 지분 100%) */
+    "LSN-1004-01":[
+      {id:"MAP-416", holderId:"RH-0025", contractId:"CT-2026-0501", share:100.00, start:"2026-01-20", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 강사 단독 100% (환급반 · 합격환급 원거래 스냅샷 지분)", locked:false}
+    ],
+    "LSN-1004-02":[
+      {id:"MAP-417", holderId:"RH-0025", contractId:"CT-2026-0501", share:100.00, start:"2026-01-20", endBasis:"CONTRACT_LINKED", end:"2027-12-31", reason:"정종대 강사 단독 100% (환급반 · 합격환급 원거래 스냅샷 지분)", locked:false}
+    ],
+    /* [v6.63 W4] 자사 100% 공동제작 강좌 — 최그래픽 매출연동 지원금(SFA-2026-012 · 5%) 모수 */
+    "LSN-1012-01":[
+      {id:"MAP-418", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2026-05-10", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"자사 100% (3D 시뮬레이션 기여자 최그래픽은 지분 없이 지원금 5%만)", locked:false}
+    ],
+    "LSN-1012-02":[
+      {id:"MAP-419", holderId:"RH-INTERNAL", contractId:"CT-INTERNAL-000", share:100.00, start:"2026-05-10", endBasis:"CONTRACT_LINKED", end:"2099-12-31", reason:"자사 100% (3D 시뮬레이션 기여자 최그래픽은 지분 없이 지원금 5%만)", locked:false}
+    ],
+    /* [v6.63 W4] 이전기 강좌 — 계약 종료일(해지일 2026-10-05) 동기화 */
+    "LSN-2509-01":[
+      {id:"MAP-420", holderId:"RH-0015", contractId:"CT-2025-0911", share:100.00, start:"2025-09-20", endBasis:"CONTRACT_LINKED", end:"2026-10-05", reason:"이전기 강사 단독 100% (해지일 2026-10-05까지 결제분)", locked:false}
+    ],
+    "LSN-2509-02":[
+      {id:"MAP-421", holderId:"RH-0015", contractId:"CT-2025-0911", share:100.00, start:"2025-09-20", endBasis:"CONTRACT_LINKED", end:"2026-10-05", reason:"이전기 강사 단독 100% (해지일 2026-10-05까지 결제분)", locked:false}
+    ],
+    /* [v6.63 W4] 고 박위생 저서 — 상속 승계 계약(수취인 분할 60:40은 ADMN-SETT-007) */
+    "PROD-BK-1008":[
+      {id:"MAP-209", holderId:"RH-0018", contractId:"CT-2025-1102", share:100.00, start:"2025-11-15", endBasis:"CONTRACT_LINKED", end:"2026-12-31", reason:"고 박위생 저자 단독 100% (인세 10% · 상속인 분할 60:40)", locked:false}
+    ]
+  },
+  audit:[
+    {time:"2026. 10. 14. 오전 09:30", actor:"시스템", target:"CRS-1003 / PROD-BK-1002", event:"신규 상품 등록 및 판매 차단 배지 부여", detail:"1계층 권리자 매핑 미완료 상태로 신규 결제 차단"}
+  ]
+};
+
+let modalHandler = null;
+let toastTimer = null;
+
+function toast(msg){
+  $("toast").textContent = msg;
+  $("toast").hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> $("toast").hidden = true, 4200);
+}
+
+function logAudit(target, event, detail){
+  state.audit.unshift({time:stamp(), actor:"정산 운영자 · 시연", target, event, detail});
+}
+
+function effectiveEndDate(row){
+  if(row.endBasis === "CONTRACT_LINKED"){
+    const c = getContract(row.contractId);
+    return c ? c.currentEnd : (row.end || "2099-12-31");
+  }
+  return row.end || "2099-12-31";
+}
+function nextDayIso(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d));
+  dt.setUTCDate(dt.getUTCDate() + 1);
+  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,"0")}-${String(dt.getUTCDate()).padStart(2,"0")}`;
+}
+function prevDayIso(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m-1, d));
+  dt.setUTCDate(dt.getUTCDate() - 1);
+  return `${dt.getUTCFullYear()}-${String(dt.getUTCMonth()+1).padStart(2,"0")}-${String(dt.getUTCDate()).padStart(2,"0")}`;
+}
+
+/* 개별 단위(lesson 또는 SKU) 검증 */
+function analyzeUnit(unitKey, supportAgreements = [], productObj = null){
+  const rows = state.mappings[unitKey] || [];
+  const errors = [];
+  const warnings = [];
+
+  if(productObj && productObj.kind === "BOOK" && productObj.supplyType === "BUNDLED"){
+    return {slices:[], errors:[], warnings:["강좌 포함 비매품 도서(BUNDLED)는 정산기준금이 0원으로 고정되며, 1계층 권리자는 자사(엘캠퍼스) 100%로 자동 매핑됩니다(별도 인세 지분 매핑 없음)."], mismatchCount:0, isAuto:true, currentSum:0};
+  }
+  if(productObj && productObj.kind === "BOOK" && productObj.supplyType === "CONSIGNMENT"){
+    return {slices:[], errors:[], warnings:["위탁 도서(CONSIGNMENT)는 위탁자 1인 100%로 고정 매핑되며(인세 지분 편집 없음) 위탁 도서 판매대금 정산으로 처리합니다."], mismatchCount:0, isAuto:true, currentSum:0};
+  }
+  if(productObj && productObj.kind !== "COURSE" && (productObj.ownCopyright || productObj.supplyType === "PURCHASED_RESALE")){
+    return {slices:[{start:"2025-01-01", end:"2099-12-31", totalShare:100, internalShare:100, supportRateSum:supportAgreements[0]?.rate||0, status:"OK", count:1}], errors:[], warnings:[], mismatchCount:0, isAuto:true, currentSum:100};
+  }
+
+  if(!rows.length){
+    errors.push(`[${unitKey}] 권리자 지분 행이 0건입니다(미매핑). 합계 100.00% 매핑 전까지 신규 판매가 차단됩니다.`);
+    return {slices:[], errors, warnings, mismatchCount:0, isAuto:false, currentSum:0};
+  }
+
+  let mismatchCount = 0;
+  rows.forEach((r, idx) => {
+    const contract = getContract(r.contractId);
+    if(!r.contractId || !contract) errors.push(`${idx+1}행: 유효 계약 바인딩이 필요합니다.`);
+    else if(contract.holderId !== r.holderId) errors.push(`${idx+1}행: 권리자와 계약 당사자가 불일치합니다.`);
+    if(!(r.share > 0 && r.share <= 100)) errors.push(`${idx+1}행: 지분율은 0 초과 100 이하 값이어야 합니다.`);
+    const effEnd = effectiveEndDate(r);
+    if(contract && !contract.id.startsWith("CT-INTERNAL") && effEnd !== contract.currentEnd){
+      mismatchCount++;
+      warnings.push(`[${getHolder(r.holderId)?.name}] 매핑 종료일(${effEnd})이 모계약 현재 종료일(${contract.currentEnd})과 다릅니다.`);
+    }
+  });
+
+  const points = new Set();
+  rows.forEach(r => {
+    if(r.start) points.add(r.start);
+    const effEnd = effectiveEndDate(r);
+    if(effEnd && effEnd < "2099-12-31") points.add(nextDayIso(effEnd));
+  });
+  const sortedStarts = [...points].sort();
+  const maxEnd = rows.reduce((m, r) => effectiveEndDate(r) > m ? effectiveEndDate(r) : m, "");
+
+  const slices = [];
+  for(let i=0; i<sortedStarts.length; i++){
+    const s = sortedStarts[i];
+    if(s > maxEnd) break;
+    const nextS = sortedStarts[i+1];
+    const e = nextS ? prevDayIso(nextS) : maxEnd;
+    if(e < s) continue;
+
+    const active = rows.filter(r => r.start <= s && effectiveEndDate(r) >= e);
+    const totalShare = Number(active.reduce((sum, r) => sum + Number(r.share || 0), 0).toFixed(2));
+    const internalShare = Number(active.filter(r => getHolder(r.holderId)?.isInternal).reduce((sum, r) => sum + Number(r.share || 0), 0).toFixed(2));
+    const supportRateSum = Number(supportAgreements.filter(a => a.start <= e && a.end >= s).reduce((sum, a) => sum + Number(a.rate || 0), 0).toFixed(2));
+
+    let status = "OK";
+    if(totalShare !== 100.00){
+      status = "SUM_ERR";
+      errors.push(`[${unitKey}] ${s} ~ ${e} 구간 지분 합계가 ${pct(totalShare)}입니다. (부족/초과: ${pct(100 - totalShare)})`);
+    }
+    if(supportRateSum > 0 && internalShare > 0 && supportRateSum > internalShare){
+      status = "SUPPORT_EXCEED";
+      errors.push(`[${unitKey}] ${s} ~ ${e} 구간 지원금 요율(${pct(supportRateSum)})이 자사 지분(${pct(internalShare)})을 초과합니다.`);
+    } else if(supportRateSum > 0 && internalShare === 0){
+      warnings.push(`[${unitKey}] 자사 지분 0% 구간: 지원금 0원 미발생 예외 적용.`);
+    }
+    slices.push({start:s, end:e, totalShare, internalShare, supportRateSum, status, count:active.length});
+  }
+
+  const currentSum = slices.length ? slices[slices.length - 1].totalShare : 0;
+  return {slices, errors, warnings, mismatchCount, isAuto:false, currentSum};
+}
+
+/* 상품(강좌 또는 도서) 전체 상태 판정 */
+function evaluateProduct(p){
+  if(p.kind === "COURSE"){
+    const lessonResults = p.lessons.map(l => ({lesson:l, res:analyzeUnit(l.id, p.supportAgreements, p)}));
+    const unmappedLessons = lessonResults.filter(x => x.res.errors.length > 0);
+    const mismatchLessons = lessonResults.filter(x => x.res.mismatchCount > 0);
+    const status = unmappedLessons.length > 0 ? "UNMAPPED" : (mismatchLessons.length > 0 ? "MISMATCH" : "OK");
+    const summaryText = unmappedLessons.length > 0
+      ? `총 ${p.lessons.length}강 중 ${unmappedLessons.length}강 미완결`
+      : `전 강의(${p.lessons.length}강) 100.00% 완료`;
+    const holderNames = [...new Set(p.lessons.flatMap(l => (state.mappings[l.id]||[]).map(r => getHolder(r.holderId)?.name?.split(" ")[0])))];
+    return {status, summaryText, holderSummary: holderNames.join(", ") || "미지정", canSell: unmappedLessons.length === 0, lessonResults};
+  } else {
+    const res = analyzeUnit(p.id, p.supportAgreements, p);
+    const status = res.isAuto ? "AUTO" : (res.errors.length > 0 ? "UNMAPPED" : (res.mismatchCount > 0 ? "MISMATCH" : "OK"));
+    const summaryText = p.supplyType === "CONSIGNMENT" ? "위탁자 1인 100% 고정"
+      : p.supplyType === "BUNDLED" ? "자사 100% 자동 고정 (비매품)"
+      : p.ownCopyright ? "자사저작권 100% + 지원금 15%"
+      : p.kind === "GOODS" ? "일반 상품 자사 100% 고정"
+      : p.supplyType === "PURCHASED_RESALE" ? "사입 도서 자사 100% 고정"
+      : (res.errors.length ? `미매핑 (${pct(res.currentSum)})` : "100.00% 매핑 완료");
+    const holderNames = (state.mappings[p.id]||[]).map(r => `${getHolder(r.holderId)?.name?.split(" ")[0]}(${r.share}%)`);
+    const consignor = p.consignorHolderId ? getHolder(p.consignorHolderId) : null;
+    return {status, summaryText, holderSummary: holderNames.join(" + ") || (p.supplyType==="CONSIGNMENT"?"위탁자 직접귀속"+(consignor?` · ${consignor.name}`:""):(p.supplyType==="BUNDLED"?"엘캠퍼스(100%) 자동 고정":"미지정")), canSell: res.errors.length === 0, unitRes:res};
+  }
+}
+
+function switchTab(tab){
+  state.activeTab = tab;
+  $("view-list").hidden = tab !== "list";
+  $("view-detail").hidden = tab !== "detail";
+  $("view-audit").hidden = tab !== "audit";
+  $("tabBtnList").classList.toggle("on", tab === "list");
+  $("tabBtnDetail").classList.toggle("on", tab === "detail");
+  $("tabBtnAudit").classList.toggle("on", tab === "audit");
+  $("topBackBtn").hidden = tab === "list";
+  refresh();
+}
+
+function selectProductAndOpenDetail(productId, lessonId = null){
+  state.selectedProductId = productId;
+  const p = products.find(x => x.id === productId);
+  if(p && p.kind === "COURSE"){
+    state.selectedLessonId = lessonId || p.lessons[0].id;
+  }
+  switchTab("detail");
+}
+
+function currentProduct(){
+  return products.find(x => x.id === state.selectedProductId) || products[0];
+}
+function currentUnitKey(){
+  const p = currentProduct();
+  return p.kind === "COURSE" ? state.selectedLessonId : p.id;
+}
+
+function refresh(){
+  renderListView();
+  renderDetailView();
+  renderAuditView();
+  renderGate();
+}
+
+/* [뷰 1] 상품 목록 렌더링 */
+function renderListView(){
+  const evals = products.map(p => ({p, ev:evaluateProduct(p)}));
+  const cntAll = evals.length;
+  const cntUnmapped = evals.filter(x => x.ev.status === "UNMAPPED").length;
+  const cntMismatch = evals.filter(x => x.ev.status === "MISMATCH").length;
+  const cntOk = evals.filter(x => x.ev.status === "OK" || x.ev.status === "AUTO").length;
+
+  const curStatusFilter = $("fStatus").value;
+  $("kpiGrid").innerHTML = `
+    <button type="button" class="kpi-card ${curStatusFilter==="ALL"?"active":""}" data-kpi="ALL" data-dev-name="verify_state" data-dev-value="">
+      <div class="k-title"><span>전체 상품 (강좌·도서)</span><span class="chip">전체</span></div>
+      <div class="k-num">${cntAll}건</div>
+      <div class="k-sub">클릭 시 전체 상품 표시</div>
+    </button>
+    <button type="button" class="kpi-card ${curStatusFilter==="UNMAPPED"?"active":""}" data-kpi="UNMAPPED" data-dev-name="verify_state" data-dev-value="unmapped">
+      <div class="k-title"><span class="neg">미매핑 · 판매차단</span><span class="chip ng">즉시 조치</span></div>
+      <div class="k-num neg">${cntUnmapped}건</div>
+      <div class="k-sub">100.00% 미달 · 신규 결제 차단 중</div>
+    </button>
+    <button type="button" class="kpi-card ${curStatusFilter==="MISMATCH"?"active":""}" data-kpi="MISMATCH" data-dev-flag="proto-only" data-dev-note="개발 스코어카드 없음(계약 기간 불일치)">
+      <div class="k-title"><span>계약기간 불일치</span><span class="chip warn">동기화 권장</span></div>
+      <div class="k-num" style="color:var(--warn)">${cntMismatch}건</div>
+      <div class="k-sub">모계약 종료일과 매핑 종료일 상이</div>
+    </button>
+    <button type="button" class="kpi-card ${curStatusFilter==="OK"?"active":""}" data-kpi="OK" data-dev-name="verify_state" data-dev-value="ok (개발 auto 카드는 별도)">
+      <div class="k-title"><span>매핑 완료 · 정상판매</span><span class="chip ok">정상</span></div>
+      <div class="k-num pos">${cntOk}건</div>
+      <div class="k-sub">100.00% 검증 및 자동고정 완료</div>
+    </button>
+    <button type="button" class="kpi-card" data-dev-flag="dev-only" data-dev-name="verify_state" data-dev-value="share_error" data-dev-note="개발 스코어카드 — 검색 조건과 무관한 전체 건수">
+      <div class="k-title"><span class="neg">지분 합계 오류</span><span class="chip ng">점검</span></div>
+      <div class="k-num neg">—</div>
+      <div class="k-sub">날짜 구간별 지분 합계 100.00% 아님</div>
+    </button>
+    <button type="button" class="kpi-card" data-dev-flag="dev-only" data-dev-name="verify_state" data-dev-value="expiring" data-dev-note="개발 스코어카드 — 계약 만료 30일 이내">
+      <div class="k-title"><span>계약 만료 임박 (D-30)</span><span class="chip warn">갱신 확인</span></div>
+      <div class="k-num" style="color:var(--warn)">—</div>
+      <div class="k-sub">적용 계약 종료일 30일 이내</div>
+    </button>
+  `;
+
+  const fType = $("fType").value;
+  const fKeyword = $("fKeyword").value.trim().toLowerCase();
+
+  const filtered = evals.filter(({p, ev}) => {
+    if(fType !== "ALL" && p.kind !== fType) return false;
+    if(curStatusFilter === "UNMAPPED" && ev.status !== "UNMAPPED") return false;
+    if(curStatusFilter === "MISMATCH" && ev.status !== "MISMATCH") return false;
+    if(curStatusFilter === "OK" && !(ev.status === "OK" || ev.status === "AUTO")) return false;
+    if(curStatusFilter === "AUTO" && ev.status !== "AUTO") return false;
+    if(fKeyword){
+      const hay = `${p.id} ${p.name} ${ev.holderSummary} ${p.pipeline}`.toLowerCase();
+      if(!hay.includes(fKeyword)) return false;
+    }
+    return true;
+  });
+
+  $("productListTable").innerHTML = `<table>
+    <thead><tr>
+      <th>매핑 상태</th>
+      <th>구분</th>
+      <th>상품코드 / 상품명</th>
+      <th>정산 파이프라인 · 공급형태</th>
+      <th>하위 단위 / 매핑 진척도</th>
+      <th>현재 매핑된 권리자</th>
+      <th>개발지원금</th>
+      <th>판매 게이트</th>
+      <th>작업</th>
+    </tr></thead>
+    <tbody>${filtered.map(({p, ev}) => {
+      const statusBadge = ev.status === "UNMAPPED"
+        ? '<span class="chip ng">🚨 정산 매핑 미완료</span>'
+        : ev.status === "MISMATCH"
+        ? '<span class="chip warn">⚠️ 계약기간 불일치</span>'
+        : ev.status === "AUTO"
+        ? '<span class="chip info">🔒 자동고정 · 분리</span>'
+        : '<span class="chip ok">✅ 100.00% 완료</span>';
+
+      const supBadge = p.supportAgreements.length
+        ? `<span class="chip info">${esc(p.supportAgreements[0].beneficiary.split(" ")[0])} ${p.supportAgreements[0].rate}%</span>`
+        : '<span class="sub">—</span>';
+
+      return `<tr class="row-hover ${ev.status==="UNMAPPED"?"row-unmapped":""}" data-open-product="${esc(p.id)}">
+        <td>${statusBadge}</td>
+        <td><span class="chip">${p.kind==="COURSE"?"온라인 강좌":p.kind==="GOODS"?"일반 상품":"실물 도서"}</span></td>
+        <td><b>${esc(p.name)}</b><div class="note">${esc(p.id)} · 등록일 ${esc(p.registeredDate)}${p.price?` · ${p.kind==="BOOK"?"정가":"판매가"} ${Number(p.price).toLocaleString("ko-KR")}원`:""}</div></td>
+        <td>${esc(p.pipeline)}</td>
+        <td><b>${esc(ev.summaryText)}</b></td>
+        <td>${esc(ev.holderSummary)}</td>
+        <td>${supBadge}</td>
+        <td>${ev.canSell ? '<span class="chip ok">정상 판매</span>' : '<span class="chip ng">신규 판매 차단</span>'}</td>
+        <td class="nowrap">
+          <button type="button" class="btn sm ${ev.status==="UNMAPPED"?"pr":""}" data-dev-route="admin.settlement.rights-mapping.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping/edit?type=&amp;id=" data-dev-perm="조회" data-open-product="${esc(p.id)}">
+            ${ev.status==="UNMAPPED" ? "권리자 매핑하기 →" : "매핑 상세/수정 →"}
+          </button>
+        </td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="9" class="empty">조건에 해당하는 상품이 없습니다.</td></tr>`}</tbody>
+  </table>`;
+}
+
+/* [뷰 2] 상세 매핑 워크스페이스 렌더링 */
+function renderDetailView(){
+  const p = currentProduct();
+  const ev = evaluateProduct(p);
+  $("tabDetailLabel").textContent = p.id;
+  $("detailHeaderTitle").textContent = `[${p.id}] ${p.name}`;
+  $("detailSaleBadge").innerHTML = ev.canSell
+    ? '<span class="chip ok">정상 판매 가능 (전 구간 100.00%)</span>'
+    : '<span class="chip ng">🚨 정산 매핑 미완료 · 신규 판매 차단 중</span>';
+
+  $("quickJumpSelect").innerHTML = products.map(item => {
+    const itemEv = evaluateProduct(item);
+    const prefix = itemEv.status === "UNMAPPED" ? "🚨 [미매핑] " : itemEv.status === "MISMATCH" ? "⚠️ [기간불일치] " : "✅ ";
+    return `<option value="${esc(item.id)}" ${item.id===p.id?"selected":""}>${prefix}[${esc(item.id)}] ${esc(item.name)}</option>`;
+  }).join("");
+
+  const isCourse = p.kind === "COURSE";
+  $("lessonSidebar").hidden = !isCourse;
+  $("workspaceGrid").classList.toggle("single", !isCourse);
+
+  if(isCourse){
+    if(!p.lessons.some(l => l.id === state.selectedLessonId)){
+      state.selectedLessonId = p.lessons[0].id;
+    }
+    $("lessonListContainer").innerHTML = p.lessons.map(l => {
+      const uRes = analyzeUnit(l.id, p.supportAgreements, p);
+      const badge = uRes.errors.length
+        ? `<span class="chip ng">${pct(uRes.currentSum)}</span>`
+        : uRes.mismatchCount
+        ? `<span class="chip warn">불일치</span>`
+        : `<span class="chip ok">100%</span>`;
+      return `<button type="button" class="unit-item ${l.id===state.selectedLessonId?"on":""}" data-select-lesson="${esc(l.id)}">
+        <div>
+          <div>${esc(l.title)}</div>
+          <div class="note">${esc(l.id)} · ${l.runtime}초</div>
+        </div>
+        ${badge}
+      </button>`;
+    }).join("");
+  }
+
+  const unitKey = currentUnitKey();
+  const rows = state.mappings[unitKey] || [];
+  const uRes = analyzeUnit(unitKey, p.supportAgreements, p);
+
+  if(isCourse){
+    const curLesson = p.lessons.find(l => l.id === state.selectedLessonId);
+    $("editorUnitTitle").textContent = `[${curLesson.id}] ${curLesson.title}`;
+    $("editorUnitSub").textContent = `강의(lesson) 행 단위 트랜잭션 저장`;
+  } else {
+    $("editorUnitTitle").textContent = `[${p.id}] ${p.name}`;
+    $("editorUnitSub").textContent = p.kind === "GOODS" ? `일반 상품 단위 (자사 100% 자동 고정)` : `도서 상품(SKU) 단위 트랜잭션 저장`;
+  }
+
+  /* 자동 고정 도서 안내 */
+  const autoLocked = !isCourse && (p.ownCopyright || p.supplyType === "PURCHASED_RESALE" || p.supplyType === "CONSIGNMENT");
+  $("addRowBtn").disabled = autoLocked;
+
+  /* 100% 미달 시 남은 지분을 자사(엘캠퍼스)로 1클릭 채우는 편의 버튼 */
+  const needRemainder = !autoLocked && uRes.currentSum >= 0 && uRes.currentSum < 100;
+  $("quickFillBtn").hidden = !needRemainder;
+  if(needRemainder){
+    $("quickFillBtn").textContent = `+ 잔여 ${pct(100 - uRes.currentSum)} 자사(엘캠퍼스) 지분 자동 채우기`;
+  }
+
+  if(!isCourse && p.ownCopyright){
+    $("autoLockBanner").hidden = false;
+    $("autoLockBanner").innerHTML = `<b>[v4.0.0 자사 저작권 보유 도서 (자사 저작권 보유)]</b> 저작권이 당사(엘캠퍼스)에 있으므로 1계층 도서 권리자 지분은 자사 100.00%로 자동 고정됩니다. 단, 외부 수취인(<b>정종대 강사</b>)의 매출연동 개발지원금(<code>Pipeline 5.1</code>, 요율 15%, <code>상계 허용 CONDITIONAL</code>) 약정이 연결되어 있어 도서 판매 기준금이 1·2단계에서 Bypass되지 않고 지원금 모수로 정상 인입됩니다.`;
+  } else if(!isCourse && (p.supplyType === "PURCHASED_RESALE" || p.supplyType === "CONSIGNMENT")){
+    $("autoLockBanner").hidden = false;
+    $("autoLockBanner").textContent = p.kind === "GOODS"
+      ? "일반 상품(소비재)은 자사 100.00%로 자동 고정되며 권리자 정산에 인입되지 않습니다. 매출은 일반 상품 판매매출로 자사 마감 집계(ADMN-SETT-009)에 둡니다."
+      : p.supplyType === "PURCHASED_RESALE"
+      ? "매입 재판매(PURCHASED_RESALE) 도서는 자사 100.00%로 자동 고정되며 인세 정산 엔진에 인입되지 않습니다."
+      : `위탁 판매(CONSIGNMENT) 도서는 위탁자 1인 100%로 고정 매핑되며 위탁 도서 판매대금 정산으로 처리됩니다(인세 지분 편집 없음).${p.consignorHolderId ? ` 위탁자: ${getHolder(p.consignorHolderId)?.name || p.consignorHolderId} (${p.consignContractId})` : ""}`;
+  } else {
+    $("autoLockBanner").hidden = true;
+  }
+
+  if(p.supportAgreements.length){
+    $("supportBanner").hidden = false;
+    $("supportBanner").innerHTML = `<b>[연결된 매출연동 개발지원금]</b> ${p.supportAgreements.map(a=>`<code>${esc(a.agreementId)}</code> (${esc(a.beneficiary)} · 요율 <b>${a.rate}%</b>)`).join(", ")} — 지원금은 외부 권리자 지분을 침해하지 않고 자사 귀속 지분 내에서만 차감됩니다.`;
+  } else {
+    $("supportBanner").hidden = true;
+  }
+
+  const lastSlice = uRes.slices[uRes.slices.length - 1] || {totalShare:0, internalShare:0, supportRateSum:p.supportAgreements[0]?.rate||0};
+  $("unitSummary").innerHTML = `
+    <div><label>현재 편집 단위 지분 합계</label><b class="${lastSlice.totalShare===100?"pos":"neg"}">${pct(lastSlice.totalShare)} ${lastSlice.totalShare===100?"(정상)":"(미완결)"}</b></div>
+    <div><label>자사 권리자(엘캠퍼스) 지분</label><b>${pct(lastSlice.internalShare)}</b></div>
+    <div><label>개발지원금 요율</label><b>${pct(lastSlice.supportRateSum)}</b></div>
+    <div><label>지원금 차감 후 자사 순잔여율</label><b class="${lastSlice.internalShare>=lastSlice.supportRateSum?"pos":"neg"}">${pct(Math.max(0, lastSlice.internalShare - lastSlice.supportRateSum))}</b></div>
+  `;
+
+  $("shareTableWrap").innerHTML = `<table>
+    <thead><tr>
+      <th>상태</th><th>권리자 (1계층)</th><th>바인딩 계약</th>
+      <th class="num">1계층 지분율</th><th>적용 시작일</th><th>종료 기준 (end_basis)</th>
+      <th>유효 종료일</th><th>기간 일치</th><th>변경 사유</th><th>관리</th>
+    </tr></thead>
+    <tbody>${rows.map(r => {
+      const h = getHolder(r.holderId);
+      const c = getContract(r.contractId);
+      const effEnd = effectiveEndDate(r);
+      const mismatch = c && !c.id.startsWith("CT-INTERNAL") && effEnd !== c.currentEnd;
+      return `<tr>
+        <td><span class="chip ${r.locked?"":r.draft?"warn":"info"}">${r.locked?"자동고정":r.draft?"미저장":"저장됨"}</span></td>
+        <td><b>${esc(h?.name || r.holderId)}</b><div class="note">${esc(r.holderId)}</div></td>
+        <td>${esc(c?.title || r.contractId)}<div class="note">${esc(r.contractId)} (모계약 종료: ${esc(c?.currentEnd||"—")})</div></td>
+        <td class="num"><b>${pct(r.share)}</b></td>
+        <td>${esc(r.start)}</td>
+        <td><span class="chip">${r.endBasis==="CONTRACT_LINKED"?"모계약 종료 연동":"지정일 종료"}</span></td>
+        <td>${esc(effEnd)}</td>
+        <td>${c?.id.startsWith("CT-INTERNAL")?'<span class="chip">상시</span>':mismatch?'<span class="chip warn">불일치</span>':'<span class="chip ok">일치</span>'}</td>
+        <td>${esc(r.reason)}</td>
+        <td class="nowrap">${r.locked?"잠금":
+          `<button type="button" class="btn sm" data-dev-note="개발 행 입력 tr[data-key] .js-contract · .js-share · .js-start · .js-end — 값이 바뀌면 서비스가 기존 행을 닫고 새 행 삽입(rows.*.id)" data-action="editRow" data-id="${esc(r.id)}">${r.draft?"수정":"변경"}</button>
+           ${r.draft
+             ? `<button type="button" class="btn sm danger" data-dev-note="개발 .js-remove (미저장 행 제거)" data-action="deleteRow" data-id="${esc(r.id)}">삭제</button>`
+             : `<button type="button" class="btn sm danger" data-dev-note="개발은 rows.*.end_date 지정 후 저장 — 종료 사유 필드 없음" data-action="endRow" data-id="${esc(r.id)}">종료</button>`}`
+        }</td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="10" class="empty">아직 매핑된 권리자가 없습니다. 우측 상단 <b>[+ 권리자 지분 행 추가]</b> 버튼을 눌러 매핑을 시작하세요.</td></tr>`}</tbody>
+  </table>`;
+
+  $("timelineWrap").innerHTML = `<table>
+    <thead><tr>
+      <th>구간 시작일</th><th>구간 종료일</th><th class="num">권리자 수</th>
+      <th class="num">지분 합계</th><th class="num">자사 지분</th><th class="num">지원금 요율</th><th>판정</th>
+    </tr></thead>
+    <tbody>${uRes.slices.map(s => `<tr>
+      <td>${esc(s.start)}</td><td>${esc(s.end)}</td><td class="num">${s.count}명</td>
+      <td class="num"><b>${pct(s.totalShare)}</b></td>
+      <td class="num">${pct(s.internalShare)}</td>
+      <td class="num">${pct(s.supportRateSum)}</td>
+      <td>${s.status==="OK"?'<span class="chip ok">100.00% 정상</span>':`<span class="chip ng">${esc(s.status)} · 저장 차단</span>`}</td>
+    </tr>`).join("") || `<tr><td colspan="7" class="empty">권리자 지분 행을 추가하면 구간별 합계 100.00% 타임라인이 자동 계산됩니다.</td></tr>`}</tbody>
+  </table>`;
+}
+
+function renderAuditView(){
+  $("auditWrap").innerHTML = `<table>
+    <thead><tr><th>일시</th><th>작업자</th><th>대상</th><th>이벤트</th><th>상세 내역</th></tr></thead>
+    <tbody>${state.audit.map(a => `<tr>
+      <td class="nowrap">${esc(a.time)}</td><td>${esc(a.actor)}</td>
+      <td><span class="chip">${esc(a.target)}</span></td>
+      <td><b>${esc(a.event)}</b></td><td>${esc(a.detail)}</td>
+    </tr>`).join("")}</tbody>
+  </table>`;
+}
+
+function renderGate(){
+  const p = currentProduct();
+  const unitKey = currentUnitKey();
+  const {errors, warnings} = analyzeUnit(unitKey, p.supportAgreements, p);
+
+  $("gate").innerHTML = errors.length
+    ? `<span class="chip ng">[${esc(unitKey)}] 저장 차단 ${errors.length}건</span>`
+    : `<span class="chip ok">[${esc(unitKey)}] 100.00% 검증 통과 · 저장 가능</span>`;
+  if(warnings.length) $("gate").innerHTML += ` <span class="chip warn">주의 ${warnings.length}건</span>`;
+  $("gateDetails").textContent = errors[0] || warnings[0] || `현재 선택된 [${unitKey}] 단위의 1계층 권리자 지분 합계(100.00%) 검증을 통과했습니다.`;
+  $("saveButton").disabled = errors.length > 0;
+}
+
+function openModal(title, html, handler = null){
+  $("modalTitle").textContent = title;
+  $("modalContent").innerHTML = html;
+  $("modalError").hidden = true;
+  $("modalSubmit").hidden = !handler;
+  modalHandler = handler;
+  $("modalBack").hidden = false;
+}
+function closeModal(){
+  $("modalBack").hidden = true;
+  modalHandler = null;
+}
+function showModalErr(msg){
+  $("modalError").textContent = msg;
+  $("modalError").hidden = false;
+  return false;
+}
+
+/* 저장된 행 종료: 행을 지우지 않고 종료일 + 변경 사유를 남긴다(01권 4.3 L196 · L199) */
+function openEndRowModal(rowId){
+  const unitKey = currentUnitKey();
+  const row = (state.mappings[unitKey] || []).find(r => r.id === rowId);
+  if(!row || row.draft) return;
+  const curEnd = effectiveEndDate(row);
+  openModal("권리자 지분 행 종료 (이력 보존)", `
+    <div class="alert warn">저장된 행은 지우지 않고 종료일을 걸어 이력으로 남깁니다. 종료일 다음 날부터 이 권리자 몫이 빠지므로, 같은 기간을 다른 행으로 채워야 구간 합계 100.00%가 맞습니다.</div>
+    <div class="row c2">
+      <div>
+        <label class="lbl">대상 행</label>
+        <div class="fc" style="background:#f8fafc">${esc(row.id)} · ${esc(getHolder(row.holderId)?.name || row.holderId)} · ${pct(row.share)} · ${esc(row.start)} ~ ${esc(curEnd)}</div>
+      </div>
+      <div>
+        <label class="lbl" for="m_endDate">종료일 (필수)</label>
+        <input class="fc" id="m_endDate" name="endDate" data-dev-name="rows[n][end_date]" type="date" value="${esc(curEnd < "2099-12-31" ? curEnd : "")}" required>
+        <div class="note">마감 확정(${LOCKED_THROUGH_MONTH}까지 Locked) 월 안으로는 종료할 수 없습니다. 지난 달 정정은 마감 후 정정(조정 라인 등록)으로 처리합니다.</div>
+      </div>
+    </div>
+    <div>
+      <label class="lbl" for="m_endReason">종료 사유 (필수)</label>
+      <input class="fc" id="m_endReason" name="endReason" data-dev-note="개발 행에 사유 필드 없음(감사 로그만)" data-dev-name="(없음)" type="text" maxlength="200" required placeholder="예: 공동 강사 계약 해지 합의(2026-10-20)">
+    </div>
+  `, data => {
+    const endDate = data.get("endDate");
+    const reason = (data.get("endReason") || "").trim();
+    if(!endDate) return showModalErr("종료일을 입력하세요.");
+    if(endDate < row.start) return showModalErr(`종료일은 시작일(${row.start}) 이후여야 합니다.`);
+    if(endDate.slice(0,7) <= LOCKED_THROUGH_MONTH) return showModalErr("마감 확정("+LOCKED_THROUGH_MONTH+"까지 Locked) 월 안으로는 종료할 수 없습니다. 마감 후 정정(조정 라인 등록)으로 처리하세요.");
+    if(!reason) return showModalErr("종료 사유를 입력하세요.");
+    const before = `${row.endBasis} ${curEnd}`;
+    row.endBasis = "FIXED_DATE";
+    row.end = endDate;
+    row.reason = `종료: ${reason}`;
+    state.dirty = true;
+    logAudit(unitKey, "권리자 지분 행 종료 (이력 보존)", `${row.id} ${row.holderId} ${pct(row.share)} 종료 ${before} → ${endDate} · 사유: ${reason}`);
+    refresh();
+    return true;
+  });
+}
+
+function openRowModal(rowId = null){
+  const unitKey = currentUnitKey();
+  const rows = state.mappings[unitKey] || [];
+  const current = rows.find(r => r.id === rowId);
+  const usedSum = rows.filter(r => r.id !== rowId).reduce((s, r) => s + Number(r.share || 0), 0);
+  const defaultRemain = Math.max(0.01, Number((100 - usedSum).toFixed(2)));
+
+  const r = current || {
+    holderId:"RH-0025",
+    contractId:"CT-2026-0501",
+    share:defaultRemain,
+    start:FIRST_OPEN_DATE,
+    endBasis:"CONTRACT_LINKED",
+    end:"2027-12-31",
+    reason:"신규 상품 권리자 지분 매핑"
+  };
+
+  const savedRow = current && !current.draft; // 저장된 행 — 직접 덮어쓰지 않고 종료 + 새 행(01권 4.3)
+  openModal(current ? (savedRow ? "권리자 지분 행 변경 (기존 행 종료 + 새 행 추가)" : "권리자 지분 행 수정 (미저장 행)") : "권리자 지분 행 추가", `
+    ${savedRow ? `<div class="alert warn">저장된 행은 직접 고치지 않습니다. 권리자 · 계약 · 지분율을 바꾸면 기존 행은 <b>유효 시작일 전날</b>로 종료되고 바꾼 값으로 새 행이 추가됩니다(이력 보존). 유효 시작일에 변경 적용일(기존 시작일 ${esc(current.start)} 이후)을 넣으세요. 종료일 · 종료 기준 · 사유만 바꾸면 기존 행의 종료 조건만 바뀝니다.</div>` : ""}
+    <div class="row c2">
+      <div>
+        <label class="lbl" for="m_holderId">권리자 선택</label>
+        <select class="fc" id="m_holderId" name="holderId" data-dev-name="rows[n][rights_holder_id]">
+          ${holders.map(h => `<option value="${esc(h.id)}" ${h.id===r.holderId?"selected":""}>[${esc(h.id)}] ${esc(h.name)}</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label class="lbl" for="m_contractId">바인딩 계약 선택 (필수)</label>
+        <select class="fc" id="m_contractId" name="contractId" data-dev-note="필수 — rights_holder_contracts.id" data-dev-name="rows[n][contract_id]">
+          ${activeContracts.map(c => `<option value="${esc(c.id)}" ${c.id===r.contractId?"selected":""}>[${esc(c.id)}] ${esc(c.title)} (종료: ${esc(c.currentEnd)})</option>`).join("")}
+        </select>
+      </div>
+    </div>
+    <div class="row c3">
+      <div>
+        <label class="lbl" for="m_share">1계층 지분율 (%) · 잔여 ${pct(defaultRemain)}</label>
+        <input class="fc" id="m_share" name="share" data-dev-note="0~100 · 소수 2자리" data-dev-name="rows[n][share_ratio]" type="number" step="0.01" min="0.01" max="100" value="${esc(r.share)}" required>
+      </div>
+      <div>
+        <label class="lbl" for="m_start">유효 시작일</label>
+        <input class="fc" id="m_start" name="start" data-dev-name="rows[n][start_date]" type="date" value="${esc(r.start)}" required>
+        <div class="note">마감 확정(${LOCKED_THROUGH_MONTH}까지 Locked) 월에 걸치는 시작일은 저장할 수 없습니다. 마감 전 소급은 해당 월 재연산으로 반영됩니다.</div>
+      </div>
+      <div>
+        <label class="lbl" for="m_endBasis">종료 기준 (end_basis)</label>
+        <select class="fc" id="m_endBasis" name="endBasis" data-dev-note="종료 기준(모계약 연동) — 개발 없음, end_date NULL = 기한 없음" data-dev-name="(없음)">
+          <option value="CONTRACT_LINKED" ${r.endBasis==="CONTRACT_LINKED"?"selected":""}>모계약 종료 연동 (CONTRACT_LINKED)</option>
+          <option value="FIXED_DATE" ${r.endBasis==="FIXED_DATE"?"selected":""}>지정일 종료 (FIXED_DATE)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row c2">
+      <div>
+        <label class="lbl" for="m_end">유효 종료일</label>
+        <input class="fc" id="m_end" name="end" data-dev-name="rows[n][end_date]" type="date" value="${esc(r.end)}" ${r.endBasis==="CONTRACT_LINKED"?"disabled":""}>
+      </div>
+      <div>
+        <label class="lbl" for="m_reason">변경 사유 (필수)</label>
+        <input class="fc" id="m_reason" name="reason" data-dev-note="개발 행에 변경 사유 필드 없음" data-dev-name="(없음)" type="text" value="${esc(r.reason)}" required maxlength="200">
+      </div>
+    </div>
+  `, data => {
+    const holderId = data.get("holderId");
+    const contractId = data.get("contractId");
+    const share = Number(data.get("share"));
+    const start = data.get("start");
+    const endBasis = data.get("endBasis");
+    const contract = getContract(contractId);
+
+    if(!contract || contract.holderId !== holderId){
+      return showModalErr("권리자와 선택한 계약의 당사자가 일치하지 않습니다.");
+    }
+    if(start && start.slice(0,7) <= LOCKED_THROUGH_MONTH && (!current || current.start !== start)){
+      return showModalErr("마감 확정("+LOCKED_THROUGH_MONTH+"까지 Locked) 월에 걸치는 시작일은 저장할 수 없습니다. 마감 전 소급은 해당 월 재연산으로 처리됩니다.");
+    }
+    const end = endBasis === "CONTRACT_LINKED" ? contract.currentEnd : data.get("end");
+    const reason = (data.get("reason") || "").trim();
+    if(!reason) return showModalErr("변경 사유를 입력하세요.");
+
+    if(!state.mappings[unitKey]) state.mappings[unitKey] = [];
+    if(savedRow){
+      /* 저장된 행: Update 금지 — 종료일 설정 + 신규 행 Insert로 이력 보존(01권 4.3 도서 지분의 유효일자 · 강의 지분 동일) */
+      const coreChanged = current.holderId !== holderId || current.contractId !== contractId || Number(current.share) !== share;
+      if(coreChanged){
+        if(!start || start <= current.start){
+          return showModalErr(`권리자 · 계약 · 지분율을 바꾸려면 유효 시작일을 기존 시작일(${current.start}) 이후 변경 적용일로 지정하세요. 기존 행은 그 전날로 종료되고 새 행이 추가됩니다.`);
+        }
+        const oldEnd = effectiveEndDate(current);
+        if(start > oldEnd){
+          return showModalErr(`기존 행은 ${oldEnd}에 이미 끝납니다. 그 뒤 기간은 [+ 권리자 지분 행 추가]로 등록하세요.`);
+        }
+        const closeEnd = prevDayIso(start);
+        current.endBasis = "FIXED_DATE";
+        current.end = closeEnd;
+        const newRow = {id:"MAP-"+(++state.seq), holderId, contractId, share, start, endBasis, end, reason, locked:false, draft:true};
+        const rows = state.mappings[unitKey];
+        rows.splice(rows.indexOf(current) + 1, 0, newRow);
+        state.dirty = true;
+        logAudit(unitKey, "권리자 지분 변경 (기존 행 종료 + 새 행 추가)", `${current.id} ${current.holderId} ${pct(current.share)} → ${closeEnd} 종료 / ${newRow.id} ${holderId} (${contractId}) ${pct(share)} ${start}부터 · 사유: ${reason}`);
+        refresh();
+        return true;
+      }
+      if(start !== current.start){
+        return showModalErr(`저장된 행의 시작일(${current.start})은 바꾸지 않습니다. 기간을 줄이려면 종료일을 바꾸고, 새 기간은 행을 추가하세요.`);
+      }
+      const before = `${current.endBasis} ${effectiveEndDate(current)}`;
+      Object.assign(current, {endBasis, end, reason});
+      state.dirty = true;
+      logAudit(unitKey, "권리자 지분 종료 조건 변경", `${current.id} ${holderId} 종료 ${before} → ${endBasis} ${end} · 사유: ${reason}`);
+      refresh();
+      return true;
+    }
+    const itemObj = {id: current ? current.id : "MAP-"+(++state.seq), holderId, contractId, share, start, endBasis, end, reason, locked:false, draft:true};
+    if(current) Object.assign(current, itemObj);
+    else state.mappings[unitKey].push(itemObj);
+
+    state.dirty = true;
+    logAudit(unitKey, current ? "권리자 지분 수정 (미저장 행)" : "권리자 지분 추가", `${holderId} (${contractId}) → ${pct(share)} · 사유: ${reason}`);
+    refresh();
+    return true;
+  });
+}
+
+document.addEventListener("click", e => {
+  const openTarget = e.target.closest("[data-open-product]");
+  if(openTarget){
+    selectProductAndOpenDetail(openTarget.dataset.openProduct);
+    return;
+  }
+
+  const kpiBtn = e.target.closest("[data-kpi]");
+  if(kpiBtn){
+    $("fStatus").value = kpiBtn.dataset.kpi;
+    renderListView();
+    return;
+  }
+
+  const btn = e.target.closest("button");
+  if(!btn || btn.disabled) return;
+
+  if(btn.dataset.href){
+    toast(`${btn.dataset.screen} (${btn.dataset.href}) 화면으로 이동합니다...`);
+    setTimeout(() => { window.location.href = btn.dataset.href; }, 300);
+    return;
+  }
+
+  if(btn.dataset.tab){
+    switchTab(btn.dataset.tab);
+    return;
+  }
+
+  if(btn.dataset.selectLesson){
+    state.selectedLessonId = btn.dataset.selectLesson;
+    refresh();
+    return;
+  }
+
+  const action = btn.dataset.action;
+  if(action === "goList") switchTab("list");
+  if(action === "addShareRow") openRowModal(null);
+  if(action === "editRow") openRowModal(btn.dataset.id);
+  if(action === "deleteRow"){
+    /* 미저장 행만 실제 삭제 — 저장된 행은 [종료]로 이력을 남긴다(01권 4.3) */
+    const unitKey = currentUnitKey();
+    const target = (state.mappings[unitKey] || []).find(r => r.id === btn.dataset.id);
+    if(!target || !target.draft) return;
+    state.mappings[unitKey] = state.mappings[unitKey].filter(r => r.id !== btn.dataset.id);
+    state.dirty = true;
+    logAudit(unitKey, "권리자 지분 미저장 행 삭제", `${target.id} ${target.holderId} ${pct(target.share)}`);
+    refresh();
+  }
+  if(action === "endRow") openEndRowModal(btn.dataset.id);
+  if(action === "quickFillRemainder"){
+    const unitKey = currentUnitKey();
+    const rows = state.mappings[unitKey] || [];
+    const used = rows.reduce((s, r) => s + Number(r.share || 0), 0);
+    const remain = Number((100 - used).toFixed(2));
+    if(remain <= 0) return;
+    const baseStart = rows[0]?.start || FIRST_OPEN_DATE;
+    const baseEnd = rows[0] ? effectiveEndDate(rows[0]) : "2027-12-31";
+    rows.push({
+      id:"MAP-"+(++state.seq),
+      holderId:"RH-INTERNAL",
+      contractId:"CT-INTERNAL-000",
+      share:remain,
+      start:baseStart,
+      endBasis:"FIXED_DATE",
+      end:baseEnd,
+      reason:`잔여 자사(엘캠퍼스) 지분 ${pct(remain)} 자동 배정`,
+      locked:false,
+      draft:true
+    });
+    state.mappings[unitKey] = rows;
+    state.dirty = true;
+    logAudit(unitKey, "잔여 자사 지분 자동 채우기", `RH-INTERNAL ${pct(remain)} 추가 → 합계 100.00% 완성`);
+    toast(`잔여 ${pct(remain)}를 자사(엘캠퍼스) 지분으로 채워 100.00%를 완성했습니다.`);
+    refresh();
+  }
+  if(action === "copyToAllLessons"){
+    const p = currentProduct();
+    if(p.kind !== "COURSE") return;
+    const src = state.mappings[state.selectedLessonId] || [];
+    if(!src.length) return toast("현재 강의에 매핑된 행이 없습니다.");
+    p.lessons.forEach(l => {
+      if(l.id !== state.selectedLessonId){
+        state.mappings[l.id] = src.map(r => ({...r, id:"MAP-"+(++state.seq), draft:true}));
+      }
+    });
+    state.dirty = true;
+    logAudit(p.id, "강좌 내 전체 강의 일괄 적용", `${state.selectedLessonId} 지분 구성을 전체 ${p.lessons.length}강에 일괄 복사`);
+    toast(`현재 강의의 지분 구성을 [${p.name}] 전체 강의에 일괄 적용했습니다.`);
+    refresh();
+  }
+  if(action === "syncContractDates"){
+    const unitKey = currentUnitKey();
+    let cnt = 0;
+    (state.mappings[unitKey] || []).forEach(r => {
+      const c = getContract(r.contractId);
+      if(c && !c.id.startsWith("CT-INTERNAL") && r.end !== c.currentEnd){
+        r.end = c.currentEnd;
+        r.endBasis = "CONTRACT_LINKED";
+        cnt++;
+      }
+    });
+    if(cnt > 0){
+      state.dirty = true;
+      toast(`${cnt}건의 매핑 종료일을 모계약 현재 종료일과 동기화했습니다.`);
+      refresh();
+    } else {
+      toast("현재 단위에 계약 기간 불일치 행이 없습니다.");
+    }
+  }
+  if(action === "validationModal"){
+    const p = currentProduct();
+    const unitKey = currentUnitKey();
+    const {errors, warnings} = analyzeUnit(unitKey, p.supportAgreements, p);
+    openModal(`[${unitKey}] 검증 상세`, `
+      <h3>저장 차단 · ${errors.length}건</h3>
+      ${errors.map(x => `<div class="alert err">${esc(x)}</div>`).join("") || '<div class="alert ok">차단 항목이 없습니다 (합계 100.00%).</div>'}
+      <h3 style="margin-top:14px">주의 / 안내 · ${warnings.length}건</h3>
+      ${warnings.map(x => `<div class="alert warn">${esc(x)}</div>`).join("") || '<div class="note">주의 항목이 없습니다.</div>'}
+    `);
+  }
+  if(action === "save"){
+    const p = currentProduct();
+    const unitKey = currentUnitKey();
+    const {errors} = analyzeUnit(unitKey, p.supportAgreements, p);
+    if(errors.length) return toast("100.00% 검증 오류를 먼저 해결하세요.");
+    (state.mappings[unitKey] || []).forEach(r => { delete r.draft; });
+    state.dirty = false;
+    state.savedAt = stamp();
+    state.savedSnapshot = JSON.parse(JSON.stringify(state.mappings[unitKey]));
+    logAudit(unitKey, "1계층 지분 매핑 트랜잭션 저장", `합계 100.00% 저장 완료`);
+    toast(`[${unitKey}] 지분 매핑이 저장되었습니다.`);
+    refresh();
+  }
+  if(action === "snapshot"){
+    if(!state.savedSnapshot) return toast("저장된 스냅샷이 없습니다.");
+    openModal("최근 저장 스냅샷", `<pre>${esc(JSON.stringify(state.savedSnapshot, null, 2))}</pre>`);
+  }
+  if(action === "closeModal") closeModal();
+});
+
+document.addEventListener("change", e => {
+  const el = e.target;
+  if(["fType","fStatus"].includes(el.id)) renderListView();
+  if(el.id === "quickJumpSelect") selectProductAndOpenDetail(el.value);
+  if(el.id === "m_holderId"){
+    const c = activeContracts.find(x => x.holderId === el.value);
+    if(c) $("m_contractId").value = c.id;
+  }
+  if(el.id === "m_endBasis"){
+    $("m_end").disabled = el.value === "CONTRACT_LINKED";
+  }
+});
+
+document.addEventListener("input", e => {
+  if(e.target.id === "fKeyword") renderListView();
+});
+
+$("modalForm").addEventListener("submit", e => {
+  e.preventDefault();
+  if(modalHandler && modalHandler(new FormData(e.currentTarget)) === true) closeModal();
+});
+
+refresh();
+</script><script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body></html>
