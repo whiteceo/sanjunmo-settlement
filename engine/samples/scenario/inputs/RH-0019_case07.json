@@ -1,0 +1,103 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0019",
+   "rights_holder_type": "INSTRUCTOR",
+   "is_internal": false,
+   "is_resident": true,
+   "payee_is_author": true,
+   "income_category": "BUSINESS",
+   "payee_tax_type": "개인 사업소득 3.3%",
+   "matrix_case_id_hint": "TX-02"
+  },
+  {
+   "rights_holder_id": "RH-0071",
+   "is_resident": true,
+   "payee_is_author": true,
+   "income_category": "BUSINESS",
+   "payee_tax_type": "일반과세 법인",
+   "tax_type_cd": "01",
+   "matrix_case_id_hint": "TX-07",
+   "vat_treatment": "VAT_EXCLUDED",
+   "corp_no": "CORP"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0715",
+   "rights_holder_id": "RH-0019",
+   "contract_status": "ACTIVE",
+   "start_date": "2026-01-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2026-0715",
+   "rate_type": "BASIC",
+   "rate_value": 50,
+   "mmg_amount": 0,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "lecture_instructors": [
+  {
+   "lecture_id": "LEC-0",
+   "rights_holder_id": "RH-0019",
+   "contract_id": "CT-2026-0715",
+   "share_ratio": 100,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "book_authors": [],
+ "payee_splits": [
+  {
+   "contract_id": "CT-2026-0715",
+   "rights_holder_id": "RH-0019",
+   "payee_id": "RH-0019",
+   "split_ratio": 70,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  },
+  {
+   "contract_id": "CT-2026-0715",
+   "rights_holder_id": "RH-0019",
+   "payee_id": "RH-0071",
+   "split_ratio": 30,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "support_fund_agreements": [],
+ "support_fund_agreement_targets": [],
+ "support_fund_ledger_prev": [],
+ "prepayments": [],
+ "order_items": [
+  {
+   "order_item_id": "OI-0",
+   "item_type": "LECTURE",
+   "product_id": "LEC-0",
+   "paid_amount": 4000000,
+   "allocation_applied": true,
+   "approved_at": "2026-10-15",
+   "lectures": [
+    {
+     "lecture_id": "LEC-0",
+     "lecture_base_amount": 4000000
+    }
+   ]
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

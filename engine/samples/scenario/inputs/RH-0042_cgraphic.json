@@ -1,0 +1,92 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0042",
+   "is_resident": true,
+   "income_category": "BUSINESS"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0702",
+   "rights_holder_id": "RH-0042",
+   "contract_status": "ACTIVE",
+   "start_date": "2025-01-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2026-0702",
+   "rate_type": "SUPPORT",
+   "rate_value": 5,
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "agreement_id": "SFA-2026-012"
+  }
+ ],
+ "lecture_instructors": [],
+ "book_authors": [],
+ "payee_splits": [],
+ "support_fund_agreements": [
+  {
+   "agreement_id": "SFA-2026-012",
+   "contract_id": "CT-2026-0702",
+   "rights_holder_id": "RH-0042",
+   "payment_method": "REVENUE_SHARE",
+   "cap_type": "UNLIMITED",
+   "total_cap_amount": null,
+   "rate_basis": "SAME_AS_BASIC",
+   "settlement_scope": "PIPELINE_1_1_ONLY",
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "offset_type": "CONDITIONAL",
+   "on_termination_policy": "NONE",
+   "income_category": "BUSINESS",
+   "status": "ACTIVE"
+  }
+ ],
+ "support_fund_agreement_targets": [
+  {
+   "agreement_id": "SFA-2026-012",
+   "target_type": "LECTURE",
+   "target_id": "LEC-SFA012",
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "support_fund_ledger_prev": [
+  {
+   "agreement_id": "SFA-2026-012",
+   "confirmed_net_total": 0,
+   "cash_paid_total": 0
+  }
+ ],
+ "prepayments": [],
+ "order_items": [
+  {
+   "order_item_id": "OI-SFA012",
+   "item_type": "LECTURE",
+   "product_id": "LEC-SFA012",
+   "paid_amount": 1440000,
+   "allocation_applied": true,
+   "approved_at": "2026-10-15T10:00:00",
+   "lectures": [
+    {
+     "lecture_id": "LEC-SFA012",
+     "lecture_base_amount": 1440000
+    }
+   ]
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

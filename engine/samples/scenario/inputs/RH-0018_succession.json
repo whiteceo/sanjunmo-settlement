@@ -1,0 +1,98 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0018",
+   "rights_holder_type": "AUTHOR",
+   "is_resident": true,
+   "income_category": "OTHER"
+  },
+  {
+   "rights_holder_id": "RH-0076",
+   "is_resident": true,
+   "income_category": "OTHER",
+   "payee_is_author": false
+  },
+  {
+   "rights_holder_id": "RH-0077",
+   "is_resident": true,
+   "income_category": "OTHER",
+   "payee_is_author": false
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2025-1102",
+   "rights_holder_id": "RH-0018",
+   "contract_status": "ACTIVE",
+   "start_date": "2025-11-01",
+   "current_end_date": "2026-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2025-1102",
+   "rate_type": "BASIC",
+   "rate_value": 100,
+   "start_date": "2025-11-01",
+   "end_basis": "CONTRACT_LINKED",
+   "pipeline_id": "2.1"
+  }
+ ],
+ "lecture_instructors": [],
+ "book_authors": [
+  {
+   "book_sku_id": "SKU-RH0018",
+   "rights_holder_id": "RH-0018",
+   "contract_id": "CT-2025-1102",
+   "share_ratio": 100,
+   "start_date": "2025-11-01",
+   "income_category": "OTHER",
+   "income_clause": "C05"
+  }
+ ],
+ "payee_splits": [
+  {
+   "contract_id": "CT-2025-1102",
+   "rights_holder_id": "RH-0018",
+   "payee_id": "RH-0076",
+   "split_ratio": 60,
+   "start_date": "2026-09-01",
+   "end_basis": "FIXED_DATE",
+   "end_date": "2026-12-31"
+  },
+  {
+   "contract_id": "CT-2025-1102",
+   "rights_holder_id": "RH-0018",
+   "payee_id": "RH-0077",
+   "split_ratio": 40,
+   "start_date": "2026-09-01",
+   "end_basis": "FIXED_DATE",
+   "end_date": "2026-12-31"
+  }
+ ],
+ "support_fund_agreements": [],
+ "support_fund_agreement_targets": [],
+ "support_fund_ledger_prev": [],
+ "prepayments": [],
+ "order_items": [
+  {
+   "order_item_id": "OI-0018-BK",
+   "item_type": "BOOK",
+   "book_sku_id": "SKU-RH0018",
+   "book_supply_type_snapshot": "OWN_PUBLISHED",
+   "confirmed_qty": 1,
+   "royalty_base_price": 1500000,
+   "purchase_confirmed_at": "2026-10-20T00:00:00"
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

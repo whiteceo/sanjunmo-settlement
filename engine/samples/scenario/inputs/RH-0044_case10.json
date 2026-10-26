@@ -1,0 +1,63 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0044",
+   "rights_holder_type": "CONSIGNOR",
+   "is_internal": false,
+   "is_resident": true,
+   "payee_tax_type": "개인사업자 면세사업자(위탁자 A)",
+   "tax_type_cd": "04",
+   "matrix_case_id_hint": "TX-11"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0705",
+   "rights_holder_id": "RH-0044",
+   "contract_status": "ACTIVE",
+   "start_date": "2026-01-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A",
+   "consignment_fee_rate": 25,
+   "consignment_fee_type": "NET_DEDUCT",
+   "consignment_base_price_type": "PAID_AMOUNT"
+  }
+ ],
+ "rate_lines": [],
+ "lecture_instructors": [],
+ "book_authors": [
+  {
+   "book_sku_id": "SKU-0",
+   "rights_holder_id": "RH-0044",
+   "contract_id": "CT-2026-0705",
+   "share_ratio": 100,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "payee_splits": [],
+ "support_fund_agreements": [],
+ "support_fund_agreement_targets": [],
+ "support_fund_ledger_prev": [],
+ "prepayments": [],
+ "order_items": [
+  {
+   "order_item_id": "OI-0",
+   "item_type": "BOOK",
+   "book_sku_id": "SKU-0",
+   "book_supply_type_snapshot": "CONSIGNMENT",
+   "confirmed_qty": 80,
+   "consignment_price": 25000,
+   "purchase_confirmed_at": "2026-10-20"
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

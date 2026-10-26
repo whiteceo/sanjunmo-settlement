@@ -1,0 +1,98 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0055",
+   "is_resident": true,
+   "income_category": "BUSINESS"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0322",
+   "rights_holder_id": "RH-0055",
+   "contract_status": "TERMINATED",
+   "start_date": "2026-03-01",
+   "current_end_date": "2026-10-20",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A",
+   "termination_date": "2026-10-20"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2026-0322",
+   "rate_type": "BASIC",
+   "rate_value": 40,
+   "start_date": "2026-03-01",
+   "end_basis": "CONTRACT_LINKED",
+   "pipeline_id": "1.1",
+   "mmg_amount": 950000
+  }
+ ],
+ "lecture_instructors": [
+  {
+   "lecture_id": "CRS-2026-055",
+   "rights_holder_id": "RH-0055",
+   "contract_id": "CT-2026-0322",
+   "share_ratio": 100,
+   "start_date": "2026-03-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "book_authors": [],
+ "payee_splits": [],
+ "support_fund_agreements": [],
+ "support_fund_agreement_targets": [],
+ "support_fund_ledger_prev": [],
+ "prepayments": [
+  {
+   "prepayment_id": "PP-2026-055",
+   "contract_id": "CT-2026-0322",
+   "offset_payee_id": "RH-0055",
+   "prepayment_tax_type": "LOAN",
+   "prepay_unoffset_balance": 1350000
+  }
+ ],
+ "order_items": [
+  {
+   "order_item_id": "OI-0055",
+   "item_type": "LECTURE",
+   "product_id": "CRS-2026-055",
+   "paid_amount": 450000,
+   "allocation_applied": true,
+   "approved_at": "2026-10-10T10:00:00",
+   "lectures": [
+    {
+     "lecture_id": "CRS-2026-055",
+     "lecture_base_amount": 450000
+    }
+   ]
+  }
+ ],
+ "refund_lines": [
+  {
+   "refund_id": "RF-0055",
+   "order_item_id": "OI-0055-OLD",
+   "refund_approved_date": "2026-10-18",
+   "refund_amount": 75000,
+   "snapshot": [
+    {
+     "contract_id": "CT-2026-0322",
+     "rights_holder_id": "RH-0055",
+     "pipeline_id": "1.1",
+     "rate_type": "BASIC",
+     "rate_value": 40,
+     "share_ratio": 100,
+     "payment_state": "UNPAID"
+    }
+   ]
+  }
+ ],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

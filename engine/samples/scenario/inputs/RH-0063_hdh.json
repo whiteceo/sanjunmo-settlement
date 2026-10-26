@@ -1,0 +1,69 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0063",
+   "is_resident": true,
+   "income_category": "OTHER",
+   "matrix_case_id_hint": "TX-04"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0919",
+   "rights_holder_id": "RH-0063",
+   "contract_status": "ACTIVE",
+   "start_date": "2026-09-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  }
+ ],
+ "rate_lines": [],
+ "lecture_instructors": [],
+ "book_authors": [],
+ "payee_splits": [],
+ "support_fund_agreements": [],
+ "support_fund_agreement_targets": [],
+ "support_fund_ledger_prev": [],
+ "prepayments": [],
+ "order_items": [],
+ "refund_lines": [],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [
+  {
+   "milestone_id": "MS-0063-10",
+   "contract_id": "CT-2026-0919",
+   "rights_holder_id": "RH-0063",
+   "item_kind": "FIXED_FEE",
+   "offset_type": "NON_OFFSET",
+   "amount": 500000,
+   "target_month": "2026-10",
+   "approval_status": "APPROVED",
+   "income_category": "OTHER",
+   "income_clause": "C19",
+   "tax_threshold_unit_key": "CT-2026-0919::MS-0063-10"
+  }
+ ],
+ "clawbacks": [],
+ "carryover_ledger": [
+  {
+   "ledger_id": "L-0063-0901",
+   "rights_holder_id": "RH-0063",
+   "payee_id": "RH-0063",
+   "contract_id": "CT-2026-0919",
+   "origin_month": "2026-09",
+   "account_type": "POST_TAX",
+   "pipeline_id": "LUMPSUM",
+   "consignment_balance_yn": false,
+   "carryover_reason": "계좌 오류 미입금",
+   "carryover_amount": 45000,
+   "first_occurred_month": "2026-09",
+   "first_payable_confirmed_month": "2026-09",
+   "payout_reservation_status": "NONE",
+   "extinguished_yn": false
+  }
+ ]
+}

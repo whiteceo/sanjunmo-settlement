@@ -1,0 +1,137 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0046",
+   "rights_holder_type": "INSTRUCTOR",
+   "is_internal": false,
+   "is_resident": true,
+   "income_category": "BUSINESS",
+   "payee_tax_type": "개인 프리랜서(사업소득 3.3%)",
+   "matrix_case_id_hint": "TX-02"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0712",
+   "rights_holder_id": "RH-0046",
+   "contract_status": "ACTIVE",
+   "start_date": "2026-01-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "B"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2026-0712",
+   "rate_type": "BASIC",
+   "rate_value": 50,
+   "mmg_amount": 1000000,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  },
+  {
+   "contract_id": "CT-2026-0712",
+   "rate_type": "SUPPORT",
+   "agreement_id": "AGR-RH0046-01",
+   "rate_value": 10,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "lecture_instructors": [
+  {
+   "lecture_id": "LEC-0",
+   "rights_holder_id": "RH-0046",
+   "contract_id": "CT-2026-0712",
+   "share_ratio": 60,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "book_authors": [],
+ "payee_splits": [],
+ "support_fund_agreements": [
+  {
+   "agreement_id": "AGR-RH0046-01",
+   "contract_id": "CT-2026-0712",
+   "rights_holder_id": "RH-0046",
+   "payment_method": "REVENUE_SHARE",
+   "cap_type": "CAPPED",
+   "total_cap_amount": 3000000,
+   "rate_basis": "SAME_AS_BASIC",
+   "settlement_scope": "PIPELINE_1_1_ONLY",
+   "offset_type": "NON_OFFSET",
+   "cap_restore_on_refund": true,
+   "status": "ACTIVE",
+   "income_category": "BUSINESS",
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "on_termination_policy": "FORFEIT"
+  }
+ ],
+ "support_fund_agreement_targets": [
+  {
+   "agreement_id": "AGR-RH0046-01",
+   "target_type": "LECTURE",
+   "target_id": "LEC-0",
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "own_share_ratio": 40
+  }
+ ],
+ "support_fund_ledger_prev": [
+  {
+   "agreement_id": "AGR-RH0046-01",
+   "cap_consumed_amount": 2850000,
+   "confirmed_net_total": 2850000,
+   "cash_paid_total": null
+  }
+ ],
+ "prepayments": [],
+ "order_items": [
+  {
+   "order_item_id": "OI-0",
+   "item_type": "LECTURE",
+   "product_id": "LEC-0",
+   "paid_amount": 4000000,
+   "allocation_applied": true,
+   "approved_at": "2026-10-15",
+   "lectures": [
+    {
+     "lecture_id": "LEC-0",
+     "lecture_base_amount": 4000000
+    }
+   ]
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [
+  {
+   "pass_refund_id": "PASS-D9-0046",
+   "contract_id": "CT-2026-0712",
+   "option": "B",
+   "approved_date": "2026-10-25",
+   "refund_amount": 0,
+   "optB_burden_ratio": 100,
+   "snapshot": [
+    {
+     "contract_id": "CT-2026-0712",
+     "rights_holder_id": "RH-0046",
+     "pipeline_id": "1.1",
+     "rate_type": "SUPPORT",
+     "agreement_id": "AGR-RH0046-01",
+     "confirmed_alloc_amount": 100000,
+     "unrefunded_amount": 100000,
+     "payment_state": "UNPAID"
+    }
+   ]
+  }
+ ],
+ "lumpsum_approvals": [],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

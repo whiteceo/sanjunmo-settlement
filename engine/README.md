@@ -18,6 +18,7 @@
 | `run.py` · `report.py` · `compare.py` | 실행 · HTML 단계표 · 개발 결과 대조 CLI | 2단계 |
 | `tests/run_tests.py` · `adapter.py` · `aliases.py` · `judgments.json` | fixture 회귀 테스트 · 입력 변환 · 기대값 이름 연결 · 불일치 원인 판정 | 2단계 |
 | `samples/sample/` | 입력 예시(가상 값) · 개발 출력 예시 · 대조 매핑 예시 | 2단계 |
+| `samples/scenario/` | 샘플 데이터 시나리오(SCENARIO.md) 권리자별 입력 · `run_scenario.py` → `scenario_amounts.json`(ADMN-SETT-002 `sett002` 값) · `scenario_amounts.md`(요약 · 화면 차이 · 확인 필요) | 2단계 |
 | `OPEN_ISSUES.md` | 테스트 결과 · 불일치 원인 · 정본 확인 필요 · 스키마 보완 요청 | 2단계 |
 | `out/` | 실행 산출물(git 제외) | — |
 

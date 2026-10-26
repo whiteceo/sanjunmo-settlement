@@ -1,0 +1,266 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0025",
+   "rights_holder_type": "INSTRUCTOR",
+   "is_resident": true,
+   "income_category": "BUSINESS",
+   "payee_is_author": true,
+   "tax_type_cd": "04",
+   "payee_tax_type": "EXEMPT",
+   "tax_invoice_eligible_yn": false,
+   "matrix_case_id_hint": "TX-08",
+   "business_status": "계속"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0501",
+   "rights_holder_id": "RH-0025",
+   "contract_status": "ACTIVE",
+   "start_date": "2025-01-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "B"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2026-0501",
+   "rate_type": "BASIC",
+   "rate_value": 50,
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "pipeline_id": "1.1"
+  },
+  {
+   "contract_id": "CT-2026-0501",
+   "rate_type": "BASIC",
+   "rate_value": 10,
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "pipeline_id": "2.1"
+  },
+  {
+   "contract_id": "CT-2026-0501",
+   "rate_type": "SUPPORT",
+   "rate_value": 15,
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "agreement_id": "SFA-2026-009"
+  }
+ ],
+ "lecture_instructors": [
+  {
+   "lecture_id": "CRS-1002",
+   "rights_holder_id": "RH-0025",
+   "contract_id": "CT-2026-0501",
+   "share_ratio": 70,
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "book_authors": [
+  {
+   "book_sku_id": "PROD-BK-1006",
+   "rights_holder_id": "RH-0025",
+   "contract_id": "CT-2026-0501",
+   "share_ratio": 100,
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "income_category": "BUSINESS"
+  }
+ ],
+ "payee_splits": [],
+ "support_fund_agreements": [
+  {
+   "agreement_id": "SFA-2026-009",
+   "contract_id": "CT-2026-0501",
+   "rights_holder_id": "RH-0025",
+   "payment_method": "REVENUE_SHARE",
+   "cap_type": "CAPPED",
+   "total_cap_amount": 15000000,
+   "rate_basis": "SAME_AS_BASIC",
+   "settlement_scope": "PIPELINE_1_1_2_1",
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "offset_type": "CONDITIONAL",
+   "cap_restore_on_refund": true,
+   "on_termination_policy": "FORFEIT",
+   "income_category": "BUSINESS",
+   "status": "ACTIVE"
+  }
+ ],
+ "support_fund_agreement_targets": [
+  {
+   "agreement_id": "SFA-2026-009",
+   "target_type": "LECTURE",
+   "target_id": "CRS-1001",
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  },
+  {
+   "agreement_id": "SFA-2026-009",
+   "target_type": "BOOK_SKU",
+   "target_id": "PROD-BK-1004",
+   "start_date": "2025-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "own_share_ratio": 100
+  }
+ ],
+ "support_fund_ledger_prev": [
+  {
+   "agreement_id": "SFA-2026-009",
+   "target_month": "2026-09",
+   "cap_consumed_amount": 4850000,
+   "confirmed_net_total": 4850000,
+   "cash_paid_total": null
+  }
+ ],
+ "prepayments": [
+  {
+   "prepayment_id": "PP-2026-001",
+   "contract_id": "CT-2026-0501",
+   "offset_payee_id": "RH-0025",
+   "prepayment_tax_type": "LOAN",
+   "prepay_unoffset_balance": 3500000
+  }
+ ],
+ "order_items": [
+  {
+   "order_item_id": "OI-0025-LEC",
+   "item_type": "LECTURE",
+   "product_id": "CRS-1002",
+   "paid_amount": 3000000,
+   "allocation_applied": true,
+   "approved_at": "2026-10-15T10:00:00",
+   "lectures": [
+    {
+     "lecture_id": "CRS-1002",
+     "lecture_base_amount": 3000000
+    }
+   ]
+  },
+  {
+   "order_item_id": "OI-0025-BK",
+   "item_type": "BOOK",
+   "book_sku_id": "PROD-BK-1006",
+   "book_supply_type_snapshot": "OWN_PUBLISHED",
+   "confirmed_qty": 50,
+   "royalty_base_price": 20000,
+   "purchase_confirmed_at": "2026-10-20T00:00:00"
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [
+  {
+   "pass_refund_id": "HRF-202610-01",
+   "contract_id": "CT-2026-0501",
+   "option": "B",
+   "approved_date": "2026-10-26",
+   "refund_amount": 410000,
+   "optB_burden_ratio": 50,
+   "snapshot": [
+    {
+     "contract_id": "CT-2026-0501",
+     "rights_holder_id": "RH-0025",
+     "pipeline_id": "1.1",
+     "rate_type": "BASIC",
+     "rate_value": 50,
+     "share_ratio": 100,
+     "payment_state": "UNPAID"
+    },
+    {
+     "contract_id": "CT-2026-0501",
+     "rights_holder_id": "RH-0025",
+     "pipeline_id": "1.1",
+     "rate_type": "SUPPORT",
+     "agreement_id": "SFA-2026-009",
+     "confirmed_alloc_amount": 30000,
+     "unrefunded_amount": 30000,
+     "payment_state": "UNPAID"
+    }
+   ]
+  },
+  {
+   "pass_refund_id": "HRF-202610-03",
+   "contract_id": "CT-2026-0501",
+   "option": "B",
+   "approved_date": "2026-10-26",
+   "refund_amount": 240000,
+   "optB_burden_ratio": 50,
+   "snapshot": [
+    {
+     "contract_id": "CT-2026-0501",
+     "rights_holder_id": "RH-0025",
+     "pipeline_id": "1.1",
+     "rate_type": "BASIC",
+     "rate_value": 50,
+     "share_ratio": 100,
+     "payment_state": "UNPAID"
+    },
+    {
+     "contract_id": "CT-2026-0501",
+     "rights_holder_id": "RH-0025",
+     "pipeline_id": "1.1",
+     "rate_type": "SUPPORT",
+     "agreement_id": "SFA-2026-009",
+     "confirmed_alloc_amount": 36000,
+     "unrefunded_amount": 36000,
+     "payment_state": "UNPAID"
+    }
+   ]
+  },
+  {
+   "pass_refund_id": "HRF-202610-05",
+   "contract_id": "CT-2026-0501",
+   "option": "A",
+   "approved_date": "2026-10-26",
+   "refund_amount": 180000,
+   "optB_burden_ratio": null,
+   "snapshot": [
+    {
+     "contract_id": "CT-2026-0501",
+     "rights_holder_id": "RH-0025",
+     "pipeline_id": "1.1",
+     "rate_type": "BASIC",
+     "rate_value": 50,
+     "share_ratio": 100,
+     "payment_state": "UNPAID"
+    }
+   ]
+  }
+ ],
+ "lumpsum_approvals": [
+  {
+   "milestone_id": "MS-2026-004",
+   "contract_id": "CT-2026-0501",
+   "rights_holder_id": "RH-0025",
+   "item_kind": "SUPPORT_INSTALLMENT",
+   "offset_type": "CONDITIONAL",
+   "amount": 2000000,
+   "target_month": "2026-10",
+   "approval_status": "APPROVED",
+   "income_category": "OTHER",
+   "income_clause": "C19",
+   "payee_is_author": true,
+   "tax_threshold_unit_key": "CT-2026-0501::MS-2026-004"
+  },
+  {
+   "milestone_id": "MS-2026-005",
+   "contract_id": "CT-2026-0501",
+   "rights_holder_id": "RH-0025",
+   "item_kind": "SIGNING_BONUS",
+   "offset_type": "NON_OFFSET",
+   "amount": 5000000,
+   "target_month": "2026-10",
+   "approval_status": "APPROVED",
+   "income_category": "BUSINESS"
+  }
+ ],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

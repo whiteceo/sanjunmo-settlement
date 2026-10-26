@@ -1,0 +1,113 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0048",
+   "rights_holder_type": "INSTRUCTOR",
+   "is_internal": false,
+   "is_resident": true,
+   "payee_is_author": true,
+   "income_category": "BUSINESS",
+   "payee_tax_type": "개인 프리랜서(사업소득 3.3%)",
+   "matrix_case_id_hint": "TX-02/TX-03"
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0405",
+   "rights_holder_id": "RH-0048",
+   "contract_status": "ACTIVE",
+   "start_date": "2026-01-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2026-0405",
+   "rate_type": "BASIC",
+   "pipeline_id": "1.1",
+   "rate_value": 50,
+   "mmg_amount": 0,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  },
+  {
+   "contract_id": "CT-2026-0405",
+   "rate_type": "BASIC",
+   "pipeline_id": "2.1",
+   "rate_value": 10,
+   "mmg_amount": null,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "lecture_instructors": [
+  {
+   "lecture_id": "LEC-0",
+   "rights_holder_id": "RH-0048",
+   "contract_id": "CT-2026-0405",
+   "share_ratio": 100,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "book_authors": [
+  {
+   "book_sku_id": "SKU-1",
+   "rights_holder_id": "RH-0048",
+   "contract_id": "CT-2026-0405",
+   "share_ratio": 100,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "income_category": "BUSINESS",
+   "income_clause": null
+  }
+ ],
+ "payee_splits": [],
+ "support_fund_agreements": [],
+ "support_fund_agreement_targets": [],
+ "support_fund_ledger_prev": [],
+ "prepayments": [
+  {
+   "prepayment_id": "PP-1",
+   "contract_id": "CT-2026-0405",
+   "offset_payee_id": "RH-0048",
+   "prepayment_tax_type": "LOAN",
+   "prepay_unoffset_balance": 500000
+  }
+ ],
+ "order_items": [
+  {
+   "order_item_id": "OI-0",
+   "item_type": "LECTURE",
+   "product_id": "LEC-0",
+   "paid_amount": 2000000,
+   "allocation_applied": true,
+   "approved_at": "2026-10-15",
+   "lectures": [
+    {
+     "lecture_id": "LEC-0",
+     "lecture_base_amount": 2000000
+    }
+   ]
+  },
+  {
+   "order_item_id": "OI-1",
+   "item_type": "BOOK",
+   "book_sku_id": "SKU-1",
+   "book_supply_type_snapshot": "OWN_PUBLISHED",
+   "confirmed_qty": 100,
+   "royalty_base_price": 20000,
+   "purchase_confirmed_at": "2026-10-20"
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

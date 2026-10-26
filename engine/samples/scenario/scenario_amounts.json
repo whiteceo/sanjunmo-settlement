@@ -1,0 +1,3543 @@
+{
+ "settlement_month": "2026-10",
+ "engine_version": "1.0.0",
+ "generated_by": "engine/samples/scenario/run_scenario.py",
+ "holders": [
+  {
+   "holderId": "RH-0047",
+   "holderName": "박보건",
+   "contractId": "CT-2024-1101",
+   "case": "Case 1",
+   "input": "inputs/RH-0047_case01.json",
+   "engineStatus": "OK",
+   "matches04": true,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 2500000,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 2500000,
+    "step6PrepayOffset": -1500000,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 2500000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 82500,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 917500,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0047",
+     "matrixCaseIds": [
+      "TX-02"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 2500000,
+     "prepayOffset": 1500000,
+     "preTaxPayable": 1000000,
+     "taxableBase": 2500000,
+     "vat": 0,
+     "incomeTax": 75000,
+     "localIncomeTax": 7500,
+     "withholdingTotal": 82500,
+     "netSettleAmount": 917500,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 917500,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 917500,
+     "payoutJudgementAmount": 917500,
+     "payoutConfirmed": true,
+     "payoutAmount": 917500,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-02",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 2500000,
+       "offset_amount": 1500000,
+       "pre_tax_payable": 1000000,
+       "taxable_base": 2500000,
+       "vat_amount": 0,
+       "income_tax": 75000,
+       "local_income_tax": 7500,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 917500,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2024-1101",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 2500000
+      }
+     ],
+     "accrual_total": 2500000,
+     "pre_tax_balance_incl_carry": 2500000,
+     "mmg_basis_1_1": 2500000
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 0,
+     "adjusted_1_1": 2500000,
+     "mmg_subsidy": 0,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2024-1101",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 2500000
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 2500000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": true,
+     "prepayment_tax_type": "LOAN",
+     "prepay_balance_before": 1500000,
+     "offset_eligible_total": 2500000,
+     "offset_withholding_equiv": 82500,
+     "offset_capacity": 2417500,
+     "offset_amount_initial": 1500000,
+     "taxable_reduction_flag": false,
+     "offset_amount": 1500000,
+     "prepay_balance_after": 0,
+     "offset_eligible_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2024-1101",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 2500000,
+       "offset": 1500000
+      }
+     ]
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 2500000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0047",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 2500000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [
+    {
+     "contract_id": "CT-2024-1101",
+     "offset_amount": 1500000,
+     "balance_after": 0,
+     "status": null
+    }
+   ],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "정산월 2026-10(fixture에 없음 — 12월이 아닌 임의 월)"
+   ],
+   "check04": {
+    "fixture": "case_01.json",
+    "code": "CASE-01",
+    "fixtureResult": "PASS",
+    "matched": 28,
+    "expectedCount": 28,
+    "narrative": 0,
+    "diffs": [],
+    "sameAsFixtureRun": true
+   }
+  },
+  {
+   "holderId": "RH-0048",
+   "holderName": "최지도",
+   "contractId": "CT-2026-0405",
+   "case": "Case 2",
+   "input": "inputs/RH-0048_case02.json",
+   "engineStatus": "OK",
+   "matches04": true,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 1000000,
+    "step2BookRoyalty": 200000,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 1200000,
+    "step6PrepayOffset": -500000,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 1200000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 39600,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 660400,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0048",
+     "matrixCaseIds": [
+      "TX-02",
+      "TX-03"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 1200000,
+     "prepayOffset": 500000,
+     "preTaxPayable": 700000,
+     "taxableBase": 1200000,
+     "vat": 0,
+     "incomeTax": 36000,
+     "localIncomeTax": 3600,
+     "withholdingTotal": 39600,
+     "netSettleAmount": 660400,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 660400,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 660400,
+     "payoutJudgementAmount": 660400,
+     "payoutConfirmed": true,
+     "payoutAmount": 660400,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-02",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 1000000,
+       "offset_amount": 416667,
+       "pre_tax_payable": 583333,
+       "taxable_base": 1000000,
+       "vat_amount": 0,
+       "income_tax": 30000,
+       "local_income_tax": 3000,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 550333,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "2.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-03",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 200000,
+       "offset_amount": 83333,
+       "pre_tax_payable": 116667,
+       "taxable_base": 200000,
+       "vat_amount": 0,
+       "income_tax": 6000,
+       "local_income_tax": 600,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 110067,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0405",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1000000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0405",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 200000
+      }
+     ],
+     "accrual_total": 1200000,
+     "pre_tax_balance_incl_carry": 1200000,
+     "mmg_basis_1_1": 1000000
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 0,
+     "adjusted_1_1": 1000000,
+     "mmg_subsidy": 0,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0405",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1000000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0405",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 200000
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 1200000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": true,
+     "prepayment_tax_type": "LOAN",
+     "prepay_balance_before": 500000,
+     "offset_eligible_total": 1200000,
+     "offset_withholding_equiv": 39600,
+     "offset_capacity": 1160400,
+     "offset_amount_initial": 500000,
+     "taxable_reduction_flag": false,
+     "offset_amount": 500000,
+     "prepay_balance_after": 0,
+     "offset_eligible_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0405",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 1000000,
+       "offset": 416667
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0405",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 200000,
+       "offset": 83333
+      }
+     ]
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 1200000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0048",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 1200000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [
+    {
+     "contract_id": "CT-2026-0405",
+     "offset_amount": 500000,
+     "balance_after": 0,
+     "status": null
+    }
+   ],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "정산월 2026-10(fixture에 없음 — 12월이 아닌 임의 월)",
+    "한 계약에 파이프라인별 요율(1.1 · 2.1) — rate_lines.pipeline_id(스키마 확장)로 입력"
+   ],
+   "check04": {
+    "fixture": "case_02.json",
+    "code": "CASE-02",
+    "fixtureResult": "PASS",
+    "matched": 32,
+    "expectedCount": 32,
+    "narrative": 0,
+    "diffs": [],
+    "sameAsFixtureRun": true
+   }
+  },
+  {
+   "holderId": "RH-0019",
+   "holderName": "김안전",
+   "contractId": "CT-2026-0715",
+   "case": "Case 7",
+   "input": "inputs/RH-0019_case07.json",
+   "engineStatus": "OK",
+   "matches04": true,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 2000000,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 2000000,
+    "step9VatAmount": 60000,
+    "step9WithholdingTax": 46200,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 2013800,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0019",
+     "matrixCaseIds": [
+      "TX-02"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 1400000,
+     "prepayOffset": 0,
+     "preTaxPayable": 1400000,
+     "taxableBase": 1400000,
+     "vat": 0,
+     "incomeTax": 42000,
+     "localIncomeTax": 4200,
+     "withholdingTotal": 46200,
+     "netSettleAmount": 1353800,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 1353800,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 1353800,
+     "payoutJudgementAmount": 1353800,
+     "payoutConfirmed": true,
+     "payoutAmount": 1353800,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-02",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 1400000,
+       "offset_amount": 0,
+       "pre_tax_payable": 1400000,
+       "taxable_base": 1400000,
+       "vat_amount": 0,
+       "income_tax": 42000,
+       "local_income_tax": 4200,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 1353800,
+       "after_tax_amount": null
+      }
+     ]
+    },
+    {
+     "payeeId": "RH-0071",
+     "matrixCaseIds": [
+      "TX-07"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 600000,
+     "prepayOffset": 0,
+     "preTaxPayable": 600000,
+     "taxableBase": 600000,
+     "vat": 60000,
+     "incomeTax": 0,
+     "localIncomeTax": 0,
+     "withholdingTotal": 0,
+     "netSettleAmount": 660000,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 660000,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 660000,
+     "payoutJudgementAmount": 660000,
+     "payoutConfirmed": true,
+     "payoutAmount": 660000,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-07",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 600000,
+       "offset_amount": 0,
+       "pre_tax_payable": 600000,
+       "taxable_base": 600000,
+       "vat_amount": 60000,
+       "income_tax": 0,
+       "local_income_tax": 0,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 660000,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0715",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 2000000
+      }
+     ],
+     "accrual_total": 2000000,
+     "pre_tax_balance_incl_carry": 2000000,
+     "mmg_basis_1_1": 2000000
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 0,
+     "adjusted_1_1": 2000000,
+     "mmg_subsidy": 0,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0715",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 2000000
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 2000000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 2000000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0019",
+       "split_ratio": 70
+      },
+      {
+       "payee_id": "RH-0071",
+       "split_ratio": 30
+      }
+     ],
+     "payee_split_base": 2000000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "정산월 2026-10(fixture에 없음 — 12월이 아닌 임의 월)"
+   ],
+   "check04": {
+    "fixture": "case_07.json",
+    "code": "CASE-07",
+    "fixtureResult": "PASS",
+    "matched": 22,
+    "expectedCount": 23,
+    "narrative": 1,
+    "diffs": [],
+    "sameAsFixtureRun": true
+   }
+  },
+  {
+   "holderId": "RH-0046",
+   "holderName": "이건설",
+   "contractId": "CT-2026-0712",
+   "case": "Case 9 + D-9",
+   "input": "inputs/RH-0046_case09_D9.json",
+   "engineStatus": "OK",
+   "matches04": true,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 1200000,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 400000,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": -100000,
+    "step5SupportConfirmed": 150000,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 1350000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 44550,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 1305450,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0046",
+     "matrixCaseIds": [
+      "TX-02"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 1350000,
+     "prepayOffset": 0,
+     "preTaxPayable": 1350000,
+     "taxableBase": 1350000,
+     "vat": 0,
+     "incomeTax": 40500,
+     "localIncomeTax": 4050,
+     "withholdingTotal": 44550,
+     "netSettleAmount": 1305450,
+     "netSettleProtected": 145050,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 1305450,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 1305450,
+     "payoutJudgementAmount": 1305450,
+     "payoutConfirmed": true,
+     "payoutAmount": 1305450,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-02",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 1200000,
+       "offset_amount": 0,
+       "pre_tax_payable": 1200000,
+       "taxable_base": 1200000,
+       "vat_amount": 0,
+       "income_tax": 36000,
+       "local_income_tax": 3600,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 1160400,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "5.1:AGR-RH0046-01",
+       "origin": "NEW",
+       "matrix_case_id": "TX-02",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 150000,
+       "offset_amount": 0,
+       "pre_tax_payable": 150000,
+       "taxable_base": 150000,
+       "vat_amount": 0,
+       "income_tax": 4500,
+       "local_income_tax": 450,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 145050,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0712",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1200000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0712",
+        "pipeline_id": "5.1",
+        "rate_type": "SUPPORT",
+        "agreement_id": "AGR-RH0046-01",
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 400000
+      }
+     ],
+     "accrual_total": 1600000,
+     "pre_tax_balance_incl_carry": 1600000,
+     "mmg_basis_1_1": 1200000,
+     "own_holder_output": 1600000
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 1000000,
+     "adjusted_1_1": 1200000,
+     "mmg_subsidy": 0,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [
+      {
+       "agreement_id": "AGR-RH0046-01",
+       "refund_5_1": 0,
+       "optB_5_1": 100000,
+       "optC_5_1": 0,
+       "total": 100000
+      }
+     ],
+     "deduct_components": [
+      {
+       "ref_id": "PASS-D9-0046",
+       "line_key": null,
+       "path": "UNPAID_REDUCTION",
+       "amount": -100000,
+       "snapshot_payee_splits": []
+      }
+     ],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0712",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1200000
+      }
+     ],
+     "deduct_total": 100000,
+     "net_total": 1500000
+    },
+    "SUPPORT_CAP": [
+     {
+      "agreement_id": "AGR-RH0046-01",
+      "cap_type": "CAPPED",
+      "accrued_amount": 400000,
+      "status_before": "ACTIVE",
+      "restore_amount": 100000,
+      "avail_cap": 250000,
+      "new_confirmed": 250000,
+      "expired_excess": 150000,
+      "confirmed_amount": 150000,
+      "confirmed_net_total": 3000000,
+      "cap_consumed_amount": 3000000,
+      "remaining_cap": 0,
+      "lump_settle_applied": 0,
+      "status_after": "COMPLETED",
+      "cash_paid_total": null,
+      "own_distributable": 1600000,
+      "own_remaining": 1450000
+     }
+    ],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 1350000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0046",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 1350000
+    }
+   },
+   "supportLedger": [
+    {
+     "agreement_id": "AGR-RH0046-01",
+     "target_month": "2026-10",
+     "accrued_amount": 400000,
+     "confirmed_amount": 150000,
+     "confirmed_net_total": 3000000,
+     "cap_consumed_amount": 3000000,
+     "cash_paid_total": 145050,
+     "remaining_cap": 0,
+     "status_change": "ACTIVE->COMPLETED",
+     "settlement_line_id": null
+    }
+   ],
+   "carryoverRows": [],
+   "prepaymentLedger": [],
+   "continuity": [],
+   "issues": [
+    {
+     "kind": "INPUT_MISSING",
+     "step_code": "PAYOUT",
+     "rights_holder_id": "RH-0046",
+     "message": "지원금 AGR-RH0046-01 전월 cash_paid_total 없음 — 0에서 누계",
+     "ref": "V2 L213 · SPEC 8.3",
+     "question": null
+    }
+   ],
+   "notes": [
+    "정산월 2026-10(fixture에 없음 — 12월이 아닌 임의 월)",
+    "지원금 전월 원장: confirmed_net_total 초깃값 미제시 — cap_consumed_amount와 같다고 입력, cash_paid_total 미제시",
+    "D-9 합격환급 옵션 B: 원거래 확정 지원금 100,000 · 분담 100%를 Case 9 입력에 더함(강의 R/S 분담 금액은 미제시 — 지원금 분담만)"
+   ],
+   "check04": {
+    "fixture": "case_09.json",
+    "code": "CASE-09",
+    "fixtureResult": "PASS",
+    "matched": 32,
+    "expectedCount": 32,
+    "narrative": 0,
+    "diffs": [],
+    "combinedCase9Diffs": [
+     {
+      "step_code": "DEDUCT",
+      "path": "5.1_net",
+      "expected": 400000,
+      "calc": 300000
+     },
+     {
+      "step_code": "SUPPORT_CAP",
+      "path": "expired_excess",
+      "expected": 250000,
+      "calc": 150000
+     }
+    ],
+    "d9Diffs": [],
+    "note": "Case 9 기대값과 다른 곳은 D-9 합격환급 옵션 B를 더해서 생긴 2개뿐: 4단계 P5.1 공제 후 금액 400,000 → 300,000(옵션 B 100,000 공제), 한도 초과 소멸 250,000 → 150,000(복원 100,000이 같은 달 한도에 더해짐). 지원금 확정액 150,000 · 세액 · 실지급 등 나머지 Case 9 값과 D-9 값은 모두 같음"
+   }
+  },
+  {
+   "holderId": "RH-0044",
+   "holderName": "안전기술출판(위탁사)",
+   "contractId": "CT-2026-0705",
+   "case": "Case 10",
+   "input": "inputs/RH-0044_case10.json",
+   "engineStatus": "OK",
+   "matches04": true,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 0,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": -500000,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 0,
+    "step9VatAmount": -50000,
+    "step9WithholdingTax": 0,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 1450000,
+    "payoutCategory": "PAYOUT_TARGET",
+    "step2ConsignGross": 2000000
+   },
+   "consignment": {
+    "monthlySales": 2000000,
+    "netBeforeFeeVat": 1500000,
+    "feeSupply": 500000,
+    "consignmentInput": 1500000,
+    "feeVat": 50000,
+    "consignmentSettleAmount": 1450000,
+    "returnAdjust": null
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0044",
+     "matrixCaseIds": [
+      "TX-11"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 0,
+     "prepayOffset": 0,
+     "preTaxPayable": 0,
+     "taxableBase": null,
+     "vat": 0,
+     "incomeTax": 0,
+     "localIncomeTax": 0,
+     "withholdingTotal": 0,
+     "netSettleAmount": 1450000,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 1450000,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 1450000,
+     "payoutJudgementAmount": 1450000,
+     "payoutConfirmed": true,
+     "payoutAmount": 1450000,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "2.2",
+       "origin": "CONSIGNMENT",
+       "matrix_case_id": "TX-11",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 1500000,
+       "offset_amount": 0,
+       "pre_tax_payable": 1500000,
+       "taxable_base": null,
+       "vat_amount": 0,
+       "income_tax": 0,
+       "local_income_tax": 0,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 1450000,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0705",
+        "pipeline_id": "2.2",
+        "rate_type": null,
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": null,
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1500000
+      }
+     ],
+     "accrual_total": 1500000,
+     "pre_tax_balance_incl_carry": 1500000,
+     "mmg_basis_1_1": 0,
+     "consignment": {
+      "monthly_sales": 2000000,
+      "net_before_fee_vat": 1500000,
+      "fee_supply": 500000,
+      "consignment_input": 1500000
+     }
+    },
+    "MMG_ADJ": {
+     "applicable": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "return_deduct_2_2": 0,
+     "consignment_balance_applied": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0705",
+        "pipeline_id": "2.2",
+        "rate_type": null,
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": null,
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1500000
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 1500000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 0
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0044",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 0
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "정산월 2026-10(fixture에 없음 — 12월이 아닌 임의 월)",
+    "위탁 판매가 = fixture list_price(정산 기준가 PAID_AMOUNT 실결제액 미제시)",
+    "위탁사는 RH-0044(안전기술출판)로 둠 — RH-0051은 사단법인(법인)이라 Case 10 '개인사업자 면세사업자'와 다름. W1 결정에 따라 바꿀 수 있음"
+   ],
+   "check04": {
+    "fixture": "case_10.json",
+    "code": "CASE-10",
+    "fixtureResult": "PASS",
+    "matched": 18,
+    "expectedCount": 19,
+    "narrative": 1,
+    "diffs": [],
+    "sameAsFixtureRun": true
+   }
+  },
+  {
+   "holderId": "RH-0015",
+   "holderName": "이전기",
+   "contractId": "CT-2025-0911",
+   "case": "Case 3-B",
+   "input": "inputs/RH-0015_case03B.json",
+   "engineStatus": "OK",
+   "matches04": true,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 500000,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 500000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 16500,
+    "step10PostTaxAdjust": -3000000,
+    "step11NetPayout": -2516500,
+    "payoutCategory": "CLAIM_ISSUED"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0015",
+     "matrixCaseIds": [
+      "TX-04"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 500000,
+     "prepayOffset": 0,
+     "preTaxPayable": 500000,
+     "taxableBase": 500000,
+     "vat": 0,
+     "incomeTax": 15000,
+     "localIncomeTax": 1500,
+     "withholdingTotal": 16500,
+     "netSettleAmount": 483500,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": -2516500,
+     "claimNegativeNet": -2516500,
+     "claimIssued": true,
+     "claimAmount": 2516500,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 0,
+     "payoutJudgementAmount": 0,
+     "payoutConfirmed": false,
+     "payoutAmount": 0,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-04",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 500000,
+       "offset_amount": 0,
+       "pre_tax_payable": 500000,
+       "taxable_base": 500000,
+       "vat_amount": 0,
+       "income_tax": 15000,
+       "local_income_tax": 1500,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 483500,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2025-0911",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 500000
+      }
+     ],
+     "accrual_total": 500000,
+     "pre_tax_balance_incl_carry": 500000,
+     "mmg_basis_1_1": 500000
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 0,
+     "adjusted_1_1": 500000,
+     "mmg_subsidy": 0,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2025-0911",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 500000
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 500000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 500000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0015",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 500000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "정산월 2026-10(fixture에 없음 — 12월이 아닌 임의 월)",
+    "요율 미제시 — R/S 금액을 그대로 쓰도록 BASIC 100% · 지분 100%로 환산",
+    "실결제액 미제시(R/S 금액만) — 실결제액 = R/S ÷ (요율 × 지분)으로 역산",
+    "전속계약금 반환 '청구 선반영' — 반환 상계 동의 연결(clawback_offset_consent_yn = true)로 입력"
+   ],
+   "check04": {
+    "fixture": "case_03.json",
+    "code": "CASE-03-B",
+    "fixtureResult": "PASS",
+    "matched": 14,
+    "expectedCount": 14,
+    "narrative": 0,
+    "diffs": [],
+    "sameAsFixtureRun": true
+   },
+   "screenDiff": {
+    "step2LectureRs": [
+     0,
+     500000
+    ],
+    "step8TaxableBaseSum": [
+     0,
+     500000
+    ],
+    "step9WithholdingTax": [
+     0,
+     16500
+    ],
+    "step10PostTaxAdjust": [
+     -4818767,
+     -3000000
+    ],
+    "step11NetPayout": [
+     -4818767,
+     -2516500
+    ]
+   }
+  },
+  {
+   "holderId": "RH-0025",
+   "holderName": "정종대",
+   "contractId": "CT-2026-0501",
+   "case": "Case 8-B 구조(계산기)",
+   "input": "inputs/RH-0025_jjd.json",
+   "engineStatus": "BLOCKED_PENDING_REVIEW",
+   "matches04": null,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 1050000,
+    "step2BookRoyalty": 100000,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": -325000,
+    "step4SupportDeduct": -33000,
+    "step5SupportConfirmed": -33000,
+    "step6PrepayEligible": 2825000,
+    "step6PrepayOffset": -2825000,
+    "step7LumpSumAdd": 7000000,
+    "step8TaxableBaseSum": 7825000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 0,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 4967000,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0025",
+     "matrixCaseIds": [
+      "TX-08"
+     ],
+     "taxDecisionPendingLines": [
+      "1.1",
+      "2.1",
+      "5.1:SFA-2026-009",
+      "LUMPSUM:MS-2026-004",
+      "LUMPSUM:MS-2026-005"
+     ],
+     "splitAmount": 7792000,
+     "prepayOffset": 2825000,
+     "preTaxPayable": 4967000,
+     "taxableBase": 7825000,
+     "vat": 0,
+     "incomeTax": 0,
+     "localIncomeTax": 0,
+     "withholdingTotal": 0,
+     "netSettleAmount": 4967000,
+     "netSettleProtected": 5000000,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 4967000,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 4967000,
+     "payoutJudgementAmount": 4967000,
+     "payoutConfirmed": true,
+     "payoutAmount": 4967000,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-08",
+       "tax_decision_status": "PENDING_REVIEW",
+       "split_amount": 725000,
+       "offset_amount": 725000,
+       "pre_tax_payable": 0,
+       "taxable_base": 725000,
+       "vat_amount": 0,
+       "income_tax": null,
+       "local_income_tax": null,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 0,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "2.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-08",
+       "tax_decision_status": "PENDING_REVIEW",
+       "split_amount": 100000,
+       "offset_amount": 100000,
+       "pre_tax_payable": 0,
+       "taxable_base": 100000,
+       "vat_amount": 0,
+       "income_tax": null,
+       "local_income_tax": null,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 0,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "5.1:SFA-2026-009",
+       "origin": "NEW",
+       "matrix_case_id": "TX-08",
+       "tax_decision_status": "PENDING_REVIEW",
+       "split_amount": -33000,
+       "offset_amount": 0,
+       "pre_tax_payable": -33000,
+       "taxable_base": 0,
+       "vat_amount": 0,
+       "income_tax": null,
+       "local_income_tax": null,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": -33000,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "LUMPSUM:MS-2026-004",
+       "origin": "NEW",
+       "matrix_case_id": "TX-08",
+       "tax_decision_status": "PENDING_REVIEW",
+       "split_amount": 2000000,
+       "offset_amount": 2000000,
+       "pre_tax_payable": 0,
+       "taxable_base": 2000000,
+       "vat_amount": 0,
+       "income_tax": null,
+       "local_income_tax": null,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 0,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "LUMPSUM:MS-2026-005",
+       "origin": "NEW",
+       "matrix_case_id": "TX-08",
+       "tax_decision_status": "PENDING_REVIEW",
+       "split_amount": 5000000,
+       "offset_amount": 0,
+       "pre_tax_payable": 5000000,
+       "taxable_base": 5000000,
+       "vat_amount": 0,
+       "income_tax": null,
+       "local_income_tax": null,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 5000000,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1050000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 100000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "5.1",
+        "rate_type": "SUPPORT",
+        "agreement_id": "SFA-2026-009",
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 0
+      }
+     ],
+     "accrual_total": 1150000,
+     "pre_tax_balance_incl_carry": 1150000,
+     "mmg_basis_1_1": 1050000,
+     "own_holder_output": 0
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 0,
+     "adjusted_1_1": 1050000,
+     "mmg_subsidy": 0,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 325000,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [
+      {
+       "agreement_id": "SFA-2026-009",
+       "refund_5_1": 0,
+       "optB_5_1": 33000,
+       "optC_5_1": 0,
+       "total": 33000
+      }
+     ],
+     "deduct_components": [
+      {
+       "ref_id": "HRF-202610-01",
+       "line_key": null,
+       "path": "UNPAID_REDUCTION",
+       "amount": -205000,
+       "snapshot_payee_splits": []
+      },
+      {
+       "ref_id": "HRF-202610-03",
+       "line_key": null,
+       "path": "UNPAID_REDUCTION",
+       "amount": -120000,
+       "snapshot_payee_splits": []
+      },
+      {
+       "ref_id": "HRF-202610-01",
+       "line_key": null,
+       "path": "UNPAID_REDUCTION",
+       "amount": -15000,
+       "snapshot_payee_splits": []
+      },
+      {
+       "ref_id": "HRF-202610-03",
+       "line_key": null,
+       "path": "UNPAID_REDUCTION",
+       "amount": -18000,
+       "snapshot_payee_splits": []
+      }
+     ],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 725000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 100000
+      }
+     ],
+     "deduct_total": 358000,
+     "net_total": 792000
+    },
+    "SUPPORT_CAP": [
+     {
+      "agreement_id": "SFA-2026-009",
+      "cap_type": "CAPPED",
+      "accrued_amount": 0,
+      "status_before": "ACTIVE",
+      "restore_amount": 33000,
+      "avail_cap": 10183000,
+      "new_confirmed": 0,
+      "expired_excess": 0,
+      "confirmed_amount": -33000,
+      "confirmed_net_total": 4817000,
+      "cap_consumed_amount": 4817000,
+      "remaining_cap": 10183000,
+      "lump_settle_applied": 0,
+      "status_after": "ACTIVE",
+      "cash_paid_total": null,
+      "own_distributable": 0,
+      "own_remaining": 33000
+     }
+    ],
+    "PREPAY_OFFSET": {
+     "applicable": true,
+     "prepayment_tax_type": "LOAN",
+     "prepay_balance_before": 3500000,
+     "offset_eligible_total": 2825000,
+     "offset_withholding_equiv": 0,
+     "offset_capacity": 2825000,
+     "offset_amount_initial": 2825000,
+     "taxable_reduction_flag": false,
+     "offset_amount": 2825000,
+     "prepay_balance_after": 675000,
+     "offset_eligible_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 725000,
+       "offset": 725000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 100000,
+       "offset": 100000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "5.1",
+        "rate_type": "SUPPORT",
+        "agreement_id": "SFA-2026-009",
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 0,
+       "offset": 0
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "LUMPSUM",
+        "rate_type": null,
+        "agreement_id": null,
+        "approval_id": "MS-2026-004",
+        "income_category": "OTHER",
+        "income_clause": "C19",
+        "tax_threshold_unit_key": "CT-2026-0501::MS-2026-004"
+       },
+       "eligible": 2000000,
+       "offset": 2000000
+      }
+     ]
+    },
+    "LUMPSUM_ADD": {
+     "lines": [
+      {
+       "milestone_id": "MS-2026-004",
+       "item_kind": "SUPPORT_INSTALLMENT",
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "LUMPSUM",
+        "rate_type": null,
+        "agreement_id": null,
+        "approval_id": "MS-2026-004",
+        "income_category": "OTHER",
+        "income_clause": "C19",
+        "tax_threshold_unit_key": "CT-2026-0501::MS-2026-004"
+       },
+       "amount": 2000000,
+       "payee_id": null
+      },
+      {
+       "milestone_id": "MS-2026-005",
+       "item_kind": "SIGNING_BONUS",
+       "line_key": {
+        "contract_id": "CT-2026-0501",
+        "pipeline_id": "LUMPSUM",
+        "rate_type": null,
+        "agreement_id": null,
+        "approval_id": "MS-2026-005",
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 5000000,
+       "payee_id": null
+      }
+     ],
+     "lumpsum_total": 7000000,
+     "pre_split_supply": 7792000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0025",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 7792000
+    }
+   },
+   "supportLedger": [
+    {
+     "agreement_id": "SFA-2026-009",
+     "target_month": "2026-10",
+     "accrued_amount": 0,
+     "confirmed_amount": -33000,
+     "confirmed_net_total": 4817000,
+     "cap_consumed_amount": 4817000,
+     "cash_paid_total": 0,
+     "remaining_cap": 10183000,
+     "status_change": null,
+     "settlement_line_id": null
+    }
+   ],
+   "carryoverRows": [],
+   "prepaymentLedger": [
+    {
+     "contract_id": "CT-2026-0501",
+     "offset_amount": 2825000,
+     "balance_after": 675000,
+     "status": null
+    }
+   ],
+   "continuity": [],
+   "issues": [
+    {
+     "kind": "CANON_GAP",
+     "step_code": "TAX",
+     "rights_holder_id": "RH-0025",
+     "message": "RH-0025 1.1 세무 판정 보류: matrix_case_id_hint · 원천징수 판정 기준 공백(TAX.md 확인 필요 2 · 3)",
+     "ref": "TAX.md 확인 필요 2 · 3",
+     "question": "TAX-2"
+    },
+    {
+     "kind": "CANON_GAP",
+     "step_code": "TAX",
+     "rights_holder_id": "RH-0025",
+     "message": "RH-0025 2.1 세무 판정 보류: matrix_case_id_hint · 원천징수 판정 기준 공백(TAX.md 확인 필요 2 · 3)",
+     "ref": "TAX.md 확인 필요 2 · 3",
+     "question": "TAX-2"
+    },
+    {
+     "kind": "CANON_GAP",
+     "step_code": "TAX",
+     "rights_holder_id": "RH-0025",
+     "message": "RH-0025 5.1:SFA-2026-009 세무 판정 보류: matrix_case_id_hint · 원천징수 판정 기준 공백(TAX.md 확인 필요 2 · 3)",
+     "ref": "TAX.md 확인 필요 2 · 3",
+     "question": "TAX-2"
+    },
+    {
+     "kind": "CANON_GAP",
+     "step_code": "TAX",
+     "rights_holder_id": "RH-0025",
+     "message": "RH-0025 LUMPSUM:MS-2026-004 세무 판정 보류: matrix_case_id_hint · 원천징수 판정 기준 공백(TAX.md 확인 필요 2 · 3)",
+     "ref": "TAX.md 확인 필요 2 · 3",
+     "question": "TAX-2"
+    },
+    {
+     "kind": "CANON_GAP",
+     "step_code": "TAX",
+     "rights_holder_id": "RH-0025",
+     "message": "RH-0025 LUMPSUM:MS-2026-005 세무 판정 보류: matrix_case_id_hint · 원천징수 판정 기준 공백(TAX.md 확인 필요 2 · 3)",
+     "ref": "TAX.md 확인 필요 2 · 3",
+     "question": "TAX-2"
+    },
+    {
+     "kind": "INPUT_MISSING",
+     "step_code": "PAYOUT",
+     "rights_holder_id": "RH-0025",
+     "message": "지원금 SFA-2026-009 전월 cash_paid_total 없음 — 0에서 누계",
+     "ref": "V2 L213 · SPEC 8.3",
+     "question": null
+    }
+   ],
+   "notes": [
+    "강의 CRS-1002 실결제 3,000,000 · 지분 70% · R/S 50%, 교재(PROD-BK-1006) 50권 × 20,000 · 인세 10%(총괄 지정 입력)",
+    "약정금 MS-2026-004 2,000,000(분할형 지원금 · CONDITIONAL · 기타소득 C19) — INST-002 상태 PENDING을 승인 전제로 포함",
+    "약정금 MS-2026-005 전속계약금 5,000,000(INST-002 APPROVED · 2026-10 귀속 · NON_OFFSET) 포함",
+    "선급금 PP-2026-001 대여금 잔액 3,500,000(SETT-007 · SETT-002)",
+    "개발지원금 SFA-2026-009(한도 15,000,000 · 전월 소진 4,850,000 SETT-006 · 상계 허용) — 대상 CRS-1001 · PROD-BK-1004의 10월 매출이 시나리오에 없어 신규 발생 0, 합격환급 지원금 공제 · 한도 복원만",
+    "합격환급 HRF-202610-01(옵션 B, 환급 410,000, 원거래 지원금 30,000) · 03(옵션 B, 240,000, 36,000) · 05(옵션 A) — 01 · 05는 SETT-006 상태 PENDING을 승인 전제로 포함, 분담 비율 50%(지원금 배분 = 화면 차감액 ÷ 50%)"
+   ],
+   "alternatives": [
+    {
+     "label": "TX-08 원천징수를 소득 구분대로 적용(사업소득 3% · 기타소득 C19)으로 자문 확정할 경우",
+     "engineStatus": "OK",
+     "sett002": {
+      "step1PreTaxCarry": 0,
+      "step1PostTaxWait": 0,
+      "step2LectureRs": 1050000,
+      "step2BookRoyalty": 100000,
+      "step2SupportAccrued": 0,
+      "step3MmgSubsidy": 0,
+      "step4LectureDeduct": -325000,
+      "step4SupportDeduct": -33000,
+      "step5SupportConfirmed": -33000,
+      "step6PrepayEligible": 2825000,
+      "step6PrepayOffset": -2621775,
+      "step7LumpSumAdd": 7000000,
+      "step8TaxableBaseSum": 7825000,
+      "step9VatAmount": 0,
+      "step9WithholdingTax": 368225,
+      "step10PostTaxAdjust": 0,
+      "step11NetPayout": 4802000,
+      "payoutCategory": "PAYOUT_TARGET"
+     }
+    }
+   ],
+   "screenDiff": {
+    "step1PreTaxCarry": [
+     -120000,
+     0
+    ],
+    "step2LectureRs": [
+     7130000,
+     1050000
+    ],
+    "step2BookRoyalty": [
+     870000,
+     100000
+    ],
+    "step2SupportAccrued": [
+     1170000,
+     0
+    ],
+    "step4LectureDeduct": [
+     -581250,
+     -325000
+    ],
+    "step4SupportDeduct": [
+     -325000,
+     -33000
+    ],
+    "step5SupportConfirmed": [
+     720000,
+     -33000
+    ],
+    "step6PrepayEligible": [
+     8138750,
+     2825000
+    ],
+    "step6PrepayOffset": [
+     -3500000,
+     -2825000
+    ],
+    "step7LumpSumAdd": [
+     5000000,
+     7000000
+    ],
+    "step8TaxableBaseSum": [
+     13018750,
+     7825000
+    ],
+    "step9WithholdingTax": [
+     429610,
+     0
+    ],
+    "step11NetPayout": [
+     9089140,
+     4967000
+    ]
+   }
+  },
+  {
+   "holderId": "RH-0012",
+   "holderName": "산준교육 콘텐츠(주)",
+   "contractId": "CT-2026-0412",
+   "case": "02권 8.2 공동저자(계산기)",
+   "input": "inputs/BK1001_coauthors.json",
+   "engineStatus": "OK",
+   "matches04": null,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 3000000,
+    "step2BookRoyalty": 56000,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 3056000,
+    "step6PrepayOffset": -3056000,
+    "step7LumpSumAdd": 1800000,
+    "step8TaxableBaseSum": 4856000,
+    "step9VatAmount": 180000,
+    "step9WithholdingTax": 0,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 1980000,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0012",
+     "matrixCaseIds": [
+      "TX-07",
+      "TX-09"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 4856000,
+     "prepayOffset": 3056000,
+     "preTaxPayable": 1800000,
+     "taxableBase": 4856000,
+     "vat": 180000,
+     "incomeTax": 0,
+     "localIncomeTax": 0,
+     "withholdingTotal": 0,
+     "netSettleAmount": 1980000,
+     "netSettleProtected": 1980000,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 1980000,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 1980000,
+     "payoutJudgementAmount": 1980000,
+     "payoutConfirmed": true,
+     "payoutAmount": 1980000,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-07",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 3000000,
+       "offset_amount": 3000000,
+       "pre_tax_payable": 0,
+       "taxable_base": 3000000,
+       "vat_amount": 0,
+       "income_tax": 0,
+       "local_income_tax": 0,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 0,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "2.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-09",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 56000,
+       "offset_amount": 56000,
+       "pre_tax_payable": 0,
+       "taxable_base": 56000,
+       "vat_amount": 0,
+       "income_tax": 0,
+       "local_income_tax": 0,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 0,
+       "after_tax_amount": null
+      },
+      {
+       "line_id": "LUMPSUM:MS-2026-006",
+       "origin": "NEW",
+       "matrix_case_id": "TX-07",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 1800000,
+       "offset_amount": 0,
+       "pre_tax_payable": 1800000,
+       "taxable_base": 1800000,
+       "vat_amount": 180000,
+       "income_tax": 0,
+       "local_income_tax": 0,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 1980000,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0412",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 3000000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0412",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 56000
+      }
+     ],
+     "accrual_total": 3056000,
+     "pre_tax_balance_incl_carry": 3056000,
+     "mmg_basis_1_1": 3000000
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 0,
+     "adjusted_1_1": 3000000,
+     "mmg_subsidy": 0,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0412",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 3000000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0412",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 56000
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 3056000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": true,
+     "prepayment_tax_type": "LOAN",
+     "prepay_balance_before": 8500000,
+     "offset_eligible_total": 3056000,
+     "offset_withholding_equiv": 0,
+     "offset_capacity": 3056000,
+     "offset_amount_initial": 3056000,
+     "taxable_reduction_flag": false,
+     "offset_amount": 3056000,
+     "prepay_balance_after": 5444000,
+     "offset_eligible_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0412",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 3000000,
+       "offset": 3000000
+      },
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0412",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 56000,
+       "offset": 56000
+      }
+     ]
+    },
+    "LUMPSUM_ADD": {
+     "lines": [
+      {
+       "milestone_id": "MS-2026-006",
+       "item_kind": "LUMP_SETTLE",
+       "line_key": {
+        "contract_id": "CT-2026-0412",
+        "pipeline_id": "LUMPSUM",
+        "rate_type": null,
+        "agreement_id": null,
+        "approval_id": "MS-2026-006",
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 1800000,
+       "payee_id": null
+      }
+     ],
+     "lumpsum_total": 1800000,
+     "pre_split_supply": 4856000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0012",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 4856000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [
+    {
+     "contract_id": "CT-2026-0412",
+     "offset_amount": 3056000,
+     "balance_after": 5444000,
+     "status": null
+    }
+   ],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "PROD-BK-1001 10월 40권 × 정가 28,000(SETT-001에 정가 없음 — PTNR-001 값), 인세 10%, 지분 산준교육 50 · 이안전 30 · 자사 20(SETT-001 매핑, 요율 같음 → 총액 역산)",
+    "매핑 종료일 2026-10-14 — 구매확정일을 10-10으로 둠(15일 이후 확정분은 미매핑)",
+    "산준교육 정산서 전체: 강좌 R/S 3,000,000(기준금 6,000,000 × 50%) · 선급금 대여금 8,500,000 · MS-2026-006 종료 일시정산 1,800,000(NON_OFFSET, INST-002) — SETT-002 STMT-02 입력, 법인 TX-07(강좌 · 정산금) / TX-09(인세)"
+   ],
+   "screenDiff": {
+    "step2BookRoyalty": [
+     0,
+     56000
+    ],
+    "step6PrepayEligible": [
+     3000000,
+     3056000
+    ],
+    "step6PrepayOffset": [
+     -3000000,
+     -3056000
+    ],
+    "step8TaxableBaseSum": [
+     4800000,
+     4856000
+    ],
+    "step9VatAmount": [
+     480000,
+     180000
+    ],
+    "step11NetPayout": [
+     2280000,
+     1980000
+    ]
+   }
+  },
+  {
+   "holderId": "RH-0031",
+   "holderName": "이안전",
+   "contractId": "CT-2026-0610",
+   "case": "02권 8.2 공동저자(계산기)",
+   "input": "inputs/BK1001_coauthors.json",
+   "engineStatus": "OK",
+   "matches04": null,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 0,
+    "step2BookRoyalty": 33600,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 33600,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 1108,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 32492,
+    "payoutCategory": "CARRYOVER_HOLD"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0031",
+     "matrixCaseIds": [
+      "TX-03"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 33600,
+     "prepayOffset": 0,
+     "preTaxPayable": 33600,
+     "taxableBase": 33600,
+     "vat": 0,
+     "incomeTax": 1008,
+     "localIncomeTax": 100,
+     "withholdingTotal": 1108,
+     "netSettleAmount": 32492,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 32492,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 32492,
+     "payoutJudgementAmount": 32492,
+     "payoutConfirmed": false,
+     "payoutAmount": 0,
+     "carryLoad": 33600,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "2.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-03",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 33600,
+       "offset_amount": 0,
+       "pre_tax_payable": 33600,
+       "taxable_base": 33600,
+       "vat_amount": 0,
+       "income_tax": 1008,
+       "local_income_tax": 100,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 32492,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0610",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 33600
+      }
+     ],
+     "accrual_total": 33600,
+     "pre_tax_balance_incl_carry": 33600,
+     "mmg_basis_1_1": 0
+    },
+    "MMG_ADJ": {
+     "applicable": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0610",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 33600
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 33600
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 33600
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0031",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 33600
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [
+    {
+     "ledger_id": null,
+     "action": "NEW",
+     "rights_holder_id": "RH-0031",
+     "payee_id": "RH-0031",
+     "contract_id": "CT-2026-0610",
+     "origin_month": "2026-10",
+     "account_type": "PRE_TAX",
+     "pipeline_id": "2.1",
+     "consignment_balance_yn": false,
+     "income_category": "BUSINESS",
+     "income_clause": null,
+     "tax_threshold_unit_key": null,
+     "carryover_reason": "지급 하한 미달",
+     "carryover_amount": 33600,
+     "components": {
+      "split_amount": 33600,
+      "offset_amount": 0,
+      "vat_amount": 0
+     },
+     "first_occurred_month": "2026-10",
+     "first_payable_confirmed_month": null,
+     "payout_reservation_status": "NONE",
+     "extinguished_yn": false
+    }
+   ],
+   "prepaymentLedger": [],
+   "continuity": [
+    {
+     "account_type": "PRE_TAX",
+     "key": "RH-0031",
+     "prev_end": 0,
+     "new": 33600,
+     "extinguished": 0,
+     "end": 33600,
+     "ok": true
+    }
+   ],
+   "issues": [
+    {
+     "kind": "CANON_GAP",
+     "step_code": "PAYOUT",
+     "rights_holder_id": "RH-0031",
+     "message": "지급 이월 적재 구성요소(VAT · 상계) 보존 방식 정본 없음 — 라인별 세전 기초금액 + 구성요소",
+     "ref": "V2 L305",
+     "question": "Q-21"
+    }
+   ],
+   "notes": [
+    "PROD-BK-1001 10월 40권 × 정가 28,000(SETT-001에 정가 없음 — PTNR-001 값), 인세 10%, 지분 산준교육 50 · 이안전 30 · 자사 20(SETT-001 매핑, 요율 같음 → 총액 역산)",
+    "매핑 종료일 2026-10-14 — 구매확정일을 10-10으로 둠(15일 이후 확정분은 미매핑)"
+   ]
+  },
+  {
+   "holderId": "RH-0018",
+   "holderName": "고 박위생",
+   "contractId": "CT-2025-1102",
+   "case": "상속 분할(계산기)",
+   "input": "inputs/RH-0018_succession.json",
+   "engineStatus": "OK",
+   "matches04": null,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 0,
+    "step2BookRoyalty": 1500000,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 1500000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 330000,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 1170000,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0076",
+     "matrixCaseIds": [
+      "TX-03"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 900000,
+     "prepayOffset": 0,
+     "preTaxPayable": 900000,
+     "taxableBase": 900000,
+     "vat": 0,
+     "incomeTax": 180000,
+     "localIncomeTax": 18000,
+     "withholdingTotal": 198000,
+     "netSettleAmount": 702000,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 702000,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 702000,
+     "payoutJudgementAmount": 702000,
+     "payoutConfirmed": true,
+     "payoutAmount": 702000,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "2.1:SKU-RH0018",
+       "origin": "NEW",
+       "matrix_case_id": "TX-03",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 900000,
+       "offset_amount": 0,
+       "pre_tax_payable": 900000,
+       "taxable_base": 900000,
+       "vat_amount": 0,
+       "income_tax": 180000,
+       "local_income_tax": 18000,
+       "deemed_expense": 0,
+       "other_income_amount": 900000,
+       "threshold_exempt_yn": false,
+       "net_settle_line": 702000,
+       "after_tax_amount": null
+      }
+     ]
+    },
+    {
+     "payeeId": "RH-0077",
+     "matrixCaseIds": [
+      "TX-03"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 600000,
+     "prepayOffset": 0,
+     "preTaxPayable": 600000,
+     "taxableBase": 600000,
+     "vat": 0,
+     "incomeTax": 120000,
+     "localIncomeTax": 12000,
+     "withholdingTotal": 132000,
+     "netSettleAmount": 468000,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 468000,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 468000,
+     "payoutJudgementAmount": 468000,
+     "payoutConfirmed": true,
+     "payoutAmount": 468000,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "2.1:SKU-RH0018",
+       "origin": "NEW",
+       "matrix_case_id": "TX-03",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 600000,
+       "offset_amount": 0,
+       "pre_tax_payable": 600000,
+       "taxable_base": 600000,
+       "vat_amount": 0,
+       "income_tax": 120000,
+       "local_income_tax": 12000,
+       "deemed_expense": 0,
+       "other_income_amount": 600000,
+       "threshold_exempt_yn": false,
+       "net_settle_line": 468000,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2025-1102",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "OTHER",
+        "income_clause": "C05",
+        "tax_threshold_unit_key": "CT-2025-1102+SKU-RH0018"
+       },
+       "amount": 1500000
+      }
+     ],
+     "accrual_total": 1500000,
+     "pre_tax_balance_incl_carry": 1500000,
+     "mmg_basis_1_1": 0
+    },
+    "MMG_ADJ": {
+     "applicable": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2025-1102",
+        "pipeline_id": "2.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "OTHER",
+        "income_clause": "C05",
+        "tax_threshold_unit_key": "CT-2025-1102+SKU-RH0018"
+       },
+       "amount": 1500000
+      }
+     ],
+     "deduct_total": 0,
+     "net_total": 1500000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 1500000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0076",
+       "split_ratio": 60
+      },
+      {
+       "payee_id": "RH-0077",
+       "split_ratio": 40
+      }
+     ],
+     "payee_split_base": 1500000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "10월 세전 인세 1,500,000 = SETT-007 분할 시뮬레이션 기준금(simBaseAmount) — 판매 수량 · 정가 · 요율 화면 근거 없음, 인세 세전액을 그대로 쓰도록 환산",
+    "상속인 박승계 RH-0076 60 · 박자녀 RH-0077 40(2026-09-01부터), 기타소득 C05(payee_is_author = false · 필요경비 0%) — common-master 세무 케이스",
+    "강의 수익배분(계약 유형)은 10월 금액 근거가 없어 넣지 않음"
+   ]
+  },
+  {
+   "holderId": "RH-0042",
+   "holderName": "최그래픽",
+   "contractId": "CT-2026-0702",
+   "case": "매출연동 지원금(계산기)",
+   "input": "inputs/RH-0042_cgraphic.json",
+   "engineStatus": "OK",
+   "matches04": null,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 0,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 72000,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 72000,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 72000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 2376,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 69624,
+    "payoutCategory": "CARRYOVER_HOLD"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0042",
+     "matrixCaseIds": [
+      "TX-02"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 72000,
+     "prepayOffset": 0,
+     "preTaxPayable": 72000,
+     "taxableBase": 72000,
+     "vat": 0,
+     "incomeTax": 2160,
+     "localIncomeTax": 216,
+     "withholdingTotal": 2376,
+     "netSettleAmount": 69624,
+     "netSettleProtected": 0,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 69624,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 69624,
+     "payoutJudgementAmount": 69624,
+     "payoutConfirmed": false,
+     "payoutAmount": 0,
+     "carryLoad": 72000,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "5.1:SFA-2026-012",
+       "origin": "NEW",
+       "matrix_case_id": "TX-02",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 72000,
+       "offset_amount": 0,
+       "pre_tax_payable": 72000,
+       "taxable_base": 72000,
+       "vat_amount": 0,
+       "income_tax": 2160,
+       "local_income_tax": 216,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 69624,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0702",
+        "pipeline_id": "5.1",
+        "rate_type": "SUPPORT",
+        "agreement_id": "SFA-2026-012",
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 72000
+      }
+     ],
+     "accrual_total": 72000,
+     "pre_tax_balance_incl_carry": 72000,
+     "mmg_basis_1_1": 0,
+     "own_holder_output": 0
+    },
+    "MMG_ADJ": {
+     "applicable": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [
+      {
+       "agreement_id": "SFA-2026-012",
+       "refund_5_1": 0,
+       "optB_5_1": 0,
+       "optC_5_1": 0,
+       "total": 0
+      }
+     ],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [],
+     "deduct_total": 0,
+     "net_total": 72000
+    },
+    "SUPPORT_CAP": [
+     {
+      "agreement_id": "SFA-2026-012",
+      "cap_type": "UNLIMITED",
+      "accrued_amount": 72000,
+      "status_before": "ACTIVE",
+      "restore_amount": 0,
+      "avail_cap": null,
+      "new_confirmed": 72000,
+      "expired_excess": 0,
+      "confirmed_amount": 72000,
+      "confirmed_net_total": 72000,
+      "cap_consumed_amount": null,
+      "remaining_cap": null,
+      "lump_settle_applied": 0,
+      "status_after": "ACTIVE",
+      "cash_paid_total": 0,
+      "own_distributable": 0,
+      "own_remaining": -72000
+     }
+    ],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 72000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0042",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 72000
+    }
+   },
+   "supportLedger": [
+    {
+     "agreement_id": "SFA-2026-012",
+     "target_month": "2026-10",
+     "accrued_amount": 72000,
+     "confirmed_amount": 72000,
+     "confirmed_net_total": 72000,
+     "cap_consumed_amount": null,
+     "cash_paid_total": 0,
+     "remaining_cap": null,
+     "status_change": null,
+     "settlement_line_id": null
+    }
+   ],
+   "carryoverRows": [
+    {
+     "ledger_id": null,
+     "action": "NEW",
+     "rights_holder_id": "RH-0042",
+     "payee_id": "RH-0042",
+     "contract_id": "CT-2026-0702",
+     "origin_month": "2026-10",
+     "account_type": "PRE_TAX",
+     "pipeline_id": "5.1",
+     "consignment_balance_yn": false,
+     "income_category": "BUSINESS",
+     "income_clause": null,
+     "tax_threshold_unit_key": null,
+     "carryover_reason": "지급 하한 미달",
+     "carryover_amount": 72000,
+     "components": {
+      "split_amount": 72000,
+      "offset_amount": 0,
+      "vat_amount": 0
+     },
+     "first_occurred_month": "2026-10",
+     "first_payable_confirmed_month": null,
+     "payout_reservation_status": "NONE",
+     "extinguished_yn": false
+    }
+   ],
+   "prepaymentLedger": [],
+   "continuity": [
+    {
+     "account_type": "PRE_TAX",
+     "key": "RH-0042",
+     "prev_end": 0,
+     "new": 72000,
+     "extinguished": 0,
+     "end": 72000,
+     "ok": true
+    }
+   ],
+   "issues": [
+    {
+     "kind": "CANON_GAP",
+     "step_code": "PAYOUT",
+     "rights_holder_id": "RH-0042",
+     "message": "지급 이월 적재 구성요소(VAT · 상계) 보존 방식 정본 없음 — 라인별 세전 기초금액 + 구성요소",
+     "ref": "V2 L305",
+     "question": "Q-21"
+    }
+   ],
+   "notes": [
+    "SETT-002 STMT-04: 매출연동 지원금(무한도형 SFA-2026-012 · 요율 5%) 발생 72,000 — 지원금 모수 1,440,000 = 72,000 ÷ 5% 역산(INST-002 대상 0건 · 대상 강좌 매출 미제시)",
+    "모수 강좌의 강의 R/S는 다른 권리자 몫이라 이 입력에 넣지 않음(미매핑으로 표시됨)"
+   ],
+   "screenDiff": {
+    "step6PrepayEligible": [
+     72000,
+     0
+    ]
+   }
+  },
+  {
+   "holderId": "RH-0055",
+   "holderName": "이중도",
+   "contractId": "CT-2026-0322",
+   "case": "중도해지 · MMG · 선급금 청구(계산기)",
+   "input": "inputs/RH-0055_ijd.json",
+   "engineStatus": "OK",
+   "matches04": null,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 0,
+    "step2LectureRs": 180000,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 770000,
+    "step4LectureDeduct": -30000,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 150000,
+    "step6PrepayOffset": -145050,
+    "step7LumpSumAdd": 0,
+    "step8TaxableBaseSum": 920000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 30360,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 744590,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0055",
+     "matrixCaseIds": [
+      "TX-02"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 920000,
+     "prepayOffset": 145050,
+     "preTaxPayable": 774950,
+     "taxableBase": 920000,
+     "vat": 0,
+     "incomeTax": 27600,
+     "localIncomeTax": 2760,
+     "withholdingTotal": 30360,
+     "netSettleAmount": 744590,
+     "netSettleProtected": 716470,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 744590,
+     "claimNegativeNet": -1204950,
+     "claimIssued": true,
+     "claimAmount": 1204950,
+     "unoffsetPrepayClaim": 1204950,
+     "payableNetForPayout": 744590,
+     "payoutJudgementAmount": 744590,
+     "payoutConfirmed": true,
+     "payoutAmount": 744590,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "1.1",
+       "origin": "NEW",
+       "matrix_case_id": "TX-02",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 920000,
+       "offset_amount": 145050,
+       "pre_tax_payable": 774950,
+       "taxable_base": 920000,
+       "vat_amount": 0,
+       "income_tax": 27600,
+       "local_income_tax": 2760,
+       "deemed_expense": null,
+       "other_income_amount": null,
+       "threshold_exempt_yn": null,
+       "net_settle_line": 744590,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 0
+    },
+    "ACCRUAL": {
+     "new_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0322",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 180000
+      }
+     ],
+     "accrual_total": 180000,
+     "pre_tax_balance_incl_carry": 180000,
+     "mmg_basis_1_1": 180000
+    },
+    "MMG_ADJ": {
+     "applicable": true,
+     "mmg_amount": 950000,
+     "adjusted_1_1": 950000,
+     "mmg_subsidy": 770000,
+     "mmg_promo_overlap_flag": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 30000,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [
+      {
+       "ref_id": "RF-0055",
+       "line_key": null,
+       "path": "UNPAID_REDUCTION",
+       "amount": -30000,
+       "snapshot_payee_splits": []
+      }
+     ],
+     "return_claims": [],
+     "net_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0322",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "amount": 920000
+      }
+     ],
+     "deduct_total": 30000,
+     "net_total": 920000
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": true,
+     "prepayment_tax_type": "LOAN",
+     "prepay_balance_before": 1350000,
+     "offset_eligible_total": 150000,
+     "offset_withholding_equiv": 4950,
+     "offset_capacity": 145050,
+     "offset_amount_initial": 145050,
+     "taxable_reduction_flag": false,
+     "offset_amount": 145050,
+     "prepay_balance_after": 1204950,
+     "offset_eligible_lines": [
+      {
+       "line_key": {
+        "contract_id": "CT-2026-0322",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "agreement_id": null,
+        "approval_id": null,
+        "income_category": "BUSINESS",
+        "income_clause": null,
+        "tax_threshold_unit_key": null
+       },
+       "eligible": 150000,
+       "offset": 145050
+      }
+     ]
+    },
+    "LUMPSUM_ADD": {
+     "lines": [],
+     "lumpsum_total": 0,
+     "pre_split_supply": 920000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0055",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 920000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [],
+   "prepaymentLedger": [
+    {
+     "contract_id": "CT-2026-0322",
+     "offset_amount": 145050,
+     "balance_after": 0,
+     "status": "CLAIMED_ON_TERMINATION"
+    }
+   ],
+   "continuity": [],
+   "issues": [],
+   "notes": [
+    "SETT-002 STMT-06 입력: 강좌 기준금 450,000 × R/S 40% = 180,000, 환불 공제 30,000(환불 기준금 75,000 역산 · 미지급 감액), MMG 950,000, 선급금 대여금 잔액 1,350,000, 2026-10-20 해지"
+   ],
+   "screenDiff": {
+    "step3MmgSubsidy": [
+     800000,
+     770000
+    ],
+    "step8TaxableBaseSum": [
+     950000,
+     920000
+    ],
+    "step9WithholdingTax": [
+     31350,
+     30360
+    ],
+    "step11NetPayout": [
+     773600,
+     744590
+    ]
+   }
+  },
+  {
+   "holderId": "RH-0063",
+   "holderName": "한도해",
+   "contractId": "CT-2026-0919",
+   "case": "기타소득 C19 + 세후 이월(계산기)",
+   "input": "inputs/RH-0063_hdh.json",
+   "engineStatus": "OK",
+   "matches04": null,
+   "sett002": {
+    "step1PreTaxCarry": 0,
+    "step1PostTaxWait": 45000,
+    "step2LectureRs": 0,
+    "step2BookRoyalty": 0,
+    "step2SupportAccrued": 0,
+    "step3MmgSubsidy": 0,
+    "step4LectureDeduct": 0,
+    "step4SupportDeduct": 0,
+    "step5SupportConfirmed": 0,
+    "step6PrepayEligible": 0,
+    "step6PrepayOffset": 0,
+    "step7LumpSumAdd": 500000,
+    "step8TaxableBaseSum": 500000,
+    "step9VatAmount": 0,
+    "step9WithholdingTax": 44000,
+    "step10PostTaxAdjust": 0,
+    "step11NetPayout": 501000,
+    "payoutCategory": "PAYOUT_TARGET"
+   },
+   "payees": [
+    {
+     "payeeId": "RH-0063",
+     "matrixCaseIds": [
+      "TX-04"
+     ],
+     "taxDecisionPendingLines": [],
+     "splitAmount": 500000,
+     "prepayOffset": 0,
+     "preTaxPayable": 500000,
+     "taxableBase": 500000,
+     "vat": 0,
+     "incomeTax": 40000,
+     "localIncomeTax": 4000,
+     "withholdingTotal": 44000,
+     "netSettleAmount": 456000,
+     "netSettleProtected": 456000,
+     "carryPreTaxAfterTax": 0,
+     "netAfterReturn": 456000,
+     "claimNegativeNet": 0,
+     "claimIssued": false,
+     "claimAmount": 0,
+     "unoffsetPrepayClaim": 0,
+     "payableNetForPayout": 456000,
+     "payoutJudgementAmount": 501000,
+     "payoutConfirmed": true,
+     "payoutAmount": 501000,
+     "carryLoad": 0,
+     "excludedFromBulkTransfer": false,
+     "lines": [
+      {
+       "line_id": "LUMPSUM:MS-0063-10",
+       "origin": "NEW",
+       "matrix_case_id": "TX-04",
+       "tax_decision_status": "DECIDED",
+       "split_amount": 500000,
+       "offset_amount": 0,
+       "pre_tax_payable": 500000,
+       "taxable_base": 500000,
+       "vat_amount": 0,
+       "income_tax": 40000,
+       "local_income_tax": 4000,
+       "deemed_expense": 300000,
+       "other_income_amount": 200000,
+       "threshold_exempt_yn": false,
+       "net_settle_line": 456000,
+       "after_tax_amount": null
+      }
+     ]
+    }
+   ],
+   "steps": {
+    "CARRY_IN": {
+     "carry_pre_tax_pos": [],
+     "carry_pre_tax_neg": [],
+     "carry_post_tax_pos": [
+      {
+       "ledger_id": "L-0063-0901",
+       "rights_holder_id": "RH-0063",
+       "payee_id": "RH-0063",
+       "contract_id": "CT-2026-0919",
+       "origin_month": "2026-09",
+       "account_type": "POST_TAX",
+       "pipeline_id": "LUMPSUM",
+       "consignment_balance_yn": false,
+       "carryover_reason": "계좌 오류 미입금",
+       "carryover_amount": 45000,
+       "first_occurred_month": "2026-09",
+       "first_payable_confirmed_month": "2026-09",
+       "payout_reservation_status": "NONE",
+       "extinguished_yn": false
+      }
+     ],
+     "carry_post_tax_neg": [],
+     "consignment_balance": 0,
+     "carry_total": 45000
+    },
+    "ACCRUAL": {
+     "new_lines": [],
+     "accrual_total": 0,
+     "pre_tax_balance_incl_carry": 0,
+     "mmg_basis_1_1": 0
+    },
+    "MMG_ADJ": {
+     "applicable": false
+    },
+    "DEDUCT": {
+     "refund_deduct_1_1": 0,
+     "optB_deduct_1_1": 0,
+     "optC_deduct_1_1": 0,
+     "return_deduct_2_1": 0,
+     "support_deduct_total": [],
+     "deduct_components": [],
+     "return_claims": [],
+     "net_lines": [],
+     "deduct_total": 0,
+     "net_total": 0
+    },
+    "SUPPORT_CAP": [],
+    "PREPAY_OFFSET": {
+     "applicable": false,
+     "offset_amount": 0
+    },
+    "LUMPSUM_ADD": {
+     "lines": [
+      {
+       "milestone_id": "MS-0063-10",
+       "item_kind": "FIXED_FEE",
+       "line_key": {
+        "contract_id": "CT-2026-0919",
+        "pipeline_id": "LUMPSUM",
+        "rate_type": null,
+        "agreement_id": null,
+        "approval_id": "MS-0063-10",
+        "income_category": "OTHER",
+        "income_clause": "C19",
+        "tax_threshold_unit_key": "CT-2026-0919::MS-0063-10"
+       },
+       "amount": 500000,
+       "payee_id": null
+      }
+     ],
+     "lumpsum_total": 500000,
+     "pre_split_supply": 500000
+    },
+    "PAYEE_SPLIT": {
+     "splits_used": [
+      {
+       "payee_id": "RH-0063",
+       "split_ratio": 100
+      }
+     ],
+     "payee_split_base": 500000
+    }
+   },
+   "supportLedger": [],
+   "carryoverRows": [
+    {
+     "ledger_id": "L-0063-0901",
+     "rights_holder_id": "RH-0063",
+     "payee_id": "RH-0063",
+     "contract_id": "CT-2026-0919",
+     "origin_month": "2026-09",
+     "account_type": "POST_TAX",
+     "pipeline_id": "LUMPSUM",
+     "consignment_balance_yn": false,
+     "carryover_reason": "계좌 오류 미입금",
+     "carryover_amount": 45000,
+     "first_occurred_month": "2026-09",
+     "first_payable_confirmed_month": "2026-09",
+     "payout_reservation_status": "RESERVED",
+     "extinguished_yn": false,
+     "action": "RESERVE"
+    }
+   ],
+   "prepaymentLedger": [],
+   "continuity": [
+    {
+     "account_type": "POST_TAX",
+     "key": "RH-0063",
+     "prev_end": 45000,
+     "new": 0,
+     "extinguished": 45000,
+     "end": 0,
+     "ok": true
+    }
+   ],
+   "issues": [],
+   "notes": [
+    "SETT-002 STMT-07 입력: 마일스톤 약정금 500,000(기타소득 C19, 비상계) + 9월 세후 이월(POST_TAX) 45,000",
+    "약정금 항목 구분은 정액 수당(FIXED_FEE)으로 입력 — 화면은 '마일스톤 약정금'(INST-002에 승인 행 없음)"
+   ],
+   "screenDiff": {
+    "step10PostTaxAdjust": [
+     45000,
+     0
+    ]
+   }
+  }
+ ],
+ "open_questions": [
+  {
+   "id": "S-01",
+   "holders": [
+    "RH-0025"
+   ],
+   "kind": "정본 판정 보류",
+   "text": "TX-08(면세사업자) 원천징수 판정 기준이 정본에 없다(TAX.md 확인 필요 2). 계산기는 원천세를 산출하지 않고 PENDING_REVIEW(마감 차단)로 두며, 6단계 상계용 원천세 상당액도 0으로 본다. 표의 실지급은 원천세 전 금액. 자문으로 '소득 구분대로 원천징수'가 확정되면 아래 '대안' 값을 쓴다."
+  },
+  {
+   "id": "S-02",
+   "holders": [
+    "RH-0025"
+   ],
+   "kind": "정본 확인 필요(SPEC Q-09)",
+   "text": "합격환급 옵션 B의 강의 R/S 분담액: 계산기는 SPEC 잠정식 '환급금 × 원거래 지분 × 원거래 요율'(HRF-01 205,000 · HRF-03 120,000 = 325,000). SETT-006 화면은 분담 비율 50%를 한 번 더 곱해 102,500 · 60,000 = 162,500. 정본 산식이 없어 확정 필요(차이 162,500이 세전 · 상계 · 실지급에 그대로 반영됨)."
+  },
+  {
+   "id": "S-03",
+   "holders": [
+    "RH-0025"
+   ],
+   "kind": "화면 상태",
+   "text": "MS-2026-004(INST-002 PENDING), HRF-202610-01 · 05(SETT-006 PENDING)를 시나리오대로 승인 전제로 넣었다. 화면 상태를 APPROVED로 맞추거나, 빼면 다시 산출해야 한다. MS-2026-005 전속계약금 5,000,000은 INST-002에서 2026-10 귀속 APPROVED라 넣었다(시나리오 표에는 없음)."
+  },
+  {
+   "id": "S-04",
+   "holders": [
+    "RH-0025"
+   ],
+   "kind": "입력 없음",
+   "text": "시나리오 표의 '반품 1건'은 금액 · 대상 근거가 화면에 없어 넣지 않았다. 개발지원금 SFA-2026-009는 대상(CRS-1001 · PROD-BK-1004)의 10월 매출이 시나리오에 없어 신규 발생 0 — 합격환급 지원금 공제 33,000만 들어가 확정액이 −33,000(한도형 음수 확정, SPEC Q-11 잠정). 지원금 전월 지급 누계(cash_paid_total) · 순누계 초깃값도 화면에 없어 순누계 = 전월 소진액, 지급 누계 0에서 시작."
+  },
+  {
+   "id": "S-05",
+   "holders": [
+    "RH-0012"
+   ],
+   "kind": "정본 확인 필요(SPEC Q-17 · OPEN_ISSUES E-09)",
+   "text": "VAT 공급가액 기준: 계산기는 TAX.md대로 '세전 지급액(상계 후)'에 10%를 붙여 부가세 180,000(세금계산서 공급가액 1,800,000). 02권 L264 '공급가액 = 세전 지급액(상계 전 공급가액 기준)'을 상계 전 금액으로 읽으면 공급가액 4,856,000 · 부가세 485,600 · 실지급 2,285,600. 현재 SETT-002는 상계 전 기준(480,000)으로 표기. 세무 판단 필요 — 확정 전까지 정산서 VAT는 확정하지 말 것."
+  },
+  {
+   "id": "S-06",
+   "holders": [
+    "RH-0012",
+    "RH-0031"
+   ],
+   "kind": "입력 근거",
+   "text": "PROD-BK-1001 정가가 SETT-001에 없어 PTNR-001의 28,000을 썼다. 공동저자 지분 매핑 종료일이 2026-10-14라 구매확정일을 10-10으로 두었다(10-15 이후 확정분은 미매핑 · 정산 0원). 산준교육 지원금 SFA-2026-001(15%, 10-01~10-14)은 종료 일시정산(MS-2026-006)으로 종결된 것으로 보고 10월 매출연동 발생은 넣지 않았다."
+  },
+  {
+   "id": "S-07",
+   "holders": [
+    "RH-0055"
+   ],
+   "kind": "화면 값이 정본과 다름",
+   "text": "MMG 보전금: 정본은 '월 보장액 − 2단계 순수 신규 R/S'(환불 공제 전, 02권 L193 · 01권 15.2절 예시) → 950,000 − 180,000 = 770,000. 현재 SETT-002는 환불 후 150,000 기준 800,000. 그 결과 과세표준 920,000(화면 950,000), 원천세 30,360(화면 31,350), 실지급 744,590(화면 773,600). 해지 미상계 선급금 청구 1,204,950 · 상계 145,050은 같다."
+  },
+  {
+   "id": "S-08",
+   "holders": [
+    "RH-0063"
+   ],
+   "kind": "표기",
+   "text": "9월 세후 이월 45,000은 1단계(step1PostTaxWait)에만 넣고 11단계에서 더한다. 현재 SETT-002는 step10PostTaxAdjust에도 45,000을 적어 두 번 표기 — 계산기 값은 step10PostTaxAdjust 0."
+  },
+  {
+   "id": "S-09",
+   "holders": [
+    "RH-0018"
+   ],
+   "kind": "입력 근거",
+   "text": "10월 판매 근거가 화면에 없어 SETT-007 분할 시뮬레이션 기준금 1,500,000을 인세 세전액으로 썼다(강의 수익배분은 금액 근거 없어 미반영). 상속인 세무는 기타소득 C05(필요경비 0%, 22%)."
+  },
+  {
+   "id": "S-10",
+   "holders": [
+    "RH-0042"
+   ],
+   "kind": "입력 근거",
+   "text": "지원금 발생 72,000만 화면에 있어 모수 1,440,000(= 72,000 ÷ 5%)으로 역산. INST-002의 SFA-2026-012는 대상 0건(등록 차단 시연)이라 실제 대상 강좌를 정해야 한다."
+  },
+  {
+   "id": "S-11",
+   "holders": [
+    "RH-0044"
+   ],
+   "kind": "선택",
+   "text": "Case 10 위탁사를 RH-0044(안전기술출판)로 두었다. RH-0051(사단법인 한국소방학회)은 법인이라 Case 10 '개인사업자 면세사업자'와 맞지 않음. W1이 다르게 정하면 holderId만 바꾸면 된다(금액 같음)."
+  },
+  {
+   "id": "S-12",
+   "holders": [
+    "RH-0046"
+   ],
+   "kind": "입력 없음",
+   "text": "D-9 합격환급 옵션 B는 원거래 확정 지원금 100,000(분담 100%)만 넣었다. 같은 환급의 강의 R/S 분담액(환급금)은 시나리오에 없어 0. SETT-006의 이건설 HRF-202610-04는 옵션 A(차감 0)라 W2가 옵션 B 건으로 맞춰야 한다."
+  }
+ ]
+}

@@ -1,0 +1,191 @@
+{
+ "settlement_month": "2026-10",
+ "rights_holders": [
+  {
+   "rights_holder_id": "RH-0012",
+   "rights_holder_type": "CORP",
+   "is_resident": true,
+   "tax_type_cd": "01",
+   "corp_no": "120-88-00001",
+   "payee_tax_type": "GENERAL",
+   "tax_invoice_eligible_yn": true,
+   "income_category": "BUSINESS"
+  },
+  {
+   "rights_holder_id": "RH-0031",
+   "rights_holder_type": "AUTHOR",
+   "is_resident": true,
+   "income_category": "BUSINESS",
+   "payee_is_author": true
+  },
+  {
+   "rights_holder_id": "RH-INTERNAL",
+   "rights_holder_type": "INTERNAL",
+   "is_internal": true
+  }
+ ],
+ "contracts": [
+  {
+   "contract_id": "CT-2026-0412",
+   "rights_holder_id": "RH-0012",
+   "contract_status": "ACTIVE",
+   "start_date": "2026-01-01",
+   "current_end_date": "2026-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  },
+  {
+   "contract_id": "CT-2026-0610",
+   "rights_holder_id": "RH-0031",
+   "contract_status": "ACTIVE",
+   "start_date": "2025-03-01",
+   "current_end_date": "2027-02-28",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  },
+  {
+   "contract_id": "CT-INTERNAL-000",
+   "rights_holder_id": "RH-INTERNAL",
+   "contract_status": "ACTIVE",
+   "start_date": "2024-01-01",
+   "current_end_date": "2027-12-31",
+   "min_payout_limit": 100000,
+   "min_claim_limit": -100000,
+   "vat_treatment": "VAT_EXCLUDED",
+   "refund_promo_burden_type": "A"
+  }
+ ],
+ "rate_lines": [
+  {
+   "contract_id": "CT-2026-0412",
+   "rate_type": "BASIC",
+   "rate_value": 50,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "pipeline_id": "1.1"
+  },
+  {
+   "contract_id": "CT-2026-0412",
+   "rate_type": "BASIC",
+   "rate_value": 10,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "pipeline_id": "2.1"
+  },
+  {
+   "contract_id": "CT-2026-0610",
+   "rate_type": "BASIC",
+   "rate_value": 10,
+   "start_date": "2025-03-01",
+   "end_basis": "CONTRACT_LINKED"
+  },
+  {
+   "contract_id": "CT-INTERNAL-000",
+   "rate_type": "BASIC",
+   "rate_value": 10,
+   "start_date": "2024-01-01",
+   "end_basis": "CONTRACT_LINKED",
+   "pipeline_id": "2.1"
+  }
+ ],
+ "lecture_instructors": [
+  {
+   "lecture_id": "CT-2026-0412-LEC",
+   "rights_holder_id": "RH-0012",
+   "contract_id": "CT-2026-0412",
+   "share_ratio": 100,
+   "start_date": "2026-01-01",
+   "end_basis": "CONTRACT_LINKED"
+  }
+ ],
+ "book_authors": [
+  {
+   "book_sku_id": "PROD-BK-1001",
+   "rights_holder_id": "RH-0012",
+   "contract_id": "CT-2026-0412",
+   "share_ratio": 50,
+   "start_date": "2024-10-15",
+   "end_basis": "FIXED_DATE",
+   "end_date": "2026-10-14",
+   "income_category": "BUSINESS"
+  },
+  {
+   "book_sku_id": "PROD-BK-1001",
+   "rights_holder_id": "RH-0031",
+   "contract_id": "CT-2026-0610",
+   "share_ratio": 30,
+   "start_date": "2024-10-15",
+   "end_basis": "FIXED_DATE",
+   "end_date": "2026-10-14",
+   "income_category": "BUSINESS"
+  },
+  {
+   "book_sku_id": "PROD-BK-1001",
+   "rights_holder_id": "RH-INTERNAL",
+   "contract_id": "CT-INTERNAL-000",
+   "share_ratio": 20,
+   "start_date": "2024-10-15",
+   "end_basis": "FIXED_DATE",
+   "end_date": "2026-10-14"
+  }
+ ],
+ "payee_splits": [],
+ "support_fund_agreements": [],
+ "support_fund_agreement_targets": [],
+ "support_fund_ledger_prev": [],
+ "prepayments": [
+  {
+   "prepayment_id": "PP-2026-0412",
+   "contract_id": "CT-2026-0412",
+   "offset_payee_id": "RH-0012",
+   "prepayment_tax_type": "LOAN",
+   "prepay_unoffset_balance": 8500000
+  }
+ ],
+ "order_items": [
+  {
+   "order_item_id": "OI-0012-LEC",
+   "item_type": "LECTURE",
+   "product_id": "CT-2026-0412-LEC",
+   "paid_amount": 6000000,
+   "allocation_applied": true,
+   "approved_at": "2026-10-12T10:00:00",
+   "lectures": [
+    {
+     "lecture_id": "CT-2026-0412-LEC",
+     "lecture_base_amount": 6000000
+    }
+   ]
+  },
+  {
+   "order_item_id": "OI-BK1001",
+   "item_type": "BOOK",
+   "book_sku_id": "PROD-BK-1001",
+   "book_supply_type_snapshot": "OWN_PUBLISHED",
+   "confirmed_qty": 40,
+   "royalty_base_price": 28000,
+   "purchase_confirmed_at": "2026-10-10T00:00:00"
+  }
+ ],
+ "refund_lines": [],
+ "pass_refund_deductions": [],
+ "lumpsum_approvals": [
+  {
+   "milestone_id": "MS-2026-006",
+   "contract_id": "CT-2026-0412",
+   "rights_holder_id": "RH-0012",
+   "item_kind": "LUMP_SETTLE",
+   "offset_type": "NON_OFFSET",
+   "amount": 1800000,
+   "target_month": "2026-10",
+   "approval_status": "APPROVED",
+   "income_category": "BUSINESS"
+  }
+ ],
+ "clawbacks": [],
+ "carryover_ledger": []
+}

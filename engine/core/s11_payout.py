@@ -29,7 +29,8 @@ def cash_paid(ctx, c):
         month = D(0)
         for p in c.payees.values():
             if p.out["PAYOUT"].get("payout_confirmed_yn"):
-                month += sum((ln.get("net_settle_line") or D(0) for ln in p.lines
+                # 환불 · 공제로 음수가 된 라인은 지급 누계를 되돌리지 않는다(V2 8.3 5단계 '실제 지급 누계는 되돌리지 않으며')
+                month += sum((max(D(0), ln.get("net_settle_line") or D(0)) for ln in p.lines
                               if ln["origin"] == "NEW" and ln["line_id"] == f"5.1:{aid}"), D(0))
         prev = row.get("cash_paid_total")
         if prev is None:
