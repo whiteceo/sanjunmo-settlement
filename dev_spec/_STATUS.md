@@ -45,7 +45,7 @@
 3. dev_spec은 모든 그룹 병렬(prototype_clean과 무관).
 4. prototype_dev 확장 사본은 prototype_clean 통합 커밋("Prototype check" 세션) 뒤에 만든다.
 
-## 화면별 상태 (10-27 04시 기준)
+## 화면별 상태 (10-27 v6.85 기준 — 전 화면을 v6.84 원본으로 다시 맞춤, 39개 검사 통과, 모달 결함은 v6.84 공통 수정으로 해소)
 - dev_spec 명세: 프로토타입 화면 38개 전부 + 신규 PTNR-002 · 003 (00_WORKFLOW_GUIDE는 안내 문서라 제외). 기준 dev d562524a.
 - prototype_dev: 38개 전부 + 신규 2개. 모두 `check_dev_screen.py` 통과(clean과 같은 동작 · 오류 0 · onclick 누락 0). 원본 상태는 `prototype_dev/_SOURCES.md`.
 - 원본이 v6.72 이후 다른 세션 미커밋 상태에서 맞춘 화면: BOOK-001 · INST-001(그 세션 커밋 후 apply 다시). SETT-008 · 009 · VEND-001은 v6.72 다음 커밋 기준.

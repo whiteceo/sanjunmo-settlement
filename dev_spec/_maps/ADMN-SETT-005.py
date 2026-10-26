@@ -93,8 +93,8 @@ R('<div class="filter-bar">', '<div class="filter-bar" id="searchForm"' + attrs(
                                                                               note="KEEP: applied_month · origin_month · adjust_type · reason_type · status · keyword · page") + '>')
 NAME("searchInput", "keyword", note="권리자명 · 수취인명 · 소명 내용 LIKE (조정 ID · 원 정산서 ID 검색은 개발 없음)")
 NAME("reasonFilter", "reason_type", note="개발 13종 소문자 snake: rate_error · share_error · payee_split_error · refund_missing · lumpsum_month_error · buyout_income_error · tax_type_misjudge · reconcile_diff · account_transfer · book_supply_type_error · support_cap_error · consignment_fee_error · etc")
-R('                <option value="TAX_TYPE_ERR">과세유형 오인 (TAX_TYPE_ERR)</option>\n              </select>\n',
-  '                <option value="TAX_TYPE_ERR">과세유형 오인 (TAX_TYPE_ERR)</option>\n              </select>\n'
+R('                <option value="ETC">기타 (ETC)</option>\n              </select>\n',
+  '                <option value="ETC">기타 (ETC)</option>\n              </select>\n'
   '              <input type="month" class="input" name="applied_month" value="2026-10" title="반영월" data-dev-flag="dev-only" data-dev-note="개발 필터 applied_month">\n'
   '              <input type="month" class="input" name="origin_month" title="원 발생월" data-dev-flag="dev-only" data-dev-note="개발 필터 origin_month">\n'
   '              <select class="select" name="adjust_type" data-dev-flag="dev-only" data-dev-note="개발 TYPE_LABELS 6종"><option value="">전체 조정 유형</option><option value="CURRENT">당월 수동 조정</option><option value="PRIOR_FIX">전월 정정</option><option value="ACCOUNT_TRANSFER">계정 간 대체 전표</option><option value="PRO_RATA">지원금 이행률 정산</option><option value="SUPPORT_CAP_MANUAL">지원금 한도 수기 조정</option><option value="ALLOWANCE">정액 · 건당 수당</option></select>\n'
@@ -118,8 +118,7 @@ R('<option value="PRIOR_CORRECTION">', '<option value="PRIOR_CORRECTION" data-de
 NAME("newPayee", "payee_id", note="NULL = 권리자 본인. rights_holder_id는 원 정산서에서 자동")
 NAME("newOriginStmt", "origin_settlement_id", note="정수 id — PRIOR_FIX · ACCOUNT_TRANSFER면 필수 (프로토타입 STMT-YYYYMM-…)")
 NAME("newReasonCode", "reason_type", note="개발 13종 소문자 snake(3절)")
-R('<option value="PREPAY_OFFSET_ERR">', '<option value="PREPAY_OFFSET_ERR" data-dev-flag="proto-only" data-dev-note="개발 reason_type에 없음(정책 확인)">')
-R('<option value="MMG_CALC_ERR">', '<option value="MMG_CALC_ERR" data-dev-flag="proto-only" data-dev-note="개발 reason_type에 없음(정책 확인)">')
+# 10-27 v6.84: 원본에서 PREPAY_OFFSET_ERR · MMG_CALC_ERR 삭제(개발 13종과 같아짐)
 R('id="newTaxTypeEvidence"', 'id="newTaxTypeEvidence" data-dev-flag="proto-only" data-dev-note="과세유형 오인 근거 파일 — 개발 없음"')
 NAME("newOriginMonth", "origin_month", note="YYYY-MM · PRIOR_FIX면 applied_month보다 앞서야")
 NAME("newAppliedMonth", "applied_month")

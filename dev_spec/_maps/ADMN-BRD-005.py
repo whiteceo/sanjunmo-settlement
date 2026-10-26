@@ -120,7 +120,7 @@ R('<div class="ctx-note" id="pe-reward-note" style="margin-top:14px; margin-bott
 
 # ── BRD-010 무료콘텐츠 목록 ───────────────────────────
 NAME("fl-type-filter", "type", value="EXAM 빈출자료 · DAILY 매일 1문제")
-R('<option value="FREE_LECTURE">', '<option value="FREE_LECTURE" data-dev-flag="proto-only" data-dev-note="무료특강 영상 — 개발 구분에 없음">', count=2)
+# 10-27 v6.84: 원본에서 FREE_LECTURE 구분 삭제(개발 구분과 같아짐)
 NAME("fl-cert-filter", "cert", note="값 = categories.id (1Depth 자격증)")
 R('<button class="btn btn-primary" onclick="openFreeLecturePage(null)">',
   '<button class="btn btn-outline" data-dev-flag="dev-only"' + attrs(route="admin.free-contents.download", method="GET", url=A + "/free-contents/download", perm="다운로드",

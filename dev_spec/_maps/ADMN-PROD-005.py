@@ -132,8 +132,7 @@ R('maxlength="200" value="필기+실기 전 과정 무제한 수강 + 공식 주
   '                    <textarea class="form-input" name="description" rows="3" placeholder="패키지 소개 (에디터)"></textarea>\n'
   '                  </td>\n'
   '                </tr>')
-ACT("autoDistributeCourseWeights", flag="proto-only",
-    note="안분 가중치 — 개발은 서버가 강좌 정가 비율로 price_ratio · discount_amount 자동 계산, 수정 불가(정책 질문 Q-PROD005-2)")
+# 10-27 v6.84: 원본에서 [자동 안분] 버튼 삭제(D-PROD-04 정본 처리 — 정가 비율 자동, 개발과 같아짐)
 ACT("openCoursePickerModal", route="admin.api.courses", method="GET", url=A + "/api/courses", perm="로그인만(메뉴 권한 밖)")
 ACT("openBookPickerModal", route="admin.api.books", method="GET", url=A + "/api/books", perm="로그인만(메뉴 권한 밖)",
     note="교재 정보는 admin.packages.books.index GET /packages/books")

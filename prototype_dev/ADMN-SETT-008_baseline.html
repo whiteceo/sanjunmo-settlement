@@ -480,7 +480,7 @@ code, pre, kbd, samp,
       <section class="kpi-grid">
         <div class="kpi-card active" data-filter="ALL">
           <div class="k-title">전체 조회 대상 거래처</div>
-          <div class="k-num" id="kpiAll">8곳</div>
+          <div class="k-num" id="kpiAll">10곳</div>
           <div class="k-sub">권리자 · 위탁자 · 도서 매입처</div>
         </div>
         <div class="kpi-card" data-filter="CHANGE_DETECTED" data-dev-route="admin.settlement.nts.index" data-dev-method="GET" data-dev-url="/sj-admin/settlement/nts" data-dev-perm="조회" data-dev-name="review" data-dev-value="unreviewed">
@@ -500,7 +500,7 @@ code, pre, kbd, samp,
         </div>
         <div class="kpi-card" data-filter="NORMAL">
           <div class="k-title">🟢 계속사업자 · 유효기간(90일) 정상</div>
-          <div class="k-num" id="kpiNormal" style="color:var(--success);">3건</div>
+          <div class="k-num" id="kpiNormal" style="color:var(--success);">5건</div>
           <div class="k-sub">원장 과세유형 일치 · 마감 가능</div>
         </div>
       </section>
@@ -974,6 +974,68 @@ code, pre, kbd, samp,
           tax_type: "부가가치세 일반과세자",
           tax_type_cd: "01",
           end_dt: "20261005",
+          utcc_yn: "N"
+        }
+      },
+      {
+        id: "NTS-202609-01",
+        partnerType: "권리자",
+        partnerId: "RH-0012",
+        partnerName: "산준교육 콘텐츠 주식회사 (법인 일반과세)",
+        bizNo: "120-88-00001",
+        corpNo: "",
+        triggerName: "정기 재조회",
+        checkedAt: "2026-09-15 09:04:40",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "일반과세자 (GENERAL)",
+        apiTaxTypeLabel: "일반과세자 (GENERAL · 코드 01)",
+        apiTaxTypeCd: "01",
+        matrixCaseLabel: "일반과세 법인 (강의 TX-07 / 인세 TX-09)",
+        invoiceEligibleText: "발급 가능 (true)",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "-",
+        controlStatus: "NORMAL",
+        controlStatusLabel: "정상 일치 (90일 유효기간 내)",
+        memo: "진위확인 및 상태조회 완료. 원장 과세유형(법인 일반과세, 강의 R/S TX-07 · 공동저자 인세 TX-09 · 계약 CT-2026-0412)과 일치. 유효기간 2026-12-13까지로 2026-10 정산 마감에 그대로 사용.",
+        rawJson: {
+          b_no: "1208800001",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "부가가치세 일반과세자",
+          tax_type_cd: "01",
+          end_dt: "",
+          utcc_yn: "N"
+        }
+      },
+      {
+        id: "NTS-202609-02",
+        partnerType: "위탁자",
+        partnerId: "RH-0044",
+        partnerName: "안전기술출판 (위탁 도서 · 개인 면세사업자)",
+        bizNo: "105-90-77221",
+        corpNo: "",
+        triggerName: "정기 재조회",
+        checkedAt: "2026-09-15 09:05:02",
+        bStt: "계속사업자 (01)",
+        ledgerTaxTypeLabel: "면세사업자 (EXEMPT)",
+        apiTaxTypeLabel: "면세사업자 (EXEMPT · 코드 04)",
+        apiTaxTypeCd: "04",
+        matrixCaseLabel: "도서 재화 공급 면세 (TX-11 고정)",
+        invoiceEligibleText: "면세 계산서 수취 대상 (도서 재화 공급)",
+        taxTypeChangeDt: "-",
+        invoiceApplyDt: "-",
+        endDt: "-",
+        controlStatus: "NORMAL",
+        controlStatusLabel: "정상 일치 (도서 면세 TX-11 고정)",
+        memo: "진위확인 및 상태조회 완료. 원장 과세유형(개인 면세사업자)과 일치하며, 위탁 도서 공급 계약(CT-2026-0705)은 17.3절 공급 성격 우선 규칙에 따라 도서 면세 계산서 수취(TX-11)로 고정함. 유효기간 2026-12-13까지로 2026-10 정산 마감에 그대로 사용.",
+        rawJson: {
+          b_no: "1059077221",
+          b_stt: "계속사업자",
+          b_stt_cd: "01",
+          tax_type: "부가가치세 면세사업자",
+          tax_type_cd: "04",
+          end_dt: "",
           utcc_yn: "N"
         }
       }
