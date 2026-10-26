@@ -1,0 +1,3793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>주문 · 배송 통합 관리 및 3PL 물류 연동 — 산준모닷컴 백오피스 v4.0.0</title>
+  <style>
+    :root {
+      --bg-body: #F1F5F9;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --text-main: #0F172A;
+      --text-sub: #475569;
+      --text-muted: #64748B;
+      --primary: #2563EB;
+      --primary-bg: #EFF6FF;
+      --success: #16A34A;
+      --success-bg: #F0FDF4;
+      --warn: #D97706;
+      --warn-bg: #FFFBEB;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --purple: #7C3AED;
+      --purple-bg: #F5F3FF;
+      --teal: #0D9488;
+      --teal-bg: #F0FDFA;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .main-container {
+      padding: 20px 24px 60px;
+      max-width: 1640px;
+      margin: 0 auto;
+    }
+
+    /* 카드 공통 */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    .card-header {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #FFFFFF;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+    .card-body { padding: 16px 18px; }
+
+    /* 신호등 색상 */
+    .light-green { background: #DCFCE7; color: #15803D; border: 1px solid #BBF7D0; }
+    .light-blue { background: #DBEAFE; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .light-amber { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+    .light-purple { background: #F3E8FF; color: #6D28D9; border: 1px solid #E9D5FF; }
+
+    /* 검색 필터 테이블 */
+    .search-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .search-table th {
+      width: 120px;
+      background: var(--bg-subtle);
+      color: var(--text-sub);
+      font-weight: 700;
+      font-size: 12px;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .search-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      background: #FFFFFF;
+      vertical-align: middle;
+    }
+    .search-table tr:last-child th,
+    .search-table tr:last-child td { border-bottom: none; }
+
+    .form-input, .form-select {
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--text-main);
+      background: #FFFFFF;
+      font-family: inherit;
+    }
+    .form-input:disabled, .form-select:disabled {
+      background: #F1F5F9;
+      color: #94A3B8;
+      cursor: not-allowed;
+    }
+
+    /* 칩(토글) 그룹 */
+    .chip-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .filter-chip {
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.12s;
+    }
+    .filter-chip:hover { border-color: #94A3B8; background: var(--bg-subtle); }
+    .filter-chip.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    /* 버튼 */
+    .btn {
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid transparent;
+      font-family: inherit;
+      transition: all 0.14s;
+      white-space: nowrap;
+    }
+    .btn-sm { height: 28px; padding: 0 9px; font-size: 11.5px; border-radius: 5px; }
+    .btn-primary { background: var(--primary); color: #FFFFFF; }
+    .btn-primary:hover { background: #1D4ED8; }
+    .btn-dark { background: #0F172A; color: #FFFFFF; }
+    .btn-dark:hover { background: #1E293B; }
+    .btn-outline { background: #FFFFFF; border-color: var(--border-strong); color: var(--text-main); }
+    .btn-outline:hover { background: var(--bg-subtle); border-color: #94A3B8; }
+    .btn-danger { background: var(--danger-bg); border-color: #FECACA; color: var(--danger); }
+    .btn-danger:hover { background: #FEE2E2; }
+    .btn-warn { background: var(--warn-bg); border-color: #FDE68A; color: #B45309; }
+    .btn:disabled, .btn.btn-disabled {
+      background: #F1F5F9 !important;
+      border-color: #E2E8F0 !important;
+      color: #94A3B8 !important;
+      cursor: not-allowed !important;
+    }
+
+    /* 배지 */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      height: 20px;
+      padding: 0 7px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .b-blue { background: var(--primary-bg); color: var(--primary); border: 1px solid #BFDBFE; }
+    .b-green { background: var(--success-bg); color: var(--success); border: 1px solid #BBF7D0; }
+    .b-amber { background: var(--warn-bg); color: var(--warn); border: 1px solid #FDE68A; }
+    .b-red { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
+    .b-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid #DDD6FE; }
+    .b-teal { background: var(--teal-bg); color: var(--teal); border: 1px solid #99F6E4; }
+    .b-gray { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
+
+    /* 탭 네비게이션 */
+    .tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: #F8FAFC;
+      border-radius: 8px 8px 0 0;
+    }
+    .tab-cnt {
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #E2E8F0;
+      color: #334155;
+      font-weight: 800;
+    }
+    .tab-btn.active .tab-cnt {
+      background: var(--primary);
+      color: #FFFFFF;
+    }
+
+    /* 툴바 */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* 데이터 테이블 */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFFFFF;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1120px;
+    }
+    table.data-table th {
+      background: var(--bg-subtle);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+      vertical-align: middle;
+    }
+    table.data-table tbody tr:hover { background: #F8FAFC; }
+    table.data-table tbody tr.row-vbank { background: #FFFBEB; }
+    table.data-table tbody tr.row-refund { background: #FEF2F2; }
+    table.data-table tbody tr.row-selected { background: #EFF6FF; }
+
+    .order-line-box {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .order-line-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* 안내 배너 */
+    .notice-bar {
+      padding: 11px 14px;
+      border-radius: 8px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      color: #1E3A8A;
+      font-size: 12.5px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .notice-bar.warn {
+      background: #FFFBEB;
+      border-color: #FDE68A;
+      color: #92400E;
+    }
+    .notice-bar.danger {
+      background: #FEF2F2;
+      border-color: #FECACA;
+      color: #991B1B;
+    }
+
+    /* 상세 화면 Key-Value 표 */
+    .kv-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .kv-table th {
+      width: 140px;
+      background: var(--bg-subtle);
+      color: var(--text-sub);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .kv-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      font-size: 12.5px;
+      background: #FFFFFF;
+    }
+
+    /* 주문 상세 진행 스텝 */
+    .order-steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .order-step-item {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .order-step-item.done {
+      border-color: #BBF7D0;
+      background: #F0FDF4;
+      color: #15803D;
+    }
+    .order-step-item.current {
+      border-color: var(--primary);
+      background: var(--primary-bg);
+      color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+    }
+    .step-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      background: #E2E8F0;
+      color: #475569;
+    }
+    .order-step-item.done .step-circle { background: #16A34A; color: #FFFFFF; }
+    .order-step-item.current .step-circle { background: var(--primary); color: #FFFFFF; }
+
+    /* 변경 전/후 비교 박스 (Pair Box) */
+    .pair-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .pair-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+    .pair-hd {
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #F1F5F9;
+      color: var(--text-sub);
+      border-bottom: 1px solid var(--border);
+    }
+    .pair-hd.after {
+      background: #EFF6FF;
+      color: var(--primary);
+    }
+    .pair-bd { padding: 12px; font-size: 12.5px; line-height: 1.6; }
+
+    /* 서브뷰 전환 */
+    .subview-panel { display: none; }
+    .subview-panel.active { display: block; }
+
+    /* 모달 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-dialog {
+      background: #FFFFFF;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 860px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title { font-size: 15px; font-weight: 800; margin: 0; }
+    .modal-body { padding: 18px 20px; overflow-y: auto; }
+    .modal-footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--bg-subtle);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* 알림톡 프리뷰 박스 */
+    .kakao-preview {
+      background: #FEF9C3;
+      border: 1px solid #FDE047;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12px;
+      color: #1E293B;
+      white-space: pre-line;
+      line-height: 1.55;
+    }
+
+    .mono { font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-size: 11.5px; }
+    .text-right { text-align: right !important; }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-ORD-001", "devCommit": "d562524a", "progress": "구현(ORD-001 · 001-S1 · 002 · 002-P1~P3). 001-P4 직권 부여 · 가상계좌 기한 연장 · 3PL 외부 계정은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.orders.index", "label": "주문 내역 관리 (목록 · 상세)"}, {"route": "admin.deliveries.index", "label": "배송 관리 · 3PL 연동"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="top-bar-left">
+        <div class="crumb-group">
+          <span class="crumb-code">ADMN-ORD-001</span>
+          <span class="crumb-title" id="topbar-title">주문 · 배송 통합 관리 및 3PL 물류 연동</span>
+        </div>
+      </div>
+      <div class="top-bar-right" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <!-- 접속 권한/세션 모드 전환 (최고운영자 vs 외부 물류 3PL 파트너 격리) -->
+        <div style="display:inline-flex;background:#F1F5F9;padding:3px;border-radius:8px;border:1px solid #CBD5E1;gap:4px;">
+          <button type="button" class="btn btn-sm btn-dark" id="btnRoleAdmin" data-dev-flag="proto-only" data-dev-note="3PL 외부 계정(ROLE_PARTNER_3PL) — 개발에 역할 없음, 메뉴 권한만(Q-ORD-4)" onclick="setSessionRole('ADMIN')">👑 운영자 전체 권한</button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnRole3pl" data-dev-flag="proto-only" data-dev-note="3PL 외부 계정(ROLE_PARTNER_3PL) — 개발에 역할 없음, 메뉴 권한만(Q-ORD-4)" onclick="setSessionRole('ROLE_PARTNER_3PL')">🚚 3PL 물류 격리 (ROLE_PARTNER_3PL)</button>
+        </div>
+
+        <div class="subview-switcher" id="ordViewSwitcher" style="display:inline-flex;background:#F1F5F9;padding:3px;border-radius:8px;border:1px solid #E2E8F0;gap:4px;">
+          <button type="button" class="btn btn-sm btn-primary" id="sw-ord001" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders" data-dev-perm="조회" onclick="switchOrdView('ord001')">📋 1. 주문 내역 관리 (ORD-001)</button>
+          <button type="button" class="btn btn-sm btn-outline" id="sw-ord002" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회" onclick="switchOrdView('ord002')">🚚 2. 3PL 배송·출고·반품검수 (ORD-002)</button>
+          <button type="button" class="btn btn-sm btn-outline" id="sw-ord001s1" data-dev-route="admin.orders.show" data-dev-method="GET" data-dev-url="/sj-admin/orders/{order}" data-dev-perm="조회" onclick="switchOrdView('ord001s1')">🔍 3. 주문 상세 · 배송지 Lock (ORD-001-S1)</button>
+        </div>
+        <span class="badge b-blue" id="topbarPgBadge">PG: 토스페이먼츠 (전 수단 연동)</span>
+      </div>
+    </header>
+
+    <div id="v4-page-body">
+      <div class="main-container">
+
+        <!-- 상단 4단계 워크플로우 신호등 (공통 규격: 1층 신호등 / 2층 단계명 / 3층 설명) -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🚦 주문 · 3PL 물류 · 환불 · 정산 대사 4단계 자동 연동 파이프라인 (SET3-5 · 합의서 정산 기준)</h2>
+            <span class="badge b-gray">실결제금액 단일 원장 기준</span>
+          </div>
+          <div class="card-body">
+            <div class="step-banner-grid">
+              <div class="step-node current-screen" onclick="switchOrdView('ord001')" style="cursor:pointer;">
+                <div class="step-node-top">
+                  <span class="step-num">Step 1. 통합 주문 · 라인 분리 인서트</span>
+                  <span class="step-light light-blue">🔵 강좌(교육면세) · 교재(도서면세) · 일반상품(과세) 라인 분리</span>
+                </div>
+                <div class="step-desc">
+                  <code>ADMN-ORD-001</code> · 토스페이먼츠 승인 완료(가상계좌는 입금 웹훅 수신) 즉시 강좌는 <b>수강중</b>, 실물 교재는 <b>배송준비중</b>으로 자동 전이됩니다.
+                </div>
+              </div>
+
+              <div class="step-node" onclick="switchOrdView('ord002')" style="cursor:pointer;">
+                <div class="step-node-top">
+                  <span class="step-num">Step 2. 3PL 발주 엑셀 &amp; 배송지 Lock</span>
+                  <span class="step-light light-amber">🔒 발주 다운로드 = 주소 변경 잠금</span>
+                </div>
+                <div class="step-desc">
+                  <code>ADMN-ORD-002</code> · 3PL 발주 엑셀 다운로드 즉시 <code>ship_ordered_at</code>이 기록되며 관리자·고객 양쪽 배송지 수정이 하드락됩니다.
+                </div>
+              </div>
+
+              <div class="step-node" data-dev-perm="등록" data-dev-note="개발 레이어 layerImport · importForm" onclick="openModal('layerImport')" style="cursor:pointer;">
+                <div class="step-node-top">
+                  <span class="step-num">Step 3. 송장 벌크 매핑 &amp; 알림톡 발송</span>
+                  <span class="step-light light-green">🟢 주문번호+라인번호 크로스 매핑</span>
+                </div>
+                <div class="step-desc">
+                  <code>ORD-002-P1</code> · 3PL 회신 송장 업로드 시 <b>배송중</b> 자동 전환 + 구매자 배송출고 알림톡 비동기 발송 (오류 <code>E01~E06</code> 분리).
+                </div>
+              </div>
+
+              <a class="step-node" href="ADMN-SETT-004_baseline.html">
+                <div class="step-node-top">
+                  <span class="step-num">Step 4. 반품 검수 &amp; PG·정산 원장 대사</span>
+                  <span class="step-light light-purple">🟣 RFD-002 · SETT-004 직결</span>
+                </div>
+                <div class="step-desc">
+                  <code>ADMN-RFD-002</code> · 창고 반품 검수(정상 재입고 / 훼손 교재비 차감) 결과를 환불 심사기로 전달하고, 실결제액을 PG 대사 원장과 1:1 검증합니다.
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 상단 5단 스코어 카드 (공통 4층 규격: 1층 배지 / 2층 타이틀 / 3층 Pretendard 22px Bold / 4층 설명) -->
+        <div class="kpi-grid">
+          <div class="kpi-card active" id="kpi-ord-all" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders" data-dev-perm="조회" onclick="filterOrdListByKpi('ALL')">
+            <div class="k-title"><span>조회 주문 건수 (실결제 합계)</span><span class="badge">ORD-001 · paid_amount</span></div>
+            <div class="k-num" id="kpiNumTotal">1,284건 (184,271,000원)</div>
+            <div class="k-sub">정가 − 쿠폰 − 포인트 + 배송비 반영 실결제 기준</div>
+          </div>
+
+          <div class="kpi-card" id="kpi-ord-ready" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders?statuses[]=ready" data-dev-perm="조회" onclick="filterOrdListByKpi('배송준비중')">
+            <div class="k-title"><span>배송준비중 (3PL 발주 · 송장 대기)</span><span class="badge">SET3-5 출고 대상</span></div>
+            <div class="k-num" style="color:var(--warn);" id="kpiNumReady">42건 (🔒 출고지시 12건)</div>
+            <div class="k-sub">실물 교재 · 일반상품 포함 라인 (즉시 발주 대상 30건)</div>
+          </div>
+
+          <div class="kpi-card" id="kpi-ord-vbank" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders?statuses[]=waiting" data-dev-perm="조회" onclick="filterOrdListByKpi('결제대기')">
+            <div class="k-title"><span>입금대기 (가상계좌 미입금)</span><span class="badge">24시간 입금 기한</span></div>
+            <div class="k-num" style="color:var(--purple);" id="kpiNumVbank">3건 (기한연장 가능)</div>
+            <div class="k-sub">입금 웹훅 수신 시점에만 결제완료 및 정산월 귀속</div>
+          </div>
+
+          <div class="kpi-card" id="kpi-ord-ship" data-dev-flag="proto-only" data-dev-note="KPI '배송중' 카드 — 개발 요약 카드에 없음(목록 statuses[]=shipping으로 조회는 가능)" onclick="filterOrdListByKpi('배송중')">
+            <div class="k-title"><span>배송중 (도서산간·제주 추가배송비)</span><span class="badge">도서산간 우편번호 판정</span></div>
+            <div class="k-num" style="color:var(--primary);" id="kpiNumShip">118건 (도서산간 5건)</div>
+            <div class="k-sub">실물 교재·상품 실결제액 합계 30,000원↑ 무료 / 제주·도서산간 +3,000원 부과</div>
+          </div>
+
+          <div class="kpi-card" id="kpi-ord-return" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders?refund_requested=1" data-dev-perm="조회" onclick="filterOrdListByKpi('반품수거중')">
+            <div class="k-title"><span>환불 · 반품 수거 및 창고 검수 대기</span><span class="badge">ORD-002-S3 ↔ RFD-002</span></div>
+            <div class="k-num" style="color:var(--danger);" id="kpiNumReturn">6건 (검수 대기 3건)</div>
+            <div class="k-sub">정상 판정 시 교재 자동 재입고 · 훼손 시 교재비만 차감(강좌 환불은 진행)</div>
+          </div>
+        </div>
+
+        <!-- =====================================================================
+             [VIEW 1] ADMN-ORD-001 : 통합 주문 내역 관리 (주문 목록)
+             ===================================================================== -->
+        <section id="view-ord001" class="subview-panel active">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">🔎 주문 내역 통합 조회 필터 (실결제금액 기준 · 토스페이먼츠 전 수단 지원)</h3>
+              <span style="font-size:12px;color:var(--text-muted);">※ 최초 진입 시 최근 1개월 · 전체 상태로 자동 조회됩니다.</span>
+            </div>
+            <div class="card-body">
+              <table class="search-table">
+                <tbody>
+                  <tr>
+                    <th>결제 기간</th>
+                    <td>
+                      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <select class="form-select" id="fDateType" name="date_basis" data-dev-note="개발 값: paid_at · created_at · shipped_at · refund_completed_at" style="width:125px;">
+                          <option value="PAID_AT" data-dev-name="date_basis" data-dev-value="paid_at" selected>결제일시 (정산기준)</option>
+                          <option value="ORDER_AT" data-dev-name="date_basis" data-dev-value="created_at">주문일시</option>
+                          <option value="SHIP_AT" data-dev-name="date_basis" data-dev-value="shipped_at">출고일시</option>
+                          <option value="REFUND_AT" data-dev-name="date_basis" data-dev-value="refund_completed_at">환불완료일시</option>
+                        </select>
+                        <input type="date" class="form-input" id="dateFrom" name="date_from" value="2026-02-01" style="width:135px;" />
+                        <span>~</span>
+                        <input type="date" class="form-input" id="dateTo" name="date_to" value="2026-10-26" style="width:135px;" />
+                        <div class="chip-group" style="margin-left:4px;">
+                          <button type="button" class="filter-chip" data-dev-note="개발 기간 칩 [data-period-from] today · 7d · 1m · 3m · all" onclick="selectQuickDate(this)">오늘</button>
+                          <button type="button" class="filter-chip" data-dev-note="개발 기간 칩 [data-period-from] today · 7d · 1m · 3m · all" onclick="selectQuickDate(this)">7일</button>
+                          <button type="button" class="filter-chip active" data-dev-note="개발 기간 칩 [data-period-from] today · 7d · 1m · 3m · all" onclick="selectQuickDate(this)">1개월</button>
+                          <button type="button" class="filter-chip" data-dev-note="개발 기간 칩 [data-period-from] today · 7d · 1m · 3m · all" onclick="selectQuickDate(this)">3개월</button>
+                          <button type="button" class="filter-chip" data-dev-note="개발 기간 칩 [data-period-from] today · 7d · 1m · 3m · all" onclick="selectQuickDate(this)">전체</button>
+                        </div>
+                      </div>
+                    </td>
+                    <th>결제 수단 (토스)</th>
+                    <td>
+                      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <select class="form-select" id="fPayMethod" name="method" data-dev-note="개발 값: card · easy_pay · virtual_account · transfer · mobile_phone · gift(상품권 3종 묶음 — 프로토 없음)" onchange="renderOrderList()" style="width:210px;">
+                          <option value="ALL">전체 결제수단 (토스페이먼츠)</option>
+                          <option value="신용/체크카드" data-dev-name="method" data-dev-value="card">카드 (신용카드 · 체크카드)</option>
+                          <option value="간편결제" data-dev-name="method" data-dev-value="easy_pay">간편결제 (토스/페이코/카카오/삼성/네이버)</option>
+                          <option value="가상계좌" data-dev-name="method" data-dev-value="virtual_account">가상계좌 (입금대기 · 24h 기한)</option>
+                          <option value="계좌이체" data-dev-name="method" data-dev-value="transfer">실시간 계좌이체</option>
+                          <option value="휴대폰결제" data-dev-name="method" data-dev-value="mobile_phone">휴대폰결제 (실물 · 디지털)</option>
+                        </select>
+                        <span style="font-size:11.5px;color:var(--text-muted);">토스페이 · 페이코 · 카카오페이 · 삼성페이 · 네이버페이 포함</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>주문 상태 (다중)</th>
+                    <td colspan="3">
+                      <div class="chip-group" id="statusChipGroup" data-dev-note="[data-status-all] · [data-status-item] — 전체와 배타" data-dev-name="statuses[]">
+                        <button type="button" class="filter-chip active" data-status="ALL" data-dev-name="statuses[]" data-dev-value="(전체 — data-status-all)" onclick="selectStatusChip(this)">전체</button>
+                        <button type="button" class="filter-chip" data-status="결제대기" data-dev-name="statuses[]" data-dev-value="waiting" onclick="selectStatusChip(this)">결제대기 (가상계좌)</button>
+                        <button type="button" class="filter-chip" data-status="결제완료" data-dev-name="statuses[]" data-dev-value="paid" onclick="selectStatusChip(this)">결제완료</button>
+                        <button type="button" class="filter-chip" data-status="배송준비중" data-dev-name="statuses[]" data-dev-value="ready" onclick="selectStatusChip(this)">배송준비중</button>
+                        <button type="button" class="filter-chip" data-status="배송중" data-dev-name="statuses[]" data-dev-value="shipping" onclick="selectStatusChip(this)">배송중</button>
+                        <button type="button" class="filter-chip" data-status="배송완료" data-dev-name="statuses[]" data-dev-value="delivered" onclick="selectStatusChip(this)">배송완료</button>
+                        <button type="button" class="filter-chip" data-status="반품수거중" data-dev-note="개발 라벨 '반품진행중'(Delivery::STATUS_LABELS) — 화면 라벨은 정본 유지" data-dev-name="statuses[]" data-dev-value="returning" onclick="selectStatusChip(this)">반품수거중</button>
+                        <button type="button" class="filter-chip" data-status="환불완료" data-dev-name="statuses[]" data-dev-value="refunded" onclick="selectStatusChip(this)">환불완료</button>
+                        <button type="button" class="filter-chip" data-status="기각" data-dev-name="statuses[]" data-dev-value="rejected" onclick="selectStatusChip(this)">기각</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>주문 구분</th>
+                    <td>
+                      <div class="chip-group" id="typeChipGroup" data-dev-name="kind">
+                        <button type="button" class="filter-chip active" data-type="ALL" onclick="selectTypeChip(this)">전체</button>
+                        <button type="button" class="filter-chip" data-type="인강" data-dev-name="kind" data-dev-value="lecture" onclick="selectTypeChip(this)">인강 단독 (교육용역 면세 0%)</button>
+                        <button type="button" class="filter-chip" data-type="교재" data-dev-name="kind" data-dev-value="book" onclick="selectTypeChip(this)">교재 단독 (ISBN 면세 0%)</button>
+                        <button type="button" class="filter-chip" data-type="복합" data-dev-name="kind" data-dev-value="mixed" onclick="selectTypeChip(this)">복합 패키지 (강좌+교재 안분)</button>
+                        <button type="button" class="filter-chip" data-type="일반상품" data-dev-flag="proto-only" data-dev-note="개발 OrderService::KINDS는 인강 · 교재 · 복합 3종(order_items.item_type에 일반상품 없음)" onclick="selectTypeChip(this)">일반상품 (과세 10%)</button>
+                      </div>
+                    </td>
+                    <th>실결제금액 / 배송</th>
+                    <td>
+                      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <input type="text" class="form-input" name="amount_min" placeholder="최소 금액" style="width:100px;" />
+                        <span>~</span>
+                        <input type="text" class="form-input" name="amount_max" placeholder="최대 금액" style="width:100px;" />
+                        <span>원</span>
+                        <label style="display:inline-flex;align-items:center;gap:4px;margin-left:10px;font-weight:600;cursor:pointer;">
+                          <input type="checkbox" id="chkHasDelivery" name="physical_only" data-dev-value="1" onchange="renderOrderList()" /> 배송지 있는 주문만 (실물 교재·상품 포함)
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>검색어 (분리 검색)</th>
+                    <td colspan="3">
+                      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <select class="form-select" id="fSearchKey" name="search_type" data-dev-note="개발 값: order_no · buyer · receiver · phone(검색 시 열람 로그)" style="width:150px;">
+                          <option value="ORDER_NO" data-dev-name="search_type" data-dev-value="order_no">주문번호 (완전일치)</option>
+                          <option value="BUYER" data-dev-name="search_type" data-dev-value="buyer">구매자명 (결제자)</option>
+                          <option value="RECEIVER" data-dev-name="search_type" data-dev-value="receiver">수령인명 (선물·타인수령)</option>
+                          <option value="PHONE" data-dev-name="search_type" data-dev-value="phone">휴대전화 번호 (뒤 4자리 가능)</option>
+                        </select>
+                        <input type="text" class="form-input" id="fSearchVal" name="keyword" data-dev-note="주문번호 외 2자 이상" placeholder="주문번호 · 구매자명 · 수령인명 · 휴대전화 번호 (구매자 ≠ 수령인 분리 검색 지원)" style="width:420px;" onkeyup="if(event.key==='Enter')renderOrderList()" />
+                        <button type="button" class="btn btn-dark" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders" data-dev-perm="조회" onclick="renderOrderList()">조회</button>
+                        <button type="button" class="btn btn-outline" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders" data-dev-perm="조회" onclick="resetOrdFilter()">초기화</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <span style="font-size:13px;">전체 <b id="ordListCount">36</b>건 <span style="color:var(--text-muted);font-weight:400;">(2026.02.01~10.26 · 실결제 <code>실결제금액</code> 기준 · 주문 라인 분리 표기)</span></span>
+                </div>
+                <div class="toolbar-right">
+                  <select class="form-select" style="width:105px;" name="per_page">
+                    <option value="50">50개씩 보기</option>
+                    <option value="100">100개씩 보기</option>
+                    <option value="200">200개씩 보기</option>
+                  </select>
+                  <button type="button" class="btn btn-outline" data-dev-route="admin.orders.download" data-dev-method="GET" data-dev-url="/sj-admin/orders/download" data-dev-perm="다운로드" data-dev-note="개발은 공용 사유 레이어 layerReason(reason · reason_etc · reason_ref)을 먼저 띄움 — 정본은 사유 없이 열람 로그만(Q-ORD-2), 화면은 정본 유지" onclick="downloadOrderLookupExcel()">📥 조회용 엑셀 다운로드 (라인 단위 · 열람로그 적재)</button>
+                  <button type="button" class="btn btn-dark" data-dev-route="admin.orders.grants.create (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/orders/grants/create" data-dev-perm="등록" data-dev-flag="proto-only" onclick="openDirectGrantModal()">🎟️ 수강권 직권 부여 (0원 주문 · 구 ORD-003)</button>
+                  <button type="button" class="btn btn-primary" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회(배송 관리 메뉴)" onclick="goToDeliveryManageWithReady()">🚚 배송 관리로 이동 (배송준비중 42건 ➔)</button>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:36px;"><input type="checkbox" data-dev-note="개발 목록은 행 선택 없음(조회 · 엑셀만)" onclick="toggleAllOrdRows(this)" /></th>
+                      <th style="width:155px;">주문번호 / 과세근거</th>
+                      <th style="width:105px;">결제(주문)일시</th>
+                      <th style="width:125px;">구매자 / 수령인</th>
+                      <th style="width:78px;">구분</th>
+                      <th>주문 라인 아이템 (강좌 LECTURE / 교재 BOOK / 일반 GOODS 분리 · 라인별 독립 상태)</th>
+                      <th style="width:145px;" class="text-right">실결제금액</th>
+                      <th style="width:140px;">결제수단 (토스)</th>
+                      <th style="width:120px;">대표 주문상태</th>
+                      <th style="width:95px;">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ordListTbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- =====================================================================
+             [VIEW 2] ADMN-ORD-002 (+ S1, S2, S3) : 배송 관리 · 3PL 연동
+             ===================================================================== -->
+        <section id="view-ord002" class="subview-panel">
+          <!-- 외부 물류 파트너(ROLE_PARTNER_3PL) 전용 데이터 격리 배너 -->
+          <div id="partner3plBanner" class="notice-bar warn" style="display:none;margin-bottom:12px;background:#FFFBEB;border:1.5px solid #FDE68A;">
+            <div>
+              🔒 <b>외부 물류 파트너(ROLE_PARTNER_3PL) 보안 격리 모드 활성:</b><br>
+              • <b>데이터 스코프 격리:</b> 개인정보보호법 및 정산 보안 통제에 따라 강좌 결제금액, 매출 및 회원의 결제 수단 정보가 100% 차단/마스킹됩니다.<br>
+              • <b>출고 업무 필수 정보만 제한 제공:</b> 실물 교재 피킹 및 배송에 필요한 <b>수취인명, 마스킹 연락처(010-****-5678), 배송지 주소, 도서 SKU(PROD-BK-1006 등), 수량</b>만 노출됩니다.<br>
+              • 3PL 발주 엑셀 다운로드, 송장 벌크 업로드(P1), 단건 등록/정정(P2), 반품 수거 창고 검수(S3) 기능만 안전하게 수행할 수 있습니다.
+            </div>
+            <span class="badge b-purple">Data Scope: 3PL 풀필먼트 격리</span>
+          </div>
+
+          <div class="notice-bar" id="ord002AdminNotice">
+            <div>
+              💡 <b>실물 배송(교재 BOOK · 일반상품 GOODS) 라인 아이템 전용 워크스페이스:</b> 인강 단독 주문과 강좌 라인은 이 화면에 표시되지 않습니다. <b>1행 = 실물 주문 라인 1건(SKU 단위 피킹)</b>이므로 한 주문에 교재가 2종이면 2행으로 노출됩니다.
+            </div>
+            <span class="badge b-blue">프로세스맵 SET3-5 · 3PL 물류비 대사(SETT-011) 원천</span>
+          </div>
+
+          <div class="card">
+            <div class="card-body" style="padding-bottom:8px;">
+              <!-- 4개 상태 탭 (탭 클릭 시 배송 상태 조건 자동 적용 · 배송 상태 필터 별도 미배치: 피드백 #458) -->
+              <div class="tabs" style="margin-bottom:14px;">
+                <button type="button" class="tab-btn active" id="shipTab-READY" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회" onclick="switchShipTab('READY')">
+                  1. 출고 대기 (배송준비중) <span class="tab-cnt" id="shipCntReady">4</span>
+                </button>
+                <button type="button" class="tab-btn" id="shipTab-SHIPPING" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=shipping" data-dev-perm="조회" onclick="switchShipTab('SHIPPING')">
+                  2. 배송중 (S1) <span class="tab-cnt" id="shipCntShipping">3</span>
+                </button>
+                <button type="button" class="tab-btn" id="shipTab-DELIVERED" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=delivered" data-dev-perm="조회" onclick="switchShipTab('DELIVERED')">
+                  3. 배송완료 (S2) <span class="tab-cnt" id="shipCntDelivered">3</span>
+                </button>
+                <button type="button" class="tab-btn" id="shipTab-RETURN" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=return" data-dev-perm="조회" onclick="switchShipTab('RETURN')">
+                  4. 반품 수거 · 창고 검수 (S3) <span class="tab-cnt" id="shipCntReturn">3</span>
+                </button>
+              </div>
+
+              <!-- 공통 검색 필터 (배송 상태 필터는 탭과 중복되므로 제거됨 · 피드백 #458) -->
+              <table class="search-table" style="margin-bottom:14px;">
+                <tbody>
+                  <tr>
+                    <th>결제 기간</th>
+                    <td>
+                      <div style="display:flex;align-items:center;gap:6px;">
+                        <input type="date" class="form-input" name="date_from" value="2026-08-01" style="width:135px;" />
+                        <span>~</span>
+                        <input type="date" class="form-input" name="date_to" value="2026-08-18" style="width:135px;" />
+                        <select class="form-select" name="sort" style="width:150px;" data-dev-flag="dev-only" data-dev-note="개발 탭별 정렬 TAB_SORTS · DEFAULT_SORTS(sort · direction)"><option value="paid_at">결제일 오래된 순</option><option value="shipped_at">출고일순</option><option value="status">상태순</option><option value="delivered_at">배송완료일순</option><option value="received_at">입고일순</option></select>
+                        <span style="font-size:11.5px;color:var(--text-muted);margin-left:6px;">※ 배송 상태는 상단 선택 탭으로 자동 적용됩니다 (오래된 미출고순 기본 정렬)</span>
+                      </div>
+                    </td>
+                    <th>교재 / 실물 SKU</th>
+                    <td>
+                      <select class="form-select" id="fShipSku" name="book_id" data-dev-note="값 = books.id(프로토는 상품명)" onchange="renderShipTable()" style="width:280px;">
+                        <option value="ALL">전체 교재 · 실물 상품</option>
+                        <option value="정종대 (RH-0025) 2026 산업안전기사 필기 기본서">정종대 (RH-0025) 2026 산업안전기사 필기 기본서 (ISBN 979-11-8921-01 · SKU: PROD-BK-1006)</option>
+                        <option value="정종대 (RH-0025) 2026 산업안전기사 실기 기본서">정종대 (RH-0025) 2026 산업안전기사 실기 기본서 (ISBN 979-11-8921-02)</option>
+                        <option value="산준모 합격 타이머">산준모 합격 타이머 &amp; 플래너 세트 (일반상품 GOODS)</option>
+                      </select>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>배송 권역</th>
+                    <td>
+                      <div style="display:flex;align-items:center;gap:10px;">
+                        <select class="form-select" style="width:140px;" data-dev-flag="proto-only" data-dev-note="배송 권역 필터 — 개발 DeliveryService::normalizeFilters에 없음">
+                          <option value="ALL">전체 권역</option>
+                          <option value="수도권">수도권</option>
+                          <option value="지방">지방권</option>
+                          <option value="제주도서">제주 · 도서산간</option>
+                        </select>
+                        <label style="display:inline-flex;align-items:center;gap:4px;font-weight:700;color:#B45309;cursor:pointer;">
+                          <input type="checkbox" id="chkIslandOnly" data-dev-flag="proto-only" data-dev-note="도서산간만 보기 — 개발 필터 없음" onchange="renderShipTable()" /> 🏝️ 도서산간 · 제주 추가배송비(+3,000원) 부과 건만 보기
+                        </label>
+                      </div>
+                    </td>
+                    <th>검색어</th>
+                    <td>
+                      <div style="display:flex;align-items:center;gap:6px;">
+                        <select class="form-select" style="width:130px;" name="search_type">
+                          <option value="order_no">주문번호</option>
+                          <option value="receiver">수령인명</option>
+                          <option value="phone">휴대전화</option>
+                          <option value="tracking">운송장번호</option>
+                        </select>
+                        <input type="text" class="form-input" id="fShipKeyword" name="keyword" placeholder="주문번호 · 수령인명 · 휴대전화 · 운송장번호" style="width:250px;" />
+                        <button type="button" class="btn btn-dark" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries" data-dev-perm="조회" onclick="renderShipTable()">조회</button>
+                        <button type="button" class="btn btn-outline" onclick="document.getElementById('chkIslandOnly').checked=false;document.getElementById('fShipSku').value='ALL';renderShipTable();">초기화</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- 툴바 4개 고정 버튼 (탭 및 행 선택 상태에 따라 활성/비활성 자동 전환 · 피드백 #459) -->
+              <div class="toolbar">
+                <div class="toolbar-left">
+                  <span id="shipToolbarSummary" style="font-size:13px;">출고 대기 <b>4</b>건 · 선택 <b id="selectedCount">2</b>건</span>
+                  <button type="button" class="btn btn-sm btn-outline" id="selectAllResults" data-dev-note="개발 selectAllResults — 서버가 readyIds 전달" onclick="selectAllShipRows()">조회 결과 전체 선택</button>
+                </div>
+                <div class="toolbar-right">
+                  <button type="button" class="btn btn-dark" id="dispatchButton" data-dev-perm="다운로드" data-dev-note="개발 dispatchButton → 레이어 layerDispatch" onclick="open3plConfirmModal()">
+                    📦 3PL 발주 엑셀 다운로드 (출고지시 Lock)
+                  </button>
+                  <button type="button" class="btn btn-primary" id="btnBulkWaybill" data-dev-perm="등록" data-dev-note="개발 레이어 layerImport · importForm" onclick="openModal('layerImport')">
+                    📤 송장 벌크 업로드 (P1)
+                  </button>
+                  <button type="button" class="btn btn-outline" id="trackingButton" data-dev-perm="수정" data-dev-note="개발 trackingButton → 레이어 layerTracking" onclick="openSingleWaybillModal()">
+                    ✏️ 송장 단건 등록/정정 (P2)
+                  </button>
+                  <button type="button" class="btn btn-outline" id="deliveredButton" disabled title="배송완료 탭에서 행을 선택하면 사용" data-dev-route="admin.deliveries.delivered.update" data-dev-method="PUT" data-dev-url="/sj-admin/deliveries/delivered" data-dev-perm="수정" data-dev-flag="dev-only" data-dev-note="배송완료일 보정 layerDelivered — ids[] · delivered_at(오늘 이전) · reason(MemberReasonRequest)">
+                    📅 배송완료일 보정
+                  </button>
+                  <button type="button" class="btn btn-outline" id="batchesButton" data-dev-route="admin.deliveries.batches.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/batches?date_from=&amp;date_to=&amp;type=" data-dev-perm="조회" onclick="openModal('layerBatches')">
+                    🗂️ 발주 배치 · 업로드 이력 (P3)
+                  </button>
+                </div>
+              </div>
+
+              <!-- 탭별 동적 그리드 -->
+              <div class="table-wrap">
+                <table class="data-table" id="shipDataTable">
+                  <thead id="shipThead"></thead>
+                  <tbody id="shipTbody"></tbody>
+                </table>
+              </div>
+
+              <!-- 탭별 하단 전용 안내 / 검수 입력 영역 -->
+              <div id="shipBottomNotice" style="margin-top:12px;"></div>
+
+              <!-- [ADMN-ORD-002-S3 전용] 반품 창고 입고 수동 검수 입력 패널 (피드백 #460) -->
+              <div id="inspectionPanel" class="card" style="display:none;margin-top:14px;border:1.5px solid var(--primary);background:#F8FAFC;">
+                <div class="card-header" style="background:#EFF6FF;">
+                  <h4 class="card-title" id="inspectionTarget">🔍 반품 수거 실물 검수 판정 입력 — 선택한 건: SJM20260809-0044 #2 (홍길동 · 2026 정종대 산업안전기사 필기 기본서 ×1)</h4>
+                  <span class="badge b-blue">저장 시 ADMN-RFD-002 환불 연산기로 즉시 전달</span>
+                </div>
+                <div class="card-body">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                    <div>
+                      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">검수 결과 판정 (운영자 수동 판정 필수) <span style="color:var(--danger);">*</span></label>
+                      <select class="form-select" id="inpInspectResult" name="inspection_result" onchange="onChangeInspectResult()" style="width:100%;">
+                        <option value="NORMAL" data-dev-name="inspection_result" data-dev-value="normal">🟢 정상 (재판매 가능 ➔ ADMN-PROD-004 교재 재고 +1권 자동 재입고)</option>
+                        <option value="DAMAGED" data-dev-name="inspection_result" data-dev-value="damaged">🔴 훼손 · 파본 · 필기 흔적 (재판매 불가 ➔ 교재비(도서 실판매가)만 차감 · 고객 착불 반송 · 폐기/손실 처리)</option>
+                      </select>
+                      <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">
+                        ※ 훼손(재판매 불가) 선택 시 해당 교재비(도서 실판매가)만 환불에서 차감되고, 같은 주문의 강좌 환불은 그대로 진행됩니다. 귀책 선택은 비활성화됩니다.
+                      </div>
+                    </div>
+                    <div>
+                      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">반품 배송비 귀책 판정 <span style="color:var(--danger);">*</span></label>
+                      <select class="form-select" id="inpInspectFault" name="liability" data-dev-note="normal일 때 required — 개발은 customer · company 2종(편도 · 왕복 구분 없음, Q-RFD-7)" style="width:100%;">
+                        <option value="CUSTOMER_ONEWAY" data-dev-note="편도 구분 없음" data-dev-name="liability" data-dev-value="customer">고객 귀책 – 단순변심 편도 3,000원 (유료배송 주문)</option>
+                        <option value="CUSTOMER" data-dev-name="liability" data-dev-value="customer">고객 귀책 – 무료배송 주문 취소 왕복 6,000원</option>
+                        <option value="COMPANY" data-dev-name="liability" data-dev-value="company">회사 귀책 (파본 · 오배송 ➔ 배송비 차감 없음 0원)</option>
+                      </select>
+                      <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">
+                        ※ 정상 판정 시에만 선택하며, <code>ADMN-RFD-002</code> 13단계 계산기의 배송비 차감 모수로 자동 연동됩니다.
+                      </div>
+                    </div>
+                    <div>
+                      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">검수 비고 (판정 근거 메모)</label>
+                      <input type="text" class="form-input" id="inpInspectMemo" name="inspection_memo" data-dev-note="2000자 이하" value="래핑 미개봉 신품 상태 확인 완료, 모서리 찍힘 없음" placeholder="파본 위치, 필기 흔적, 래핑 개봉 여부 등 판정 근거 입력" style="width:100%;" />
+                    </div>
+                    <div>
+                      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">창고 검수 증빙 사진 (훼손 판정 시 필수)</label>
+                      <div style="display:flex;align-items:center;gap:8px;">
+                        <button type="button" class="btn btn-outline" data-dev-note="jpg · png · 10MB — 필수: 훼손 또는 고객 귀책(Q-ORD-3). 열람 admin.deliveries.returns.show" data-dev-name="photos[]" onclick="alert('창고 검수 사진(return_check_0809.jpg)이 S3 보안 버킷에 첨부되었습니다.')">📷 검수 사진 첨부</button>
+                        <span style="font-size:12px;color:var(--success);font-weight:600;" id="inspectPhotoLabel">첨부됨: warehouse_cam_0044.jpg</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+                    <button type="button" class="btn btn-outline" data-dev-note="개발 inspectionClear" onclick="clearReturnSelection()">선택 해제</button>
+                    <button type="button" class="btn btn-dark" data-dev-route="admin.deliveries.returns.update" data-dev-method="PUT" data-dev-url="/sj-admin/deliveries/returns/{refund}" data-dev-perm="수정(배송 관리 메뉴)" onclick="saveReturnInspection()">💾 검수 결과 저장 · 환불 심사(ADMN-RFD-002)로 전달</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- =====================================================================
+             [VIEW 3] ADMN-ORD-001-S1 : 주문 상세 & 배송지 Lock / 입금기한 연장 제어
+             ===================================================================== -->
+        <section id="view-ord001s1" class="subview-panel">
+          <!-- 상단 샘플 시나리오 전환 바 -->
+          <div class="card" style="background:#F8FAFC;">
+            <div class="card-body" style="padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="badge b-blue">시나리오 프리셋 전환</span>
+                <b style="font-size:13px;">주문 상세 화면(`ADMN-ORD-001-S1`) 상태별 조건부 렌더링 검증:</b>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <select class="form-select" id="detailPresetSelect" onchange="loadOrderDetailPreset(this.value)" style="width:430px;font-weight:700;">
+                  <option value="SJM20260818-0021">[케이스 1] SJM20260818-0021 (홍길동 · 복합패키지 · 🔒 3PL 출고지시 완료 Lock 상태)</option>
+                  <option value="SJM20260818-0019">[케이스 2] SJM20260818-0019 (김수현 · 교재단독 · 출고지시 전 ➔ 배송지 수정 가능)</option>
+                  <option value="SJM20260817-0132">[케이스 3] SJM20260817-0132 (이서준 · 가상계좌 입금대기 ➔ 입금 기한 연장 활성)</option>
+                </select>
+                <button type="button" class="btn btn-outline btn-sm" onclick="switchOrdView('ord001')">← 주문 목록으로</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1. 상태 타임라인 + 출고지시 잠금 배너 -->
+          <div class="order-steps" id="detailStepsBar">
+            <div class="order-step-item done"><span class="step-circle">✓</span> 1. 결제완료 (PG 통합승인)</div>
+            <div class="order-step-item current"><span class="step-circle">2</span> 2. 배송준비중 (3PL 출고지시 완료)</div>
+            <div class="order-step-item"><span class="step-circle">3</span> 3. 배송중 (송장 매핑)</div>
+            <div class="order-step-item"><span class="step-circle">4</span> 4. 배송완료</div>
+          </div>
+
+          <div class="notice-bar warn" id="detailLockBanner">
+            <div>
+              🔒 <b>3PL 출고 지시 완료 (2026.08.18 14:02 · 배치 <code>BATCH-20260818-01</code>)</b> — 포장 라벨 출력 불일치로 인한 오배송 방지를 위해 <b>수령인 정보 및 배송지 주소 수정이 서버와 화면 모두 잠금(Lock)</b> 되었습니다. 주소 변경이 꼭 필요하면 3PL 대행사에 출고 보류를 먼저 요청한 뒤 우측 <b>[출고지시 회수]</b>로 잠금을 해제하세요.
+            </div>
+            <button type="button" class="btn btn-sm btn-outline" id="btnToggleShipLock" data-dev-route="admin.orders.dispatch.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/orders/{order}/dispatch" data-dev-perm="삭제 + 최고관리자" data-dev-note="개발 레이어 layerRevoke — reason(MemberReasonRequest)" onclick="toggleShipOrderLock()">🔓 출고지시 회수 (잠금 해제)</button>
+          </div>
+
+          <!-- 2. 주문 · 결제 정보 -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">💳 1. 주문 · 결제 및 과·면세 안분 정보 (정가 → 쿠폰 → 포인트 → 배송비 → 실결제금액)</h3>
+              <span class="badge b-green" id="detailExemptionBadge">헤더 표기: MIXED (복합 · 품목별 분리 — 강좌 교육면세 0% · 교재 도서면세 0%)</span>
+            </div>
+            <div class="card-body">
+              <table class="kv-table">
+                <tbody>
+                  <tr>
+                    <th>주문번호 / 구분</th>
+                    <td><b id="dtOrderNo">SJM20260818-0021</b> <span class="badge b-blue" id="dtOrderType">복합(패키지)</span></td>
+                    <th>대표 주문상태</th>
+                    <td id="dtOrderStatus"><span class="badge b-amber">배송준비중</span> <span class="badge b-gray" id="dtLockSubBadge">🔒 출고지시 완료</span></td>
+                  </tr>
+                  <tr>
+                    <th>구매자 (결제자)</th>
+                    <td>
+                      <span id="dtBuyerInfo">홍길동 (hon***@naver.com · 010-1234-5678)</span>
+                      <button type="button" class="btn btn-sm btn-outline" style="margin-left:6px;" data-dev-route="admin.members.show" data-dev-method="GET" data-dev-url="/sj-admin/members/{member}" data-dev-perm="조회(회원 메뉴)" onclick="alert('회원 상세(ADMN-MBR-001) 화면으로 이동합니다.')">회원 상세</button>
+                    </td>
+                    <th>결제일시</th>
+                    <td id="dtPaidAt">2026.08.18 10:24:11</td>
+                  </tr>
+                  <tr>
+                    <th>결제수단 (토스페이먼츠)</th>
+                    <td id="dtPayMethod">신용카드 (신한카드 1234-****-****-5678 / 일시불)</td>
+                    <th>PG 거래번호 (TID)</th>
+                    <td>
+                      <code class="mono" id="dtPgTid">tvivarepublica20260818102411</code>
+                      <button type="button" class="btn btn-sm btn-outline" style="margin-left:6px;" onclick="navigator.clipboard?.writeText('tvivarepublica20260818102411');alert('PG 거래번호가 복사되었습니다. (ADMN-SETT-004 대사 매칭 키)');">복사</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>상품 정가 합계</th>
+                    <td id="dtListPrice">219,000원 (강좌 187,000원 + 교재 32,000원)</td>
+                    <th>쿠폰 할인 (강좌 전용)</th>
+                    <td style="color:var(--danger);font-weight:700;" id="dtCouponAmt">−30,000원 (웰컴 10% · 감면 Cap 20만원 내 · 교재 배분 0원)</td>
+                  </tr>
+                  <tr>
+                    <th>포인트 사용</th>
+                    <td id="dtPointUsed">0P</td>
+                    <th>배송비 (3만원↑ 무료)</th>
+                    <td id="dtShipFee">0원 <span style="color:var(--text-muted);font-size:11.5px;">(교재 실결제 32,000원 ≥ 30,000원 무료배송 · 도서산간 아님)</span></td>
+                  </tr>
+                  <tr>
+                    <th>실결제금액 (paid_amount)</th>
+                    <td colspan="3">
+                      <b style="font-size:15px;color:var(--primary);" id="dtPaidAmt">189,000원</b>
+                      <span class="badge b-green" style="margin-left:6px;">토스페이먼츠 통합 승인 1건</span>
+                      <span style="color:var(--text-muted);font-size:12px;margin-left:8px;" id="dtPointEarnInfo">
+                        적립 예정 <b>1,570P</b> (강좌 라인 실결제액 157,000원 × 1% 올림 · 교재 32,000원 및 배송비는 도서정가제상 적립 0% 고정)
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- 가상계좌 입금대기 주문 전용 확장 블록 (피드백 #440 · #451 · 합의서 8.2절) -->
+              <div id="vbankExtendBox" data-dev-flag="proto-only" data-dev-note="가상계좌 입금 기한 연장 — 개발 의도적 미구현(OrderService.php:490, Q-ORD-1)" style="display:none;margin-top:12px;padding:12px 16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                  <div>
+                    <span class="badge b-amber">가상계좌 입금대기 (결제대기)</span>
+                    <b style="margin-left:6px;">국민은행 가상계좌 <code>012345-67-890123</code> (예금주: (주)엘캠퍼스)</b>
+                    <span style="margin-left:10px;color:#B45309;">입금 기한: <b id="vbankDueText">2026.08.18 18:41</b> 까지 (발급 후 24시간 · 만료 시 자동 기각 및 쿠폰/포인트 복원)</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <input type="datetime-local" class="form-input" id="inpNewVbankDue" name="virtual_account_due_at" data-dev-note="(규칙) payments.virtual_account_due_at" value="2026-08-20T18:41" style="width:185px;" />
+                    <input type="text" class="form-input" id="inpVbankReason" name="reason" placeholder="기한 연장 사유 입력 (필수)" style="width:210px;" />
+                    <button type="button" class="btn btn-dark btn-sm" data-dev-route="admin.orders.deposit-due.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/deposit-due" data-dev-perm="수정" data-dev-flag="proto-only" onclick="extendVbankDueDate()">⏳ 입금 기한 연장 실행</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. 주문 라인 아이템 (강좌 / 교재 분리 · 과면세 & 공급원장 스냅샷) -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">📦 2. 주문 라인 아이템 (패키지 분할 인서트 · 과·면세 및 도서 공급원장 스냅샷 보존)</h3>
+              <span class="badge b-purple">합의서 정산 기준 · 도서정가제 안분 공식 적용</span>
+            </div>
+            <div class="card-body">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:65px;">라인</th>
+                      <th style="width:90px;">품목 구분</th>
+                      <th>상품명 / ISBN / 수강기간</th>
+                      <th style="width:150px;">과·면세 / 정산 파이프라인</th>
+                      <th style="width:100px;" class="text-right">정가</th>
+                      <th style="width:60px;">수량</th>
+                      <th style="width:130px;" class="text-right">쿠폰·포인트 배분</th>
+                      <th style="width:130px;" class="text-right">라인 실결제액</th>
+                      <th style="width:130px;">라인 독립 상태</th>
+                    </tr>
+                  </thead>
+                  <tbody id="detailLinesTbody">
+                    <tr>
+                      <td><b>#1</b><br><span class="mono" style="color:var(--text-muted);">OI-8821</span></td>
+                      <td><span class="badge b-blue">강좌 (LECTURE)</span></td>
+                      <td>
+                        <b>산업안전기사 필기 올패스(2026)</b><br>
+                        <span style="font-size:11.5px;color:var(--text-muted);">강사: 정종대 · 수강기간 365일 <code>ADMN-PROD-003</code></span>
+                      </td>
+                      <td>
+                        <span class="badge b-blue">교육용역 면세 0% (면세 157,000원)</span><br>
+                        <span style="font-size:11px;color:var(--text-muted);">강좌 수익배분 온라인 RS</span>
+                      </td>
+                      <td class="text-right">187,000원</td>
+                      <td>1</td>
+                      <td class="text-right" style="color:var(--danger);font-weight:700;">−30,000원</td>
+                      <td class="text-right"><b>157,000원</b></td>
+                      <td><span class="badge b-green">수강중</span><br><span style="font-size:11px;color:var(--text-muted);">진도율 12.4% (3/24강)</span></td>
+                    </tr>
+                    <tr>
+                      <td><b>#2</b><br><span class="mono" style="color:var(--text-muted);">OI-8822</span></td>
+                      <td><span class="badge b-teal">교재 (BOOK)</span></td>
+                      <td>
+                        <b>정종대 (RH-0025) 2026 산업안전기사 필기 기본서</b><br>
+                        <span style="font-size:11.5px;color:var(--text-muted);">ISBN <code>979-11-8921-01 · SKU: PROD-BK-1006</code> · 스냅샷: <code>ROYALTY_BOOK</code></span>
+                      </td>
+                      <td>
+                        <span class="badge b-teal">면세 0% (부가세법 제26조제1항제8호)</span><br>
+                        <span style="font-size:11px;color:var(--text-muted);">자사 발행 도서 인세 · 판매 1권 집계</span>
+                      </td>
+                      <td class="text-right">32,000원</td>
+                      <td>1</td>
+                      <td class="text-right"><span class="badge b-red">0원 (혜택 100% 차단)</span></td>
+                      <td class="text-right"><b>32,000원</b></td>
+                      <td><span class="badge b-amber">배송준비중</span><br><span style="font-size:11px;color:var(--text-muted);" id="line2LockText">🔒 출고지시 완료</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="margin-top:8px;font-size:12px;color:var(--text-sub);background:#F8FAFC;padding:8px 12px;border-radius:6px;border:1px solid var(--border);">
+                📌 <b>도서정가제 &amp; 정산 스냅샷 규칙 :</b> 교재 라인(#2)에는 쿠폰·포인트 할인이 <b>0원</b>으로 고정되며 패키지 할인은 강좌 라인(#1)에만 배분됩니다. 또한 결제 시점의 도서 공급유형(<code>book_supply_type_snapshot = ROYALTY_BOOK</code>)이 주문 라인에 영구 박제되어, 향후 도서 마스터가 변경되어도 과거 월 재연산 및 환불 차감(4단계 DEDUCT) 시 흔들리지 않습니다.
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 & 5. 배송지 정보 및 수기 보정 + 변경 전/후 비교 확인 -->
+          <div class="card" id="detailDeliveryCard">
+            <div class="card-header">
+              <h3 class="card-title">🏠 3. 배송지 정보 및 운영자 수기 보정 (실물 교재·상품 라인 존재 시 노출 · 3PL 출고지시 Lock 연동)</h3>
+              <div style="display:flex;gap:8px;">
+                <button type="button" class="btn btn-sm btn-outline" id="btnEnableAddrEdit" data-dev-perm="수정" data-dev-note="개발은 레이어 layerAddress · addressForm(인라인 편집 아님)" onclick="enableAddressEditMode()" disabled>✏️ 배송지 수정 모드 전환</button>
+                <button type="button" class="btn btn-sm btn-warn" id="btnRecallShipOrder" data-dev-route="admin.orders.dispatch.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/orders/{order}/dispatch" data-dev-perm="삭제 + 최고관리자" data-dev-note="개발 레이어 layerRevoke — reason(MemberReasonRequest)" onclick="toggleShipOrderLock()">🔓 출고지시 회수 (잠금 해제)</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <table class="kv-table">
+                <tbody>
+                  <tr>
+                    <th>수령인명 <span style="color:var(--danger);">*</span></th>
+                    <td>
+                      <input type="text" class="form-input addr-field" id="inpRecvName" name="receiver_name" value="홍길동" style="width:200px;" disabled />
+                      <span class="lock-icon" style="margin-left:6px;color:var(--warn);font-weight:700;">🔒 출고지시 완료 — 수정 불가</span>
+                    </td>
+                    <th>수령인 연락처 <span style="color:var(--danger);">*</span></th>
+                    <td>
+                      <input type="text" class="form-input addr-field" id="inpRecvPhone" name="receiver_phone" data-dev-note="숫자만 10~11자리" value="010-1234-5678" style="width:200px;" disabled />
+                      <span class="lock-icon" style="margin-left:6px;color:var(--warn);">🔒</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>배송지 주소 <span style="color:var(--danger);">*</span></th>
+                    <td colspan="3">
+                      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+                        <input type="text" class="form-input addr-field" id="inpZipcode" name="receiver_zipcode" value="13529" style="width:95px;" disabled />
+                        <button type="button" class="btn btn-sm btn-outline addr-field" id="btnFindZip" data-dev-note="우편번호 찾기 결과만 receiver_zipcode로" onclick="simulateZipSearch()" disabled>우편번호 찾기 (카카오 주소 API)</button>
+                        <span class="badge b-gray" id="islandCheckBadge" data-dev-flag="proto-only" data-dev-note="배송지 보정 시 도서산간 추가배송비 판정 — 개발 보정은 금액 재판정 없음(확인 필요)">도서산간·제주 판정: 해당 없음 (추가 배송비 0원)</span>
+                      </div>
+                      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        <input type="text" class="form-input addr-field" id="inpAddr1" name="receiver_address" data-dev-note="사서함 · 군사우편 차단(Delivery::UNSHIPPABLE_ADDRESS_PATTERN)" value="경기도 성남시 분당구 판교역로 235" style="width:360px;" readonly disabled />
+                        <input type="text" class="form-input addr-field" id="inpAddr2" name="receiver_address_detail" value="에이치스퀘어 N동 7층" style="width:320px;" disabled />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>배송 메시지</th>
+                    <td colspan="3">
+                      <input type="text" class="form-input addr-field" id="inpShipMsg" name="delivery_memo" data-dev-note="100자 이하" value="부재 시 경비실에 맡겨주세요" style="width:520px;" disabled />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- 5. 변경 전/후 비교 확인 블록 (배송지 수정 모드 시 활성화) -->
+              <div id="addrCompareConfirmBox" style="display:none;margin-top:14px;padding:14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;">
+                <div style="font-weight:800;font-size:13px;color:#92400E;margin-bottom:6px;">
+                  ⚠️ 배송지 변경 전 · 후 비교 확인 (오배송 방지를 위해 변경 내역과 수정 사유를 확인 후 확정하세요)
+                </div>
+                <div class="pair-grid">
+                  <div class="pair-box">
+                    <div class="pair-hd">변경 전 (Before)</div>
+                    <div class="pair-bd" id="addrBeforeText">
+                      <b>홍길동</b> / 010-1234-5678<br>
+                      [13529] 경기도 성남시 분당구 판교역로 235 에이치스퀘어 N동 7층<br>
+                      메시지: 부재 시 경비실에 맡겨주세요
+                    </div>
+                  </div>
+                  <div class="pair-box">
+                    <div class="pair-hd after">변경 후 (After — 수정 입력값)</div>
+                    <div class="pair-bd" id="addrAfterText">
+                      <b>홍길순</b> / 010-2222-3333<br>
+                      [06236] 서울특별시 강남구 테헤란로 152 강남파이낸스센터 12층<br>
+                      메시지: 문 앞에 놓아주세요
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap;">
+                  <input type="text" class="form-input" id="inpAddrChangeReason" name="reason" data-dev-note="MemberReasonRequest 10자 이상(프로토 2자)" placeholder="배송지 수기 보정 사유 필수 입력 (예: 고객 CS 유입으로 수령지 오기재 정정 요청)" style="flex:1;min-width:320px;" />
+                  <div style="display:flex;gap:8px;">
+                    <button type="button" class="btn btn-outline" onclick="cancelAddressEditMode()">취소</button>
+                    <button type="button" class="btn btn-dark" data-dev-route="admin.orders.address.update" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/address" data-dev-perm="수정" data-dev-note="알림톡 TPL_DELIVERY_ADDRESS_CHANGED" onclick="commitAddressChange()">✅ 변경 확정 · 알림톡 발송 및 감사로그 기록</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6 & 7. 배송·환불 연동 및 관리자 메모·통합 처리 이력 -->
+          <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:16px;">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">🔗 4. 3PL 물류 배치 · 운송장 · 환불 심사 연동</h3>
+              </div>
+              <div class="card-body">
+                <table class="kv-table">
+                  <tbody>
+                    <tr>
+                      <th>3PL 출고 배치</th>
+                      <td>
+                        <span class="badge b-amber">배송준비중</span> · 출고지시 <code>2026.08.18 14:02</code><br>
+                        발주 배치번호: <code class="mono">BATCH-20260818-01</code> (3PL 물류비 대사 키)
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>운송장 번호</th>
+                      <td>
+                        <span style="color:var(--text-muted);">미등록 — 3PL 회신 엑셀 업로드(P1) 시 자동 매핑</span>
+                        <button type="button" class="btn btn-sm btn-outline" style="margin-left:6px;" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=…&amp;search_type=order_no&amp;keyword={order_no}" data-dev-perm="조회" onclick="switchOrdView('ord002')">배송 관리에서 보기 ➔</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th>환불 / 반품 연동</th>
+                      <td>
+                        <span style="color:var(--text-muted);" id="dtRefundLink">진행 중인 환불 요청 없음</span>
+                        <a href="ADMN-RFD-002_baseline.html" class="btn btn-sm btn-danger" style="margin-left:6px;text-decoration:none;">환불 심사 화면 이동 (ADMN-RFD-002)</a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:8px;">
+                  <button type="button" class="btn btn-outline" data-dev-route="admin.orders.print.show" data-dev-method="GET" data-dev-url="/sj-admin/orders/{order}/print" data-dev-perm="조회" onclick="window.print()">🖨️ 거래명세서 · 주문서 인쇄 (과·면세 분리 표기)</button>
+                  <a href="ADMN-RFD-002_baseline.html" class="btn btn-danger" style="text-decoration:none;">주문 취소 · 환불 처리 (ADMN-RFD 이관)</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">📝 5. 관리자 내부 메모 &amp; 시스템·운영자 통합 처리 타임라인</h3>
+                <span class="badge b-gray">삭제 불가 · 전자상거래법 5년 보존</span>
+              </div>
+              <div class="card-body">
+                <div style="display:flex;gap:8px;margin-bottom:10px;">
+                  <input type="text" class="form-input" id="inpAdminMemo" name="content" data-dev-note="500자 이하, 추가만(order_cs_logs)" placeholder="CS 응대 내용, 예외 처리 사유 기록 (내부 전용 · 고객 미노출 · 500자 이내)" style="flex:1;" />
+                  <button type="button" class="btn btn-dark" data-dev-route="admin.orders.memos.store" data-dev-method="POST" data-dev-url="/sj-admin/orders/{order}/memos" data-dev-perm="등록" onclick="addAdminTimelineMemo()">메모 저장</button>
+                </div>
+                <div class="table-wrap">
+                  <table class="data-table" style="min-width:100%;">
+                    <thead>
+                      <tr>
+                        <th style="width:125px;">일시</th>
+                        <th style="width:85px;">처리자</th>
+                        <th style="width:90px;">구분</th>
+                        <th>처리 내용 및 감사 로그 스냅샷</th>
+                      </tr>
+                    </thead>
+                    <tbody id="detailTimelineTbody">
+                      <tr>
+                        <td class="mono">08.18 14:02</td>
+                        <td><code>system</code></td>
+                        <td><span class="badge b-amber">출고지시</span></td>
+                        <td>3PL 발주 엑셀 다운로드(<code>BATCH-20260818-01</code>) — 관리자·고객 배송지 수정 잠금(Lock) 적용</td>
+                      </tr>
+                      <tr>
+                        <td class="mono">08.18 10:24</td>
+                        <td><code>system</code></td>
+                        <td><span class="badge b-green">상태전이</span></td>
+                        <td>토스페이먼츠 승인 완료 → 교재 라인(#2) <b>배송준비중</b> 자동 전이 / 강좌 라인(#1) <b>수강중</b> 즉시 부여</td>
+                      </tr>
+                      <tr>
+                        <td class="mono">08.18 10:24</td>
+                        <td><code>system</code></td>
+                        <td><span class="badge b-blue">알림톡</span></td>
+                        <td>결제완료 알림톡 발송 완료 (템플릿 <code>PAY_DONE</code> · 수신자: 홍길동)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       [MODAL 0] 3PL 발주 엑셀 다운로드 · 출고지시 Lock 확정 확인 모달 (ORD-002 6번)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="layerDispatch">
+    <div class="modal-dialog" style="max-width:600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📦 선택한 주문 라인 3PL 발주 엑셀 다운로드 · 출고 지시 확정</h3>
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerDispatch')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="notice-bar warn" style="margin-bottom:12px;">
+          <div>
+            ⚠️ <b>출고 지시 확정(Lock) 안내:</b> 발주 엑셀 다운로드와 동시에 대상 주문 라인에 <code>ship_ordered_at</code> 및 배치번호(<code>BATCH-20260818-02</code>)가 부여되며, <b>관리자와 수험생(마이페이지) 모두 수령인 정보와 배송지 주소를 수정할 수 없습니다.</b>
+          </div>
+        </div>
+        <p style="margin:0 0 8px;font-size:13px;line-height:1.6;">
+          • 이미 출고 지시된 라인은 중복 발주 방지를 위해 자동 제외되며, 파일 생성 실패 시 잠금(Lock)은 100% 롤백됩니다.<br>
+          • 이 시점에는 실제 운송장이 없으므로 <b>고객 알림톡을 발송하지 않습니다.</b> (송장 업로드 시 발송)<br>
+          • 잘못 발주한 경우 3PL에 전달되기 전에 한해 <b>주문 상세(ORD-001-S1)의 [출고지시 회수]</b>로만 잠금을 풀 수 있습니다.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('layerDispatch')">취소</button>
+        <button type="button" class="btn btn-dark" data-dev-route="admin.deliveries.dispatch.download" data-dev-method="POST" data-dev-url="/sj-admin/deliveries/dispatch" data-dev-perm="다운로드" data-dev-note="ids[] — 출고지시 · 예약판매 · 환불 심사 중 · 취소 건은 서비스가 빼고 건수 안내" onclick="execute3plExcelDownload()">📥 다운로드 · 출고 지시 Lock 확정</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       [MODAL P1] ADMN-ORD-002-P1 : 송장 벌크 업로드 (STEP 1 사전 검증 ↔ STEP 2 업로드 결과 E01~E06)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="layerImport">
+    <div class="modal-dialog" style="max-width:920px;">
+      <div class="modal-header">
+        <h3 class="modal-title">📤 [ADMN-ORD-002-P1] 3PL 운송장 엑셀 벌크 업로드 및 크로스 매핑</h3>
+        <div style="display:flex;gap:6px;">
+          <button type="button" class="btn btn-sm btn-primary" id="btnP1Step1" data-dev-route="admin.deliveries.tracking.preview.store" data-dev-method="POST" data-dev-url="/sj-admin/deliveries/tracking/preview" data-dev-perm="등록" data-dev-note="STEP 1 사전 읽기(JSON, 저장 안 함)" onclick="switchP1Step(1)">STEP 1. 파일 선택 · 옵션</button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnP1Step2" onclick="switchP1Step(2)">STEP 2. 업로드 결과 · 오류(E01~E06)</button>
+          <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerImport')">✕</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <!-- STEP 1 -->
+        <div id="p1Step1Box">
+          <div class="notice-bar">
+            <div>
+              3PL 대행사가 회신한 운송장 엑셀(<code>.xlsx</code>, 최대 5,000행)을 업로드하면 <b>주문번호 + 주문라인번호</b> 복합키로 크로스 매핑하여 <b>배송중</b>으로 일괄 전환하고 실시간 배송 추적(<code>USER-MY-009</code>)을 활성화합니다.
+            </div>
+          </div>
+          <table class="kv-table">
+            <tbody>
+              <tr>
+                <th>업로드 파일 <span style="color:var(--danger);">*</span></th>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="text" class="form-input" data-dev-name="file" data-dev-note="xlsx · 10MB · 5,000행 — 개발 id importFile" value="3PL_송장회신_20260818.xlsx" style="width:280px;border-color:var(--success);font-weight:700;" readonly />
+                    <button type="button" class="btn btn-outline btn-sm">파일 선택</button>
+                    <span class="badge b-green">✓ 헤더 5종 검증 통과 · 총 148행 인식</span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th>발주 배치 지정</th>
+                <td>
+                  <select class="form-select" style="width:320px;" name="batch_id" data-dev-note="값 = delivery_batches.id(export), 비우면 전체 배치">
+                    <option value="BATCH-20260818-01">BATCH-20260818-01 (2026.08.18 14:02 · 12건)</option>
+                    <option value="ALL">전체 배치 허용 (배치 미지정)</option>
+                  </select>
+                  <span style="font-size:11.5px;color:var(--text-muted);margin-left:8px;">※ 지정한 배치 범위 밖의 주문번호는 오류(E01)로 안전 차단합니다.</span>
+                </td>
+              </tr>
+              <tr>
+                <th>처리 옵션</th>
+                <td>
+                  <div style="display:flex;gap:16px;flex-wrap:wrap;font-weight:600;">
+                    <label><input type="checkbox" name="notify" value="1" checked /> 배송출고 알림톡 자동 발송 (구매자 수신)</label>
+                    <label><input type="checkbox" checked data-dev-note="개발은 항상 정상 행만 반영(옵션 없음)" /> 오류 행은 건너뛰고 정상 행만 부분 커밋</label>
+                    <label style="color:#B45309;"><input type="checkbox" name="overwrite" value="1" /> 기존 운송장 덮어쓰기 (ON 시 중복 알림톡 미발송)</label>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:12px;color:var(--text-muted);">표준 컬럼: 주문번호 | 주문라인번호 | 택배사코드 | 운송장번호(숫자 10~14자리) | 출고일자</span>
+            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.template.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/template/download" data-dev-perm="다운로드" onclick="alert('3PL 송장 업로드 표준 엑셀 양식(SJM_3PL_Waybill_Template.xlsx)을 다운로드합니다.')">📥 표준 양식 다운로드</button>
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div id="p1Step2Box" style="display:none;">
+          <div class="kpi-grid" style="margin-bottom:12px;">
+            <div class="kpi-card">
+              <div class="k-title"><span>총 처리 행수</span><span class="badge">성공+실패 일치</span></div>
+              <div class="k-num">148건</div>
+              <div class="k-sub">3PL_송장회신_20260818.xlsx</div>
+            </div>
+            <div class="kpi-card">
+              <div class="k-title"><span>매핑 · 배송중 전환 성공</span><span class="badge">USER-MY-009 활성</span></div>
+              <div class="k-num" style="color:var(--success);">141건</div>
+              <div class="k-sub">주문번호 + 라인번호 매칭 커밋</div>
+            </div>
+            <div class="kpi-card">
+              <div class="k-title"><span>매핑 실패 (미반영)</span><span class="badge">E01 ~ E06</span></div>
+              <div class="k-num" style="color:var(--danger);">7건</div>
+              <div class="k-sub">배송준비중 유지 · 수정 후 재업로드</div>
+            </div>
+            <div class="kpi-card">
+              <div class="k-title"><span>배송출고 알림톡 발송</span><span class="badge">비동기 발송</span></div>
+              <div class="k-num" style="color:var(--warn);" id="p1AlimtalkCnt">139건 (실패 2건)</div>
+              <div class="k-sub">실패 건만 단독 재시도 지원 (피드백 #461)</div>
+            </div>
+          </div>
+
+          <div class="notice-bar warn" id="p1RetryBanner" style="margin-bottom:12px;">
+            <div>
+              🔔 <b>알림톡 및 대체 문자(LMS) 발송 실패 <span id="p1FailCntText">2</span>건 감지:</b> 송장 등록(141건)은 정상 커밋되었습니다. 아래 버튼으로 발송 실패 건만 중복 없이 재발송할 수 있습니다.
+            </div>
+            <button type="button" class="btn btn-sm btn-dark" data-dev-route="admin.deliveries.batches.notifications.update" data-dev-method="PUT" data-dev-url="/sj-admin/deliveries/batches/{batch}/notifications" data-dev-perm="수정" onclick="retryFailedAlimtalk()">🔄 발송 실패 2건 재시도</button>
+          </div>
+
+          <div class="notice-bar" id="p1StockLine" style="margin-bottom:12px;">
+            <div>
+              📦 <b>재고 반영:</b> 교재 재고 실차감 141권 · 안전재고(20권 이하) 경고 3건 · 재고 0권 자동 일시품절 전환 1건 (상품 관리에서 확인)
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <div class="toolbar-left">
+              <b>실패 목록 (7건) — 주문번호 불일치 2 · 이미 처리됨 1 · 필수값 누락 1 · 형식 오류 1 · 상태 불일치 1 · 운송장 중복 1</b>
+            </div>
+            <div class="toolbar-right">
+              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.failures.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/{batch}/failures/download" data-dev-perm="다운로드" onclick="alert('3PL 회신용 실패 목록 엑셀(오류코드 E01~E06 및 조치 사유 포함)을 다운로드합니다.')">📥 실패 목록 엑셀 다운로드</button>
+            </div>
+          </div>
+
+          <div class="table-wrap" style="margin-bottom:12px;">
+            <table class="data-table" style="min-width:100%;">
+              <thead>
+                <tr>
+                  <th style="width:60px;">엑셀 행</th>
+                  <th style="width:140px;">주문번호</th>
+                  <th style="width:55px;">라인</th>
+                  <th style="width:125px;">운송장번호</th>
+                  <th style="width:95px;">택배사</th>
+                  <th style="width:75px;">오류코드</th>
+                  <th>실패 사유 및 운영자 조치 가이드</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>14</td><td class="mono">SJM20260818-0O21</td><td>2</td><td class="mono">641233879044</td><td>CJ대한통운</td>
+                  <td><span class="badge b-red">E01</span></td>
+                  <td><b>주문번호 불일치</b> — 존재하지 않는 주문번호 (숫자 0 / 영문 O 오타 추정). 3PL 원본 확인 필요</td>
+                </tr>
+                <tr>
+                  <td>27</td><td class="mono">SJM20260817-0132</td><td>1</td><td class="mono">641233879077</td><td>CJ대한통운</td>
+                  <td><span class="badge b-red">E01</span></td>
+                  <td><b>주문번호 불일치</b> — 가상계좌 미입금(결제대기) 또는 취소된 주문. 출고 대상 아님</td>
+                </tr>
+                <tr>
+                  <td>31</td><td class="mono">SJM20260814-0077</td><td>1</td><td class="mono">641233879021</td><td>CJ대한통운</td>
+                  <td><span class="badge b-gray">E02</span></td>
+                  <td><b>이미 처리됨</b> — 동일 운송장이 08.15에 기등록됨. 중복 회신으로 판단해 건너뜀 (멱등성 보장)</td>
+                </tr>
+                <tr>
+                  <td>58</td><td class="mono">SJM20260818-0033</td><td>1</td><td><span style="color:#94A3B8;">(공란)</span></td><td>CJ대한통운</td>
+                  <td><span class="badge b-amber">E03</span></td>
+                  <td><b>필수값 누락</b> — 운송장번호 공란. 3PL 회신 파일 보완 필요</td>
+                </tr>
+                <tr>
+                  <td>92</td><td class="mono">SJM20260818-0041</td><td>1</td><td class="mono">6412-3387-9105</td><td>CJ대한통운</td>
+                  <td><span class="badge b-amber">E04</span></td>
+                  <td><b>형식 오류</b> — 운송장번호에 하이픈(-) 포함. 숫자 10~14자리만 허용</td>
+                </tr>
+                <tr>
+                  <td>103</td><td class="mono">SJM20260809-0044</td><td>2</td><td class="mono">641233879130</td><td>CJ대한통운</td>
+                  <td><span class="badge b-purple">E05</span></td>
+                  <td><b>상태 불일치</b> — 현재 '반품수거중' 상태. 출고 송장 등록 불가</td>
+                </tr>
+                <tr>
+                  <td>117</td><td class="mono">SJM20260818-0021</td><td>2</td><td class="mono">641233879021</td><td>한진택배</td>
+                  <td><span class="badge b-red">E06</span></td>
+                  <td><b>운송장 중복</b> — 다른 주문 라인에 이미 사용된 운송장번호</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;align-items:stretch;">
+            <div style="background:#F8FAFC;border:1px solid var(--border);border-radius:8px;padding:12px;">
+              <b style="font-size:12.5px;">📌 처리 결과 요약 (부분 커밋 정책)</b>
+              <p style="font-size:12px;color:var(--text-sub);margin:6px 0 0;line-height:1.55;">
+                • 성공 <b>141건</b>은 즉시 <b>배송중</b>으로 전환되었으며 구매자 마이페이지 실시간 배송 조회가 활성화되었습니다.<br>
+                • 실패 <b>7건</b>은 반영되지 않았으며 여전히 <b>출고 대기(배송준비중)</b> 탭에 남아 있습니다. 실패 목록 엑셀을 내려받아 수정 후 재업로드하세요.
+              </p>
+            </div>
+            <div>
+              <div style="font-size:11.5px;font-weight:700;color:var(--text-sub);margin-bottom:4px;">💬 발송 알림톡 미리보기 (ADMN-CONF-004 · 구매자 발송)</div>
+              <div class="kakao-preview">[산준모닷컴] 주문하신 교재가 출고되었습니다.
+홍길동님, 주문하신 교재가 출고되었습니다.
+▶ 주문번호: SJM20260818-0021 (#2)
+▶ 상품: 정종대 (RH-0025) 2026 산업안전기사 필기 기본서 2권
+▶ 택배사: CJ대한통운 (운송장: 641233879021)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('layerImport')">닫기</button>
+        <button type="button" class="btn btn-primary" id="btnP1Action" data-dev-route="admin.deliveries.tracking.store" data-dev-method="POST" data-dev-url="/sj-admin/deliveries/tracking" data-dev-perm="등록" data-dev-note="1,000행 초과는 큐 처리" onclick="switchP1Step(2)">🚀 업로드 · 크로스 매핑 검증 실행</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       [MODAL P2] ADMN-ORD-002-P2 : 송장 단건 등록 / 운송장 정정
+       ========================================================================= -->
+  <div class="modal-backdrop" id="layerTracking">
+    <div class="modal-dialog" style="max-width:560px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="p2ModalTitle">✏️ [ADMN-ORD-002-P2] 송장 단건 등록 (예외 처리)</h3>
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerTracking')">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="kv-table" style="margin-bottom:12px;">
+          <tbody>
+            <tr>
+              <th>주문번호 / 라인</th>
+              <td id="p2OrderLine"><b>SJM20260818-0021 #2</b></td>
+              <th>처리 구분</th>
+              <td id="p2ModeBadge"><span class="badge b-amber">신규 등록</span></td>
+            </tr>
+            <tr>
+              <th>수령인 / 교재</th>
+              <td colspan="3" id="p2ItemDesc">홍길동 · 정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×2 (🔒 출고지시 <code>2026.08.18 14:02</code> · <code>BATCH-20260818-01</code>)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="kv-table">
+          <tbody>
+            <tr>
+              <th>택배사 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <select class="form-select" id="p2Courier" name="courier" style="width:100%;">
+                  <option value="CJ대한통운" data-dev-name="courier" data-dev-value="CJ">CJ대한통운</option>
+                  <option value="한진택배" data-dev-name="courier" data-dev-value="HANJIN">한진택배</option>
+                  <option value="롯데택배" data-dev-name="courier" data-dev-value="LOTTE">롯데택배</option>
+                  <option value="우체국택배" data-dev-name="courier" data-dev-value="EPOST">우체국택배</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <th>운송장번호 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <input type="text" class="form-input" id="p2WaybillNo" name="tracking_no" data-dev-note="숫자 10~14자리" placeholder="하이픈(-) 없이 숫자 10~14자리 입력" style="width:100%;" />
+              </td>
+            </tr>
+            <tr>
+              <th>출고일자 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <input type="date" class="form-input" id="p2ShipDate" name="shipped_at" value="2026-08-18" style="width:180px;" />
+              </td>
+            </tr>
+            <tr>
+              <th>등록/정정 사유 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <select class="form-select" id="p2ReasonType" name="reason_code" style="width:100%;margin-bottom:6px;">
+                  <option value="3PL 회신 누락" data-dev-name="reason_code" data-dev-value="missing">3PL 회신 누락</option>
+                  <option value="운송장 오타 정정" data-dev-name="reason_code" data-dev-value="typo">운송장 오타 정정</option>
+                  <option value="택배사 변경" data-dev-name="reason_code" data-dev-value="courier">택배사 변경</option>
+                  <option value="기타" data-dev-name="reason_code" data-dev-value="etc">기타 (하단 메모 필수)</option>
+                </select>
+                <input type="text" class="form-input" id="p2ReasonMemo" name="reason_memo" data-dev-note="etc일 때 필수 · 200자 이하" placeholder="상세 사유 메모 (감사 로그 및 주문 상세 이력에 적재)" style="width:100%;" />
+              </td>
+            </tr>
+            <tr>
+              <th>알림톡 발송</th>
+              <td>
+                <label style="display:inline-flex;align-items:center;gap:6px;font-weight:700;">
+                  <input type="checkbox" id="p2SendAlimtalk" name="notify" data-dev-value="1" checked /> 배송출고 알림톡 발송
+                </label>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:3px;" id="p2AlimtalkHelp">
+                  ※ 신규 등록 시 기본 발송되며, 운송장 정정 모드에서는 중복 수신 방지를 위해 자동 비활성화됩니다.
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('layerTracking')">취소</button>
+        <button type="button" class="btn btn-dark" data-dev-route="admin.deliveries.tracking.update" data-dev-method="PUT" data-dev-url="/sj-admin/deliveries/{delivery}/tracking" data-dev-perm="수정" onclick="submitSingleWaybill()">저장 및 반영</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       [MODAL P3] ADMN-ORD-002-P3 : 발주 배치 · 송장 업로드 이력
+       ========================================================================= -->
+  <div class="modal-backdrop" id="layerBatches">
+    <div class="modal-dialog" style="max-width:860px;">
+      <div class="modal-header">
+        <h3 class="modal-title">🗂️ [ADMN-ORD-002-P3] 3PL 발주 배치 및 송장 벌크 업로드 이력 (물류비 대사 SETT-011 근거)</h3>
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerBatches')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;" data-dev-flag="dev-only" data-dev-note="개발 DeliveryBatchRequest 기간 · 구분 필터(기본 최근 30일)">
+          <input type="date" class="form-input" name="date_from" value="2026-07-20" style="width:135px;" />
+          <span>~</span>
+          <input type="date" class="form-input" name="date_to" value="2026-08-18" style="width:135px;" />
+          <select class="form-select" name="type" style="width:150px;"><option value="all">전체</option><option value="export">발주 다운로드</option><option value="import">송장 업로드</option></select>
+        </div>
+        <div class="table-wrap" id="batchHistoryBody">
+          <table class="data-table" style="min-width:100%;">
+            <thead>
+              <tr>
+                <th>배치 · 업로드 번호</th>
+                <th>구분</th>
+                <th>처리 일시</th>
+                <th>처리자</th>
+                <th>처리 건수</th>
+                <th>송장 회신 · 알림톡 현황</th>
+                <th>파일 다운로드</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="mono"><b>UPL-20260818-03</b></td>
+                <td><span class="badge b-blue">송장 업로드</span></td>
+                <td>08.18 17:40</td>
+                <td>이물류</td>
+                <td>총 148 · 성공 141 · 실패 7</td>
+                <td>
+                  알림톡 실패 <b style="color:var(--danger);">2</b>건
+                  <button type="button" class="btn btn-sm btn-outline" style="margin-left:4px;" data-dev-route="admin.deliveries.batches.notifications.update" data-dev-method="PUT" data-dev-url="/sj-admin/deliveries/batches/{batch}/notifications" data-dev-perm="수정" onclick="alert('발송 실패 2건에 대해 알림톡을 재발송했습니다.')">발송 실패 재시도</button>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.batches.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/batches/{batch}/download" data-dev-perm="다운로드" onclick="alert('업로드 원본 파일을 다운로드합니다.')">원본</button>
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.failures.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/{batch}/failures/download" data-dev-perm="다운로드" onclick="alert('실패 7건 엑셀 파일을 다운로드합니다.')">실패 목록</button>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono"><b>BATCH-20260818-01</b></td>
+                <td><span class="badge b-amber">발주 다운로드</span></td>
+                <td>08.18 14:02</td>
+                <td>이물류</td>
+                <td>12건</td>
+                <td>송장 등록 10 · 미등록 <b style="color:var(--warn);">2</b>건</td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.batches.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/batches/{batch}/download" data-dev-perm="다운로드" onclick="alert('동일 발주 엑셀 파일을 재다운로드합니다. (출고지시 Lock을 새로 걸지 않으며 감사 로그에만 기록됩니다)')">재다운로드</button>
+                </td>
+              </tr>
+              <tr>
+                <td class="mono"><b>BATCH-20260817-02</b></td>
+                <td><span class="badge b-amber">발주 다운로드</span></td>
+                <td>08.17 15:10</td>
+                <td>김운영</td>
+                <td>38건</td>
+                <td>송장 등록 38 · <span style="color:var(--success);font-weight:700;">미등록 0 (전량 출고완료)</span></td>
+                <td>
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.batches.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/batches/{batch}/download" data-dev-perm="다운로드" onclick="alert('동일 발주 엑셀 파일을 재다운로드합니다.')">재다운로드</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--text-muted);">
+          ※ <b>[재다운로드]</b>는 발주 당시와 동일한 파일을 다시 내려받을 뿐 출고 지시를 새로 걸지 않습니다.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" onclick="closeModal('layerBatches')">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       [MODAL P4] ADMN-ORD-001-P4 : 수강권 직권 부여 (0원 주문 생성 · 구 ADMN-ORD-003 통합)
+       ========================================================================= -->
+  <div class="modal-backdrop" id="modalDirectGrant" data-dev-flag="proto-only" data-dev-note="001-P4 수강권 직권 부여 — 개발 미구현. 레이어 id (규칙) layerDirectGrant">
+    <div class="modal-dialog" style="max-width:720px;">
+      <div class="modal-header">
+        <h3 class="modal-title">🎟️ [ADMN-ORD-001-P4] 수강권 직권 부여 (0원 주문 생성 · 구 ADMN-ORD-003 통합)</h3>
+        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('modalDirectGrant')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="notice-bar" style="background:#EFF6FF;border-color:#BFDBFE;margin-bottom:12px;">
+          <div>
+            💡 <b>폐지 화면(구 ADMN-ORD-003) 통합 및 정산 0원 처리 원칙:</b><br>
+            CS 보상, 이벤트 당첨, 임직원/수험생 특수 승인에 따른 수강권 부여는 0원 주문(ORDER_TYPE: <code>DIRECT_GRANT</code>)으로 즉시 인서트됩니다. 실결제금액(<code>실결제금액 = 0원</code>)으로 확정되므로 정산 파이프라인(강좌 수익배분)에서 강사 정산 기준금(정산 모수) 또한 0원으로 자동 산출되어 부당 정산 지급을 원천 방지합니다.
+          </div>
+        </div>
+
+        <table class="search-table" style="width:100%;">
+          <tbody>
+            <tr>
+              <th style="width:130px;">대상 회원 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <input type="text" class="form-input" id="grantUserId" name="member_id" data-dev-note="(규칙) users.id" value="usr_9821" style="width:110px;" readonly />
+                  <input type="text" class="form-input" id="grantUserName" value="박영희" style="width:110px;" placeholder="회원명" />
+                  <input type="text" class="form-input" id="grantUserEmail" value="yh.park@daum.net" style="flex:1;" placeholder="이메일" />
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="회원 검색 — 개발 직권 부여 화면 없음" onclick="alert('회원 검색 팝업을 엽니다 (ADMN-USER-001 연동).')">회원 조회</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>부여 강좌/패키지 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <select class="form-select" id="grantProdCode" name="product_id" data-dev-note="(규칙) product_type · product_id" style="width:100%;">
+                  <option value="PROD-L-1001" selected>[단과] 2026 산업안전기사 필기 올패스 (강사: 정종대 RH-0025)</option>
+                  <option value="PROD-L-1002">[단과] 2026 산업안전기사 실기 실전 300제 (강사: 김안전 RH-0019)</option>
+                  <option value="PROD-PKG-001">[패키지] 산업안전기사 필기+실기 종합 프리패스 (교재 미포함 0원)</option>
+                </select>
+                <div style="margin-top:4px;font-size:11.5px;color:var(--text-muted);">
+                  ※ 도서정가제 준수를 위해 실물 교재는 0원 직권 부여 대상에서 엄격히 제외되며 순수 인강/디지털 수강권만 발급됩니다.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>수강 기간 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <div style="display:flex;gap:10px;align-items:center;">
+                  <select class="form-select" id="grantPeriodDays" name="course_days" data-dev-note="(규칙)" style="width:140px;">
+                    <option value="30">30일 (단기 특강)</option>
+                    <option value="90">90일 (CS 보상 표준)</option>
+                    <option value="180">180일 (반기)</option>
+                    <option value="365" selected>365일 (정규 1년)</option>
+                  </select>
+                  <span style="font-size:12px;color:var(--text-sub);">부여 즉시 <b>수강중</b>(ACTIVE)으로 활성화됩니다.</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>직권 부여 사유 <span style="color:var(--danger);">*</span></th>
+              <td>
+                <textarea class="form-input" id="grantReason" name="reason" data-dev-note="(규칙) MemberReasonRequest" rows="2" style="width:100%;font-size:12px;" placeholder="10자 이상 필수 입력 (예: CS 시스템 일시 장애 수강 지연에 따른 필기 올패스 90일 무료 직권 보상 승인)"></textarea>
+                <div style="margin-top:4px;font-size:11.5px;color:var(--text-muted);">
+                  ※ 사유는 불변 감사 로그(ADMN-CONF-010) 및 수강권 히스토리에 영구 보존됩니다.
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th>결제/정산 스냅샷</th>
+              <td>
+                <div style="font-size:12px;line-height:1.6;color:var(--text-sub);">
+                  • 주문 유형: <b class="mono">DIRECT_GRANT</b><br>
+                  • 실결제금액: <b style="color:var(--primary);">0원</b> (정가 187,000원 − 직권감면 187,000원)<br>
+                  • 정산 모수: <b style="color:var(--success);">0원 (외부 권리자 지급액 없음 · 불법 정산 원천 차단)</b><br>
+                  • 처리자: <code class="mono">ops@sanjunmo.com</code> (보안 감사 로그 자동 적재)
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('modalDirectGrant')">취소</button>
+        <button type="button" class="btn btn-dark" data-dev-route="admin.orders.grants.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/orders/grants" data-dev-perm="등록" data-dev-flag="proto-only" onclick="submitDirectGrant()">🎟️ 직권 부여 확정 (0원 주문 생성)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    
+    // =========================================================================
+    // 0. 역할(RBAC) 세션 스코프 (ADMIN vs ROLE_PARTNER_3PL)
+    // =========================================================================
+    let currentRole = "ADMIN";
+
+    function setSessionRole(role) {
+      currentRole = role;
+      const btnAdmin = document.getElementById("btnRoleAdmin");
+      const btn3pl = document.getElementById("btnRole3pl");
+      const switcher = document.getElementById("ordViewSwitcher");
+      const banner = document.getElementById("partner3plBanner");
+      const pgBadge = document.getElementById("topbarPgBadge");
+      const codeEl = document.querySelector(".crumb-code");
+      const titleEl = document.getElementById("topbar-title");
+
+      if (role === "ROLE_PARTNER_3PL") {
+        if (btnAdmin) { btnAdmin.className = "btn btn-sm btn-outline"; }
+        if (btn3pl) { btn3pl.className = "btn btn-sm btn-dark"; }
+        if (switcher) {
+          document.getElementById("sw-ord001").style.display = "none";
+          document.getElementById("sw-ord001s1").style.display = "none";
+        }
+        if (banner) banner.style.display = "flex";
+        if (pgBadge) pgBadge.textContent = "Data Scope: ROLE_PARTNER_3PL (정산·매출 차단)";
+        if (codeEl) codeEl.textContent = "ADMN-ORD-002";
+        if (titleEl) titleEl.textContent = "배송 관리 · 3PL 물류 연동 — 외부 파트너(ROLE_PARTNER_3PL) 격리 세션";
+        switchOrdView("ord002");
+      } else {
+        if (btnAdmin) { btnAdmin.className = "btn btn-sm btn-dark"; }
+        if (btn3pl) { btn3pl.className = "btn btn-sm btn-outline"; }
+        if (switcher) {
+          document.getElementById("sw-ord001").style.display = "inline-block";
+          document.getElementById("sw-ord001s1").style.display = "inline-block";
+        }
+        if (banner) banner.style.display = "none";
+        if (pgBadge) pgBadge.textContent = "PG: 토스페이먼츠 (전 수단 연동)";
+        if (codeEl) codeEl.textContent = "ADMN-ORD-001";
+        if (titleEl) titleEl.textContent = "주문 · 배송 통합 관리 및 3PL 물류 연동";
+        renderShipTable();
+      }
+    }
+
+    // Direct Grant Modal Functions
+    function openDirectGrantModal() {
+      document.getElementById("grantReason").value = "CS 시스템 일시 장애 수강 지연에 따른 필기 올패스 90일 무료 직권 보상 승인";
+      openModal("modalDirectGrant");
+    }
+
+    function submitDirectGrant() {
+      const reason = document.getElementById("grantReason").value.trim();
+      if (reason.length < 10) {
+        alert("직권 부여 사유를 10자 이상 상세히 입력해 주세요 (보안 감사 로그 필수).");
+        return;
+      }
+      const userName = document.getElementById("grantUserName").value.trim() || "박영희";
+      const userEmail = document.getElementById("grantUserEmail").value.trim() || "yh.park@daum.net";
+      const prodCode = document.getElementById("grantProdCode").value;
+      const prodSelect = document.getElementById("grantProdCode");
+      const prodName = prodSelect.options[prodSelect.selectedIndex].text;
+      const days = document.getElementById("grantPeriodDays").value;
+
+      const newOrder = {
+        orderNo: "SJM20260818-0999",
+        basis: "강좌 교육면세 (0원 직권 · VAT 0%)",
+        paidAt: "08.18 15:30",
+        buyer: userName,
+        receiver: "— (배송 없음)",
+        phone: "010-8899-7711",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          {
+            tag: "강좌",
+            cls: "b-blue",
+            name: prodName.split("] ")[1] || "산업안전기사 필기 올패스(2026)",
+            status: "수강중",
+            sCls: "b-green",
+            sub: `교육용역 면세 0% (0원 직권부여 · ${days}일)`
+          }
+        ],
+        deliverySub: "배송 대상 아님 — 순수 디지털 수강권 (구 ORD-003 직권부여)",
+        paidAmt: "0원",
+        priceNote: "관리자 직권부여 (정산모수 0원)",
+        payMethod: "관리자직권",
+        paySub: "0원 주문 생성 (구 ORD-003)",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20260818-0021"
+      };
+
+      ORDERS_DATA.unshift(newOrder);
+      closeModal("modalDirectGrant");
+      renderOrderList();
+      alert(`✅ [수강권 직권 부여 완료 (구 ADMN-ORD-003 통합)]\n• 주문번호: ${newOrder.orderNo}\n• 대상: ${userName} (${userEmail})\n• 상품: ${prodName} (${days}일)\n• 실결제금액: 0원 (정산 모수 0원 확정)\n• 감사 로그(ADMN-CONF-010)에 사유가 기록되었습니다.`);
+    }
+
+    // 1. 통합 주문 목록 데이터 (ADMN-ORD-001 · 토스페이먼츠 전 수단 반영)
+    // =========================================================================
+    const ORDERS_DATA = [
+      {
+        orderNo: "SJM20260818-0021",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "08.18 10:24",
+        buyer: "홍길동",
+        receiver: "홍길동",
+        phone: "010-1234-5678",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 웰컴 쿠폰 10% 강좌 배분", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 15000, linePaid: 135000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 홍길동 · 경기 성남시 분당구 판교역로 235 / 배송비 0원(교재 3만원↑ 무료)",
+        paidAmt: "175,000원",
+        priceNote: "정가 190,000 / 쿠폰 -15,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송준비중",
+        shipLocked: true,
+        presetKey: "SJM20260818-0021",
+        paidAtFull: "2026.08.18 10:24:11",
+        pgTid: "tvivarepublica20260818102411",
+        listTotal: 190000,
+        couponAmt: 15000,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 175000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20260818-0019",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "08.18 09:52",
+        buyer: "김수현",
+        receiver: "김수현",
+        phone: "010-2233-4455",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×2", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 쿠폰·포인트 불가 (코드표 밖 도서)", productId: "", itemType: "BOOK", qty: 2, unitPrice: 32000, discount: 0, linePaid: 64000, holder: "정종대 (인세)" }
+        ],
+        deliverySub: "수령인 김수현 · 경기 성남시 분당구 대왕판교로 660 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "64,000원",
+        priceNote: "도서정가제 혜택 0원 고정",
+        payMethod: "간편결제",
+        paySub: "카카오페이 (토스PG)",
+        status: "배송준비중",
+        shipLocked: false,
+        presetKey: "SJM20260818-0019",
+        paidAtFull: "2026.08.18 09:52:40",
+        pgTid: "tvivarepublica20260818095240",
+        listTotal: 64000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 64000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20260818-0007",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "08.18 08:15",
+        buyer: "강도현",
+        receiver: "강도현",
+        phone: "010-4747-1010",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송준비중", sCls: "b-amber", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" },
+          { tag: "배송비", cls: "b-gray", name: "제주 · 도서산간 추가 배송비", status: "부과", sCls: "b-gray", sub: "권리자 정산 제외", productId: "SHIPPING", itemType: "SHIPPING_FEE", qty: 1, unitPrice: 3000, discount: 0, linePaid: 3000, holder: "플랫폼 물류비" }
+        ],
+        deliverySub: "🏝️ 제주 제주시 첨단로 242 / 기본 0원 + 도서산간·제주 추가배송비 3,000원",
+        paidAmt: "43,000원",
+        priceNote: "정가 40,000 / 배송 3,000",
+        payMethod: "간편결제",
+        paySub: "네이버페이 (토스PG)",
+        status: "배송준비중",
+        shipLocked: false,
+        presetKey: "SJM20260818-0007",
+        paidAtFull: "2026.08.18 08:15:02",
+        pgTid: "tvivarepublica20260818081502",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 3000,
+        paidAmount: 43000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20260817-0148",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "08.17 21:03",
+        buyer: "박민서",
+        receiver: "— (배송 없음)",
+        phone: "010-8765-4321",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% (면세 공급가 125,000원) · 환불 신청(휴대폰 익월)", productId: "CRS-2605", itemType: "LECTURE", qty: 1, unitPrice: 125000, discount: 0, linePaid: 125000, holder: "박보건 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "125,000원",
+        priceNote: "정가 125,000",
+        payMethod: "휴대폰결제",
+        paySub: "SKT 소액결제 (디지털)",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20260818-0021",
+        paidAtFull: "2026.08.17 21:03:18",
+        pgTid: "tvivarepublica20260817210318",
+        listTotal: 125000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 125000,
+        refs: ["환불 상세 케이스 4 (ADMN-RFD-002)"]
+      },
+      {
+        orderNo: "SJM20260817-0132",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "08.17 18:41",
+        buyer: "이서준",
+        receiver: "이서준",
+        phone: "010-3311-7788",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "입금대기", sCls: "b-gray", sub: "입금 웹훅 수신 시 수강 부여", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "입금대기", sCls: "b-gray", sub: "입금 시 배송준비중 자동전이", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "국민은행 가상계좌 · 입금 기한 2026.08.18 18:41 (발급 후 24h)",
+        paidAmt: "190,000원",
+        priceNote: "미입금 (정산 미산입)",
+        payMethod: "가상계좌",
+        paySub: "국민은행 · 입금 완료",
+        status: "결제대기",
+        shipLocked: false,
+        presetKey: "SJM20260817-0132",
+        paidAtFull: "2026.08.17 18:41:00",
+        pgTid: "tvivarepublica20260817184100",
+        listTotal: 190000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 190000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20260814-0077",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "08.14 13:12",
+        buyer: "최유진",
+        receiver: "최유진",
+        phone: "010-5566-1212",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송중", sCls: "b-blue", sub: "CJ대한통운 641233879021 · 출고 08.15", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 최유진 · 서울 중구 세종대로 110",
+        paidAmt: "40,000원",
+        priceNote: "쿠폰·포인트 사용 불가",
+        payMethod: "계좌이체",
+        paySub: "실시간 계좌이체 (우리)",
+        status: "배송중",
+        shipLocked: true,
+        presetKey: "SJM20260814-0077",
+        paidAtFull: "2026.08.14 13:12:09",
+        pgTid: "tvivarepublica20260814131209",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 40000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20260809-0044",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "08.09 11:37",
+        buyer: "홍길동",
+        receiver: "홍길동",
+        phone: "010-1234-5678",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "환불심사", sCls: "b-red", sub: "ADMN-RFD-002 심사중 (RFD-2026-001173)", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×1", status: "반품수거중", sCls: "b-red", sub: "3PL 창고 입고 · 검수 대기", productId: "PROD-BK-1006", itemType: "BOOK", qty: 1, unitPrice: 20000, discount: 0, linePaid: 20000, holder: "정종대 100% (인세)" },
+          { tag: "배송비", cls: "b-gray", name: "배송비 (교재 3만원 미만)", status: "부과", sCls: "b-gray", sub: "권리자 정산 제외", productId: "SHIPPING", itemType: "SHIPPING_FEE", qty: 1, unitPrice: 3000, discount: 0, linePaid: 3000, holder: "플랫폼 물류비" }
+        ],
+        deliverySub: "수거 운송장 641299001122 · 창고 입고일 2026.08.18 · 환불 전(10월 정산 영향 없음)",
+        paidAmt: "173,000원",
+        priceNote: "환불 심사 진행 건",
+        payMethod: "간편결제",
+        paySub: "토스페이 (토스PG)",
+        status: "반품수거중",
+        shipLocked: true,
+        presetKey: "SJM20260818-0021",
+        paidAtFull: "2026.08.09 11:37:25",
+        pgTid: "tvivarepublica20260809113725",
+        listTotal: 170000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 3000,
+        paidAmount: 173000,
+        refs: ["환불 RFD-2026-001173 (ADMN-RFD-002)"]
+      },
+      {
+        orderNo: "SJM20261003-0012",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.03 10:02",
+        buyer: "윤도현",
+        receiver: "— (배송 없음)",
+        phone: "010-2020-3141",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 150,000 → 판매가 125,000", productId: "CRS-2605", itemType: "LECTURE", qty: 1, unitPrice: 125000, discount: 0, linePaid: 125000, holder: "박보건 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "125,000원",
+        priceNote: "정가 125,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261003-0012",
+        paidAtFull: "2026.10.03 10:02:31",
+        pgTid: "tvivarepublica20261003100231",
+        listTotal: 125000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 125000,
+        refs: ["PG 대사 REC-09 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261006-0031",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.06 13:45",
+        buyer: "서하윤",
+        receiver: "— (배송 없음)",
+        phone: "010-3030-4152",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0%", productId: "CRS-2606", itemType: "LECTURE", qty: 1, unitPrice: 200000, discount: 0, linePaid: 200000, holder: "최지도 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "200,000원",
+        priceNote: "정가 200,000",
+        payMethod: "신용/체크카드",
+        paySub: "국민카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261006-0031",
+        paidAtFull: "2026.10.06 13:45:09",
+        pgTid: "tvivarepublica20261006134509",
+        listTotal: 200000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 200000,
+        refs: ["PG 대사 REC-10 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261006-0035",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.06 15:20",
+        buyer: "서하윤",
+        receiver: "서하윤",
+        phone: "010-3030-4152",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 정가 결제(할인 없음)", productId: "PROD-BK-1007", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "최지도 100% (인세)" }
+        ],
+        deliverySub: "수령인 서하윤 · 서울 마포구 월드컵북로 21 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "40,000원",
+        priceNote: "정가 40,000",
+        payMethod: "신용/체크카드",
+        paySub: "국민카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261006-0035",
+        paidAtFull: "2026.10.06 15:20:40",
+        pgTid: "tvivarepublica20261006152040",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 40000,
+        refs: ["PG 대사 REC-11 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261009-0063",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.09 09:12",
+        buyer: "한지민",
+        receiver: "— (배송 없음)",
+        phone: "010-4040-5263",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 재수강 쿠폰 32,000 (실결제 = 판매가 − 쿠폰)", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 32000, linePaid: 112000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "112,000원",
+        priceNote: "정가 144,000 / 쿠폰 -32,000",
+        payMethod: "간편결제",
+        paySub: "카카오페이 (토스PG)",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261009-0063",
+        paidAtFull: "2026.10.09 09:12:55",
+        pgTid: "tvivarepublica20261009091255",
+        listTotal: 144000,
+        couponAmt: 32000,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 112000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261020-0305",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.20 11:05",
+        buyer: "오세훈",
+        receiver: "— (배송 없음)",
+        phone: "010-5050-6374",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 180,000 → 판매가 144,000", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 0, linePaid: 144000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,000원",
+        priceNote: "정가 144,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261020-0305",
+        paidAtFull: "2026.10.20 11:05:30",
+        pgTid: "tvivarepublica20261020110530",
+        listTotal: 144000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144000,
+        refs: ["PG 대사 REC-03 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261008-0120",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.08 20:31",
+        buyer: "배수지",
+        receiver: "— (배송 없음)",
+        phone: "010-6060-7485",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 170,000 → 판매가 144,500", productId: "CRS-2603", itemType: "LECTURE", qty: 1, unitPrice: 144500, discount: 0, linePaid: 144500, holder: "이건설 60% · 자사 40%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,500원",
+        priceNote: "정가 144,500",
+        payMethod: "신용/체크카드",
+        paySub: "현대카드 · 3개월 무이자",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261008-0120",
+        paidAtFull: "2026.10.08 20:31:47",
+        pgTid: "tvivarepublica20261008203147",
+        listTotal: 144500,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144500,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261015-0147",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.15 19:08",
+        buyer: "임재범",
+        receiver: "— (배송 없음)",
+        phone: "010-7070-8596",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 제휴 쿠폰 46,000 (실결제 = 판매가 − 쿠폰)", productId: "CRS-2603", itemType: "LECTURE", qty: 1, unitPrice: 144500, discount: 46000, linePaid: 98500, holder: "이건설 60% · 자사 40%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "98,500원",
+        priceNote: "정가 144,500 / 쿠폰 -46,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261015-0147",
+        paidAtFull: "2026.10.15 19:08:02",
+        pgTid: "tvivarepublica20261015190802",
+        listTotal: 144500,
+        couponAmt: 46000,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 98500,
+        refs: ["PG 대사 REC-12 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261018-0042",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.18 23:59",
+        buyer: "문가영",
+        receiver: "문가영",
+        phone: "010-8080-9607",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁) ×4", status: "배송완료", sCls: "b-green", sub: "면세 0% · 위탁 판매 · 쿠폰·포인트 불가", productId: "PROD-BK-3003", itemType: "BOOK", qty: 4, unitPrice: 25000, discount: 0, linePaid: 100000, holder: "위탁자 안전기술출판 100%" }
+        ],
+        deliverySub: "수령인 문가영 · 인천 연수구 송도과학로 32 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "100,000원",
+        priceNote: "정가 100,000",
+        payMethod: "계좌이체",
+        paySub: "실시간 계좌이체 (우리)",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261018-0042",
+        paidAtFull: "2026.10.18 23:59:04",
+        pgTid: "tvivarepublica20261018235904",
+        listTotal: 100000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 100000,
+        refs: ["PG 대사 REC-02 (ADMN-SETT-004) · 원인 미상 차액"]
+      },
+      {
+        orderNo: "SJM20261005-0001",
+        basis: "과·면세 혼합 (면세 + 과세 10%)",
+        paidAt: "10.05 09:30",
+        buyer: "강하늘",
+        receiver: "강하늘",
+        phone: "010-9191-1010",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0%", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×1", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 1, unitPrice: 20000, discount: 0, linePaid: 20000, holder: "정종대 100% (인세)" },
+          { tag: "일반상품", cls: "b-purple", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×1", status: "배송완료", sCls: "b-green", sub: "과세 10% (공급가 10,000 / 세액 1,000)", productId: "GOODS-2026-001", itemType: "GOODS_ITEM", qty: 1, unitPrice: 11000, discount: 0, linePaid: 11000, holder: "자사 100%" },
+          { tag: "배송비", cls: "b-gray", name: "제주 · 도서산간 추가 배송비", status: "부과", sCls: "b-gray", sub: "권리자 정산 제외", productId: "SHIPPING", itemType: "SHIPPING_FEE", qty: 1, unitPrice: 3000, discount: 0, linePaid: 3000, holder: "플랫폼 물류비" }
+        ],
+        deliverySub: "🏝️ 제주 서귀포시 중앙로 48 / 기본 0원(교재·상품 3만원↑) + 제주 추가배송비 3,000원",
+        paidAmt: "184,000원",
+        priceNote: "정가 181,000 / 배송 3,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261005-0001",
+        paidAtFull: "2026.10.05 09:30:00",
+        pgTid: "tvivarepublica20261005093000",
+        listTotal: 181000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 3000,
+        paidAmount: 184000,
+        refs: ["PG 대사 REC-06 (ADMN-SETT-004) · 3계층 과·면세 분할"]
+      },
+      {
+        orderNo: "SJM20261015-0411",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.15 18:40",
+        buyer: "남주혁",
+        receiver: "남주혁",
+        phone: "010-1212-2323",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송중", sCls: "b-blue", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 남주혁 · 대전 서구 둔산로 100 / 가상계좌 입금 10.15 18:40",
+        paidAmt: "40,000원",
+        priceNote: "정가 40,000",
+        payMethod: "가상계좌",
+        paySub: "국민은행 · 입금 완료",
+        status: "배송중",
+        shipLocked: false,
+        presetKey: "SJM20261015-0411",
+        paidAtFull: "2026.10.15 18:40:00",
+        pgTid: "tvivarepublica20261015184000",
+        listTotal: 40000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 40000,
+        refs: ["PG 대사 REC-04 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261002-0017",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.02 14:22",
+        buyer: "남궁민",
+        receiver: "남궁민",
+        phone: "010-1313-2424",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "산업안전 핵심 이론 교재 (공동저자) ×2", status: "구매확정", sCls: "b-green", sub: "면세 0% · 구매확정 2026.10.08 (지분 매핑 종료 10.14 이전)", productId: "PROD-BK-1001", itemType: "BOOK", qty: 2, unitPrice: 28000, discount: 0, linePaid: 56000, holder: "산준교육 50% · 이안전 30% · 자사 20%" }
+        ],
+        deliverySub: "수령인 남궁민 · 광주 서구 상무중앙로 7 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "56,000원",
+        priceNote: "정가 56,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261002-0017",
+        paidAtFull: "2026.10.02 14:22:10",
+        pgTid: "tvivarepublica20261002142210",
+        listTotal: 56000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 56000,
+        refs: ["PG 대사 REC-01 (ADMN-SETT-004) · 원인 미상 차액 · 공동저자 2명 마감 보류"]
+      },
+      {
+        orderNo: "SJM20261011-0089",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.11 20:14",
+        buyer: "류준열",
+        receiver: "류준열",
+        phone: "010-1414-2525",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 총정리 (매입 재판매) ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 매입 재판매(정산 비인입)", productId: "PROD-BK-2001", itemType: "BOOK", qty: 2, unitPrice: 18000, discount: 0, linePaid: 36000, holder: "자사 100%" }
+        ],
+        deliverySub: "수령인 류준열 · 울산 남구 삼산로 200 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "36,000원",
+        priceNote: "정가 36,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261011-0089",
+        paidAtFull: "2026.10.11 20:14:11",
+        pgTid: "tvivarepublica20261011201411",
+        listTotal: 36000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 36000,
+        refs: ["PG 대사 REC-07 (ADMN-SETT-004)"]
+      },
+      {
+        orderNo: "SJM20261020-0502",
+        basis: "일반상품 과세 (VAT 10%)",
+        paidAt: "10.20 16:10",
+        buyer: "김태리",
+        receiver: "김태리",
+        phone: "010-1515-2626",
+        type: "일반상품",
+        hasDelivery: true,
+        lines: [
+          { tag: "일반상품", cls: "b-purple", name: "산준모 공학용 계산기 & 안전모 실기 키트 ×3", status: "배송완료", sCls: "b-green", sub: "과세 10% · 4개 결제 중 1개 부분취소(10.21)", productId: "GOODS-2026-001", itemType: "GOODS_ITEM", qty: 3, unitPrice: 11000, discount: 0, linePaid: 33000, holder: "자사 100%" }
+        ],
+        deliverySub: "수령인 김태리 · 경기 수원시 영통구 광교로 145 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "33,000원",
+        priceNote: "정가 33,000 · 결제 44,000 / 부분취소 -11,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261020-0502",
+        paidAtFull: "2026.10.20 16:10:00",
+        pgTid: "tvivarepublica20261020161000",
+        listTotal: 33000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 33000,
+        refs: ["PG 대사 REC-05 (ADMN-SETT-004) · 환불 처리 시차"]
+      },
+      /* [v6.63 W4] 판매 근거 보강 대표 주문 — 산준교육 CRS-1001 · 이전기 CRS-2509 · 고 박위생 PROD-BK-1008 · 자사 CRS-1012 */
+      {
+        orderNo: "SJM20261007-0071",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.07 11:18",
+        buyer: "한서연",
+        receiver: "— (배송 없음)",
+        phone: "010-6161-7272",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "산업안전기사 필기 핵심이론 패키지", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 180,000 → 판매가 150,000 · 계약 만료(10-14) · 3강 매핑 종료(10-10) 전 결제", productId: "CRS-1001", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "산준교육 80.00% · 자사 20.00%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "150,000원",
+        priceNote: "정가 150,000",
+        payMethod: "신용/체크카드",
+        paySub: "국민카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261007-0071",
+        paidAtFull: "2026.10.07 11:18:42",
+        pgTid: "tvivarepublica20261007111842",
+        listTotal: 150000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 150000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261003-0026",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.03 15:40",
+        buyer: "오세훈",
+        receiver: "— (배송 없음)",
+        phone: "010-8282-9393",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 전기위험방지기술 집중 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 120,000 → 판매가 100,000 · 강사 계약 해지(10-05) 전 결제 · 해지 후 판매중지", productId: "CRS-2509", itemType: "LECTURE", qty: 1, unitPrice: 100000, discount: 0, linePaid: 100000, holder: "이전기 100% (2026-10-05 해지)" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "100,000원",
+        priceNote: "정가 100,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261003-0026",
+        paidAtFull: "2026.10.03 15:40:09",
+        pgTid: "tvivarepublica20261003154009",
+        listTotal: 100000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 100000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261012-0118",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "10.12 09:05",
+        buyer: "문가영",
+        receiver: "문가영",
+        phone: "010-7373-8484",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 산업위생관리기사 필기 핵심정리 ×2", status: "구매확정", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가 · 구매확정 10.19", productId: "PROD-BK-1008", itemType: "BOOK", qty: 2, unitPrice: 30000, discount: 0, linePaid: 60000, holder: "고 박위생 100% (인세 · 상속인 분할 60:40)" }
+        ],
+        deliverySub: "수령인 문가영 · 대전 서구 둔산로 100 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "60,000원",
+        priceNote: "정가 60,000",
+        payMethod: "간편결제",
+        paySub: "카카오페이 (토스PG)",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261012-0118",
+        paidAtFull: "2026.10.12 09:05:27",
+        pgTid: "tvivarepublica20261012090527",
+        listTotal: 60000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 60000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20261014-0233",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.14 20:12",
+        buyer: "배수지",
+        receiver: "— (배송 없음)",
+        phone: "010-9494-0505",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 위험물산업기사 실기 시뮬레이션 특강", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 정가 150,000 → 판매가 120,000 (20%) · 기여자 최그래픽 매출연동 지원금 5% 모수", productId: "CRS-1012", itemType: "LECTURE", qty: 1, unitPrice: 120000, discount: 0, linePaid: 120000, holder: "자사 100% (지원금 SFA-2026-012 5%)" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "120,000원",
+        priceNote: "정가 120,000",
+        payMethod: "신용/체크카드",
+        paySub: "현대카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261014-0233",
+        paidAtFull: "2026.10.14 20:12:55",
+        pgTid: "tvivarepublica20261014201255",
+        listTotal: 120000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 120000,
+        refs: []
+      },
+      {
+        orderNo: "SJM20260930-0998",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "09.30 22:15",
+        buyer: "정해인",
+        receiver: "— (배송 없음)",
+        phone: "010-1616-2727",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0% · 가상계좌 입금 10.01 09:12 (10월 귀속)", productId: "CRS-2605", itemType: "LECTURE", qty: 1, unitPrice: 125000, discount: 0, linePaid: 125000, holder: "박보건 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "125,000원",
+        priceNote: "정가 125,000",
+        payMethod: "가상계좌",
+        paySub: "국민은행 · 입금 완료",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20260930-0998",
+        paidAtFull: "2026.09.30 22:15:00",
+        pgTid: "tvivarepublica20260930221500",
+        listTotal: 125000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 125000,
+        refs: ["PG 대사 가상계좌 시차 (ADMN-SETT-004 탭 3)"]
+      },
+      {
+        orderNo: "SJM20260930-0412",
+        basis: "도서 면세 (VAT 0%)",
+        paidAt: "09.30 23:58",
+        buyer: "손석구",
+        receiver: "손석구",
+        phone: "010-1717-2828",
+        type: "교재",
+        hasDelivery: true,
+        lines: [
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 총정리 (매입 재판매) ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 매입 재판매(정산 비인입)", productId: "PROD-BK-2001", itemType: "BOOK", qty: 2, unitPrice: 18000, discount: 0, linePaid: 36000, holder: "자사 100%" }
+        ],
+        deliverySub: "수령인 손석구 · 세종 한누리대로 2130 / 계좌이체 망취소 복구 10.01 00:04 (9월 귀속)",
+        paidAmt: "36,000원",
+        priceNote: "정가 36,000",
+        payMethod: "계좌이체",
+        paySub: "실시간 계좌이체 (우리)",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260930-0412",
+        paidAtFull: "2026.09.30 23:58:10",
+        pgTid: "tvivarepublica20260930235810",
+        listTotal: 36000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 36000,
+        refs: ["PG 대사 계좌이체 시차 (ADMN-SETT-004 탭 3)"]
+      },
+      {
+        orderNo: "SJM20261004-0091",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "10.04 16:48",
+        buyer: "김철수",
+        receiver: "김철수",
+        phone: "010-2121-3232",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전지도사 1차 산업안전일반 핵심이론 단과", status: "수강중", sCls: "b-green", sub: "교육용역 면세 0%", productId: "CRS-2606", itemType: "LECTURE", qty: 1, unitPrice: 200000, discount: 0, linePaid: 200000, holder: "최지도 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 교재 단독 반품 문의(상담중)", productId: "PROD-BK-1007", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "최지도 100% (인세)" }
+        ],
+        deliverySub: "수령인 김철수 · 서울 송파구 올림픽로 300 / 배송비 0원(3만원↑ 무료)",
+        paidAmt: "240,000원",
+        priceNote: "정가 240,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20261004-0091",
+        paidAtFull: "2026.10.04 16:48:20",
+        pgTid: "tvivarepublica20261004164820",
+        listTotal: 240000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 240000,
+        refs: ["1:1 문의 INQ-2026-008912 (ADMN-RFD-002)"]
+      },
+      {
+        orderNo: "SJM20260918-0063",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "09.18 12:30",
+        buyer: "최민아",
+        receiver: "— (배송 없음)",
+        phone: "010-2222-4343",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "환불접수", sCls: "b-red", sub: "교육용역 면세 0% · 진도율 50%", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 0, linePaid: 144000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,000원",
+        priceNote: "정가 144,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20260918-0063",
+        paidAtFull: "2026.09.18 12:30:44",
+        pgTid: "tvivarepublica20260918123044",
+        listTotal: 144000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144000,
+        refs: ["환불 RFD-2026-001189 (ADMN-RFD-002)"]
+      },
+      {
+        orderNo: "SJM20260901-0219",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "09.01 08:55",
+        buyer: "박영희",
+        receiver: "— (배송 없음)",
+        phone: "010-2323-5454",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", status: "부분환불", sCls: "b-red", sub: "교육용역 면세 0% · 2026-09 정산 반영(마감)", productId: "CRS-2601", itemType: "LECTURE", qty: 1, unitPrice: 144000, discount: 0, linePaid: 144000, holder: "김안전 100%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "144,000원",
+        priceNote: "환불 100,800 + 보정 4,800 (2026-09 완료)",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "환불완료",
+        shipLocked: false,
+        presetKey: "SJM20260901-0219",
+        paidAtFull: "2026.09.01 08:55:12",
+        pgTid: "tvivarepublica20260901085512",
+        listTotal: 144000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 144000,
+        refs: ["환불 RFD-2026-001120 (ADMN-RFD-003)"]
+      },
+      {
+        orderNo: "SJM20260822-0031",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "08.22 17:05",
+        buyer: "이민호",
+        receiver: "— (배송 없음)",
+        phone: "010-2424-6565",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "환불완료", sCls: "b-red", sub: "교육용역 면세 0% · 현금 환불 0원 (−9,200P 전환)", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "150,000원",
+        priceNote: "환불 2026-09 완료 (원귀속 2026-08)",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "환불완료",
+        shipLocked: false,
+        presetKey: "SJM20260822-0031",
+        paidAtFull: "2026.08.22 17:05:39",
+        pgTid: "tvivarepublica20260822170539",
+        listTotal: 150000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 150000,
+        refs: ["환불 RFD-2026-001098 (ADMN-RFD-003)"]
+      },
+      {
+        orderNo: "SJM20260214-0055",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "02.14 10:11",
+        buyer: "이수석",
+        receiver: "이수석",
+        phone: "010-3131-4242",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 2026-02 오픈 특가 240,000", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 240000, discount: 0, linePaid: 240000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 이수석 · 대구 수성구 달구벌대로 2450",
+        paidAmt: "280,000원",
+        priceNote: "정가 280,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260214-0055",
+        paidAtFull: "2026.02.14 10:11:05",
+        pgTid: "tvivarepublica20260214101105",
+        listTotal: 280000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 280000,
+        refs: ["합격환급 HRF-202610-03 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260309-0112",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "03.09 14:40",
+        buyer: "홍길동",
+        receiver: "홍길동",
+        phone: "010-1234-5678",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 정가 450,000 → 판매가 410,000", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 410000, discount: 0, linePaid: 410000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 홍길동 · 경기 성남시 분당구 판교역로 235",
+        paidAmt: "450,000원",
+        priceNote: "정가 450,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260309-0112",
+        paidAtFull: "2026.03.09 14:40:18",
+        pgTid: "tvivarepublica20260309144018",
+        listTotal: 450000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 450000,
+        refs: ["합격환급 HRF-202610-01 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260411-0309",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "04.11 11:22",
+        buyer: "최안전",
+        receiver: "최안전",
+        phone: "010-3232-5353",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 김안전 산업안전 핵심이론 패스", status: "합격환급", sCls: "b-purple", sub: "환급반 패키지(코드표 밖) · 강사 김안전", productId: "", itemType: "LECTURE", qty: 1, unitPrice: 400000, discount: 0, linePaid: 400000, holder: "김안전 (원거래 스냅샷 100%)" },
+          { tag: "교재", cls: "b-teal", name: "김안전 산업안전 핵심이론 교재 ×1", status: "배송완료", sCls: "b-green", sub: "면세 0% (코드표 밖 도서)", productId: "", itemType: "BOOK", qty: 1, unitPrice: 38000, discount: 0, linePaid: 38000, holder: "김안전 (인세)" }
+        ],
+        deliverySub: "수령인 최안전 · 부산 연제구 중앙대로 1001",
+        paidAmt: "438,000원",
+        priceNote: "정가 438,000",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260411-0309",
+        paidAtFull: "2026.04.11 11:22:47",
+        pgTid: "tvivarepublica20260411112247",
+        listTotal: 438000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 438000,
+        refs: ["합격환급 HRF-202610-02 (ADMN-SETT-006) · 2026-11 반영 대기"]
+      },
+      {
+        orderNo: "SJM20260512-0210",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "05.12 09:48",
+        buyer: "최유진",
+        receiver: "최유진",
+        phone: "010-5566-1212",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "2026 건설안전기사 필기 핵심이론 + 계산문제 특강", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매", productId: "CRS-2603", itemType: "LECTURE", qty: 1, unitPrice: 144500, discount: 0, linePaid: 144500, holder: "이건설 60% · 자사 40%" },
+          { tag: "교재", cls: "b-teal", name: "2026 건설안전기사 필기 핵심이론 + 과년도 빈출 (위탁) ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 위탁 판매 · 쿠폰·포인트 불가", productId: "PROD-BK-3003", itemType: "BOOK", qty: 2, unitPrice: 25000, discount: 0, linePaid: 50000, holder: "위탁자 안전기술출판 100%" }
+        ],
+        deliverySub: "수령인 최유진 · 서울 중구 세종대로 110",
+        paidAmt: "194,500원",
+        priceNote: "정가 194,500",
+        payMethod: "신용/체크카드",
+        paySub: "신한카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260512-0210",
+        paidAtFull: "2026.05.12 09:48:31",
+        pgTid: "tvivarepublica20260512094831",
+        listTotal: 194500,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 194500,
+        refs: ["합격환급 HRF-202610-04 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260603-0088",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "06.03 19:26",
+        buyer: "정하늘",
+        receiver: "정하늘",
+        phone: "010-9090-2323",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 2026-06 막차 특가 180,000 (합격환급 플랫폼 부담 프로모션)", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 180000, discount: 0, linePaid: 180000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 정하늘 · 경기 고양시 일산동구 중앙로 1275",
+        paidAmt: "220,000원",
+        priceNote: "정가 220,000",
+        payMethod: "간편결제",
+        paySub: "토스페이 (토스PG)",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260603-0088",
+        paidAtFull: "2026.06.03 19:26:03",
+        pgTid: "tvivarepublica20260603192603",
+        listTotal: 220000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 220000,
+        refs: ["합격환급 HRF-202610-05 (ADMN-SETT-006)"]
+      },
+      {
+        orderNo: "SJM20260518-0127",
+        basis: "교육·도서 통합면세 (VAT 0%)",
+        paidAt: "05.18 20:14",
+        buyer: "한승우",
+        receiver: "한승우",
+        phone: "010-4646-8282",
+        type: "복합",
+        hasDelivery: true,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "[환급반] 2026 산업안전기사 필기+실기 100% 합격 환급반", status: "합격환급", sCls: "b-purple", sub: "교육용역 면세 0% · 합격환급 조건부 판매 · 정가 450,000 → 판매가 410,000 · 합격환급 신청 심사 대기", productId: "CRS-1004", itemType: "LECTURE", qty: 1, unitPrice: 410000, discount: 0, linePaid: 410000, holder: "정종대 100%" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "배송완료", sCls: "b-green", sub: "면세 0% · 자사 발행 · 쿠폰·포인트 불가", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+        ],
+        deliverySub: "수령인 한승우 · 서울 마포구 월드컵북로 396",
+        paidAmt: "450,000원",
+        priceNote: "정가 450,000",
+        payMethod: "신용/체크카드",
+        paySub: "KB국민카드 · 일시불",
+        status: "배송완료",
+        shipLocked: false,
+        presetKey: "SJM20260518-0127",
+        paidAtFull: "2026.05.18 20:14:47",
+        pgTid: "tvivarepublica20260518201447",
+        listTotal: 450000,
+        couponAmt: 0,
+        pointAmt: 0,
+        shipFee: 0,
+        paidAmount: 450000,
+        refs: ["합격환급 HRF-202610-06 (ADMN-SETT-006) · 심사 대기"]
+      }
+    ];
+
+    let curOrdStatus = "ALL";
+    let curOrdType = "ALL";
+
+    function renderOrderList() {
+      const payMethod = document.getElementById("fPayMethod").value;
+      const onlyDelivery = document.getElementById("chkHasDelivery").checked;
+      const kw = document.getElementById("fSearchVal").value.trim().toLowerCase();
+
+      const filtered = ORDERS_DATA.filter(o => {
+        if (curOrdStatus !== "ALL" && o.status !== curOrdStatus) return false;
+        if (curOrdType !== "ALL" && o.type !== curOrdType) return false;
+        if (payMethod !== "ALL" && o.payMethod !== payMethod) return false;
+        if (onlyDelivery && !o.hasDelivery) return false;
+        if (kw && !(o.orderNo.toLowerCase().includes(kw) || o.buyer.toLowerCase().includes(kw) || o.receiver.toLowerCase().includes(kw) || o.phone.includes(kw) || o.lines.some(l => (l.productId || "").toLowerCase().includes(kw)))) return false;
+        return true;
+      });
+
+      document.getElementById("ordListCount").textContent = filtered.length;
+      const tbody = document.getElementById("ordListTbody");
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:36px;color:var(--text-muted);">조회 조건에 해당하는 주문이 없습니다. <button type="button" class="btn btn-sm btn-outline" style="margin-left:8px;" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders" data-dev-perm="조회" onclick="resetOrdFilter()">조건 초기화</button></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(o => {
+        const rowCls = o.status === "결제대기" ? "row-vbank" : (o.status === "반품수거중" ? "row-refund" : "");
+        const linesHtml = o.lines.map(l => `
+          <div class="order-line-item">
+            <span class="badge ${l.cls}">${l.tag}</span>
+            ${l.productId && l.productId !== "SHIPPING" ? `<code style="font-size:10.5px;">${l.productId}</code>` : ""}
+            <b>${l.name}</b>
+            <span class="badge ${l.sCls}">${l.status}</span>
+            <span style="font-size:11px;color:var(--text-muted);">(${l.sub})</span>
+          </div>
+        `).join("");
+
+        let statusBadge = `<span class="badge b-amber">${o.status}</span>`;
+        if (o.status === "결제완료" || o.status === "배송완료") statusBadge = `<span class="badge b-green">${o.status}</span>`;
+        if (o.status === "환불완료") statusBadge = `<span class="badge b-gray">${o.status}</span>`;
+        if (o.status === "배송중") statusBadge = `<span class="badge b-blue">${o.status}</span>`;
+        if (o.status === "반품수거중") statusBadge = `<span class="badge b-red">${o.status}</span>`;
+        if (o.status === "결제대기") statusBadge = `<span class="badge b-purple">결제대기(미입금)</span>`;
+
+        let actionBtn = `<button type="button" class="btn btn-sm btn-outline" onclick="openOrderDetail('${o.orderNo}')">상세</button>`;
+        if (o.status === "결제대기") {
+          actionBtn = `<button type="button" class="btn btn-sm btn-warn" onclick="openOrderDetail('SJM20260817-0132')">⏳ 기한연장</button>`;
+        } else if (o.status === "반품수거중") {
+          actionBtn = `<a href="ADMN-RFD-002_baseline.html" class="btn btn-sm btn-danger" style="text-decoration:none;">환불건 ➔</a>`;
+        }
+
+        return `
+          <tr class="${rowCls}">
+            <td><input type="checkbox" class="ord-row-cb" /></td>
+            <td>
+              <a href="javascript:void(0)" onclick="openOrderDetail('${o.orderNo}')" style="font-weight:800;color:var(--primary);text-decoration:underline;">${o.orderNo}</a><br>
+              <span style="font-size:10.5px;color:var(--text-muted);">${o.basis}</span>
+            </td>
+            <td class="mono">${o.paidAt}</td>
+            <td>
+              <b>${o.buyer}</b> ${o.buyer !== o.receiver && o.hasDelivery ? `<span class="badge b-amber">수령:${o.receiver}</span>` : ""}<br>
+              <span style="font-size:11px;color:var(--text-muted);">${o.phone}</span>
+            </td>
+            <td><span class="badge b-gray">${o.type}</span></td>
+            <td>
+              <div class="order-line-box">${linesHtml}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${o.deliverySub}</div>
+            </td>
+            <td class="text-right">
+              <b style="font-size:13px;">${o.paidAmt}</b><br>
+              <span style="font-size:10.5px;color:var(--text-muted);">${o.priceNote}</span>
+            </td>
+            <td>
+              <b>${o.payMethod}</b><br>
+              <span style="font-size:11px;color:var(--text-muted);">${o.paySub}</span>
+            </td>
+            <td>
+              ${statusBadge}
+              ${o.shipLocked ? `<div style="font-size:10.5px;color:var(--text-sub);margin-top:3px;font-weight:700;">🔒 출고지시 완료</div>` : ""}
+            </td>
+            <td>${actionBtn}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function selectStatusChip(btn) {
+      document.querySelectorAll("#statusChipGroup .filter-chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      curOrdStatus = btn.getAttribute("data-status");
+      renderOrderList();
+    }
+
+    function selectTypeChip(btn) {
+      document.querySelectorAll("#typeChipGroup .filter-chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      curOrdType = btn.getAttribute("data-type");
+      renderOrderList();
+    }
+
+    function selectQuickDate(btn) {
+      btn.parentElement.querySelectorAll(".filter-chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    function filterOrdListByKpi(status) {
+      document.querySelectorAll(".kpi-card").forEach(c => c.classList.remove("active"));
+      if (status === "ALL") document.getElementById("kpi-ord-all").classList.add("active");
+      if (status === "배송준비중") document.getElementById("kpi-ord-ready").classList.add("active");
+      if (status === "결제대기") document.getElementById("kpi-ord-vbank").classList.add("active");
+      if (status === "배송중") document.getElementById("kpi-ord-ship").classList.add("active");
+      if (status === "반품수거중") document.getElementById("kpi-ord-return").classList.add("active");
+
+      switchOrdView("ord001");
+      curOrdStatus = status;
+      document.querySelectorAll("#statusChipGroup .filter-chip").forEach(b => {
+        b.classList.toggle("active", b.getAttribute("data-status") === status);
+      });
+      renderOrderList();
+    }
+
+    function resetOrdFilter() {
+      curOrdStatus = "ALL";
+      curOrdType = "ALL";
+      document.getElementById("fPayMethod").value = "ALL";
+      document.getElementById("chkHasDelivery").checked = false;
+      document.getElementById("fSearchVal").value = "";
+      document.querySelectorAll("#statusChipGroup .filter-chip").forEach(b => b.classList.toggle("active", b.getAttribute("data-status") === "ALL"));
+      document.querySelectorAll("#typeChipGroup .filter-chip").forEach(b => b.classList.toggle("active", b.getAttribute("data-type") === "ALL"));
+      renderOrderList();
+    }
+
+    function toggleAllOrdRows(master) {
+      document.querySelectorAll(".ord-row-cb").forEach(cb => cb.checked = master.checked);
+    }
+
+    function downloadOrderLookupExcel() {
+      alert("📥 [조회용 엑셀 다운로드 완료]\n• 주문 라인(order_items) 단위 1행으로 펼쳐진 엑셀을 다운로드합니다.\n• 수령인 연락처·주소가 포함되어 있어 admin_download_log에 열람 이력이 자동 기록되었습니다.");
+    }
+
+    function goToDeliveryManageWithReady() {
+      switchOrdView("ord002");
+      switchShipTab("READY");
+    }
+
+    // =========================================================================
+    // 2. 3PL 배송 · 출고 · 반품검수 워크스페이스 (ADMN-ORD-002 + S1~S3)
+    // =========================================================================
+    let curShipTab = "READY";
+    let selectedReturnKey = "SJM20260809-0044 #2";
+
+    const SHIP_LINES = {
+      READY: [
+        { key: "SJM20260818-0021 #2", checked: true, recv: "홍길동", phone: "010-1234-5678", addr: "13529 경기 성남시 분당구 판교역로 235 에이치스퀘어 N동 7층 · \"경비실에 맡겨주세요\"", island: false, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 2, fee: "0원", locked: true, lockTime: "08.18 14:02" },
+        { key: "SJM20260818-0019 #1", checked: true, recv: "김수현", phone: "010-2233-4455", addr: "13561 경기 성남시 분당구 대왕판교로 660 유스페이스1 A동 502호", island: false, book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", qty: 2, fee: "0원", locked: false, lockTime: "출고지시 전" },
+        { key: "SJM20260818-0007 #1", checked: false, recv: "강도현", phone: "010-4747-1010", addr: "63309 제주특별자치도 제주시 첨단로 242", island: true, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 2, fee: "3,000원", locked: false, lockTime: "출고지시 전" },
+        { key: "SJM20260817-0102 #1", checked: false, recv: "최유진", phone: "010-5566-1212", addr: "04524 서울 중구 세종대로 110", island: false, book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, fee: "0원", locked: true, lockTime: "08.17 15:30" }
+      ],
+      SHIPPING: [
+        { key: "SJM20260814-0077 #1", checked: true, recv: "최유진", phone: "010-5566-1212", addr: "04524 서울 중구 세종대로 110 🔒", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 2, shipDate: "08.15 (D+3)", waybill: "641233879021", courier: "CJ대한통운", edited: 0 },
+        { key: "SJM20260815-0010 #1", checked: false, recv: "박지훈", phone: "010-3131-7788", addr: "34126 대전 유성구 대학로 99 🔒", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", qty: 1, shipDate: "08.16 (D+2)", waybill: "641233879055", courier: "CJ대한통운", edited: 0 },
+        { key: "SJM20260815-0003 #2", checked: false, recv: "한소율", phone: "010-8282-4646", addr: "48058 부산 해운대구 센텀중앙로 79 🔒", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, shipDate: "08.16 (D+2)", waybill: "641233879068", courier: "CJ대한통운", edited: 1 }
+      ],
+      DELIVERED: [
+        { key: "SJM20260811-0020 #1", recv: "윤서진", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, shipDate: "08.12", delivDate: "2026.08.13", basis: "택배사 수신", bCls: "b-green", waybill: "641233878810", courier: "CJ대한통운" },
+        { key: "SJM20260810-0005 #1", recv: "오태민", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서", qty: 2, shipDate: "08.11", delivDate: "2026.08.14", basis: "출고 후 자동(D+3)", bCls: "b-gray", waybill: "641233878755", courier: "CJ대한통운" },
+        { key: "SJM20260809-0011 #2", recv: "장미래", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, shipDate: "08.10", delivDate: "2026.08.12", basis: "수동 보정", bCls: "b-amber", waybill: "641233878702", courier: "CJ대한통운" }
+      ],
+      RETURN: [
+        { key: "SJM20260809-0044 #2", recv: "홍길동", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299001122", inDate: "2026.08.18", status: "검수 대기", sCls: "b-amber", selectable: true },
+        { key: "SJM20260805-0012 #1", recv: "서지호", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×1", returnWb: "641288774411", inDate: "2026.08.17", status: "훼손 · 교재비 차감 (환불심사 전달 완료)", sCls: "b-red", selectable: true },
+        { key: "SJM20260811-0030 #1", recv: "이도윤", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299004455", inDate: "입고 전", status: "창고 입고 대기", sCls: "b-gray", selectable: false }
+      ]
+    };
+
+    function switchShipTab(tab) {
+      curShipTab = tab;
+      ["READY", "SHIPPING", "DELIVERED", "RETURN"].forEach(t => {
+        document.getElementById("shipTab-" + t).classList.toggle("active", t === tab);
+      });
+      renderShipTable();
+    }
+
+    function renderShipTable() {
+      const thead = document.getElementById("shipThead");
+      const tbody = document.getElementById("shipTbody");
+      const notice = document.getElementById("shipBottomNotice");
+      const inspectPanel = document.getElementById("inspectionPanel");
+      const islandOnly = document.getElementById("chkIslandOnly").checked;
+      const skuFilter = document.getElementById("fShipSku").value;
+
+      inspectPanel.style.display = (curShipTab === "RETURN" && selectedReturnKey) ? "block" : "none";
+
+      if (curShipTab === "READY") {
+        const list = SHIP_LINES.READY.filter(r => (!islandOnly || r.island) && (skuFilter === "ALL" || r.book.includes(skuFilter)));
+        thead.innerHTML = `
+          <tr>
+            <th style="width:36px;"><input type="checkbox" checked onchange="toggleShipCheckAll(this)" /></th>
+            <th style="width:150px;">주문번호 / 라인</th>
+            <th style="width:90px;">수령인</th>
+            <th style="width:115px;">연락처</th>
+            <th>배송지 주소 · 배송 메시지 (3PL 라벨 인쇄 원문)</th>
+            <th style="width:210px;">교재 / 실물 SKU</th>
+            <th style="width:55px;">수량</th>
+            <th style="width:85px;" class="text-right">배송비</th>
+            <th style="width:140px;">상태 / 출고지시</th>
+            <th style="width:95px;">운송장</th>
+          </tr>
+        `;
+        tbody.innerHTML = list.map((r, idx) => {
+          const is3pl = (currentRole === "ROLE_PARTNER_3PL");
+          const maskedName = is3pl ? (r.recv.length > 2 ? r.recv[0] + "*" + r.recv.slice(2) : r.recv[0] + "*") : r.recv;
+          const maskedPhone = is3pl ? r.phone.replace(/(\d{3})-(\d{4})-(\d{4})/, "$1-****-$3") : r.phone;
+          const orderLink = is3pl 
+            ? `<span style="font-weight:800;color:var(--text-main);">${r.key}</span>` 
+            : `<a href="javascript:void(0)" onclick="openOrderDetail('SJM20260818-0021')" style="font-weight:800;color:var(--primary);">${r.key}</a>`;
+          const feeCol = is3pl ? `<span style="color:var(--text-muted);">— (권한제한)</span>` : `<b>${r.fee}</b>`;
+          return `
+          <tr class="${r.checked ? 'row-selected' : ''}">
+            <td><input type="checkbox" class="ship-cb" data-idx="${idx}" ${r.checked ? "checked" : ""} onchange="onShipCheckboxChange()" /></td>
+            <td>${orderLink}</td>
+            <td><b>${maskedName}</b></td>
+            <td class="mono">${maskedPhone}</td>
+            <td>
+              ${r.addr}
+              ${r.island ? `<div style="margin-top:3px;"><span class="badge b-amber">🏝️ 도서산간·제주 추가배송비 (+3,000원 고객청구)</span></div>` : ""}
+            </td>
+            <td><b>${r.book}</b></td>
+            <td>${r.qty}</td>
+            <td class="text-right">${feeCol}</td>
+            <td>
+              <span class="badge b-amber">배송준비중</span><br>
+              <span style="font-size:11px;color:${r.locked ? 'var(--text-main)' : 'var(--text-muted)'};font-weight:${r.locked ? '700' : '400'};">
+                ${r.locked ? `🔒 ${r.lockTime}` : "출고지시 전"}
+              </span>
+            </td>
+            <td><span style="color:#94A3B8;">미등록</span></td>
+          </tr>
+        `;
+        }).join("");
+        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>출고 대기 탭 안내:</b> [3PL 발주 엑셀 다운로드] 실행 시 선택된 주문 라인에 <code>🔒 출고지시 완료</code> 잠금이 걸리며, 송장이 등록되면 <b>배송중(S1)</b> 탭으로 이동합니다.</div></div>`;
+      } else if (curShipTab === "SHIPPING") {
+        const list = SHIP_LINES.SHIPPING;
+        thead.innerHTML = `
+          <tr>
+            <th style="width:36px;">선택</th>
+            <th style="width:150px;">주문번호 / 라인</th>
+            <th style="width:90px;">수령인</th>
+            <th style="width:115px;">연락처</th>
+            <th>배송지 주소 (출고 후 잠금 🔒)</th>
+            <th style="width:210px;">교재 / 실물 SKU</th>
+            <th style="width:55px;">수량</th>
+            <th style="width:110px;">출고일 / 경과</th>
+            <th style="width:170px;">운송장번호 / 택배사</th>
+          </tr>
+        `;
+        tbody.innerHTML = list.map((r, idx) => `
+          <tr class="${r.checked ? 'row-selected' : ''}">
+            <td><input type="checkbox" class="ship-cb" data-idx="${idx}" ${r.checked ? "checked" : ""} onchange="onShipCheckboxChange()" /></td>
+            <td><b>${r.key}</b></td>
+            <td><b>${r.recv}</b></td>
+            <td class="mono">${r.phone}</td>
+            <td>${r.addr}</td>
+            <td><b>${r.book}</b></td>
+            <td>${r.qty}</td>
+            <td><b>${r.shipDate}</b></td>
+            <td>
+              <a href="javascript:void(0)" onclick="alert('CJ대한통운 실시간 배송 추적 팝업(USER-MY-009-P1 동일 링크)을 엽니다: ' + '${r.waybill}')" class="mono" style="font-weight:800;color:var(--primary);text-decoration:underline;">${r.waybill}</a>
+              ${r.edited ? `<span class="badge b-gray">정정 ${r.edited}</span>` : ""}<br>
+              <span style="font-size:11px;color:var(--text-muted);">${r.courier}</span>
+            </td>
+          </tr>
+        `).join("");
+        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>배송중 탭(ORD-002-S1) 안내:</b> 이 탭에는 수동 배송완료 전환 버튼을 두지 않습니다 (택배사 배송완료 수신 또는 출고 후 자동 전이). 라인 1건 선택 시 <b>[송장 단건 등록/정정]</b>이 운송장 정정 모드로 활성화됩니다.</div></div>`;
+      } else if (curShipTab === "DELIVERED") {
+        const list = SHIP_LINES.DELIVERED;
+        thead.innerHTML = `
+          <tr>
+            <th style="width:160px;">주문번호 / 라인</th>
+            <th style="width:100px;">수령인</th>
+            <th>교재 / 실물 SKU</th>
+            <th style="width:65px;">수량</th>
+            <th style="width:100px;">출고일</th>
+            <th style="width:120px;">배송완료일</th>
+            <th style="width:150px;">완료 전이 근거</th>
+            <th style="width:180px;">운송장번호 / 택배사</th>
+          </tr>
+        `;
+        tbody.innerHTML = list.map(r => `
+          <tr>
+            <td><b>${r.key}</b></td>
+            <td><b>${r.recv}</b></td>
+            <td><b>${r.book}</b></td>
+            <td>${r.qty}</td>
+            <td class="mono">${r.shipDate}</td>
+            <td class="mono"><b>${r.delivDate}</b></td>
+            <td><span class="badge ${r.bCls}">${r.basis}</span></td>
+            <td>
+              <a href="javascript:void(0)" onclick="alert('택배사 배송완료 추적 조회: ${r.waybill}')" class="mono" style="font-weight:800;color:var(--primary);text-decoration:underline;">${r.waybill}</a><br>
+              <span style="font-size:11px;color:var(--text-muted);">${r.courier}</span>
+            </td>
+          </tr>
+        `).join("");
+        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>배송완료 탭(ORD-002-S2) 안내:</b> 배송완료 후 고객이 교재 환불을 요청하면 해당 라인은 <b>반품수거중</b>으로 자동 전환되어 우측 <b>[4. 반품 수거 · 창고 검수]</b> 탭으로 이동합니다.</div></div>`;
+      } else if (curShipTab === "RETURN") {
+        const list = SHIP_LINES.RETURN;
+        thead.innerHTML = `
+          <tr>
+            <th style="width:55px;">단일선택</th>
+            <th style="width:165px;">주문번호 / 라인</th>
+            <th style="width:100px;">수령인</th>
+            <th>반품 교재 / 실물 SKU</th>
+            <th style="width:150px;">3PL 수거 운송장</th>
+            <th style="width:120px;">창고 입고일</th>
+            <th style="width:210px;">창고 검수 상태</th>
+          </tr>
+        `;
+        tbody.innerHTML = list.map(r => `
+          <tr class="${selectedReturnKey === r.key ? 'row-selected' : ''}">
+            <td>
+              ${r.selectable
+                ? `<input type="radio" name="returnPick" ${selectedReturnKey === r.key ? "checked" : ""} onchange="selectReturnRow('${r.key}', '${r.recv}', '${r.book}', '${r.returnWb}')" />`
+                : `<span style="color:#94A3B8;">—</span>`}
+            </td>
+            <td><b>${r.key}</b></td>
+            <td><b>${r.recv}</b></td>
+            <td><b>${r.book}</b></td>
+            <td class="mono">${r.returnWb}</td>
+            <td class="mono">${r.inDate}</td>
+            <td><span class="badge ${r.sCls}">${r.status}</span></td>
+          </tr>
+        `).join("");
+        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>반품 수거 · 검수 탭(ORD-002-S3) 안내:</b> 창고 입고일이 찍힌 건만 단일 선택하여 하단 검수 판정을 입력할 수 있습니다 (피드백 #460). 정상 판정 시 교재 재고에 자동 재입고되며, 훼손 판정 시 교재비만 차감하고(고객 착불 반송) 강좌 환불은 진행됩니다.</div></div>`;
+      }
+
+      updateShipToolbarButtons();
+    }
+
+    function onShipCheckboxChange() {
+      updateShipToolbarButtons();
+    }
+
+    function toggleShipCheckAll(master) {
+      document.querySelectorAll(".ship-cb").forEach(cb => cb.checked = master.checked);
+      updateShipToolbarButtons();
+    }
+
+    function selectAllShipRows() {
+      document.querySelectorAll(".ship-cb").forEach(cb => cb.checked = true);
+      updateShipToolbarButtons();
+    }
+
+    // 툴바 4개 버튼 활성/비활성 규칙 (피드백 #459 표 완벽 구현)
+    function updateShipToolbarButtons() {
+      const checkedCbs = Array.from(document.querySelectorAll(".ship-cb")).filter(cb => cb.checked);
+      const cnt = checkedCbs.length;
+
+      const btn3pl = document.getElementById("dispatchButton");
+      const btnSingle = document.getElementById("trackingButton");
+      const summary = document.getElementById("shipToolbarSummary");
+
+      if (curShipTab === "READY") {
+        summary.innerHTML = `출고 대기 <b>${SHIP_LINES.READY.length}</b>건 · 선택 <b>${cnt}</b>건`;
+        btn3pl.disabled = (cnt === 0);
+        btn3pl.title = cnt === 0 ? "발주할 주문을 1건 이상 선택해 주세요." : "";
+        btnSingle.disabled = (cnt !== 1);
+        btnSingle.title = cnt !== 1 ? "송장을 단건 등록할 출고지시 완료 라인 1건을 선택해 주세요." : "";
+      } else if (curShipTab === "SHIPPING") {
+        summary.innerHTML = `배송중 <b>${SHIP_LINES.SHIPPING.length}</b>건 · 선택 <b>${cnt}</b>건`;
+        btn3pl.disabled = true;
+        btn3pl.title = "출고 대기 탭에서만 사용할 수 있습니다.";
+        btnSingle.disabled = (cnt !== 1);
+        btnSingle.title = cnt !== 1 ? "운송장을 정정할 라인 1건을 선택해 주세요." : "";
+      } else if (curShipTab === "DELIVERED") {
+        summary.innerHTML = `배송완료 <b>1,904</b>건 (샘플 3건 표시)`;
+        btn3pl.disabled = true;
+        btnSingle.disabled = true;
+      } else if (curShipTab === "RETURN") {
+        summary.innerHTML = `반품수거중 <b>6</b>건 · 창고 검수 대기 <b>3</b>건`;
+        btn3pl.disabled = true;
+        btnSingle.disabled = true;
+      }
+    }
+
+    function selectReturnRow(key, recv, book, wb) {
+      selectedReturnKey = key;
+      document.getElementById("inspectionTarget").textContent = `🔍 반품 수거 실물 검수 판정 입력 — 선택한 건: ${key} (${recv} · ${book} · 수거송장 ${wb})`;
+      renderShipTable();
+    }
+
+    function clearReturnSelection() {
+      selectedReturnKey = "";
+      renderShipTable();
+    }
+
+    function onChangeInspectResult() {
+      const res = document.getElementById("inpInspectResult").value;
+      const faultSel = document.getElementById("inpInspectFault");
+      faultSel.disabled = (res === "DAMAGED");
+    }
+
+    function saveReturnInspection() {
+      const res = document.getElementById("inpInspectResult").value;
+      const target = SHIP_LINES.RETURN.find(r => r.key === selectedReturnKey);
+      if (target) {
+        if (res === "NORMAL") {
+          target.status = "정상 · 환불 심사(RFD-002) 전달 완료 (재고 +1)";
+          target.sCls = "b-green";
+        } else {
+          target.status = "훼손 · 교재비 차감 (착불 반송 · 폐기)";
+          target.sCls = "b-red";
+        }
+      }
+      alert("✅ [검수 결과 저장 완료]\n• 판정 결과와 배송비 귀책이 환불 심사(ADMN-RFD-002)로 전달되었습니다.\n• 정상 판정 건은 교재 재고(ADMN-PROD-004)에 자동 재입고(+1권) 처리되었습니다.");
+      renderShipTable();
+    }
+
+    function open3plConfirmModal() {
+      openModal("layerDispatch");
+    }
+
+    function execute3plExcelDownload() {
+      SHIP_LINES.READY.forEach(r => {
+        if (r.checked) {
+          r.locked = true;
+          r.lockTime = "08.18 15:10";
+        }
+      });
+      closeModal("layerDispatch");
+      renderShipTable();
+      alert("📦 [SJM_3PL_발주_20260818_02.xlsx 다운로드 및 출고 지시 Lock 완료]\n• 선택한 주문 라인에 출고 지시 플래그(ship_ordered_at)가 기록되었습니다.\n• 지금부터 관리자 및 구매자 마이페이지에서 배송지 주소를 수정할 수 없습니다.");
+    }
+
+    function openSingleWaybillModal() {
+      const isShippingTab = (curShipTab === "SHIPPING");
+      document.getElementById("p2ModalTitle").textContent = isShippingTab
+        ? "✏️ [ADMN-ORD-002-P2] 운송장 번호 정정 (배송중 라인)"
+        : "✏️ [ADMN-ORD-002-P2] 송장 단건 신규 등록 (출고지시 완료 라인)";
+      document.getElementById("p2ModeBadge").innerHTML = isShippingTab
+        ? `<span class="badge b-blue">운송장 정정</span>`
+        : `<span class="badge b-amber">신규 등록</span>`;
+      document.getElementById("p2WaybillNo").value = isShippingTab ? "641233879021" : "";
+      document.getElementById("p2SendAlimtalk").checked = !isShippingTab;
+      document.getElementById("p2SendAlimtalk").disabled = isShippingTab;
+      openModal("layerTracking");
+    }
+
+    function submitSingleWaybill() {
+      const wb = document.getElementById("p2WaybillNo").value.trim();
+      if (!/^\d{10,14}$/.test(wb)) {
+        alert("운송장번호 형식 오류(E04): 하이픈(-) 없이 숫자 10~14자리만 입력해 주세요.");
+        return;
+      }
+      closeModal("layerTracking");
+      alert(`✅ 송장 단건 처리 완료 (운송장: ${wb})\n• 주문 상세 처리 이력 및 정산 감사 로그에 사유가 기록되었습니다.`);
+    }
+
+    // P1 모달 제어
+    function switchP1Step(step) {
+      document.getElementById("p1Step1Box").style.display = (step === 1) ? "block" : "none";
+      document.getElementById("p1Step2Box").style.display = (step === 2) ? "block" : "none";
+      document.getElementById("btnP1Step1").className = (step === 1) ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline";
+      document.getElementById("btnP1Step2").className = (step === 2) ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline";
+      document.getElementById("btnP1Action").textContent = (step === 1) ? "🚀 업로드 · 크로스 매핑 검증 실행" : "✅ 확인 (배송 관리 목록 갱신)";
+      document.getElementById("btnP1Action").onclick = (step === 1)
+        ? function() { switchP1Step(2); }
+        : function() { closeModal("layerImport"); renderShipTable(); };
+    }
+
+    function retryFailedAlimtalk() {
+      document.getElementById("p1AlimtalkCnt").textContent = "141건 (실패 0건)";
+      document.getElementById("p1AlimtalkCnt").style.color = "var(--success)";
+      document.getElementById("p1RetryBanner").style.display = "none";
+      alert("🔔 발송 실패 2건에 대해 배송출고 알림톡 재발송이 완료되었습니다. (중복 발송 없음)");
+    }
+
+    // =========================================================================
+    // 3. 주문 상세 & 배송지 수기 보정 · 출고지시 Lock 제어 (ADMN-ORD-001-S1)
+    // =========================================================================
+    let isDetailShipLocked = true;
+
+    function openOrderDetail(orderNo) {
+      switchOrdView("ord001s1");
+      const sel = document.getElementById("detailPresetSelect");
+      if (![...sel.options].some(op => op.value === orderNo)) {
+        const o = ORDERS_DATA.find(x => x.orderNo === orderNo);
+        const op = document.createElement("option");
+        op.value = orderNo;
+        op.textContent = `[주문] ${orderNo} (${o ? o.buyer + " · " + o.type + " · " + o.status : ""})`;
+        sel.appendChild(op);
+      }
+      sel.value = orderNo;
+      loadOrderDetailPreset(orderNo);
+    }
+
+    // 주문 데이터(ORDERS_DATA)로 상세 1 · 2 영역을 채운다 — 품목별 상품 코드 · 귀속 · 금액
+    function renderOrderDetailFromData(src) {
+      // 직권 부여 주문처럼 금액 필드가 없는 주문도 그릴 수 있게 기본값을 채운다
+      const o = Object.assign({ listTotal: 0, couponAmt: 0, pointAmt: 0, shipFee: 0, paidAmount: parseInt(String(src.paidAmt || "0").replace(/[^0-9]/g, ""), 10) || 0, refs: [] }, src);
+      o.lines = (src.lines || []).map(l => Object.assign({ itemType: ({ "강좌": "LECTURE", "교재": "BOOK", "일반상품": "GOODS_ITEM" })[l.tag] || "LECTURE", qty: 1, unitPrice: 0, discount: 0, linePaid: 0, productId: "", holder: "" }, l));
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      const won = n => Number(n || 0).toLocaleString("ko-KR") + "원";
+      const typeLabel = { "인강": "인강 단독", "교재": "교재 단독", "복합": "복합(패키지)", "일반상품": "일반상품" }[o.type] || o.type;
+      set("dtOrderNo", o.orderNo);
+      set("dtOrderType", typeLabel);
+      // 면세 근거 exemption_basis — 헤더 표기 전용(통합설계서 3.3.2). 정산은 품목(order_item) 단위로 분리한다
+      const exb = orderExemptionBasis(o.lines);
+      const exEl = document.getElementById("detailExemptionBadge");
+      if (exEl) { exEl.className = `badge ${exb.cls}`; exEl.textContent = `헤더 표기: ${exb.label}`; }
+      const stCls = o.status === "결제대기" ? "b-purple" : (o.status === "반품수거중" ? "b-red" : (o.status === "배송중" ? "b-blue" : (o.status === "환불완료" ? "b-gray" : (o.status === "배송준비중" ? "b-amber" : "b-green"))));
+      document.getElementById("dtOrderStatus").innerHTML = `<span class="badge ${stCls}">${o.status}</span>` + (o.shipLocked ? ` <span class="badge b-gray" id="dtLockSubBadge">🔒 출고지시 완료</span>` : "");
+      set("dtBuyerInfo", `${o.buyer} (${o.phone})`);
+      set("dtPaidAt", o.paidAtFull || o.paidAt);
+      set("dtPayMethod", `${o.payMethod} (${o.paySub})`);
+      set("dtPgTid", o.pgTid || "—");
+      const lec = o.lines.filter(l => l.itemType === "LECTURE").reduce((a, l) => a + l.unitPrice * l.qty, 0);
+      const phys = o.lines.filter(l => l.itemType === "BOOK" || l.itemType === "GOODS_ITEM").reduce((a, l) => a + l.unitPrice * l.qty, 0);
+      set("dtListPrice", `${won(o.listTotal)} (강좌 ${won(lec)} + 교재·상품 ${won(phys)})`);
+      set("dtCouponAmt", o.couponAmt ? `−${won(o.couponAmt)} (강좌 라인에만 배분 · 교재 배분 0원)` : "0원");
+      set("dtPointUsed", o.pointAmt ? `${o.pointAmt.toLocaleString("ko-KR")}P` : "0P");
+      document.getElementById("dtShipFee").innerHTML = o.shipFee ? `${won(o.shipFee)} <span style="color:var(--text-muted);font-size:11.5px;">(${o.lines.filter(l => l.itemType === "SHIPPING_FEE").map(l => l.name).join(", ")})</span>`
+        : (o.hasDelivery ? `0원 <span style="color:var(--text-muted);font-size:11.5px;">(교재·상품 3만원↑ 무료배송)</span>` : `0원 <span style="color:var(--text-muted);font-size:11.5px;">(배송 대상 아님)</span>`);
+      set("dtPaidAmt", o.status === "결제대기" ? `${won(o.paidAmount)} (입금 대기중)` : won(o.paidAmount));
+      const lecPaid = o.lines.filter(l => l.itemType === "LECTURE").reduce((a, l) => a + l.linePaid, 0);
+      document.getElementById("dtPointEarnInfo").innerHTML = `적립 예정 <b>${Math.ceil(lecPaid * 0.01).toLocaleString("ko-KR")}P</b> (강좌 라인 실결제액 ${won(lecPaid)} × 1% 올림 · 교재 · 배송비는 적립 0%)`;
+      const badgeOf = { LECTURE: "강좌 (LECTURE)", BOOK: "교재 (BOOK)", GOODS_ITEM: "일반상품 (GOODS_ITEM)", SHIPPING_FEE: "배송비 (SHIPPING_FEE)" };
+      let physIdx = 0;
+      document.getElementById("detailLinesTbody").innerHTML = o.lines.map((l, i) => {
+        const isPhys = l.itemType === "BOOK" || l.itemType === "GOODS_ITEM";
+        const lockId = isPhys && physIdx++ === 0 && o.shipLocked !== undefined && o.status === "배송준비중" ? ` id="line2LockText"` : "";
+        return `
+        <tr>
+          <td><b>#${i + 1}</b><br><span class="mono" style="color:var(--text-muted);">OI-${o.orderNo.slice(-4)}-${i + 1}</span></td>
+          <td><span class="badge ${l.cls}">${badgeOf[l.itemType] || l.tag}</span></td>
+          <td>
+            <b>${l.name}</b><br>
+            <span style="font-size:11.5px;color:var(--text-muted);">${l.productId && l.productId !== "SHIPPING" ? `상품 코드 <code>${l.productId}</code>` : (l.itemType === "SHIPPING_FEE" ? "배송비 라인" : "상품 코드 없음 (코드표 밖 상품)")}${l.holder ? ` · 귀속: ${l.holder}` : ""}</span>
+          </td>
+          <td><span class="badge ${l.cls}">${l.sub}</span></td>
+          <td class="text-right">${won(l.unitPrice * l.qty)}</td>
+          <td>${l.qty}</td>
+          <td class="text-right" style="${l.discount ? "color:var(--danger);font-weight:700;" : ""}">${l.discount ? "−" + won(l.discount) : "0원"}</td>
+          <td class="text-right"><b>${won(l.linePaid)}</b></td>
+          <td><span class="badge ${l.sCls}">${l.status}</span>${lockId ? `<br><span style="font-size:11px;color:var(--text-muted);"${lockId}>🔒 출고지시 완료</span>` : ""}</td>
+        </tr>`;
+      }).join("");
+      const rn = document.getElementById("inpRecvName"), rp = document.getElementById("inpRecvPhone");
+      if (rn && o.hasDelivery) rn.value = o.receiver;
+      if (rp && o.hasDelivery) rp.value = o.phone;
+      const rl = document.getElementById("dtRefundLink");
+      if (rl) rl.textContent = o.refs && o.refs.length ? `연결: ${o.refs.join(" · ")}` : "진행 중인 환불 요청 없음";
+    }
+
+    /* exemption_basis: 배송비 라인을 뺀 품목으로 판정 — 강좌만 EDU_SERVICE · 교재만 BOOK_GOODS · 둘 이상 섞이면 MIXED.
+       일반상품만 있는 주문은 정본 값(3종)에 해당하지 않아 '면세 품목 없음'으로 표시한다(확인 필요 — changes/T4.md) */
+    function orderExemptionBasis(lines) {
+      const kinds = new Set((lines || []).filter(l => l.itemType !== "SHIPPING_FEE" && l.tag !== "배송비").map(l => l.itemType));
+      const lec = kinds.has("LECTURE"), book = kinds.has("BOOK"), goods = kinds.has("GOODS_ITEM");
+      if (lec && !book && !goods) return { code: "EDU_SERVICE", cls: "b-green", label: "EDU_SERVICE (인강 단독 · 교육용역 면세 0%)" };
+      if (book && !lec && !goods) return { code: "BOOK_GOODS", cls: "b-green", label: "BOOK_GOODS (교재 단독 · 도서 면세 0%)" };
+      if ((lec || book) && kinds.size > 1) return { code: "MIXED", cls: "b-green", label: `MIXED (복합 · 품목별 분리 — ${[lec && "강좌 교육면세 0%", book && "교재 도서면세 0%", goods && "일반상품 과세 10%"].filter(Boolean).join(" · ")})` };
+      return { code: "", cls: "b-gray", label: "— (면세 품목 없음 · 일반상품 과세 10%)" };
+    }
+
+    function loadOrderDetailPreset(key) {
+      const vbankBox = document.getElementById("vbankExtendBox");
+      const lockBanner = document.getElementById("detailLockBanner");
+      const compareBox = document.getElementById("addrCompareConfirmBox");
+      compareBox.style.display = "none";
+      const data = ORDERS_DATA.find(x => x.orderNo === key);
+      if (data) renderOrderDetailFromData(data);
+      if (data && !["SJM20260818-0021", "SJM20260818-0019", "SJM20260817-0132"].includes(key)) {
+        isDetailShipLocked = !!data.shipLocked;
+        vbankBox.style.display = data.status === "결제대기" ? "block" : "none";
+        lockBanner.style.display = data.shipLocked ? "flex" : "none";
+        applyShipLockUiState();
+        return;
+      }
+
+      if (key === "SJM20260818-0021") {
+        isDetailShipLocked = true;
+        vbankBox.style.display = "none";
+        lockBanner.style.display = "flex";
+        document.getElementById("dtOrderNo").textContent = "SJM20260818-0021";
+        document.getElementById("dtOrderType").textContent = "복합(패키지)";
+        document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-amber">배송준비중</span> <span class="badge b-gray" id="dtLockSubBadge">🔒 출고지시 완료</span>`;
+        document.getElementById("dtPayMethod").textContent = "신용카드 (신한카드 1234-****-****-5678 / 일시불)";
+        applyShipLockUiState();
+      } else if (key === "SJM20260818-0019") {
+        isDetailShipLocked = false;
+        vbankBox.style.display = "none";
+        lockBanner.style.display = "none";
+        document.getElementById("dtOrderNo").textContent = "SJM20260818-0019";
+        document.getElementById("dtOrderType").textContent = "교재 단독";
+        document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-amber">배송준비중</span> <span class="badge b-green">출고지시 전 (주소 수정 가능)</span>`;
+        document.getElementById("dtPayMethod").textContent = "간편결제 (카카오페이 · 토스페이먼츠)";
+        applyShipLockUiState();
+      } else if (key === "SJM20260817-0132") {
+        isDetailShipLocked = false;
+        vbankBox.style.display = "block";
+        lockBanner.style.display = "none";
+        document.getElementById("dtOrderNo").textContent = "SJM20260817-0132";
+        document.getElementById("dtOrderType").textContent = "복합(패키지)";
+        document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-purple">결제대기 (가상계좌 미입금)</span>`;
+        document.getElementById("dtPayMethod").textContent = "가상계좌 (국민은행 012345-67-890123 · 미입금)";
+        applyShipLockUiState();
+      }
+    }
+
+    function applyShipLockUiState() {
+      const btnEdit = document.getElementById("btnEnableAddrEdit");
+      const btnRecall = document.getElementById("btnRecallShipOrder");
+      const lockIcons = document.querySelectorAll(".lock-icon");
+      const line2Lock = document.getElementById("line2LockText");
+
+      btnEdit.disabled = isDetailShipLocked;
+      btnRecall.textContent = isDetailShipLocked ? "🔓 출고지시 회수 (잠금 해제)" : "🔒 출고지시 재적용 (잠금)";
+      lockIcons.forEach(el => el.style.display = isDetailShipLocked ? "inline" : "none");
+      if (line2Lock) line2Lock.textContent = isDetailShipLocked ? "🔒 출고지시 완료" : "출고지시 전 (수정 가능)";
+
+      document.querySelectorAll(".addr-field").forEach(el => el.disabled = true);
+    }
+
+    function toggleShipOrderLock() {
+      if (isDetailShipLocked) {
+        const reason = prompt("[상위 권한 예외 기능 — 출고지시 회수]\n3PL 대행사에 출고 보류를 확인하셨습니까? 회수 사유를 입력해 주세요:", "고객 배송지 오기재 CS 인입으로 3PL 유선 출고보류 확인 후 회수");
+        if (!reason) return;
+        isDetailShipLocked = false;
+        document.getElementById("detailLockBanner").style.display = "none";
+        appendTimelineRow("물류팀", "출고지시회수", "b-amber", `출고지시 잠금(Lock) 해제 완료 — 사유: ${reason}`);
+      } else {
+        isDetailShipLocked = true;
+        document.getElementById("detailLockBanner").style.display = "flex";
+      }
+      applyShipLockUiState();
+    }
+
+    function enableAddressEditMode() {
+      if (isDetailShipLocked) {
+        alert("409 Conflict: 출고 지시된 주문은 배송지를 수정할 수 없습니다.");
+        return;
+      }
+      document.querySelectorAll(".addr-field").forEach(el => el.disabled = false);
+      document.getElementById("inpRecvName").value = "홍길순";
+      document.getElementById("inpRecvPhone").value = "010-2222-3333";
+      document.getElementById("inpZipcode").value = "06236";
+      document.getElementById("inpAddr1").value = "서울특별시 강남구 테헤란로 152";
+      document.getElementById("inpAddr2").value = "강남파이낸스센터 12층";
+      document.getElementById("addrCompareConfirmBox").style.display = "block";
+    }
+
+    function simulateZipSearch() {
+      document.getElementById("inpZipcode").value = "63309";
+      document.getElementById("inpAddr1").value = "제주특별자치도 제주시 첨단로 242";
+      document.getElementById("islandCheckBadge").className = "badge b-amber";
+      document.getElementById("islandCheckBadge").textContent = "🏝️ 도서산간·제주 판정: 제주 권역 (+3,000원 고객 청구 대상)";
+    }
+
+    function cancelAddressEditMode() {
+      document.getElementById("addrCompareConfirmBox").style.display = "none";
+      applyShipLockUiState();
+    }
+
+    function commitAddressChange() {
+      const reason = document.getElementById("inpAddrChangeReason").value.trim();
+      if (reason.length < 2) {
+        alert("수정 사유를 입력해 주세요.");
+        return;
+      }
+      const name = document.getElementById("inpRecvName").value;
+      const phone = document.getElementById("inpRecvPhone").value;
+      const zip = document.getElementById("inpZipcode").value;
+      const a1 = document.getElementById("inpAddr1").value;
+      const a2 = document.getElementById("inpAddr2").value;
+
+      document.getElementById("addrAfterText").innerHTML = `<b>${name}</b> / ${phone}<br>[${zip}] ${a1} ${a2}`;
+      document.getElementById("addrCompareConfirmBox").style.display = "none";
+      applyShipLockUiState();
+      appendTimelineRow("김운영", "배송지보정", "b-blue", `수령인/배송지 수기 보정 완료 ([${zip}] ${a1} ${a2}) · 사유: ${reason}`);
+      alert("✅ 배송지가 수정되었습니다.\n• 고객에게 변경 안내 알림톡이 발송되었으며 감사 로그에 변경 전/후 스냅샷이 기록되었습니다.");
+    }
+
+    function extendVbankDueDate() {
+      const newDue = document.getElementById("inpNewVbankDue").value;
+      const reason = document.getElementById("inpVbankReason").value.trim();
+      if (!reason) {
+        alert("가상계좌 입금 기한 연장 사유를 입력해 주세요.");
+        return;
+      }
+      const formatted = newDue.replace("T", " ").replace(/-/g, ".");
+      document.getElementById("vbankDueText").textContent = formatted;
+      appendTimelineRow("김운영", "기한연장", "b-purple", `가상계좌 입금 기한 연장 (${formatted} 까지) · 사유: ${reason} · 알림톡(TPL_VBANK_DUE_EXTENDED) 발송`);
+      alert(`⏳ 가상계좌 입금 기한이 [${formatted}]까지 연장되었습니다.\n• 고객에게 입금 기한 연장 안내 알림톡이 발송되었습니다.`);
+    }
+
+    function addAdminTimelineMemo() {
+      const memo = document.getElementById("inpAdminMemo").value.trim();
+      if (!memo) return;
+      appendTimelineRow("김운영", "관리자메모", "b-gray", memo);
+      document.getElementById("inpAdminMemo").value = "";
+    }
+
+    function appendTimelineRow(actor, type, badgeCls, desc) {
+      const tbody = document.getElementById("detailTimelineTbody");
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="mono">08.18 15:20</td>
+        <td><code>${actor}</code></td>
+        <td><span class="badge ${badgeCls}">${type}</span></td>
+        <td>${desc}</td>
+      `;
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    // =========================================================================
+    // 4. 서브뷰 및 모달 공통 전환
+    // =========================================================================
+    function switchOrdView(viewId) {
+      ["ord001", "ord002", "ord001s1"].forEach(v => {
+        document.getElementById("view-" + v).classList.toggle("active", v === viewId);
+        const btn = document.getElementById("sw-" + v);
+        if (btn) btn.className = (v === viewId) ? "btn btn-sm btn-primary" : "btn btn-sm btn-outline";
+      });
+
+      const codeEl = document.querySelector(".crumb-code");
+      const titleEl = document.getElementById("topbar-title");
+      if (viewId === "ord001") {
+        if (codeEl) codeEl.textContent = "ADMN-ORD-001";
+        if (titleEl) titleEl.textContent = "주문 내역 통합 관리 — 실결제금액(쿠폰·포인트 차감 후) 기준";
+      } else if (viewId === "ord002") {
+        if (codeEl) codeEl.textContent = "ADMN-ORD-002";
+        if (titleEl) titleEl.textContent = "배송 관리 · 3PL 물류 연동 (출고지시 Lock · 송장 벌크 · 반품 수거 검수)";
+        renderShipTable();
+      } else if (viewId === "ord001s1") {
+        if (codeEl) codeEl.textContent = "ADMN-ORD-001-S1";
+        if (titleEl) titleEl.textContent = "주문 상세 · 과면세 라인 분할 및 배송지 Lock 수기 보정";
+      }
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add("open");
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove("open");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const reqRole = urlParams.get("role");
+      const reqView = urlParams.get("view");
+
+      if (reqRole === "ROLE_PARTNER_3PL" || (reqView && reqView.includes("3pl"))) {
+        setSessionRole("ROLE_PARTNER_3PL");
+      } else {
+        renderOrderList();
+        renderShipTable();
+        applyShipLockUiState();
+      }
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

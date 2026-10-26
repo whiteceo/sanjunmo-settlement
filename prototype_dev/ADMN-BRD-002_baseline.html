@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1:1 문의 관리 (문의 분기 허브) — 산준모닷컴 백오피스 v8.4 Final</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <style>
+    :root {
+      --bg-body: #F3F5F9;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --text-primary: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --success: #059669;
+      --success-light: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #D97706;
+      --warning-light: #FFFBEB;
+      --warning-border: #FDE68A;
+      --danger: #DC2626;
+      --danger-light: #FEF2F2;
+      --danger-border: #FECACA;
+      --purple: #7C3AED;
+      --purple-light: #F5F3FF;
+      --purple-border: #DDD6FE;
+      --teal: #0D9488;
+      --teal-light: #F0FDFA;
+      --teal-border: #99F6E4;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* 서브뷰 스위처 바 */
+    .subview-bar {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 60px;
+      z-index: 40;
+    }
+    .subview-tabs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .subview-tab {
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .subview-tab.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.22);
+    }
+    .subview-tab .code-pill {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(15, 23, 42, 0.08);
+      color: inherit;
+    }
+    .subview-tab.active .code-pill {
+      background: rgba(255, 255, 255, 0.22);
+      color: #FFFFFF;
+    }
+
+    .content-wrap { padding: 24px 28px 60px; max-width: 1640px; }
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* KPI 그리드 */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .kpi-card:hover { border-color: var(--primary-border); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05); }
+    .kpi-card.active-filter { border: 2px solid var(--primary); background: #F8FAFF; }
+
+    /* 분기 라우팅 안내 배너 */
+    .routing-architecture-card {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .routing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .routing-header h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #F8FAFC;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .routing-flow-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+    .route-node {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .route-node:hover {
+      background: rgba(37, 99, 235, 0.25);
+      border-color: #60A5FA;
+    }
+    .route-node-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .route-node-title { font-size: 12.5px; font-weight: 800; color: #FFFFFF; margin-bottom: 3px; }
+    .route-node-desc { font-size: 11px; color: #CBD5E1; line-height: 1.35; }
+
+    /* 카드 & 필터 */
+    .card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFFFFF;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-body { padding: 18px; }
+
+    /* 문의유형 카테고리 탭 */
+    .cat-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 12px 18px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-color);
+      flex-wrap: wrap;
+    }
+    .cat-tab {
+      padding: 6px 13px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+      background: #FFFFFF;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .cat-tab.active {
+      background: var(--text-primary);
+      color: #FFFFFF;
+      border-color: var(--text-primary);
+    }
+    .cat-tab .cnt {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.08);
+    }
+    .cat-tab.active .cnt {
+      background: rgba(255, 255, 255, 0.22);
+      color: #FFFFFF;
+    }
+
+    /* 검색 바 */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: 160px 160px 160px 1fr auto;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      align-items: center;
+    }
+    .input, .select {
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-family: inherit;
+      background: #FFFFFF;
+      color: var(--text-primary);
+    }
+    .textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 150px;
+      line-height: 1.6;
+    }
+
+    /* 버튼 & 배지 */
+    .btn {
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn:hover { background: var(--bg-subtle); }
+    .btn-primary { background: var(--primary); color: #FFFFFF; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: #FFFFFF; border-color: var(--success); }
+    .btn-warning { background: var(--warning); color: #FFFFFF; border-color: var(--warning); }
+    .btn-danger { background: var(--danger); color: #FFFFFF; border-color: var(--danger); }
+    .btn-purple { background: var(--purple); color: #FFFFFF; border-color: var(--purple); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+    .badge-green { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+    .badge-amber { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+    .badge-red { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-purple { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-border); }
+    .badge-teal { background: var(--teal-light); color: var(--teal); border: 1px solid var(--teal-border); }
+    .badge-slate { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+
+    /* 테이블 */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th {
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+    .data-table tbody tr { cursor: pointer; transition: background 0.12s; }
+    .data-table tbody tr:hover { background: #F8FAFC; }
+    .data-table tbody tr.selected-row { background: #EFF6FF; }
+
+    /* 상세 2분할 레이아웃 (좌: 문의원문·답변 에디터 / 우: 문의유형별 동적 분기 허브) */
+    .split-workspace {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .inquiry-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .inquiry-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px dashed var(--border-strong);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .inquiry-body {
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--text-primary);
+      white-space: pre-line;
+    }
+
+    .kv-grid {
+      display: grid;
+      grid-template-columns: 115px 1fr;
+      row-gap: 8px;
+      column-gap: 10px;
+      font-size: 12.5px;
+    }
+    .kv-label { color: var(--text-muted); font-weight: 700; }
+    .kv-val { color: var(--text-primary); font-weight: 600; }
+
+    .branch-panel {
+      display: none;
+      border: 2px solid var(--primary-border);
+      background: #F8FAFF;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .branch-panel.active { display: block; }
+    .branch-panel.warn-theme { border-color: var(--warning-border); background: #FFFDF7; }
+    .branch-panel.purple-theme { border-color: var(--purple-border); background: #FCFaff; }
+    .branch-panel.teal-theme { border-color: var(--teal-border); background: #F7FFFD; }
+
+    .macro-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .macro-chip {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      cursor: pointer;
+    }
+    .macro-chip:hover { background: var(--primary-light); border-color: var(--primary-border); color: var(--primary); }
+
+    /* 모달 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-dialog {
+      background: #FFFFFF;
+      width: 560px;
+      max-width: 94vw;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .modal-body { padding: 20px; }
+    .modal-footer {
+      padding: 12px 20px;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-BRD-002", "devCommit": "d562524a", "progress": "구현(BRD-002 · 002-S1 · 002-P1). 유형별 분기 워크스페이스 · 매크로 · 주문 바인딩 · 세션 강제 로그아웃 · 타부서 이관중 상태는 개발 없음 — 주황 표시", "menus": [{"route": "admin.inquiries.index", "label": "1:1 문의 관리"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb"></aside>
+
+  <div id="v4-root-shell">
+    <!-- 상단 바 -->
+    <header class="top-bar v4-gen3-topbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span class="crumb-code">ADMN-BRD-002 / 002-S1</span>
+        <span class="crumb-title">1:1 문의 관리 (문의 유형별 분기 · 이관 허브)</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="badge badge-blue">SENS 알림톡 자동연동 (SMS 폴백)</span>
+        <span class="badge badge-slate">1차 오픈 스펙: 동시접속 IP/세션 제어 적용</span>
+        <a href="ADMN-RFD-002_baseline.html" class="btn btn-sm">⇄ 환불 심사 큐 (ADMN-RFD-002)</a>
+        <a href="ADMN-ORD-001_baseline.html" class="btn btn-sm">📦 주문·3PL 배송 (ADMN-ORD-001)</a>
+        <a href="ADMN-BRD-007_baseline.html" class="btn btn-sm">⚙️ 1:1 문의 분류 관리 (ADMN-BRD-007)</a>
+      </div>
+    </header>
+
+    <!-- 서브뷰 스위처 -->
+    <div class="subview-bar">
+      <div class="subview-tabs">
+        <button type="button" class="subview-tab active" onclick="switchView('list', this)">
+          <span>📋 1:1 문의 통합 목록 · 라우팅 큐</span>
+          <span class="code-pill">ADMN-BRD-002</span>
+        </button>
+        <button type="button" class="subview-tab" id="tab-btn-detail" onclick="switchView('detail', this)">
+          <span>🔀 문의 상세 · 유형별 분기 워크스페이스</span>
+          <span class="code-pill">ADMN-BRD-002-S1</span>
+        </button>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-muted);">
+        <span>💡 목록에서 문의를 클릭하면 해당 문의 유형에 맞는 <strong>우측 도메인 분기 패널</strong>이 즉시 로드됩니다.</span>
+      </div>
+    </div>
+
+    <div id="v4-page-body" class="main-container content-wrap">
+      <!-- 4층 고정 KPI 스코어카드 -->
+      <div class="kpi-grid">
+        <button type="button" class="kpi-card" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="WAITING → status=received · SLA_WARN → sla_over=1 · ANSWERED → answered_today=1 (개발 스코어카드 5종: + processing · notify_fail)" onclick="filterByStatus('WAITING')">
+          <div class="k-title">
+            <span>미답변 대기 문의 (전체)</span>
+            <span class="badge">ADMN-BRD-002</span>
+          </div>
+          <div class="k-num" style="color:var(--danger);">14건</div>
+          <div class="k-sub">결제·환불 5건 / 배송·교재 4건 / 수강·기타 5건</div>
+        </button>
+        <button type="button" class="kpi-card" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="WAITING → status=received · SLA_WARN → sla_over=1 · ANSWERED → answered_today=1 (개발 스코어카드 5종: + processing · notify_fail)" onclick="filterByStatus('SLA_WARN')">
+          <div class="k-title">
+            <span>SLA 24시간 초과 · 임박</span>
+            <span class="badge">우선 처리</span>
+          </div>
+          <div class="k-num" style="color:var(--warning);">3건</div>
+          <div class="k-sub">3PL 출고지시 Lock 확인 필요 2건 포함</div>
+        </button>
+        <button type="button" class="kpi-card" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="유형 칩 → 개발 category_id(1:1 문의 분류 관리 소분류). 유형 5대 분기는 프로토타입 구성" onclick="filterByCategory('REFUND')">
+          <div class="k-title">
+            <span>환불 심사 큐(RFD-002) 이관 연동</span>
+            <span class="badge">부서 간 라우팅</span>
+          </div>
+          <div class="k-num" style="color:var(--primary);">4건</div>
+          <div class="k-sub">CS 단순 안내 종결 2건 / 환불 심사 이관 2건</div>
+        </button>
+        <button type="button" class="kpi-card" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="WAITING → status=received · SLA_WARN → sla_over=1 · ANSWERED → answered_today=1 (개발 스코어카드 5종: + processing · notify_fail)" onclick="filterByStatus('ANSWERED')">
+          <div class="k-title">
+            <span>금일 답변 완료 (알림톡 발송)</span>
+            <span class="badge">SENS API</span>
+          </div>
+          <div class="k-num" style="color:var(--success);">29건</div>
+          <div class="k-sub">알림톡 성공 28건 / LMS 폴백 1건</div>
+        </button>
+      </div>
+
+      <!-- 1:1 문의 5대 분기 라우팅 허브 가이드 -->
+      <div class="routing-architecture-card">
+        <div class="routing-header">
+          <h3>🔀 1:1 문의 허브 (ADMN-BRD-002) — 5대 문의유형 분기 아키텍처 (클릭 시 샘플 케이스 즉시 시연)</h3>
+          <span style="font-size:11.5px; color:#94A3B8;">※ 수험생이 카테고리를 잘못 선택해 접수해도 운영자가 상단에서 즉시 재분류·타 부서 큐로 이관할 수 있습니다.</span>
+        </div>
+        <div class="routing-flow-grid">
+          <div class="route-node" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-091')">
+            <div class="route-node-top">
+              <span class="badge badge-red">분기 [1] 결제·환불</span>
+              <span style="color:#93C5FD;">➔ RFD-002</span>
+            </div>
+            <div class="route-node-title">환불 심사 큐 양방향 이관</div>
+            <div class="route-node-desc">단순 정책 문의는 CS 즉시 답변 종결, 실 환불 요청은 주문 바인딩 후 <strong>ADMN-RFD-002-S1</strong>로 즉시 이관</div>
+          </div>
+          <div class="route-node" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-088')">
+            <div class="route-node-top">
+              <span class="badge badge-amber">분기 [2] 배송·교재</span>
+              <span style="color:#FDE047;">➔ ORD-001/002</span>
+            </div>
+            <div class="route-node-title">3PL 출고지시 Lock 판별</div>
+            <div class="route-node-desc"><code>ship_ordered_at</code> 잠금 여부 실시간 조회 → 출고 전 주소 변경 or 출고지시 회수/반품검수 연결</div>
+          </div>
+          <div class="route-node" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-084')">
+            <div class="route-node-top">
+              <span class="badge badge-blue">분기 [3] 수강·동시접속</span>
+              <span style="color:#93C5FD;">➔ 세션 제어</span>
+            </div>
+            <div class="route-node-title">동시접속 IP 제한 · 세션 초기화</div>
+            <div class="route-node-desc">1차 오픈: 중복 접속 IP/세션 강제 로그아웃 즉시 실행 (※ 단말기 UUID 등록 제어는 2차 이관)</div>
+          </div>
+          <div class="route-node" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-079')">
+            <div class="route-node-top">
+              <span class="badge badge-purple">분기 [4] 환급·포인트</span>
+              <span style="color:#DDD6FE;">➔ SETT-006</span>
+            </div>
+            <div class="route-node-title">합격환급 진도율 · 적립금 조회</div>
+            <div class="route-node-desc">환급 인정 진도율(기본 90% 가중평균) 충족 여부 및 무상 포인트(잔액 상한) 원장 즉시 대조</div>
+          </div>
+          <div class="route-node" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-075')">
+            <div class="route-node-top">
+              <span class="badge badge-teal">분기 [5] 학습질문 오인입</span>
+              <span style="color:#99F6E4;">➔ 카페/강사Q&A</span>
+            </div>
+            <div class="route-node-title">산준모 카페 안내 / 강사 Q&A 분리</div>
+            <div class="route-node-desc">1차: 산준모 네이버 카페 질문게시판 아웃링크 템플릿 안내 (추후 강사 권한 전용 학습 Q&A 메뉴로 이관)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           VIEW 1: 1:1 문의 목록 (ADMN-BRD-002)
+           ===================================================================== -->
+      <section id="view-list" class="view-section active">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>📥 1:1 고객 문의 접수 목록</span>
+              <span class="badge badge-slate">총 5건 시연 케이스</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-sm" data-dev-flag="dev-only" data-dev-route="admin.inquiries.download" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/download" data-dev-perm="다운로드" data-dev-note="엑셀(현재 조건) — 반출 사유 공용 모달 layerReason(reason · reason_etc · reason_ref). 선택 다운로드는 admin.inquiries.selected.download(POST, ids[])">엑셀 다운로드</button>
+              <button type="button" class="btn btn-sm" data-dev-flag="dev-only" data-dev-route="admin.inquiries.assignees.update" data-dev-method="PUT" data-dev-url="/sj-admin/inquiries/assignees" data-dev-perm="수정 + 최고 관리자" data-dev-note="bulkAssignForm: ids[] · assign_user_id — 최고 관리자만 보임" data-dev-name="assign_user_id">담당자 일괄 지정</button>
+              <button type="button" class="btn btn-sm" data-dev-perm="수정" data-dev-note="개발은 분류 변경 폼(category_id) — 레이어 없음" onclick="requestTransfer('INQ-20261016-091')">⇄ 선택 문의 부서/유형 이관</button>
+              <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-091')">선택 문의 상세/분기 열기 →</button>
+            </div>
+          </div>
+
+          <!-- 문의 유형별 탭 -->
+          <div class="cat-tabs" id="cat-tabs">
+            <button type="button" class="cat-tab active" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="유형 칩 → 개발 category_id(1:1 문의 분류 관리 소분류). 유형 5대 분기는 프로토타입 구성" onclick="filterByCategory('ALL', this)">전체 문의 <span class="cnt">5</span></button>
+            <button type="button" class="cat-tab" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="유형 칩 → 개발 category_id(1:1 문의 분류 관리 소분류). 유형 5대 분기는 프로토타입 구성" onclick="filterByCategory('REFUND', this)">💳 결제 · 환불 문의 <span class="cnt">1</span></button>
+            <button type="button" class="cat-tab" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="유형 칩 → 개발 category_id(1:1 문의 분류 관리 소분류). 유형 5대 분기는 프로토타입 구성" onclick="filterByCategory('SHIPPING', this)">📦 배송 · 교재 문의 <span class="cnt">1</span></button>
+            <button type="button" class="cat-tab" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="유형 칩 → 개발 category_id(1:1 문의 분류 관리 소분류). 유형 5대 분기는 프로토타입 구성" onclick="filterByCategory('PLAYER', this)">🖥️ 수강 · 동시접속(IP) <span class="cnt">1</span></button>
+            <button type="button" class="cat-tab" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="유형 칩 → 개발 category_id(1:1 문의 분류 관리 소분류). 유형 5대 분기는 프로토타입 구성" onclick="filterByCategory('BENEFIT', this)">🎓 합격환급 · 포인트 <span class="cnt">1</span></button>
+            <button type="button" class="cat-tab" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="유형 칩 → 개발 category_id(1:1 문의 분류 관리 소분류). 유형 5대 분기는 프로토타입 구성" onclick="filterByCategory('STUDY_MISROUTE', this)">📚 학습질문 오인입 <span class="cnt">1</span></button>
+          </div>
+
+          <!-- 검색 필터 -->
+          <div class="filter-grid">
+            <select class="select" id="filter-status" name="status" data-dev-value="received 접수 · processing 처리중 · answered 답변완료 · hold 보류" onchange="applyTableFilter()">
+              <option value="ALL">답변상태: 전체</option>
+              <option value="WAITING"> data-dev-name="status" data-dev-value="received"미답변 (접수대기)</option>
+              <option value="TRANSFERRED" data-dev-flag="proto-only" data-dev-note="개발 상태 없음 — 이관되면 assign_board로 RFD-002-S1 목록으로 옮겨 이 목록에서 빠짐">타부서 이관중 (RFD-002 등)</option>
+              <option value="IN_PROGRESS"> data-dev-name="status" data-dev-value="processing"처리중</option>
+              <option value="ANSWERED"> data-dev-name="status" data-dev-value="answered"답변완료</option>
+              <option value="HOLD"> data-dev-name="status" data-dev-value="hold"보류</option>
+            </select>
+            <select class="select" id="filter-assignee" name="mine" data-dev-value="1 = 내 담당만" onchange="applyTableFilter()">
+              <option value="ALL">담당자: 전체</option>
+              <option value="MINE"> data-dev-name="mine" data-dev-value="1"내 담당만</option>
+              <option value="NONE" data-dev-flag="proto-only" data-dev-note="미지정 담당자 필터 — 개발 없음">미지정</option>
+            </select>
+            <select class="select" id="filter-order-link" data-dev-flag="proto-only" data-dev-note="주문연동 필터 — 개발 없음(order_id는 회원 접수 때만)" onchange="applyTableFilter()">
+              <option value="ALL">주문연동: 전체</option>
+              <option value="LINKED">주문번호 바인딩됨</option>
+              <option value="UNLINKED">주문번호 미지정 (탐지필요)</option>
+            </select>
+            <input type="date" class="input" name="date_from" value="2026-10-16" />
+            <input type="date" class="input" name="date_to" value="2026-10-16" data-dev-flag="dev-only" data-dev-note="개발 문의일 기간 date_from ~ date_to" />
+            <input type="text" class="input" id="filter-keyword" name="member" data-dev-note="개발 회원 검색: 이름 · 이메일 · 비회원 이름, 숫자면 회원번호. 문의번호 · 카페 ID · 주문번호 검색은 개발 없음" placeholder="문의번호, 회원명, 이메일, 네이버 카페 ID, 주문번호 검색..." oninput="applyTableFilter()" />
+            <button type="button" class="btn btn-primary" data-dev-route="admin.inquiries.index" data-dev-method="GET" data-dev-url="/sj-admin/inquiries" data-dev-perm="조회" data-dev-note="개발 추가 필터: has_file · sla_over · answered_today · notify_fail · unanswered · per_page" onclick="applyTableFilter()">조회</button>
+          </div>
+
+          <!-- 목록 테이블 -->
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="inquiry-table">
+              <thead>
+                <tr>
+                  <th style="width:135px;">문의번호 / 접수일시</th>
+                  <th style="width:130px;">문의 유형 (카테고리)</th>
+                  <th style="width:155px;">질문자 (카페 ID)</th>
+                  <th>문의 제목 및 핵심 요약</th>
+                  <th style="width:165px;">연결 주문번호 / 상품</th>
+                  <th style="width:165px;">연결 도메인 (분기 타겟)</th>
+                  <th style="width:170px;">담당 부서 큐 · 담당자</th>
+                  <th style="width:110px;">처리 상태</th>
+                  <th style="width:115px;">액션</th>
+                </tr>
+              </thead>
+              <tbody id="inquiry-tbody">
+                <!-- Row 1: 결제·환불 -->
+                <tr data-id="INQ-20261016-091" data-cat="REFUND" data-status="WAITING" data-order="UNLINKED" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-091')">
+                  <td>
+                    <div style="font-weight:800; color:var(--primary);">INQ-20261016-091</div>
+                    <div style="font-size:11px; color:var(--text-muted);">2026-10-16 14:12</div>
+                  </td>
+                  <td><span class="badge badge-red">결제 · 환불</span></td>
+                  <td>
+                    <div style="font-weight:700;">김산준 (sanjun77)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">010-****-4821</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700; color:var(--text-primary);">패키지 강의 듣고 있는데 실물 교재만 따로 반품/환불 가능한가요?</div>
+                    <div style="font-size:11.5px; color:var(--text-muted);">주문번호 미선택 접수 ➔ 시스템이 최근 복합결제 주문(ORD-20261012-0041) 자동 탐지</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-amber">🔍 미지정 (1건 자동탐지)</span>
+                    <div style="font-size:11px; color:var(--text-secondary); margin-top:2px;">2026 산안기 올패스+교재</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-blue">➔ ADMN-RFD-002-S1</span>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">환불 심사 큐 이관 대상</div>
+                  </td>
+                  <td><span class="badge badge-red">● 미답변 대기</span></td>
+                  <td onclick="event.stopPropagation();">
+                    <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-091')">분기 처리 →</button>
+                  </td>
+                </tr>
+
+                <!-- Row 2: 배송·교재 (3PL Lock) -->
+                <tr data-id="INQ-20261016-088" data-cat="SHIPPING" data-status="WAITING" data-order="LINKED" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-088')">
+                  <td>
+                    <div style="font-weight:800; color:var(--primary);">INQ-20261016-088</div>
+                    <div style="font-size:11px; color:var(--text-muted);">2026-10-16 13:05</div>
+                  </td>
+                  <td><span class="badge badge-amber">배송 · 교재</span></td>
+                  <td>
+                    <div style="font-weight:700;">박안전 (safe_park)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">010-****-9912</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700; color:var(--text-primary);">[긴급] 교재 배송지 주소를 옛날 집으로 적었어요! 변경 부탁드립니다.</div>
+                    <div style="font-size:11.5px; color:var(--danger);">⚠️ 3PL 발주 엑셀 다운로드 완료(<code>ship_ordered_at</code> 기록)로 마이페이지 수정 차단됨</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700;">ORD-20261016-0019</div>
+                    <div style="font-size:11px; color:var(--text-secondary);">정종대 필기 기본서 외 1종</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-amber">➔ ADMN-ORD-001-S1</span>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔒 3PL 출고지시 Lock 확인</div>
+                  </td>
+                  <td><span class="badge badge-amber">⚡ SLA 임박</span></td>
+                  <td onclick="event.stopPropagation();">
+                    <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-088')">분기 처리 →</button>
+                  </td>
+                </tr>
+
+                <!-- Row 3: 수강·동시접속 IP 제한 -->
+                <tr data-id="INQ-20261016-084" data-cat="PLAYER" data-status="WAITING" data-order="LINKED" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-084')">
+                  <td>
+                    <div style="font-weight:800; color:var(--primary);">INQ-20261016-084</div>
+                    <div style="font-size:11px; color:var(--text-muted);">2026-10-16 11:40</div>
+                  </td>
+                  <td><span class="badge badge-blue">수강 · 동시접속</span></td>
+                  <td>
+                    <div style="font-weight:700;">이서연 (pass_lee · USR-0941)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">010-****-3310</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700; color:var(--text-primary);">독서실 와이파이로 아이패드 접속했는데 '동시 접속 IP 제한' 뜨면서 플레이어가 꺼져요</div>
+                    <div style="font-size:11.5px; color:var(--text-muted);">집 데스크톱 PC 크롬 브라우저 세션 미종료 상태 감지 (활성 세션 2개 충돌)</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700;">ORD-20261002-0112</div>
+                    <div style="font-size:11px; color:var(--text-secondary);">정종대 (RH-0025) 실기 작업형 마스터</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-blue">➔ 동시접속 세션 제어</span>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">우측 패널 즉시 세션 초기화</div>
+                  </td>
+                  <td><span class="badge badge-red">● 미답변 대기</span></td>
+                  <td onclick="event.stopPropagation();">
+                    <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-084')">분기 처리 →</button>
+                  </td>
+                </tr>
+
+                <!-- Row 4: 합격환급 · 포인트 -->
+                <tr data-id="INQ-20261016-079" data-cat="BENEFIT" data-status="WAITING" data-order="LINKED" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-079')">
+                  <td>
+                    <div style="font-weight:800; color:var(--primary);">INQ-20261016-079</div>
+                    <div style="font-size:11px; color:var(--text-muted);">2026-10-16 10:15</div>
+                  </td>
+                  <td><span class="badge badge-purple">합격환급 · 포인트</span></td>
+                  <td>
+                    <div style="font-weight:700;">최산안 (choi_san)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">010-****-7741</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700; color:var(--text-primary);">이번 시험 최종 합격했습니다! 환급반 진도율 90% 넘었는지랑 신청 방법 알려주세요</div>
+                    <div style="font-size:11.5px; color:var(--text-muted);">재생시간 가중평균 진도율 92.4% 충족 확인됨 (ADMN-SETT-006 환급 심사 대상)</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700;">ORD-20260715-0088</div>
+                    <div style="font-size:11px; color:var(--text-secondary);">2026 산안기 0원 합격환급반</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-purple">➔ ADMN-SETT-006</span>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">환급반 자격 · 진도율 검증</div>
+                  </td>
+                  <td><span class="badge badge-red">● 미답변 대기</span></td>
+                  <td onclick="event.stopPropagation();">
+                    <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-079')">분기 처리 →</button>
+                  </td>
+                </tr>
+
+                <!-- Row 5: 학습질문 오인입 (산준모 카페 안내) -->
+                <tr data-id="INQ-20261016-075" data-cat="STUDY_MISROUTE" data-status="ANSWERED" data-order="LINKED" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-075')">
+                  <td>
+                    <div style="font-weight:800; color:var(--primary);">INQ-20261016-075</div>
+                    <div style="font-size:11px; color:var(--text-muted);">2026-10-16 09:30</div>
+                  </td>
+                  <td><span class="badge badge-teal">학습질문 오인입</span></td>
+                  <td>
+                    <div style="font-weight:700;">정수험 (jung_study)</div>
+                    <div style="font-size:11px; color:var(--text-muted);">010-****-1209</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700; color:var(--text-primary);">정종대 교수님 필기 교재 142페이지 재해손실비 하인리히 1:4 계산식이 이해가 안 갑니다</div>
+                    <div style="font-size:11.5px; color:var(--teal);">1:1 CS 문의로 잘못 접수된 전공 학습 질문 ➔ 산준모 네이버 카페 질문게시판 아웃링크 안내 완료</div>
+                  </td>
+                  <td>
+                    <div style="font-weight:700;">ORD-20260920-0311</div>
+                    <div style="font-size:11px; color:var(--text-secondary);">정종대 필기 단과 프리패스</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-teal">➔ 산준모 카페 / 강사Q&A</span>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">1차: 카페 안내 / 2차: 강사메뉴 이관</div>
+                  </td>
+                  <td><span class="badge badge-green">✓ 답변완료 (알림톡)</span></td>
+                  <td onclick="event.stopPropagation();">
+                    <button type="button" class="btn btn-sm" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-075')">상세 보기</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 2: 1:1 문의 상세 및 유형별 분기 워크스페이스 (ADMN-BRD-002-S1)
+           ===================================================================== -->
+      <section id="view-detail" class="view-section">
+        <!-- 상단 케이스 빠른 전환 바 -->
+        <div class="card" style="margin-bottom:14px; background:#F8FAFC;">
+          <div style="padding:10px 16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:12px; font-weight:800; color:var(--text-secondary);">시연 케이스 빠른 전환:</span>
+              <button type="button" class="btn btn-sm" id="case-btn-091" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-091')">[1] 결제·환불 (RFD-002 이관)</button>
+              <button type="button" class="btn btn-sm" id="case-btn-088" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-088')">[2] 배송·교재 (3PL Lock)</button>
+              <button type="button" class="btn btn-sm" id="case-btn-084" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-084')">[3] 수강·동시접속 (IP/세션 초기화)</button>
+              <button type="button" class="btn btn-sm" id="case-btn-079" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-079')">[4] 합격환급·포인트 (SETT-006)</button>
+              <button type="button" class="btn btn-sm" id="case-btn-075" data-dev-route="admin.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="개발 S1은 별도 페이지. 진입 시 수정 권한이 있으면 미지정 건을 본인에게 배정하고 접수 → 처리중(선점)" onclick="openCaseDetail('INQ-20261016-075')">[5] 학습질문 오인입 (카페 아웃링크)</button>
+            </div>
+            <button type="button" class="btn btn-sm" onclick="switchView('list')">← 목록으로 돌아가기</button>
+          </div>
+        </div>
+
+        <div class="split-workspace">
+          <!-- 좌측: 문의 원문 + 주문 바인딩 + 답변 에디터 -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span id="dt-id">INQ-20261016-091</span>
+                  <span class="badge badge-red" id="dt-cat-badge">결제 · 환불 문의</span>
+                  <span class="badge badge-red" id="dt-status-badge">● 미답변 대기</span>
+                </div>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" class="btn btn-sm" data-dev-perm="수정" data-dev-note="개발은 분류 변경 폼(category_id) — 레이어 없음" onclick="requestTransfer(currentCaseId)">⇄ 문의유형 재분류 · 부서 이관</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <!-- 담당자 선점 · 동시 답변 잠금 -->
+                <div id="dt-assign-banner" data-dev-note="개발 .iq-lock 잠금 배너 · .iq-lock__form(release_reason)" style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; border:1px solid #BAE6FD; background:#F0F9FF; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:12px;"></div>
+                <!-- 주문번호 미지정 자동 탐지 바 (Case 091 전용) -->
+                <div id="dt-unlinked-alert" style="display:flex; justify-content:space-between; align-items:center; background:#FFFBEB; border:1px solid #FDE68A; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-size:12px; color:#92400E;">
+                  <div>
+                    <strong>🔍 주문번호 미지정 문의 자동 탐지:</strong> 질문자(김산준)의 최근 14일 내 복합결제 주문 <code>ORD-20261012-0041 (2026 산안기 올패스+교재 3종)</code>이 존재합니다.
+                  </div>
+                  <button type="button" class="btn btn-sm btn-warning" data-dev-route="admin.inquiries.order.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/inquiries/{inquiry}/order" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="주문번호 자동 탐지 · 바인딩 — 개발 없음(정책 질문)" onclick="bindDetectedOrder()">이 주문번호로 바인딩</button>
+                </div>
+
+                <!-- 문의 원문 박스 -->
+                <div class="inquiry-box">
+                  <div class="inquiry-meta">
+                    <div>
+                      <strong id="dt-user" data-dev-route="admin.inquiries.member.show" data-dev-method="GET" data-dev-url="/sj-admin/inquiries/{inquiry}/member" data-dev-perm="조회" data-dev-note="개발 002-P1 회원 컨텍스트 모달 memberContextModal(회원 · 최근 주문 · 수강 진도, fetch). 프로토타입은 상세 안 카드">김산준 (네이버 카페 ID: sanjun77)</strong> · <span id="dt-phone">010-****-4821</span>
+                    </div>
+                    <div id="dt-date">접수일시: 2026-10-16 14:12:09</div>
+                  </div>
+                  <div style="font-size:15px; font-weight:800; margin-bottom:10px; color:var(--text-primary);" id="dt-title">
+                    패키지 강의 듣고 있는데 실물 교재만 따로 반품/환불 가능한가요?
+                  </div>
+                  <div class="inquiry-body" id="dt-content">안녕하세요. 며칠 전에 2026 산업안전기사 올패스(인강+교재 세트)를 신용카드로 결제했습니다.
+인강은 지금 3강 정도 들었는데, 교재는 알고 보니 아는 선배한테 물려받은 올해 판본이 있어서 비닐도 안 뜯은 새 책 그대로입니다.
+인강은 계속 듣고 실물 교재만 반품해서 환불받고 싶은데 어떻게 신청하면 되나요?</div>
+                  <div style="margin-top:12px; padding-top:10px; border-top:1px solid var(--border-color); display:flex; align-items:center; gap:8px; font-size:12px;">
+                    <span style="color:var(--text-muted); font-weight:700;">📎 첨부파일 (Presigned URL 10분 만료):</span>
+                    <a href="javascript:void(0)" data-dev-route="admin.attachments.download" data-dev-method="GET" data-dev-url="/sj-admin/attachments/{attachment}/download" data-dev-perm="다운로드" onclick="alert('S3 Presigned URL(유효시간 10분)로 미개봉 교재 사진 원본을 열람합니다.')" style="color:var(--primary); font-weight:700;">unopened_book_photo.jpg (1.8MB)</a>
+                  </div>
+                </div>
+
+                <!-- 답변 작성 영역 -->
+                <div style="margin-top:18px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-weight:800; font-size:13px;">✍️ 운영자 CS 답변 작성 (유형별 매크로 템플릿 지원)</span>
+                    <span style="font-size:11.5px; color:var(--text-muted);">답변 등록 즉시 <code>SENS 알림톡</code> 발송 (실패 시 LMS 자동 폴백)</span>
+                  </div>
+
+                  <div class="macro-chips">
+                    <span class="macro-chip" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('REFUND_GUIDE')">[매크로] 복합결제 교재 부분환불 안내</span>
+                    <span class="macro-chip" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('3PL_LOCKED')">[매크로] 3PL 출고지시 완료(배송지 변경불가) 안내</span>
+                    <span class="macro-chip" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('IP_RESET')">[매크로] 동시접속 IP 세션 초기화 완료 안내</span>
+                    <span class="macro-chip" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('PASS_REFUND')">[매크로] 합격환급반 진도율 90% 충족 안내</span>
+                    <span class="macro-chip" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('CAFE_QNA')">[매크로] 학습질문 ➔ 산준모 네이버 카페 안내</span>
+                  </div>
+
+                  <textarea class="textarea" id="dt-answer-input" name="answer_content" data-dev-note="action=answer일 때 필수 · 공백 제외 10자 이상" placeholder="수험생에게 발송할 답변 내용을 입력하거나 상단 매크로 칩을 클릭하세요."></textarea>
+                  <textarea class="textarea" name="internal_memo" style="min-height:60px; margin-top:8px;" placeholder="내부 메모 (회원 · 알림 미노출)" data-dev-flag="dev-only" data-dev-note="inquiries.internal_memo"></textarea>
+
+                  <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <label style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:700; cursor:pointer;">
+                      <input type="checkbox" id="notifyAnswer" name="notify" value="1" checked data-dev-note="끄면 notify_skip_reason(notifySkipRow) 필수 — 새 답변일 때" /> 답변 등록 시 카카오 알림톡(SENS) + 이메일 동시 발송
+                    </label>
+                    <div style="display:flex; gap:8px;">
+                      <button type="button" class="btn" data-dev-route="admin.inquiries.update" data-dev-method="PUT" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="수정" data-dev-name="action" data-dev-value="draft" onclick="saveDraftAnswer()">임시저장</button>
+                      <button type="button" class="btn btn-primary" data-dev-route="admin.inquiries.update" data-dev-method="PUT" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="수정" data-dev-note="개발 버튼 문구 '답변 등록'(id answerSubmit) + notify 체크. 답변완료 건 재답변은 edit_reason 필수" data-dev-name="action" data-dev-value="answer" onclick="submitFinalAnswer()">✓ CS 답변 등록 및 알림톡 발송</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 우측: 질문자 요약 + 문의유형별 동적 분기 컨트롤 타워 -->
+          <div>
+            <!-- 1. 질문자 & 바인딩 주문 컨텍스트 요약 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">👤 질문자 및 바인딩 주문 컨텍스트</div>
+                <span class="badge badge-slate" id="dt-order-badge">ORD-20261012-0041</span>
+              </div>
+              <div class="card-body">
+                <div class="kv-grid">
+                  <div class="kv-label">회원명 / 카페ID</div>
+                  <div class="kv-val" id="ctx-user">김산준 (sanjun77) · 일반회원(정상)</div>
+                  <div class="kv-label">연결 주문번호</div>
+                  <div class="kv-val" id="ctx-order">ORD-20261012-0041 (토스페이먼츠 신용카드 · 248,000원)</div>
+                  <div class="kv-label">주문 라인 구성</div>
+                  <div class="kv-val" id="ctx-lines">[교육면세 강좌] 210,000원 + [도서면세 교재] 38,000원 (물리 분할 인서트)</div>
+                  <div class="kv-label">보유 포인트</div>
+                  <div class="kv-val" id="ctx-points">무상 P 7,100P / 적립 P 0P</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. 동적 분기 패널 [1]: 결제·환불 (REFUND -> ADMN-RFD-002-S1) -->
+            <div id="branch-REFUND" class="branch-panel active">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="badge badge-red">분기 [1] 결제 · 환불 라우팅 허브</span>
+                <span style="font-size:11.5px; font-weight:700; color:var(--primary);">연결 화면: ADMN-RFD-002-S1</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:800; margin-bottom:8px;">
+                단순 정책 상담인가요, 실제 환불 접수 건인가요?
+              </div>
+              <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;">
+                • <strong>단순 상담 종결:</strong> 환불 규정/수거 절차만 안내할 경우 좌측 에디터에서 답변만 등록하면 종결됩니다.<br/>
+                • <strong>실제 환불 심사 이관:</strong> 고객이 교재 반품/환불 실행을 요청한 경우 아래 버튼으로 <strong>환불 요청 심사 워크스페이스(<code>ADMN-RFD-002-S1</code>)</strong>로 주문번호(<code>ORD-20261012-0041</code>)와 함께 즉시 이관합니다.
+              </p>
+              <div style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px;">
+                <div style="font-weight:800; margin-bottom:4px;">📌 사전 체크 (도서정가제 & 복합결제 분리 규칙)</div>
+                <div style="color:var(--text-secondary);">• 패키지 쿠폰 할인은 강좌 라인에만 배분되었으므로 교재 라인(38,000원, 면세 · 최대 10% 기본할인 반영 실판매가)은 쿠폰/포인트 왜곡 없이 실결제액 기준 반품 검수 후 부분취소 가능</div>
+                <div style="color:var(--text-secondary);">• 3PL 반품 입고 검수(<code>ADMN-ORD-002-S3</code>) 양품 판정 후 PG 면세 부분취소 집행</div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-danger" data-dev-flag="proto-only" data-dev-note="환불 심사 큐 즉시 이관 — 개발은 분류 변경(admin.inquiries.category.update) 하나로 이관" onclick="transferToRefundQueue()">🚀 환불 심사 큐(ADMN-RFD-002)로 즉시 이관</button>
+                <a href="ADMN-RFD-002_baseline.html" class="btn">환불 심사 화면 열기 ↗</a>
+              </div>
+            </div>
+
+            <!-- 3. 동적 분기 패널 [2]: 배송·교재 (SHIPPING -> ADMN-ORD-001/002) -->
+            <div id="branch-SHIPPING" class="branch-panel warn-theme">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="badge badge-amber">분기 [2] 배송 · 3PL 출고지시 Lock 허브</span>
+                <span style="font-size:11.5px; font-weight:700; color:var(--warning);">연결 화면: ADMN-ORD-001-S1 / ORD-002</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:800; margin-bottom:8px;">
+                🔒 3PL 출고지시 잠금(Lock) 상태 실시간 판별
+              </div>
+              <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px; color:#991B1B;">
+                <div style="font-weight:800; margin-bottom:4px;">상태: 🔒 출고지시 완료 (<code>ship_ordered_at = 2026-10-16 11:00:12</code>)</div>
+                <div>운영자가 3PL 발주 엑셀 다운로드를 완료하여 고객 마이페이지 및 일반 CS 권한의 배송지 직접 수정이 차단(HTTP 409)된 상태입니다.</div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-warning" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('3PL_LOCKED')">출고지시 Lock 안내 문구 삽입</button>
+                <a href="ADMN-ORD-001_baseline.html" class="btn btn-primary">주문 상세(ADMN-ORD-001-S1)에서 [출고지시 회수] 실행 ↗</a>
+              </div>
+            </div>
+
+            <!-- 4. 동적 분기 패널 [3]: 수강·동시접속 IP 제어 (PLAYER) -->
+            <div id="branch-PLAYER" class="branch-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="badge badge-blue">분기 [3] 수강 · 동시접속 IP/세션 제어 허브</span>
+                <span style="font-size:11.5px; font-weight:700; color:var(--primary);">1차 오픈 스펙 (IP/세션 기준)</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:800; margin-bottom:8px;">
+                🖥️ 실시간 동시 접속 세션 현황 (중복 IP 차단 감지)
+              </div>
+              <p style="font-size:11.5px; color:var(--text-secondary); margin-bottom:10px;">
+                ※ 11/16 오픈 범위 기준: 단말기 기기등록(UUID) 하드락 대신 <strong>동시 접속 IP/세션 제한</strong>으로 제어합니다. (기기 등록 관리는 문서 보존 및 2차 고도화 슬롯 유지)
+              </p>
+              <div style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px;">
+                <div style="display:flex; justify-content:space-between; padding-bottom:6px; margin-bottom:6px; border-bottom:1px solid var(--border-color);">
+                  <span><strong>세션 #1 (기존 미종료):</strong> Windows 11 Chrome · IP <code>211.36.***.104</code></span>
+                  <span class="badge badge-amber">Ghost 세션</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                  <span><strong>세션 #2 (신규 차단됨):</strong> iPadOS Safari · IP <code>175.223.***.88</code></span>
+                  <span class="badge badge-red">동시접속 차단</span>
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary" data-dev-flag="proto-only" data-dev-note="세션 강제 로그아웃 — 개발은 회원 수강 · 기기 제어(ADMN-USER-003) 쪽" onclick="resetConcurrentSession()">⚡ 기존 접속 세션 강제 로그아웃 (즉시 해제) + 답변 삽입</button>
+              </div>
+            </div>
+
+            <!-- 5. 동적 분기 패널 [4]: 합격환급 · 포인트 (BENEFIT -> ADMN-SETT-006) -->
+            <div id="branch-BENEFIT" class="branch-panel purple-theme">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="badge badge-purple">분기 [4] 합격환급반 · 포인트 검증 허브</span>
+                <span style="font-size:11.5px; font-weight:700; color:var(--purple);">연결 화면: ADMN-SETT-006</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:800; margin-bottom:8px;">
+                🎓 합격환급반 진도율 및 수험표 검수 자격 요약
+              </div>
+              <div style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px;">
+                <div style="margin-bottom:4px;">• <strong>패키지 환급 기준 진도율:</strong> <code>90.0%</code> (재생시간 가중 평균 기준)</div>
+                <div style="margin-bottom:4px;">• <strong>현재 수험생 달성 진도율:</strong> <strong style="color:var(--success);">92.4% (충족 ✓)</strong></div>
+                <div>• <strong>환급 정산 귀속 옵션:</strong> 계약별 부담 옵션(A/B/C) 자동 연동 (<code>ADMN-SETT-006</code>)</div>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-purple" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('PASS_REFUND')">환급 신청 절차 안내 문구 삽입</button>
+                <a href="ADMN-SETT-006_baseline.html" class="btn">합격 환급반 관리(ADMN-SETT-006) 열기 ↗</a>
+              </div>
+            </div>
+
+            <!-- 6. 동적 분기 패널 [5]: 학습질문 오인입 (STUDY_MISROUTE -> 산준모 네이버 카페) -->
+            <div id="branch-STUDY_MISROUTE" class="branch-panel teal-theme">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="badge badge-teal">분기 [5] 학습 Q&A 오인입 라우팅</span>
+                <span style="font-size:11.5px; font-weight:700; color:var(--teal);">1차: 산준모 카페 아웃링크 / 2차: 강사 전용 메뉴</span>
+              </div>
+              <div style="font-size:13.5px; font-weight:800; margin-bottom:8px;">
+                📚 전공·교재 내용 학습 질문 분리 처리 안내
+              </div>
+              <p style="font-size:12px; color:var(--text-secondary); margin-bottom:12px; line-height:1.5;">
+                • <strong>1차 오픈 정책:</strong> 학습 Q&A는 <strong>산준모 공식 네이버 카페 질문게시판</strong>으로 아웃링크 일원화되어 있습니다. 아래 버튼으로 카페 질문게시판 안내 문구를 즉시 삽입하세요.<br/>
+                • <strong>향후 확장 (강사 RBAC 분리):</strong> 자체 학습 Q&A 오픈 시 본 1:1 CS 허브와 분리된 <strong>강사 전용 학습 Q&A 메뉴</strong>(담당 강사 직접 답변 권한)로 자동 이관됩니다.
+              </p>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-success" data-dev-flag="proto-only" data-dev-note="유형별 매크로 삽입 — 개발 없음" onclick="insertMacro('CAFE_QNA')">🔗 산준모 네이버 카페 질문게시판 안내 삽입</button>
+                <button type="button" class="btn" disabled title="강사 전용 학습 Q&A 오픈 시 활성화">강사 학습 Q&A 메뉴로 이관 (향후 오픈)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- 문의유형 재분류 및 타 부서 이관 모달 -->
+  <div class="modal-backdrop" id="transfer-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span>⇄ 문의 유형 재분류 및 담당 부서 큐(Queue) 이관</span>
+        <button type="button" class="btn btn-sm" onclick="closeTransferModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px; font-size:12.5px; color:var(--text-secondary);">
+          분류가 내용과 다르면 바로잡고, 처리할 부서를 지정해 넘깁니다. 이관받은 부서가 답변까지 마치며, 직접 답변할 수 없으면 담당 부서를 CS담당자로 지정해 다시 이관합니다.
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">대상 문의번호</label>
+            <input type="text" class="input" id="modal-inq-id" style="width:100%; background:#F8FAFC;" readonly value="INQ-20261016-091" />
+          </div>
+          <div>
+            <label for="modal-target-cat" style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">문의 분류 <span style="color:var(--text-muted); font-weight:400;">(1:1 문의 분류 관리 기준)</span></label>
+            <select class="select" id="modal-target-cat" name="category_id" data-dev-note="소분류 inquiry_categories.id. 상품 Q&amp;A · 학습 질문 게시판으로는 이관 불가. 결제 · 환불 분류면 RFD-002-S1로 이관" style="width:100%;" onchange="onTransferCatChange()"></select>
+            <div id="modal-target-screen" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;"></div>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">담당 부서 <span style="color:var(--text-muted); font-weight:400;">(분류를 고르면 자동 선택 · 직접 바꿀 수 있음)</span></label>
+            <div id="modal-target-depts" data-dev-flag="proto-only" data-dev-note="담당 부서 표시 — 개발 분류 변경은 category_id만" style="display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12.5px;"></div>
+          </div>
+          <div>
+            <label for="modal-memo" style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">내부 이관 메모 <span style="color:var(--danger, #DC2626);">*</span> <span style="color:var(--text-muted); font-weight:400;">(받는 부서에 남기는 상황 · 처리 결과, 수험생 미노출)</span></label>
+            <textarea class="textarea" style="min-height:80px;" id="modal-memo" data-dev-flag="proto-only" data-dev-note="내부 이관 메모 — 개발 분류 변경에 없음(답변 폼 internal_memo가 비슷)" placeholder="예) 미개봉 교재 3종 부분 환불 희망. 주문 ORD-20261012-0041 연결함. 환불 심사 부탁드립니다."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="closeTransferModal()">취소</button>
+        <button type="button" class="btn btn-primary" data-dev-route="admin.inquiries.category.update" data-dev-method="PUT" data-dev-url="/sj-admin/inquiries/{inquiry}/category" data-dev-perm="수정" onclick="confirmTransfer()">이관 및 분기 적용</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CASES = {
+      'INQ-20261016-091': {
+        id: 'INQ-20261016-091',
+        cat: 'REFUND',
+        catLabel: '결제 · 환불 문의',
+        catClass: 'badge-red',
+        statusLabel: '● 미답변 대기',
+        statusClass: 'badge-red',
+        user: '김산준 (네이버 카페 ID: sanjun77)',
+        phone: '010-****-4821',
+        date: '접수일시: 2026-10-16 14:12:09',
+        title: '패키지 강의 듣고 있는데 실물 교재만 따로 반품/환불 가능한가요?',
+        content: '안녕하세요. 며칠 전에 2026 산업안전기사 올패스(인강+교재 세트)를 신용카드로 결제했습니다.\n인강은 지금 3강 정도 들었는데, 교재는 알고 보니 아는 선배한테 물려받은 올해 판본이 있어서 비닐도 안 뜯은 새 책 그대로입니다.\n인강은 계속 듣고 실물 교재만 반품해서 환불받고 싶은데 어떻게 신청하면 되나요?',
+        unlinkedAlert: true,
+        orderNo: 'ORD-20261012-0041 (자동탐지)',
+        ctxOrder: 'ORD-20261012-0041 (토스페이먼츠 신용카드 · 248,000원)',
+        ctxLines: '[교육면세 강좌] 210,000원 + [도서면세 교재] 38,000원 (물리 분할 인서트)',
+        ctxPoints: '무상 P 7,100P / 적립 P 0P',
+        draft: ''
+      },
+      'INQ-20261016-088': {
+        id: 'INQ-20261016-088',
+        cat: 'SHIPPING',
+        catLabel: '배송 · 교재 문의',
+        catClass: 'badge-amber',
+        statusLabel: '⚡ SLA 임박 (3PL Lock)',
+        statusClass: 'badge-amber',
+        user: '박안전 (네이버 카페 ID: safe_park)',
+        phone: '010-****-9912',
+        date: '접수일시: 2026-10-16 13:05:44',
+        title: '[긴급] 교재 배송지 주소를 옛날 집으로 적었어요! 변경 부탁드립니다.',
+        content: '방금 교재 결제했는데 배송지 기본주소가 이사 전 주소(서울 관악구)로 되어 있는 걸 못 봤습니다.\n마이페이지에서 배송지 변경 누르니까 이미 출고지시가 내려가서 수정이 안 된다고 팝업이 뜨네요.\n서울 송파구 올림픽로 300으로 제발 변경 부탁드립니다!',
+        unlinkedAlert: false,
+        orderNo: 'ORD-20261016-0019',
+        ctxOrder: 'ORD-20261016-0019 (토스페이 · 38,000원 · 배송비 무료)',
+        ctxLines: '[면세 교재] 정종대 필기 기본서 외 1종 (3PL 출고지시 Lock 완료)',
+        ctxPoints: '무상 5,000P (교재 단독 결제로 포인트 적립 0%)',
+        draft: ''
+      },
+      'INQ-20261016-084': {
+        id: 'INQ-20261016-084',
+        cat: 'PLAYER',
+        catLabel: '수강 · 동시접속(IP)',
+        catClass: 'badge-blue',
+        statusLabel: '● 미답변 대기',
+        statusClass: 'badge-red',
+        user: '이서연 (네이버 카페 ID: pass_lee)',
+        phone: '010-****-3310',
+        date: '접수일시: 2026-10-16 11:40:18',
+        title: '독서실 와이파이로 아이패드 접속했는데 동시 접속 IP 제한 뜨면서 플레이어가 꺼져요',
+        content: '집에서 PC로 인강 듣다가 창 안 닫고 그냥 독서실에 나와서 아이패드로 접속했습니다.\n다른 사람이 제 아이디 쓰는 게 아닌데 동시 접속 제한 알림이 뜨면서 영상 재생이 안 됩니다. 기존 접속 좀 끊어주세요.',
+        unlinkedAlert: false,
+        orderNo: 'ORD-20261002-0112',
+        ctxOrder: 'ORD-20261002-0112 (신용카드 · 160,000원)',
+        ctxLines: '[교육면세 강좌] 정종대 (RH-0025) 실기 작업형 마스터 단과',
+        ctxPoints: '무상 6,600P / 유상 0P',
+        draft: ''
+      },
+      'INQ-20261016-079': {
+        id: 'INQ-20261016-079',
+        cat: 'BENEFIT',
+        catLabel: '합격환급 · 포인트',
+        catClass: 'badge-purple',
+        statusLabel: '● 미답변 대기',
+        statusClass: 'badge-red',
+        user: '최산안 (네이버 카페 ID: choi_san)',
+        phone: '010-****-7741',
+        date: '접수일시: 2026-10-16 10:15:02',
+        title: '이번 시험 최종 합격했습니다! 환급반 진도율 90% 넘었는지랑 신청 방법 알려주세요',
+        content: '교수님 덕분에 이번 회차 산업안전기사 최종 합격했습니다!\n제가 0원 합격환급반 수강 중인데 환급 인정 진도율 90% 조건이 충족되었는지 확인 부탁드리고, 합격수기랑 수험표는 어디로 제출하면 되는지 안내 부탁드립니다.',
+        unlinkedAlert: false,
+        orderNo: 'ORD-20260715-0088',
+        ctxOrder: 'ORD-20260715-0088 (신용카드 · 350,000원)',
+        ctxLines: '[패키지/환급반] 2026 산안기 0원 합격환급반 (가중평균 진도율 92.4%)',
+        ctxPoints: '무상 12,500P / 유상 0P',
+        draft: ''
+      },
+      'INQ-20261016-075': {
+        id: 'INQ-20261016-075',
+        cat: 'STUDY_MISROUTE',
+        catLabel: '학습질문 오인입',
+        catClass: 'badge-teal',
+        statusLabel: '✓ 답변완료 (알림톡)',
+        statusClass: 'badge-green',
+        user: '정수험 (네이버 카페 ID: jung_study)',
+        phone: '010-****-1209',
+        date: '접수일시: 2026-10-16 09:30:55',
+        title: '정종대 교수님 필기 교재 142페이지 재해손실비 하인리히 1:4 계산식이 이해가 안 갑니다',
+        content: '교재 142페이지 예제 3번에서 직접손실비 대비 간접손실비 비율을 1:4로 계산할 때 산재보험 급여액이 직접비에 포함되는지 궁금합니다.',
+        unlinkedAlert: false,
+        orderNo: 'ORD-20260920-0311',
+        ctxOrder: 'ORD-20260920-0311 (카카오페이 · 180,000원)',
+        ctxLines: '[교육면세 강좌] 정종대 필기 단과 프리패스',
+        ctxPoints: '무상 6,800P / 유상 0P',
+        draft: '[산준모닷컴 고객센터 안내]\n안녕하세요, 정수험 수험생님!\n문의하신 교재 문항 풀이 및 전공 학습 관련 질문은 산준모 공식 네이버 카페 내 [교수님 학습 질문방]을 통해 정종대 교수님 및 전담 조교진이 직접 빠르게 답변드리고 있습니다.\n▶ 산준모 공식 카페 질문게시판 바로가기: https://cafe.naver.com/sanjunmo\n감사합니다.'
+      }
+    };
+
+    const MACROS = {
+      REFUND_GUIDE: '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님. 복합 패키지(강좌+교재) 중 미개봉 실물 교재 부분 환불 관련 안내드립니다.\n교재 수령일로부터 7일 이내 미개봉(래핑 유지) 상태인 경우 교재 라인(면세) 단독 반품 및 부분 환불이 가능합니다.\n본 문의를 환불 심사 전담 부서(ADMN-RFD-002)로 즉시 연결하여 택배 회수 및 반품 검수 절차를 진행해 드리겠습니다.',
+      '3PL_LOCKED': '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님. 요청하신 주문(ORD-20261016-0019)은 금일 11:00 물류센터(3PL) 출고지시가 완료되어 시스템상 자동 배송지 변경이 잠금(Lock) 처리된 상태입니다.\n물류 관리자 권한으로 [출고지시 회수] 가능 여부를 즉시 확인한 뒤 송장 출력 전이면 요청하신 송파구 주소로 변경 처리해 드리겠습니다.',
+      IP_RESET: '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님. 댁내 PC 브라우저 미종료로 인해 남아있던 기존 접속 세션(IP)을 강제 로그아웃(초기화) 처리 완료하였습니다.\n지금 바로 아이패드에서 다시 강의 플레이어를 실행하시면 정상 재생됩니다.',
+      PASS_REFUND: '[산준모닷컴 고객센터 안내]\n최종 합격을 진심으로 축하드립니다! 조회 결과 수험생님의 패키지 재생시간 가중평균 진도율은 92.4%로 환급 기준(90% 이상)을 정상 충족하셨습니다.\n[마이페이지 > 합격환급 신청] 메뉴에서 합격증명서와 신분증·통장 사본을 업로드해 주시면 검수 후 환급금이 지급됩니다.',
+      CAFE_QNA: '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님! 본 1:1 문의 게시판은 결제·환불·배송·시스템 이용 관련 전용 상담 창구입니다.\n강의 및 교재 내용에 대한 학습 질문은 산준모 공식 네이버 카페 [학습 Q&A 게시판]을 이용해 주시면 교수님 및 전담 조교진의 정확한 답변을 받으실 수 있습니다.\n▶ 산준모 공식 카페 바로가기: https://cafe.naver.com/sanjunmo'
+    };
+
+    let currentCaseId = 'INQ-20261016-091';
+    // 담당자 선점 — 미지정 건은 [분기 처리]로 먼저 들어간 사람에게 배정되고 처리중으로 바뀐다.
+    // 여러 부서 큐에 함께 올라간 건도 같다. 다른 사람이 처리 중인 건은 읽기 전용으로 열린다(화면설계서 v12 BRD-002).
+    const ME = { id: 'cs_lead01', name: '최상담' };
+    const STAFF = [
+      { id: 'cs_lead01', name: '최상담' },
+      { id: 'cs_lee02', name: '이지원' },
+      { id: 'log_choi', name: '최민아' },
+      { id: 'fin_manager', name: '이재무' }
+    ];
+    // 이 화면의 문의 유형 → 1:1 문의 분류 관리(BRD-007)의 대분류. 담당 부서 큐는 그 대분류 분류들의 큐 합집합
+    const CAT_MAJOR = { REFUND: 'PAY', SHIPPING: 'SHIP', PLAYER: 'LECT', BENEFIT: 'PASS', STUDY_MISROUTE: 'STUDY', ETC: 'ETC' };
+    const ASSIGN = {
+      'INQ-20261016-084': { who: 'cs_lee02', since: '10:12', status: 'IN_PROGRESS' },
+      'INQ-20261016-075': { who: 'cs_lead01', since: '09:31', status: 'ANSWERED' }
+    };
+    const ST = {
+      WAITING: ['badge-red', '● 접수 (미답변)'],
+      IN_PROGRESS: ['badge-amber', '◐ 처리중'],
+      ANSWERED: ['badge-green', '✓ 답변완료'],
+      TRANSFERRED: ['badge-purple', '⇄ 타부서 이관중'],
+      HOLD: ['badge-gray', '⏸ 보류']
+    };
+
+    function staffName(id) { const s = STAFF.find(x => x.id === id); return s ? s.name : id; }
+    function queueNames(caseId) {
+      const ids = CASE_QUEUE[caseId] || window.SJM_MASTER.inquiry.queuesForMajor(CAT_MAJOR[CASES[caseId].cat]);
+      return ids.length ? ids.map(window.SJM_MASTER.roles.name).join(' · ') : '—';
+    }
+    function rowOf(caseId) { return document.querySelector(`#inquiry-tbody tr[data-id="${caseId}"]`); }
+    function statusOf(caseId) {
+      if (ASSIGN[caseId]) return ASSIGN[caseId].status;
+      const r = rowOf(caseId);
+      return r ? r.dataset.status : 'WAITING';
+    }
+
+    function renderAssignCells() {
+      document.querySelectorAll('#inquiry-tbody tr').forEach(r => {
+        const id = r.dataset.id;
+        if (!CASES[id]) return;
+        if (!r.dataset.asgReady) { r.insertCell(6).className = 'asg-cell'; r.dataset.asgReady = '1'; }
+        const a = ASSIGN[id];
+        const st = statusOf(id);
+        r.dataset.status = st;
+        r.dataset.assignee = a ? a.who : '';
+        r.cells[6].innerHTML = `<div style="font-size:11px; color:var(--text-muted);">큐: ${queueNames(id)}</div>` +
+          (a ? `<div style="font-weight:700;">${staffName(a.who)}${a.who === ME.id ? ' (나)' : ''}</div>` : '<span class="badge badge-gray">미지정</span>');
+        r.cells[7].innerHTML = `<span class="badge ${ST[st][0]}">${ST[st][1]}</span>`;
+      });
+    }
+
+    function claimCase(caseId) {
+      if (!ASSIGN[caseId] && ['WAITING', 'TRANSFERRED'].includes(statusOf(caseId))) {
+        ASSIGN[caseId] = { who: ME.id, since: '11:20', status: 'IN_PROGRESS' };
+      }
+      renderAssignCells();
+      renderAssignBanner(caseId);
+    }
+
+    function renderAssignBanner(caseId) {
+      const a = ASSIGN[caseId];
+      const st = statusOf(caseId);
+      const box = document.getElementById('dt-assign-banner');
+      const locked = a && a.who !== ME.id && st !== 'ANSWERED';
+      const stBadge = document.getElementById('dt-status-badge');
+      stBadge.textContent = ST[st][1];
+      stBadge.className = 'badge ' + ST[st][0];
+      document.getElementById('dt-answer-input').readOnly = !!locked;
+      document.querySelectorAll('[onclick="submitFinalAnswer()"]').forEach(b => { b.disabled = !!locked || st === 'ANSWERED'; });
+      const reassign = `<select class="select" id="dt-reassign" name="assign_user_id" data-dev-note="1:1 문의 답변 가능 관리자만" style="height:28px;">${STAFF.map(s => `<option value="${s.id}" ${a && a.who === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}</select>
+        <button type="button" class="btn btn-sm" data-dev-route="admin.inquiries.assignees.update" data-dev-method="PUT" data-dev-url="/sj-admin/inquiries/assignees" data-dev-perm="수정 + 최고 관리자" data-dev-note="개발 단건 잠금 해제는 admin.inquiries.assignee.update(PUT /inquiries/{inquiry}/assignee, release_reason 필수)" onclick="reassignCase()">담당자 재배정 (관리자)</button>`;
+      let html;
+      if (!a) {
+        html = `<span><strong>담당자 미지정</strong> · 담당 부서 큐: ${queueNames(caseId)}</span>`;
+      } else if (locked) {
+        html = `<span>🔒 <strong>${staffName(a.who)} 님이 ${a.since}부터 처리 중입니다.</strong> 읽기 전용으로 열었습니다. · 담당 부서 큐: ${queueNames(caseId)}</span>${reassign}`;
+      } else if (st === 'ANSWERED') {
+        html = `<span>✓ <strong>답변완료</strong> · 담당자 ${staffName(a.who)} · 담당 부서 큐: ${queueNames(caseId)}</span>`;
+      } else {
+        html = `<span>✓ <strong>담당자: ${staffName(a.who)}${a.who === ME.id ? ' (나)' : ''}</strong> · ${a.since} 선점 배정 · 담당 부서 큐: ${queueNames(caseId)}</span>
+          <span style="display:flex; gap:6px; align-items:center;">
+            <input class="input" id="dt-hold-reason" name="hold_reason" data-dev-note="action=hold일 때 필수 · max:255" placeholder="보류 사유 (타 부서 확인 대기 등)" style="height:28px; width:220px;" />
+            <input type="date" class="input" name="hold_until" style="height:28px;" data-dev-flag="dev-only" data-dev-note="보류 재개 예정일 — action=hold일 때 필수 · 오늘 이후" />
+            <button type="button" class="btn btn-sm" data-dev-route="admin.inquiries.update" data-dev-method="PUT" data-dev-url="/sj-admin/inquiries/{inquiry}" data-dev-perm="수정" data-dev-name="action" data-dev-value="hold" onclick="holdCase()">보류</button>
+            ${reassign}
+          </span>`;
+      }
+      const t = CASE_TRANSFER[caseId];
+      if (t) html += `<div style="flex-basis:100%; font-size:11.5px; color:var(--text-secondary);">⇄ 이관 ${t.at} · ${t.by} · ${escHtml(t.from)} → <strong>${escHtml(t.to)}</strong> · 분류 ${escHtml(t.cat)} · 메모: ${escHtml(t.memo)}</div>`;
+      box.innerHTML = html;
+      box.style.background = locked ? '#FEF2F2' : '#F0F9FF';
+      box.style.borderColor = locked ? '#FECACA' : '#BAE6FD';
+    }
+
+    function reassignCase() {
+      const to = document.getElementById('dt-reassign').value;
+      const a = ASSIGN[currentCaseId];
+      if (!a) return;
+      a.who = to;
+      a.since = '11:20';
+      if (a.status === 'HOLD') a.status = 'IN_PROGRESS';
+      renderAssignCells();
+      renderAssignBanner(currentCaseId);
+      alert(`${currentCaseId} 담당자를 ${staffName(to)}(으)로 재배정했습니다.`);
+    }
+
+    function holdCase() {
+      const reason = document.getElementById('dt-hold-reason').value.trim();
+      if (!reason) { alert('보류 사유를 입력해 주세요.'); return; }
+      ASSIGN[currentCaseId].status = 'HOLD';
+      renderAssignCells();
+      renderAssignBanner(currentCaseId);
+      alert(`${currentCaseId} 문의를 보류했습니다. 사유: ${reason}`);
+    }
+
+
+    function switchView(viewName, btnEl) {
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+      document.getElementById('view-' + viewName).classList.add('active');
+      document.querySelectorAll('.subview-tab').forEach(b => b.classList.remove('active'));
+      if (btnEl) {
+        btnEl.classList.add('active');
+      } else {
+        const idx = viewName === 'list' ? 0 : 1;
+        document.querySelectorAll('.subview-tab')[idx].classList.add('active');
+      }
+    }
+
+    function openCaseDetail(caseId) {
+      const c = CASES[caseId];
+      if (!c) return;
+      currentCaseId = caseId;
+
+      document.getElementById('dt-id').textContent = c.id;
+      const catBadge = document.getElementById('dt-cat-badge');
+      catBadge.textContent = c.catLabel;
+      catBadge.className = 'badge ' + c.catClass;
+
+      const stBadge = document.getElementById('dt-status-badge');
+      stBadge.textContent = c.statusLabel;
+      stBadge.className = 'badge ' + c.statusClass;
+
+      document.getElementById('dt-user').textContent = c.user;
+      document.getElementById('dt-phone').textContent = c.phone;
+      document.getElementById('dt-date').textContent = c.date;
+      document.getElementById('dt-title').textContent = c.title;
+      document.getElementById('dt-content').textContent = c.content;
+      document.getElementById('dt-unlinked-alert').style.display = c.unlinkedAlert ? 'flex' : 'none';
+      document.getElementById('dt-order-badge').textContent = c.orderNo;
+      document.getElementById('ctx-user').textContent = c.user + ' · 일반회원(정상)';
+      document.getElementById('ctx-order').textContent = c.ctxOrder;
+      document.getElementById('ctx-lines').textContent = c.ctxLines;
+      document.getElementById('ctx-points').textContent = c.ctxPoints;
+      document.getElementById('dt-answer-input').value = c.draft || '';
+
+      document.querySelectorAll('.branch-panel').forEach(p => p.classList.remove('active'));
+      const targetPanel = document.getElementById('branch-' + c.cat);
+      if (targetPanel) targetPanel.classList.add('active');
+
+      claimCase(caseId);
+      switchView('detail');
+    }
+
+    function insertMacro(key) {
+      const txt = MACROS[key];
+      if (!txt) return;
+      document.getElementById('dt-answer-input').value = txt;
+    }
+
+    function bindDetectedOrder() {
+      document.getElementById('dt-unlinked-alert').style.display = 'none';
+      document.getElementById('dt-order-badge').textContent = 'ORD-20261012-0041 (바인딩 완료)';
+      alert('주문번호 ORD-20261012-0041이 본 1:1 문의(INQ-20261016-091)에 정식 바인딩되었습니다.');
+    }
+
+    function transferToRefundQueue() {
+      if (confirm('본 문의(INQ-20261016-091)와 바인딩된 주문(ORD-20261012-0041)을 환불 요청 심사 큐(ADMN-RFD-002-S1)로 즉시 이관하시겠습니까?')) {
+        window.location.href = 'ADMN-RFD-002_baseline.html';
+      }
+    }
+
+    function resetConcurrentSession() {
+      insertMacro('IP_RESET');
+      alert('이서연 회원의 기존 미종료 PC 세션(IP 211.36.***.104)을 강제 로그아웃 처리하였으며, 답변창에 안내 문구를 자동 입력했습니다.');
+    }
+
+    function filterByCategory(cat, tabEl) {
+      if (tabEl) {
+        document.querySelectorAll('#cat-tabs .cat-tab').forEach(t => t.classList.remove('active'));
+        tabEl.classList.add('active');
+      }
+      switchView('list');
+      const rows = document.querySelectorAll('#inquiry-tbody tr');
+      rows.forEach(r => {
+        if (cat === 'ALL' || r.dataset.cat === cat) {
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+    }
+
+    function filterByStatus(st) {
+      switchView('list');
+      const rows = document.querySelectorAll('#inquiry-tbody tr');
+      rows.forEach(r => {
+        if (st === 'WAITING') {
+          r.style.display = r.dataset.status === 'WAITING' ? '' : 'none';
+        } else if (st === 'SLA_WARN') {
+          r.style.display = r.dataset.id === 'INQ-20261016-088' ? '' : 'none';
+        } else if (st === 'ANSWERED') {
+          r.style.display = r.dataset.status === 'ANSWERED' ? '' : 'none';
+        } else {
+          r.style.display = '';
+        }
+      });
+    }
+
+    function applyTableFilter() {
+      const st = document.getElementById('filter-status').value;
+      const ord = document.getElementById('filter-order-link').value;
+      const kw = document.getElementById('filter-keyword').value.trim().toLowerCase();
+      document.querySelectorAll('#inquiry-tbody tr').forEach(r => {
+        const matchSt = st === 'ALL' || r.dataset.status === st;
+        const matchOrd = ord === 'ALL' || r.dataset.order === ord;
+        const matchKw = !kw || r.innerText.toLowerCase().includes(kw);
+        const asg = document.getElementById('filter-assignee').value;
+        const matchAsg = asg === 'ALL' || (asg === 'MINE' ? r.dataset.assignee === ME.id : !r.dataset.assignee);
+        r.style.display = (matchSt && matchOrd && matchKw && matchAsg) ? '' : 'none';
+      });
+    }
+
+    // 이관 대상 — 분류는 1:1 문의 분류 관리(BRD-007), 담당 부서는 '1:1 문의 담당 큐' 역할 그룹(CONF-005)에서 읽는다
+    const MAJOR_CAT = { PAY: 'REFUND', SHIP: 'SHIPPING', LECT: 'PLAYER', PASS: 'BENEFIT', STUDY: 'STUDY_MISROUTE', ETC: 'ETC' };
+    const MAJOR_BADGE = { PAY: 'badge-red', SHIP: 'badge-amber', LECT: 'badge-blue', PASS: 'badge-green', STUDY: 'badge-purple', ETC: 'badge-slate' };
+    const SCREENS = {
+      'ADMN-RFD-002-S1': ['환불 요청 · 심사 관리', 'ADMN-RFD-002_baseline.html'],
+      'ADMN-ORD-001-S1': ['주문 · 배송 · 3PL 관리', 'ADMN-ORD-001_baseline.html'],
+      'ADMN-ORD-002': ['주문 · 배송 · 3PL 관리 (3PL 출고 · 반품)', 'ADMN-ORD-001_baseline.html'],
+      'ADMN-USER-003': ['회원 수강 · 기간 · 기기 제어', 'ADMN-USER-001_baseline.html?view=course'],
+      'ADMN-USER-004': ['진도율 보정', 'ADMN-USER-001_baseline.html?view=course'],
+      'ADMN-SETT-006': ['합격 환급반 관리', 'ADMN-SETT-006_baseline.html'],
+      'ADMN-USER-002': ['회원 상세', 'ADMN-USER-001_baseline.html?view=list'],
+      'ADMN-BRD-004': ['학습 Q&A', 'ADMN-BRD-001_baseline.html?view=qna'],
+      'ADMN-BRD-010': ['무료콘텐츠 (정답지)', 'ADMN-BRD-005_baseline.html?view=freeLecture'],
+      'ADMN-BRD-002': ['이 화면에서 직접 답변', null]
+    };
+    const CASE_QUEUE = {};     // 이관으로 지정한 담당 부서(없으면 분류의 담당 부서 큐)
+    const CASE_TRANSFER = {};  // 마지막 이관 기록
+
+    function transferCats() {
+      const M = window.SJM_MASTER.inquiry;
+      return M.majors().filter(m => m.on).map(m => ({ major: m, cats: M.cats().filter(c => c.on && c.major === m.prefix).sort((a, b) => a.order - b.order) }))
+        .filter(g => g.cats.length);
+    }
+    function findCat(code) { return window.SJM_MASTER.inquiry.cats().find(c => c.code === code); }
+
+    function escHtml(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
+
+    // 다른 사람이 처리 중이거나 답변완료된 문의는 이관하지 않는다.
+    // 공통 모달 핫픽스가 openTransferModal을 감싸 항상 모달을 열기 때문에, 버튼은 requestTransfer로 먼저 거른다
+    function transferBlockReason(id) {
+      const owner = ASSIGN[id];
+      if (statusOf(id) === 'ANSWERED') return '답변완료된 문의는 이관할 수 없습니다.';
+      if (owner && owner.who !== ME.id) return `${staffName(owner.who)} 님이 처리 중인 문의입니다. 담당자만 이관할 수 있습니다. 필요하면 관리자가 담당자를 재배정합니다.`;
+      return '';
+    }
+    function requestTransfer(inqId) {
+      const id = inqId || currentCaseId;
+      const why = transferBlockReason(id);
+      if (why) { alert(why); return; }
+      openTransferModal(id);
+    }
+
+    function openTransferModal(inqId) {
+      const id = inqId || currentCaseId;
+      document.getElementById('modal-inq-id').value = id;
+      document.getElementById('modal-target-cat').innerHTML = transferCats().map(g =>
+        `<optgroup label="${escHtml(g.major.name)}">${g.cats.map(c => `<option value="${escHtml(c.code)}">${escHtml(c.name)}</option>`).join('')}</optgroup>`).join('');
+      const queues = window.SJM_MASTER.roles.list().filter(r => r.on && r.queue);
+      document.getElementById('modal-target-depts').innerHTML = queues.map(r =>
+        `<label style="display:inline-flex; gap:4px; align-items:center;"><input type="checkbox" class="modal-dept" value="${escHtml(r.id)}" /> ${escHtml(r.name)}</label>`).join('');
+      // 지금 분류와 같은 대분류의 첫 소분류를 기본 선택
+      const cur = CASES[id] && CASES[id].cat;
+      const curMajor = Object.keys(MAJOR_CAT).find(k => MAJOR_CAT[k] === cur);
+      const first = transferCats().find(g => g.major.prefix === curMajor);
+      if (first) document.getElementById('modal-target-cat').value = first.cats[0].code;
+      document.getElementById('modal-memo').value = '';
+      onTransferCatChange();
+      document.getElementById('transfer-modal').classList.add('show');
+    }
+
+    function onTransferCatChange() {
+      const c = findCat(document.getElementById('modal-target-cat').value);
+      if (!c) return;
+      document.querySelectorAll('.modal-dept').forEach(b => { b.checked = c.depts.includes(b.value); });
+      const s = SCREENS[c.screen] || [c.screen, null];
+      document.getElementById('modal-target-screen').textContent = `처리 화면: ${s[0]}`;
+    }
+
+    function closeTransferModal() {
+      document.getElementById('transfer-modal').classList.remove('show');
+    }
+
+    function confirmTransfer() {
+      const id = document.getElementById('modal-inq-id').value;
+      const c = findCat(document.getElementById('modal-target-cat').value);
+      const depts = Array.from(document.querySelectorAll('.modal-dept:checked')).map(b => b.value);
+      const memo = document.getElementById('modal-memo').value.trim();
+      if (!c) { alert('문의 분류를 선택해 주세요.'); return; }
+      if (!depts.length) { alert('담당 부서를 1개 이상 선택해 주세요.'); return; }
+      if (!memo) { alert('받는 부서가 알 수 있게 내부 이관 메모를 입력해 주세요.'); return; }
+      const why = transferBlockReason(id);
+      if (why) { alert(why); closeTransferModal(); return; }
+      const major = window.SJM_MASTER.inquiry.majors().find(m => m.prefix === c.major);
+      const before = queueNames(id);
+      const kase = CASES[id];
+      kase.cat = MAJOR_CAT[c.major] || 'ETC';
+      kase.catLabel = `${major ? major.name : ''} · ${c.name}`;
+      kase.catClass = MAJOR_BADGE[c.major] || 'badge-slate';
+      CASE_QUEUE[id] = depts;
+      delete ASSIGN[id];
+      const r = rowOf(id);
+      if (r) {
+        r.dataset.cat = kase.cat;
+        r.dataset.status = 'TRANSFERRED';
+        r.cells[1].innerHTML = `<span class="badge ${kase.catClass}">${escHtml(major ? major.name : '')}</span>`;
+        const s = SCREENS[c.screen] || [c.screen, null];
+        r.cells[5].innerHTML = `<span class="badge badge-blue">➔ ${escHtml(s[0])}</span><div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${escHtml(c.name)}</div>`;
+      }
+      CASE_TRANSFER[id] = { from: before, to: queueNames(id), cat: kase.catLabel, memo, at: '11:25', by: ME.name };
+      closeTransferModal();
+      renderAssignCells();
+      if (currentCaseId === id) {
+        document.getElementById('dt-cat-badge').textContent = kase.catLabel;
+        document.getElementById('dt-cat-badge').className = 'badge ' + kase.catClass;
+        document.querySelectorAll('.branch-panel').forEach(p => p.classList.remove('active'));
+        const panel = document.getElementById('branch-' + kase.cat);
+        if (panel) panel.classList.add('active');
+        renderAssignBanner(id);
+      }
+      const s = SCREENS[c.screen] || [c.screen, null];
+      const msg = `${id} 문의를 [${queueNames(id)}] 큐로 이관했습니다. 상태: 타부서 이관중 · 받은 부서에서 먼저 연 사람이 담당자가 됩니다.`;
+      if (s[1] && confirm(`${msg}\n\n처리 화면(${s[0]})으로 이동할까요?`)) {
+        window.location.href = s[1];
+        return;
+      }
+      if (!s[1]) alert(msg);
+      switchView('list');
+    }
+
+    function saveDraftAnswer() {
+      alert('작성 중인 답변이 임시저장되었습니다.');
+    }
+
+    document.addEventListener('DOMContentLoaded', renderAssignCells);
+
+    function submitFinalAnswer() {
+      const a = ASSIGN[currentCaseId];
+      if (a && a.who !== ME.id) {
+        alert(`${staffName(a.who)} 님이 처리 중인 문의입니다. 읽기 전용이라 답변할 수 없습니다.`);
+        return;
+      }
+      const val = document.getElementById('dt-answer-input').value.trim();
+      if (!val) {
+        alert('답변 내용을 입력해 주세요.');
+        return;
+      }
+      if (!ASSIGN[currentCaseId]) ASSIGN[currentCaseId] = { who: ME.id, since: '11:20', status: 'IN_PROGRESS' };
+      ASSIGN[currentCaseId].status = 'ANSWERED';
+      renderAssignCells();
+      renderAssignBanner(currentCaseId);
+      alert('1:1 문의 답변 등록 및 네이버 클라우드 SENS 카카오 알림톡 발송이 완료되었습니다.');
+    }
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  function forceOpenModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('force-closed');
+    backdrop.classList.add('show');
+    backdrop.style.setProperty('display', 'flex', 'important');
+    backdrop.setAttribute('aria-hidden', 'false');
+  }
+
+  // 전역 헬퍼 등록 (기존 페이지 함수 보강)
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop, [id*="Modal"], [id*="modal"]').forEach(function(el) {
+      if (el.classList.contains('modal-backdrop') || el.classList.contains('p1-modal-backdrop') || el.classList.contains('s1-modal-backdrop') || el.classList.contains('s2-modal-backdrop') || getComputedStyle(el).position === 'fixed') {
+        forceCloseModalEl(el);
+      }
+    });
+  };
+
+  // 페이지 로드 후 ADMN-BRD-002 등 고유 모달 열기/닫기 함수 래핑
+  window.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.closeTransferModal === 'function') {
+      var origClose = window.closeTransferModal;
+      window.closeTransferModal = function() {
+        try { origClose.apply(this, arguments); } catch (e) {}
+        window.closeAllModals();
+      };
+    } else {
+      window.closeTransferModal = function() {
+        window.closeAllModals();
+      };
+    }
+
+    if (typeof window.openTransferModal === 'function') {
+      var origOpen = window.openTransferModal;
+      window.openTransferModal = function() {
+        document.querySelectorAll('.modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+        try { origOpen.apply(this, arguments); } catch (e) {}
+        var modal = document.getElementById('transfer-modal') || document.getElementById('transferModal') || document.getElementById('modal-transfer') || document.querySelector('.modal-backdrop');
+        if (modal) forceOpenModalEl(modal);
+      };
+    }
+  });
+
+  // 1) 닫기/취소/X 버튼 및 배경 클릭 시 즉시 닫기 (이벤트 위임)
+  document.addEventListener('click', function(e) {
+    // (A) 배경(backdrop) 자체를 클릭한 경우
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    // (B) 모달 내부의 닫기 버튼(✕, ×, 취소, 닫기, [onclick*="close"]) 클릭 시
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() {
+        forceCloseModalEl(backdrop);
+      }, 0);
+    }
+  }, true);
+
+  // 2) ESC 키 입력 시 열려 있는 모든 모달 닫기
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      window.closeAllModals();
+    }
+  });
+})();
+</script>
+</body>
+</html>

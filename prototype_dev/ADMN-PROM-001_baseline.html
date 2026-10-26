@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[ADMN-PROM-001 / S1~S3] 이벤트 · 기획전 관리 — 산준모닷컴 백오피스</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <script id="v4-common-master" src="common-master.js"></script>
+  <style>
+    :root {
+      --bg-main: #f3f5f9;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-soft: #eff6ff;
+      --success: #059669;
+      --success-soft: #ecfdf5;
+      --warning: #d97706;
+      --warning-soft: #fffbeb;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --purple: #7c3aed;
+      --purple-soft: #f5f3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    #v4-root-shell {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-bar.v4-gen3-topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .screen-id-badge {
+      background: #1e293b;
+      color: #f8fafc;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .topbar-title { font-size: 16px; font-weight: 800; color: var(--text-primary); }
+    .topbar-sub { font-size: 12px; color: var(--text-muted); }
+
+    .main-container {
+      padding: 20px 24px 56px;
+      max-width: 1620px;
+      width: 100%;
+    }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+    /* ADMN-PROM-001-S2 상세 조회 — 읽기 전용 소스 3분할 · 미리보기 */
+    .dt-src-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .dt-src-col { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #0f172a; }
+    .dt-src-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; background: #1e293b; color: #e2e8f0; font-size: 11.5px; font-weight: 800; }
+    .dt-src { margin: 0; padding: 10px 12px; color: #e2e8f0; font-size: 11.5px; line-height: 1.55; white-space: pre; overflow: auto; max-height: 260px; min-height: 120px; }
+    .dt-preview-box { border: 1px dashed #94a3b8; border-radius: 8px; padding: 14px; background: #ffffff; margin-top: 12px; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 15px 18px;
+      cursor: pointer;
+      transition: all 0.14s;
+    }
+    .kpi-card:hover { border-color: #93c5fd; transform: translateY(-1px); }
+    .kpi-label { font-size: 12px; color: var(--text-muted); font-weight: 700; display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .kpi-val { font-size: 22px; font-weight: 800; color: var(--text-primary); }
+    .kpi-sub { font-size: 11.5px; color: var(--text-secondary); margin-top: 5px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fcfdff;
+    }
+    .card-title { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+    .card-body { padding: 16px 18px; }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+    .form-input, .form-select {
+      padding: 7px 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      background: #ffffff;
+      color: var(--text-primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 13px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border-strong);
+      background: #ffffff;
+      color: var(--text-primary);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn:hover { background: #f8fafc; }
+    .btn-primary { background: var(--primary); color: #ffffff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-danger { background: var(--danger); color: #ffffff; border-color: var(--danger); }
+    .btn-dark { background: #0f172a; color: #ffffff; border-color: #0f172a; }
+    .btn-xs { padding: 4px 8px; font-size: 11px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-promo { background: var(--purple-soft); color: var(--purple); border: 1px solid #ddd6fe; }
+    .badge-event { background: var(--primary-soft); color: var(--primary); border: 1px solid #bfdbfe; }
+    .badge-ok { background: var(--success-soft); color: var(--success); }
+    .badge-warn { background: var(--warning-soft); color: var(--warning); }
+    .badge-danger { background: var(--danger-soft); color: var(--danger); }
+    .badge-gray { background: #f1f5f9; color: #475569; }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .data-table th {
+      background: #f8fafc;
+      color: var(--text-secondary);
+      font-weight: 700;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-strong);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+    .data-table tbody tr:hover td { background: #f8fafc; }
+    .text-right { text-align: right !important; }
+    .text-center { text-align: center !important; }
+
+    .form-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border);
+    }
+    .form-table th {
+      width: 170px;
+      background: #f8fafc;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      text-align: left;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+    .form-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: #ffffff;
+    }
+    .req { color: var(--danger); margin-left: 3px; }
+
+    /* CodeMirror 스타일 3단 코드 에디터 + 라이브 프리뷰 레이아웃 */
+    .editor-split-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .cm-shell {
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0f172a;
+      color: #e2e8f0;
+      display: flex;
+      flex-direction: column;
+    }
+    .cm-topbar {
+      background: #1e293b;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .cm-tabs { display: flex; gap: 4px; }
+    .cm-tab {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: #0f172a;
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .cm-tab.active {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .cm-body-wrap {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      min-height: 340px;
+    }
+    .cm-gutter {
+      background: #0b1120;
+      color: #475569;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 12px 6px;
+      text-align: right;
+      user-select: none;
+      border-right: 1px solid #1e293b;
+    }
+    .cm-textarea {
+      width: 100%;
+      min-height: 340px;
+      background: #0f172a;
+      color: #f8fafc;
+      border: none;
+      padding: 12px 14px;
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;
+      font-size: 12.5px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+    .cm-statusbar {
+      background: #1e293b;
+      padding: 7px 12px;
+      font-size: 11px;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      border-top: 1px solid #334155;
+    }
+
+    .preview-shell {
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .preview-topbar {
+      background: #f8fafc;
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .preview-canvas {
+      padding: 16px;
+      background: #f1f5f9;
+      flex: 1;
+      overflow-y: auto;
+      max-height: 410px;
+    }
+    .preview-viewport {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 0 auto;
+      transition: width 0.2s;
+    }
+
+    #toast-box {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: none;
+      z-index: 300;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+  </style>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PROM-001", "devCommit": "d562524a", "progress": "구현(PROM-001 · S1 · S2 · S3). 랜딩 배너 PC · 모바일 · alt, 상태 직접 선택, 행별 차단 표시, Beautify, 주소 · 소스 복사는 개발 없음 — 주황 표시", "menus": [{"route": "admin.promotions.index", "label": "이벤트 관리"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb"></aside>
+
+  <div id="v4-root-shell">
+    <header class="top-bar v4-gen3-topbar">
+      <div class="topbar-left">
+        <span class="screen-id-badge" id="top-code-badge">ADMN-PROM-001</span>
+        <div>
+          <div class="topbar-title" id="top-title-txt">이벤트 · 기획전 관리 — 구분(기획전/이벤트) · S3 에셋 · HTML/CSS/JS 에디터 · 중복할인 차단</div>
+          <div class="topbar-sub">프론트 기획전/이벤트 탭(USER-PROM-001)과 1:1 매핑되며, 특가 상품의 쿠폰·포인트 중복 할인을 스케줄로 통제합니다.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <label style="font-size:12px; font-weight:700; color:var(--text-secondary);" for="promo-role-sim">역할 그룹 화면 미리보기:</label>
+        <select id="promo-role-sim" data-dev-flag="proto-only" data-dev-note="역할 그룹 시연 — 개발은 로그인 관리자 권한" class="form-select" onchange="applyPromoRole()"></select>
+        <a href="ADMN-PROM-002_baseline.html" class="btn btn-xs">🎟️ 쿠폰 · 포인트 관리 (ADMN-PROM-002/003)</a>
+        <a href="ADMN-BRD-001_baseline.html?view=winner" class="btn btn-xs">🏆 당첨자 발표 관리 (ADMN-BRD-009)</a>
+      </div>
+    </header>
+
+    <div id="v4-page-body" class="main-container">
+
+      <!-- =====================================================================
+           VIEW 1: 이벤트 · 기획전 목록 (ADMN-PROM-001)
+           ===================================================================== -->
+      <section id="view-list" class="view-panel subview-panel active" data-subpage="list">
+        <div class="kpi-grid">
+          <div class="kpi-card" data-dev-route="admin.promotions.index" data-dev-method="GET" data-dev-url="/sj-admin/promotions" data-dev-perm="조회" data-dev-name="type" data-dev-value="'' · promotion · event" onclick="setCategoryFilter('ALL')">
+            <div class="kpi-label"><span>전체 등록 프로모션</span><span class="badge badge-gray">누적</span></div>
+            <div class="kpi-val" id="kpi-total">7건</div>
+            <div class="kpi-sub">기획전(기획상품) <strong id="kpi-total-promo">2건</strong> · 일반 이벤트 <strong id="kpi-total-event">5건</strong></div>
+          </div>
+          <div class="kpi-card" data-dev-route="admin.promotions.index" data-dev-method="GET" data-dev-url="/sj-admin/promotions" data-dev-perm="조회" data-dev-name="type" data-dev-value="'' · promotion · event" onclick="setCategoryFilter('PROMO')">
+            <div class="kpi-label"><span>진행중 기획전 (기획상품)</span><span class="badge badge-promo">USER-PROM-001 [기획전] 탭</span></div>
+            <div class="kpi-val" style="color:var(--purple);" id="kpi-active-promo">1건</div>
+            <div class="kpi-sub" id="kpi-active-promo-sub">예약 0건 · 종료 1건</div>
+          </div>
+          <div class="kpi-card" data-dev-route="admin.promotions.index" data-dev-method="GET" data-dev-url="/sj-admin/promotions" data-dev-perm="조회" data-dev-name="type" data-dev-value="'' · promotion · event" onclick="setCategoryFilter('EVENT')">
+            <div class="kpi-label"><span>진행중 이벤트 (일반이벤트)</span><span class="badge badge-event">USER-PROM-001 [이벤트] 탭</span></div>
+            <div class="kpi-val" style="color:var(--primary);" id="kpi-active-event">3건</div>
+            <div class="kpi-sub" id="kpi-active-event-sub">예약 0건 · 종료 2건</div>
+          </div>
+          <div class="kpi-card" data-dev-flag="proto-only" data-dev-note="KPI 중복 할인 차단 작동중 — 개발 없음" onclick="filterBlockOnly()">
+            <div class="kpi-label"><span>중복 할인 일괄 차단 작동중</span><span class="badge badge-danger">ADMN-PROM-001-S1</span></div>
+            <div class="kpi-val" style="color:var(--danger);" id="kpi-block-active">1건</div>
+            <div class="kpi-sub" id="kpi-block-active-sub">차단 ON 2건 중 진행중 1건 — 특가 상품 쿠폰·포인트 중복 사용 자동 차단</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>📋 기획전 · 이벤트 통합 목록 (ADMN-PROM-001)</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn" data-dev-flag="dev-only" data-dev-route="admin.promotions.download" data-dev-method="GET" data-dev-url="/sj-admin/promotions/download" data-dev-perm="다운로드" data-dev-note="반출 사유 공용 모달 layerReason(reason · reason_etc · reason_ref)">엑셀 다운로드</button>
+              <button type="button" class="btn btn-primary" data-perm-w="promo" data-dev-route="admin.promotions.create" data-dev-method="GET" data-dev-url="/sj-admin/promotions/create" data-dev-perm="등록" onclick="openPromoFormNew()">＋ 신규 기획전 · 이벤트 등록 (ADMN-PROM-001-S3)</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="filter-bar">
+              <strong>카테고리 구분:</strong>
+              <select id="flt-cat" name="type" data-dev-value="promotion · event" class="form-select" onchange="renderPromoList()">
+                <option value="ALL">전체 (기획전 + 이벤트)</option>
+                <option value="PROMO">기획전 (기획상품)</option> data-dev-name="type" data-dev-value="promotion"
+                <option value="EVENT">이벤트 (일반이벤트)</option> data-dev-name="type" data-dev-value="event"
+              </select>
+              <strong>진행 상태:</strong>
+              <select id="flt-status" name="status" data-dev-value="scheduled · active · ended · stopped(개발에만)" class="form-select" onchange="renderPromoList()">
+                <option value="ALL">전체 상태</option>
+                <option value="ACTIVE">진행중</option> data-dev-name="status" data-dev-value="active"
+                <option value="READY">예약 (노출 대기)</option> data-dev-name="status" data-dev-value="scheduled"
+                <option value="ENDED">종료</option> data-dev-name="status" data-dev-value="ended"
+              </select>
+              <strong>중복할인 차단(S1):</strong>
+              <select id="flt-block" data-dev-flag="proto-only" data-dev-note="차단 ON/OFF 필터 — 개발 없음. 개발 추가 필터: period_from · period_to · sort(started_asc · started_desc)" class="form-select" onchange="renderPromoList()">
+                <option value="ALL">전체</option>
+                <option value="ON">차단 ON (쿠폰·포인트 제한)</option>
+                <option value="OFF">차단 OFF (중복 허용)</option>
+              </select>
+              <input type="text" id="flt-kw" name="keyword" data-dev-note="max:100" class="form-input" style="width:260px;" placeholder="기획전/이벤트명, 코드(PRM-...), 슬러그 검색" oninput="renderPromoList()" />
+              <button type="button" class="btn btn-xs" onclick="resetPromoFilter()">초기화</button>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>코드</th>
+                  <th>카테고리 구분</th>
+                  <th>기획전 · 이벤트 제목 / 동적 URL 슬러그</th>
+                  <th>노출 기간</th>
+                  <th class="text-center">대상 상품</th>
+                  <th class="text-center">중복할인 차단 (001-S1)</th>
+                  <th class="text-center">진행 상태</th>
+                  <th class="text-center">당첨발표(BRD-009)</th>
+                  <th class="text-center">관리</th>
+                </tr>
+              </thead>
+              <tbody id="promo-list-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 1-1: 기획전 · 이벤트 상세 조회 (ADMN-PROM-001-S2 · 읽기 전용)
+           목록 행 클릭 → 이 화면 → [수정하기] → S3 폼. 이 화면에서는 값을 저장하지 않는다.
+           ===================================================================== -->
+      <section id="view-detail" class="view-panel subview-panel" data-subpage="detail">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <button type="button" class="btn btn-xs" onclick="switchPromoView('list')">← 목록으로 (ADMN-PROM-001)</button>
+              <span>🔎 기획전 · 이벤트 상세 조회 (ADMN-PROM-001-S2)</span>
+              <span class="badge" id="dt-promo-cat-badge">-</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-danger" data-dev-flag="dev-only" data-dev-route="admin.promotions.status.update" data-dev-method="PUT" data-dev-url="/sj-admin/promotions/{promotion}/status" data-dev-perm="수정" data-dev-note="즉시 중단 promotionStopModal — reason 2~200자 필수. 중단 후 수정 · 차단 잠금(정책 질문: 비노출 강제 숨김과 같은지)" data-dev-name="reason">⏹ 즉시 중단</button>
+              <button type="button" class="btn" data-dev-flag="proto-only" data-dev-note="주소 복사 — 개발 없음" onclick="copyPromoDetailUrl()">📋 주소 복사</button>
+              <button type="button" class="btn" id="btn-dt-preview" data-dev-route="admin.promotions.preview.show" data-dev-method="GET" data-dev-url="/sj-admin/promotions/{promotion}/preview" data-dev-perm="조회" data-dev-note="개발은 저장본 미리보기 새 창" onclick="togglePromoDetailPreview()">🖥️ 사용자 화면 미리보기</button>
+              <button type="button" class="btn btn-primary" data-perm-w="promo" data-dev-route="admin.promotions.edit" data-dev-method="GET" data-dev-url="/sj-admin/promotions/{promotion}/edit" data-dev-perm="수정" onclick="editCurrentPromoDetail()">✏️ 수정하기 (S3)</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:10px;">조회 전용 화면입니다. 값은 바뀌지 않으며, 수정은 [수정하기](기획전 · 이벤트 등록 · 수정)에서 합니다.</div>
+            <div id="dt-readonly-note" style="display:none; font-size:12px; font-weight:700; color:#991b1b; margin-bottom:10px;">선택한 역할 그룹은 '이벤트 · 쿠폰 · 포인트' 읽기 권한만 있어 조회만 할 수 있습니다([수정하기]가 보이지 않음).</div>
+
+            <!-- 1. 기본 정보 -->
+            <div style="font-weight:800; font-size:13.5px; margin-bottom:8px;">1. 카테고리 구분 · 슬러그(Slug) · 배너</div>
+            <table class="form-table" style="margin-bottom:18px;">
+              <tbody>
+                <tr><th>카테고리 구분</th><td id="dt-promo-cat">-</td></tr>
+                <tr><th>기획전 · 이벤트명</th><td><strong id="dt-promo-title">-</strong></td></tr>
+                <tr><th>코드 · URL 슬러그(Slug)</th><td><code id="dt-promo-code">-</code> · 사용자 주소 <code id="dt-promo-url">-</code></td></tr>
+                <tr><th>노출 기간 · 상태</th><td><span id="dt-promo-period">-</span> <span class="badge" id="dt-promo-status">-</span></td></tr>
+                <tr><th>PC · 모바일 목록 배너<br/>및 대체 텍스트(alt)</th><td id="dt-promo-banner">-</td></tr>
+                <tr><th>당첨자 발표 (ADMN-BRD-009)</th><td id="dt-promo-winner">-</td></tr>
+              </tbody>
+            </table>
+
+            <!-- 2. S3 에셋 -->
+            <div style="font-weight:800; font-size:13.5px; margin-bottom:8px;">2. S3 에셋 — 발급된 정적 URL (<code>https://cdn.sanjunmo.com/event/{slug}/{파일명}</code>)</div>
+            <table class="data-table" style="margin-bottom:18px; border:1px solid var(--border);">
+              <thead>
+                <tr>
+                  <th>유형</th>
+                  <th>파일명</th>
+                  <th>용량 · 규격</th>
+                  <th>발급된 S3 정적 CDN URL</th>
+                  <th class="text-center">복사</th>
+                </tr>
+              </thead>
+              <tbody id="dt-asset-tbody"></tbody>
+            </table>
+
+            <!-- 3. 랜딩 소스 3분할 (읽기 전용) -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:800; font-size:13.5px;">3. 랜딩 소스 HTML · CSS · JS (읽기 전용 · <code>#sanjunmo-promotion-wrapper</code> 스코프)</span>
+              <span style="font-size:11.5px; font-weight:700;" id="dt-src-check">-</span>
+            </div>
+            <div class="dt-src-grid">
+              <div class="dt-src-col">
+                <div class="dt-src-head"><span>📄 HTML (html_content)</span><button type="button" class="btn btn-xs" data-dev-flag="proto-only" data-dev-note="소스 복사 — 개발 없음" onclick="copyPromoDetailSource('HTML')">복사</button></div>
+                <pre class="dt-src" id="dt-src-html"></pre>
+              </div>
+              <div class="dt-src-col">
+                <div class="dt-src-head"><span>🎨 CSS (css_content)</span><button type="button" class="btn btn-xs" data-dev-flag="proto-only" data-dev-note="소스 복사 — 개발 없음" onclick="copyPromoDetailSource('CSS')">복사</button></div>
+                <pre class="dt-src" id="dt-src-css"></pre>
+              </div>
+              <div class="dt-src-col">
+                <div class="dt-src-head"><span>⚡ JS (js_content)</span><button type="button" class="btn btn-xs" data-dev-flag="proto-only" data-dev-note="소스 복사 — 개발 없음" onclick="copyPromoDetailSource('JS')">복사</button></div>
+                <pre class="dt-src" id="dt-src-js"></pre>
+              </div>
+            </div>
+            <div class="dt-preview-box" id="dt-preview-box" style="display:none;">
+              <div style="font-size:11.5px; font-weight:800; color:var(--text-muted); margin-bottom:8px;">사용자 화면 미리보기 (HTML + CSS 렌더링 · JS는 실행하지 않음)</div>
+              <div id="dt-preview-render"></div>
+            </div>
+
+            <!-- 4. 중복 할인 일괄 차단(S1) · 대상 상품 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:18px 0 8px;">
+              <span style="font-weight:800; font-size:13.5px;">4. 대상 상품 및 중복 할인 일괄 차단 (ADMN-PROM-001-S1 · Bulk Disable)</span>
+              <span class="badge" id="dt-block-badge">-</span>
+            </div>
+            <div style="font-size:12px; margin-bottom:8px;" id="dt-block-desc">-</div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="text-center">노출순서</th>
+                  <th>유형</th>
+                  <th>상품코드</th>
+                  <th>상품명</th>
+                  <th class="text-right">판매가</th>
+                  <th class="text-center">쿠폰 적용</th>
+                  <th class="text-center">포인트 사용</th>
+                  <th class="text-center">구매 적립(1%)</th>
+                </tr>
+              </thead>
+              <tbody id="dt-prod-tbody"></tbody>
+            </table>
+
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
+              <button type="button" class="btn" onclick="switchPromoView('list')">목록</button>
+              <button type="button" class="btn btn-primary" data-perm-w="promo" data-dev-route="admin.promotions.edit" data-dev-method="GET" data-dev-url="/sj-admin/promotions/{promotion}/edit" data-dev-perm="수정" onclick="editCurrentPromoDetail()">✏️ 수정하기 (S3)</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================================
+           VIEW 2: 기획전 · 이벤트 등록 및 수정 (ADMN-PROM-001-S3 + 001-S1 통합)
+           ===================================================================== -->
+      <section id="view-form" class="view-panel subview-panel" data-subpage="form" data-dev-note="개발 폼 id promo-form (S3). S1 차단은 별도 페이지 blockForm">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <button type="button" class="btn btn-xs" onclick="switchPromoView('list')">← 목록으로 (ADMN-PROM-001)</button>
+              <span id="form-header-title">✏️ 기획전 · 이벤트 등록 및 수정 (ADMN-PROM-001-S3)</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn" data-dev-route="admin.promotions.preview.index" data-dev-method="POST" data-dev-url="/sj-admin/promotions/preview" data-dev-perm="조회(저장 안 함)" data-dev-note="개발 promo-preview — 작성 중 소스 미리보기" onclick="openFullPreviewModal()">🖥️ 새 창 전체 미리보기</button>
+              <button type="button" class="btn btn-primary" data-dev-route="admin.promotions.store | admin.promotions.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/promotions | /promotions/{promotion}" data-dev-perm="등록 | 수정" onclick="savePromoItem()">💾 기획전 · 이벤트 저장 확정</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- 1. 기본 정보 및 카테고리 구분 -->
+            <div style="font-weight:800; font-size:13.5px; margin-bottom:8px;">1. 카테고리 구분 · 슬러그(Slug) · 배너 설정</div>
+            <table class="form-table" style="margin-bottom:18px;">
+              <tbody>
+                <tr>
+                  <th>카테고리 구분<span class="req">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+                      <label style="display:inline-flex; align-items:center; gap:6px; font-weight:800; color:var(--purple); cursor:pointer;">
+                        <input type="radio" name="promo_cat" id="cat-radio-promo" value="PROMO" data-dev-name="type" data-dev-value="promotion" checked onchange="onChangePromoCat()" />
+                        🟣 기획전 (기획상품 — 프론트 <code>USER-PROM-001</code> [기획전] 탭 노출 · 특가 패키지/교재 매핑 중심)
+                      </label>
+                      <label style="display:inline-flex; align-items:center; gap:6px; font-weight:800; color:var(--primary); cursor:pointer;">
+                        <input type="radio" name="promo_cat" id="cat-radio-event" value="EVENT" data-dev-name="type" data-dev-value="event" onchange="onChangePromoCat()" />
+                        🔵 이벤트 (일반이벤트 — 프론트 <code>USER-PROM-001</code> [이벤트] 탭 노출 · 댓글/경품/출석/당첨자 발표 연동)
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>기획전 · 이벤트명<span class="req">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <input type="text" id="f-promo-title" name="title" data-dev-note="max:40 (Promotion::MAX_TITLE_LENGTH)" class="form-input" style="width:480px; font-weight:700;" maxlength="40" value="2026 산업안전기사 가을 합격 올패스 최대 35% 특가 기획전" oninput="syncAltText()" />
+                      <span style="font-size:11.5px; color:var(--text-muted);">최대 40자 · 프론트 상단 <code>&lt;h1&gt;</code> 및 브라우저 타이틀로 자동 지정됩니다.</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>코드 · URL 슬러그(Slug)<span class="req">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary);">코드:</span>
+                      <input type="text" id="f-promo-code" data-dev-note="개발은 서버 자동 채번 PRM-YYMM-NNN, 입력 없음 · 수정 불가" class="form-input" style="width:170px; background:#f8fafc; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:800;" value="PRM-2610-ALLPASS" readonly />
+                      <span style="font-size:12px; font-weight:700; color:var(--text-secondary); margin-left:8px;">동적 URL:</span>
+                      <span style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; color:var(--text-muted);">https://sanjunmo.com/event/</span>
+                      <input type="text" id="f-promo-slug" name="slug" data-dev-note="promo-slug — 2~40 · ^[a-z0-9]+(-[a-z0-9]+)*$ · 중복 불가(종료 · 중단 포함)" class="form-input" style="width:190px; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:800;" value="2026-autumn-allpass" oninput="onSlugChange(this.value)" />
+                      <button type="button" class="btn btn-xs" id="promo-slug-check" data-dev-flag="dev-only" data-dev-route="admin.promotions.slug.index" data-dev-method="GET" data-dev-url="/sj-admin/promotions/slug" data-dev-perm="조회" data-dev-note="Slug 중복 확인(JSON) — 결과 promo-slug-result">중복 확인</button>
+                      <span class="badge badge-ok" id="slug-valid-badge">✓ 사용 가능 슬러그</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>노출 기간 · 상태<span class="req">*</span></th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <input type="datetime-local" id="f-promo-start" name="started_at" data-dev-note="Y-m-d\TH:i" class="form-input" value="2026-10-01T00:00" onchange="syncBulkPeriodText()" />
+                      <span>~</span>
+                      <input type="datetime-local" id="f-promo-end" name="ended_at" data-dev-note="started_at 이후" class="form-input" value="2026-11-15T23:59" onchange="syncBulkPeriodText()" />
+                      <select id="f-promo-status" data-dev-flag="proto-only" data-dev-note="상태 직접 선택 — 개발은 기간 · 배치로 자동(scheduled · active · ended), 중단은 별도 동작(stopped)" class="form-select">
+                        <option value="ACTIVE">진행중 (노출 ON)</option>
+                        <option value="READY">예약 (시작일시 자동 노출)</option>
+                        <option value="HIDDEN">비노출 (강제 숨김)</option>
+                      </select>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="PromotionRequest: thumbnail(등록 때 필수 · jpg · png · webp · 1MB) · headline · sort_type">
+                  <th>목록 썸네일 · 상단 카피 · 진열 순서</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <input type="file" name="thumbnail" accept=".jpg,.jpeg,.png,.webp" class="form-input" />
+                      <input type="text" name="headline" class="form-input" style="width:280px;" maxlength="255" placeholder="상단 카피 (비우면 기획전명)" />
+                      <select name="sort_type" class="form-select"><option value="manual">수동 정렬</option><option value="sales">판매량순</option><option value="price_asc">낮은 가격순</option><option value="created_desc">등록 역순</option></select>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>PC · 모바일 목록 배너<br/>및 대체 텍스트(alt)<span class="req">*</span></th>
+                  <td>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                      <div>
+                        <div style="font-size:11.5px; font-weight:700; margin-bottom:4px;">PC 목록 배너 (권장 800×400px, 필수)</div>
+                        <input type="text" id="f-banner-pc" data-dev-flag="proto-only" data-dev-note="랜딩 배너 — 개발 폼 미연결(banner_pc_path 스키마만, 정책 질문)" class="form-input" style="width:100%;" value="banner_pc_2026_allpass.webp (312KB)" />
+                      </div>
+                      <div>
+                        <div style="font-size:11.5px; font-weight:700; margin-bottom:4px;">모바일 목록 배너 (권장 750×480px, 미등록 시 PC 축소)</div>
+                        <input type="text" id="f-banner-mo" data-dev-flag="proto-only" data-dev-note="banner_mobile_path — 개발 폼 미연결" class="form-input" style="width:100%;" value="banner_mo_2026_allpass.webp (198KB)" />
+                      </div>
+                      <div>
+                        <div style="font-size:11.5px; font-weight:700; margin-bottom:4px;">웹접근성 이미지 대체 텍스트 (alt · 미입력 시 제목 자동)</div>
+                        <input type="text" id="f-banner-alt" data-dev-flag="proto-only" data-dev-note="배너 alt — 개발 없음" class="form-input" style="width:100%;" value="2026 산업안전기사 가을 합격 올패스 최대 35% 특가 기획전" />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- 2. S3 에셋 업로더 (정적 CDN URL 발급) -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div>
+                <span style="font-weight:800; font-size:13.5px;">2. S3 에셋 업로더 — 정적 URL 자동 발급 (<code>https://cdn.sanjunmo.com/event/{slug}/{파일명}</code>)</span>
+                <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">이미지(jpg/png/webp/gif/svg)·영상(mp4)·폰트(woff2)를 업로드하고 아래 HTML/CSS 에디터에 즉시 삽입합니다.</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <input type="text" id="inp-new-asset-name" name="files[]" data-dev-note="promo-asset-input — 1~20개 · jpg · png · webp · gif · mp4 · webm · woff · woff2 · 개당 20MB" class="form-input" style="width:210px;" placeholder="예: hero_visual_02.webp" />
+                <button type="button" class="btn btn-xs btn-primary" data-dev-route="admin.promotions.assets.store" data-dev-method="POST" data-dev-url="/sj-admin/promotions/{promotion}/assets" data-dev-perm="등록" data-dev-note="기획전 id가 있어야 올림(수정 화면). 지우기는 admin.promotions.assets.destroy" onclick="uploadNewS3Asset()">☁️ S3 에셋 업로드 추가</button>
+              </div>
+            </div>
+            <table class="data-table" style="margin-bottom:18px; border:1px solid var(--border);">
+              <thead>
+                <tr>
+                  <th>유형</th>
+                  <th>파일명</th>
+                  <th>용량 · 규격</th>
+                  <th>발급된 S3 정적 CDN URL</th>
+                  <th class="text-center">코드 에디터 원클릭 삽입 · 복사</th>
+                </tr>
+              </thead>
+              <tbody id="s3-asset-tbody"></tbody>
+            </table>
+
+            <!-- 3. CodeMirror 스타일 HTML / CSS / JS 3단 분리 코드 에디터 + 실시간 미리보기 -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <div>
+                <span style="font-weight:800; font-size:13.5px;">3. 프로모션 페이지 소스 3단 분리 에디터 (<code>HTML</code> / <code>CSS</code> / <code>JS</code>) 및 실시간 렌더링</span>
+                <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">모든 CSS는 <code>#sanjunmo-promotion-wrapper</code> 내부 스코프로 자동 격리되며 <code>z-index: 900</code> 이하만 허용됩니다.</span>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button type="button" class="btn btn-xs" data-dev-flag="proto-only" data-dev-note="코드 자동 정렬 — 개발 없음" onclick="beautifyCurrentCode()">✨ 코드 자동 정렬 (Beautify)</button>
+                <button type="button" class="btn btn-xs" data-dev-note="개발 promo-lint · lintHtml() · lintBraces() (클라이언트 점검)" onclick="validatePromoCodeSecurity()">🔍 문법 · 보안 검증 (z-index / XSS 체크)</button>
+              </div>
+            </div>
+
+            <div class="editor-split-grid" style="margin-bottom:20px;">
+              <!-- 좌측: 3단 탭 에디터 -->
+              <div class="cm-shell">
+                <div class="cm-topbar">
+                  <div class="cm-tabs">
+                    <button type="button" class="cm-tab active" id="cm-tab-html" onclick="switchCodeTab('HTML')">📄 HTML (html_content)</button>
+                    <button type="button" class="cm-tab" id="cm-tab-css" onclick="switchCodeTab('CSS')">🎨 CSS (css_content)</button>
+                    <button type="button" class="cm-tab" id="cm-tab-js" onclick="switchCodeTab('JS')">⚡ JS (js_content)</button>
+                  </div>
+                  <span style="font-size:11px; color:#93c5fd;" id="cm-active-col-label">현재 편집 컬럼: promotion.html_content</span>
+                </div>
+                <div class="cm-body-wrap">
+                  <div class="cm-gutter" id="cm-line-numbers">1<br/>2<br/>3<br/>4<br/>5<br/>6<br/>7<br/>8<br/>9<br/>10<br/>11<br/>12<br/>13<br/>14<br/>15<br/>16</div>
+                  <textarea id="cm-code-input" data-dev-note="개발은 소스 3분할 textarea(promo-source-html · -css · -js), 각 최대 1,000,000자" data-dev-name="html_content | css_content | js_content" class="cm-textarea" oninput="onCodeInput()" spellcheck="false"></textarea>
+                </div>
+                <div class="cm-statusbar">
+                  <span id="cm-security-msg">✅ 보안 검증 통과: #sanjunmo-promotion-wrapper 스코프 정상 · 금지 태그(iframe/document.write) 0건</span>
+                  <span id="cm-char-count">UTF-8 · 642 Bytes</span>
+                </div>
+              </div>
+
+              <!-- 우측: 실시간 샌드박스 렌더링 프리뷰 -->
+              <div class="preview-shell">
+                <div class="preview-topbar">
+                  <strong style="font-size:12px;">👁️ 실시간 렌더링 미리보기 (HTML + CSS 결합)</strong>
+                  <div style="display:flex; gap:6px;">
+                    <button type="button" class="btn btn-xs btn-primary" id="btn-vp-pc" onclick="setPreviewViewport('100%')">🖥️ PC 뷰</button>
+                    <button type="button" class="btn btn-xs" id="btn-vp-mo" onclick="setPreviewViewport('375px')">📱 모바일(375px) 뷰</button>
+                  </div>
+                </div>
+                <div class="preview-canvas">
+                  <div class="preview-viewport" id="promo-live-viewport" style="width:100%;">
+                    <div id="promo-live-render"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. 대상 상품군 매핑 및 중복 할인 일괄 차단 스케줄러 (ADMN-PROM-001-S1) -->
+            <div class="card" style="border:2px solid #cbd5e1; margin-bottom:0;">
+              <div class="card-header" style="background:#f8fafc;">
+                <div class="card-title">
+                  <span>🛡️ 4. 대상 상품군 매핑 및 중복 할인 일괄 차단 스케줄러 (ADMN-PROM-001-S1 · Bulk Disable)</span>
+                  <span class="badge badge-danger" id="s1-status-badge">중복 할인 차단 작동중 (ON)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <label style="display:inline-flex; align-items:center; gap:6px; font-weight:800; color:var(--danger); cursor:pointer;">
+                    <input type="checkbox" id="chk-bulk-disable" name="enabled" data-dev-note="개발 S1은 별도 페이지 admin.promotions.blocks.edit" data-dev-value="1 · 0(모든 기획전에서 해제)" checked onchange="toggleBulkDisable(this.checked)" />
+                    기획전 특가 기간 중 쿠폰 · 포인트 중복 할인 일괄 차단 활성화
+                  </label>
+                </div>
+              </div>
+              <div class="card-body">
+                <div data-dev-flag="dev-only" data-dev-note="PromotionBlockRequest: block_from · block_to(차단 기간, 노출 기간과 별개) · target(all · selected) + product_ids[] · reason(max:100, 주문서 혜택 입력란 아래 노출)" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; font-size:12px;">
+                  <strong>차단 기간</strong> <input type="date" id="blockFrom" name="block_from" class="form-input" /> ~ <input type="date" name="block_to" class="form-input" />
+                  <select name="target" class="form-select"><option value="all">전체 대상 상품</option><option value="selected">선택 상품</option></select>
+                  <input type="text" name="reason" class="form-input" style="width:280px;" maxlength="100" placeholder="주문서에 보일 차단 사유" />
+                  <button type="button" class="btn btn-xs btn-primary" data-dev-route="admin.promotions.blocks.update" data-dev-method="PUT" data-dev-url="/sj-admin/promotions/{promotion}/blocks" data-dev-perm="수정">차단 저장</button>
+                </div>
+                <div id="bulk-disable-config-box" style="background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:12px 16px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+                  <div>
+                    <div style="font-weight:800; color:#9f1239; font-size:12.5px;">• 차단 대상 혜택 선택 (기획전 특가 상품 주문서 결제 시 자동 제어)</div>
+                    <div style="display:flex; gap:16px; margin-top:6px; font-weight:700; font-size:12px;">
+                      <label><input type="checkbox" id="chk-block-cpn" name="benefits[]" data-dev-value="coupon" checked onchange="renderMappedProducts()" /> 🎟️ 쿠폰 사용 차단 (특가 이중할인 방지)</label>
+                      <label><input type="checkbox" id="chk-block-pt" name="benefits[]" data-dev-value="point" checked onchange="renderMappedProducts()" /> 💰 포인트(적립·무상) 사용 차단</label>
+                      <label><input type="checkbox" id="chk-block-earn" name="benefits[]" data-dev-value="earn" onchange="renderMappedProducts()" /> 📈 기본 결제 포인트(1%) 적립 차단</label>
+                    </div>
+                  </div>
+                  <div style="font-size:12px; color:#881337;">
+                    <strong>차단 적용 스케줄:</strong> 기획전 노출 기간(<code id="bulk-period-text">2026.10.01 ~ 2026.11.15</code>) 동안 자동 적용 · 종료 시 원복
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <strong style="font-size:12.5px;">매핑된 기획전 · 이벤트 대상 상품 목록 (프론트 하단 상품 카드 영역 노출 순서)</strong>
+                  <div style="display:flex; gap:6px;">
+                    <select id="sel-add-prod" name="products[n][type|id]" data-dev-note="개발 promo-target-type · promo-target-keyword · promo-target-search(GET admin.promotions.targets.index JSON). 행: products[n][type|id|promo_price|discount_rate], 1~500행" class="form-select">
+                      <option value="PKG|PKG-2603|2026 건설안전기사 동차합격 100% 환급 패스 (강좌전용)|240,000원">패키지: 2026 건설안전기사 동차합격 100% 환급 패스 (강좌전용) (240,000원)</option>
+                      <option value="COURSE|CRS-2605|2026 산업안전기사 실기 작업형 동영상 빈출 마스터반|125,000원">단과: 2026 산업안전기사 실기 작업형 동영상 빈출 마스터반 (125,000원)</option>
+                      <option value="BOOK|PROD-BK-1005|2026 산준모 산업안전기사 실기 필답형 모범답안집|34,000원">교재: 2026 산준모 산업안전기사 실기 필답형 모범답안집 (34,000원)</option>
+                    </select>
+                    <button type="button" class="btn btn-xs btn-primary" data-dev-note="개발 addRow() — products[n][…] 행 추가" onclick="addMappedProduct()">＋ 대상 상품 추가</button>
+                  </div>
+                </div>
+
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th class="text-center">노출순서</th>
+                      <th>유형</th>
+                      <th>상품코드</th>
+                      <th>상품명</th>
+                      <th class="text-right">판매가</th>
+                      <th class="text-center">쿠폰 적용</th>
+                      <th class="text-center">포인트 사용</th>
+                      <th class="text-center">구매 적립(1%)</th>
+                      <th class="text-center">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mapped-prod-tbody"></tbody>
+                </table>
+                <div style="font-size:11.5px; color:var(--text-muted); margin-top:8px;">
+                  ※ 실물 교재(도서) 단품은 출판문화산업진흥법 제22조(도서정가제)에 따라 본 화면의 스위치와 무관하게 상품 기본 할인(최대 10%)만 허용되며, 추가 쿠폰·포인트 사용 및 적립은 상시 차단(🔒 고정)됩니다.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <div id="toast-box"></div>
+
+  <script>
+    const PROMO_ITEMS = [
+      {
+        code: "PRM-2610-ALLPASS",
+        cat: "PROMO",
+        catLabel: "기획전 (기획상품)",
+        title: "2026 산업안전기사 가을 합격 올패스 최대 35% 특가 기획전",
+        slug: "2026-autumn-allpass",
+        period: "2026.10.01 ~ 2026.11.15",
+        prodCnt: 3,
+        blockStatus: "ON",
+        status: "ACTIVE",
+        winnerLinked: "연동 불필요(기획전)",
+        bannerPc: "banner_pc_2026_allpass.webp (312KB)",
+        bannerMo: "banner_mo_2026_allpass.webp (198KB)",
+        blockCpn: true, blockPt: true, blockEarn: false,
+        prods: [
+          { type: "패키지", code: "PKG-2601", name: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", price: "304,800원", isBook: false },
+          { type: "단과", code: "CRS-1002", name: "정종대 산업안전 실전 빈출특강", price: "150,000원", isBook: false },
+          { type: "교재", code: "PROD-BK-1012", name: "2026 산업안전기사 필기 10개년 과년도 빈출해설집", price: "29,000원", isBook: true }
+        ],
+        htmlCode: `<div id="sanjunmo-promotion-wrapper">\n  <div class="promo-hero">\n    <span class="promo-badge">2026 가을 시즌 한정 특가 기획전</span>\n    <h2>산업안전기사 필기+실기 올패스 35% 파격 할인</h2>\n    <p>정종대 교수 직강 최신 빈출문제 해설 + 합격환급반 특별 혜택</p>\n    <a href="#promo-products" class="promo-cta">특가 적용 강좌 바로 수강신청 →</a>\n  </div>\n</div>`,
+        cssCode: `#sanjunmo-promotion-wrapper .promo-hero {\n  background: linear-gradient(135deg, #1e3a8a, #0f172a);\n  color: #ffffff;\n  padding: 36px 28px;\n  border-radius: 12px;\n  text-align: center;\n}\n#sanjunmo-promotion-wrapper .promo-badge {\n  display: inline-block;\n  background: #f59e0b;\n  color: #0f172a;\n  font-weight: 800;\n  padding: 4px 12px;\n  border-radius: 999px;\n  font-size: 12px;\n  margin-bottom: 10px;\n}\n#sanjunmo-promotion-wrapper .promo-cta {\n  display: inline-block;\n  margin-top: 14px;\n  background: #2563eb;\n  color: #ffffff;\n  padding: 10px 22px;\n  border-radius: 8px;\n  text-decoration: none;\n  font-weight: 700;\n}`,
+        jsCode: `// 기획전 전용 인터랙션 스크립트 (#sanjunmo-promotion-wrapper 스코프)\nconsole.log('[PRM-2610-ALLPASS] 기획전 스크립트 로드 완료');`
+      },
+      {
+        code: "PRM-2610-CHEERUP",
+        cat: "EVENT",
+        catLabel: "이벤트 (일반이벤트)",
+        title: "2026 제3회 실기 시험 대비 수험생 합격다짐 댓글 이벤트",
+        slug: "2026-round3-cheerup",
+        period: "2026.10.05 ~ 2026.10.31",
+        prodCnt: 2,
+        blockStatus: "OFF",
+        status: "ACTIVE",
+        winnerLinked: "발표 예정 (2026.11.03)",
+        bannerPc: "banner_pc_2026_cheerup.webp (286KB)",
+        bannerMo: "banner_mo_2026_cheerup.webp (174KB)",
+        blockCpn: true, blockPt: true, blockEarn: false,
+        prods: [
+          { type: "단과", code: "CRS-2605", name: "2026 산업안전기사 실기 작업형 동영상 빈출 마스터반", price: "125,000원", isBook: false },
+          { type: "단과", code: "CRS-1002", name: "정종대 산업안전 실전 빈출특강", price: "150,000원", isBook: false }
+        ],
+        htmlCode: `<div id="sanjunmo-promotion-wrapper">\n  <div class="promo-hero" style="background:linear-gradient(135deg,#047857,#064e3b);">\n    <span class="promo-badge">수험생 응원 댓글 이벤트</span>\n    <h2>합격 다짐 남기고 스타벅스 기프티콘 &amp; 5,000P 받자!</h2>\n    <p>참여자 전원 무상 포인트 즉시 지급 · 추첨 50명 기프티콘 증정</p>\n  </div>\n</div>`,
+        cssCode: `#sanjunmo-promotion-wrapper .promo-hero { padding: 32px; border-radius: 12px; color: #fff; text-align: center; }`,
+        jsCode: `console.log('[PRM-2610-CHEERUP] 댓글 이벤트 초기화');`
+      },
+      /* 당첨자 발표(ADMN-BRD-009, BRD-001 WIN_EVENTS)가 연결하는 이벤트 — 이름은 BRD-001과 같다 */
+      {
+        code: "PRM-2610-WISHCMT",
+        cat: "EVENT",
+        catLabel: "이벤트 (일반이벤트)",
+        title: "2026 산준모 합격기원 수강신청 댓글 이벤트",
+        slug: "2026-wish-comment",
+        period: "2026.09.28 ~ 2026.10.12",
+        prodCnt: 0,
+        blockStatus: "OFF",
+        status: "ENDED",
+        winnerLinked: "당첨발표 완료 (2026.10.17)",
+        bannerPc: "banner_pc_2026_wishcmt.webp (274KB)",
+        bannerMo: "banner_mo_2026_wishcmt.webp (166KB)",
+        blockCpn: true, blockPt: true, blockEarn: false,
+        prods: [],
+        htmlCode: `<div id="sanjunmo-promotion-wrapper">\n  <div class="promo-hero" style="background:linear-gradient(135deg,#7c3aed,#4c1d95);">\n    <span class="promo-badge">합격기원 댓글 이벤트</span>\n    <h2>수강신청하고 합격 다짐 댓글 남기면 추첨 경품!</h2>\n    <p>추첨 경품 · 학습지원 무상 포인트 지급</p>\n  </div>\n</div>`,
+        cssCode: `#sanjunmo-promotion-wrapper .promo-hero { padding: 32px; border-radius: 12px; color: #fff; text-align: center; }`,
+        jsCode: ``
+      },
+      {
+        code: "PRM-2610-ATTEND",
+        cat: "EVENT",
+        catLabel: "이벤트 (일반이벤트)",
+        title: "산업안전기사 빈출문제 무료특강 출석체크 이벤트",
+        slug: "2026-free-lecture-attend",
+        period: "2026.09.22 ~ 2026.10.10",
+        prodCnt: 0,
+        blockStatus: "OFF",
+        status: "ENDED",
+        winnerLinked: "당첨발표 완료 (2026.10.14)",
+        bannerPc: "banner_pc_2026_attend.webp (258KB)",
+        bannerMo: "banner_mo_2026_attend.webp (152KB)",
+        blockCpn: true, blockPt: true, blockEarn: false,
+        prods: [],
+        htmlCode: `<div id="sanjunmo-promotion-wrapper">\n  <div class="promo-hero" style="background:linear-gradient(135deg,#0369a1,#0c4a6e);">\n    <span class="promo-badge">무료특강 출석체크</span>\n    <h2>빈출문제 무료특강 100% 출석하고 선물 받자!</h2>\n    <p>출석 우수자 기프티콘 · 참여자 무상 포인트</p>\n  </div>\n</div>`,
+        cssCode: `#sanjunmo-promotion-wrapper .promo-hero { padding: 32px; border-radius: 12px; color: #fff; text-align: center; }`,
+        jsCode: ``
+      },
+      {
+        code: "PRM-2610-EARLYBIRD",
+        cat: "EVENT",
+        catLabel: "이벤트 (일반이벤트)",
+        title: "가을 대비 프리패스 얼리버드 경품 추첨",
+        slug: "2026-autumn-earlybird",
+        period: "2026.10.10 ~ 2026.10.31",
+        prodCnt: 0,
+        blockStatus: "OFF",
+        status: "ACTIVE",
+        winnerLinked: "발표 예정 (2026.11.05)",
+        bannerPc: "banner_pc_2026_earlybird_draw.webp (281KB)",
+        bannerMo: "banner_mo_2026_earlybird_draw.webp (170KB)",
+        blockCpn: true, blockPt: true, blockEarn: false,
+        prods: [],
+        htmlCode: `<div id="sanjunmo-promotion-wrapper">\n  <div class="promo-hero" style="background:linear-gradient(135deg,#b45309,#78350f);">\n    <span class="promo-badge">얼리버드 경품 추첨</span>\n    <h2>가을 대비 프리패스 얼리버드 응모하고 경품 받자!</h2>\n    <p>응모자 대상 추첨 · 발표는 당첨자 발표 게시판</p>\n  </div>\n</div>`,
+        cssCode: `#sanjunmo-promotion-wrapper .promo-hero { padding: 32px; border-radius: 12px; color: #fff; text-align: center; }`,
+        jsCode: ``
+      },
+      {
+        code: "PRM-2610-NEWJOIN",
+        cat: "EVENT",
+        catLabel: "이벤트 (일반이벤트)",
+        title: "신규 가입 학습지원 포인트 추첨 이벤트",
+        slug: "2026-newjoin-point",
+        period: "2026.10.01 ~ 2026.11.30",
+        prodCnt: 0,
+        blockStatus: "OFF",
+        status: "ACTIVE",
+        winnerLinked: "발표 예정 (2026.12.03)",
+        bannerPc: "banner_pc_2026_newjoin.webp (262KB)",
+        bannerMo: "banner_mo_2026_newjoin.webp (158KB)",
+        blockCpn: true, blockPt: true, blockEarn: false,
+        prods: [],
+        htmlCode: `<div id="sanjunmo-promotion-wrapper">\n  <div class="promo-hero" style="background:linear-gradient(135deg,#047857,#064e3b);">\n    <span class="promo-badge">신규 가입 이벤트</span>\n    <h2>지금 가입하면 학습지원 포인트 추첨!</h2>\n    <p>신규 가입 회원 대상 무상 포인트 추첨 지급</p>\n  </div>\n</div>`,
+        cssCode: `#sanjunmo-promotion-wrapper .promo-hero { padding: 32px; border-radius: 12px; color: #fff; text-align: center; }`,
+        jsCode: ``
+      },
+      {
+        code: "PRM-2609-CHUSEOK",
+        cat: "PROMO",
+        catLabel: "기획전 (기획상품)",
+        title: "추석 연휴 단기완성 핵심요약 패키지 특가 기획전",
+        slug: "2026-chuseok-short",
+        period: "2026.09.10 ~ 2026.09.30",
+        prodCnt: 4,
+        blockStatus: "ON",
+        status: "ENDED",
+        winnerLinked: "당첨발표 완료 (#89)",
+        bannerPc: "banner_pc_2026_chuseok.webp (301KB)",
+        bannerMo: "banner_mo_2026_chuseok.webp (188KB)",
+        blockCpn: true, blockPt: true, blockEarn: false,
+        prods: [
+          { type: "패키지", code: "PKG-2603", name: "2026 건설안전기사 동차합격 100% 환급 패스 (강좌전용)", price: "240,000원", isBook: false },
+          { type: "패키지", code: "PKG-2601", name: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", price: "304,800원", isBook: false },
+          { type: "단과", code: "CRS-1002", name: "정종대 산업안전 실전 빈출특강", price: "150,000원", isBook: false },
+          { type: "교재", code: "PROD-BK-1005", name: "2026 산준모 산업안전기사 실기 필답형 모범답안집", price: "34,000원", isBook: true }
+        ],
+        htmlCode: `<div id="sanjunmo-promotion-wrapper"><div class="promo-hero"><h2>추석 단기완성 기획전 (종료)</h2></div></div>`,
+        cssCode: `#sanjunmo-promotion-wrapper .promo-hero { padding: 24px; background:#334155; color:#fff; text-align:center; }`,
+        jsCode: ``
+      }
+    ];
+
+    let S3_ASSETS = [
+      { type: "IMAGE", name: "hero_visual_allpass.webp", size: "312KB (1200×600)" },
+      { type: "IMAGE", name: "instructor_jung_badge.png", size: "84KB (400×400)" },
+      { type: "VIDEO", name: "intro_preview_clip.mp4", size: "4.2MB (1080p)" }
+    ];
+
+    /* 편집 중인 기획전의 대상 상품(폼). 기획전별 원본은 PROMO_ITEMS[].prods */
+    let MAPPED_PRODUCTS = PROMO_ITEMS[0].prods.map(p => Object.assign({}, p));
+
+    let currentCodeTab = "HTML";
+    let codeBuffer = {
+      HTML: PROMO_ITEMS[0].htmlCode,
+      CSS: PROMO_ITEMS[0].cssCode,
+      JS: PROMO_ITEMS[0].jsCode
+    };
+    let editingPromoCode = "PRM-2610-ALLPASS";
+
+    /* KPI — 목록 데이터에서 센다(신규 저장 · 수정 후 목록을 다시 그릴 때 함께 갱신). 차단 작동중 = 차단 ON이면서 진행중 */
+    function renderPromoKpis() {
+      const n = arr => `${arr.length}건`;
+      const promo = PROMO_ITEMS.filter(x => x.cat === "PROMO");
+      const event = PROMO_ITEMS.filter(x => x.cat === "EVENT");
+      const by = (arr, st) => arr.filter(x => x.status === st);
+      const blockOn = PROMO_ITEMS.filter(x => x.blockStatus === "ON");
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+      set("kpi-total", n(PROMO_ITEMS));
+      set("kpi-total-promo", n(promo));
+      set("kpi-total-event", n(event));
+      set("kpi-active-promo", n(by(promo, "ACTIVE")));
+      set("kpi-active-promo-sub", `예약 ${by(promo, "READY").length}건 · 종료 ${by(promo, "ENDED").length}건`);
+      set("kpi-active-event", n(by(event, "ACTIVE")));
+      set("kpi-active-event-sub", `예약 ${by(event, "READY").length}건 · 종료 ${by(event, "ENDED").length}건`);
+      set("kpi-block-active", n(by(blockOn, "ACTIVE")));
+      set("kpi-block-active-sub", `차단 ON ${blockOn.length}건 중 진행중 ${by(blockOn, "ACTIVE").length}건 — 특가 상품 쿠폰·포인트 중복 사용 자동 차단`);
+    }
+
+    function renderPromoList() {
+      renderPromoKpis();
+      const cat = document.getElementById("flt-cat").value;
+      const st = document.getElementById("flt-status").value;
+      const blk = document.getElementById("flt-block").value;
+      const kw = document.getElementById("flt-kw").value.trim().toLowerCase();
+
+      const rows = PROMO_ITEMS.filter(item => {
+        if (cat !== "ALL" && item.cat !== cat) return false;
+        if (st !== "ALL" && item.status !== st) return false;
+        if (blk !== "ALL" && item.blockStatus !== blk) return false;
+        if (kw && !(item.title.toLowerCase().includes(kw) || item.code.toLowerCase().includes(kw) || item.slug.toLowerCase().includes(kw))) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById("promo-list-tbody");
+      tbody.innerHTML = rows.map(item => `
+        <tr style="cursor:pointer;" onclick="if (!event.target.closest('a, button')) openPromoDetail('${item.code}')">
+          <td><code>${item.code}</code></td>
+          <td>
+            <span class="badge ${item.cat === 'PROMO' ? 'badge-promo' : 'badge-event'}">
+              ${item.cat === 'PROMO' ? '🟣 기획전(기획상품)' : '🔵 이벤트(일반)'}
+            </span>
+          </td>
+          <td>
+            <div style="font-weight:800; color:var(--text-primary); cursor:pointer;">${item.title}</div>
+            <div style="font-size:11px; color:var(--text-muted); font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;">https://sanjunmo.com/event/${item.slug}</div>
+          </td>
+          <td>${item.period}</td>
+          <td class="text-center"><strong>${item.prodCnt}종</strong></td>
+          <td class="text-center">
+            <span class="badge ${item.blockStatus === 'ON' ? 'badge-danger' : 'badge-gray'}">
+              ${item.blockStatus === 'ON' ? '🛡️ 중복할인 차단 ON' : '차단 OFF (허용)'}
+            </span>
+          </td>
+          <td class="text-center">
+            <span class="badge ${promoStatusCls(item.status)}">${promoStatusLabel(item.status)}</span>
+          </td>
+          <td class="text-center">
+            <a href="ADMN-BRD-001_baseline.html?view=winner" style="font-size:11.5px; color:var(--primary); font-weight:700; text-decoration:none;">${item.winnerLinked} ↗</a>
+          </td>
+          <td class="text-center">
+            <button type="button" class="btn btn-xs" data-dev-route="admin.promotions.show" data-dev-method="GET" data-dev-url="/sj-admin/promotions/{promotion}" data-dev-perm="조회" onclick="openPromoDetail('${item.code}')">상세 (S2)</button>
+            <button type="button" class="btn btn-xs btn-primary" data-perm-w="promo" data-dev-route="admin.promotions.edit" data-dev-method="GET" data-dev-url="/sj-admin/promotions/{promotion}/edit" data-dev-perm="수정" data-dev-note="차단 설정은 별도 페이지 admin.promotions.blocks.edit(GET /promotions/{promotion}/blocks/edit)" onclick="openPromoEdit('${item.code}')">수정 · 코드/차단 설정 (S3/S1)</button>
+          </td>
+        </tr>
+      `).join("");
+      applyPromoRole();
+    }
+
+    function setCategoryFilter(catVal) {
+      document.getElementById("flt-cat").value = catVal;
+      document.getElementById("flt-status").value = catVal === "ALL" ? "ALL" : "ACTIVE";   // 진행중 카드는 진행중만
+      document.getElementById("flt-block").value = "ALL";
+      renderPromoList();
+    }
+
+    function filterBlockOnly() {
+      document.getElementById("flt-cat").value = "ALL";
+      document.getElementById("flt-status").value = "ACTIVE";   // 차단 작동중 = 차단 ON이면서 진행중
+      document.getElementById("flt-block").value = "ON";
+      renderPromoList();
+    }
+
+    function resetPromoFilter() {
+      document.getElementById("flt-cat").value = "ALL";
+      document.getElementById("flt-status").value = "ALL";
+      document.getElementById("flt-block").value = "ALL";
+      document.getElementById("flt-kw").value = "";
+      renderPromoList();
+    }
+
+    /* 하위 화면(SJM_PAGE): list = 목록, detail = S2 상세 조회, form = S3 등록 · 수정(+ S1 차단 섹션) */
+    const PROMO_PAGES = {
+      list: { code: "ADMN-PROM-001", onShow: () => renderPromoList() },
+      detail: { code: "ADMN-PROM-001-S2", title: "기획전 · 이벤트 상세 조회 — 설정 · 랜딩 소스 읽기 전용 · 미리보기 · 주소 복사", onShow: p => fillPromoDetail(p.id) },
+      form: { code: "ADMN-PROM-001-S3 / S1", title: "기획전 · 이벤트 등록 · 수정 — 구분 · 슬러그 · S3 에셋 · HTML/CSS/JS 에디터 · 중복할인 차단", onShow: p => fillPromoForm(p.id || null) }
+    };
+
+    /* 역할 그룹 화면 미리보기 — ADMN-DASH-001(v6.53)과 같은 관례: 공통 역할 그룹(운영자 권한 관리 CONF-005) 중
+       '이벤트 · 쿠폰 · 포인트'(promo) 읽기 권한이 있는 그룹을 고르고, 쓰기(W) 권한이 없으면 등록 · 수정 버튼(data-perm-w)을 그리지 않는다 */
+    function promoCanWrite() {
+      const M = window.SJM_MASTER;
+      const sel = document.getElementById("promo-role-sim");
+      if (!M || !sel || !sel.value) return true;
+      return M.roles.has(sel.value, "promo", "W");
+    }
+    function applyPromoRole() {
+      const w = promoCanWrite();
+      document.querySelectorAll("[data-perm-w='promo']").forEach(el => { el.style.display = w ? "" : "none"; });
+      const note = document.getElementById("dt-readonly-note");
+      if (note) note.style.display = w ? "none" : "";
+      // 등록 · 수정 화면에 있다가 읽기 전용 그룹으로 바꾸면 상세(또는 목록)로 돌아간다
+      if (!w && document.getElementById("view-form").classList.contains("active")) {
+        const code = editingPromoCode;
+        if (PROMO_ITEMS.some(x => x.code === code)) openPromoDetail(code); else switchPromoView("list");
+      }
+    }
+    function initPromoRoleSim() {
+      const M = window.SJM_MASTER;
+      const sel = document.getElementById("promo-role-sim");
+      if (!M || !sel) return;
+      sel.innerHTML = M.roles.active().filter(g => M.roles.has(g.id, "promo", "R")).map(g =>
+        `<option value="${g.id}">${g.name} (${M.roles.has(g.id, "promo", "W") ? "등록 · 수정" : "조회만"})</option>`).join("");
+      if (Array.from(sel.options).some(o => o.value === "RG-01")) sel.value = "RG-01";
+      applyPromoRole();
+    }
+    let promoBaseTitle = null;
+    function showPromoTopCode(viewName) {
+      const def = PROMO_PAGES[viewName] || PROMO_PAGES.list;
+      const titleEl = document.getElementById("top-title-txt");
+      if (promoBaseTitle === null) promoBaseTitle = titleEl.textContent;
+      document.getElementById("top-code-badge").textContent = def.code;
+      titleEl.textContent = def.title || promoBaseTitle;
+    }
+    function switchPromoView(viewName, params) {
+      if (viewName === "form" && !promoCanWrite()) { showToast("선택한 역할 그룹은 '이벤트 · 쿠폰 · 포인트' 쓰기 권한이 없어 등록 · 수정할 수 없습니다."); return; }
+      if (window.SJM_PAGE) { SJM_PAGE.go(viewName, params || {}); return; }
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.toggle("active", p.id === `view-${viewName}`));
+      showPromoTopCode(viewName);
+      PROMO_PAGES[viewName].onShow(params || {});
+    }
+
+    function promoStatusLabel(st) { return ({ ACTIVE: "진행중", READY: "예약", ENDED: "종료" })[st] || st; }
+    function promoStatusCls(st) { return st === "ACTIVE" ? "badge-ok" : (st === "READY" ? "badge-warn" : "badge-gray"); }
+    function escPromoHtml(s) { return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    function periodToInputs(period) {
+      const m = String(period || "").match(/(\d{4})\.(\d{2})\.(\d{2})\s*~\s*(\d{4})\.(\d{2})\.(\d{2})/);
+      return m ? [`${m[1]}-${m[2]}-${m[3]}T00:00`, `${m[4]}-${m[5]}-${m[6]}T23:59`] : null;
+    }
+    function inputsToPeriod() {
+      const f = v => (v || "").slice(0, 10).replace(/-/g, ".");
+      return `${f(document.getElementById("f-promo-start").value)} ~ ${f(document.getElementById("f-promo-end").value)}`;
+    }
+    function syncBulkPeriodText() {
+      document.getElementById("bulk-period-text").textContent = inputsToPeriod();
+    }
+    /* 소스 점검 — [문법 · 보안 검증](S3)과 같은 기준: 금지 JS(document.write / eval), CSS z-index 900 초과 */
+    function promoCodeCheck(css, js) {
+      if ((js || "").includes("document.write") || (js || "").includes("eval(")) return { level: "danger", msg: "🚨 JS 금지 함수(document.write / eval) 검출 — 수정 필요" };
+      if (/z-index\s*:\s*([9][0-9]{2}|[1-9][0-9]{3,})/.test(css || "")) return { level: "warn", msg: "⚠️ CSS z-index 900 초과 — 상단 GNB를 가릴 수 있음" };
+      return { level: "ok", msg: "✅ 점검 통과 — 금지 함수 0건 · z-index 900 이하" };
+    }
+
+    function openPromoDetail(code) { switchPromoView("detail", { id: code }); }
+    function openPromoFormNew() { switchPromoView("form", { mode: "new" }); }
+    function openPromoEdit(code) { switchPromoView("form", { id: code }); }
+    function editCurrentPromoDetail() { openPromoEdit(detailPromoCode); }
+
+    /* S2 상세 조회 — S3에 저장된 값을 읽기 전용으로 보여 준다(값 변경 없음) */
+    let detailPromoCode = PROMO_ITEMS[0].code;
+    function fillPromoDetail(code) {
+      const item = PROMO_ITEMS.find(x => x.code === code) || PROMO_ITEMS[0];
+      detailPromoCode = item.code;
+      const isPromo = item.cat === "PROMO";
+      const catCls = isPromo ? "badge-promo" : "badge-event";
+      const catTxt = isPromo ? "🟣 기획전(기획상품)" : "🔵 이벤트(일반)";
+      const cb = document.getElementById("dt-promo-cat-badge");
+      cb.className = `badge ${catCls}`;
+      cb.textContent = catTxt;
+      document.getElementById("dt-promo-cat").innerHTML = `<span class="badge ${catCls}">${catTxt}</span> — <code>USER-PROM-001</code> [${isPromo ? "기획전" : "이벤트"}] 탭 노출`;
+      document.getElementById("dt-promo-title").textContent = item.title;
+      document.getElementById("dt-promo-code").textContent = item.code;
+      document.getElementById("dt-promo-url").textContent = `https://sanjunmo.com/event/${item.slug}`;
+      document.getElementById("dt-promo-period").textContent = item.period;
+      const stEl = document.getElementById("dt-promo-status");
+      stEl.className = `badge ${promoStatusCls(item.status)}`;
+      stEl.textContent = promoStatusLabel(item.status);
+      document.getElementById("dt-promo-banner").innerHTML =
+        `PC <strong>${escPromoHtml(item.bannerPc || "-")}</strong> · 모바일 <strong>${escPromoHtml(item.bannerMo || "(미등록 — PC 축소)")}</strong><br/><span style="font-size:11.5px; color:var(--text-muted);">alt: ${escPromoHtml(item.bannerAlt || item.title)}</span>`;
+      document.getElementById("dt-promo-winner").innerHTML = isPromo
+        ? escPromoHtml(item.winnerLinked)
+        : `<a href="ADMN-BRD-001_baseline.html?view=winner" style="color:var(--primary); font-weight:700; text-decoration:none;">${escPromoHtml(item.winnerLinked)} ↗</a>`;
+
+      document.getElementById("dt-asset-tbody").innerHTML = S3_ASSETS.map(a => {
+        const url = `https://cdn.sanjunmo.com/event/${item.slug}/${a.name}`;
+        return `<tr>
+            <td><span class="badge ${a.type === 'IMAGE' ? 'badge-event' : 'badge-promo'}">${a.type}</span></td>
+            <td><strong>${a.name}</strong></td>
+            <td>${a.size}</td>
+            <td><code style="font-size:11.5px; color:var(--primary);">${url}</code></td>
+            <td class="text-center"><button type="button" class="btn btn-xs" onclick="copyAssetUrl('${url}')">📋 URL 복사</button></td>
+          </tr>`;
+      }).join("");
+
+      document.getElementById("dt-src-html").textContent = item.htmlCode || "";
+      document.getElementById("dt-src-css").textContent = item.cssCode || "";
+      document.getElementById("dt-src-js").textContent = item.jsCode || "(JS 없음)";
+      const chk = promoCodeCheck(item.cssCode, item.jsCode);
+      const chkEl = document.getElementById("dt-src-check");
+      chkEl.textContent = chk.msg;
+      chkEl.style.color = chk.level === "ok" ? "var(--success)" : (chk.level === "warn" ? "var(--warning)" : "var(--danger)");
+      document.getElementById("dt-preview-box").style.display = "none";
+      document.getElementById("dt-preview-render").innerHTML = "";
+
+      const on = item.blockStatus === "ON";
+      const bb = document.getElementById("dt-block-badge");
+      bb.className = `badge ${on ? "badge-danger" : "badge-gray"}`;
+      bb.textContent = on ? "🛡️ 중복할인 차단 ON" : "차단 OFF (쿠폰/포인트 허용)";
+      const blocked = [item.blockCpn && "쿠폰 사용", item.blockPt && "포인트(적립·무상) 사용", item.blockEarn && "구매 적립(1%)"].filter(Boolean);
+      document.getElementById("dt-block-desc").innerHTML = on
+        ? `차단 혜택: <strong>${blocked.join(" · ") || "선택 없음"}</strong> · 적용 기간: 노출 기간(<code>${item.period}</code>) 동안 자동 적용 · 종료 시 원복`
+        : `차단 해제 — 대상 상품에 쿠폰 · 포인트 · 구매 적립이 개별 조건대로 적용됩니다. (실물 교재는 도서정가제로 상시 차단)`;
+      document.getElementById("dt-prod-tbody").innerHTML = (item.prods || []).map((p, idx) => {
+        if (p.isBook) {
+          return `<tr style="background:#f8fafc;">
+              <td class="text-center"><strong>${idx + 1}</strong></td>
+              <td><span class="badge badge-gray">${p.type}</span></td>
+              <td><code>${p.code}</code></td>
+              <td><strong>${p.name}</strong></td>
+              <td class="text-right">${p.price}</td>
+              <td class="text-center"><span class="badge badge-danger">🔒 도서정가제 상시차단</span></td>
+              <td class="text-center"><span class="badge badge-danger">🔒 도서정가제 상시차단</span></td>
+              <td class="text-center"><span class="badge badge-gray">미적립 (교재 제외)</span></td>
+            </tr>`;
+        }
+        const cpn = on && item.blockCpn, pt = on && item.blockPt, earn = on && item.blockEarn;
+        return `<tr>
+            <td class="text-center"><strong>${idx + 1}</strong></td>
+            <td><span class="badge badge-event">${p.type}</span></td>
+            <td><code>${p.code}</code></td>
+            <td><strong>${p.name}</strong></td>
+            <td class="text-right">${p.price}</td>
+            <td class="text-center"><span class="badge ${cpn ? "badge-danger" : "badge-ok"}">${cpn ? "차단중 (S1)" : "사용 허용"}</span></td>
+            <td class="text-center"><span class="badge ${pt ? "badge-danger" : "badge-ok"}">${pt ? "차단중 (S1)" : "사용 허용"}</span></td>
+            <td class="text-center"><span class="badge ${earn ? "badge-warn" : "badge-ok"}">${earn ? "적립 차단" : "정상 적립(1%)"}</span></td>
+          </tr>`;
+      }).join("") || `<tr><td colspan="8" class="text-center" style="color:var(--text-muted);">매핑된 대상 상품이 없습니다.</td></tr>`;
+    }
+
+    function copyPromoDetailUrl() {
+      const url = document.getElementById("dt-promo-url").textContent;
+      if (navigator.clipboard) navigator.clipboard.writeText(url).catch(() => {});
+      showToast(`사용자 주소 복사 완료: ${url}`);
+    }
+    function copyPromoDetailSource(tab) {
+      const item = PROMO_ITEMS.find(x => x.code === detailPromoCode) || PROMO_ITEMS[0];
+      const src = ({ HTML: item.htmlCode, CSS: item.cssCode, JS: item.jsCode })[tab] || "";
+      if (navigator.clipboard) navigator.clipboard.writeText(src).catch(() => {});
+      showToast(`[${tab}] 소스를 클립보드에 복사했습니다. (${new Blob([src]).size} Bytes)`);
+    }
+    function togglePromoDetailPreview() {
+      const box = document.getElementById("dt-preview-box");
+      const open = box.style.display === "none";
+      const item = PROMO_ITEMS.find(x => x.code === detailPromoCode) || PROMO_ITEMS[0];
+      document.getElementById("dt-preview-render").innerHTML = open ? `<style>${item.cssCode || ""}</style>${item.htmlCode || ""}` : "";
+      box.style.display = open ? "block" : "none";
+    }
+
+    /* S3 등록 · 수정 폼 채우기 — code 없으면 신규 */
+    function nextNewPromoCode() {
+      let n = 1;
+      while (PROMO_ITEMS.some(x => x.code === `PRM-2610-NEW${String(n).padStart(2, "0")}`)) n++;
+      return `PRM-2610-NEW${String(n).padStart(2, "0")}`;
+    }
+    function fillPromoForm(code) {
+      const item = code ? (PROMO_ITEMS.find(x => x.code === code) || PROMO_ITEMS[0]) : null;
+      if (!item) {
+        editingPromoCode = nextNewPromoCode();
+        document.getElementById("form-header-title").textContent = "✏️ 신규 기획전 · 이벤트 등록 (ADMN-PROM-001-S3)";
+        document.getElementById("f-promo-code").value = editingPromoCode;
+        document.getElementById("f-promo-title").value = "2026 산업안전기사 겨울방학 얼리버드 특가 기획전";
+        document.getElementById("f-promo-slug").value = "2026-winter-earlybird";
+        document.getElementById("f-banner-pc").value = "banner_pc_2026_earlybird.webp (305KB)";
+        document.getElementById("f-banner-mo").value = "banner_mo_2026_earlybird.webp (190KB)";
+        document.getElementById("f-banner-alt").value = "2026 산업안전기사 겨울방학 얼리버드 특가 기획전";
+        document.getElementById("cat-radio-promo").checked = true;
+        document.getElementById("cat-radio-event").checked = false;
+        document.getElementById("f-promo-start").value = "2026-10-18T00:00";
+        document.getElementById("f-promo-end").value = "2026-11-30T23:59";
+        document.getElementById("chk-bulk-disable").checked = true;
+        document.getElementById("chk-block-cpn").checked = true;
+        document.getElementById("chk-block-pt").checked = true;
+        document.getElementById("chk-block-earn").checked = false;
+        MAPPED_PRODUCTS = [];
+        codeBuffer = {
+          HTML: PROMO_ITEMS[0].htmlCode,
+          CSS: PROMO_ITEMS[0].cssCode,
+          JS: PROMO_ITEMS[0].jsCode
+        };
+      } else {
+        editingPromoCode = item.code;
+        document.getElementById("form-header-title").textContent = `✏️ 기획전 · 이벤트 수정 — ${item.code} (ADMN-PROM-001-S3)`;
+        document.getElementById("f-promo-code").value = item.code;
+        document.getElementById("f-promo-title").value = item.title;
+        document.getElementById("f-promo-slug").value = item.slug;
+        document.getElementById("f-banner-pc").value = item.bannerPc || "";
+        document.getElementById("f-banner-mo").value = item.bannerMo || "";
+        document.getElementById("f-banner-alt").value = item.bannerAlt || item.title;
+        document.getElementById("cat-radio-promo").checked = (item.cat === "PROMO");
+        document.getElementById("cat-radio-event").checked = (item.cat === "EVENT");
+        const pi = periodToInputs(item.period);
+        if (pi) { document.getElementById("f-promo-start").value = pi[0]; document.getElementById("f-promo-end").value = pi[1]; }
+        document.getElementById("chk-bulk-disable").checked = (item.blockStatus === "ON");
+        document.getElementById("chk-block-cpn").checked = item.blockCpn !== false;
+        document.getElementById("chk-block-pt").checked = item.blockPt !== false;
+        document.getElementById("chk-block-earn").checked = Boolean(item.blockEarn);
+        MAPPED_PRODUCTS = (item.prods || []).map(p => Object.assign({}, p));
+        codeBuffer = {
+          HTML: item.htmlCode,
+          CSS: item.cssCode,
+          JS: item.jsCode
+        };
+      }
+      syncBulkPeriodText();
+      checkSlugBadge();
+      toggleBulkDisable(document.getElementById("chk-bulk-disable").checked);
+      renderS3Assets();
+      /* 이전 탭 내용이 새 버퍼를 덮어쓰지 않도록 편집창을 먼저 HTML 버퍼로 맞춘 뒤 탭 전환 */
+      currentCodeTab = "HTML";
+      document.getElementById("cm-code-input").value = codeBuffer.HTML || "";
+      switchCodeTab("HTML");
+      updateLivePreview();
+      renderMappedProducts();
+    }
+
+    function onChangePromoCat() {
+      const isPromo = document.getElementById("cat-radio-promo").checked;
+      showToast(isPromo
+        ? "카테고리: [기획전(기획상품)] — 프론트 USER-PROM-001 [기획전] 탭에 노출됩니다."
+        : "카테고리: [이벤트(일반이벤트)] — 프론트 USER-PROM-001 [이벤트] 탭에 노출되며 당첨자 발표(ADMN-BRD-009)와 연동됩니다.");
+    }
+
+    function syncAltText() {
+      document.getElementById("f-banner-alt").value = document.getElementById("f-promo-title").value;
+    }
+
+    function onSlugChange(val) {
+      const clean = val.replace(/[^a-z0-9-]/g, "");
+      document.getElementById("f-promo-slug").value = clean;
+      checkSlugBadge();
+      renderS3Assets();
+    }
+
+    /* 고유 URL 슬러그 중복 검증 — 다른 기획전 · 이벤트(종료 포함)가 쓰는 슬러그는 저장할 수 없다 */
+    function slugDuplicateOf(slug) {
+      return PROMO_ITEMS.find(x => x.slug === slug && x.code !== editingPromoCode) || null;
+    }
+    function checkSlugBadge() {
+      const slug = document.getElementById("f-promo-slug").value.trim();
+      const badge = document.getElementById("slug-valid-badge");
+      const dup = slug ? slugDuplicateOf(slug) : null;
+      if (!slug) { badge.className = "badge badge-gray"; badge.textContent = "슬러그를 입력하세요"; }
+      else if (dup) { badge.className = "badge badge-danger"; badge.textContent = `✕ 이미 사용 중인 슬러그 (${dup.code})`; }
+      else { badge.className = "badge badge-ok"; badge.textContent = "✓ 사용 가능 슬러그"; }
+      return !dup;
+    }
+
+    function renderS3Assets() {
+      const slug = document.getElementById("f-promo-slug").value || "2026-autumn-allpass";
+      const tbody = document.getElementById("s3-asset-tbody");
+      tbody.innerHTML = S3_ASSETS.map(a => {
+        const url = `https://cdn.sanjunmo.com/event/${slug}/${a.name}`;
+        return `
+          <tr>
+            <td><span class="badge ${a.type === 'IMAGE' ? 'badge-event' : 'badge-promo'}">${a.type}</span></td>
+            <td><strong>${a.name}</strong></td>
+            <td>${a.size}</td>
+            <td><code style="font-size:11.5px; color:var(--primary);">${url}</code></td>
+            <td class="text-center">
+              <button type="button" class="btn btn-xs" onclick="copyAssetUrl('${url}')">📋 URL 복사</button>
+              <button type="button" class="btn btn-xs" onclick="insertAssetToEditor('${url}', 'IMG')">＋ HTML &lt;img&gt; 삽입</button>
+              <button type="button" class="btn btn-xs" onclick="insertAssetToEditor('${url}', 'CSS')">＋ CSS 배경 삽입</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function uploadNewS3Asset() {
+      const nameInput = document.getElementById("inp-new-asset-name");
+      const name = nameInput.value.trim() || `banner_asset_0${S3_ASSETS.length + 1}.webp`;
+      S3_ASSETS.unshift({ type: "IMAGE", name: name, size: "245KB (1200×800)" });
+      nameInput.value = "";
+      renderS3Assets();
+      showToast(`[AWS S3 업로드 완료] 정적 CDN URL이 생성되었습니다.`);
+    }
+
+    function copyAssetUrl(url) {
+      if (navigator.clipboard) navigator.clipboard.writeText(url);
+      showToast(`클립보드 복사 완료: ${url}`);
+    }
+
+    function insertAssetToEditor(url, mode) {
+      if (mode === "IMG") {
+        switchCodeTab("HTML");
+        codeBuffer.HTML += `\n  <img src="${url}" alt="프로모션 상세 이미지" style="max-width:100%; border-radius:8px; margin-top:12px;" />`;
+        document.getElementById("cm-code-input").value = codeBuffer.HTML;
+      } else {
+        switchCodeTab("CSS");
+        codeBuffer.CSS += `\n#sanjunmo-promotion-wrapper .custom-bg {\n  background-image: url('${url}');\n  background-size: cover;\n}`;
+        document.getElementById("cm-code-input").value = codeBuffer.CSS;
+      }
+      onCodeInput();
+      showToast(`${mode} 코드 에디터에 S3 에셋 경로가 자동 삽입되었습니다.`);
+    }
+
+    function switchCodeTab(tab) {
+      codeBuffer[currentCodeTab] = document.getElementById("cm-code-input").value;
+      currentCodeTab = tab;
+      document.querySelectorAll(".cm-tab").forEach(b => b.classList.remove("active"));
+      document.getElementById(`cm-tab-${tab.toLowerCase()}`).classList.add("active");
+      document.getElementById("cm-code-input").value = codeBuffer[tab] || "";
+      const colMap = { HTML: "promotion.html_content", CSS: "promotion.css_content", JS: "promotion.js_content" };
+      document.getElementById("cm-active-col-label").textContent = `현재 편집 컬럼: ${colMap[tab]}`;
+      updateLineNumbers();
+    }
+
+    function onCodeInput() {
+      const val = document.getElementById("cm-code-input").value;
+      codeBuffer[currentCodeTab] = val;
+      updateLineNumbers();
+      updateLivePreview();
+      document.getElementById("cm-char-count").textContent = `UTF-8 · ${new Blob([val]).size} Bytes`;
+    }
+
+    function updateLineNumbers() {
+      const lines = (document.getElementById("cm-code-input").value || "").split("\n").length;
+      const count = Math.max(16, lines);
+      let html = "";
+      for (let i = 1; i <= count; i++) html += i + "<br/>";
+      document.getElementById("cm-line-numbers").innerHTML = html;
+    }
+
+    function updateLivePreview() {
+      const renderBox = document.getElementById("promo-live-render");
+      renderBox.innerHTML = `<style>${codeBuffer.CSS || ""}
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>${codeBuffer.HTML || ""}`;
+    }
+
+    function setPreviewViewport(widthVal) {
+      document.getElementById("promo-live-viewport").style.width = widthVal;
+      document.getElementById("btn-vp-pc").classList.toggle("btn-primary", widthVal === "100%");
+      document.getElementById("btn-vp-mo").classList.toggle("btn-primary", widthVal !== "100%");
+    }
+
+    function beautifyCurrentCode() {
+      const val = document.getElementById("cm-code-input").value.trim();
+      document.getElementById("cm-code-input").value = val;
+      onCodeInput();
+      showToast(`[${currentCodeTab}] 코드 들여쓰기 및 줄바꿈 자동 정렬(Beautify)이 완료되었습니다.`);
+    }
+
+    function validatePromoCodeSecurity() {
+      const css = codeBuffer.CSS || "";
+      const js = codeBuffer.JS || "";
+      const statusEl = document.getElementById("cm-security-msg");
+      if (js.includes("document.write") || js.includes("eval(")) {
+        statusEl.textContent = "🚨 보안 경고: JS 내 금지 함수(document.write / eval)가 감지되었습니다!";
+        statusEl.style.color = "#fda4af";
+        showToast("보안 검증 실패: 금지된 JS 호출을 제거해 주세요.");
+        return;
+      }
+      if (/z-index\s*:\s*([9][0-9]{2}|[1-9][0-9]{3,})/.test(css)) {
+        statusEl.textContent = "⚠️ 주의: CSS z-index가 900을 초과하면 상단 GNB 헤더를 가릴 수 있습니다.";
+        statusEl.style.color = "#fde68a";
+        showToast("CSS z-index 900 이하 권장 경고가 발견되었습니다.");
+        return;
+      }
+      statusEl.textContent = "✅ 보안·문법 검증 통과: #sanjunmo-promotion-wrapper 스코프 정상 · 금지 태그 0건";
+      statusEl.style.color = "#86efac";
+      showToast("HTML / CSS / JS 3단 코드 문법 및 보안 검증을 통과했습니다.");
+    }
+
+    function toggleBulkDisable(isOn) {
+      const badge = document.getElementById("s1-status-badge");
+      const box = document.getElementById("bulk-disable-config-box");
+      if (isOn) {
+        badge.className = "badge badge-danger";
+        badge.textContent = "중복 할인 차단 작동중 (ON)";
+        box.style.opacity = "1";
+      } else {
+        badge.className = "badge badge-gray";
+        badge.textContent = "중복 할인 차단 해제 (OFF · 쿠폰/포인트 허용)";
+        box.style.opacity = "0.55";
+      }
+      renderMappedProducts();
+    }
+
+    function renderMappedProducts() {
+      const isBlockOn = document.getElementById("chk-bulk-disable").checked;
+      const blkCpn = document.getElementById("chk-block-cpn").checked;
+      const blkPt = document.getElementById("chk-block-pt").checked;
+      const blkEarn = document.getElementById("chk-block-earn").checked;
+
+      const tbody = document.getElementById("mapped-prod-tbody");
+      tbody.innerHTML = MAPPED_PRODUCTS.map((p, idx) => {
+        if (p.isBook) {
+          return `
+            <tr style="background:#f8fafc;">
+              <td class="text-center"><strong>${idx + 1}</strong></td>
+              <td><span class="badge badge-gray">${p.type}</span></td>
+              <td><code>${p.code}</code></td>
+              <td><strong>${p.name}</strong></td>
+              <td class="text-right">${p.price}</td>
+              <td class="text-center"><span class="badge badge-danger">🔒 도서정가제 상시차단</span></td>
+              <td class="text-center"><span class="badge badge-danger">🔒 도서정가제 상시차단</span></td>
+              <td class="text-center"><span class="badge badge-gray">미적립 (교재 제외)</span></td>
+              <td class="text-center"><button type="button" class="btn btn-xs"  onclick="removeMappedProd(${idx})">제외</button></td>
+            </tr>
+          `;
+        }
+        return `
+          <tr>
+            <td class="text-center"><strong>${idx + 1}</strong></td>
+            <td><span class="badge badge-event">${p.type}</span></td>
+            <td><code>${p.code}</code></td>
+            <td><strong>${p.name}</strong></td>
+            <td class="text-right">${p.price}</td>
+            <td class="text-center">
+              <span class="badge ${(isBlockOn && blkCpn) ? 'badge-danger' : 'badge-ok'}">
+                ${(isBlockOn && blkCpn) ? '차단중 (S1)' : '사용 허용'}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="badge ${(isBlockOn && blkPt) ? 'badge-danger' : 'badge-ok'}">
+                ${(isBlockOn && blkPt) ? '차단중 (S1)' : '사용 허용'}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="badge ${(isBlockOn && blkEarn) ? 'badge-warn' : 'badge-ok'}">
+                ${(isBlockOn && blkEarn) ? '적립 차단' : '정상 적립(1%)'}
+              </span>
+            </td>
+            <td class="text-center"><button type="button" class="btn btn-xs"  onclick="removeMappedProd(${idx})">제외</button></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function addMappedProduct() {
+      const val = document.getElementById("sel-add-prod").value;
+      const [typeKey, code, name, price] = val.split("|");
+      if (MAPPED_PRODUCTS.some(p => p.code === code)) {
+        showToast("이미 대상 상품 목록에 포함되어 있습니다.");
+        return;
+      }
+      MAPPED_PRODUCTS.push({
+        type: typeKey === "PKG" ? "패키지" : (typeKey === "COURSE" ? "단과" : "교재"),
+        code,
+        name,
+        price,
+        isBook: typeKey === "BOOK"
+      });
+      renderMappedProducts();
+      showToast(`[${code}] 상품이 기획전 대상 상품에 추가되었습니다.`);
+    }
+
+    function removeMappedProd(idx) {
+      MAPPED_PRODUCTS.splice(idx, 1);
+      renderMappedProducts();
+    }
+
+    function openFullPreviewModal() {
+      updateLivePreview();
+      showToast("우측 실시간 렌더링 프리뷰에 최신 HTML + CSS 소스가 반영되었습니다.");
+    }
+
+    function savePromoItem() {
+      const isPromo = document.getElementById("cat-radio-promo").checked;
+      const title = document.getElementById("f-promo-title").value.trim();
+      const slug = document.getElementById("f-promo-slug").value.trim();
+      const isBlock = document.getElementById("chk-bulk-disable").checked;
+
+      if (!title || !slug) {
+        alert("기획전/이벤트명과 URL 슬러그(Slug)는 필수 입력 항목입니다.");
+        return;
+      }
+      const dupSlug = slugDuplicateOf(slug);
+      if (dupSlug) {
+        checkSlugBadge();
+        alert(`URL 슬러그 '${slug}'는 이미 ${dupSlug.code}(${dupSlug.title})에서 사용 중입니다.\n고유한 슬러그로 바꿔 주세요. (https://sanjunmo.com/event/{slug})`);
+        return;
+      }
+      const blockCfg = {
+        blockCpn: document.getElementById("chk-block-cpn").checked,
+        blockPt: document.getElementById("chk-block-pt").checked,
+        blockEarn: document.getElementById("chk-block-earn").checked
+      };
+      const banner = {
+        bannerPc: document.getElementById("f-banner-pc").value.trim(),
+        bannerMo: document.getElementById("f-banner-mo").value.trim(),
+        bannerAlt: document.getElementById("f-banner-alt").value.trim()
+      };
+      const prods = MAPPED_PRODUCTS.map(p => Object.assign({}, p));
+
+      const existing = PROMO_ITEMS.find(x => x.code === editingPromoCode);
+      if (existing) {
+        existing.cat = isPromo ? "PROMO" : "EVENT";
+        existing.title = title;
+        existing.slug = slug;
+        existing.period = inputsToPeriod();
+        existing.prodCnt = MAPPED_PRODUCTS.length;
+        Object.assign(existing, blockCfg, banner, { prods });
+        existing.blockStatus = isBlock ? "ON" : "OFF";
+        existing.htmlCode = codeBuffer.HTML;
+        existing.cssCode = codeBuffer.CSS;
+        existing.jsCode = codeBuffer.JS;
+      } else {
+        PROMO_ITEMS.unshift({
+          code: editingPromoCode,
+          cat: isPromo ? "PROMO" : "EVENT",
+          catLabel: isPromo ? "기획전 (기획상품)" : "이벤트 (일반이벤트)",
+          title,
+          slug,
+          period: inputsToPeriod(),
+          prodCnt: MAPPED_PRODUCTS.length,
+          ...blockCfg,
+          ...banner,
+          prods,
+          blockStatus: isBlock ? "ON" : "OFF",
+          status: "ACTIVE",
+          winnerLinked: isPromo ? "연동 불필요(기획전)" : "발표 대기",
+          htmlCode: codeBuffer.HTML,
+          cssCode: codeBuffer.CSS,
+          jsCode: codeBuffer.JS
+        });
+      }
+
+      switchPromoView("list");
+      showToast(`[저장 완료] ${editingPromoCode} (${isPromo ? '기획전' : '이벤트'}) 및 HTML/CSS/JS 소스·중복할인 차단 설정이 반영되었습니다.`);
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById("toast-box");
+      box.textContent = msg;
+      box.style.display = "block";
+      clearTimeout(window.__promoToast);
+      window.__promoToast = setTimeout(() => { box.style.display = "none"; }, 3200);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      renderPromoList();
+      renderS3Assets();
+      switchCodeTab("HTML");
+      updateLivePreview();
+      renderMappedProducts();
+      initPromoRoleSim();
+      if (window.SJM_PAGE) {
+        Object.keys(PROMO_PAGES).forEach(name => SJM_PAGE.register(name, {
+          code: PROMO_PAGES[name].code,
+          onShow: p => { showPromoTopCode(name); PROMO_PAGES[name].onShow(p); }
+        }));
+        SJM_PAGE.start();   // ?view=detail&id=PRM-… · ?view=form&id=… · ?view=form&mode=new 직접 진입
+      }
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

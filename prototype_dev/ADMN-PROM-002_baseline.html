@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>쿠폰 마스터 등록 · 관리 — 산준모닷컴 백오피스 v8.4 Final</title>
+  <style>
+    :root {
+      --bg-body: #F8FAFC;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --text-primary: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: #EFF6FF;
+      --primary-border: #BFDBFE;
+      --success: #059669;
+      --success-light: #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning: #D97706;
+      --warning-light: #FFFBEB;
+      --warning-border: #FDE68A;
+      --danger: #DC2626;
+      --danger-light: #FEF2F2;
+      --danger-border: #FECACA;
+      --purple: #7C3AED;
+      --purple-light: #F5F3FF;
+      --purple-border: #DDD6FE;
+      --radius-md: 10px;
+      --radius-lg: 12px;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+
+    /* 공통 카드 */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FAFBFD;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-body { padding: 16px 18px; }
+
+    /* 검색 테이블 (영역 1) */
+    .search-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .search-table th {
+      width: 130px;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 12px;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    .search-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-color);
+      background: #FFFFFF;
+      vertical-align: middle;
+    }
+    .search-table tr:last-child th,
+    .search-table tr:last-child td { border-bottom: none; }
+
+    /* 입력 컨트롤 */
+    .form-input, .form-select {
+      height: 34px;
+      padding: 0 10px;
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--text-primary);
+      background: #FFFFFF;
+      font-family: inherit;
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.14);
+    }
+    .form-input:disabled, .form-select:disabled, .form-input[readonly] {
+      background: #F1F5F9;
+      color: #64748B;
+      cursor: not-allowed;
+    }
+    /* P1 오류 상태 (.fld--err) */
+    .fld--err {
+      border: 2px solid var(--danger) !important;
+      background: #FEF2F2 !important;
+      color: #991B1B !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14) !important;
+    }
+
+    /* 세그먼트 토글 (쿠폰 종류, 유효기간, 적용대상, 발급방식) */
+    .seg-group {
+      display: inline-flex;
+      background: #F1F5F9;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .seg-btn {
+      border: none;
+      background: transparent;
+      padding: 5px 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .seg-btn.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+    .seg-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* 버튼 & 배지 */
+    .btn {
+      height: 34px;
+      padding: 0 13px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border-strong);
+      background: #FFFFFF;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      transition: all 0.12s;
+    }
+    .btn:hover { background: var(--bg-subtle); }
+    .btn-primary { background: var(--primary); color: #FFFFFF; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-dark { background: #0F172A; color: #FFFFFF; border-color: #0F172A; }
+    .btn-dark:hover { background: #1E293B; }
+    .btn-danger { background: var(--danger); color: #FFFFFF; border-color: var(--danger); }
+    .btn-warning { background: var(--warning); color: #FFFFFF; border-color: var(--warning); }
+    .btn-sm { height: 28px; padding: 0 10px; font-size: 11.5px; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); border: 1px solid var(--primary-border); }
+    .badge-green { background: var(--success-light); color: var(--success); border: 1px solid var(--success-border); }
+    .badge-amber { background: var(--warning-light); color: var(--warning); border: 1px solid var(--warning-border); }
+    .badge-red { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
+    .badge-purple { background: var(--purple-light); color: var(--purple); border: 1px solid var(--purple-border); }
+    .badge-slate { background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1; }
+
+    /* 데이터 그리드 (영역 3) */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .data-table th {
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-strong);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+    .data-table tbody tr { cursor: pointer; transition: background 0.12s; }
+    .data-table tbody tr:hover { background: #F8FAFC; }
+    .data-table th.num, .data-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .data-table th.ct, .data-table td.ct { text-align: center; }
+
+    /* 등록·수정 폼 (뷰 2: 좌측 폼 + 우측 Cap/도서정가제 검증 패널 2단 구성) */
+    .form-workspace {
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .form-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .form-table th {
+      width: 165px;
+      background: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 12px;
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      vertical-align: top;
+    }
+    .form-table td {
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border-color);
+      background: #FFFFFF;
+      vertical-align: middle;
+    }
+    .form-table tr:last-child th,
+    .form-table tr:last-child td { border-bottom: none; }
+    .req { color: var(--danger); margin-left: 3px; font-weight: 800; }
+    .help-txt { font-size: 11.5px; color: var(--text-muted); margin-top: 5px; line-height: 1.45; }
+    .help-txt.warn { color: #B45309; font-weight: 600; }
+    .help-txt.err { color: #DC2626; font-weight: 700; }
+
+    /* 인라인 P1 경고 배너 */
+    .p1-inline-alert {
+      display: none;
+      background: #FEF2F2;
+      border: 2px solid #DC2626;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      color: #991B1B;
+    }
+    .p1-inline-alert.show { display: block; }
+
+    /* 모달 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(2px);
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-dialog {
+      background: #FFFFFF;
+      width: 580px;
+      max-width: 94vw;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .modal-body { padding: 20px; }
+    .modal-footer {
+      padding: 12px 20px;
+      background: var(--bg-subtle);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: none;
+      z-index: 3000;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+    }
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-PROM-002", "devCommit": "d562524a", "progress": "PROM-002 · P1 구현. PROM-003 일부(사이트 설정 ③ 포인트 구획) — 포인트 원장 목록 · 후기 보상 P · 무상 잔액 상한은 개발 없음(주황 표시)", "menus": [{"route": "admin.coupons.index", "label": "쿠폰 관리"}, {"route": "admin.site-settings.index", "label": "사이트 설정 (③ 포인트 정책)"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+<body>
+  <aside id="v4-master-snb"></aside>
+
+  <div id="v4-root-shell">
+    <!-- 3세대 표준 상단 Top Bar + 우측 서브뷰 스위처 -->
+    <header class="top-bar v4-gen3-topbar">
+      <div class="top-bar-left">
+        <span class="crumb-code" id="top-crumb-code">ADMN-PROM-002</span>
+        <span class="crumb-title" id="top-crumb-title">쿠폰 마스터 관리 (ADMN-PROM-002) 및 포인트 적립 정책 · 원장 내역 관리 (ADMN-PROM-003)</span>
+      </div>
+      <div class="top-bar-right">
+        <div class="subview-switcher">
+          <button type="button" class="subview-btn active" id="nav-btn-list" data-dev-route="admin.coupons.index" data-dev-method="GET" data-dev-url="/sj-admin/coupons" data-dev-perm="조회" onclick="switchSubView('list')">
+            <span>쿠폰 마스터 목록</span>
+            <span class="code-pill">ADMN-PROM-002</span>
+          </button>
+          <button type="button" class="subview-btn" id="nav-btn-form" data-dev-route="admin.coupons.create" data-dev-method="GET" data-dev-url="/sj-admin/coupons/create" data-dev-perm="등록" onclick="openFormNew()">
+            <span>쿠폰 등록 · 수정 폼</span>
+            <span class="code-pill">PROM-002 / P1</span>
+          </button>
+          <button type="button" class="subview-btn" id="nav-btn-point" data-dev-route="admin.site-settings.index" data-dev-method="GET" data-dev-url="/sj-admin/site-settings" data-dev-perm="조회(사이트 설정 메뉴)" data-dev-note="개발은 포인트 정책을 사이트 설정 ③ 포인트 구획에 둠(정책 질문)" onclick="switchSubView('point')">
+            <span>포인트 정책 · 적립/차감 내역</span>
+            <span class="code-pill">ADMN-PROM-003</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 본문 루트 (#v4-page-body 필수) -->
+    <div id="v4-page-body" class="main-container">
+
+      <!-- ===================================================================
+           SUBVIEW 1: 쿠폰 마스터 목록 (검색필터 + 스코어카드 + 마스터 그리드)
+           =================================================================== -->
+      <section id="view-list" class="view-section active">
+
+        <!-- 발급·사용 현황 스코어카드 (4층 고정 라인 규격) -->
+        <div class="kpi-grid">
+          <button type="button" class="kpi-card" data-dev-route="admin.coupons.index" data-dev-method="GET" data-dev-url="/sj-admin/coupons" data-dev-perm="조회" data-dev-note="개발 현황: operating 운영중 · issued 총 발급 · used 사용 · rate 사용률 · expired 미사용 소멸" onclick="quickFilterStatus('ACTIVE')">
+            <div class="k-title">
+              <span>운영중 쿠폰 (발급중)</span>
+              <span class="badge">현황집계</span>
+            </div>
+            <div class="k-num" style="color:var(--primary);">9종</div>
+            <div class="k-sub">전체 등록 마스터 14건 중 현재 발급 가능 9건</div>
+          </button>
+
+          <button type="button" class="kpi-card" data-dev-route="admin.coupons.index" data-dev-method="GET" data-dev-url="/sj-admin/coupons" data-dev-perm="조회" data-dev-note="개발 현황: operating 운영중 · issued 총 발급 · used 사용 · rate 사용률 · expired 미사용 소멸" onclick="quickFilterStatus('ALL')">
+            <div class="k-title">
+              <span>총 발급 매수 (누적)</span>
+              <span class="badge">user_coupon</span>
+            </div>
+            <div class="k-num">18,402매</div>
+            <div class="k-sub">웰컴 자동 발급 12,480매 + 수동/코드형 5,922매</div>
+          </button>
+
+          <button type="button" class="kpi-card" data-dev-route="admin.coupons.index" data-dev-method="GET" data-dev-url="/sj-admin/coupons" data-dev-perm="조회" data-dev-note="개발 현황: operating 운영중 · issued 총 발급 · used 사용 · rate 사용률 · expired 미사용 소멸" onclick="quickFilterStatus('ALL')">
+            <div class="k-title">
+              <span>사용 완료 · 평균 사용률</span>
+              <span class="badge">사용수/발급수</span>
+            </div>
+            <div class="k-num" style="color:var(--success);">4,117매 (22.4%)</div>
+            <div class="k-sub">주문 결제 완료 기준 (실감면액 Cap 20만원 통제)</div>
+          </button>
+
+          <button type="button" class="kpi-card" data-dev-route="admin.coupons.index" data-dev-method="GET" data-dev-url="/sj-admin/coupons" data-dev-perm="조회" data-dev-note="개발 현황: operating 운영중 · issued 총 발급 · used 사용 · rate 사용률 · expired 미사용 소멸" onclick="quickFilterStatus('ALL')">
+            <div class="k-title">
+              <span>미사용 소멸 (기간만료)</span>
+              <span class="badge">D+21 모니터링</span>
+            </div>
+            <div class="k-num" style="color:var(--warning);">6,930매</div>
+            <div class="k-sub">웰컴 쿠폰 D+21일 자정 만료 비중 집중 모니터링</div>
+          </button>
+        </div>
+
+        <!-- 검색 필터 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>쿠폰 마스터 검색 필터</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-sm" onclick="resetSearchFilter()">초기화</button>
+              <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.coupons.index" data-dev-method="GET" data-dev-url="/sj-admin/coupons" data-dev-perm="조회" data-dev-note="개발 추가 필터: date_from · date_to(등록일)" onclick="renderMasterGrid()">조회</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <table class="search-table">
+              <tbody>
+                <tr>
+                  <th>쿠폰명 / 코드</th>
+                  <td>
+                    <input type="text" id="q-keyword" name="keyword" data-dev-note="쿠폰명 · 코드, max:100" class="form-input" style="width:100%;" placeholder="쿠폰명 또는 쿠폰 코드(CPN-YYMM-XXXX) 입력" oninput="renderMasterGrid()" />
+                  </td>
+                  <th>쿠폰 종류</th>
+                  <td>
+                    <select id="q-type" name="type" data-dev-value="percent · fixed" class="form-select" style="width:180px;" onchange="renderMasterGrid()">
+                      <option value="ALL">전체 (정률 / 정액)</option>
+                      <option value="RATE">정률 (%)</option> data-dev-name="type" data-dev-value="percent"
+                      <option value="FIXED">정액 (원)</option> data-dev-name="type" data-dev-value="fixed"
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>발급 방식</th>
+                  <td>
+                    <select id="q-method" name="issue_method" data-dev-value="auto · bulk · code" class="form-select" style="width:240px;" onchange="renderMasterGrid()">
+                      <option value="ALL">전체 (자동 / 수동 대량 / 코드 입력형)</option>
+                      <option value="AUTO">자동 발급 (회원가입 웰컴 등)</option> data-dev-name="issue_method" data-dev-value="auto"
+                      <option value="BULK">수동 대량 발급 (그룹·태그 타겟)</option> data-dev-name="issue_method" data-dev-value="bulk"
+                      <option value="CODE">코드 입력형 (오프라인·카페 코드)</option> data-dev-name="issue_method" data-dev-value="code"
+                    </select>
+                  </td>
+                  <th>사용 상태</th>
+                  <td>
+                    <select id="q-status" name="status" data-dev-value="issuing · suspended · ended" class="form-select" style="width:220px;" onchange="renderMasterGrid()">
+                      <option value="ALL">전체 (발급중 / 발급중지 / 기간종료)</option>
+                      <option value="ACTIVE">발급중 (기간 내 발급 가능)</option> data-dev-name="status" data-dev-value="issuing"
+                      <option value="PAUSED">발급중지 (신규 차단·기발급분 사용가능)</option> data-dev-name="status" data-dev-value="suspended (저장값 disabled)"
+                      <option value="EXPIRED">기간종료 (유효기간 만료)</option> data-dev-name="status" data-dev-value="ended"
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>등록일</th>
+                  <td colspan="3">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <input type="date" class="form-input" value="2026-07-01" />
+                      <span>~</span>
+                      <input type="date" class="form-input" value="2026-10-16" />
+                      <span style="font-size:11.5px; color:var(--text-muted); margin-left:8px;">※ 발급 방식 필터에서 '자동 발급' 선택 시 웰컴 혜택 계열 쿠폰만 즉시 모아볼 수 있습니다.</span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 쿠폰 마스터 그리드 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>쿠폰 마스터 목록</span>
+              <span class="badge badge-slate" id="grid-total-cnt">전체 14건 (시연 4건)</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-sm" data-dev-route="admin.coupons.download" data-dev-method="GET" data-dev-url="/sj-admin/coupons/download" data-dev-perm="다운로드" data-dev-note="반출 사유 공용 모달 layerReason" onclick="downloadExcelReport()">📥 발급·사용 현황 엑셀 (2시트·마스킹 로깅)</button>
+              <button type="button" class="btn btn-sm btn-dark" data-dev-route="admin.coupons.create" data-dev-method="GET" data-dev-url="/sj-admin/coupons/create" data-dev-perm="등록" onclick="openFormNew()">+ 쿠폰 등록</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th class="ct" style="width:55px;">No</th>
+                  <th>쿠폰명 (클릭 시 등록·수정 폼 이동)</th>
+                  <th class="ct" style="width:75px;">종류</th>
+                  <th class="num" style="width:95px;">할인값</th>
+                  <th class="num" style="width:110px;">Cap (고정)</th>
+                  <th class="ct" style="width:125px;">발급방식</th>
+                  <th class="ct" style="width:120px;">유효기간</th>
+                  <th class="ct" style="width:175px;">발급 / 사용 / 소멸</th>
+                  <th class="num" style="width:80px;">사용률</th>
+                  <th class="ct" style="width:95px;">상태</th>
+                  <th class="ct" style="width:95px;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="master-grid-tbody">
+                <!-- JS 렌더링 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           SUBVIEW 2: 쿠폰 마스터 등록 · 수정 폼 (쿠폰 마스터 등록·수정 + P1 Cap 초과 경고)
+           =================================================================== -->
+      <section id="view-form" class="view-section">
+        <!-- 상단 컨텍스트 안내 바 -->
+        <div class="card" style="margin-bottom:14px;">
+          <div style="padding:11px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:#F8FAFC;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span class="badge badge-blue" id="form-mode-pill">신규 쿠폰 등록 모드</span>
+              <strong id="form-header-title" style="font-size:14px;">쿠폰 마스터 등록 (ADMN-PROM-002)</strong>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button type="button" class="btn btn-sm" style="border-color:#FECACA; color:#DC2626;" data-dev-flag="proto-only" data-dev-note="P1 시연 버튼 — 개발은 저장 시 서버 검증 후 cap_alert로 couponCapAlert를 띄움" onclick="triggerP1Demo('FIXED_250K')">🧪 [P1 시연] 정액 250,000원 초과 입력</button>
+              <button type="button" class="btn btn-sm" style="border-color:#FECACA; color:#DC2626;" data-dev-flag="proto-only" data-dev-note="P1 시연 버튼 — 개발은 저장 시 서버 검증 후 cap_alert로 couponCapAlert를 띄움" onclick="triggerP1Demo('RATE_45')">🧪 [P1 시연] 정률 45% 초과 입력</button>
+              <button type="button" class="btn btn-sm" onclick="switchSubView('list')">← 쿠폰 마스터 목록으로</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 기 발급 쿠폰 수정 잠금 배너 (발급 이력 > 0인 행 클릭 시 노출) -->
+        <div id="issued-lock-notice" class="card" style="display:none; border-color:#FDE68A; background:#FFFBEB; margin-bottom:14px;">
+          <div style="padding:12px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; color:#92400E; font-size:12.5px;">
+            <div>
+              <strong>🔒 기 발급 쿠폰 조건 변경 잠금 (기대 이익 침해 방지 원칙):</strong>
+              이미 회원에게 발급된 이력(<span id="lock-issued-cnt">12,480</span>매)이 존재하므로 <strong>[쿠폰 종류 · 할인값 · Cap · 유효기간]</strong>은 수정할 수 없습니다(회색 잠금). 조건을 변경하려면 <strong>[발급 중지]</strong> 후 새 쿠폰을 등록하세요.
+            </div>
+            <button type="button" class="btn btn-sm" data-dev-route="admin.coupons.create" data-dev-method="GET" data-dev-url="/sj-admin/coupons/create" data-dev-perm="등록" onclick="openFormNew()">+ 새 쿠폰 등록으로 전환</button>
+          </div>
+        </div>
+
+        <div class="form-workspace">
+          <!-- 좌측: 쿠폰 마스터 등록/수정 폼 -->
+          <div>
+            <!-- 섹션 1: 기본 정보 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">기본 정보 (할인 상한 · 감면 한도 Cap · 도서정가제 자동 바인딩)</div>
+                <span class="badge badge-slate">저장 테이블: coupon · user_coupon</span>
+              </div>
+              <div class="card-body">
+                <table class="form-table">
+                  <tbody>
+                    <!-- 쿠폰명 -->
+                    <tr>
+                      <th>쿠폰명<span class="req">*</span></th>
+                      <td>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                          <input type="text" id="f-name" name="name" data-dev-note="max:30" class="form-input" style="flex:1;" maxlength="30" value="가을 얼리버드 15% 쿠폰" />
+                          <input type="text" id="f-code" data-dev-note="개발 code는 코드 입력형 쿠폰 코드(등록만 · ^[A-Z0-9_]+$ · max:50, 수정 불가) — 아래 '사용자 입력 코드' 칸" class="form-input" style="width:155px; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;" readonly value="CPN-2610-0015" />
+                        </div>
+                        <div class="help-txt">• 30자 이내. 사용자 쿠폰함(<code>USER-MY-007</code>) · 주문서 쿠폰 선택 레이어에 그대로 노출됩니다(내부 테스트명 기입 금지).</div>
+                      </td>
+                    </tr>
+
+                    <!-- 쿠폰 종류 & 할인값 -->
+                    <tr>
+                      <th>쿠폰 종류 · 할인값<span class="req">*</span></th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                          <div class="seg-group">
+                            <button type="button" class="seg-btn active" id="seg-type-rate" data-dev-name="type" data-dev-value="percent" onclick="setCouponType('RATE')">정률(%)</button>
+                            <button type="button" class="seg-btn" id="seg-type-fixed" data-dev-name="type" data-dev-value="fixed" onclick="setCouponType('FIXED')">정액(원)</button>
+                          </div>
+                          <div style="display:flex; align-items:center; gap:6px;">
+                            <input type="number" id="f-val" name="discount_value" data-dev-note="coupon-discount — 정률 1~40 정수 / 정액 1,000~200,000 · 1,000원 단위. 초과 시 cap_alert(P1)" class="form-input" style="width:140px; font-weight:800; font-size:14px;" value="15" oninput="clearFieldError()" />
+                            <strong id="f-val-unit" style="font-size:13.5px;">%</strong>
+                            <span id="f-val-max-guide" style="font-size:11.5px; color:var(--text-muted); margin-left:4px;">(최대 입력 가능: <b>40%</b> 정수)</span>
+                          </div>
+                        </div>
+                        <div class="help-txt warn" id="f-val-help">
+                          • 정률 최대 <b>40%</b>(1~40 정수) / 정액 최대 <b>200,000원</b>(1,000원 단위) — 시스템 하드코딩 상한. 초과 입력 시 <b>ADMN-PROM-002-P1</b> 경고 후 저장 차단.
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- 감면 한도(Cap) -->
+                    <tr>
+                      <th>감면 한도(Cap)</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <input type="text" class="form-input" style="width:190px; font-weight:800; color:var(--text-primary);" readonly value="200,000 원 🔒" />
+                          <span class="badge badge-slate">읽기 전용 · 코드 배포 상수</span>
+                        </div>
+                        <div class="help-txt err">
+                          • 정률 쿠폰이라도 <b>실제 감면액은 200,000원을 넘지 못합니다</b> — 결제 시 <code>FLOOR(MIN(base × rate, 200000, base))</code> 강제 연산 및 <code>order_discount.cap_applied = 1</code> 기록.
+                        </div>
+                        <div style="margin-top:6px; padding:8px 12px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; font-size:12px; color:#1E3A8A;">
+                          <b>Cap 연산 예시</b> · 40% 쿠폰 × 800,000원 강좌 = 산출 320,000원 → <b>실감면 200,000원</b> (결제 600,000원 · 주문서 <code>USER-PAY-001</code>에 한도 적용 문구 필수 노출)
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- 도서정가제 자동 바인딩 -->
+                    <tr>
+                      <th>도서정가제</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:8px; opacity:0.88;">
+                          <input type="checkbox" checked disabled style="width:15px; height:15px;" />
+                          <strong style="color:#991B1B;">실물 교재 카테고리 적용 불가 🔒</strong>
+                          <span class="badge badge-red">시스템 강제 (coupon.exclude_book = 1)</span>
+                        </div>
+                        <div class="help-txt err">
+                          • 모든 쿠폰에 <b>자동 바인딩</b>되며 관리자가 해제할 수 없습니다(체크 고정 · 비활성). 패키지에 교재가 묶여 있어도 장바구니 분할(<code>ADMN-PROD-005</code>)을 통해 <b>강좌 라인 합계에만</b> 적용됩니다.
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 섹션 2: 사용 조건 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">사용 조건 (최소 결제금액 · 유효기간 · 수량 한도 · 중복 사용 · 적용 대상)</div>
+              </div>
+              <div class="card-body">
+                <table class="form-table">
+                  <tbody>
+                    <!-- 최소 결제금액 -->
+                    <tr>
+                      <th>최소 결제금액</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                          <input type="number" id="f-min-order" name="min_order_amount" data-dev-note="0 · 비움 = 제한 없음" class="form-input" style="width:140px; font-weight:700;" value="50000" />
+                          <span>원 이상</span>
+                        </div>
+                        <div class="help-txt">• 0 입력 시 제한 없음 · 판정 기준은 <b>쿠폰 적용 전 · 교재 라인 제외 · 배송비 제외 강좌 라인 합계</b>입니다.</div>
+                      </td>
+                    </tr>
+
+                    <!-- 유효기간 -->
+                    <tr>
+                      <th>유효기간<span class="req">*</span></th>
+                      <td>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                          <div class="seg-group" style=" align-self:flex-start;">
+                            <button type="button" class="seg-btn active" id="seg-exp-dn" data-dev-name="expire_mode" data-dev-value="days" onclick="setExpMode('DN')">발급일 기준 D+N</button>
+                            <button type="button" class="seg-btn" id="seg-exp-abs" data-dev-name="expire_mode" data-dev-value="fixed" onclick="setExpMode('ABS')">절대 기간</button>
+                          </div>
+                          <div id="exp-dn-box" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <span>발급일(D+0) 기준 <b>D +</b></span>
+                            <input type="number" id="f-exp-days" name="expire_days" data-dev-note="1~3650 (기본 21)" class="form-input" style="width:80px; font-weight:800;" value="21" />
+                            <span>일</span>
+                            <label style="display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:700; color:var(--primary); margin-left:6px;">
+                              <input type="checkbox" checked disabled /> 만료일 <b>자정(23:59:59 KST)</b> 기준 고정
+                            </label>
+                          </div>
+                          <div id="exp-abs-box" style="display:none; align-items:center; gap:8px;">
+                            <input type="date" id="f-exp-start" data-dev-flag="proto-only" data-dev-note="절대 기간 시작일 — 개발은 종료일 expire_at 하나" class="form-input" value="2026-08-01" />
+                            <span>~</span>
+                            <input type="date" id="f-exp-end" name="expire_at" data-dev-note="오늘 이후(그날 자정까지)" class="form-input" value="2026-09-30" />
+                            <span style="font-size:12px; color:var(--text-muted);">(종료일 23:59:59 만료)</span>
+                          </div>
+                        </div>
+                        <div class="help-txt">• 회원가입 웰컴 쿠폰은 <b>발급일 기준 D+21일 자정(23:59:59 KST) 만료</b>가 확정 정책입니다(발급일 당일 = D+0).</div>
+                      </td>
+                    </tr>
+
+                    <!-- 발급 수량 한도 -->
+                    <tr>
+                      <th>발급 수량 한도</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                          <div style="display:flex; align-items:center; gap:6px;">
+                            <span>총 발급 매수:</span>
+                            <input type="number" id="f-limit-total" name="max_issue_count" data-dev-note="coupon-max-issue — 비우면 무제한" class="form-input" style="width:110px; font-weight:700;" value="5000" />
+                            <span>매</span>
+                          </div>
+                          <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:600;">
+                            <input type="checkbox" id="f-limit-unlim" name="unlimited" data-dev-note="coupon-unlimited" data-dev-value="1" onchange="document.getElementById('f-limit-total').disabled = this.checked;" /> 무제한 (웰컴 자동발급 등)
+                          </label>
+                          <div style="display:flex; align-items:center; gap:6px; margin-left:8px;">
+                            <span>1인당 발급 한도:</span>
+                            <input type="number" id="f-limit-per" name="max_per_user" data-dev-note="비우면 1" class="form-input" style="width:70px; font-weight:700;" value="1" />
+                            <span>매</span>
+                          </div>
+                        </div>
+                        <div class="help-txt">• 총량 소진 시 자동으로 <span class="badge badge-amber">발급중지</span> 상태로 전환됩니다(원자적 카운터 증가 적용).</div>
+                      </td>
+                    </tr>
+
+                    <!-- 중복 사용 -->
+                    <tr>
+                      <th>중복 사용</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
+                          <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
+                            <input type="checkbox" id="f-dup-coupon" data-dev-flag="proto-only" data-dev-note="다른 쿠폰 중복 — 개발 폼 없음(allow_stack_coupon 기본 0, 정책 질문)" /> 다른 쿠폰과 중복 사용 허용 (기본 1주문 1쿠폰)
+                          </label>
+                          <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:700;">
+                            <input type="checkbox" id="f-dup-point" name="allow_with_point" data-dev-value="1" checked /> 포인트와 함께 사용 허용 (쿠폰 선적용 후 잔액에 포인트 차감)
+                          </label>
+                        </div>
+                        <div class="help-txt warn">
+                          • 기획전 차단(<code>ADMN-PROM-001-S1</code> Bulk Disable)이 걸린 상품에서는 이 설정과 <b>무관하게 사용 불가</b> — 차단이 항상 우선합니다.
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- 적용 대상 -->
+                    <tr>
+                      <th>적용 대상<span class="req">*</span></th>
+                      <td>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                          <div class="seg-group" style="align-self:flex-start;">
+                            <button type="button" class="seg-btn" id="seg-tgt-all" data-dev-name="target_scope" data-dev-value="all" onclick="setTargetScope('ALL')">전체 상품</button>
+                            <button type="button" class="seg-btn active" id="seg-tgt-cat" data-dev-name="target_scope" data-dev-value="selected + target_category_ids[]" onclick="setTargetScope('CAT')">카테고리</button>
+                            <button type="button" class="seg-btn" id="seg-tgt-item" data-dev-name="target_scope" data-dev-value="selected + target_course_ids[] · target_package_ids[]" onclick="setTargetScope('ITEM')">개별 상품</button>
+                          </div>
+                          <div style="display:flex; align-items:center; gap:8px;">
+                            <select class="form-select" style="width:280px;">
+                              <option>산업안전기사 &gt; 강좌 · 패키지 (BOK-* 자동제외)</option>
+                              <option>산업안전산업기사 &gt; 강좌 · 패키지</option>
+                              <option>건설안전기사 &gt; 강좌 · 패키지</option>
+                            </select>
+                            <button type="button" class="btn btn-sm" data-dev-name="target_category_ids[]" data-dev-note="카테고리 최대 200 · 강좌/패키지 각 500, 교재 없음" onclick="showToast('적용 대상 카테고리가 추가되었습니다.')">+ 추가</button>
+                          </div>
+                        </div>
+                        <div class="help-txt">• [전체 상품]을 선택하더라도 실물 교재 카테고리(<code>BOK-*</code>)는 도서정가제 자동 바인딩 규칙에 의해 자동 제외됩니다.</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- 섹션 3: 발급 방식 및 하단 저장 버튼 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">발급 방식 및 타겟 예약 (자동 발급 · 수동 대량 발급 · 코드 입력형)</div>
+              </div>
+              <div class="card-body">
+                <table class="form-table">
+                  <tbody>
+                    <!-- 발급 방식 -->
+                    <tr>
+                      <th>발급 방식<span class="req">*</span></th>
+                      <td>
+                        <div class="seg-group">
+                          <button type="button" class="seg-btn" id="seg-mth-auto" data-dev-name="issue_method" data-dev-value="auto" onclick="setIssueMethod('AUTO')">자동 발급 (가입 웰컴)</button>
+                          <button type="button" class="seg-btn active" id="seg-mth-bulk" data-dev-name="issue_method" data-dev-value="bulk" onclick="setIssueMethod('BULK')">수동 대량 발급</button>
+                          <button type="button" class="seg-btn" id="seg-mth-code" data-dev-name="issue_method" data-dev-value="code" onclick="setIssueMethod('CODE')">코드 입력형</button>
+                        </div>
+                        <div class="help-txt" id="method-desc-txt">
+                          • <b>수동 대량 발급:</b> <code>ADMN-USER-006</code> 수평적 그룹·태그로 타겟팅하여 예약 시각에 배치 발급 및 알림톡을 동시 발송합니다.
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- 타겟 그룹 (수동 대량 발급 시) -->
+                    <tr id="row-target-group">
+                      <th>타겟 그룹 (USER-006)</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                          <select id="tg-select" name="target_group_id" data-dev-note="coupon-target-group — 사용 중 회원 그룹 · 태그(user_groups.id)" class="form-select" style="width:360px;" onchange="updateTargetGroupCount()">
+                            <optgroup label="태그 타겟">
+                            <option data-cnt="4208">태그: 무료회원 × 최근 30일 로그인 (대상 4,208명)</option>
+                            <option data-cnt="1120">태그: 산업안전기사 필기 수강완료 × 실기 미결제 (대상 1,120명)</option>
+                            <option data-cnt="8940">태그: 산준모 네이버 카페 인증 회원 (대상 8,940명)</option>
+                            </optgroup>
+                            <optgroup label="저장 그룹 (USER-006 그룹·태그)" id="tg-saved-groups"></optgroup>
+                          </select>
+                          <button type="button" class="btn btn-sm" data-dev-route="admin.coupons.target-count.index" data-dev-method="GET" data-dev-url="/sj-admin/coupons/target-count" data-dev-perm="조회" data-dev-note="previewCount() — 대상 수 JSON" onclick="showToast('ADMN-USER-006 그룹·태그 타겟 미리보기: 총 ' + currentTargetCount().toLocaleString() + '명 매칭됨')">그룹 선택 · 미리보기</button>
+                          <span class="badge badge-blue" id="tg-count-badge">대상 4,208명 (중복 보유자 자동 스킵)</span>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- 사용자 입력 코드 (코드 입력형 선택 시) -->
+                    <tr id="row-promo-code" data-dev-note="코드 입력형 쿠폰 코드 — 등록만 · ^[A-Z0-9_]+$ · 중복 불가" data-dev-name="code" style="display:none;">
+                      <th>사용자 입력 코드<span class="req">*</span></th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <input type="text" class="form-input" style="width:220px; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:800;" value="SANJUNMO2026PASS" maxlength="16" />
+                          <span style="font-size:12px; color:var(--text-muted);">영대문자+숫자 8~16자 (마이페이지 <code>USER-MY-007-P1</code> 수동 쿠폰 등록 팝업에서 검증)</span>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr data-dev-flag="dev-only" data-dev-note="개발 CouponRequest: is_public(공개 전환 admin.coupons.visibility.update) · memo(비고 max:500, 이력 admin.coupons.memo-history.index)">
+                      <th>공개 · 비고</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                          <label style="display:inline-flex; align-items:center; gap:5px; font-weight:700;"><input type="checkbox" name="is_public" value="1" /> 사용자 페이지 공개</label>
+                          <input type="text" name="memo" class="form-input" style="width:360px;" maxlength="500" placeholder="비고 (중지 사유 등, 500자)" />
+                        </div>
+                      </td>
+                    </tr>
+
+                    <!-- 발급 예약 -->
+                    <tr>
+                      <th>발급 예약 · 알림톡</th>
+                      <td>
+                        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                          <input type="datetime-local" class="form-input" name="scheduled_at" value="2026-08-25T10:00" />
+                          <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:700;">
+                            <input type="checkbox" name="send_notification" value="1" checked /> 발급 알림톡 동시 발송 (<code>ADMN-CONF-004</code> 메시지 템플릿 연동)
+                          </label>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- ADMN-PROM-002-P1 인라인 경고 박스 (초과 저장 시도 시 폼 하단에 즉시 노출) -->
+                <div class="p1-inline-alert" id="p1-inline-box">
+                  <div style="font-weight:800; font-size:14px; margin-bottom:4px;">⚠ [ADMN-PROM-002-P1] 감면 한도(Cap)를 초과했습니다</div>
+                  <div id="p1-inline-msg" style="font-size:12.5px; line-height:1.5; margin-bottom:10px;">
+                    정액 쿠폰의 감면 한도액은 <b>200,000원</b>입니다. 입력값 <b>250,000원</b>은 저장할 수 없습니다. 200,000원 이하로 다시 입력해 주세요.
+                  </div>
+                  <button type="button" class="btn btn-sm btn-danger" data-dev-note="개발 couponCapAlertOk — 할인값 칸으로 포커스" onclick="focusBackToDiscountInput()">확인 (할인값 입력칸으로 포커스 이동)</button>
+                </div>
+
+                <!-- 하단 저장 · 발급 중지 버튼 -->
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px;">
+                  <div>
+                    <span style="font-size:12px; color:var(--text-muted);">할인값을 한도(정률 40% / 정액 200,000원) 이하로 입력한 뒤 [저장 · 발급 예약]을 누르세요.</span>
+                  </div>
+                  <div style="display:flex; gap:8px;">
+                    <button type="button" class="btn" data-dev-route="admin.coupons.status.update" data-dev-method="PUT" data-dev-url="/sj-admin/coupons/{coupon}/status" data-dev-perm="수정" data-dev-note="couponSuspendModal — 중지 사유 → 비고(max:500)" data-dev-name="memo" onclick="pauseCurrentCoupon()">발급 중지</button>
+                    <button type="button" class="btn btn-dark" data-dev-route="admin.coupons.store | admin.coupons.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/coupons | /coupons/{coupon}" data-dev-perm="등록 | 수정" data-dev-note="등록은 form_token(1회용 40자) 필수. 발급 이력이 있으면 종류 · 할인값 · 유효기간 잠금" onclick="saveCouponMaster()">저장 · 발급 예약</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 우측 고정 패널: P1 Cap 강제 연산 기준표 + 복합 패키지 도서정가제 시뮬레이터 -->
+          <div style="position:sticky; top:76px;">
+            <!-- 카드 A: ADMN-PROM-002-P1 Cap 강제 연산 기준표 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span>📐 Cap 강제 연산 기준표</span>
+                  <span class="badge badge-red">ADMN-PROM-002-P1</span>
+                </div>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="data-table" style="font-size:12px;">
+                  <thead>
+                    <tr>
+                      <th>쿠폰</th>
+                      <th class="num">대상 강좌 라인</th>
+                      <th class="num">산출 감면액</th>
+                      <th class="num">실제 감면액</th>
+                      <th>판정</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="background:#FFFBEB;">
+                      <td><b>정률 40%</b></td>
+                      <td class="num">800,000원</td>
+                      <td class="num">320,000원</td>
+                      <td class="num"><b style="color:var(--danger);">200,000원</b></td>
+                      <td><span class="badge badge-amber">Cap 적용</span> 결제 600,000원</td>
+                    </tr>
+                    <tr>
+                      <td><b>정률 40%</b></td>
+                      <td class="num">450,000원</td>
+                      <td class="num">180,000원</td>
+                      <td class="num"><b>180,000원</b></td>
+                      <td><span class="badge badge-green">전액 적용</span> Cap 미만</td>
+                    </tr>
+                    <tr>
+                      <td><b>정률 10%(웰컴)</b></td>
+                      <td class="num">189,000원</td>
+                      <td class="num">18,900원</td>
+                      <td class="num"><b>18,900원</b></td>
+                      <td><span class="badge badge-green">전액 적용</span></td>
+                    </tr>
+                    <tr>
+                      <td><b>정액 200,000</b></td>
+                      <td class="num">150,000원</td>
+                      <td class="num">200,000원</td>
+                      <td class="num"><b>150,000원</b></td>
+                      <td><span class="badge badge-amber">결제액 한도</span> 잔액 소멸</td>
+                    </tr>
+                    <tr style="background:#FEF2F2;">
+                      <td><b style="color:var(--danger);">정액 250,000</b></td>
+                      <td class="ct">—</td>
+                      <td class="ct">—</td>
+                      <td class="ct"><b style="color:var(--danger);">저장 차단</b></td>
+                      <td><span class="badge badge-red">등록 불가</span> P1 경고 노출</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="card-body" style="background:#F8FAFC; border-top:1px solid var(--border-color); font-size:11.5px; color:var(--text-secondary);">
+                • <b>수식:</b> <code>discount = FLOOR(MIN(base × rate, 200000, base))</code><br />
+                • Cap이 작동해 감면액이 깎인 주문은 <code>order_discount.cap_applied = 1</code> 기록 및 정산(<code>ADMN-SETT-002</code>) 시 <b>실감면액 기준</b>으로 배분됩니다.
+              </div>
+            </div>
+
+            <!-- 카드 B: 복합 패키지(강좌+교재) 쿠폰 적용 실시간 시뮬레이터 -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span>🧮 복합 패키지(MIXED) 쿠폰 적용 시뮬레이터</span>
+                  <span class="badge badge-blue">도서정가제 연동</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">강좌 라인 합계 (교육면세)</label>
+                    <input type="number" id="sim-lec" data-dev-flag="proto-only" data-dev-note="Cap 시뮬레이터 입력 — 개발은 고정 예시 문구(cap-sim)" class="form-input" style="width:100%;" value="800000" oninput="updateLiveSim()" />
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:3px;">실물 교재 라인 (면세)</label>
+                    <input type="number" id="sim-book" data-dev-flag="proto-only" data-dev-note="Cap 시뮬레이터 입력 — 개발 없음" class="form-input" style="width:100%;" value="38000" oninput="updateLiveSim()" />
+                  </div>
+                </div>
+                <div id="live-sim-box" style="background:#0F172A; color:#F8FAFC; border-radius:8px; padding:12px 14px; font-size:12px; line-height:1.6;">
+                  <!-- JS 실시간 계산 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           SUBVIEW 3: 포인트(유/무상 잔액 상한) 분리 원장 & 전역 설정 (benefit_config)
+           =================================================================== -->
+      <section id="view-point" class="view-section">
+        <!-- 1. 포인트 자동 적립 · 지급 · 유효기간 정책 설정 (ADMN-PROM-003) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>⚙️ 포인트 자동 적립 · 보상 지급 · 유효기간 정책 설정 (ADMN-PROM-003)</span>
+              <span class="badge badge-blue">주문 결제 · 수강후기 · 회원가입 연동</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-route="admin.site-settings.update" data-dev-method="PUT" data-dev-url="/sj-admin/site-settings" data-dev-perm="수정(사이트 설정 메뉴)" data-dev-note="정책 변경 이력 pointHistory(admin_logs)" onclick="savePointPolicy()">💾 포인트 정책 저장</button>
+          </div>
+          <div class="card-body">
+            <table class="form-table" style="margin-bottom:0;">
+              <tbody>
+                <tr>
+                  <th>신규 회원가입 웰컴 포인트</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <label style="font-weight:700;"><input type="checkbox" checked data-dev-note="개발은 welcome_point=0이면 미지급" /> 자동 지급 사용</label>
+                      <span>지급액:</span>
+                      <input type="number" class="form-input" style="width:110px; font-weight:800;" name="welcome_point" value="5000" data-dev-note="0~100000 (DI 생애 1회)" />
+                      <span>P (무상 FREE 포인트 · 본인인증 DI 기준 최초 1회만 지급, 탈퇴 후 재가입 시 중복 지급 차단)</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>강좌 결제 시 기본 적립률</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <span>실결제 금액의</span>
+                      <input type="number" class="form-input" style="width:80px; font-weight:800;" name="point_earn_rate" value="1" step="0.5" data-dev-note="0~10(%)" />
+                      <span>% 자동 적립 (<strong>실물 교재 금액 및 배송비는 도서정가제 정책에 따라 적립 대상에서 자동 제외</strong>)</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>수강후기 · 합격수기 보상</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                      <span>일반 수강후기 승인:</span>
+                      <input type="number" id="pol-review" data-dev-flag="proto-only" data-dev-note="일반 후기 보상 P — 개발 site_settings에 없음(우수 후기는 BRD-005-S1에서 금액 직접 입력)" class="form-input" style="width:100px; font-weight:800;" value="1000" min="0" step="100" /> <span>P</span>
+                      <span style="margin-left:8px;">베스트 후기 · 합격수기(<code>ADMN-BRD-005</code>) 승인:</span>
+                      <input type="number" id="pol-best" data-dev-flag="proto-only" data-dev-note="베스트 · 합격수기 보상 P — 개발 없음" class="form-input" style="width:100px; font-weight:800;" value="5000" min="0" step="100" /> <span>P (무상 FREE)</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>무상 포인트 잔액 상한</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <span>회원 1인당 무상(FREE) 포인트 보유 상한:</span>
+                      <input type="number" id="pol-cap" data-dev-flag="proto-only" data-dev-note="무상 포인트 잔액 상한 — 개발 없음(정책 질문)" class="form-input" style="width:120px; font-weight:800;" value="200000" min="0" step="1000" />
+                      <span>P (관리자 수동 지급 · 자동 보상 지급 시 초과분 차단)</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-dev-flag="dev-only" data-dev-note="SiteSettingRequest ③ 포인트: earn_rounding · deduct_priority · expire_notice_days · expire_notice_alimtalk/lms/email · paid_restore_grace_days · free/paid_point_expire_years · point_change_reason">
+                  <th>적립 단수 · 소멸 안내 · 변경 사유</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                      <select name="earn_rounding" class="form-select"><option value="ceil">올림</option><option value="floor">버림</option><option value="round">반올림</option></select>
+                      <span>무상 유효</span><input type="number" name="free_point_expire_years" class="form-input" style="width:60px;" min="1" max="10" value="2" /><span>년</span>
+                      <span>유상 유효</span><input type="number" name="paid_point_expire_years" class="form-input" style="width:60px;" min="1" max="10" value="5" /><span>년</span>
+                      <span>소멸 안내</span><input type="number" name="expire_notice_days" class="form-input" style="width:60px;" min="0" max="90" value="30" /><span>일 전</span>
+                      <input type="text" name="point_change_reason" class="form-input" style="width:240px;" maxlength="200" placeholder="변경 사유 (포인트 항목이 바뀌면 필수)" />
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>포인트 사용 기준 · 유효기간</th>
+                  <td>
+                    <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                      <span>최소 결제 사용 단위: <strong>100P 단위</strong></span>
+                      <span>·</span>
+                      <span>무상(FREE) 포인트 유효기간: <strong>지급일로부터 2년 (만료 30일/14일 전 사전 알림톡 자동 발송)</strong></span>
+                      <span>·</span>
+                      <span>구매적립(적립 P) 포인트 유효기간: <strong>5년 (강좌 실결제 1% 올림 적립)</strong></span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. 전체 회원 포인트 적립 · 사용 · 환불회수 · 소멸 내역 원장 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <span>📋 전체 회원 포인트 적립 · 사용 · 환불차감 · 소멸 내역 원장 (ADMN-PROM-003)</span>
+              <span class="badge badge-green">차감 순서: 무상(FREE) 우선 → 유상(PAID) 차감 → 환불 부족분 유상 마이너스(-) 부채 기록</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-primary" data-dev-note="개발은 회원 상세(ADMN-USER-002-P1) layerPointGrant" onclick="openPointModal()">＋ 관리자 수동 무상포인트 지급 · 차감</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-dev-flag="proto-only" data-dev-route="admin.points.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/points" data-dev-perm="조회" data-dev-note="포인트 원장 전체 목록 — 개발 미구현(point_logs). 회원별은 회원 상세">거래 ID / 일시</th>
+                  <th>회원명 (ID)</th>
+                  <th class="ct">원장 구분</th>
+                  <th class="ct">변동 유형</th>
+                  <th class="num">변동 포인트</th>
+                  <th class="num">거래 후 잔액</th>
+                  <th>상세 발생 사유 및 연관 주문/게시글</th>
+                </tr>
+              </thead>
+              <tbody id="pt-tbody">
+                <tr>
+                  <td><b>TX-PT-0901</b><br/><span style="font-size:11px; color:var(--text-muted);">2026-10-16 14:20</span></td>
+                  <td><b>최산안</b> (USR-1082)</td>
+                  <td class="ct"><span class="badge badge-green">무상 (FREE)</span></td>
+                  <td class="ct"><span class="badge badge-blue">적립 (EARN)</span></td>
+                  <td class="num"><b style="color:var(--success);">+5,000 P</b></td>
+                  <td class="num"><b>15,000 P</b></td>
+                  <td>수강·합격후기 검수 승인(<code>ADMN-BRD-005</code>) 베스트 후기 선정 보상 지급 (유효기간 2년)</td>
+                </tr>
+                <tr>
+                  <td><b>TX-PT-0872</b><br/><span style="font-size:11px; color:var(--text-muted);">2026-10-15 18:10</span></td>
+                  <td><b>이선우</b> (USR-0941)</td>
+                  <td class="ct"><span class="badge badge-green">무상 (FREE)</span></td>
+                  <td class="ct"><span class="badge badge-blue">적립 (EARN)</span></td>
+                  <td class="num"><b style="color:var(--success);">+1,890 P</b></td>
+                  <td class="num"><b>8,990 P</b></td>
+                  <td>강좌 실결제액(189,000원) 1% 자동 적립 (함께 결제된 실물 교재 38,000원은 도서정가제로 적립 제외)</td>
+                </tr>
+                <tr>
+                  <td><b>TX-PT-0750</b><br/><span style="font-size:11px; color:var(--text-muted);">2026-10-12 11:05</span></td>
+                  <td><b>박준형</b> (USR-1205)</td>
+                  <td class="ct"><span class="badge badge-purple">구매적립 (적립 P)</span></td>
+                  <td class="ct"><span class="badge badge-red">환불회수 부채 (DEBT)</span></td>
+                  <td class="num"><b style="color:var(--danger);">-3,500 P</b></td>
+                  <td class="num"><b style="color:var(--danger);">-3,500 P</b><br/><span style="font-size:10.5px; color:var(--text-muted);">적립 P -3,500P / 무상 P 0P</span></td>
+                  <td>적립 포인트 기사용 후 강좌 환불(<code>ADMN-RFD-002</code>) 회수 — 무상(0P) 우선 차감 후 부족분이 적립 P 원장 마이너스 부채(<b>-3,500P</b>)로 기록됨</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+</div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL 1: ADMN-PROM-002-P1 정액/정률 감면 Cap 초과 경고 팝업
+       =================================================================== -->
+  <div class="modal-backdrop" id="couponCapAlert">
+    <div class="modal-dialog">
+      <div class="modal-header" style="background:#FEF2F2; color:#991B1B; border-bottom:1px solid #FECACA;">
+        <span>⚠ [ADMN-PROM-002-P1] 감면 한도(Cap)를 초과했습니다</span>
+        <button type="button" class="btn btn-sm" data-dev-note="개발 couponCapAlertOk — 할인값 칸으로 포커스" onclick="focusBackToDiscountInput()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="modal-p1-body" style="font-size:13.5px; line-height:1.65; color:var(--text-primary); margin-bottom:14px;">
+          정액 쿠폰의 감면 한도액은 <b>200,000원</b>입니다.<br/>
+          입력값 <b style="color:var(--danger);">250,000원</b>은 저장할 수 없습니다. 200,000원 이하로 다시 입력해 주세요.
+        </div>
+        <div style="background:#F8FAFC; border:1px solid var(--border-color); border-radius:8px; padding:12px; font-size:12px; color:var(--text-secondary);">
+          • <b>설계서 P1 처리 규칙 (피드백 #492):</b> [확인] 클릭 시 등록 화면에 그대로 머물며(나머지 입력값 전부 보존), 할인값 입력칸(<code>#f-val</code>)으로 <b>자동 포커스 이동 + 입력값 전체 선택</b>됩니다.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-dev-note="개발 couponCapAlertOk — 할인값 칸으로 포커스" onclick="focusBackToDiscountInput()">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: 관리자 포인트 수동 지급 (무상 잔액 상한 검증) -->
+  <div class="modal-backdrop" id="layerPointGrant">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span>💸 관리자 무상(FREE) 포인트 수동 지급 · 차감 (1회 최대 30,000P · 감사 사유 필수)</span>
+        <button type="button" class="btn btn-sm" onclick="closePointModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">대상 회원</label>
+            <select id="pt-member" name="member" data-dev-note="개발은 회원 상세 경로 {member}" class="form-select" style="width:100%;" onchange="validatePtCap()">
+              <option value="192000">최산안 (USR-1082) — 현재 무상 잔액: 192,000 P (잔여 한도 8,000 P)</option>
+              <option value="7100">김산준 (USR-0701) — 현재 무상 잔액: 7,100 P (잔여 한도 192,900 P)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; font-weight:700; display:block; margin-bottom:4px;">지급할 무상 포인트 (P)</label>
+            <input type="number" id="pt-amt" name="amount" data-dev-note="개발 MemberPointRequest: direction · amount · reason_code · reason(10~200자) · expire_preset" class="form-input" style="width:100%; font-weight:800;" value="15000" oninput="validatePtCap()" />
+          </div>
+          <div id="pt-cap-msg" style="padding:10px 12px; border-radius:8px; font-size:12px;"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="closePointModal()">취소</button>
+        <button type="button" class="btn btn-primary" id="pt-submit-btn" data-dev-route="admin.members.points.store" data-dev-method="POST" data-dev-url="/sj-admin/members/{member}/points" data-dev-perm="등록(회원관리 메뉴)" onclick="confirmPointGrant()">지급 확정</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // 화면설계서 3번 쿠폰 마스터 그리드 정본 데이터
+    const MASTER_COUPONS = [
+      {
+        no: 14,
+        code: "CPN-2607-0014",
+        name: "신규가입 웰컴 10% 쿠폰",
+        type: "RATE",
+        typeLabel: "정률",
+        val: 10,
+        valText: "10%",
+        capText: "200,000",
+        method: "AUTO",
+        methodLabel: "자동(가입)",
+        expMode: "DN",
+        expDays: 21,
+        expText: "D+21 자정",
+        issued: 12480,
+        used: 2914,
+        expired: 6930,
+        useRate: "23.3%",
+        status: "ACTIVE",
+        minOrder: 50000
+      },
+      {
+        no: 13,
+        code: "CPN-2608-0013",
+        name: "가을 얼리버드 15% 쿠폰",
+        type: "RATE",
+        typeLabel: "정률",
+        val: 15,
+        valText: "15%",
+        capText: "200,000",
+        method: "BULK",
+        methodLabel: "수동 대량",
+        expMode: "ABS",
+        expDays: 30,
+        expText: "~2026.09.30",
+        issued: 4208,
+        used: 902,
+        expired: 0,
+        useRate: "21.4%",
+        status: "ACTIVE",
+        minOrder: 50000
+      },
+      {
+        no: 12,
+        code: "CPN-2608-0012",
+        name: "올패스 20만원 감면 쿠폰",
+        type: "FIXED",
+        typeLabel: "정액",
+        val: 200000,
+        valText: "200,000",
+        capText: "200,000",
+        method: "CODE",
+        methodLabel: "코드 입력형",
+        expMode: "ABS",
+        expDays: 30,
+        expText: "~2026.08.31",
+        issued: 1200,
+        used: 241,
+        expired: 0,
+        useRate: "20.1%",
+        status: "ACTIVE",
+        minOrder: 150000
+      },
+      {
+        no: 11,
+        code: "CPN-2607-0011",
+        name: "재수강 응원 40% 쿠폰",
+        type: "RATE",
+        typeLabel: "정률",
+        val: 40,
+        valText: "40%",
+        capText: "200,000",
+        method: "BULK",
+        methodLabel: "수동 대량",
+        expMode: "DN",
+        expDays: 30,
+        expText: "D+30",
+        issued: 514,
+        used: 60,
+        expired: 0,
+        useRate: "11.7%",
+        status: "PAUSED",
+        minOrder: 100000
+      }
+    ];
+
+    let currentType = "RATE";
+    let currentEditingNo = null;
+
+    function switchSubView(viewKey) {
+      document.querySelectorAll(".view-section").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".subview-btn").forEach(el => el.classList.remove("active"));
+
+      if (viewKey === "list") {
+        document.getElementById("view-list").classList.add("active");
+        document.getElementById("nav-btn-list").classList.add("active");
+        document.getElementById("top-crumb-code").textContent = "ADMN-PROM-002";
+      } else if (viewKey === "form") {
+        document.getElementById("view-form").classList.add("active");
+        document.getElementById("nav-btn-form").classList.add("active");
+        document.getElementById("top-crumb-code").textContent = "ADMN-PROM-002 / P1";
+        updateLiveSim();
+      } else if (viewKey === "point") {
+        document.getElementById("view-point").classList.add("active");
+        document.getElementById("nav-btn-point").classList.add("active");
+        document.getElementById("top-crumb-code").textContent = "ADMN-PROM-003";
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderMasterGrid() {
+      const kw = (document.getElementById("q-keyword").value || "").trim().toLowerCase();
+      const t = document.getElementById("q-type").value;
+      const m = document.getElementById("q-method").value;
+      const s = document.getElementById("q-status").value;
+
+      const rows = MASTER_COUPONS.filter(c => {
+        if (kw && !c.name.toLowerCase().includes(kw) && !c.code.toLowerCase().includes(kw)) return false;
+        if (t !== "ALL" && c.type !== t) return false;
+        if (m !== "ALL" && c.method !== m) return false;
+        if (s !== "ALL" && c.status !== s) return false;
+        return true;
+      });
+
+      const tbody = document.getElementById("master-grid-tbody");
+      tbody.innerHTML = rows.map(c => {
+        let stBadge = '<span class="badge badge-green">발급중</span>';
+        if (c.status === "PAUSED") stBadge = '<span class="badge badge-amber">발급중지</span>';
+        if (c.status === "EXPIRED") stBadge = '<span class="badge badge-slate">기간종료</span>';
+
+        return `
+          <tr data-dev-route="admin.coupons.show" data-dev-method="GET" data-dev-url="/sj-admin/coupons/{coupon}" data-dev-perm="조회" data-dev-note="개발 상세 = 지급 회원 목록(uc_status 필터)" onclick="openFormEdit(${c.no})">
+            <td class="ct"><b>${c.no}</b></td>
+            <td>
+              <div style="font-weight:800; color:var(--primary);">${c.name}</div>
+              <div style="font-size:11px; color:var(--text-muted); font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;">${c.code} · 실물교재 제외(exclude_book=1)</div>
+            </td>
+            <td class="ct">${c.typeLabel}</td>
+            <td class="num"><b>${c.valText}</b></td>
+            <td class="num" style="color:var(--text-secondary); font-weight:700;">${c.capText}</td>
+            <td class="ct">${c.methodLabel}</td>
+            <td class="ct">${c.expText}</td>
+            <td class="ct">
+              <b>${c.issued.toLocaleString()}</b> /
+              <span style="color:var(--success); font-weight:700;">${c.used.toLocaleString()}</span> /
+              <span style="color:${c.expired > 0 ? 'var(--warning)' : 'var(--text-muted)'}; font-weight:700;">${c.expired.toLocaleString()}</span>
+            </td>
+            <td class="num"><b>${c.useRate}</b></td>
+            <td class="ct">${stBadge}</td>
+            <td class="ct" onclick="event.stopPropagation();">
+              <button type="button" class="btn btn-sm" data-dev-route="admin.coupons.edit" data-dev-method="GET" data-dev-url="/sj-admin/coupons/{coupon}/edit" data-dev-perm="수정" data-dev-note="개발 행 동작 메뉴 rowActionMenu: 지급 · 발급 중지 · 긴급 사용 중지(최고 관리자) · 공개 전환 · 비고 이력" onclick="openFormEdit(${c.no})">상세/수정</button>
+              <button type="button" class="btn btn-sm" data-dev-flag="dev-only" data-dev-route="admin.coupons.issue.store" data-dev-method="POST" data-dev-url="/sj-admin/coupons/{coupon}/issue" data-dev-perm="등록" data-dev-note="couponIssueModal — 회원 식별자 줄 입력(max:20000) 또는 xlsx 2MB. 양식 admin.coupons.issue-template.create" data-dev-name="user_ids_text | user_ids_file">지급</button>
+              <button type="button" class="btn btn-sm" data-dev-flag="dev-only" data-dev-route="admin.coupons.emergency-status.update" data-dev-method="PUT" data-dev-url="/sj-admin/coupons/{coupon}/emergency-status" data-dev-perm="수정 + 최고 관리자" data-dev-note="couponEmergencyModal — 사유 10~500자. 보유분까지 사용 불가" data-dev-name="reason">긴급 중지</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function quickFilterStatus(st) {
+      document.getElementById("q-status").value = st;
+      renderMasterGrid();
+    }
+
+    function resetSearchFilter() {
+      document.getElementById("q-keyword").value = "";
+      document.getElementById("q-type").value = "ALL";
+      document.getElementById("q-method").value = "ALL";
+      document.getElementById("q-status").value = "ALL";
+      renderMasterGrid();
+    }
+
+    // 신규 쿠폰 등록 폼 열기
+    function openFormNew() {
+      currentEditingNo = null;
+      clearFieldError();
+
+      document.getElementById("form-mode-pill").textContent = "신규 쿠폰 등록 모드";
+      document.getElementById("form-mode-pill").className = "badge badge-blue";
+      document.getElementById("form-header-title").textContent = "쿠폰 마스터 신규 등록 (ADMN-PROM-002)";
+      document.getElementById("issued-lock-notice").style.display = "none";
+
+      document.getElementById("f-name").value = "가을 얼리버드 15% 쿠폰";
+      document.getElementById("f-code").value = "CPN-2610-0015";
+      document.getElementById("f-min-order").value = 50000;
+
+      // 잠금 해제
+      document.getElementById("seg-type-rate").disabled = false;
+      document.getElementById("seg-type-fixed").disabled = false;
+      document.getElementById("f-val").disabled = false;
+      document.getElementById("seg-exp-dn").disabled = false;
+      document.getElementById("seg-exp-abs").disabled = false;
+      document.getElementById("f-exp-days").disabled = false;
+
+      setCouponType("RATE", 15);
+      setExpMode("DN");
+      setIssueMethod("BULK");
+      switchSubView("form");
+    }
+
+    // 목록에서 기존 쿠폰 클릭 시 수정 폼 열기 (기 발급분 잠금 적용)
+    function openFormEdit(no) {
+      const c = MASTER_COUPONS.find(x => x.no === no);
+      if (!c) return;
+      currentEditingNo = c.no;
+      clearFieldError();
+
+      document.getElementById("form-mode-pill").textContent = `수정 모드 (No.${c.no})`;
+      document.getElementById("form-mode-pill").className = "badge badge-purple";
+      document.getElementById("form-header-title").textContent = `${c.name} (${c.code})`;
+
+      document.getElementById("f-name").value = c.name;
+      document.getElementById("f-code").value = c.code;
+      document.getElementById("f-min-order").value = c.minOrder;
+
+      setCouponType(c.type, c.val);
+      setExpMode(c.expMode);
+      setIssueMethod(c.method);
+
+      const hasIssued = c.issued > 0;
+      document.getElementById("issued-lock-notice").style.display = hasIssued ? "block" : "none";
+      if (hasIssued) {
+        document.getElementById("lock-issued-cnt").textContent = c.issued.toLocaleString();
+      }
+
+      document.getElementById("seg-type-rate").disabled = hasIssued;
+      document.getElementById("seg-type-fixed").disabled = hasIssued;
+      document.getElementById("f-val").disabled = hasIssued;
+      document.getElementById("seg-exp-dn").disabled = hasIssued;
+      document.getElementById("seg-exp-abs").disabled = hasIssued;
+      document.getElementById("f-exp-days").disabled = hasIssued;
+
+      switchSubView("form");
+    }
+
+    function setCouponType(type, customVal) {
+      currentType = type;
+      clearFieldError();
+      document.getElementById("seg-type-rate").classList.toggle("active", type === "RATE");
+      document.getElementById("seg-type-fixed").classList.toggle("active", type === "FIXED");
+
+      const valEl = document.getElementById("f-val");
+      const unitEl = document.getElementById("f-val-unit");
+      const guideEl = document.getElementById("f-val-max-guide");
+
+      if (type === "RATE") {
+        unitEl.textContent = "%";
+        guideEl.innerHTML = "(최대 입력 가능: <b>40%</b> 정수)";
+        valEl.value = customVal !== undefined ? customVal : 15;
+      } else {
+        unitEl.textContent = "원";
+        guideEl.innerHTML = "(최대 입력 가능: <b>200,000원</b> · 1,000원 단위)";
+        valEl.value = customVal !== undefined ? customVal : 50000;
+      }
+      updateLiveSim();
+    }
+
+    function setExpMode(mode) {
+      document.getElementById("seg-exp-dn").classList.toggle("active", mode === "DN");
+      document.getElementById("seg-exp-abs").classList.toggle("active", mode === "ABS");
+      document.getElementById("exp-dn-box").style.display = mode === "DN" ? "flex" : "none";
+      document.getElementById("exp-abs-box").style.display = mode === "ABS" ? "flex" : "none";
+    }
+
+    function setTargetScope(scope) {
+      document.getElementById("seg-tgt-all").classList.toggle("active", scope === "ALL");
+      document.getElementById("seg-tgt-cat").classList.toggle("active", scope === "CAT");
+      document.getElementById("seg-tgt-item").classList.toggle("active", scope === "ITEM");
+    }
+
+    function setIssueMethod(m) {
+      document.getElementById("seg-mth-auto").classList.toggle("active", m === "AUTO");
+      document.getElementById("seg-mth-bulk").classList.toggle("active", m === "BULK");
+      document.getElementById("seg-mth-code").classList.toggle("active", m === "CODE");
+
+      document.getElementById("row-target-group").style.display = m === "BULK" ? "" : "none";
+      document.getElementById("row-promo-code").style.display = m === "CODE" ? "" : "none";
+
+      const desc = document.getElementById("method-desc-txt");
+      if (m === "AUTO") {
+        desc.innerHTML = "• <b>자동 발급(회원가입 웰컴):</b> 가입 커밋 직후 5,000P + 10% 쿠폰(D+21 자정 만료) 동기 발급. <code>welcome_benefits_history</code>의 <b>DI 해시 기준 생애 1회</b>만 발급되며 재가입 회원은 자동 SKIP.";
+      } else if (m === "BULK") {
+        desc.innerHTML = "• <b>수동 대량 발급:</b> <code>ADMN-USER-006</code> 수평적 그룹·태그로 타겟팅하여 예약 시각에 배치 발급 및 알림톡을 동시 발송합니다.";
+      } else {
+        desc.innerHTML = "• <b>코드 입력형:</b> 오프라인·산준모 카페 이벤트용 코드로, 수험생이 마이페이지 쿠폰함(<code>USER-MY-007-P1</code>)에서 직접 입력해 등록합니다.";
+      }
+    }
+
+    // P1 시연 트리거
+    function triggerP1Demo(mode) {
+      if (document.getElementById("f-val").disabled) {
+        openFormNew();
+      }
+      if (mode === "FIXED_250K") {
+        setCouponType("FIXED", 250000);
+      } else {
+        setCouponType("RATE", 45);
+      }
+      saveCouponMaster();
+    }
+
+    function clearFieldError() {
+      document.getElementById("f-val").classList.remove("fld--err");
+      document.getElementById("p1-inline-box").classList.remove("show");
+      updateLiveSim();
+    }
+
+    // 저장 · 발급 예약 (설계서 14번 & P1 검증)
+    function saveCouponMaster() {
+      const valEl = document.getElementById("f-val");
+      const val = Number(valEl.value || 0);
+
+      if (currentType === "FIXED" && val > 200000) {
+        valEl.classList.add("fld--err");
+        const msg = `정액 쿠폰의 감면 한도액은 <b>200,000원</b>입니다.<br/>입력값 <b style="color:#DC2626;">${val.toLocaleString()}원</b>은 저장할 수 없습니다. 200,000원 이하로 다시 입력해 주세요.`;
+        document.getElementById("p1-inline-msg").innerHTML = msg;
+        document.getElementById("modal-p1-body").innerHTML = msg;
+        document.getElementById("p1-inline-box").classList.add("show");
+        document.getElementById("couponCapAlert").classList.add("show");
+        return;
+      }
+
+      if (currentType === "RATE" && val > 40) {
+        valEl.classList.add("fld--err");
+        const msg = `정률 쿠폰의 할인율은 최대 <b>40%</b>입니다.<br/>입력값 <b style="color:#DC2626;">${val}%</b>는 저장할 수 없습니다. 40% 이하 정수로 다시 입력해 주세요.`;
+        document.getElementById("p1-inline-msg").innerHTML = msg;
+        document.getElementById("modal-p1-body").innerHTML = msg;
+        document.getElementById("p1-inline-box").classList.add("show");
+        document.getElementById("couponCapAlert").classList.add("show");
+        return;
+      }
+
+      const name = document.getElementById("f-name").value.trim();
+      if (!name) {
+        alert("쿠폰명을 입력해 주세요.");
+        return;
+      }
+
+      if (currentEditingNo) {
+        const target = MASTER_COUPONS.find(x => x.no === currentEditingNo);
+        if (target) target.name = name;
+        showToast(`✓ 쿠폰(No.${currentEditingNo}) 수정사항이 저장되었습니다. (admin_log 기록 완료)`);
+      } else {
+        const nextNo = Math.max(...MASTER_COUPONS.map(x => x.no)) + 1;
+        MASTER_COUPONS.unshift({
+          no: nextNo,
+          code: document.getElementById("f-code").value,
+          name: name,
+          type: currentType,
+          typeLabel: currentType === "RATE" ? "정률" : "정액",
+          val: val,
+          valText: currentType === "RATE" ? `${val}%` : val.toLocaleString(),
+          capText: "200,000",
+          method: "BULK",
+          methodLabel: "수동 대량",
+          expMode: "DN",
+          expDays: 21,
+          expText: "D+21 자정",
+          issued: 0,
+          used: 0,
+          expired: 0,
+          useRate: "-",
+          status: "ACTIVE",
+          minOrder: Number(document.getElementById("f-min-order").value || 50000)
+        });
+        showToast(`✓ 신규 쿠폰 [${name}] 저장 및 발급 예약이 완료되었습니다. (exclude_book=1 강제 적용)`);
+      }
+
+      renderMasterGrid();
+      switchSubView("list");
+    }
+
+    // P1 경고 확인 클릭 시 포커스 이동 + 값 전체 선택 (설계서 P1 1·2번)
+    function focusBackToDiscountInput() {
+      document.getElementById("couponCapAlert").classList.remove("show");
+      const valEl = document.getElementById("f-val");
+      setTimeout(() => {
+        valEl.focus();
+        valEl.select();
+      }, 60);
+    }
+
+    function pauseCurrentCoupon() {
+      if (!confirm("[발급 중지 확인]\\n신규 발급만 중단되며, 이미 회원에게 발급된 쿠폰은 유효기간까지 정상 사용 가능합니다.\\n발급을 중지하시겠습니까?")) return;
+      if (currentEditingNo) {
+        const target = MASTER_COUPONS.find(x => x.no === currentEditingNo);
+        if (target) target.status = "PAUSED";
+      }
+      renderMasterGrid();
+      showToast("✓ 쿠폰 신규 발급이 중지되었습니다. (기 발급분은 유효기간까지 사용 가능)");
+      switchSubView("list");
+    }
+
+    // 우측 실시간 시뮬레이터 업데이트
+    function updateLiveSim() {
+      const lec = Number(document.getElementById("sim-lec").value || 0);
+      const book = Number(document.getElementById("sim-book").value || 0);
+      const val = Number(document.getElementById("f-val").value || 0);
+
+      const rawDisc = currentType === "RATE" ? Math.floor(lec * (val / 100)) : val;
+      const realDisc = Math.min(rawDisc, 200000, lec);
+      const capHit = rawDisc > 200000;
+      const finalLec = Math.max(0, lec - realDisc);
+      const finalTotal = finalLec + book;
+
+      document.getElementById("live-sim-box").innerHTML = `
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:#94A3B8;">현재 폼 쿠폰 조건:</span>
+          <b>${currentType === "RATE" ? "정률 " + val + "%" : "정액 " + val.toLocaleString() + "원"} (Cap 200,000원)</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:#94A3B8;">실물 교재 라인 (${book.toLocaleString()}원):</span>
+          <b style="color:#F87171;">할인 0원 (도서정가제 하드락) → ${book.toLocaleString()}원</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="color:#94A3B8;">강좌 라인 산출 감면액:</span>
+          <span>${rawDisc.toLocaleString()}원</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px; padding-bottom:6px; border-bottom:1px dashed #334155;">
+          <span style="color:#93C5FD; font-weight:700;">실감면액 (Cap 20만원 적용):</span>
+          <b style="color:#60A5FA;">-${realDisc.toLocaleString()}원 ${capHit ? "(Cap 작동 · cap_applied=1)" : "(전액 적용)"}</b>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:13px;">
+          <span>최종 결제 금액 (강좌 ${finalLec.toLocaleString()} + 교재 ${book.toLocaleString()}):</span>
+          <b style="color:#34D399;">${finalTotal.toLocaleString()}원</b>
+        </div>
+      `;
+    }
+
+    function downloadExcelReport() {
+      showToast("📥 쿠폰 발급·사용 현황 엑셀(2시트: 요약 + 회원별 마스킹 상세) 다운로드 및 감사 로그 기록이 완료되었습니다.");
+    }
+
+    // 포인트 모달 제어
+    function openPointModal() {
+      document.getElementById("layerPointGrant").classList.add("show");
+      validatePtCap();
+    }
+    function closePointModal() {
+      document.getElementById("layerPointGrant").classList.remove("show");
+    }
+    function validatePtCap() {
+      const bal = Number(document.getElementById("pt-member").value || 0);
+      const amt = Number(document.getElementById("pt-amt").value || 0);
+      const msgEl = document.getElementById("pt-cap-msg");
+      const btn = document.getElementById("pt-submit-btn");
+
+      const cap = (window.SJM_MASTER && SJM_MASTER.settings.get("freePointCapP")) || 200000;
+      if (bal + amt > cap) {
+        msgEl.style.background = "#FEF2F2";
+        msgEl.style.border = "1px solid #FECACA";
+        msgEl.style.color = "#991B1B";
+        msgEl.innerHTML = `⚠ <b>무상 포인트 ${cap.toLocaleString()}P 상한 초과 차단:</b> 현재 ${bal.toLocaleString()}P + ${amt.toLocaleString()}P = ${(bal+amt).toLocaleString()}P (최대 지급 가능: ${Math.max(0,cap-bal).toLocaleString()}P)`;
+        btn.disabled = true;
+      } else {
+        msgEl.style.background = "#ECFDF5";
+        msgEl.style.border = "1px solid #A7F3D0";
+        msgEl.style.color = "#065F46";
+        msgEl.innerHTML = `✓ <b>지급 가능:</b> 처리 후 무상 포인트 잔액 ${(bal+amt).toLocaleString()}P (${cap.toLocaleString()}P 한도 이내)`;
+        btn.disabled = false;
+      }
+    }
+    function savePointPolicy() {
+      var rv = Number(document.getElementById("pol-review").value), bv = Number(document.getElementById("pol-best").value), cv = Number(document.getElementById("pol-cap").value);
+      if (!(rv >= 0) || !(bv >= 0) || !(cv > 0) || rv % 1 || bv % 1 || cv % 1) { showToast("보상 포인트와 잔액 상한은 0 이상 정수로 입력해 주세요."); return; }
+      if (window.SJM_MASTER) { SJM_MASTER.settings.set("reviewRewardP", rv); SJM_MASTER.settings.set("reviewBestRewardP", bv); SJM_MASTER.settings.set("freePointCapP", cv); }
+      syncPointModal();
+      showToast("[ADMN-PROM-003] 포인트 정책이 저장되었습니다 (후기 보상 · 베스트 후기 보상 · 무상 잔액 상한, 감사 로그 기록).");
+    }
+    function syncPointModal() {
+      var cap = (window.SJM_MASTER && SJM_MASTER.settings.get("freePointCapP")) || 200000;
+      var sel = document.getElementById("pt-member"); if (!sel) return;
+      var names = ["최산안 (USR-1082)", "김산준 (USR-0701)"];
+      Array.prototype.forEach.call(sel.options, function (o, i) { var b = Number(o.value); o.textContent = names[i] + " — 현재 무상 잔액: " + b.toLocaleString() + " P (잔여 한도 " + Math.max(0, cap - b).toLocaleString() + " P)"; });
+      validatePtCap();
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.SJM_MASTER) { var st = SJM_MASTER.settings;
+        document.getElementById("pol-review").value = st.get("reviewRewardP"); document.getElementById("pol-best").value = st.get("reviewBestRewardP"); document.getElementById("pol-cap").value = st.get("freePointCapP"); }
+      syncPointModal();
+    });
+    function confirmPointGrant() {
+      closePointModal();
+      showToast("✓ 무상 포인트 수동 지급이 완료되었습니다.");
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 3200);
+    }
+
+    // 저장 그룹(USER-006 그룹·태그) — 공통 데이터(SJM_MASTER.groups)가 있으면 그것을, 없으면 USER-001과 같은 코드·이름의 샘플을 쓴다
+    const SAVED_GROUPS_SAMPLE = [
+      { code: "GRP-2026-01", name: "환급반 중도이탈 위험군 케어 그룹", mode: "DYNAMIC", members: 412, consent: 388 },
+      { code: "GRP-2026-02", name: "카페 인증 미결제 전환 타겟 그룹", mode: "DYNAMIC", members: 1204, consent: 1089 },
+      { code: "GRP-2026-03", name: "2026년 2회 정기시험 응시자 스냅샷", mode: "STATIC", members: 2140, consent: 1950 }
+    ];
+    function getSavedGroups() {
+      return (window.SJM_MASTER && Array.isArray(SJM_MASTER.groups) && SJM_MASTER.groups.length) ? SJM_MASTER.groups : SAVED_GROUPS_SAMPLE;
+    }
+    function savedGroupLabel(g) {
+      const mode = g.mode === "STATIC" ? "[정적 · 명단 고정]" : "[동적 · 매일 06:00]";
+      return mode + " " + g.code + " " + (g.name || "") + " (대상 " + Number(g.members || 0).toLocaleString() + "명)";
+    }
+    function fillSavedGroups() {
+      const og = document.getElementById("tg-saved-groups");
+      if (!og) return;
+      og.innerHTML = "";
+      getSavedGroups().forEach(g => {
+        const o = document.createElement("option");
+        o.value = g.code;
+        o.setAttribute("data-cnt", g.members || 0);
+        o.textContent = savedGroupLabel(g);
+        og.appendChild(o);
+      });
+    }
+    function currentTargetCount() {
+      const sel = document.getElementById("tg-select");
+      const o = sel && sel.options[sel.selectedIndex];
+      return o ? Number(o.getAttribute("data-cnt") || 0) : 0;
+    }
+    function updateTargetGroupCount() {
+      const b = document.getElementById("tg-count-badge");
+      if (b) b.textContent = "대상 " + currentTargetCount().toLocaleString() + "명 (중복 보유자 자동 스킵)";
+    }
+    // USER-001 그룹 → [쿠폰 발급] 진입(?target=group&grp=GRP-…&cnt=…) 시 대량 발급 폼을 열고 그룹을 미리 선택
+    function applyTargetGroupParam(grp, cnt) {
+      openFormNew();
+      setIssueMethod("BULK");
+      const sel = document.getElementById("tg-select");
+      if (!sel || !grp) { updateTargetGroupCount(); return; }
+      let opt = Array.prototype.find.call(sel.options, o => o.value === grp);
+      if (!opt) {
+        opt = document.createElement("option");
+        opt.value = grp;
+        opt.setAttribute("data-cnt", Number(cnt) || 0);
+        opt.textContent = grp + " (USER-006에서 넘어온 그룹, 대상 " + (Number(cnt) || 0).toLocaleString() + "명)";
+        document.getElementById("tg-saved-groups").appendChild(opt);
+      }
+      sel.value = grp;
+      updateTargetGroupCount();
+      showToast("저장 그룹 " + grp + "을(를) 수동 대량 발급 타겟으로 불러왔습니다. (대상 " + currentTargetCount().toLocaleString() + "명)");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get("view");
+      fillSavedGroups();
+      if (params.get("target") === "group") {
+        applyTargetGroupParam(params.get("grp"), params.get("cnt"));
+      } else if (v === "point") {
+        switchSubView("point");
+      } else if (v === "form") {
+        openFormNew();
+      } else {
+        renderMasterGrid();
+        updateLiveSim();
+      }
+    });
+  </script>
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+</html>

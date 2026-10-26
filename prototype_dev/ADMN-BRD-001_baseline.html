@@ -1,0 +1,3162 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>공지사항·FAQ·학습 Q&A·당첨자 통합 관리 — 산준모 백오피스</title>
+
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+
+  <style>
+
+    :root {
+
+      --primary: #2563eb;
+
+      --primary-hover: #1d4ed8;
+
+      --primary-light: #eff6ff;
+
+      --bg-body: #f8fafc;
+
+      --bg-card: #ffffff;
+
+      --border: #e2e8f0;
+
+      --text-main: #0f172a;
+
+      --text-sub: #475569;
+
+      --text-muted: #94a3b8;
+
+      --success: #10b981;
+
+      --warning: #f59e0b;
+
+      --danger: #ef4444;
+
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+
+      margin: 0;
+
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      background: var(--bg-body);
+
+      color: var(--text-main);
+
+      font-size: 13px;
+
+    }
+
+    #v4-page-body {
+
+      padding: 24px 28px 60px;
+
+      max-width: 1640px;
+
+      margin: 0 auto;
+
+    }
+
+    /* 상단 바 이동 버튼은 다른 화면처럼 밑줄 없이 */
+    header.top-bar .btn { text-decoration: none; }
+    /* 공통 상단 바 아래 화면 설명 한 줄 */
+    .page-desc {
+      margin: 0 0 16px;
+      color: var(--text-sub);
+      font-size: 13px;
+    }
+    .page-header {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: flex-start;
+
+      margin-bottom: 18px;
+
+      gap: 16px;
+
+    }
+
+    .page-title-wrap h1 {
+
+      margin: 4px 0 6px;
+
+      font-size: 21px;
+
+      font-weight: 800;
+
+      letter-spacing: -0.02em;
+
+    }
+
+    .page-title-wrap p {
+
+      margin: 0;
+
+      color: var(--text-sub);
+
+      font-size: 13px;
+
+    }
+
+    .code-badge {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      background: #1e293b;
+
+      color: #f8fafc;
+
+      font-family: 'JetBrains Mono', monospace;
+
+      font-size: 11px;
+
+      font-weight: 700;
+
+      padding: 4px 10px;
+
+      border-radius: 6px;
+
+    }
+
+    .domain-switch-bar {
+
+      display: flex;
+
+      gap: 8px;
+
+      background: #fff;
+
+      padding: 8px 10px;
+
+      border-radius: 10px;
+
+      border: 1px solid var(--border);
+
+      margin-bottom: 18px;
+
+      flex-wrap: wrap;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+    }
+
+    .sub-tabs {
+
+      display: flex;
+
+      gap: 6px;
+
+      flex-wrap: wrap;
+
+    }
+
+    .sub-tab-btn {
+
+      padding: 9px 15px;
+
+      border-radius: 8px;
+
+      border: 1px solid transparent;
+
+      background: transparent;
+
+      color: var(--text-sub);
+
+      font-weight: 700;
+
+      font-size: 13px;
+
+      cursor: pointer;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 7px;
+
+      transition: all 0.15s;
+
+    }
+
+    .sub-tab-btn:hover { background: #f1f5f9; color: var(--text-main); }
+
+    .sub-tab-btn.active {
+
+      background: var(--primary);
+
+      color: #fff;
+
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.22);
+
+    }
+
+    .sub-tab-btn .cnt {
+
+      font-size: 11px;
+
+      padding: 1px 7px;
+
+      border-radius: 999px;
+
+      background: rgba(15, 23, 42, 0.08);
+
+      color: inherit;
+
+    }
+
+    .sub-tab-btn.active .cnt {
+
+      background: rgba(255, 255, 255, 0.22);
+
+      color: #fff;
+
+    }
+
+
+
+    .kpi-row {
+
+      display: grid;
+
+      grid-template-columns: repeat(4, 1fr);
+
+      gap: 14px;
+
+      margin-bottom: 18px;
+
+    }
+
+    .kpi-card {
+
+      background: #fff;
+
+      border: 1px solid var(--border);
+
+      border-radius: 10px;
+
+      padding: 15px 18px;
+
+    }
+
+    .kpi-label {
+
+      font-size: 12px;
+
+      color: var(--text-sub);
+
+      font-weight: 600;
+
+      margin-bottom: 6px;
+
+    }
+
+    .kpi-val {
+
+      font-size: 22px;
+
+      font-weight: 800;
+
+      color: var(--text-main);
+
+    }
+
+    .kpi-sub {
+
+      margin-top: 4px;
+
+      font-size: 11.5px;
+
+      color: var(--text-muted);
+
+    }
+
+
+
+    .card {
+
+      background: #fff;
+
+      border: 1px solid var(--border);
+
+      border-radius: 12px;
+
+      padding: 18px 20px;
+
+      margin-bottom: 18px;
+
+    }
+
+    .filter-grid {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+    }
+
+    .filter-left, .filter-right {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 8px;
+
+      align-items: center;
+
+    }
+
+    input[type="text"], input[type="date"], input[type="number"], select, textarea {
+
+      padding: 8px 11px;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 7px;
+
+      font-size: 13px;
+
+      font-family: inherit;
+
+      color: var(--text-main);
+
+      background: #fff;
+
+    }
+
+    .btn {
+
+      padding: 8px 14px;
+
+      border-radius: 7px;
+
+      font-size: 12.5px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+
+      border: 1px solid transparent;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      transition: all 0.15s;
+
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-outline { background: #fff; border-color: #cbd5e1; color: var(--text-main); }
+
+    .btn-outline:hover { background: #f8fafc; }
+
+    .btn-success { background: #059669; color: #fff; }
+
+    .btn-warning { background: #d97706; color: #fff; }
+
+    .btn-danger { background: #dc2626; color: #fff; }
+
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; border-radius: 6px; }
+
+
+
+    .cat-pill-bar {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 6px;
+
+      align-items: center;
+
+      margin-bottom: 14px;
+
+      padding-bottom: 12px;
+
+      border-bottom: 1px dashed var(--border);
+
+    }
+
+    .cat-pill {
+
+      padding: 6px 13px;
+
+      border-radius: 999px;
+
+      border: 1px solid #cbd5e1;
+
+      background: #fff;
+
+      font-size: 12px;
+
+      font-weight: 700;
+
+      color: var(--text-sub);
+
+      cursor: pointer;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 5px;
+
+    }
+
+    .cat-pill.active {
+
+      background: #1e293b;
+
+      color: #fff;
+
+      border-color: #1e293b;
+
+    }
+
+
+
+    table.data-table {
+
+      width: 100%;
+
+      border-collapse: collapse;
+
+      font-size: 12.5px;
+
+    }
+
+    table.data-table th {
+
+      background: #f8fafc;
+
+      color: #475569;
+
+      font-weight: 700;
+
+      text-align: left;
+
+      padding: 11px 12px;
+
+      border-top: 1px solid var(--border);
+
+      border-bottom: 1px solid var(--border);
+
+      white-space: nowrap;
+
+    }
+
+    table.data-table td {
+
+      padding: 11px 12px;
+
+      border-bottom: 1px solid #f1f5f9;
+
+      vertical-align: middle;
+
+    }
+
+    table.data-table tr:hover td { background: #f8fafc; }
+
+
+
+    .badge {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      padding: 3px 8px;
+
+      border-radius: 999px;
+
+      font-size: 11px;
+
+      font-weight: 700;
+
+      white-space: nowrap;
+
+    }
+
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+
+    .badge-green { background: #d1fae5; color: #047857; }
+
+    .badge-amber { background: #fef3c7; color: #b45309; }
+
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+
+    .badge-slate { background: #e2e8f0; color: #334155; }
+
+    .badge-purple { background: #ede9fe; color: #6d28d9; }
+
+
+
+    .view-section { display: none; }
+
+    .view-section.active { display: block; }
+
+
+
+    /* Modal */
+
+    .modal-backdrop {
+
+      position: fixed;
+
+      inset: 0;
+
+      background: rgba(15, 23, 42, 0.55);
+
+      display: none;
+
+      align-items: center;
+
+      justify-content: center;
+
+      z-index: 2000;
+
+      padding: 20px;
+
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+
+      background: #fff;
+
+      border-radius: 14px;
+
+      width: 100%;
+
+      max-width: 860px;
+
+      max-height: 92vh;
+
+      display: flex;
+
+      flex-direction: column;
+
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+
+      overflow: hidden;
+
+    }
+
+    .modal-header {
+
+      padding: 16px 22px;
+
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      background: #f8fafc;
+
+    }
+
+    .modal-header h3 { margin: 0; font-size: 16px; font-weight: 800; }
+
+    .modal-body {
+
+      padding: 20px 22px;
+
+      overflow-y: auto;
+
+    }
+
+    .modal-footer {
+
+      padding: 14px 22px;
+
+      border-top: 1px solid var(--border);
+
+      display: flex;
+
+      justify-content: flex-end;
+
+      gap: 8px;
+
+      background: #f8fafc;
+
+    }
+
+    .form-grid {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 14px;
+
+    }
+
+    .form-group {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 6px;
+
+      margin-bottom: 12px;
+
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+
+      font-size: 12px;
+
+      font-weight: 700;
+
+      color: #334155;
+
+    }
+
+    .rich-editor-shell {
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 8px;
+
+      overflow: hidden;
+
+    }
+
+    .rich-toolbar {
+
+      background: #f1f5f9;
+
+      padding: 7px 10px;
+
+      border-bottom: 1px solid #cbd5e1;
+
+      display: flex;
+
+      gap: 6px;
+
+      flex-wrap: wrap;
+
+    }
+
+    .rich-toolbar button {
+
+      background: #fff;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 5px;
+
+      padding: 4px 8px;
+
+      font-size: 11.5px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+
+    }
+
+    .rich-area {
+
+      min-height: 150px;
+
+      padding: 12px;
+
+      outline: none;
+
+      font-size: 13px;
+
+      line-height: 1.6;
+
+      background: #fff;
+
+    }
+
+    /* 운영 안내(clean에서도 노출): info-callout은 clean에서 숨김 처리되므로 별도 클래스 사용 */
+    .ctx-note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .info-callout {
+
+      background: #eff6ff;
+
+      border: 1px solid #bfdbfe;
+
+      color: #1e40af;
+
+      padding: 11px 14px;
+
+      border-radius: 8px;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+
+      margin-bottom: 14px;
+
+    }
+
+    .toast-box {
+
+      position: fixed;
+
+      bottom: 24px;
+
+      right: 24px;
+
+      background: #0f172a;
+
+      color: #fff;
+
+      padding: 12px 18px;
+
+      border-radius: 10px;
+
+      font-size: 13px;
+
+      font-weight: 700;
+
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+      z-index: 3000;
+
+      display: none;
+
+    }
+
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-BRD-001", "devCommit": "d562524a", "progress": "구현(BRD-001 · 006 · 003 · 004 · 009와 각 S1). 공지 분류 · 행 고정 토글 · FAQ TOP 고정 · 카테고리 이름 변경/순서/노출 · 상품 Q&A 엑셀 · 당첨자 경품 지급은 개발 없음 — 주황 표시", "menus": [{"route": "admin.notices.index", "label": "공지사항 관리"}, {"route": "admin.faqs.index", "label": "FAQ 관리"}, {"route": "admin.product-qnas.index", "label": "상품 Q&A 관리"}, {"route": "admin.study-qnas.index", "label": "학습 Q&A 관리"}, {"route": "admin.winners.index", "label": "당첨자 발표 관리"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+
+<body>
+<aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+<div id="v4-root-shell">
+  <header class="top-bar v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">주문 · 환불 · CS · 프로모션</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="current-screen-code">ADMN-BRD-001</span>
+      <h1 class="crumb-title" id="current-screen-title">공지사항·FAQ·Q&amp;A·당첨자 통합 관리</h1>
+    </div>
+    <div class="top-bar-right">
+      <a href="ADMN-BRD-005_baseline.html" class="btn btn-outline btn-sm">수강/합격후기·무료특강·정답지 (ADMN-BRD-005) 이동 →</a>
+    </div>
+  </header>
+
+  <div id="v4-page-body" class="main-container">
+
+    <section class="subview-panel active" data-subpage="list">
+
+    <p class="page-desc">고객센터 게시판(공지/FAQ/상품 Q&amp;A/학습 Q&amp;A) 및 이벤트 당첨자 발표 게시·경품 지급 원장을 관리합니다.</p>
+
+    <div class="domain-switch-bar">
+
+      <div class="sub-tabs">
+
+        <button class="sub-tab-btn active" data-dev-route="admin.notices.index" data-dev-method="GET" data-dev-url="/sj-admin/notices" data-dev-perm="조회" onclick="switchTab('notice')" id="tab-btn-notice">
+
+          📢 공지사항 관리 <span class="cnt" id="cnt-notice">4</span>
+
+        </button>
+
+        <button class="sub-tab-btn" data-dev-route="admin.faqs.index" data-dev-method="GET" data-dev-url="/sj-admin/faqs" data-dev-perm="조회" onclick="switchTab('faq')" id="tab-btn-faq">
+
+          ❓ 자주 묻는 질문 (FAQ) <span class="cnt" id="cnt-faq">7</span>
+
+        </button>
+
+        <button class="sub-tab-btn" data-dev-route="admin.product-qnas.index" data-dev-method="GET" data-dev-url="/sj-admin/product-qnas" data-dev-perm="조회" onclick="switchTab('pqna')" id="tab-btn-pqna">
+
+          🛒 상품 Q&amp;A <span class="cnt" id="cnt-pqna">0</span>
+
+        </button>
+
+        <button class="sub-tab-btn" data-dev-route="admin.study-qnas.index" data-dev-method="GET" data-dev-url="/sj-admin/study-qnas" data-dev-perm="조회" onclick="switchTab('qna')" id="tab-btn-qna">
+
+          🎓 강좌 학습 Q&amp;A <span class="cnt" id="cnt-qna">3</span>
+
+        </button>
+
+        <button class="sub-tab-btn" data-dev-route="admin.winners.index" data-dev-method="GET" data-dev-url="/sj-admin/winners" data-dev-perm="조회" onclick="switchTab('winner')" id="tab-btn-winner">
+
+          🎁 이벤트 당첨자 발표·지급 (ADMN-BRD-009) <span class="cnt" id="cnt-winner">3</span>
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ==================== 1. 공지사항 (ADMN-BRD-001) ==================== -->
+
+    <section id="view-notice" class="view-section active">
+
+      <div class="card">
+
+        <div class="filter-grid">
+
+          <div class="filter-left">
+
+            <select id="notice-cat-filter" data-dev-flag="proto-only" data-dev-note="공지 분류 — 개발 없음(게시판 code=notice 하나). 개발 필터: status · pinned · device_scope · date_from · date_to · author" onchange="renderNotices()">
+
+              <option value="ALL">전체 분류</option>
+
+              <option value="일반공지">일반공지</option>
+
+              <option value="시험일정">시험일정</option>
+
+              <option value="시스템점검">시스템점검</option>
+
+              <option value="당첨자발표연동">당첨자발표 연동</option>
+
+            </select>
+
+            <input type="text" id="notice-keyword" name="keyword" data-dev-note="개발 keyword = 제목 + 본문" placeholder="공지 제목 검색..." oninput="renderNotices()" style="width:240px;" />
+
+          </div>
+
+          <div class="filter-right">
+
+            <button class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.notices.status.update" data-dev-method="PUT" data-dev-url="/sj-admin/notices/status" data-dev-perm="수정" data-dev-note="bulkForm: ids[]">선택 숨김</button>
+            <button class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.notices.selected.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/notices/selected" data-dev-perm="삭제" data-dev-note="bulkForm: ids[] (소프트 삭제)">선택 삭제</button>
+            <button class="btn btn-primary" data-dev-route="admin.notices.create" data-dev-method="GET" data-dev-url="/sj-admin/notices/create" data-dev-perm="등록" onclick="openNoticePage(null)">+ 공지사항 신규 등록</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card" style="padding:0; overflow:hidden;">
+
+        <table class="data-table">
+
+          <thead>
+
+            <tr>
+
+              <th style="width:80px;">번호/고정</th>
+
+              <th style="width:120px;">분류</th>
+
+              <th>제목</th>
+
+              <th style="width:140px;">첨부파일</th>
+
+              <th style="width:100px;">조회수</th>
+
+              <th style="width:110px;">노출상태</th>
+
+              <th style="width:120px;">등록일</th>
+
+              <th style="width:130px;">관리</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="notice-tbody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================== 2. FAQ 관리 + 카테고리 동적 관리 (ADMN-BRD-006) ==================== -->
+
+    <section id="view-faq" class="view-section">
+
+      <div class="card">
+
+        <div class="info-callout">
+
+          <strong>[ADMN-BRD-006] FAQ 동적 카테고리 관리:</strong> 고정된 분류 외에 <code>[기타]</code>, <code>[모바일/플레이어]</code> 등 신규 FAQ 카테고리를 자유롭게 추가·이름 수정·노출 순서 조정할 수 있으며, 사용자 고객센터(<code>USER-CS-002</code>) 탭에 즉시 반영됩니다.
+
+        </div>
+
+
+
+        <div class="cat-pill-bar" id="faq-cat-pills"></div>
+
+
+
+        <div class="filter-grid">
+
+          <div class="filter-left">
+
+            <input type="text" id="faq-keyword" name="keyword" data-dev-note="개발은 질문만 검색" placeholder="질문(Q) 또는 답변(A) 키워드 검색..." oninput="renderFaqs()" style="width:280px;" />
+
+          </div>
+
+          <div class="filter-right">
+
+            <button class="btn btn-outline" data-dev-note="개발 FAQ 카테고리는 목록 화면 안 인라인 폼(name + 삭제)" onclick="openFaqCategoryModal()">⚙️ FAQ 카테고리 관리 (추가/수정/순서)</button>
+
+            <button class="btn btn-primary" data-dev-route="admin.faqs.create" data-dev-method="GET" data-dev-url="/sj-admin/faqs/create" data-dev-perm="등록" data-dev-note="개발 목록 일괄: admin.faqs.status.update(is_visible) · admin.faqs.category.update(category_id), ids[] 1~200" onclick="openFaqPage(null)">+ FAQ 문답 등록</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card" style="padding:0; overflow:hidden;">
+
+        <table class="data-table">
+
+          <thead>
+
+            <tr>
+
+              <th style="width:80px;">노출순서</th>
+
+              <th style="width:140px;">FAQ 카테고리</th>
+
+              <th>질문 (Question)</th>
+
+              <th style="width:110px;">자주 찾는 TOP</th>
+
+              <th style="width:100px;">노출상태</th>
+
+              <th style="width:120px;">최종 수정일</th>
+
+              <th style="width:140px;">관리</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="faq-tbody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+
+
+
+    <!-- ==================== 3. 상품 Q&A (ADMN-BRD-003) ==================== -->
+    <section id="view-pqna" class="view-section">
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">상품 문의 (최근 30일)</div>
+          <div class="kpi-val" id="pqna-kpi-total">0건</div>
+          <div class="kpi-sub" id="pqna-kpi-split">교재 0건 · 강좌 0건</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">미답변</div>
+          <div class="kpi-val" style="color:#d97706;" id="pqna-kpi-wait">0건</div>
+          <div class="kpi-sub">답변 등록 시 작성 회원에게 알림톡 발송</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">담당 미지정</div>
+          <div class="kpi-val" style="color:#dc2626;" id="pqna-kpi-unassigned">0건</div>
+          <div class="kpi-sub">담당 부서 일괄 지정으로 배분 (부서는 운영자 권한 관리의 역할 그룹)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">파손 다발 상품</div>
+          <div class="kpi-val" id="pqna-kpi-damage">0개</div>
+          <div class="kpi-sub">같은 상품 파손/오배송 문의 30일 내 5건 이상</div>
+        </div>
+      </div>
+      <div class="ctx-note" id="pqna-damage-banner" style="display:none; background:#fef2f2; border-color:#fecaca; color:#991b1b;"></div>
+      <div class="card">
+        <div class="filter-grid">
+          <div class="filter-left">
+            <input type="text" id="pqna-keyword" name="keyword" placeholder="상품명 · 상품 ID · 제목 · 회원 검색..." oninput="renderPqna()" style="width:240px;" />
+            <select id="pqna-type" name="inquiry_type" data-dev-note="개발 현재 값 composition · price · delivery · period · etc — 프로토타입 5종은 개발 옛 값(LEGACY_INQUIRY_TYPES)(정책 질문)" onchange="renderPqna()">
+              <option value="ALL">문의 유형 전체</option>
+              <option>파손/오배송</option>
+              <option>배송문의</option>
+              <option>오탈자/내용 오류</option>
+              <option>재고/재입고</option>
+              <option>강좌 수강</option>
+            </select>
+            <select id="pqna-owner" name="assign_dept" data-dev-value="logistics 물류팀 · ta 조교 · cs CS" onchange="renderPqna()">
+              <option value="ALL">담당 부서 전체</option>
+              <option value="NONE">담당 미지정</option>
+            </select>
+            <select id="pqna-status" name="status" data-dev-value="pending · answered · hidden" onchange="renderPqna()">
+              <option value="ALL">처리 상태 전체</option>
+              <option value="WAITING" selected>미답변</option> data-dev-name="status" data-dev-value="pending"
+              <option value="DONE">답변완료</option> data-dev-name="status" data-dev-value="answered"
+              <option value="HIDDEN">숨김</option> data-dev-name="status" data-dev-value="hidden"
+            </select>
+            <select id="pqna-open" name="is_secret" onchange="renderPqna()">
+              <option value="ALL">공개 여부 전체</option>
+              <option value="PUBLIC">공개</option> data-dev-name="is_secret" data-dev-value="0"
+              <option value="SECRET">비밀글</option> data-dev-name="is_secret" data-dev-value="1"
+            </select>
+            <button class="btn btn-outline btn-sm" onclick="resetPqnaFilter()">초기화</button>
+          </div>
+        </div>
+        <div class="cat-pill-bar" id="pqna-kind-pills" style="margin-top:12px;"></div>
+      </div>
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div class="filter-grid" style="padding:12px 16px; border-bottom:1px solid var(--border);">
+          <div class="filter-left"><strong id="pqna-summary">0건 · 미답변 0건</strong></div>
+          <div class="filter-right">
+            <select id="pqna-bulk-owner" name="assign_user_id" data-dev-note="개발 일괄 지정은 부서가 아니라 담당자(사람)">
+            </select>
+            <button class="btn btn-outline btn-sm" data-dev-route="admin.product-qnas.assignees.update" data-dev-method="PUT" data-dev-url="/sj-admin/product-qnas/assignees" data-dev-perm="수정" data-dev-note="bulkAssignForm: ids[] · assign_user_id" onclick="bulkAssignPqna()">담당 부서 일괄 지정</button>
+            <button class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="상품 Q&amp;A 선택 숨김 일괄 — 개발 없음(건별 action=hide)" onclick="bulkHidePqna()">선택 숨김</button>
+            <button class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="상품 Q&A 엑셀 — 개발 없음" onclick="showToast('현재 조회 조건의 상품 Q&A 목록 엑셀 다운로드를 시작합니다.')">엑셀 다운로드</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:36px;"><input type="checkbox" id="pqna-check-all" data-dev-name="ids[]" onchange="toggleAllPqna(this.checked)" /></th>
+              <th style="width:80px;">문의일</th>
+              <th style="width:60px;">구분</th>
+              <th style="width:210px;">상품 (자동 매핑)</th>
+              <th>제목</th>
+              <th style="width:120px;">회원</th>
+              <th style="width:50px;">첨부</th>
+              <th style="width:110px;">담당</th>
+              <th style="width:70px;">공개</th>
+              <th style="width:80px;">상태</th>
+              <th style="width:80px;">처리</th>
+            </tr>
+          </thead>
+          <tbody id="pqna-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+    <!-- ==================== 4. 강좌 학습 Q&A (ADMN-BRD-004) ==================== -->
+
+    <section id="view-qna" class="view-section">
+
+      <div class="card" style="padding:0; overflow:hidden;">
+
+        <table class="data-table">
+
+          <thead>
+
+            <tr>
+
+              <th style="width:110px;">질문번호</th>
+
+              <th style="width:210px;">대상 강좌 / 담당 강사</th>
+
+              <th style="width:120px;">강의 타임스탬프</th>
+
+              <th>질문 제목</th>
+
+              <th style="width:130px;">작성 수강생</th>
+
+              <th style="width:110px;">답변상태</th>
+
+              <th style="width:130px;">관리</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="qna-tbody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================== 5. 이벤트 당첨자 발표 및 상품 지급 (ADMN-BRD-009) ==================== -->
+
+    <section id="view-winner" class="view-section">
+
+      <div class="kpi-row">
+
+        <div class="kpi-card">
+
+          <div class="kpi-label">등록된 당첨자 발표 공고</div>
+
+          <div class="kpi-val" id="win-kpi-posts">3건</div>
+
+          <div class="kpi-sub">프론트 이벤트 당첨자 탭 실시간 노출</div>
+
+        </div>
+
+        <div class="kpi-card">
+
+          <div class="kpi-label">전체 당첨 대상자 수</div>
+
+          <div class="kpi-val" id="win-kpi-total">6명</div>
+
+          <div class="kpi-sub">개인정보 자동 마스킹(홍*동, 010-****-1234) 적용</div>
+
+        </div>
+
+        <div class="kpi-card">
+
+          <div class="kpi-label">지급 완료 (포인트/기프티콘/실물)</div>
+
+          <div class="kpi-val" style="color:var(--success);" id="win-kpi-done">4명</div>
+
+          <div class="kpi-sub">포인트 원장(ADMN-PROM-003) 및 알림톡 연동</div>
+
+        </div>
+
+        <div class="kpi-card">
+
+          <div class="kpi-label">미지급 / 배송지 입력 대기</div>
+
+          <div class="kpi-val" style="color:var(--warning);" id="win-kpi-wait">2명</div>
+
+          <div class="kpi-sub">선택 일괄 지급 또는 송장 등록 가능</div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="info-callout">
+
+          <strong>[ADMN-BRD-009] 당첨자 발표 프론트 노출 위치 및 지급 플로우:</strong><br/>
+
+          [1] <strong>프론트 노출:</strong> 발표글 등록 시 <strong>사용자 웹 [이벤트 &gt; 당첨자 발표 탭(<code>USER-PROM-001</code>)]</strong>에 기본 노출되며, 옵션 선택 시 <strong>[고객센터 &gt; 공지사항(<code>USER-CS-001</code>)] 상단 배너</strong>에 동시 노출됩니다.<br/>
+
+          [2] <strong>경품 지급 연동:</strong> <code>포인트/쿠폰</code>은 <strong>[선택 당첨자 일괄 즉시 지급]</strong> 시 회원 포인트 원장(<code>ADMN-PROM-003</code>)에 즉시 적립되고, <code>기프티콘</code>은 알림톡/MMS 발송, <code>실물 경품</code>은 당첨자 배송지 수집 후 송장번호를 입력합니다.
+
+        </div>
+
+
+
+        <div class="filter-grid">
+          <div class="filter-left">
+            <span style="font-weight:800; font-size:14px;">당첨자 발표 공고 목록</span>
+            <span style="font-size:12px; color:var(--text-sub);">발표를 열면 발표 글 · 노출 설정과 당첨자 명단 · 경품 지급을 한 화면에서 처리합니다.</span>
+          </div>
+          <div class="filter-right">
+            <button class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.winners.status.update" data-dev-method="PUT" data-dev-url="/sj-admin/winners/status" data-dev-perm="수정" data-dev-note="hideForm: ids[]">선택 숨김</button>
+            <button class="btn btn-primary" data-dev-route="admin.winners.create" data-dev-method="GET" data-dev-url="/sj-admin/winners/create" data-dev-perm="등록" onclick="openWinnerPage(null)">+ 신규 당첨자 발표 등록</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:110px;">발표 번호</th>
+              <th style="width:250px;">연결 이벤트 (ADMN-PROM-001)</th>
+              <th>당첨자 발표 제목</th>
+              <th style="width:110px;">발표 상태</th>
+              <th style="width:100px;">발표일</th>
+              <th style="width:170px;">노출 위치</th>
+              <th style="width:120px;">당첨자 / 지급</th>
+              <th style="width:90px;">관리</th>
+            </tr>
+          </thead>
+          <tbody id="winner-post-tbody"></tbody>
+        </table>
+      </div>
+
+    </section>
+
+    </section>
+
+    <!-- ==================== 하위 화면(S) — 화면설계서 v12 별도 페이지, SJM_PAGE (common-snb.js) ==================== -->
+
+    <!-- 공지사항 등록 · 수정 (ADMN-BRD-001-S1) -->
+    <section class="subview-panel" data-subpage="notice-form">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 공지사항 목록</button>
+        <span class="crumb-code">ADMN-BRD-001-S1</span>
+        <h2 class="subpage-title" id="notice-modal-title">공지사항 등록</h2>
+      </div>
+      <div class="card subpage-card" style="max-width:960px;">
+        <input type="hidden" id="notice-edit-id" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">공지 분류 *</label>
+            <select id="notice-form-cat" data-dev-flag="proto-only" data-dev-note="공지 분류 선택 — 개발 없음(정책 질문)">
+              <option value="일반공지">일반공지</option>
+              <option value="시험일정">시험일정</option>
+              <option value="시스템점검">시스템점검</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">상단 고정 및 노출</label>
+            <div style="display:flex; gap:14px; align-items:center; height:36px;">
+              <label><input type="checkbox" id="notice-form-pin" name="is_pinned" data-dev-note="고정 최대 5건(Post::PIN_MAX). 순위는 pin_order 1~5" data-dev-value="1" /> 상단 고정 공지</label>
+              <label><input type="checkbox" id="notice-form-visible" checked data-dev-note="개발 publish_mode 3택: immediate · scheduled · draft. 숨김은 목록 일괄 숨김으로만" data-dev-name="publish_mode" data-dev-value="immediate(켬) · draft(끔)" /> 즉시 노출</label>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">상단 고정은 최대 5건까지 지정할 수 있습니다. 즉시 노출을 끄면 숨김(비노출) 상태로 저장됩니다.</div>
+          </div>
+          <div class="form-group" data-dev-flag="dev-only" data-dev-note="NoticeRequest: device_pc · device_mobile(하나 이상) → device_scope all · pc · mobile">
+            <label class="form-label">노출 기기 *</label>
+            <div style="display:flex; gap:14px; align-items:center; height:36px;">
+              <label><input type="checkbox" name="device_pc" value="1" checked /> PC</label>
+              <label><input type="checkbox" name="device_mobile" value="1" checked /> 모바일</label>
+            </div>
+          </div>
+          <div class="form-group" data-dev-flag="dev-only" data-dev-note="publish_mode=scheduled일 때 published_at 필수(과거 시각 거부). 게시 기간 started_at · ended_at">
+            <label class="form-label">발행 방식 · 예약 시각</label>
+            <div style="display:flex; gap:8px;">
+              <select name="publish_mode" style="width:140px;"><option value="immediate">즉시 발행</option><option value="scheduled">예약 발행</option><option value="draft">임시 저장</option></select>
+              <input type="datetime-local" id="publishedAt" name="published_at" step="300" style="flex:1;" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">공지 제목 *</label>
+            <input type="text" id="notice-form-title" name="title" data-dev-note="max:100" placeholder="공지사항 제목을 입력하세요" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">공지 본문 (웹 에디터) *</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execEditorCmd('notice-form-body','bold')"><b>B</b></button>
+                <button type="button" onclick="execEditorCmd('notice-form-body','underline')"><u>U</u></button>
+              </div>
+              <div id="notice-form-body" data-dev-note="Purifier 저장. 첨부 attachments[] 최대 5개 · 개당 10MB(jpg · png · pdf · hwp · zip)" data-dev-name="content" class="rich-area" contenteditable="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" data-dev-route="admin.notices.store | admin.notices.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/notices | /notices/{notice}" data-dev-perm="등록 | 수정" onclick="saveNoticeItem()">저장</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ 문답 등록 · 수정 (ADMN-BRD-006-S1) — 카테고리 설정은 목록의 팝업(modal-faq-cat) 그대로 -->
+    <section class="subview-panel" data-subpage="faq-form">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← FAQ 목록</button>
+        <span class="crumb-code">ADMN-BRD-006-S1</span>
+        <h2 class="subpage-title" id="faq-modal-title">FAQ 문답 등록</h2>
+      </div>
+      <div class="card subpage-card" style="max-width:960px;">
+        <input type="hidden" id="faq-edit-id" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">FAQ 카테고리 선택 *</label>
+            <select id="faq-form-cat" name="category_id" data-dev-note="faq_categories.id"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">노출 옵션</label>
+            <div style="display:flex; gap:14px; align-items:center; height:36px;">
+              <label><input type="checkbox" id="faq-form-top" data-dev-flag="proto-only" data-dev-note="자주 찾는 TOP 고정 — 개발은 weight(0~999, 클수록 위) 정렬(정책 질문)" /> 자주 찾는 질문 TOP 고정</label>
+              <label><input type="checkbox" id="faq-form-visible" name="is_visible" value="1" checked /> 프론트 노출</label>
+              <label data-dev-flag="dev-only" data-dev-note="faqWeight — required integer 0~999">가중치 <input type="number" name="weight" min="0" max="999" value="0" style="width:70px;" /></label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">질문 (Question) *</label>
+            <input type="text" id="faq-form-q" name="question" data-dev-note="max:100" placeholder="수강생이 자주 묻는 질문을 입력하세요" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">답변 (Answer — 웹 에디터) *</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execEditorCmd('faq-form-a','bold')"><b>B</b></button>
+                <button type="button" onclick="execEditorCmd('faq-form-a','underline')"><u>U</u></button>
+                <button type="button" onclick="insertSampleLink('faq-form-a')">🔗 안내 링크 삽입</button>
+              </div>
+              <div id="faq-form-a" data-dev-name="answer" class="rich-area" contenteditable="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" data-dev-route="admin.faqs.store | admin.faqs.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/faqs | /faqs/{faq}" data-dev-perm="등록 | 수정" onclick="saveFaqItem()">저장</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 당첨자 발표 등록 · 수정 (ADMN-BRD-009-S1) — 발표 글 · 노출 설정 + 당첨자 명단 추가 · 경품 지급 원장을 한 페이지로 -->
+    <section class="subview-panel" data-subpage="winner-post">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 당첨자 발표 목록</button>
+        <span class="crumb-code">ADMN-BRD-009-S1</span>
+        <h2 class="subpage-title" id="winner-post-modal-title">신규 이벤트 당첨자 발표 등록</h2>
+      </div>
+      <div class="card subpage-card">
+        <div style="font-weight:800; font-size:14px; margin:10px 0 12px;">발표 글 · 노출 설정</div>
+        <input type="hidden" id="winpost-mode" value="NEW" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">연결할 프로모션/이벤트 (ADMN-PROM-001) *</label>
+            <select id="winpost-event-code" name="promotion_id" data-dev-note="promotionSelect — 이벤트 1:1"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">발표 상태 및 예약일시</label>
+            <div style="display:flex; gap:8px;">
+              <select id="winpost-status" name="publish_mode" data-dev-value="immediate · scheduled" style="width:140px;">
+                <option value="PUBLISHED">즉시 게시 (노출)</option> data-dev-name="publish_mode" data-dev-value="immediate"
+                <option value="SCHEDULED">예약 게시</option> data-dev-name="publish_mode" data-dev-value="scheduled"
+                <option value="DRAFT" data-dev-flag="proto-only" data-dev-note="임시저장 발표 — 개발 없음(2택)">임시저장 (비노출)</option>
+              </select>
+              <input type="date" id="winpost-date" name="published_at" data-dev-note="publishedAt — scheduled일 때 필수" value="2026-10-19" style="flex:1;" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">당첨자 발표 제목 *</label>
+            <input type="text" id="winpost-title" name="title" data-dev-note="titleInput — max:100" placeholder="예: [당첨자 발표] 2026 산준모 합격기원 수강신청 댓글 이벤트 당첨 안내" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">사용자 웹(Front) 노출 위치 및 알림 연동 *</label>
+            <div style="display:flex; flex-wrap:wrap; gap:18px; padding:10px 14px; background:#f8fafc; border:1px solid var(--border); border-radius:8px;">
+              <label><input type="checkbox" id="winpost-exp-event" data-dev-flag="proto-only" data-dev-note="노출 위치 선택 — 개발 없음" checked /> <strong>이벤트 &gt; 당첨자 발표 탭 (USER-PROM-001)</strong> 노출</label>
+              <label><input type="checkbox" id="winpost-exp-notice" data-dev-flag="proto-only" data-dev-note="공지사항 상단 동시 노출 — 개발 없음" checked /> <strong>고객센터 &gt; 공지사항 (USER-CS-001)</strong> 상단 동시 노출</label>
+              <label><input type="checkbox" id="winpost-send-alim" data-dev-flag="proto-only" data-dev-note="당첨자 개별 알림톡 — 개발 없음" checked /> 게시와 동시에 당첨자 개별 알림톡(<code>ADMN-CONF-004</code>) 발송</label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">발표 안내 본문 (웹 에디터 — 경품 수령 유의사항 및 제세공과금 안내) *</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execEditorCmd('winpost-body','bold')"><b>B</b></button>
+                <button type="button" onclick="execEditorCmd('winpost-body','underline')"><u>U</u></button>
+                <button type="button" onclick="insertWinnerTemplateText()">📋 표준 당첨 안내문 템플릿 삽입</button>
+              </div>
+              <div id="winpost-body" data-dev-name="content" class="rich-area" contenteditable="true"></div>
+            </div>
+          </div>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" data-dev-route="admin.winners.store | admin.winners.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/winners | /winners/{winner}" data-dev-perm="등록 | 수정" data-dev-note="명단은 winners_text(줄마다 아이디 · 경품) 또는 winners_file(xlsx 2MB) — 저장 시 회원 아이디 대조 · 마스킹 값만 저장" onclick="saveWinnerPost()">발표글 저장 및 프론트 반영</button>
+        </div>
+      </div>
+
+      <div class="card" id="winner-ledger-empty" style="display:none; color:var(--text-sub);">
+        <strong>당첨자 명단 및 경품 지급 원장</strong> — 발표글을 먼저 저장하면 이 화면에서 당첨자 명단을 추가하고 경품을 지급할 수 있습니다.
+      </div>
+
+      <!-- 당첨자 명단 및 지급 액션 테이블 -->
+      <div class="card" id="winner-ledger" style="padding:0; overflow:hidden;">
+        <div style="padding:14px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <div style="font-weight:800; font-size:14px;">당첨자 명단 및 경품 지급 원장 <span id="winner-ledger-sum" style="font-weight:600; font-size:12px; color:var(--text-sub);"></span></div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <select id="winner-status-filter" onchange="renderWinnerTable()">
+              <option value="ALL">지급상태 전체</option>
+              <option value="PENDING">지급대기</option>
+              <option value="COMPLETED">지급완료</option>
+            </select>
+            <button type="button" class="btn btn-outline btn-sm" data-dev-flag="dev-only" data-dev-route="admin.winners.template.download" data-dev-method="GET" data-dev-url="/sj-admin/winners/template/download" data-dev-perm="다운로드">명단 엑셀 양식</button>
+            <label class="btn btn-outline btn-sm" data-dev-flag="dev-only" data-dev-note="winners_file — xlsx · 2MB">명단 엑셀 업로드 <input type="file" name="winners_file" accept=".xlsx" style="display:none;" /></label>
+            <button type="button" class="btn btn-outline btn-sm" onclick="toggleWinnerRowForm(true)">+ 당첨자 개별/엑셀 추가</button>
+            <button type="button" class="btn btn-success btn-sm" data-dev-flag="proto-only" data-dev-note="경품 일괄 지급 — 개발 없음" onclick="batchGrantSelectedWinners()">⚡ 선택 당첨자 일괄 즉시 지급 (포인트/기프티콘)</button>
+          </div>
+        </div>
+        <!-- 당첨자 명단 추가 (자동 마스킹 적용) — 예전 별도 팝업을 페이지 안 입력 영역으로 -->
+        <div id="winner-row-form" style="display:none; padding:14px 18px; border-bottom:1px solid var(--border); background:#f8fafc;">
+          <div style="font-weight:800; margin-bottom:10px;">+ 당첨자 대상 추가 (자동 마스킹 적용)</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">등수 / 구분 *</label>
+              <input type="text" id="winrow-rank" value="1등" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">경품 지급 유형 *</label>
+              <select id="winrow-type" data-dev-flag="proto-only" data-dev-note="경품 지급 유형 — 개발 없음(정책 질문)">
+                <option value="POINT">포인트 즉시 적립 (ADMN-PROM-003 연동)</option>
+                <option value="GIFTICON">모바일 기프티콘 (알림톡/MMS 발송)</option>
+                <option value="PHYSICAL">실물 경품 (배송지 수집 / 송장 입력)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">당첨 회원명 / ID *</label>
+              <input type="text" id="winrow-name" placeholder="예: 김산준 (sanjun99)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">휴대폰 번호 *</label>
+              <input type="text" id="winrow-phone" data-dev-flag="proto-only" data-dev-note="원본 휴대폰 — 개발은 원본 미저장(마스킹 값만)" placeholder="예: 010-8821-4512" />
+            </div>
+            <div class="form-group full">
+              <label class="form-label">지급 경품명 / 포인트 금액 *</label>
+              <input type="text" id="winrow-prize" placeholder="예: 학습지원 무상 포인트 10,000P 또는 스타벅스 아메리카노" />
+            </div>
+          </div>
+          <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+            <button type="button" class="btn btn-outline btn-sm" onclick="toggleWinnerRowForm(false)">취소</button>
+            <button type="button" class="btn btn-primary btn-sm" data-dev-note="개발은 줄마다 '아이디 경품' 텍스트로 받음" data-dev-name="winners_text" onclick="addWinnerRow()">당첨자 명단 추가</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:42px;"><input type="checkbox" id="win-chk-all" onclick="toggleAllWinnerChecks(this.checked)" /></th>
+              <th style="width:90px;">등수/구분</th>
+              <th style="width:160px;">당첨 회원 (원본)</th>
+              <th style="width:170px;">프론트 노출 (자동 마스킹)</th>
+              <th style="width:120px;">경품 유형</th>
+              <th>지급 경품명 / 수량</th>
+              <th style="width:120px;">지급 상태</th>
+              <th style="width:170px;">지급일시 / 송장번호</th>
+              <th style="width:150px;">개별 액션</th>
+            </tr>
+          </thead>
+          <tbody id="winner-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+</div>
+
+
+
+<!-- ==================== 모달 1: FAQ 카테고리 동적 관리 (ADMN-BRD-006) ==================== -->
+
+<div class="modal-backdrop" id="modal-faq-cat">
+
+  <div class="modal-box" style="max-width:680px;">
+
+    <div class="modal-header">
+
+      <h3>⚙️ FAQ 카테고리 설정 (신규 추가 / 이름 변경 / 순서 관리)</h3>
+
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-faq-cat')">닫기 ✕</button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="info-callout">
+
+        고정 분류 외에 <code>기타</code>, <code>환급반/장학금</code>, <code>모바일 플레이어</code> 등 카테고리를 추가하거나 명칭을 변경할 수 있습니다.
+
+      </div>
+
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+
+        <input type="text" id="new-faq-cat-name" name="name" data-dev-note="max:50" placeholder="추가할 카테고리명 입력 (예: 기타, 제휴/단체수강)" style="flex:1;" />
+
+        <button class="btn btn-primary" data-dev-route="admin.faqs.categories.store" data-dev-method="POST" data-dev-url="/sj-admin/faqs/categories" data-dev-perm="등록" data-dev-note="sort_order · is_active는 추가 때만" onclick="addFaqCategory()">+ 카테고리 추가</button>
+
+      </div>
+
+      <table class="data-table">
+
+        <thead>
+
+          <tr>
+
+            <th style="width:70px;">순서</th>
+
+            <th>카테고리명 (직접 수정 가능)</th>
+
+            <th style="width:100px;">등록 FAQ 수</th>
+
+            <th style="width:100px;">노출여부</th>
+
+            <th style="width:140px;">순서/삭제</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="faq-cat-modal-tbody"></tbody>
+
+      </table>
+
+    </div>
+
+    <div class="modal-footer">
+
+      <button class="btn btn-primary" onclick="closeModal('modal-faq-cat'); showToast('FAQ 카테고리 설정이 저장되었습니다.');">설정 완료</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ==================== 모달: 상품 Q&A 답변 등록 (ADMN-BRD-003-S1) — 건별 판단: 목록을 보며 빠르게 처리하는 답변이라 모달 유지 ==================== -->
+<div class="modal-backdrop" id="modal-pqna">
+  <div class="modal-box" style="max-width:720px;">
+    <div class="modal-header">
+      <h3 id="pqna-modal-title">상품 Q&amp;A 답변 등록</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-pqna')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="ctx-note" id="pqna-modal-product"></div>
+      <div class="ctx-note" id="pqna-modal-order" style="background:#f8fafc; border-color:#e2e8f0; color:#334155;"></div>
+      <div class="ctx-note" id="pqna-modal-damage" style="display:none; background:#fef2f2; border-color:#fecaca; color:#991b1b;"></div>
+      <div class="ctx-note" id="pqna-modal-handler"></div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label">문의 내용</label>
+          <div id="pqna-modal-question" style="padding:12px 14px; border:1px solid var(--border); border-radius:8px; background:#f8fafc; line-height:1.6;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">담당 부서 *</label>
+          <select id="pqna-modal-owner" name="assign_dept" data-dev-value="logistics · ta · cs (프로토타입은 SJM_MASTER 역할 그룹)">
+            <option value="">담당 미지정</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">공개 설정</label>
+          <select id="pqna-modal-open" name="is_secret">
+            <option value="PUBLIC">공개 (상품 상세에 노출)</option> data-dev-name="is_secret" data-dev-value="0"
+            <option value="SECRET">비밀글 (작성 회원만 열람)</option> data-dev-name="is_secret" data-dev-value="1 (action=secret 비밀글 전환)"
+          </select>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">답변 본문 *</label>
+          <textarea id="pqna-modal-answer" name="answer_content" data-dev-note="action=answer일 때 필수 · min:10" rows="6" style="width:100%;" placeholder="회원에게 노출될 답변을 입력하세요. 등록 즉시 알림톡이 발송됩니다."></textarea>
+        </div>
+      </div>
+      <div class="ctx-note" id="pqna-modal-errata" style="display:none; margin-top:12px;">오탈자/내용 오류 문의는 주간 리포트로 담당 강사 · 조교에게 전달되며, 확인된 오류는 공지사항 탭에서 오탈자 정정 공지로 안내합니다.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-dev-route="admin.product-qnas.update" data-dev-method="PUT" data-dev-url="/sj-admin/product-qnas/{productQna}" data-dev-perm="수정" data-dev-name="action" data-dev-value="hide" onclick="hidePqna()">숨김 처리</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-pqna')">취소</button>
+      <button class="btn btn-primary" id="pqna-modal-save" data-dev-route="admin.product-qnas.update" data-dev-method="PUT" data-dev-url="/sj-admin/product-qnas/{productQna}" data-dev-perm="수정" data-dev-note="알림 재발송은 admin.product-qnas.notifications.update" data-dev-name="action" data-dev-value="answer" onclick="savePqnaAnswer()">답변 등록 · 알림톡 발송</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 모달: 학습 Q&A 질문 상세 · 답변 (ADMN-BRD-004-S1, 운영자 · 조교용 — 강사용은 파트너 센터 같은 모달) ==================== -->
+<div class="modal-backdrop" id="modal-lqna">
+  <div class="modal-box" style="max-width:720px;">
+    <div class="modal-header">
+      <h3 id="lqna-page-title">학습 Q&amp;A 질문 상세 · 답변</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-lqna')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="ctx-note" id="lqna-mode-note"></div>
+      <div class="ctx-note" id="lqna-perm-note" style="background:#f8fafc; border-color:#e2e8f0; color:#334155;"></div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">질문 번호 · 답변 상태</label>
+          <div id="lqna-d-id" style="min-height:36px; display:flex; align-items:center; gap:8px; font-weight:700;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">질문자</label>
+          <div id="lqna-d-asker" style="min-height:36px; display:flex; align-items:center; flex-wrap:wrap; gap:6px;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">대상 강좌 / 담당 강사</label>
+          <div id="lqna-d-course" style="min-height:36px; display:flex; align-items:center;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">강의 타임스탬프</label>
+          <div id="lqna-d-ts" style="min-height:36px; display:flex; align-items:center;"></div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">질문 제목</label>
+          <div id="lqna-d-title" style="padding:12px 14px; border:1px solid var(--border); border-radius:8px; background:#f8fafc; line-height:1.6; font-weight:700;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">처리 역할 그룹 (시연용 선택)</label>
+          <select id="lqna-role" data-dev-flag="proto-only" data-dev-note="처리 역할 그룹(시연용) — 개발은 로그인 관리자 권한 · 담당 범위(instructor_id · assign_ta_id)" onchange="applyLqnaPerm()"></select>
+          <div id="lqna-role-note" style="font-size:11.5px; color:#991b1b; margin-top:4px;"></div>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">답변 본문 *</label>
+          <textarea id="lqna-answer" name="answer_content" data-dev-note="action=answer일 때 필수 · min:10" rows="6" style="width:100%;" placeholder="수강생이 이해하기 쉽게 답변을 작성해 주세요."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-lqna')">취소</button>
+      <button class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.study-qnas.update" data-dev-method="PUT" data-dev-url="/sj-admin/study-qnas/{studyQna}" data-dev-perm="수정" data-dev-note="강사 확인 요청. 개발 추가: is_public_qna(공개 Q&amp;A 전환) · notify(답변 알림, 기본 켬)" data-dev-name="action" data-dev-value="escalate">강사 확인 요청</button>
+      <button class="btn btn-primary" id="lqna-save" data-dev-route="admin.study-qnas.update" data-dev-method="PUT" data-dev-url="/sj-admin/study-qnas/{studyQna}" data-dev-perm="수정" data-dev-name="action" data-dev-value="answer" onclick="saveLqnaAnswer()">답변 등록</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-box" id="toast-box"></div>
+
+
+
+<script>
+
+  // 1. 공지사항 데이터
+
+  let NOTICES = [
+
+    { id: 104, pinned: true, cat: '시험일정', title: '[필독] 2026년 제3회 산업안전기사·건설안전기사 실기 시험장 유의사항 안내', file: '수험자유의사항.pdf', views: 1842, visible: true, date: '2026-10-18', body: '실기 시험 응시생 여러분께 안내드립니다.' },
+
+    { id: 103, pinned: true, cat: '당첨자발표연동', title: '[당첨자 발표] 2026 산준모 합격기원 수강신청 댓글 이벤트 당첨 안내', file: '-', views: 920, visible: true, date: '2026-10-17', body: '이벤트 당첨을 축하드립니다.' },
+
+    { id: 102, pinned: false, cat: '일반공지', title: '산업안전보건법령 개정사항 반영 특강 및 정답지 업데이트 안내', file: '개정법령요약.pdf', views: 615, visible: true, date: '2026-10-12', body: '개정 법령 특강이 업로드되었습니다.' },
+
+    { id: 101, pinned: false, cat: '시스템점검', title: '10월 정기 서버 및 CDN 보안 패치 작업 안내 (10/22 02:00~04:00)', file: '-', views: 310, visible: true, date: '2026-10-10', body: '새벽 시간대 점검 안내입니다.' }
+
+  ];
+
+
+
+  // 2. FAQ 동적 카테고리 + FAQ 데이터
+
+  let FAQ_CATEGORIES = [
+
+    { id: 'CAT-01', name: '수강/플레이어', order: 1, visible: true },
+
+    { id: 'CAT-02', name: '결제/환불', order: 2, visible: true },
+
+    { id: 'CAT-03', name: '교재/배송', order: 3, visible: true },
+
+    { id: 'CAT-04', name: '합격환급반', order: 4, visible: true },
+
+    { id: 'CAT-05', name: '회원/수강증빙', order: 5, visible: true },
+
+    { id: 'CAT-06', name: '기타', order: 6, visible: true }
+
+  ];
+
+  let selectedFaqCat = 'ALL';
+
+
+
+  let FAQS = [
+
+    { id: 1, order: 1, cat: '수강/플레이어', q: '모바일 기기 등록 대수 제한과 기기 초기화는 어떻게 하나요?', a: 'ID당 PC 2대, 모바일 2대까지 자동 등록되며 연 2회 직접 초기화 가능합니다.', top: true, visible: true, updated: '2026-10-15' },
+
+    { id: 2, order: 2, cat: '결제/환불', q: '패키지 강좌 수강 중 중도 환불 시 교재비와 할인금액은 어떻게 계산되나요?', a: '평생교육법 시행령 기준에 따라 기수강 정가 차감 및 출고 교재비 공제 후 환불됩니다.', top: true, visible: true, updated: '2026-10-14' },
+
+    { id: 3, order: 3, cat: '교재/배송', q: '평일 오후 2시 이전에 주문하면 당일 출고되나요?', a: '네, 평일 14시 이전 결제 완료 건은 CJ대한통운을 통해 당일 출고됩니다.', top: true, visible: true, updated: '2026-10-12' },
+
+    { id: 4, order: 4, cat: '합격환급반', q: '합격환급반 신청 시 제세공과금(22%)과 PG 수수료 공제 기준이 궁금합니다.', a: '소득세법상 기타소득 세율 22% 원천징수 후 본인 명의 계좌로 지급됩니다.', top: true, visible: true, updated: '2026-10-11' },
+
+    { id: 5, order: 5, cat: '회원/수강증빙', q: '회사 제출용 수강확인증과 영수증은 어디서 발급받나요?', a: '마이페이지 > 증명서 발급 메뉴에서 PDF 즉시 출력이 가능합니다.', top: false, visible: true, updated: '2026-10-09' },
+
+    { id: 6, order: 6, cat: '기타', q: '정답지, 무료특강 빈출문제 자료는 어디서 보나요?', a: '학습지원센터 > 정답지 및 무료특강/빈출문제 메뉴에서 열람 및 다운로드하실 수 있습니다.', top: true, visible: true, updated: '2026-10-18' },
+
+    { id: 7, order: 7, cat: '기타', q: '기업/대학 단체 수강 신청 및 제휴 문의는 어떻게 진행하나요?', a: '고객센터 1:1 문의에 [단체수강]으로 남겨주시면 담당 매니저가 견적서를 발송해 드립니다.', top: false, visible: true, updated: '2026-10-16' }
+
+  ];
+
+
+
+  // 3. 상품 Q&A 데이터 (상품 상세 [문의하기]로만 생성되므로 상품 ID가 항상 채워진다)
+  const PQNA_TODAY = '2026-10-19';
+  let PQNA_LIST = [
+    { id: 'PQ-2610-118', date: '2026-10-19 09:12', kind: 'BOOK', productId: 'PROD-BK-1005', productName: '2026 산준모 산업안전기사 실기 필답형 모범답안집', stock: 38, type: '파손/오배송', title: '표지 모서리가 눌려서 왔어요. 교환되나요?', body: '오늘 받은 교재 표지 모서리가 눌려 있습니다. 사진 2장 첨부합니다. 교환 가능한지 문의드립니다.', user: '홍길동 (gdhong)', attach: 2, owner: 'RG-03', open: 'SECRET', status: 'WAITING', order: { no: 'ORD-20261016-0412', ship: '배송완료 (10.18)' } },
+    { id: 'PQ-2610-117', date: '2026-10-18 21:40', kind: 'BOOK', productId: 'PROD-BK-2014', productName: '산업안전기사 필기 빈출문제집', stock: 112, type: '오탈자/내용 오류', title: '184페이지 정답이 3번인데 해설은 4번으로 되어 있습니다', body: '2025년 3회 빈출 17번 문제입니다. 정답표는 3번, 해설은 4번으로 되어 있어 어느 쪽이 맞는지 확인 부탁드립니다.', user: '김수연 (sooyeon_k)', attach: 1, owner: 'RG-06', open: 'PUBLIC', status: 'WAITING', order: { no: 'ORD-20261002-0187', ship: '배송완료 (10.04)' } },
+    { id: 'PQ-2610-116', date: '2026-10-18 14:05', kind: 'COURSE', productId: 'LC-2026-0031', productName: '산업안전기사 필기+실기 올패스', stock: null, type: '강좌 수강', title: '올패스에 실기 작업형 교재도 포함되어 있나요?', body: '올패스 구매를 고민 중입니다. 실기 작업형 교재가 구성에 포함되는지 궁금합니다.', user: '박정우 (jwpark)', attach: 0, owner: 'RG-02', open: 'PUBLIC', status: 'DONE', order: null, answer: '올패스에는 필기 · 실기 필답형 교재 2권이 포함되며, 작업형 워크북은 별도 구매 상품입니다.' },
+    { id: 'PQ-2610-115', date: '2026-10-17 11:30', kind: 'BOOK', productId: 'PROD-BK-1005', productName: '2026 산준모 산업안전기사 실기 필답형 모범답안집', stock: 38, type: '파손/오배송', title: '책등이 찢어진 상태로 배송됐습니다', body: '책등 아래쪽이 3cm 정도 찢어져 있습니다.', user: '이서준 (seojun_l)', attach: 1, owner: '', open: 'SECRET', status: 'WAITING', order: { no: 'ORD-20261014-0233', ship: '배송완료 (10.16)' } },
+    { id: 'PQ-2610-114', date: '2026-10-16 18:22', kind: 'BOOK', productId: 'PROD-BK-1005', productName: '2026 산준모 산업안전기사 실기 필답형 모범답안집', stock: 38, type: '파손/오배송', title: '비닐 포장이 뜯겨 있고 페이지가 접혀 있어요', body: '포장 비닐이 뜯긴 채로 왔고 앞쪽 20페이지가 접혀 있습니다.', user: '최민아 (mina_c)', attach: 2, owner: 'RG-03', open: 'SECRET', status: 'DONE', order: { no: 'ORD-20261012-0098', ship: '교환 재출고 (10.17)' }, answer: '불편을 드려 죄송합니다. 교환 재출고를 접수했으며 10.17 출고되었습니다.' },
+    { id: 'PQ-2610-113', date: '2026-10-15 10:08', kind: 'BOOK', productId: 'PROD-BK-2016', productName: '건설안전기사 실기 작업형 워크북', stock: 0, type: '재고/재입고', title: '품절 표시인데 언제 재입고 되나요?', body: '11월 시험 전에 받아야 하는데 재입고 일정을 알 수 있을까요?', user: '정하늘 (haneul_j)', attach: 0, owner: '', open: 'PUBLIC', status: 'WAITING', order: null },
+    { id: 'PQ-2610-112', date: '2026-10-14 16:47', kind: 'BOOK', productId: 'PROD-BK-1005', productName: '2026 산준모 산업안전기사 실기 필답형 모범답안집', stock: 38, type: '파손/오배송', title: '모서리가 찍혀서 왔습니다. 사진 첨부합니다', body: '뒤표지 모서리가 찍혀 있습니다.', user: '윤서연 (syyoon)', attach: 3, owner: 'RG-03', open: 'SECRET', status: 'DONE', order: { no: 'ORD-20261010-0311', ship: '배송완료 (10.13)' }, answer: '사진 확인했습니다. 교환을 원하시면 반품 수거를 접수해 드리겠습니다.' },
+    { id: 'PQ-2610-111', date: '2026-10-12 13:15', kind: 'COURSE', productId: 'LC-2026-0018', productName: '건설안전기사 실기 작업형 단과', stock: null, type: '강좌 수강', title: '수강 기간이 며칠인가요? 연장도 되나요?', body: '수강 기간과 연장 가능 여부가 궁금합니다.', user: '한승우 (swhan)', attach: 0, owner: 'RG-02', open: 'PUBLIC', status: 'DONE', order: { no: 'ORD-20261001-0042', ship: '수강중' }, answer: '수강 기간은 결제일로부터 180일이며, 마이페이지에서 30일 단위 유료 연장이 가능합니다.' },
+    { id: 'PQ-2610-110', date: '2026-10-10 09:51', kind: 'BOOK', productId: 'PROD-BK-1005', productName: '2026 산준모 산업안전기사 실기 필답형 모범답안집', stock: 38, type: '파손/오배송', title: '다른 사람 이름의 송장이 붙어서 왔습니다(오배송)', body: '받는 사람이 다른 송장이 붙은 상자가 왔습니다.', user: '오지훈 (jihoon_o)', attach: 3, owner: 'RG-03', open: 'SECRET', status: 'HIDDEN', order: { no: 'ORD-20261007-0156', ship: '오배송 회수 (10.11)' } },
+    { id: 'PQ-2610-109', date: '2026-10-08 20:33', kind: 'BOOK', productId: 'PROD-BK-2014', productName: '산업안전기사 필기 빈출문제집', stock: 112, type: '배송문의', title: '주문 후 3일째인데 아직 배송준비중입니다', body: '10.05에 주문했는데 아직 배송준비중으로 나옵니다.', user: '강민재 (minjae_k)', attach: 0, owner: '', open: 'PUBLIC', status: 'WAITING', order: { no: 'ORD-20261005-0277', ship: '배송준비중' } }
+  ];
+
+  // 담당 부서는 공통 역할 그룹(운영자 권한 관리)에서, 처리자는 먼저 답변 화면을 연 사람이 선점한다
+  const M = window.SJM_MASTER;
+  const ME = '최상담';
+  const PQNA_HANDLER = {
+    'PQ-2610-117': { who: '정조교', since: '10.18 22:05' },
+    'PQ-2610-116': { who: '최상담', since: '10.18 14:30' },
+    'PQ-2610-114': { who: '최민아', since: '10.16 18:40' },
+    'PQ-2610-112': { who: '최민아', since: '10.14 17:02' },
+    'PQ-2610-111': { who: '최상담', since: '10.12 13:40' }
+  };
+  PQNA_LIST.forEach(p => { p.handler = PQNA_HANDLER[p.id] || null; });
+  // 상품 Q&A를 답변할 수 있는 담당 큐 역할 그룹(상품 Q&A 쓰기 권한 보유)
+  function pqnaOwnerGroups() { return M.roles.queues().filter(g => M.roles.has(g.id, 'pqna', 'W')); }
+  function fillPqnaOwnerOptions() {
+    const opts = pqnaOwnerGroups().map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+    const f = document.getElementById('pqna-owner');
+    f.innerHTML = '<option value="ALL">담당 부서 전체</option>' + opts + '<option value="NONE">담당 미지정</option>';
+    document.getElementById('pqna-bulk-owner').innerHTML = opts;
+    document.getElementById('pqna-modal-owner').innerHTML = '<option value="">담당 미지정</option>' + opts;
+  }
+  // 4. 학습 Q&A 데이터
+
+
+
+  let QNA_LIST = [
+
+    { id: 'QNA-4412', course: '2026 산업안전기사 필기 초단기 완성 / 이준호 강사', ts: '03강 18:42', title: '하인리히 재해코스트 방식에서 직접비:간접비 비율 적용 질문입니다.', user: '김태영 (tykim)', status: 'WAITING' },
+
+    { id: 'QNA-4411', course: '2026 건설안전기사 실기 작업형 마스터 / 박성진 강사', ts: '07강 24:10', title: '강관비계 벽이음 설치 간격 기준표 수치 확인 부탁드립니다.', user: '윤서연 (syyoon)', status: 'DONE', answer: '가설공사 표준안전 작업지침 기준으로 강관비계 벽이음은 수직 5m · 수평 5m 이내 간격입니다. 강의 07강 24:10 화면의 표 수치가 이 기준입니다.' },
+
+    { id: 'QNA-4410', course: '2026 인간공학 및 시스템안전공학 핵심 / 이준호 강사', ts: '11강 09:15', title: 'FTA 최소컷셋(Minimal Cut Set) 구하는 공식 예제 질문', user: '한승우 (swhan)', status: 'DONE', answer: '최소컷셋은 FT를 불 대수로 정리한 뒤 흡수법칙으로 중복을 지워 구합니다. 11강 09:15 예제를 기준으로 교재 3장 풀이를 함께 보시면 됩니다.' }
+
+  ];
+
+
+
+  // 5. 이벤트 당첨자 발표 및 지급 원장 (ADMN-BRD-009)
+  // 연결 이벤트는 이벤트 · 기획전 관리(ADMN-PROM-001)의 '이벤트' 구분 항목이며 코드는 PROM-001 형식(PRM-연월-이름)을 쓴다(v6.68, 구 EVT-* 폐기)
+  const WIN_EVENTS = [
+    { code: 'PRM-2610-CHEERUP', name: '2026 제3회 실기 시험 대비 수험생 합격다짐 댓글 이벤트' },
+    { code: 'PRM-2610-WISHCMT', name: '2026 산준모 합격기원 수강신청 댓글 이벤트' },
+    { code: 'PRM-2610-ATTEND', name: '산업안전기사 빈출문제 무료특강 출석체크 이벤트' },
+    { code: 'PRM-2610-EARLYBIRD', name: '가을 대비 프리패스 얼리버드 경품 추첨' },
+    { code: 'PRM-2610-NEWJOIN', name: '신규 가입 학습지원 포인트 추첨 이벤트' }
+  ];
+
+  let WINNER_POSTS = [
+
+    {
+
+      postId: 'WIN-2026-01',
+
+      eventCode: 'PRM-2610-WISHCMT',
+
+      eventName: '2026 산준모 합격기원 수강신청 댓글 이벤트',
+
+      title: '[당첨자 발표] 2026 산준모 합격기원 수강신청 댓글 이벤트 당첨 안내',
+
+      status: 'PUBLISHED',
+
+      date: '2026-10-17',
+
+      exposeEventTab: true,
+
+      exposeNoticeTop: true,
+
+      sendAlimtalk: true,
+
+      body: '안녕하세요, 산준모입니다. 합격기원 댓글 이벤트에 참여해주신 모든 수강생 여러분께 감사드립니다. 아래 당첨자 명단을 확인해주시기 바라며, 포인트는 즉시 적립되었고 실물 경품 당첨자분께는 개별 알림톡이 발송되었습니다.',
+
+      winners: [
+
+        { id: 1, rank: '1등 (실물)', userName: '김민준', userId: 'minjun92', phone: '010-4821-3391', type: 'PHYSICAL', prize: '애플 에어팟 프로 2세대 (1명)', status: 'PENDING', meta: '배송지 수집 완료 (송장 미등록)' },
+
+        { id: 2, rank: '2등 (기프티콘)', userName: '이서윤', userId: 'seoyoon_l', phone: '010-7712-8904', type: 'GIFTICON', prize: '교촌치킨 허니콤보 세트 모바일쿠폰', status: 'COMPLETED', meta: '2026-10-17 15:10 알림톡 발송' },
+
+        { id: 3, rank: '3등 (포인트)', userName: '박도현', userId: 'dohyun_p', phone: '010-3390-1128', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'COMPLETED', meta: '2026-10-17 15:05 원장 적립' },
+
+        { id: 4, rank: '3등 (포인트)', userName: '최유진', userId: 'yujin_c', phone: '010-9182-5541', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'PENDING', meta: '즉시 지급 대기' }
+
+      ]
+
+    },
+
+    {
+
+      postId: 'WIN-2026-02',
+
+      eventCode: 'PRM-2610-ATTEND',
+
+      eventName: '산업안전기사 빈출문제 무료특강 출석체크 이벤트',
+
+      title: '[당첨자 발표] 빈출문제 무료특강 100% 출석체크 이벤트 당첨자 공고',
+
+      status: 'PUBLISHED',
+
+      date: '2026-10-14',
+
+      exposeEventTab: true,
+
+      exposeNoticeTop: false,
+
+      sendAlimtalk: true,
+
+      body: '빈출문제 무료특강 출석체크 이벤트 당첨자를 발표합니다.',
+
+      winners: [
+
+        { id: 5, rank: '우수참여상', userName: '정우성', userId: 'wsjung7', phone: '010-6214-0982', type: 'GIFTICON', prize: '스타벅스 아메리카노 T 2매', status: 'COMPLETED', meta: '2026-10-14 16:00 알림톡 발송' },
+
+        { id: 6, rank: '참여상', userName: '강하늘', userId: 'skykang', phone: '010-2091-7743', type: 'POINT', prize: '학습지원 무상 포인트 5,000P', status: 'COMPLETED', meta: '2026-10-14 16:00 원장 적립' }
+
+      ]
+
+    }
+
+  ];
+
+
+
+  function maskName(name) {
+
+    if (!name) return '';
+
+    if (name.length <= 2) return name[0] + '*';
+
+    return name[0] + '*' + name.slice(2);
+
+  }
+
+  function maskId(id) {
+
+    if (!id) return '';
+
+    return id.slice(0, 3) + '***';
+
+  }
+
+  function maskPhone(phone) {
+
+    return phone.replace(/(\d{3})-(\d{4})-(\d{4})/, '$1-****-$3');
+
+  }
+
+
+
+  // 탭(목록 화면) 상태만 바꾼다 — 하위 화면(S)에서 돌아갈 탭을 기억하고, 상단 코드 · 제목은 switchTab이 바꾼다
+  let activeTab = 'notice';
+  function setTabState(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('tab-btn-' + tab).classList.add('active');
+    document.getElementById('view-' + tab).classList.add('active');
+  }
+  // 하위 화면(S)에서 목록으로 — 목록 주소에 원래 탭(?view=탭)을 남긴다
+  function backToList() {
+    SJM_PAGE.back();
+    try {
+      const q = new URLSearchParams(window.location.search);
+      q.set('view', activeTab);
+      history.replaceState(history.state, '', window.location.pathname + '?' + q.toString() + window.location.hash);
+    } catch (e) { /* file:// 등 주소 기록이 막혀도 화면 전환은 유지 */ }
+  }
+  function switchTab(tab) {
+    setTabState(tab);
+
+
+
+    const metaMap = {
+
+      notice: ['ADMN-BRD-001', '공지사항 관리'],
+
+      faq: ['ADMN-BRD-006', '자주 묻는 질문 (FAQ) 및 동적 카테고리 관리'],
+
+      pqna: ['ADMN-BRD-003', '상품 Q&A 관리 (상품 ID 자동 매핑)'],
+
+      qna: ['ADMN-BRD-004', '강좌별 학습 Q&A 관리'],
+
+      winner: ['ADMN-BRD-009', '이벤트 당첨자 발표 및 경품 지급 관리']
+
+    };
+
+    document.getElementById('current-screen-code').textContent = metaMap[tab][0];
+
+    document.getElementById('current-screen-title').textContent = metaMap[tab][1];
+
+  }
+
+
+
+  // 공지사항 렌더링
+
+  function renderNotices() {
+
+    const cat = document.getElementById('notice-cat-filter').value;
+
+    const kw = (document.getElementById('notice-keyword').value || '').trim().toLowerCase();
+
+    const list = NOTICES.filter(n => (cat === 'ALL' || n.cat === cat) && (!kw || n.title.toLowerCase().includes(kw)));
+
+    document.getElementById('cnt-notice').textContent = NOTICES.length;
+
+    const tbody = document.getElementById('notice-tbody');
+
+    tbody.innerHTML = list.map(n => `
+
+      <tr>
+
+        <td>${n.pinned ? '<span class="badge badge-red">📌 고정</span>' : '#' + n.id}</td>
+
+        <td><span class="badge ${n.cat === '당첨자발표연동' ? 'badge-purple' : 'badge-slate'}">${n.cat}</span></td>
+
+        <td style="font-weight:700;">${n.title}</td>
+
+        <td style="color:var(--text-sub);">${n.file}</td>
+
+        <td>${n.views.toLocaleString()}</td>
+
+        <td><span class="badge ${n.visible ? 'badge-green' : 'badge-slate'}">${n.visible ? '노출중' : '비노출'}</span></td>
+
+        <td>${n.date}</td>
+
+        <td>
+
+          <button class="btn btn-outline btn-sm" data-dev-route="admin.notices.edit" data-dev-method="GET" data-dev-url="/sj-admin/notices/{notice}/edit" data-dev-perm="수정" onclick="openNoticePage(${n.id})">수정</button>
+
+          <button class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="행 단위 상단 고정 즉시 토글 — 개발은 수정 폼 is_pinned · pin_order로만" onclick="toggleNoticePin(${n.id})">${n.pinned ? '고정해제' : '상단고정'}</button>
+
+        </td>
+
+      </tr>
+
+    `).join('');
+
+  }
+
+
+
+  // 공지사항 등록 · 수정 페이지(S1)로 이동 — 내용 채우기는 fillNoticeForm(SJM_PAGE onShow)
+  function openNoticePage(id) {
+    SJM_PAGE.go('notice-form', id ? { id } : { mode: 'new' });
+  }
+  function fillNoticeForm(id) {
+
+    const item = NOTICES.find(n => n.id === id);
+
+    document.getElementById('notice-edit-id').value = item ? item.id : '';
+
+    document.getElementById('notice-modal-title').textContent = item ? '공지사항 수정 (#' + item.id + ')' : '공지사항 신규 등록';
+
+    document.getElementById('notice-form-cat').value = item ? item.cat : '일반공지';
+
+    document.getElementById('notice-form-pin').checked = item ? item.pinned : false;
+
+    document.getElementById('notice-form-visible').checked = item ? item.visible : true;
+
+    document.getElementById('notice-form-title').value = item ? item.title : '';
+
+    document.getElementById('notice-form-body').innerHTML = item ? item.body : '<p>공지 내용을 입력하세요.</p>';
+
+
+  }
+
+
+
+  function saveNoticeItem() {
+
+    const editId = document.getElementById('notice-edit-id').value;
+
+    const cat = document.getElementById('notice-form-cat').value;
+
+    const pinned = document.getElementById('notice-form-pin').checked;
+
+    const visible = document.getElementById('notice-form-visible').checked;
+
+    const title = document.getElementById('notice-form-title').value.trim();
+
+    const body = document.getElementById('notice-form-body').innerHTML;
+
+    if (!title) { alert('공지 제목을 입력해주세요.'); return; }
+
+    if (pinned && NOTICES.filter(n => n.pinned && String(n.id) !== String(editId)).length >= 5) { alert('상단 고정 공지는 최대 5건까지 지정할 수 있습니다. 기존 고정 공지를 해제한 뒤 다시 시도해 주세요.'); return; }
+
+    if (editId) {
+
+      const target = NOTICES.find(n => String(n.id) === String(editId));
+
+      if (target) Object.assign(target, { cat, pinned, visible, title, body });
+
+    } else {
+
+      NOTICES.unshift({ id: Date.now() % 1000 + 200, pinned, cat, title, file: '-', views: 0, visible, date: '2026-10-19', body });
+
+    }
+
+    renderNotices();
+
+    backToList();
+
+    showToast('공지사항이 저장되었습니다.');
+
+  }
+
+
+
+  function toggleNoticePin(id) {
+
+    const item = NOTICES.find(n => n.id === id);
+
+    if (item) {
+
+      if (!item.pinned && NOTICES.filter(n => n.pinned).length >= 5) { alert('상단 고정 공지는 최대 5건까지 지정할 수 있습니다. 기존 고정 공지를 해제한 뒤 다시 시도해 주세요.'); return; }
+      item.pinned = !item.pinned;
+
+      renderNotices();
+
+      showToast('공지사항 상단 고정 상태가 변경되었습니다.');
+
+    }
+
+  }
+
+
+
+  // FAQ 카테고리 및 목록 렌더링
+
+  function renderFaqCategoriesPills() {
+
+    const bar = document.getElementById('faq-cat-pills');
+
+    const sorted = [...FAQ_CATEGORIES].sort((a, b) => a.order - b.order);
+
+    let html = `<button class="cat-pill ${selectedFaqCat === 'ALL' ? 'active' : ''}" data-dev-route="admin.faqs.index" data-dev-method="GET" data-dev-url="/sj-admin/faqs" data-dev-perm="조회" data-dev-name="category_id" onclick="selectFaqCat('ALL')">전체 (${FAQS.length})</button>`;
+
+    sorted.forEach(c => {
+
+      if (!c.visible) return;
+
+      const cnt = FAQS.filter(f => f.cat === c.name).length;
+
+      html += `<button class="cat-pill ${selectedFaqCat === c.name ? 'active' : ''}" data-dev-route="admin.faqs.index" data-dev-method="GET" data-dev-url="/sj-admin/faqs" data-dev-perm="조회" data-dev-name="category_id" onclick="selectFaqCat('${c.name}')">${c.name} (${cnt})</button>`;
+
+    });
+
+    bar.innerHTML = html;
+
+
+
+    // 모달 select 동기화
+
+    const sel = document.getElementById('faq-form-cat');
+
+    if (sel) {
+
+      sel.innerHTML = sorted.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+
+    }
+
+  }
+
+
+
+  function selectFaqCat(catName) {
+
+    selectedFaqCat = catName;
+
+    renderFaqCategoriesPills();
+
+    renderFaqs();
+
+  }
+
+
+
+  function renderFaqs() {
+
+    const kw = (document.getElementById('faq-keyword').value || '').trim().toLowerCase();
+
+    const list = FAQS.filter(f => (selectedFaqCat === 'ALL' || f.cat === selectedFaqCat) && (!kw || f.q.toLowerCase().includes(kw) || f.a.toLowerCase().includes(kw)));
+
+    document.getElementById('cnt-faq').textContent = FAQS.length;
+
+    const tbody = document.getElementById('faq-tbody');
+
+    tbody.innerHTML = list.map(f => `
+
+      <tr>
+
+        <td>#${f.order}</td>
+
+        <td><span class="badge badge-blue">${f.cat}</span></td>
+
+        <td>
+
+          <div style="font-weight:700; margin-bottom:4px;">Q. ${f.q}</div>
+
+          <div style="color:var(--text-sub); font-size:12px;">A. ${f.a.replace(/<[^>]*>/g, '')}</div>
+
+        </td>
+
+        <td>${f.top ? '<span class="badge badge-amber">★ TOP 고정</span>' : '-'}</td>
+
+        <td><span class="badge ${f.visible ? 'badge-green' : 'badge-slate'}">${f.visible ? '노출중' : '비노출'}</span></td>
+
+        <td>${f.updated}</td>
+
+        <td>
+
+          <button class="btn btn-outline btn-sm" data-dev-route="admin.faqs.edit" data-dev-method="GET" data-dev-url="/sj-admin/faqs/{faq}/edit" data-dev-perm="수정" onclick="openFaqPage(${f.id})">수정</button>
+
+          <button class="btn btn-outline btn-sm" data-dev-route="admin.faqs.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/faqs/{faq}" data-dev-perm="삭제" onclick="deleteFaq(${f.id})">삭제</button>
+
+        </td>
+
+      </tr>
+
+    `).join('');
+
+  }
+
+
+
+  function openFaqCategoryModal() {
+
+    renderFaqCatModalTable();
+
+    document.getElementById('modal-faq-cat').classList.add('open');
+
+  }
+
+
+
+  function renderFaqCatModalTable() {
+
+    const sorted = [...FAQ_CATEGORIES].sort((a, b) => a.order - b.order);
+
+    const tbody = document.getElementById('faq-cat-modal-tbody');
+
+    tbody.innerHTML = sorted.map((c, idx) => {
+
+      const cnt = FAQS.filter(f => f.cat === c.name).length;
+
+      return `
+
+        <tr>
+
+          <td>${idx + 1}</td>
+
+          <td>
+
+            <input type="text" value="${c.name}" data-dev-flag="proto-only" data-dev-note="카테고리 이름 변경 — 개발 없음" onchange="renameFaqCategory('${c.id}', this.value)" style="width:100%;" />
+
+          </td>
+
+          <td>${cnt}건</td>
+
+          <td>
+
+            <input type="checkbox" ${c.visible ? 'checked' : ''} data-dev-flag="proto-only" data-dev-note="카테고리 노출 토글 — 개발 없음(추가 때 is_active만)" onchange="toggleFaqCatVisible('${c.id}', this.checked)" /> 노출
+
+          </td>
+
+          <td>
+
+            <button class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="카테고리 순서 변경 — 개발 없음(추가 때 sort_order만)" onclick="moveFaqCat('${c.id}', -1)">▲</button>
+
+            <button class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="카테고리 순서 변경 — 개발 없음(추가 때 sort_order만)" onclick="moveFaqCat('${c.id}', 1)">▼</button>
+
+            <button class="btn btn-outline btn-sm" data-dev-route="admin.faqs.categories.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/faqs/categories/{faqCategory}" data-dev-perm="삭제" data-dev-note="하위 FAQ가 있으면 삭제 불가" onclick="removeFaqCat('${c.id}')">삭제</button>
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join('');
+
+  }
+
+
+
+  function addFaqCategory() {
+
+    const inp = document.getElementById('new-faq-cat-name');
+
+    const name = inp.value.trim();
+
+    if (!name) { alert('추가할 카테고리명을 입력하세요.'); return; }
+
+    if (FAQ_CATEGORIES.some(c => c.name === name)) { alert('이미 존재하는 카테고리명입니다.'); return; }
+
+    FAQ_CATEGORIES.push({ id: 'CAT-' + Date.now(), name, order: FAQ_CATEGORIES.length + 1, visible: true });
+
+    inp.value = '';
+
+    renderFaqCatModalTable();
+
+    renderFaqCategoriesPills();
+
+    showToast(`FAQ [${name}] 카테고리가 추가되었습니다.`);
+
+  }
+
+
+
+  function renameFaqCategory(id, newName) {
+
+    const target = FAQ_CATEGORIES.find(c => c.id === id);
+
+    if (!target || !newName.trim()) return;
+
+    const oldName = target.name;
+
+    target.name = newName.trim();
+
+    FAQS.forEach(f => { if (f.cat === oldName) f.cat = target.name; });
+
+    if (selectedFaqCat === oldName) selectedFaqCat = target.name;
+
+    renderFaqCategoriesPills();
+
+    renderFaqs();
+
+  }
+
+
+
+  function toggleFaqCatVisible(id, checked) {
+
+    const target = FAQ_CATEGORIES.find(c => c.id === id);
+
+    if (target) {
+
+      target.visible = checked;
+
+      renderFaqCategoriesPills();
+
+    }
+
+  }
+
+
+
+  function moveFaqCat(id, dir) {
+
+    const sorted = [...FAQ_CATEGORIES].sort((a, b) => a.order - b.order);
+
+    const idx = sorted.findIndex(c => c.id === id);
+
+    const swapIdx = idx + dir;
+
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+
+    const tmp = sorted[idx].order;
+
+    sorted[idx].order = sorted[swapIdx].order;
+
+    sorted[swapIdx].order = tmp;
+
+    renderFaqCatModalTable();
+
+    renderFaqCategoriesPills();
+
+  }
+
+
+
+  function removeFaqCat(id) {
+
+    const target = FAQ_CATEGORIES.find(c => c.id === id);
+
+    if (!target) return;
+
+    FAQ_CATEGORIES = FAQ_CATEGORIES.filter(c => c.id !== id);
+
+    renderFaqCatModalTable();
+
+    renderFaqCategoriesPills();
+
+  }
+
+
+
+  // FAQ 문답 등록 · 수정 페이지(S1)로 이동 — 내용 채우기는 fillFaqForm(SJM_PAGE onShow)
+  function openFaqPage(id) {
+    SJM_PAGE.go('faq-form', id ? { id } : { mode: 'new' });
+  }
+  function fillFaqForm(id) {
+
+    renderFaqCategoriesPills();
+
+    const item = FAQS.find(f => f.id === id);
+
+    document.getElementById('faq-edit-id').value = item ? item.id : '';
+
+    document.getElementById('faq-modal-title').textContent = item ? 'FAQ 문답 수정' : 'FAQ 문답 신규 등록';
+
+    document.getElementById('faq-form-cat').value = item ? item.cat : FAQ_CATEGORIES[0].name;
+
+    document.getElementById('faq-form-top').checked = item ? item.top : false;
+
+    document.getElementById('faq-form-visible').checked = item ? item.visible : true;
+
+    document.getElementById('faq-form-q').value = item ? item.q : '';
+
+    document.getElementById('faq-form-a').innerHTML = item ? item.a : '<p>답변 내용을 입력하세요.</p>';
+
+
+  }
+
+
+
+  function saveFaqItem() {
+
+    const editId = document.getElementById('faq-edit-id').value;
+
+    const cat = document.getElementById('faq-form-cat').value;
+
+    const top = document.getElementById('faq-form-top').checked;
+
+    const visible = document.getElementById('faq-form-visible').checked;
+
+    const q = document.getElementById('faq-form-q').value.trim();
+
+    const a = document.getElementById('faq-form-a').innerHTML;
+
+    if (!q) { alert('질문(Q)을 입력해주세요.'); return; }
+
+    if (editId) {
+
+      const target = FAQS.find(f => String(f.id) === String(editId));
+
+      if (target) Object.assign(target, { cat, top, visible, q, a, updated: '2026-10-19' });
+
+    } else {
+
+      FAQS.push({ id: Date.now(), order: FAQS.length + 1, cat, q, a, top, visible, updated: '2026-10-19' });
+
+    }
+
+    renderFaqCategoriesPills();
+
+    renderFaqs();
+
+    backToList();
+
+    showToast('FAQ 문답이 저장되었습니다.');
+
+  }
+
+
+
+  function deleteFaq(id) {
+
+    FAQS = FAQS.filter(f => f.id !== id);
+
+    renderFaqCategoriesPills();
+
+    renderFaqs();
+
+    showToast('FAQ 항목이 삭제되었습니다.');
+
+  }
+
+
+
+  // 상품 Q&A 렌더링 (ADMN-BRD-003)
+  let pqnaKind = 'ALL';
+  let pqnaEditingId = null;
+  function pqnaInLast30(p) {
+    return (new Date(PQNA_TODAY) - new Date(p.date.slice(0, 10))) / 86400000 <= 30;
+  }
+  function pqnaFiltered(ignoreKind) {
+    const kw = (document.getElementById('pqna-keyword').value || '').trim().toLowerCase();
+    const type = document.getElementById('pqna-type').value;
+    const owner = document.getElementById('pqna-owner').value;
+    const st = document.getElementById('pqna-status').value;
+    const open = document.getElementById('pqna-open').value;
+    return PQNA_LIST.filter(p =>
+      pqnaInLast30(p) &&
+      (ignoreKind || pqnaKind === 'ALL' || p.kind === pqnaKind) &&
+      (!kw || [p.productId, p.productName, p.title, p.user].some(v => v.toLowerCase().includes(kw))) &&
+      (type === 'ALL' || p.type === type) &&
+      (owner === 'ALL' || (owner === 'NONE' ? !p.owner : p.owner === owner)) &&
+      (st === 'ALL' || p.status === st) &&
+      (open === 'ALL' || p.open === open)
+    ).sort((a, b) => a.date.localeCompare(b.date));
+  }
+  function renderPqna() {
+    if (!document.getElementById('pqna-bulk-owner').options.length) fillPqnaOwnerOptions();
+    const recent = PQNA_LIST.filter(pqnaInLast30);
+    document.getElementById('cnt-pqna').textContent = PQNA_LIST.length;
+    document.getElementById('pqna-kpi-total').textContent = recent.length + '건';
+    document.getElementById('pqna-kpi-split').textContent = `교재 ${recent.filter(p => p.kind === 'BOOK').length}건 · 강좌 ${recent.filter(p => p.kind === 'COURSE').length}건`;
+    document.getElementById('pqna-kpi-wait').textContent = recent.filter(p => p.status === 'WAITING').length + '건';
+    document.getElementById('pqna-kpi-unassigned').textContent = recent.filter(p => !p.owner && p.status !== 'HIDDEN').length + '건';
+    const damage = {};
+    recent.filter(p => p.type === '파손/오배송').forEach(p => {
+      damage[p.productId] = damage[p.productId] || { name: p.productName, cnt: 0 };
+      damage[p.productId].cnt++;
+    });
+    const hot = Object.entries(damage).filter(([, v]) => v.cnt >= 5);
+    document.getElementById('pqna-kpi-damage').textContent = hot.length + '개';
+    const banner = document.getElementById('pqna-damage-banner');
+    banner.style.display = hot.length ? 'block' : 'none';
+    banner.innerHTML = hot.map(([id, v]) => `<strong>⚠️ 파손 다발 상품:</strong> ${v.name} (${id}) — 최근 30일 파손/오배송 문의 ${v.cnt}건. 포장 개선 또는 인쇄 불량 회수 여부를 검토하세요.`).join('<br/>');
+    const base = pqnaFiltered(true);
+    const kinds = [['ALL', '전체'], ['BOOK', '교재'], ['COURSE', '강좌']];
+    document.getElementById('pqna-kind-pills').innerHTML = kinds.map(([k, label]) => {
+      const cnt = k === 'ALL' ? base.length : base.filter(p => p.kind === k).length;
+      return `<button class="cat-pill ${pqnaKind === k ? 'active' : ''}" data-dev-route="admin.product-qnas.index" data-dev-method="GET" data-dev-url="/sj-admin/product-qnas?tab=" data-dev-perm="조회" data-dev-note="개발 탭: all · book · course · package · pending" data-dev-name="tab" onclick="selectPqnaKind('${k}')">${label} (${cnt})</button>`;
+    }).join('');
+    const list = pqnaFiltered(false);
+    document.getElementById('pqna-summary').textContent = `${list.length}건 · 미답변 ${list.filter(p => p.status === 'WAITING').length}건`;
+    document.getElementById('pqna-check-all').checked = false;
+    const tbody = document.getElementById('pqna-tbody');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:28px; color:var(--text-sub);">조건에 맞는 상품 문의가 없습니다. <button class="btn btn-outline btn-sm" onclick="resetPqnaFilter()">조건 초기화</button></td></tr>`;
+      return;
+    }
+    const stBadge = { WAITING: ['badge-amber', '미답변'], DONE: ['badge-green', '답변완료'], HIDDEN: ['badge-slate', '숨김'] };
+    tbody.innerHTML = list.map(p => {
+      const href = p.kind === 'BOOK' ? 'ADMN-PROD-004_baseline.html' : 'ADMN-PROD-003_baseline.html';
+      const stock = p.kind !== 'BOOK' ? '' : (p.stock > 0 ? `재고 ${p.stock}권` : '<span style="color:#dc2626; font-weight:700;">품절</span>');
+      const owner = (p.owner ? M.roles.name(p.owner) : '<span class="badge badge-red">미지정</span>') + `<div style="font-size:11px; color:var(--text-sub);">${p.handler ? '처리자 ' + p.handler.who : '처리자 미정'}</div>`;
+      return `
+      <tr style="${p.status === 'HIDDEN' ? 'opacity:0.55;' : ''}">
+        <td><input type="checkbox" class="pqna-check" value="${p.id}" /></td>
+        <td>${p.date.slice(5, 10).replace('-', '.')}</td>
+        <td><span class="badge ${p.kind === 'BOOK' ? 'badge-blue' : 'badge-purple'}">${p.kind === 'BOOK' ? '교재' : '강좌'}</span></td>
+        <td><a href="${href}" target="_blank" style="font-weight:700; color:var(--primary);">${p.productId}</a><div>${p.productName}</div><div style="font-size:11px; color:var(--text-sub);">${stock}</div></td>
+        <td style="font-weight:700;"><span class="badge badge-slate" style="margin-right:6px;">${p.type}</span>${p.title}</td>
+        <td>${p.user}</td>
+        <td>${p.attach || '—'}</td>
+        <td>${owner}</td>
+        <td>${p.open === 'SECRET' ? '비밀글' : '공개'}</td>
+        <td><span class="badge ${stBadge[p.status][0]}">${stBadge[p.status][1]}</span></td>
+        <td><button class="btn btn-outline btn-sm" data-dev-route="admin.product-qnas.show" data-dev-method="GET" data-dev-url="/sj-admin/product-qnas/{productQna}" data-dev-perm="조회" data-dev-note="개발 003-S1은 별도 페이지(processForm)" onclick="openPqnaModal('${p.id}')">${p.status === 'WAITING' ? '답변' : '상세'}</button></td>
+      </tr>`;
+    }).join('');
+  }
+  function selectPqnaKind(kind) {
+    pqnaKind = kind;
+    renderPqna();
+  }
+  function resetPqnaFilter() {
+    document.getElementById('pqna-keyword').value = '';
+    ['pqna-type', 'pqna-owner', 'pqna-status', 'pqna-open'].forEach(id => { document.getElementById(id).value = 'ALL'; });
+    pqnaKind = 'ALL';
+    renderPqna();
+  }
+  function toggleAllPqna(on) {
+    document.querySelectorAll('.pqna-check').forEach(c => { c.checked = on; });
+  }
+  function checkedPqnaIds() {
+    return Array.from(document.querySelectorAll('.pqna-check:checked')).map(c => c.value);
+  }
+  function bulkAssignPqna() {
+    const ids = checkedPqnaIds();
+    if (!ids.length) { showToast('담당자를 지정할 문의를 선택해 주세요.'); return; }
+    const owner = document.getElementById('pqna-bulk-owner').value;
+    PQNA_LIST.filter(p => ids.includes(p.id)).forEach(p => { p.owner = owner; });
+    renderPqna();
+    showToast(`선택한 ${ids.length}건의 담당 부서를 ${M.roles.name(owner)}(으)로 지정했습니다.`);
+  }
+  function bulkHidePqna() {
+    const ids = checkedPqnaIds();
+    if (!ids.length) { showToast('숨김 처리할 문의를 선택해 주세요.'); return; }
+    PQNA_LIST.filter(p => ids.includes(p.id)).forEach(p => { p.status = 'HIDDEN'; });
+    renderPqna();
+    showToast(`선택한 ${ids.length}건을 숨김 처리했습니다. 상품 상세에서 더 이상 노출되지 않습니다.`);
+  }
+  // 상품 Q&A 답변(BRD-003-S1) — 건별 판단: 목록 맥락을 유지하며 빠르게 처리하는 답변이라 모달
+  function openPqnaModal(id) {
+    const p = PQNA_LIST.find(x => x.id === id);
+    if (!p) return;
+    pqnaEditingId = id;
+    if (p.status === 'WAITING' && !p.handler) p.handler = { who: ME, since: '11:20' };
+    const locked = p.status === 'WAITING' && p.handler && p.handler.who !== ME;
+    const stock = p.kind !== 'BOOK' ? '' : ` · ${p.stock > 0 ? '재고 ' + p.stock + '권' : '품절'}`;
+    document.getElementById('pqna-modal-title').textContent = p.status === 'WAITING' ? `상품 Q&A 답변 등록 (${p.id})` : `상품 Q&A 상세 (${p.id})`;
+    document.getElementById('pqna-modal-product').innerHTML = `<strong>대상 상품:</strong> ${p.productName} (${p.productId}) · ${p.kind === 'BOOK' ? '교재' : '강좌'}${stock}`;
+    document.getElementById('pqna-modal-order').innerHTML = p.order ? `<strong>주문 연결:</strong> ${p.order.no} · ${p.order.ship}` : '<strong>구매 전 문의</strong> — 이 회원의 해당 상품 구매 이력이 없습니다.';
+    document.getElementById('pqna-modal-question').innerHTML = `<div style="font-weight:800; margin-bottom:6px;">[${p.type}] ${p.title}</div><div>${p.body}</div><div style="margin-top:8px; font-size:11.5px; color:var(--text-sub);">${p.user} · ${p.date} · 첨부 ${p.attach}개${p.attach ? ' (클릭 시 확대)' : ''}</div>`;
+    document.getElementById('pqna-modal-owner').value = p.owner;
+    const hNote = document.getElementById('pqna-modal-handler');
+    hNote.innerHTML = locked ? `🔒 <strong>${p.handler.who} 님이 ${p.handler.since}부터 처리 중입니다.</strong> 읽기 전용으로 열었습니다.` : `<strong>처리자:</strong> ${p.handler ? p.handler.who + (p.handler.who === ME ? ' (나)' : '') + ' · ' + p.handler.since + ' 선점' : '—'}`;
+    hNote.style.background = locked ? '#fef2f2' : '';
+    hNote.style.color = locked ? '#991b1b' : '';
+    document.getElementById('pqna-modal-answer').readOnly = !!locked;
+    document.getElementById('pqna-modal-save').disabled = !!locked;
+    document.getElementById('pqna-modal-open').value = p.open;
+    document.getElementById('pqna-modal-answer').value = p.answer || '';
+    document.getElementById('pqna-modal-errata').style.display = p.type === '오탈자/내용 오류' ? 'block' : 'none';
+    document.getElementById('pqna-modal-save').textContent = p.status === 'WAITING' ? '답변 등록 · 알림톡 발송' : '답변 수정 저장';
+    // 파손 다발 경고(같은 상품 파손/오배송 문의 30일 내 5건 이상) — 답변 화면에도 표시(통합 설계서 상품 Q&A 관리)
+    const dmg = PQNA_LIST.filter(x => pqnaInLast30(x) && x.type === '파손/오배송' && x.productId === p.productId).length;
+    const dEl = document.getElementById('pqna-modal-damage');
+    dEl.style.display = dmg >= 5 ? 'block' : 'none';
+    dEl.innerHTML = dmg >= 5 ? `<strong>⚠️ 파손 다발 상품:</strong> 이 상품의 최근 30일 파손/오배송 문의 ${dmg}건 — 포장 개선 또는 인쇄 불량 회수 여부를 검토하세요.` : '';
+    const modal = document.getElementById('modal-pqna');
+    modal.style.removeProperty('display');
+    modal.classList.add('open');
+  }
+  function savePqnaAnswer() {
+    const p = PQNA_LIST.find(x => x.id === pqnaEditingId);
+    if (!p) return;
+    if (p.status === 'WAITING' && p.handler && p.handler.who !== ME) { showToast(`${p.handler.who} 님이 처리 중인 문의라 답변할 수 없습니다.`); return; }
+    const answer = document.getElementById('pqna-modal-answer').value.trim();
+    const owner = document.getElementById('pqna-modal-owner').value;
+    if (!owner) { showToast('담당 부서를 지정해 주세요.'); return; }
+    if (!answer) { showToast('답변 본문을 입력해 주세요.'); return; }
+    const first = p.status !== 'DONE';
+    Object.assign(p, { answer, owner, open: document.getElementById('pqna-modal-open').value, status: 'DONE', handler: p.handler || { who: ME, since: '11:20' } });
+    closeModal('modal-pqna');
+    renderPqna();
+    showToast(first ? `${p.id} 답변이 등록되고 작성 회원에게 알림톡이 발송되었습니다.` : `${p.id} 답변이 수정되었습니다.`);
+  }
+  function hidePqna() {
+    const p = PQNA_LIST.find(x => x.id === pqnaEditingId);
+    if (!p) return;
+    p.status = 'HIDDEN';
+    closeModal('modal-pqna');
+    renderPqna();
+    showToast(`${p.id} 문의를 숨김 처리했습니다.`);
+  }
+  // 학습 Q&A 렌더링
+  function renderQna() {
+
+    document.getElementById('cnt-qna').textContent = QNA_LIST.length;
+
+    document.getElementById('qna-tbody').innerHTML = QNA_LIST.map(q => `
+
+      <tr>
+
+        <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;">${q.id}</td>
+
+        <td>${q.course}</td>
+
+        <td><span class="badge badge-blue">▶ ${q.ts}</span></td>
+
+        <td style="font-weight:700;">${q.title}</td>
+
+        <td>${q.user}</td>
+
+        <td><span class="badge ${q.status === 'DONE' ? 'badge-green' : 'badge-amber'}">${q.status === 'DONE' ? '답변완료' : '답변대기'}</span></td>
+
+        <td><button class="btn btn-outline btn-sm" data-dev-route="admin.study-qnas.show" data-dev-method="GET" data-dev-url="/sj-admin/study-qnas/{studyQna}" data-dev-perm="조회" data-dev-note="개발 004-S1은 별도 페이지. 목록 필터 course_id · status(pending · answered · escalated) · date_from · date_to · mine · keyword" onclick="openLqnaModal('${q.id}')">답변관리</button></td>
+
+      </tr>
+
+    `).join('');
+
+  }
+
+
+
+  // 학습 Q&A 질문 상세 · 답변(BRD-004-S1, 운영자 · 조교용) — 건별 판단: 목록에서 질문 하나씩 답하는 짧은 처리라 모달(강사용 파트너 센터도 모달). 정본 범위만: 질문자 개인정보 마스킹 · 권한(역할 그룹 학습 Q&A 쓰기) · 운영 방식(카페 / 자체, 운영 설정 lqnaMode)
+  // 강사는 파트너 센터(ADMN-PTNR-001)에서 본인 강좌 질문에 답변한다. 답변 알림톡 · 보류 · 에스컬레이션은 정본에 없어 두지 않음
+  const LQNA_CAFE_URL = 'https://cafe.naver.com/sanjunmo';
+  let lqnaEditingId = null;
+  function lqnaMode() {
+    const m = M && M.settings ? M.settings.get('lqnaMode') : '';
+    return m === 'INTERNAL' ? 'INTERNAL' : 'CAFE';
+  }
+  function openLqnaModal(id) {
+    if (!fillLqnaDetail(id)) return;
+    const modal = document.getElementById('modal-lqna');
+    modal.style.removeProperty('display');
+    modal.classList.add('open');
+  }
+  // 학습 Q&A 메뉴 권한이 있는 내부 역할 그룹(쓰기 W = 답변, 읽기 R = 조회만)
+  function lqnaRoleGroups() {
+    return M.roles.active().filter(g => g.side === 'INTERNAL' && M.roles.perm(g.id, 'lqna'));
+  }
+  function fillLqnaDetail(id) {
+    const q = QNA_LIST.find(x => x.id === id);
+    if (!q) return false;
+    lqnaEditingId = id;
+    const cafe = lqnaMode() === 'CAFE';
+    document.getElementById('lqna-page-title').textContent = `학습 Q&A 질문 상세 · 답변 (${q.id})`;
+    document.getElementById('lqna-mode-note').innerHTML = cafe
+      ? `<strong>현재 학습 Q&A는 산준모 네이버 카페 질문게시판에서 운영 중입니다.</strong> 운영 방식(카페 / 자체 학습 Q&A)은 운영 설정에서 정하며, 이 화면은 자체 학습 Q&A 전환 후 화면 미리보기입니다. 여기서 등록한 답변은 수강생에게 발송되지 않습니다. <a href="${LQNA_CAFE_URL}" target="_blank" rel="noopener" id="lqna-cafe-link" style="font-weight:700; color:var(--primary);">네이버 카페 질문게시판 바로가기</a>`
+      : '<strong>자체 학습 Q&A로 운영 중입니다.</strong> 운영 방식(카페 / 자체 학습 Q&A)은 운영 설정에서 정합니다.';
+    const groups = lqnaRoleGroups();
+    const wNames = groups.filter(g => M.roles.has(g.id, 'lqna', 'W')).map(g => g.name);
+    const rNames = groups.filter(g => !M.roles.has(g.id, 'lqna', 'W')).map(g => g.name);
+    document.getElementById('lqna-perm-note').innerHTML = `<strong>답변 권한:</strong> '학습 Q&A' 쓰기 권한이 있는 역할 그룹(${wNames.join(' · ') || '없음'})만 답변합니다${rNames.length ? ` — ${rNames.join(' · ')}은(는) 조회만 합니다` : ''}. 권한은 운영자 권한 관리에서 정하고, 강사는 파트너 센터에서 본인 강좌 질문에만 답변합니다.`;
+    const sel = document.getElementById('lqna-role');
+    sel.innerHTML = groups.map(g => `<option value="${g.id}">${g.name} (${M.roles.has(g.id, 'lqna', 'W') ? '답변' : '조회만'})</option>`).join('');
+    // 기본은 학습 Q&A 담당 큐(조교 등) 중 쓰기 권한 그룹 — 조교는 내부 직원 소속으로 학습 Q&A를 처리(통합 설계서 조교와 강사)
+    const firstW = groups.find(g => g.queue && M.roles.has(g.id, 'lqna', 'W')) || groups.find(g => M.roles.has(g.id, 'lqna', 'W'));
+    if (firstW) sel.value = firstW.id;
+    document.getElementById('lqna-d-id').innerHTML = `${q.id} <span class="badge ${q.status === 'DONE' ? 'badge-green' : 'badge-amber'}">${q.status === 'DONE' ? '답변완료' : '답변대기'}</span>`;
+    // 질문자 회원 개인정보는 항상 마스킹(이름 · 아이디만 가려서, 연락처 · 이메일은 표시하지 않음)
+    const mm = q.user.match(/^([^\(]+)\(([^\)]+)\)/);
+    const nm = mm ? mm[1].trim() : q.user;
+    const uid = mm ? mm[2].trim() : '';
+    document.getElementById('lqna-d-asker').innerHTML = `<span id="lqna-asker-masked" style="font-weight:700;">${maskName(nm)}${uid ? ' · 아이디 ' + maskId(uid) : ''}</span> <span style="font-size:11.5px; color:var(--text-sub);">(연락처 · 이메일은 표시하지 않습니다)</span>`;
+    document.getElementById('lqna-d-course').textContent = q.course;
+    document.getElementById('lqna-d-ts').innerHTML = `<span class="badge badge-blue">▶ ${q.ts}</span>`;
+    document.getElementById('lqna-d-title').textContent = q.title;
+    document.getElementById('lqna-answer').value = q.answer || '';
+    document.getElementById('lqna-save').textContent = q.status === 'DONE' ? '답변 수정 저장' : '답변 등록';
+    applyLqnaPerm();
+    return true;
+  }
+  function applyLqnaPerm() {
+    const role = document.getElementById('lqna-role').value;
+    const canW = !!role && M.roles.has(role, 'lqna', 'W');
+    document.getElementById('lqna-answer').readOnly = !canW;
+    document.getElementById('lqna-save').disabled = !canW;
+    document.getElementById('lqna-role-note').textContent = canW ? '' : `${role ? M.roles.name(role) : '선택한 역할 그룹'}은(는) 학습 Q&A 읽기 권한만 있어 답변할 수 없습니다.`;
+  }
+  function saveLqnaAnswer() {
+    const q = QNA_LIST.find(x => x.id === lqnaEditingId);
+    if (!q) return;
+    const role = document.getElementById('lqna-role').value;
+    if (!role || !M.roles.has(role, 'lqna', 'W')) { showToast('학습 Q&A 쓰기 권한이 있는 역할 그룹만 답변할 수 있습니다.'); return; }
+    const answer = document.getElementById('lqna-answer').value.trim();
+    if (!answer) { showToast('답변 본문을 입력해 주세요.'); return; }
+    const first = q.status !== 'DONE';
+    q.answer = answer;
+    q.status = 'DONE';
+    closeModal('modal-lqna');
+    renderQna();
+    showToast(lqnaMode() === 'CAFE'
+      ? `${q.id} 답변을 ${first ? '등록' : '수정'}했습니다. (전환 후 화면 미리보기 — 수강생에게는 발송되지 않습니다)`
+      : `${q.id} 답변을 ${first ? '등록' : '수정'}했습니다.`);
+  }
+  // 이벤트 당첨자 발표 및 지급 관리 (ADMN-BRD-009)
+
+  // 당첨자 발표 목록(탭) · 발표 페이지(S1) — 지금 연 발표는 currentWinnerPostId
+  let currentWinnerPostId = null;
+  const WIN_STATUS = { PUBLISHED: ['badge-green', '프론트 게시중'], SCHEDULED: ['badge-amber', '예약 게시'], DRAFT: ['badge-slate', '임시저장'] };
+  function winEventName(code) {
+    const ev = WIN_EVENTS.find(e => e.code === code);
+    return ev ? ev.name : code;
+  }
+  function getSelectedWinnerPost() {
+    return WINNER_POSTS.find(p => p.postId === currentWinnerPostId) || null;
+  }
+
+  // 탭: KPI + 발표 공고 목록 (열려 있는 발표 페이지가 있으면 명단도 다시 그림)
+  function renderWinnerView() {
+    const allWinners = WINNER_POSTS.flatMap(p => p.winners);
+    const doneCnt = allWinners.filter(w => w.status === 'COMPLETED').length;
+    document.getElementById('cnt-winner').textContent = WINNER_POSTS.length;
+    document.getElementById('win-kpi-posts').textContent = WINNER_POSTS.length + '건';
+    document.getElementById('win-kpi-total').textContent = allWinners.length + '명';
+    document.getElementById('win-kpi-done').textContent = doneCnt + '명';
+    document.getElementById('win-kpi-wait').textContent = (allWinners.length - doneCnt) + '명';
+    document.getElementById('winner-post-tbody').innerHTML = WINNER_POSTS.map(p => {
+      const st = WIN_STATUS[p.status] || ['badge-slate', p.status];
+      const done = p.winners.filter(w => w.status === 'COMPLETED').length;
+      return `
+      <tr class="row-click" style="cursor:pointer;" data-post="${p.postId}" data-dev-route="admin.winners.edit" data-dev-method="GET" data-dev-url="/sj-admin/winners/{winner}/edit" data-dev-perm="수정" onclick="openWinnerPage('${p.postId}')">
+        <td style="font-weight:700;">${p.postId}</td>
+        <td><span class="badge badge-purple">${p.eventCode}</span><div style="font-size:12px; margin-top:4px;">${p.eventName}</div></td>
+        <td style="font-weight:700;">${p.title}</td>
+        <td><span class="badge ${st[0]}">${st[1]}</span></td>
+        <td>${p.date}</td>
+        <td style="font-size:12px;">이벤트 탭 ${p.exposeEventTab ? 'ON' : 'OFF'} · 공지 상단 ${p.exposeNoticeTop ? 'ON' : 'OFF'}</td>
+        <td>${p.winners.length}명 · 지급 ${done}명</td>
+        <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); openWinnerPage('${p.postId}')">관리</button></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="8" style="text-align:center; padding:28px; color:var(--text-sub);">등록된 당첨자 발표가 없습니다.</td></tr>';
+    if (getSelectedWinnerPost()) renderWinnerTable();
+  }
+
+  // 발표 페이지: 당첨자 명단 및 경품 지급 원장
+  function renderWinnerTable() {
+    const post = getSelectedWinnerPost();
+    if (!post) return;
+    const st = document.getElementById('winner-status-filter').value;
+    const list = post.winners.filter(w => st === 'ALL' || w.status === st);
+    const typeLabel = { POINT: '포인트 즉시적립', GIFTICON: '모바일 기프티콘', PHYSICAL: '실물 배송경품' };
+    const typeBadge = { POINT: 'badge-blue', GIFTICON: 'badge-purple', PHYSICAL: 'badge-amber' };
+    const doneCnt = post.winners.filter(w => w.status === 'COMPLETED').length;
+    document.getElementById('winner-ledger-sum').textContent = `· ${post.winners.length}명 (지급완료 ${doneCnt}명 · 지급대기 ${post.winners.length - doneCnt}명)`;
+    document.getElementById('win-chk-all').checked = false;
+    document.getElementById('winner-tbody').innerHTML = list.map(w => `
+      <tr>
+        <td><input type="checkbox" class="win-row-chk" value="${w.id}" ${w.status === 'COMPLETED' ? 'disabled' : ''} /></td>
+        <td style="font-weight:700;">${w.rank}</td>
+        <td>${w.userName} (${w.userId})<br/><span style="font-size:11px; color:var(--text-sub);">${w.phone}</span></td>
+        <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; color:#1e40af; font-weight:700;">
+          ${maskName(w.userName)} (${maskId(w.userId)})<br/>
+          <span style="font-size:11px;">${maskPhone(w.phone)}</span>
+        </td>
+        <td><span class="badge ${typeBadge[w.type] || 'badge-slate'}">${typeLabel[w.type] || w.type}</span></td>
+        <td style="font-weight:700;">${w.prize}</td>
+        <td>
+          <span class="badge ${w.status === 'COMPLETED' ? 'badge-green' : 'badge-amber'}">
+            ${w.status === 'COMPLETED' ? '지급완료' : '지급대기'}
+          </span>
+        </td>
+        <td style="font-size:11.5px; color:var(--text-sub);">${w.meta}</td>
+        <td>
+          ${w.status === 'COMPLETED'
+            ? `<button class="btn btn-outline btn-sm" disabled>지급완료됨</button>`
+            : w.type === 'PHYSICAL'
+              ? `<button class="btn btn-warning btn-sm" data-dev-flag="proto-only" data-dev-note="경품 송장번호 — 개발 없음" onclick="registerTrackingForWinner(${w.id})">🚚 송장번호 등록</button>`
+              : `<button class="btn btn-primary btn-sm" data-dev-flag="proto-only" data-dev-note="경품 개별 지급 — 개발 없음" onclick="grantSingleWinner(${w.id})">즉시 지급/발송</button>`
+          }
+        </td>
+      </tr>
+    `).join('') || '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-sub);">당첨자 명단이 없습니다. [+ 당첨자 개별/엑셀 추가]로 등록하세요.</td></tr>';
+  }
+
+
+
+  function toggleAllWinnerChecks(checked) {
+
+    document.querySelectorAll('.win-row-chk:not(:disabled)').forEach(chk => chk.checked = checked);
+
+  }
+
+
+
+  function grantSingleWinner(winnerId) {
+
+    const post = getSelectedWinnerPost();
+
+    const w = post.winners.find(item => item.id === winnerId);
+
+    if (!w) return;
+
+    w.status = 'COMPLETED';
+
+    w.meta = w.type === 'POINT'
+
+      ? '2026-10-19 포인트 원장(ADMN-PROM-003) 즉시 적립'
+
+      : '2026-10-19 기프티콘 알림톡 발송 완료';
+
+    renderWinnerView();
+    /* Init FAQ Cat Modal */
+    if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+
+    showToast(`${w.userName}님에게 [${w.prize}] 지급 처리가 완료되었습니다.`);
+
+  }
+
+
+
+  function registerTrackingForWinner(winnerId) {
+
+    const post = getSelectedWinnerPost();
+
+    const w = post.winners.find(item => item.id === winnerId);
+
+    if (!w) return;
+
+    const tracking = prompt(`${w.userName}님의 실물 경품(${w.prize}) CJ대한통운 송장번호를 입력하세요:`, '6482-9910-4412');
+
+    if (!tracking) return;
+
+    w.status = 'COMPLETED';
+
+    w.meta = `CJ대한통운 (${tracking}) 출고완료`;
+
+    renderWinnerView();
+    /* Init FAQ Cat Modal */
+    if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+
+    showToast(`실물 경품 송장번호(${tracking})가 등록되고 당첨자에게 배송 알림톡이 발송되었습니다.`);
+
+  }
+
+
+
+  function batchGrantSelectedWinners() {
+
+    const post = getSelectedWinnerPost();
+
+    const checkedIds = Array.from(document.querySelectorAll('.win-row-chk:checked')).map(el => Number(el.value));
+
+    if (!checkedIds.length) {
+
+      alert('일괄 지급할 당첨자를 선택해주세요.');
+
+      return;
+
+    }
+
+    let cnt = 0;
+
+    post.winners.forEach(w => {
+
+      if (checkedIds.includes(w.id) && w.status !== 'COMPLETED') {
+
+        w.status = 'COMPLETED';
+
+        w.meta = w.type === 'POINT'
+
+          ? '2026-10-19 일괄 포인트 원장 적립'
+
+          : w.type === 'GIFTICON'
+
+            ? '2026-10-19 일괄 기프티콘 발송'
+
+            : '2026-10-19 출고 지시 완료';
+
+        cnt++;
+
+      }
+
+    });
+
+    renderWinnerView();
+    /* Init FAQ Cat Modal */
+    if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+
+    showToast(`선택한 당첨자 ${cnt}명에 대한 일괄 경품 지급 및 알림톡 발송이 완료되었습니다.`);
+
+  }
+
+
+
+  // 당첨자 발표 페이지(S1)로 이동 — 내용 채우기는 fillWinnerPage(SJM_PAGE onShow)
+  function openWinnerPage(postId) {
+    SJM_PAGE.go('winner-post', postId ? { id: postId } : { mode: 'new' });
+  }
+  function fillWinnerPage(postId) {
+    const post = postId ? WINNER_POSTS.find(p => p.postId === postId) : null;
+    currentWinnerPostId = post ? post.postId : null;
+    document.getElementById('winpost-mode').value = post ? 'EDIT' : 'NEW';
+    const evSel = document.getElementById('winpost-event-code');
+    const evs = WIN_EVENTS.slice();
+    if (post && !evs.some(e => e.code === post.eventCode)) evs.push({ code: post.eventCode, name: post.eventName });
+    evSel.innerHTML = evs.map(e => `<option value="${e.code}">[${e.code}] ${e.name}</option>`).join('');
+    if (post) {
+      document.getElementById('winner-post-modal-title').textContent = `[ADMN-BRD-009] 당첨자 발표글 수정 (${post.postId})`;
+      evSel.value = post.eventCode;
+      document.getElementById('winpost-status').value = post.status;
+      document.getElementById('winpost-date').value = post.date;
+      document.getElementById('winpost-title').value = post.title;
+      document.getElementById('winpost-exp-event').checked = post.exposeEventTab;
+      document.getElementById('winpost-exp-notice').checked = post.exposeNoticeTop;
+      document.getElementById('winpost-send-alim').checked = post.sendAlimtalk;
+      document.getElementById('winpost-body').innerHTML = `<p>${post.body}</p>`;
+    } else {
+      document.getElementById('winner-post-modal-title').textContent = '[ADMN-BRD-009] 신규 이벤트 당첨자 발표 등록';
+      evSel.selectedIndex = 0;
+      document.getElementById('winpost-status').value = 'PUBLISHED';
+      document.getElementById('winpost-date').value = '2026-10-19';
+      document.getElementById('winpost-title').value = '[당첨자 발표] 2026 가을 대비 프리패스 얼리버드 경품 추첨 결과 안내';
+      document.getElementById('winpost-exp-event').checked = true;
+      document.getElementById('winpost-exp-notice').checked = true;
+      document.getElementById('winpost-send-alim').checked = true;
+      insertWinnerTemplateText();
+    }
+    toggleWinnerRowForm(false);
+    document.getElementById('winner-status-filter').value = 'ALL';
+    document.getElementById('winner-ledger').style.display = post ? '' : 'none';
+    document.getElementById('winner-ledger-empty').style.display = post ? 'none' : '';
+    if (post) renderWinnerTable();
+  }
+
+
+
+  function insertWinnerTemplateText() {
+
+    document.getElementById('winpost-body').innerHTML = `
+
+      <p>안녕하세요, 산업안전기사/건설안전기사 합격의 기준 <strong>산준모</strong>입니다.</p>
+
+      <p>이번 프로모션에 참여해주신 모든 회원분들께 진심으로 감사드리며, 행운의 당첨자 명단을 발표합니다.</p>
+
+      <ul>
+
+        <li><strong>포인트 당첨자:</strong> 발표와 동시에 마이페이지 &gt; 포인트 내역에 즉시 적립됩니다.</li>
+
+        <li><strong>기프티콘 당첨자:</strong> 회원정보에 등록된 휴대폰 번호로 카카오 알림톡/문자 쿠폰이 발송됩니다.</li>
+
+        <li><strong>실물 경품 당첨자 (5만원 초과):</strong> 소득세법상 제세공과금(22%) 신고 및 배송지 확인을 위해 개별 안내톡이 발송됩니다.</li>
+
+      </ul>
+
+    `;
+
+  }
+
+
+
+  function saveWinnerPost() {
+    const mode = document.getElementById('winpost-mode').value;
+    const eventCode = document.getElementById('winpost-event-code').value;
+    const status = document.getElementById('winpost-status').value;
+    const date = document.getElementById('winpost-date').value;
+    const title = document.getElementById('winpost-title').value.trim();
+    const exposeEventTab = document.getElementById('winpost-exp-event').checked;
+    const exposeNoticeTop = document.getElementById('winpost-exp-notice').checked;
+    const sendAlimtalk = document.getElementById('winpost-send-alim').checked;
+    const body = document.getElementById('winpost-body').innerText.trim();
+    if (!title) { alert('당첨자 발표 제목을 입력해주세요.'); return; }
+    if (mode === 'EDIT') {
+      const post = getSelectedWinnerPost();
+      Object.assign(post, { eventCode, eventName: winEventName(eventCode), status, date, title, exposeEventTab, exposeNoticeTop, sendAlimtalk, body });
+      renderWinnerView();
+      if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+      backToList();
+      showToast('당첨자 발표글 및 프론트 노출 설정이 저장되었습니다.');
+      return;
+    }
+    const newPostId = 'WIN-2026-0' + (WINNER_POSTS.length + 1);
+    WINNER_POSTS.unshift({ postId: newPostId, eventCode, eventName: winEventName(eventCode), title, status, date, exposeEventTab, exposeNoticeTop, sendAlimtalk, body, winners: [] });
+    if (exposeNoticeTop) {
+      NOTICES.unshift({ id: Date.now() % 1000 + 300, pinned: true, cat: '당첨자발표연동', title, file: '-', views: 1, visible: true, date, body });
+      renderNotices();
+    }
+    renderWinnerView();
+    if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+    // 새 발표는 같은 페이지에서 이어서 당첨자 명단을 추가하도록 수정 화면으로 바꾼다
+    SJM_PAGE.go('winner-post', { id: newPostId }, { replace: true });
+    showToast(`${newPostId} 발표글이 저장되었습니다. 아래 당첨자 명단에서 당첨자를 추가하세요.`);
+  }
+
+  // 당첨자 명단 추가 입력 영역(페이지 안) 열기 · 닫기
+  function toggleWinnerRowForm(show) {
+    document.getElementById('winner-row-form').style.display = show ? 'block' : 'none';
+  }
+
+  function addWinnerRow() {
+    const post = getSelectedWinnerPost();
+    if (!post) return;
+    const rank = document.getElementById('winrow-rank').value.trim() || '당첨';
+    const type = document.getElementById('winrow-type').value;
+    const nameRaw = document.getElementById('winrow-name').value.trim() || '신규회원 (newuser1)';
+    const phone = document.getElementById('winrow-phone').value.trim() || '010-1234-5678';
+    const prize = document.getElementById('winrow-prize').value.trim() || '학습지원 무상 포인트 10,000P';
+    const match = nameRaw.match(/^([^\(]+)\(([^\)]+)\)/);
+    const userName = match ? match[1].trim() : nameRaw;
+    const userId = match ? match[2].trim() : 'user_' + (Date.now() % 1000);
+    post.winners.push({ id: Date.now(), rank, userName, userId, phone, type, prize, status: 'PENDING', meta: '신규 등록 (지급 대기)' });
+    toggleWinnerRowForm(false);
+    renderWinnerView();
+    if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+    showToast('당첨자 명단에 추가되었으며 프론트 마스킹이 자동 적용되었습니다.');
+  }
+
+
+
+  function execEditorCmd(targetId, cmd) {
+
+    const el = document.getElementById(targetId);
+
+    if (el) el.focus();
+
+    document.execCommand(cmd, false, null);
+
+  }
+
+
+
+  function insertSampleLink(targetId) {
+
+    const el = document.getElementById(targetId);
+
+    if (el) el.innerHTML += ' <a href="https://sanjunmo.com/cs" target="_blank">[이용가이드 바로가기]</a> ';
+
+  }
+
+
+
+  function closeModal(id) {
+
+    document.getElementById(id).classList.remove('open');
+
+  }
+
+
+
+  function showToast(msg) {
+
+    const box = document.getElementById('toast-box');
+
+    box.textContent = msg;
+
+    box.style.display = 'block';
+
+    clearTimeout(window.__toastTimer);
+
+    window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3000);
+
+  }
+
+
+
+  window.addEventListener('DOMContentLoaded', () => {
+
+    renderNotices();
+
+    renderFaqCategoriesPills();
+
+    renderFaqs();
+
+    renderPqna();
+    renderQna();
+
+    renderWinnerView();
+    /* Init FAQ Cat Modal */
+    if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
+
+
+
+    const params = new URLSearchParams(window.location.search);
+
+    const view = params.get('view') || params.get('tab');
+
+    if (view && ['notice', 'faq', 'pqna', 'qna', 'winner'].includes(view)) {
+
+      switchTab(view);
+
+    }
+
+    // 하위 화면(S) 페이지 — 주소 ?view=notice-form · faq-form · winner-post (&id=). 상품 Q&A 답변 · 학습 Q&A 상세는 건별 판단으로 모달
+    // (탭 주소 ?view=notice · faq · pqna · qna · winner 와 이름이 겹치지 않게 구분)
+    const findIn = (list, key, v) => list.some(x => String(x[key]) === String(v));
+    SJM_PAGE.register('list', { onShow: () => switchTab(activeTab) });
+    SJM_PAGE.register('notice-form', {
+      code: 'ADMN-BRD-001-S1',
+      title: p => (p.id && findIn(NOTICES, 'id', p.id) ? '공지사항 수정' : '공지사항 등록'),
+      onShow: p => { setTabState('notice'); fillNoticeForm(p.id && findIn(NOTICES, 'id', p.id) ? Number(p.id) : null); }
+    });
+    SJM_PAGE.register('faq-form', {
+      code: 'ADMN-BRD-006-S1',
+      title: p => (p.id && findIn(FAQS, 'id', p.id) ? 'FAQ 문답 수정' : 'FAQ 문답 등록'),
+      onShow: p => { setTabState('faq'); fillFaqForm(p.id && findIn(FAQS, 'id', p.id) ? Number(p.id) : null); }
+    });
+    SJM_PAGE.register('winner-post', {
+      code: 'ADMN-BRD-009-S1',
+      title: p => (p.id && findIn(WINNER_POSTS, 'postId', p.id) ? '당첨자 발표 수정' : '당첨자 발표 등록'),
+      onShow: p => { setTabState('winner'); fillWinnerPage(p.id && findIn(WINNER_POSTS, 'postId', p.id) ? p.id : null); }
+    });
+    SJM_PAGE.start();
+
+  });
+
+</script>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+
+</html>

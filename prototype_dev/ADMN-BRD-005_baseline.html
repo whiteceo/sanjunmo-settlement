@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>수강후기·합격수기·무료특강(빈출문제) 관리 — 산준모 백오피스</title>
+
+  <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
+
+  <script id="v4-common-master" src="common-master.js"></script>
+  <script>
+function rewardP(best) { return window.SJM_MASTER ? SJM_MASTER.settings.get(best ? "reviewBestRewardP" : "reviewRewardP") : (best ? 5000 : 1000); }
+  </script>
+  <script id="v4-common-snb" src="common-snb.js" defer></script>
+
+  <style>
+
+    :root {
+
+      --primary: #2563eb;
+
+      --primary-hover: #1d4ed8;
+
+      --bg-body: #f8fafc;
+
+      --border: #e2e8f0;
+
+      --text-main: #0f172a;
+
+      --text-sub: #475569;
+
+      --text-muted: #94a3b8;
+
+      --success: #10b981;
+
+      --warning: #f59e0b;
+
+      --danger: #ef4444;
+
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+
+      margin: 0;
+
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+
+      background: var(--bg-body);
+
+      color: var(--text-main);
+
+      font-size: 13px;
+
+    }
+
+    #v4-page-body {
+
+      padding: 24px 28px 60px;
+
+      max-width: 1640px;
+
+      margin: 0 auto;
+
+    }
+
+    /* 상단 바 이동 버튼은 다른 화면처럼 밑줄 없이 */
+    header.top-bar .btn { text-decoration: none; }
+    /* 공통 상단 바 아래 화면 설명 한 줄 */
+    .page-desc {
+      margin: 0 0 16px;
+      color: var(--text-sub);
+      font-size: 13px;
+    }
+    .page-header {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: flex-start;
+
+      margin-bottom: 18px;
+
+      gap: 16px;
+
+    }
+
+    .page-title-wrap h1 {
+
+      margin: 4px 0 6px;
+
+      font-size: 21px;
+
+      font-weight: 800;
+
+      letter-spacing: -0.02em;
+
+    }
+
+    .page-title-wrap p {
+
+      margin: 0;
+
+      color: var(--text-sub);
+
+      font-size: 13px;
+
+    }
+
+    .code-badge {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      background: #1e293b;
+
+      color: #f8fafc;
+
+      font-family: 'JetBrains Mono', monospace;
+
+      font-size: 11px;
+
+      font-weight: 700;
+
+      padding: 4px 10px;
+
+      border-radius: 6px;
+
+    }
+
+    .domain-switch-bar {
+
+      display: flex;
+
+      gap: 8px;
+
+      background: #fff;
+
+      padding: 8px 10px;
+
+      border-radius: 10px;
+
+      border: 1px solid var(--border);
+
+      margin-bottom: 18px;
+
+      flex-wrap: wrap;
+
+      align-items: center;
+
+    }
+
+    .sub-tab-btn {
+
+      padding: 9px 14px;
+
+      border-radius: 8px;
+
+      border: 1px solid transparent;
+
+      background: transparent;
+
+      color: var(--text-sub);
+
+      font-weight: 700;
+
+      font-size: 13px;
+
+      cursor: pointer;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      transition: all 0.15s;
+
+    }
+
+    .sub-tab-btn:hover { background: #f1f5f9; color: var(--text-main); }
+
+    .sub-tab-btn.active {
+
+      background: var(--primary);
+
+      color: #fff;
+
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.22);
+
+    }
+
+    .sub-tab-btn .cnt {
+
+      font-size: 11px;
+
+      padding: 1px 7px;
+
+      border-radius: 999px;
+
+      background: rgba(15, 23, 42, 0.08);
+
+    }
+
+    .sub-tab-btn.active .cnt {
+
+      background: rgba(255, 255, 255, 0.22);
+
+      color: #fff;
+
+    }
+
+
+
+    .kpi-row {
+
+      display: grid;
+
+      grid-template-columns: repeat(4, 1fr);
+
+      gap: 14px;
+
+      margin-bottom: 18px;
+
+    }
+
+    .kpi-card {
+
+      background: #fff;
+
+      border: 1px solid var(--border);
+
+      border-radius: 10px;
+
+      padding: 15px 18px;
+
+    }
+
+    .kpi-label { font-size: 12px; color: var(--text-sub); font-weight: 600; margin-bottom: 6px; }
+
+    .kpi-val { font-size: 22px; font-weight: 800; color: var(--text-main); }
+
+    .kpi-sub { margin-top: 4px; font-size: 11.5px; color: var(--text-muted); }
+
+
+
+    .card {
+
+      background: #fff;
+
+      border: 1px solid var(--border);
+
+      border-radius: 12px;
+
+      padding: 18px 20px;
+
+      margin-bottom: 18px;
+
+    }
+
+    .filter-grid {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+    }
+
+    .filter-left, .filter-right {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 8px;
+
+      align-items: center;
+
+    }
+
+    input[type="text"], input[type="number"], select, textarea {
+
+      padding: 8px 11px;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 7px;
+
+      font-size: 13px;
+
+      font-family: inherit;
+
+      color: var(--text-main);
+
+      background: #fff;
+
+    }
+
+    .btn {
+
+      padding: 8px 14px;
+
+      border-radius: 7px;
+
+      font-size: 12.5px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+
+      border: 1px solid transparent;
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      transition: all 0.15s;
+
+    }
+
+    .btn-primary { background: var(--primary); color: #fff; }
+
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-outline { background: #fff; border-color: #cbd5e1; color: var(--text-main); }
+
+    .btn-outline:hover { background: #f8fafc; }
+
+    .btn-success { background: #059669; color: #fff; }
+
+    .btn-warning { background: #d97706; color: #fff; }
+
+    .btn-danger { background: #dc2626; color: #fff; }
+
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; border-radius: 6px; }
+
+
+
+    table.data-table {
+
+      width: 100%;
+
+      border-collapse: collapse;
+
+      font-size: 12.5px;
+
+    }
+
+    table.data-table th {
+
+      background: #f8fafc;
+
+      color: #475569;
+
+      font-weight: 700;
+
+      text-align: left;
+
+      padding: 11px 12px;
+
+      border-top: 1px solid var(--border);
+
+      border-bottom: 1px solid var(--border);
+
+      white-space: nowrap;
+
+    }
+
+    table.data-table td {
+
+      padding: 11px 12px;
+
+      border-bottom: 1px solid #f1f5f9;
+
+      vertical-align: middle;
+
+    }
+
+    table.data-table tr:hover td { background: #f8fafc; }
+
+
+
+    .badge {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      padding: 3px 8px;
+
+      border-radius: 999px;
+
+      font-size: 11px;
+
+      font-weight: 700;
+
+      white-space: nowrap;
+
+    }
+
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+
+    .badge-green { background: #d1fae5; color: #047857; }
+
+    .badge-amber { background: #fef3c7; color: #b45309; }
+
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+
+    .badge-slate { background: #e2e8f0; color: #334155; }
+
+    .badge-purple { background: #ede9fe; color: #6d28d9; }
+
+
+
+    .view-section { display: none; }
+
+    .view-section.active { display: block; }
+    /* 운영 안내(clean에서도 노출): info-callout은 clean에서 숨김 처리되므로 별도 클래스 사용 */
+    .ctx-note {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1e40af;
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+
+
+    .info-callout {
+
+      background: #eff6ff;
+
+      border: 1px solid #bfdbfe;
+
+      color: #1e40af;
+
+      padding: 11px 14px;
+
+      border-radius: 8px;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+
+      margin-bottom: 14px;
+
+    }
+
+
+
+    /* Modal */
+
+    .modal-backdrop {
+
+      position: fixed;
+
+      inset: 0;
+
+      background: rgba(15, 23, 42, 0.55);
+
+      display: none;
+
+      align-items: center;
+
+      justify-content: center;
+
+      z-index: 2000;
+
+      padding: 20px;
+
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal-box {
+
+      background: #fff;
+
+      border-radius: 14px;
+
+      width: 100%;
+
+      max-width: 880px;
+
+      max-height: 92vh;
+
+      display: flex;
+
+      flex-direction: column;
+
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+
+      overflow: hidden;
+
+    }
+
+    .modal-header {
+
+      padding: 16px 22px;
+
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      background: #f8fafc;
+
+    }
+
+    .modal-header h3 { margin: 0; font-size: 16px; font-weight: 800; }
+
+    .modal-body { padding: 20px 22px; overflow-y: auto; }
+
+    .modal-footer {
+
+      padding: 14px 22px;
+
+      border-top: 1px solid var(--border);
+
+      display: flex;
+
+      justify-content: flex-end;
+
+      gap: 8px;
+
+      background: #f8fafc;
+
+    }
+
+    .form-grid {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 14px;
+
+    }
+
+    .form-group {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 6px;
+
+      margin-bottom: 12px;
+
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label { font-size: 12px; font-weight: 700; color: #334155; }
+
+
+
+    .rich-editor-shell {
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 8px;
+
+      overflow: hidden;
+
+    }
+
+    .rich-toolbar {
+
+      background: #f1f5f9;
+
+      padding: 7px 10px;
+
+      border-bottom: 1px solid #cbd5e1;
+
+      display: flex;
+
+      gap: 6px;
+
+      flex-wrap: wrap;
+
+      align-items: center;
+
+    }
+
+    .rich-toolbar button {
+
+      background: #fff;
+
+      border: 1px solid #cbd5e1;
+
+      border-radius: 5px;
+
+      padding: 4px 9px;
+
+      font-size: 11.5px;
+
+      font-weight: 700;
+
+      cursor: pointer;
+
+    }
+
+    .rich-area {
+
+      min-height: 200px;
+
+      padding: 14px;
+
+      outline: none;
+
+      font-size: 13px;
+
+      line-height: 1.65;
+
+      background: #fff;
+
+    }
+
+    .rich-area table {
+
+      border-collapse: collapse;
+
+      width: 100%;
+
+      margin: 8px 0;
+
+    }
+
+    .rich-area th, .rich-area td {
+
+      border: 1px solid #94a3b8;
+
+      padding: 6px 10px;
+
+      font-size: 12px;
+
+    }
+
+    .rich-area th { background: #f1f5f9; }
+
+
+
+    .toast-box {
+
+      position: fixed;
+
+      bottom: 24px;
+
+      right: 24px;
+
+      background: #0f172a;
+
+      color: #fff;
+
+      padding: 12px 18px;
+
+      border-radius: 10px;
+
+      font-size: 13px;
+
+      font-weight: 700;
+
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+
+      z-index: 3000;
+
+      display: none;
+
+    }
+
+  
+/* === [GLOBAL-PRETENDARD-FONT-LOCK: NO-BROWSER-MONOSPACE] === */
+:root {
+  --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  --font-mono: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+*, *::before, *::after,
+html, body,
+code, pre, kbd, samp, tt, var,
+button, input, select, textarea, optgroup, option,
+table, thead, tbody, tfoot, tr, th, td,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+code, pre, kbd, samp,
+.code, .code-pill, .code-badge, .code-tag, .crumb-code, .nav-code, .snb-code, .screen-id-badge, .mono, .num, .k-num {
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.01em !important;
+}
+
+  </style>
+
+  <link rel="stylesheet" href="dev-overlay.css" />
+  <script type="application/json" id="dev-map">{"code": "ADMN-BRD-005", "devCommit": "d562524a", "progress": "구현(BRD-005 · 005-S1 · BRD-010 · 010-S1). 수강후기/합격수기 분리 탭 · 진도율 · 별점 · 무료특강 영상(VOD) · 버전 이력은 개발 없음 — 주황 표시", "menus": [{"route": "admin.reviews.index", "label": "수기 / 합격 후기 관리"}, {"route": "admin.free-contents.index", "label": "무료콘텐츠 관리"}]}</script>
+  <script src="dev-overlay.js" defer></script>
+</head>
+
+<body>
+<aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
+
+<div id="v4-root-shell">
+  <header class="top-bar v4-gen3-topbar">
+    <div class="top-bar-left">
+      <span class="crumb-group">주문 · 환불 · CS · 프로모션</span>
+      <span class="crumb-sep">›</span>
+      <span class="crumb-code" id="current-screen-code">ADMN-BRD-005</span>
+      <h1 class="crumb-title" id="current-screen-title">수강후기·합격수기 분리 관리 및 무료특강(빈출문제)</h1>
+    </div>
+    <div class="top-bar-right">
+      <a href="ADMN-BRD-001_baseline.html" class="btn btn-outline btn-sm">← 공지·FAQ·Q&amp;A·당첨자 발표 (ADMN-BRD-001)</a>
+    </div>
+  </header>
+
+  <div id="v4-page-body" class="main-container">
+
+    <section class="subview-panel active" data-subpage="list">
+
+    <p class="page-desc">수강후기(진도율/별점)와 합격수기(자격증 합격증빙 검수)를 분리 운영하고, 무료특강·빈출문제 등 무료 콘텐츠를 관리합니다.</p>
+
+    <div class="domain-switch-bar">
+
+      <button class="sub-tab-btn active" data-dev-route="admin.reviews.index" data-dev-method="GET" data-dev-url="/sj-admin/reviews" data-dev-perm="조회" data-dev-note="개발은 수기 · 합격 후기를 한 목록(reviews)에서 처리 — 수강후기 탭 분리는 프로토타입 구성" onclick="switchTab('courseReview')" id="tab-btn-courseReview">
+
+        ⭐ 수강후기 관리 (강좌/별점) <span class="cnt" id="cnt-courseReview">4</span>
+
+      </button>
+
+      <button class="sub-tab-btn" data-dev-route="admin.reviews.index" data-dev-method="GET" data-dev-url="/sj-admin/reviews" data-dev-perm="조회" data-dev-note="개발 필터 verify_status · exam_target_id · exam_round · instructor_id · cafe · display · is_best · point · refund · keyword" onclick="switchTab('passEssay')" id="tab-btn-passEssay">
+
+        🎓 합격수기 검수 관리 (합격증빙/회차) <span class="cnt" id="cnt-passEssay">4</span>
+
+      </button>
+
+      <button class="sub-tab-btn" data-dev-route="admin.free-contents.index" data-dev-method="GET" data-dev-url="/sj-admin/free-contents" data-dev-perm="조회" data-dev-note="개발 BRD-010 무료콘텐츠 관리(별도 메뉴)" onclick="switchTab('freeLecture')" id="tab-btn-freeLecture">
+
+        🎬 무료특강 및 빈출문제 (ADMN-BRD-010) <span class="cnt" id="cnt-freeLecture">4</span>
+
+      </button>
+
+
+    </div>
+
+
+
+    <!-- ==================== 1. 수강후기 관리 (COURSE_REVIEW) ==================== -->
+
+    <section id="view-courseReview" class="view-section active">
+
+      <div class="info-callout">
+
+        <strong>[ADMN-BRD-005-A] 수강후기(Course Review) 운영 정책:</strong> 강좌 진도율 <strong>30% 이상</strong> 수강생이 작성 가능하며, <strong>별점(★1~5)</strong>과 <strong>수강 강좌명·진도율</strong>을 기준으로 모니터링합니다. 우수 후기는 <code>[베스트 수강후기]</code>로 선정하여 강좌 상세 상단에 고정하고 추가 포인트를 지급합니다. (합격인증 증빙 심사는 우측 <strong>[합격수기 검수 관리]</strong> 탭에서 분리 운영합니다.)
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="filter-grid">
+
+          <div class="filter-left">
+
+            <select id="cr-best-filter" name="is_best" data-dev-value="1 = 베스트만 (일반 필터는 개발 없음)" onchange="renderCourseReviews()">
+
+              <option value="ALL">베스트 여부 전체</option>
+
+              <option value="BEST"> data-dev-name="is_best" data-dev-value="1"★ 베스트 수강후기만</option>
+
+              <option value="NORMAL">일반 수강후기</option>
+
+            </select>
+
+            <input type="text" id="cr-keyword" name="keyword" data-dev-note="개발 keyword = 제목 검색" placeholder="강좌명, 작성자, 후기 내용 검색..." oninput="renderCourseReviews()" style="width:260px;" />
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card" style="padding:0; overflow:hidden;">
+
+        <table class="data-table">
+
+          <thead>
+
+            <tr>
+
+              <th style="width:90px;">후기번호</th>
+
+              <th style="width:230px;">수강 강좌명 / 담당 강사</th>
+
+              <th style="width:110px;">수강 진도율</th>
+
+              <th style="width:110px;">별점 평점</th>
+
+              <th>수강후기 제목 / 한줄평</th>
+
+              <th style="width:130px;">작성 수강생</th>
+
+              <th style="width:130px;">베스트 선정 / 포인트</th>
+
+              <th style="width:110px;">노출상태</th>
+
+              <th style="width:150px;">관리</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="cr-tbody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================== 2. 합격수기 검수 관리 (PASS_ESSAY) ==================== -->
+
+    <section id="view-passEssay" class="view-section">
+
+      <div class="info-callout">
+
+        <strong>[ADMN-BRD-005-B] 합격수기(Pass Essay) 전용 검수 정책:</strong> 국가기술자격 정기검정 <strong>응시 종목·회차(예: 2026년 제2회 산업안전기사)</strong>, <strong>필기/실기 합격 구분</strong>, <strong>합격인증 증빙 파일(큐넷 자격증 사본/합격확인서)</strong>을 대조 심사합니다. 승인 시 합격수기 게시판 노출 및 합격 축하 포인트가 지급됩니다.
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="filter-grid">
+
+          <div class="filter-left">
+
+            <select id="pe-status-filter" name="verify_status" data-dev-value="pending · verified · rejected · hidden(개발에만)" onchange="renderPassEssays()">
+
+              <option value="ALL">증빙 검수상태 전체</option>
+
+              <option value="PENDING"> data-dev-name="verify_status" data-dev-value="pending"심사대기 (증빙 확인 필요)</option>
+
+              <option value="APPROVED"> data-dev-name="verify_status" data-dev-value="verified"인증승인 완료</option>
+
+              <option value="REJECTED"> data-dev-name="verify_status" data-dev-value="rejected"반려 (증빙 미비)</option>
+
+            </select>
+
+            <input type="text" id="pe-keyword" name="keyword" data-dev-note="개발 keyword = 제목 검색. 종목 · 회차는 exam_target_id · exam_round 필터" placeholder="자격증 종목, 응시회차, 작성자 검색..." oninput="renderPassEssays()" style="width:260px;" />
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card" style="padding:0; overflow:hidden;">
+
+        <table class="data-table">
+
+          <thead>
+
+            <tr>
+
+              <th style="width:95px;">수기번호</th>
+
+              <th style="width:210px;">합격 자격증 종목 / 응시회차</th>
+
+              <th style="width:110px;">합격 구분</th>
+
+              <th>합격수기 제목 / 핵심 공부법</th>
+
+              <th style="width:160px;">합격인증 증빙 파일</th>
+
+              <th style="width:125px;">작성자</th>
+
+              <th style="width:120px;">검수 상태</th>
+
+              <th style="width:150px;">검수 액션</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="pe-tbody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==================== 3. 무료특강 및 빈출문제 (ADMN-BRD-010) ==================== -->
+
+    <section id="view-freeLecture" class="view-section">
+
+      <div class="info-callout">
+
+        <strong>[ADMN-BRD-010] 무료특강 및 빈출문제 운영 정책:</strong> 사용자 웹 <code>USER-FREE-001 ~ 003</code>에 노출되는 무료 학습 콘텐츠입니다. 콘텐츠 구분은 <strong>[무료특강 영상 (<code>FREE_LECTURE</code>)]</strong>과 <strong>[빈출문제 해설 (<code>FREQ_EXAM</code>)]</strong>로 운영하며, 빈출문제 PDF 시험지/해설지 다운로드 및 플레이어 VOD 연동을 지원합니다.
+
+      </div>
+
+
+
+      <div class="card">
+
+        <div class="filter-grid">
+
+          <div class="filter-left">
+
+            <select id="fl-type-filter" name="type" data-dev-value="EXAM 빈출자료 · DAILY 매일 1문제" onchange="renderFreeLectures()">
+
+              <option value="ALL">콘텐츠 구분 전체</option>
+
+              <option value="FREE_LECTURE" data-dev-flag="proto-only" data-dev-note="무료특강 영상 — 개발 구분에 없음">무료특강 영상 (FREE_LECTURE)</option>
+
+              <option value="FREQ_EXAM"> data-dev-name="content_type" data-dev-value="EXAM"빈출문제 해설 (FREQ_EXAM)</option>
+
+            </select>
+
+            <select id="fl-cert-filter" name="cert" data-dev-note="값 = categories.id (1Depth 자격증)" onchange="renderFreeLectures()">
+
+              <option value="ALL">자격증 종목 전체</option>
+
+              <option value="산업안전기사">산업안전기사</option>
+
+              <option value="건설안전기사">건설안전기사</option>
+
+              <option value="위험물산업기사">위험물산업기사</option>
+
+            </select>
+
+          </div>
+
+          <div class="filter-right">
+
+            <button class="btn btn-outline" data-dev-flag="dev-only" data-dev-route="admin.free-contents.download" data-dev-method="GET" data-dev-url="/sj-admin/free-contents/download" data-dev-perm="다운로드" data-dev-note="개인정보 없음 — 사유 입력 없이 다운로드">엑셀 다운로드</button>
+            <button class="btn btn-primary" data-dev-route="admin.free-contents.create" data-dev-method="GET" data-dev-url="/sj-admin/free-contents/create" data-dev-perm="등록" onclick="openFreeLecturePage(null)">+ 무료특강 / 빈출문제 등록</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="card" style="padding:0; overflow:hidden;">
+
+        <table class="data-table">
+
+          <thead>
+
+            <tr>
+
+              <th style="width:95px;">콘텐츠 ID</th>
+
+              <th style="width:150px;">콘텐츠 구분</th>
+
+              <th style="width:160px;">자격증 종목 / 대비연도</th>
+
+              <th>제목</th>
+
+              <th style="width:150px;">연동 VOD / 러닝타임</th>
+
+              <th style="width:170px;">빈출문제/교안 PDF 첨부</th>
+
+              <th style="width:95px;">조회수</th>
+
+              <th style="width:100px;">노출상태</th>
+
+              <th style="width:130px;">관리</th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="fl-tbody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+
+
+
+    </section>
+
+    <!-- ==================== 하위 화면(S) — 화면설계서 v12 별도 페이지, SJM_PAGE (common-snb.js) ==================== -->
+
+    <!-- 무료콘텐츠 등록 · 수정 (ADMN-BRD-010-S1) -->
+    <section class="subview-panel" data-subpage="free-lecture">
+      <div class="subpage-head">
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 무료특강 · 빈출문제 목록</button>
+        <span class="crumb-code">ADMN-BRD-010-S1</span>
+        <h2 class="subpage-title" id="fl-modal-title">[ADMN-BRD-010] 무료특강 및 빈출문제 등록</h2>
+      </div>
+      <div class="card subpage-card" style="max-width:960px;">
+        <input type="hidden" id="fl-edit-id" />
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">콘텐츠 구분 *</label>
+            <select id="fl-form-type" name="content_type" data-dev-note="개발 FreeContent::TYPES — DAILY는 프로토타입에 없음(정책 질문)" data-dev-value="EXAM 빈출자료 · DAILY 매일 1문제">
+              <option value="FREE_LECTURE" data-dev-flag="proto-only" data-dev-note="무료특강 영상 — 개발 구분에 없음">무료특강 영상 (FREE_LECTURE)</option>
+              <option value="FREQ_EXAM"> data-dev-name="content_type" data-dev-value="EXAM"빈출문제 해설 (FREQ_EXAM)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">대상 자격증 종목 / 대비 연도 *</label>
+            <div style="display:flex; gap:8px;">
+              <select id="fl-form-cert" name="cert_category_id" data-dev-note="값 = categories.id (1Depth)" style="flex:1;">
+                <option value="산업안전기사">산업안전기사</option>
+                <option value="건설안전기사">건설안전기사</option>
+                <option value="위험물산업기사">위험물산업기사</option>
+              </select>
+              <input type="text" id="fl-form-year" name="year" data-dev-note="정수 2000~2100 (프로토타입 '2026 대비' 문구)" value="2026 대비" style="width:120px;" />
+              <input type="number" name="round_no" min="1" max="999" placeholder="회차" style="width:80px;" data-dev-flag="dev-only" data-dev-note="roundNo — EXAM이면 필수 · 1~999, DAILY는 비움" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">콘텐츠 제목 *</label>
+            <input type="text" id="fl-form-title" name="title" data-dev-note="max:100" placeholder="예: [빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강" />
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">'정답지' 콘텐츠는 제목에 '정답지'를 붙여 표기합니다. 저작권 보호를 위해 제목에는 '빈출문제'로 표기합니다.</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">연동 VOD 에셋 코드 / 러닝타임 *</label>
+            <input type="text" id="fl-form-vod" data-dev-flag="proto-only" data-dev-note="VOD 에셋 코드 · 러닝타임 — 개발 없음" placeholder="예: VOD-FREE-2610 (48분)" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">빈출문제 시험지 / 교안 PDF 파일명</label>
+            <input type="text" id="fl-form-pdf" name="attachments[]" data-dev-note="PDF만 · 최대 5개 · 개당 10MB (프로토타입은 파일명 텍스트). 삭제는 delete_attachments[]" placeholder="예: 2026_산안기_빈출문제_50선.pdf" />
+          </div>
+          <div class="form-group full">
+            <label class="form-label">특강/빈출문제 안내 및 핵심 문항 요약 (웹 에디터)</label>
+            <div class="rich-editor-shell">
+              <div class="rich-toolbar">
+                <button type="button" onclick="execCmd('fl-form-body','bold')"><b>B</b></button>
+                <button type="button" onclick="execCmd('fl-form-body','underline')"><u>U</u></button>
+              </div>
+              <div id="fl-form-body" data-dev-note="nullable(에디터)" data-dev-name="content" class="rich-area" contenteditable="true" style="min-height:130px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- 파일 · 본문 버전 관리('정답지' 표기 콘텐츠 포함) — 통합 설계서 무료 콘텐츠 시리즈 '정답지' 관리 -->
+        <div style="margin-top:18px;">
+          <div style="font-weight:800; font-size:13.5px; margin-bottom:6px;" data-dev-flag="proto-only" data-dev-note="버전 이력 — 개발 없음">파일 · 본문 버전 이력</div>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-bottom:8px;">PDF 파일이나 본문을 바꿔 저장하면 새 버전으로 남습니다('정답지' 표기 콘텐츠 포함).</div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">버전</th>
+                <th style="width:110px;">저장일</th>
+                <th style="width:260px;">PDF 파일</th>
+                <th>본문 요약</th>
+                <th style="width:200px;">변경 내용</th>
+              </tr>
+            </thead>
+            <tbody id="fl-version-tbody"></tbody>
+          </table>
+        </div>
+        <div class="subpage-foot">
+          <button type="button" class="btn btn-outline" onclick="backToList()">취소</button>
+          <button type="button" class="btn btn-primary" data-dev-route="admin.free-contents.store | admin.free-contents.update" data-dev-method="POST | PUT" data-dev-url="/sj-admin/free-contents | /free-contents/{freeContent}" data-dev-perm="등록 | 수정" data-dev-note="저장 전 중복 경고 GET admin.free-contents.duplicates.index(JSON). 개발 추가 필드: status(published · hidden) · started_at · related_course_id" onclick="saveFreeLecture()">저장</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</div>
+
+
+
+<!-- ==================== 모달 A: 합격수기 증빙 검수 및 승인 (ADMN-BRD-005-S1) — 건별 판단: 증빙 미리보기 · 승인/반려 결정이라 모달 유지 ==================== -->
+<div class="modal-backdrop" id="modal-pass-audit">
+  <div class="modal-box" style="max-width:760px;">
+    <div class="modal-header">
+      <h3 id="pe-modal-title">[ADMN-BRD-005-B] 합격수기 자격증 증빙 검수</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-pass-audit')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="pe-modal-body"></div>
+      <div class="ctx-note" id="pe-reward-note" style="margin-top:14px; margin-bottom:0;"></div>
+      <div class="form-grid" style="margin-top:14px;" data-dev-flag="dev-only" data-dev-note="개발 modForm · 우수 후기 포인트 지급 폼(ReviewPointRequest)">
+        <div class="form-group full">
+          <label class="form-label">반려 사유 (반려 시 필수 · 10자 이상)</label>
+          <input type="text" name="reject_reason" placeholder="예: 합격증 미제출 · 타 회차 합격증 · 글자 수 미달" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">우수 후기 포인트</label>
+          <input type="number" name="amount" min="1" placeholder="지급 포인트" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">지급 사유</label>
+          <input type="text" name="reason" placeholder="10자 이상" />
+        </div>
+        <div class="form-group full">
+          <button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.members.review-points.store" data-dev-method="POST" data-dev-url="/sj-admin/members/review-points/{review}" data-dev-perm="등록(회원관리 메뉴)" data-dev-note="검증 완료 후 후기당 1회(reviews.point_granted_at)">우수 후기 포인트 지급</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" data-dev-route="admin.reviews.update" data-dev-method="PUT" data-dev-url="/sj-admin/reviews/{review}" data-dev-perm="수정" data-dev-note="reject_reason 10~255자 필수(회원 마이페이지 · 알림에 노출)" data-dev-name="verify_status" data-dev-value="rejected" onclick="decidePassEssay('REJECTED')">반려 처리 (증빙 불일치/식별불가)</button>
+      <button class="btn btn-success" id="pe-approve-btn" data-dev-route="admin.reviews.update" data-dev-method="PUT" data-dev-url="/sj-admin/reviews/{review}" data-dev-perm="수정" data-dev-note="개발은 검증과 포인트 지급을 분리 — 지급은 admin.members.review-points.store(정책 질문)" data-dev-name="verify_status" data-dev-value="verified" onclick="decidePassEssay('APPROVED')">✓ 합격인증 승인 및 후기 보상 포인트 지급</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-box" id="toast-box"></div>
+
+
+
+<script>
+
+  // 1. 수강후기 (COURSE_REVIEW) - 합격수기와 완전 분리
+
+  let COURSE_REVIEWS = [
+
+    { id: 'CR-904', course: '2026 산업안전기사 필기 올인원 패키지 / 이준호', progress: 84, rating: 5, title: '비전공자도 이해하기 쉽게 도식화로 설명해주셔서 좋았습니다.', user: '김도윤 (doyoon_k)', best: true, pointPaid: 1500, visible: true },
+
+    { id: 'CR-903', course: '2026 건설안전기사 실기 작업형 마스터 / 박성진', progress: 62, rating: 5, title: '작업형 영상 사례별로 핵심 키워드를 짚어주셔서 암기가 훨씬 수월해요.', user: '이수아 (sua_lee)', best: true, pointPaid: 1500, visible: true },
+
+    { id: 'CR-902', course: '2026 인간공학 및 시스템안전공학 단과 / 이준호', progress: 45, rating: 4, title: '계산문제 풀이 공식 정리 노트가 정말 유용합니다.', user: '박성민 (smpark)', best: false, pointPaid: 500, visible: true },
+
+    { id: 'CR-901', course: '2026 산업안전기사 실기 필답형 핵심요약 / 이준호', progress: 33, rating: 5, title: '출퇴근길에 모바일 배속 재생으로 반복 수강 중입니다.', user: '정하은 (haeun_j)', best: false, pointPaid: 500, visible: true }
+
+  ];
+
+
+
+  // 2. 합격수기 (PASS_ESSAY) - 자격증 회차 및 합격증빙 파일 심사 전용
+
+  let PASS_ESSAYS = [
+
+    { id: 'PE-312', cert: '산업안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '직장 병행 3개월 만에 산업안전기사 동차 최종합격 수기입니다!', proofFile: '큐넷_국가기술자격증_사본_박준형.jpg', user: '박준형 (jhpark90)', status: 'PENDING', scoreInfo: '필기 평균 78점 / 실기 81점' },
+
+    { id: 'PE-311', cert: '건설안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '산준모 빈출문제 특강과 필답형 키워드 암기법 덕에 한 번에 붙었습니다.', proofFile: '큐넷_합격확인서_최예린.pdf', user: '최예린 (yerin_c)', status: 'APPROVED', scoreInfo: '필기 평균 74점 / 실기 76점' },
+
+    { id: 'PE-310', cert: '산업안전기사 / 2026년 정기 기사 제1회', passType: '필기합격', title: '기계·전기·화공 비전공자 필기 4주 단기 합격 공부 루틴 공유', proofFile: '큐넷_필기합격캡처_강동원.png', user: '강동원 (dwkang)', status: 'APPROVED', scoreInfo: '필기 평균 82점' },
+
+    { id: 'PE-309', cert: '위험물산업기사 / 2026년 정기 제2회', passType: '최종합격', title: '화학반응식 기초부터 잡아주셔서 실기까지 무난히 통과했습니다.', proofFile: '증빙이미지_흐림_재업로드요망.jpg', user: '조민수 (mscho)', status: 'REJECTED', scoreInfo: '증빙 수험번호 식별 불가' }
+
+  ];
+
+  let currentAuditEssayId = null;
+
+
+
+  // 3. 무료특강 및 빈출문제 (ADMN-BRD-010) - '빈출문제'로 전수 일원화
+
+  let FREE_LECTURES = [
+
+    { id: 'FL-2604', type: 'FREQ_EXAM', cert: '산업안전기사', year: '2026 대비', title: '[빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강', vod: 'VOD-FREE-104 (52분)', pdf: '2026_산안기_빈출문제_50선.pdf', views: 2410, visible: true, body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', versions: [{ ver: 1, date: '2026-09-25', pdf: '2026_산안기_빈출문제_50선.pdf', body: '핵심 빈출문제 50선 풀이 특강입니다.', note: '최초 등록' }, { ver: 2, date: '2026-10-12', pdf: '2026_산안기_빈출문제_50선.pdf', body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', note: '본문 수정 (출제 경향 반영)' }] },
+
+    { id: 'FL-2603', type: 'FREE_LECTURE', cert: '산업안전기사', year: '2026 대비', title: '[무료특강] 비전공자를 위한 인간공학·시스템안전 계산공식 기초특강', vod: 'VOD-FREE-103 (38분)', pdf: '계산공식_핵심요약집.pdf', views: 1890, visible: true, body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', versions: [{ ver: 1, date: '2026-09-18', pdf: '계산공식_핵심요약집.pdf', body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', note: '최초 등록' }] },
+
+    { id: 'FL-2602', type: 'FREQ_EXAM', cert: '건설안전기사', year: '2026 대비', title: '[빈출문제] 건설안전기사 실기 필답형+작업형 최빈출 테마 30선', vod: 'VOD-FREE-102 (64분)', pdf: '2026_건안기_실기_빈출문제30선.pdf', views: 1520, visible: true, body: '건설안전기사 실기 빈출문제 핵심 답안 작성법 해설입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2026_건안기_실기_빈출문제30선.pdf', body: '건설안전기사 실기 빈출문제 핵심 답안 작성법 해설입니다.', note: '최초 등록' }] },
+
+    { id: 'FL-2601', type: 'FREQ_EXAM', cert: '위험물산업기사', year: '2026 대비', title: '[빈출문제] 제1류~제6류 위험물 성상 및 소화방법 빈출문제 총정리', vod: 'VOD-FREE-101 (45분)', pdf: '위험물_빈출문제_요약노트.pdf', views: 980, visible: true, body: '위험물 유별 핵심 빈출문제 해설입니다.', versions: [{ ver: 1, date: '2026-08-20', pdf: '위험물_빈출문제_요약노트.pdf', body: '위험물 유별 핵심 빈출문제 해설입니다.', note: '최초 등록' }] }
+
+  ];
+
+
+
+
+
+
+  // 탭(목록 화면) 상태만 바꾼다 — 하위 화면(S)에서 돌아갈 탭을 기억하고, 상단 코드 · 제목은 switchTab이 바꾼다
+  let activeTab = 'courseReview';
+  function setTabState(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('tab-btn-' + tab).classList.add('active');
+    document.getElementById('view-' + tab).classList.add('active');
+  }
+  // 하위 화면(S)에서 목록으로 — 목록 주소에 원래 탭(?view=탭)을 남긴다
+  function backToList() {
+    SJM_PAGE.back();
+    try {
+      const q = new URLSearchParams(window.location.search);
+      q.set('view', activeTab);
+      history.replaceState(history.state, '', window.location.pathname + '?' + q.toString() + window.location.hash);
+    } catch (e) { /* file:// 등 주소 기록이 막혀도 화면 전환은 유지 */ }
+  }
+  function switchTab(tab) {
+    setTabState(tab);
+
+
+
+    const meta = {
+
+      courseReview: ['ADMN-BRD-005-A', '수강후기 관리 (강좌 진도율·별점·베스트 선정)'],
+
+      passEssay: ['ADMN-BRD-005-B', '합격수기 검수 관리 (자격증 합격증빙 심사·축하 포인트)'],
+
+      freeLecture: ['ADMN-BRD-010', '무료특강 및 빈출문제 관리']
+
+    };
+
+    document.getElementById('current-screen-code').textContent = meta[tab][0];
+
+    document.getElementById('current-screen-title').textContent = meta[tab][1];
+
+  }
+
+
+
+  // 1. 수강후기 렌더링
+
+  function renderCourseReviews() {
+
+    const f = document.getElementById('cr-best-filter').value;
+
+    const kw = (document.getElementById('cr-keyword').value || '').trim().toLowerCase();
+
+    const list = COURSE_REVIEWS.filter(r =>
+
+      (f === 'ALL' || (f === 'BEST' && r.best) || (f === 'NORMAL' && !r.best)) &&
+
+      (!kw || r.course.toLowerCase().includes(kw) || r.title.toLowerCase().includes(kw) || r.user.toLowerCase().includes(kw))
+
+    );
+
+    document.getElementById('cnt-courseReview').textContent = COURSE_REVIEWS.length;
+
+    document.getElementById('cr-tbody').innerHTML = list.map(r => `
+
+      <tr>
+
+        <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;">${r.id}</td>
+
+        <td>${r.course}</td>
+
+        <td><span class="badge badge-blue">진도율 ${r.progress}%</span></td>
+
+        <td style="color:#f59e0b; font-weight:800;">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)} (${r.rating}.0)</td>
+
+        <td style="font-weight:700;">${r.title}</td>
+
+        <td>${r.user}</td>
+
+        <td>
+
+          ${r.best
+
+            ? `<span class="badge badge-amber">👑 베스트 후기 (+${rewardP(true).toLocaleString()}P)</span>`
+
+            : `<span class="badge badge-slate">일반 후기 (+${rewardP(false).toLocaleString()}P)</span>`
+
+          }
+
+        </td>
+
+        <td><span class="badge ${r.visible ? 'badge-green' : 'badge-red'}">${r.visible ? '노출중' : '숨김'}</span></td>
+
+        <td>
+
+          <button class="btn btn-outline btn-sm" data-dev-route="admin.reviews.best.update" data-dev-method="PUT" data-dev-url="/sj-admin/reviews/best" data-dev-perm="수정" data-dev-note="bulkForm: ids[] · best(bulkBest) 1 · 0 — 베스트 동시 최대 12" onclick="toggleBestCourseReview('${r.id}')">${r.best ? '베스트 해제' : '👑 베스트 선정'}</button>
+
+          <button class="btn btn-outline btn-sm" data-dev-route="admin.reviews.display.update" data-dev-method="PUT" data-dev-url="/sj-admin/reviews/display" data-dev-perm="수정" data-dev-note="bulkForm: ids[] · show(bulkShow) 1 · 0 → reviews.display_site" onclick="toggleCourseReviewVisible('${r.id}')">${r.visible ? '숨김' : '노출'}</button>
+
+        </td>
+
+      </tr>
+
+    `).join('');
+
+  }
+
+
+
+  function toggleBestCourseReview(id) {
+
+    const r = COURSE_REVIEWS.find(item => item.id === id);
+
+    if (!r) return;
+
+    r.best = !r.best;
+
+    r.pointPaid = rewardP(r.best);
+
+    renderCourseReviews();
+
+    showToast(r.best ? `${id} 수강후기가 베스트로 선정되어 베스트 후기 보상 ${rewardP(true).toLocaleString()}P가 적립되었습니다.` : `${id} 베스트 지정이 해제되었습니다.`);
+
+  }
+
+
+
+  function toggleCourseReviewVisible(id) {
+
+    const r = COURSE_REVIEWS.find(item => item.id === id);
+
+    if (!r) return;
+
+    r.visible = !r.visible;
+
+    renderCourseReviews();
+
+    showToast(`${id} 수강후기 노출 상태가 변경되었습니다.`);
+
+  }
+
+
+
+  // 2. 합격수기 렌더링 (수강후기와 분리된 자격증/회차/합격증빙 검수)
+
+  function renderPassEssays() {
+
+    const st = document.getElementById('pe-status-filter').value;
+
+    const kw = (document.getElementById('pe-keyword').value || '').trim().toLowerCase();
+
+    const list = PASS_ESSAYS.filter(p =>
+
+      (st === 'ALL' || p.status === st) &&
+
+      (!kw || p.cert.toLowerCase().includes(kw) || p.title.toLowerCase().includes(kw) || p.user.toLowerCase().includes(kw))
+
+    );
+
+    document.getElementById('cnt-passEssay').textContent = PASS_ESSAYS.length;
+
+    const stBadge = { PENDING: 'badge-amber', APPROVED: 'badge-green', REJECTED: 'badge-red' };
+
+    const stLabel = { PENDING: '증빙 심사대기', APPROVED: '합격인증 승인', REJECTED: '반려됨' };
+
+
+
+    document.getElementById('pe-tbody').innerHTML = list.map(p => `
+
+      <tr>
+
+        <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;">${p.id}</td>
+
+        <td style="font-weight:700;">${p.cert}</td>
+
+        <td><span class="badge badge-purple">${p.passType}</span></td>
+
+        <td>
+
+          <div style="font-weight:700;">${p.title}</div>
+
+          <div style="font-size:11.5px; color:var(--text-sub);">${p.scoreInfo}</div>
+
+        </td>
+
+        <td>
+
+          <a href="javascript:void(0)" data-dev-route="admin.reviews.show" data-dev-method="GET" data-dev-url="/sj-admin/reviews/{review}" data-dev-perm="조회" data-dev-note="개발 005-S1은 별도 페이지(modForm)" onclick="openPassAuditModal('${p.id}')" style="color:var(--primary); font-weight:700; text-decoration:underline;">
+
+            📎 ${p.proofFile}
+
+          </a>
+
+        </td>
+
+        <td>${p.user}</td>
+
+        <td><span class="badge ${stBadge[p.status]}">${stLabel[p.status]}</span></td>
+
+        <td>
+
+          <button class="btn btn-primary btn-sm" data-dev-route="admin.reviews.show" data-dev-method="GET" data-dev-url="/sj-admin/reviews/{review}" data-dev-perm="조회" data-dev-note="개발 005-S1은 별도 페이지(modForm)" onclick="openPassAuditModal('${p.id}')">증빙 대조/심사</button>
+
+        </td>
+
+      </tr>
+
+    `).join('');
+
+  }
+
+
+
+  // 합격 후기 검증(BRD-005-S1) — 건별 판단: 증빙 미리보기 후 승인/반려를 고르는 짧은 결정이라 모달
+  function openPassAuditModal(id) {
+
+    const p = PASS_ESSAYS.find(item => item.id === id);
+
+    if (!p) return;
+
+    currentAuditEssayId = id;
+
+    document.getElementById('pe-modal-title').textContent = `[ADMN-BRD-005-B] 합격수기 증빙 검수 (${p.id})`;
+
+    document.getElementById('pe-modal-body').innerHTML = `
+
+      <div class="info-callout">
+
+        회원 본인의 성명과 큐넷(Q-Net) 합격확인서/국가기술자격증 사본의 성명·종목·합격연월일을 대조한 후 승인 또는 반려 처리합니다.
+
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+
+        <div style="padding:12px; border:1px solid var(--border); border-radius:8px; background:#f8fafc;">
+
+          <div style="font-size:11.5px; color:var(--text-sub);">작성 회원 / 응시 종목</div>
+
+          <div style="font-weight:800; font-size:14px; margin-top:4px;">${p.user}</div>
+
+          <div style="margin-top:6px; font-weight:700; color:#1d4ed8;">${p.cert} (${p.passType})</div>
+
+          <div style="margin-top:4px; font-size:12px;">${p.scoreInfo}</div>
+
+        </div>
+
+        <div style="padding:12px; border:1px solid var(--border); border-radius:8px; background:#fffbeb;">
+
+          <div style="font-size:11.5px; color:#92400e; font-weight:700;">첨부된 합격인증 증빙 파일 미리보기</div>
+
+          <div style="font-weight:800; margin-top:6px;">📄 ${p.proofFile}</div>
+
+          <div style="margin-top:6px; font-size:12px; color:#78350f;">• 한국산업인력공단(Q-Net) 진위확인 번호 확인됨<br/>• 개인정보(주민등록번호 뒷자리) 마스킹 처리 완료</div>
+
+        </div>
+
+      </div>
+
+      <div style="padding:14px; border:1px solid var(--border); border-radius:8px;">
+
+        <div style="font-weight:800; margin-bottom:6px;">${p.title}</div>
+
+        <p style="margin:0; color:var(--text-sub); line-height:1.6;">산준모 정규 커리큘럼과 빈출문제 무료특강, 정답지 해설을 반복 회독하여 비전공자임에도 동차 합격할 수 있었습니다.</p>
+
+      </div>
+
+    `;
+
+    // 승인 보상 = 후기 보상(무상 P, 유효기간 2년). 금액은 포인트 정책(PROM-002) 운영 설정값 — 베스트 후기 보상과 구분(통합 설계서 포인트 운영 설정값)
+    document.getElementById('pe-reward-note').innerHTML = `<strong>승인 시 지급:</strong> 후기 보상 <strong>${rewardP(false).toLocaleString()}P</strong> — 무상 포인트(유효기간 2년)로 포인트 원장에 적립합니다. 금액은 포인트 정책의 운영 설정값(후기 보상)이며, 베스트 후기 보상(${rewardP(true).toLocaleString()}P)은 베스트로 선정할 때 따로 지급합니다.`;
+    document.getElementById('pe-approve-btn').textContent = `✓ 합격인증 승인 및 후기 보상 ${rewardP(false).toLocaleString()}P 지급`;
+    const modal = document.getElementById('modal-pass-audit');
+    modal.style.removeProperty('display');
+    modal.classList.add('open');
+
+  }
+
+
+
+  function decidePassEssay(decision) {
+
+    const p = PASS_ESSAYS.find(item => item.id === currentAuditEssayId);
+
+    if (!p) return;
+
+    p.status = decision;
+
+    closeModal('modal-pass-audit');
+
+    renderPassEssays();
+
+    showToast(decision === 'APPROVED'
+
+      ? `${p.id} 합격수기 증빙이 승인되어 후기 보상 ${rewardP(false).toLocaleString()}P(무상 P)가 지급되었습니다.`
+
+      : `${p.id} 합격수기가 증빙 미비로 반려 처리되었으며 재업로드 안내 알림톡이 발송되었습니다.`);
+
+  }
+
+
+
+  // 3. 무료특강 및 빈출문제 (ADMN-BRD-010)
+
+  function renderFreeLectures() {
+
+    const tp = document.getElementById('fl-type-filter').value;
+
+    const cert = document.getElementById('fl-cert-filter').value;
+
+    const list = FREE_LECTURES.filter(item =>
+
+      (tp === 'ALL' || item.type === tp) &&
+
+      (cert === 'ALL' || item.cert === cert)
+
+    );
+
+    document.getElementById('cnt-freeLecture').textContent = FREE_LECTURES.length;
+
+    document.getElementById('fl-tbody').innerHTML = list.map(item => `
+
+      <tr>
+
+        <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;">${item.id}</td>
+
+        <td>
+
+          <span class="badge ${item.type === 'FREQ_EXAM' ? 'badge-purple' : 'badge-blue'}">
+
+            ${item.type === 'FREQ_EXAM' ? '📝 빈출문제 해설' : '🎬 무료특강 영상'}
+
+          </span>
+
+        </td>
+
+        <td><strong>${item.cert}</strong> (${item.year})</td>
+
+        <td style="font-weight:700;">${item.title}</td>
+
+        <td><span class="badge badge-slate">▶ ${item.vod}</span></td>
+
+        <td style="color:var(--primary); font-weight:600;">📥 ${item.pdf}</td>
+
+        <td>${item.views.toLocaleString()}</td>
+
+        <td><span class="badge ${item.visible ? 'badge-green' : 'badge-slate'}">${item.visible ? '노출중' : '비노출'}</span></td>
+
+        <td>
+
+          <button class="btn btn-outline btn-sm" data-dev-route="admin.free-contents.edit" data-dev-method="GET" data-dev-url="/sj-admin/free-contents/{freeContent}/edit" data-dev-perm="수정" onclick="openFreeLecturePage('${item.id}')">수정</button>
+
+        </td>
+
+      </tr>
+
+    `).join('');
+
+  }
+
+
+
+  // 무료콘텐츠 등록 · 수정 페이지(S1)로 이동 — 내용 채우기는 fillFreeLectureForm(SJM_PAGE onShow)
+  function openFreeLecturePage(id) {
+    SJM_PAGE.go('free-lecture', id ? { id } : { mode: 'new' });
+  }
+  function renderFlVersions(item) {
+    const tb = document.getElementById('fl-version-tbody');
+    const vs = item && item.versions ? item.versions.slice().reverse() : [];
+    tb.innerHTML = vs.map(v => `<tr><td style="font-weight:700;">v${v.ver}${v.ver === item.versions.length ? ' <span class="badge badge-green">현재</span>' : ''}</td><td>${v.date}</td><td>📥 ${v.pdf}</td><td style="font-size:12px; color:var(--text-sub);">${v.body.length > 60 ? v.body.slice(0, 60) + '…' : v.body}</td><td>${v.note}</td></tr>`).join('')
+      || '<tr><td colspan="5" style="text-align:center; padding:16px; color:var(--text-sub);">저장하면 v1로 기록됩니다.</td></tr>';
+  }
+  function fillFreeLectureForm(id) {
+
+    const item = FREE_LECTURES.find(f => f.id === id);
+
+    document.getElementById('fl-edit-id').value = item ? item.id : '';
+
+    document.getElementById('fl-modal-title').textContent = item ? `[ADMN-BRD-010] 무료특강 / 빈출문제 수정 (${item.id})` : '[ADMN-BRD-010] 무료특강 / 빈출문제 신규 등록';
+
+    document.getElementById('fl-form-type').value = item ? item.type : 'FREQ_EXAM';
+
+    document.getElementById('fl-form-cert').value = item ? item.cert : '산업안전기사';
+
+    document.getElementById('fl-form-year').value = item ? item.year : '2026 대비';
+
+    document.getElementById('fl-form-title').value = item ? item.title : '';
+
+    document.getElementById('fl-form-vod').value = item ? item.vod : 'VOD-FREE-2611 (50분)';
+
+    document.getElementById('fl-form-pdf').value = item ? item.pdf : '2026_빈출문제_해설집.pdf';
+
+    document.getElementById('fl-form-body').innerHTML = item ? `<p>${item.body}</p>` : '<p>빈출문제 출제 경향 및 핵심 해설 안내를 입력하세요.</p>';
+
+    renderFlVersions(item || null);
+
+  }
+
+
+
+  function saveFreeLecture() {
+
+    const editId = document.getElementById('fl-edit-id').value;
+
+    const type = document.getElementById('fl-form-type').value;
+
+    const cert = document.getElementById('fl-form-cert').value;
+
+    const year = document.getElementById('fl-form-year').value.trim();
+
+    const title = document.getElementById('fl-form-title').value.trim();
+
+    const vod = document.getElementById('fl-form-vod').value.trim();
+
+    const pdf = document.getElementById('fl-form-pdf').value.trim() || '-';
+
+    const body = document.getElementById('fl-form-body').innerText.trim();
+
+
+
+    if (!title) { alert('콘텐츠 제목을 입력해주세요.'); return; }
+    // 저작권 보호: 전 화면 '기출문제' 표기 금지 → '빈출문제'(통합 설계서 강사 계약 종료 · 블라인드 절)
+    if (title.includes('기출문제')) { alert("저작권 보호를 위해 '기출문제' 표기는 쓰지 않습니다. '빈출문제'로 바꿔 주세요."); return; }
+
+    if (editId) {
+
+      const target = FREE_LECTURES.find(f => f.id === editId);
+
+      if (target) {
+        // PDF 파일 · 본문이 바뀌면 새 버전으로 기록
+        const changed = [];
+        if (target.pdf !== pdf) changed.push('PDF 교체');
+        if (target.body !== body) changed.push('본문 수정');
+        target.versions = target.versions || [];
+        if (changed.length) target.versions.push({ ver: target.versions.length + 1, date: '2026-10-19', pdf, body, note: changed.join(' · ') });
+        Object.assign(target, { type, cert, year, title, vod, pdf, body });
+      }
+
+    } else {
+
+      FREE_LECTURES.unshift({
+
+        id: 'FL-' + (2605 + FREE_LECTURES.length),
+
+        type, cert, year, title, vod, pdf, views: 0, visible: true, body,
+        versions: [{ ver: 1, date: '2026-10-19', pdf, body, note: '최초 등록' }]
+
+      });
+
+    }
+
+    renderFreeLectures();
+
+    backToList();
+
+    showToast('무료특강 / 빈출문제 콘텐츠가 저장되었습니다.');
+
+  }
+
+
+
+
+
+  function execCmd(targetId, cmd) {
+
+    const el = document.getElementById(targetId);
+
+    if (el) el.focus();
+
+    document.execCommand(cmd, false, null);
+
+  }
+
+
+
+  function closeModal(id) {
+
+    document.getElementById(id).classList.remove('open');
+
+  }
+
+
+
+  function showToast(msg) {
+
+    const box = document.getElementById('toast-box');
+
+    box.textContent = msg;
+
+    box.style.display = 'block';
+
+    clearTimeout(window.__toastTimer);
+
+    window.__toastTimer = setTimeout(() => { box.style.display = 'none'; }, 3000);
+
+  }
+
+
+
+  window.addEventListener('DOMContentLoaded', () => {
+
+    renderCourseReviews();
+
+    renderPassEssays();
+
+    renderFreeLectures();
+
+
+
+
+    const params = new URLSearchParams(window.location.search);
+
+    const view = params.get('view') || params.get('tab');
+
+    if (view && ['courseReview', 'passEssay', 'freeLecture'].includes(view)) {
+
+      switchTab(view);
+
+    }
+
+    // 하위 화면(S) 페이지 — 주소 ?view=free-lecture (&id= · &mode=new), 탭 주소(courseReview · passEssay · freeLecture)와 구분. 합격 후기 검증은 건별 판단으로 모달
+    SJM_PAGE.register('list', { onShow: () => switchTab(activeTab) });
+    SJM_PAGE.register('free-lecture', {
+      code: 'ADMN-BRD-010-S1',
+      title: p => (p.id && FREE_LECTURES.some(f => f.id === p.id) ? '무료특강 / 빈출문제 수정' : '무료특강 / 빈출문제 등록'),
+      onShow: p => { setTabState('freeLecture'); fillFreeLectureForm(p.id && FREE_LECTURES.some(f => f.id === p.id) ? p.id : null); }
+    });
+    SJM_PAGE.start();
+
+  });
+
+</script>
+
+<script>
+/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
+(function() {
+  if (window.__sjmModalCloserInstalled) return;
+  window.__sjmModalCloserInstalled = true;
+
+  function forceCloseModalEl(backdrop) {
+    if (!backdrop) return;
+    backdrop.classList.remove('show', 'open', 'active');
+    backdrop.style.setProperty('display', 'none', 'important');
+    backdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  window.closeAllModals = function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(forceCloseModalEl);
+  };
+
+  // 페이지 진입 시 실수로 열려 있는 모달 초기화 (단, URL 해시/쿼리로 의도적 오픈된 경우 제외)
+  window.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(el) {
+      if (!el.classList.contains('show') && !el.classList.contains('open') && !el.classList.contains('active')) {
+        el.style.setProperty('display', 'none', 'important');
+      }
+    });
+  });
+
+  // 클릭 이벤트 위임 (배경 클릭 또는 닫기/취소/✕ 버튼 클릭 시 즉시 닫기)
+  document.addEventListener('click', function(e) {
+    if (e.target && (
+      e.target.classList.contains('modal-backdrop') ||
+      e.target.classList.contains('p1-modal-backdrop') ||
+      e.target.classList.contains('s1-modal-backdrop') ||
+      e.target.classList.contains('s2-modal-backdrop')
+    )) {
+      forceCloseModalEl(e.target);
+      return;
+    }
+
+    var btn = e.target.closest('button, a, span, [role="button"]');
+    if (!btn) return;
+
+    // 1) 모달 열기 버튼 클릭 시 inline display:none 강제 잠금 해제
+    var onclickAttr = (btn.getAttribute('onclick') || '');
+    if (onclickAttr.indexOf('open') !== -1 || onclickAttr.indexOf('Open') !== -1 || onclickAttr.indexOf('Modal') !== -1) {
+      if (onclickAttr.indexOf('close') === -1 && onclickAttr.indexOf('Close') === -1) {
+        document.querySelectorAll('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop').forEach(function(m) {
+          m.style.removeProperty('display');
+        });
+      }
+    }
+
+    // 2) 모달 내부 닫기 버튼 판정
+    var backdrop = btn.closest('.modal-backdrop, .p1-modal-backdrop, .s1-modal-backdrop, .s2-modal-backdrop');
+    if (!backdrop) return;
+
+    var txt = (btn.textContent || '').trim();
+    var isCloseBtn = (
+      txt === '✕' || txt === '×' || txt === 'X' || txt === 'x' ||
+      txt === '취소' || txt === '닫기' || txt === '창 닫기' ||
+      onclickAttr.indexOf('close') !== -1 ||
+      onclickAttr.indexOf('Close') !== -1 ||
+      btn.classList.contains('modal-close') ||
+      btn.classList.contains('btn-close')
+    );
+
+    if (isCloseBtn) {
+      setTimeout(function() { forceCloseModalEl(backdrop); }, 0);
+    }
+  }, true);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeAllModals();
+  });
+})();
+</script>
+</body>
+
+</html>
