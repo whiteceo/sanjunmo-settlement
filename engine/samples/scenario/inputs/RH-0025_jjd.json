@@ -99,9 +99,10 @@
   {
    "agreement_id": "SFA-2026-009",
    "target_type": "LECTURE",
-   "target_id": "CRS-1001",
+   "target_id": "CRS-1002",
    "start_date": "2025-01-01",
-   "end_basis": "CONTRACT_LINKED"
+   "end_basis": "CONTRACT_LINKED",
+   "own_share_ratio": 30
   },
   {
    "agreement_id": "SFA-2026-009",

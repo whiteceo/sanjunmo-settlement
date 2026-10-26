@@ -94,10 +94,10 @@
  ],
  "lecture_instructors": [
   {
-   "lecture_id": "CT-2026-0412-LEC",
+   "lecture_id": "CRS-1001",
    "rights_holder_id": "RH-0012",
    "contract_id": "CT-2026-0412",
-   "share_ratio": 100,
+   "share_ratio": 80,
    "start_date": "2026-01-01",
    "end_basis": "CONTRACT_LINKED"
   }
@@ -150,14 +150,14 @@
   {
    "order_item_id": "OI-0012-LEC",
    "item_type": "LECTURE",
-   "product_id": "CT-2026-0412-LEC",
-   "paid_amount": 6000000,
+   "product_id": "CRS-1001",
+   "paid_amount": 7500000,
    "allocation_applied": true,
    "approved_at": "2026-10-12T10:00:00",
    "lectures": [
     {
-     "lecture_id": "CT-2026-0412-LEC",
-     "lecture_base_amount": 6000000
+     "lecture_id": "CRS-1001",
+     "lecture_base_amount": 7500000
     }
    ]
   },

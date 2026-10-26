@@ -111,21 +111,33 @@
  "refund_lines": [],
  "pass_refund_deductions": [
   {
-   "pass_refund_id": "PASS-D9-0046",
+   "pass_refund_id": "HRF-202610-04",
    "contract_id": "CT-2026-0712",
+   "order_item_id": "CRS-2603",
    "option": "B",
    "approved_date": "2026-10-25",
-   "refund_amount": 0,
+   "refund_amount": 144500,
    "optB_burden_ratio": 100,
    "snapshot": [
     {
      "contract_id": "CT-2026-0712",
      "rights_holder_id": "RH-0046",
      "pipeline_id": "1.1",
+     "rate_type": "BASIC",
+     "rate_value": 50,
+     "share_ratio": 60,
+     "base_amount": 144500,
+     "payment_state": "UNPAID"
+    },
+    {
+     "contract_id": "CT-2026-0712",
+     "rights_holder_id": "RH-0046",
+     "pipeline_id": "1.1",
      "rate_type": "SUPPORT",
      "agreement_id": "AGR-RH0046-01",
-     "confirmed_alloc_amount": 100000,
-     "unrefunded_amount": 100000,
+     "base_amount": 144500,
+     "confirmed_alloc_amount": 14450,
+     "unrefunded_amount": 14450,
      "payment_state": "UNPAID"
     }
    ]

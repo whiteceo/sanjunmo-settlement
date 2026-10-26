@@ -192,7 +192,19 @@ def run_alternative(data, alt):
     data = json.loads(json.dumps(data))
     for k, v in (alt.get("set_holder") or {}).items():
         data["rights_holders"][0][k] = v
+    for k, rows in (alt.get("append") or {}).items():
+        data.setdefault(k, []).extend(rows)
     return run_settlement(data)
+
+
+def apply_scenario_adjustments(s002, adjs):
+    """엔진이 보류(Q-23)하는 조정 라인을 총괄 지시로 정산서 값에 더한다(시나리오 표시용). 지급 확정이면 실지급에도 더한다."""
+    s = dict(s002)
+    for a in adjs:
+        s[a["field"]] = int(s[a["field"]]) + int(a["amount"])
+        if a["field"] != "step11NetPayout" and s["payoutCategory"] == "PAYOUT_TARGET":
+            s["step11NetPayout"] = int(s["step11NetPayout"]) + int(a["amount"])
+    return s
 
 
 def fmt(v):
@@ -240,7 +252,9 @@ def write_md(out, questions):
           "| 권리자 | 필드 | 현재 화면 | 계산기 |", "| :--- | :--- | --: | --: |"]
     rows = [(h["holderId"], k, a, b) for h in out["holders"] for k, (a, b) in (h.get("screenDiff") or {}).items()]
     L += [f"| {hid} | {k} | {fmt(a)} | {fmt(b)} |" for hid, k, a, b in rows] or ["| — | — | — | — |"]
-    L += ["", "화면에 정산서가 아직 없는 권리자(박보건 · 최지도 · 김안전 · 이건설 · 안전기술출판 · 이안전 · 고 박위생)는 비교하지 않았다.", "",
+    missing = [f"{h['holderName']} {h['holderId']}" for h in out["holders"] if "screenDiff" not in h]
+    L += ["", (f"현재 ADMN-SETT-002에 정산서가 없는 권리자({' · '.join(missing)})는 비교하지 않았다." if missing
+               else "모든 권리자를 현재 ADMN-SETT-002 정산서와 비교했다."), "",
           "## 4. 권리자별 상세", ""]
     for h in out["holders"]:
         L += [f"### {h['holderName']} {h['holderId']} · {h['contractId']} — {h['case']}", ""]
@@ -298,6 +312,10 @@ def main():
         res = cache[e["input"]]
         c = contract_of(res, e["holderId"], e["contractId"])
         s002, extra = sett002(c)
+        if e.get("scenario_adjustments"):
+            s002 = apply_scenario_adjustments(s002, e["scenario_adjustments"])
+            extra["scenarioAdjustments"] = e["scenario_adjustments"]
+            extra["pendingAdjustments"] = [a for a in res["pending_adjustments"] if a.get("contract_id") == e["contractId"]]
         row = {"holderId": e["holderId"], "holderName": e.get("holderName"), "contractId": e["contractId"],
                "case": e["case"], "input": f"inputs/{e['input']}", "engineStatus": res["status"],
                "matches04": None, "sett002": s002, **extra, "payees": payee_rows(c),
@@ -336,10 +354,13 @@ def main():
                         d9.append({"field": k, "expected": v, "calc": to_json(got.get(k))})
                 check["combinedCase9Diffs"] = case9
                 check["d9Diffs"] = d9
-                row["matches04"] = not d9 and all(x["path"] in ("expired_excess", "5.1_net") for x in case9)
-                check["note"] = ("Case 9 기대값과 다른 곳은 D-9 합격환급 옵션 B를 더해서 생긴 2개뿐: 4단계 P5.1 공제 후 금액 "
-                                 "400,000 → 300,000(옵션 B 100,000 공제), 한도 초과 소멸 250,000 → 150,000(복원 100,000이 같은 달 "
-                                 "한도에 더해짐). 지원금 확정액 150,000 · 세액 · 실지급 등 나머지 Case 9 값과 D-9 값은 모두 같음")
+                # 04권 값 그대로가 아니라 Case 9 + 합격환급 옵션 B 결합: D-9 규칙 값(복원 한도 당월 사용)이 맞으면 일치로 본다
+                row["matches04"] = not d9
+                moved = ", ".join(f"{x['step_code']} {x['path']} {fmt(x['expected'])} → {fmt(x['calc'])}" for x in case9)
+                check["note"] = ("Case 9에 합격환급 옵션 B를 더한 결합 — D-9 규칙(복원 후 한도 = 잔여 + 복원, 신규 확정 = "
+                                 "min(신규, 복원 후 한도), 지급 대상 = 신규 확정 − 공제) 값 "
+                                 + ("일치" if not d9 else "불일치")
+                                 + (f". 옵션 B 때문에 Case 9 기대값과 달라진 값: {moved}" if moved else ""))
             else:
                 same_vals = renamed_values(fres, e["fixture"]["ids"]) == renamed_values(res, {}) if fres else False
                 check["sameAsFixtureRun"] = same_vals
