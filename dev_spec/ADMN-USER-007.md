@@ -137,13 +137,13 @@
 | `rights_holders.resident_no_enc` | text | 주민번호 13자리 암호문(Laravel Crypt, `config/app.php:100` AES-256-CBC · APP_KEY). 접근자가 복호화, 실패 시 null + 경고 로그(RightsHolder.php:295-364) | 탭1 주민번호 |
 | `rights_holders.account_no_enc` · `bank_name` · `account_holder` | text · string | 정산 계좌 암호문 · 은행 · 예금주. `$hidden`으로 응답 직렬화 제외(:264-267), `SECRET_FIELDS`(:231) | 탭1 계좌 |
 | `rights_holders.birth_date` | date | 주민번호 앞 7자리에서 계산(2026_10_22_000246) | 파기 매핑 대상(규칙) |
-| `rights_holders.destruction_hold` | boolean | 세무조사 · 소송 · 이의신청 진행 중이면 true(000151:27). **`_index/schema.md`에 빠져 있음**(루프 마이그레이션이라 추출기 누락) | 탭2 보류 |
+| `rights_holders.destruction_hold` | boolean | 세무조사 · 소송 · 이의신청 진행 중이면 true(000151:27). 4개 테이블 모두 `_index/schema.md`에 있음(2026_09_21_000151) | 탭2 보류 |
 | `prepayment_ledgers.destruction_hold` · `support_fund_agreements.destruction_hold` · `exclusive_contract_clawbacks.destruction_hold` | boolean | 미상계 선급금 · 대손 채권 / 미소진 지원금 한도 / 미회수 반환 채권(000151:23-28) | 탭2 보류 사유 |
 | `rights_holder_account_histories` (`bank_name`, `account_no_enc`, `account_holder`, `changed_by`, `changed_at`) | | 변경 전 계좌. "평문 열람 경로 없음 · 개인정보 파기 대상", FK cascadeOnDelete(2026_10_21_000230:35-50) — 권리자는 SoftDeletes라 연쇄 삭제가 일어나지 않음 | 파기 매핑 대상(규칙) |
 | `refund_claims.account_no_enc` · `bank_name` · `account_holder` | text | 합격 환급 입금 계좌 암호문(RefundClaim.php:179-207) | 탭1 REFUND 행 |
 | `refunds.refund_bank_code` · `refund_account_no` · `refund_account_holder` | string · text | 현금 환불 수취 계좌 암호문. "보관: 환불 완료 후 5년 뒤 파기 — 파기 배치는 따로", 보관 기간 **미확정**(2026_10_19_000219:12-14) | 탭1(규칙) — 해제 대상 목록에 없음 |
 | `suppliers.account_no_enc` | text | 매입처 계좌 암호문(Supplier.php:65-70) | 탭1(규칙, 거래처) |
-| `attachments` (`attachable_type`, `attachable_id`, `disk`=secure, `file_path`, `original_name`) | | 신분증 · 통장 · 사업자등록증 사본(RightsHolder 관계 `attachments()`) | 탭1 증빙 사본 |
+| `attachments` (`attachable_type`, `attachable_id`, `disk`=secure, `file_path`, `original_name`) | `disk` varchar(20) NOT NULL(media 공개 · editor · secure 비공개) · `original_name` string(255) NOT NULL · `file_path` string(500) | 신분증 · 통장 · 사업자등록증 사본(RightsHolder 관계 `attachments()`) | 탭1 증빙 사본 |
 | `admin_logs` (`action`, `sub_action`, `target_type`, `target_id`, `after_value`, `reason`, `reason_ref`, `admin_login_id`, `admin_role_code`, `ip`, `user_agent`) | | 열람 · 다운로드 감사 로그. 원문 미기록(MaskingController.php:104-111) | 탭3 열람 이력 |
 | `pii_destruction_field_maps` (규칙) (`table_name`, `column_name`, `label`, `tier` 1 · 2, `action` `nullify` · `anonymize` · `delete_file` · `keep`, `ledger_impact`) | | 프로토 `pii_destruction_field_map`(L403) | 탭3 매핑 표 |
 | `pii_destruction_batches` (규칙) (`batch_no`, `approved_by`, `executed_at`, `target_count`, `held_count`, `reason`) | | 프로토 `BATCH-PII-202610-001` | 007-P2 요약 |

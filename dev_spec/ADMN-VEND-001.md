@@ -72,7 +72,7 @@
 | suppliers.settlement_terms | string(100) null | 지급 조건 | 거래 조건 |
 | suppliers.contact_email | string(100) null | 담당 메일 | 연락처 |
 | suppliers.cost_account_type | string(30) | INVENTORY_PURCHASE 재고자산 취득 / BUYOUT_RIGHT 무형 판권 취득 | — |
-| suppliers.deleted_at | | SoftDeletes(모델) | — |
+| suppliers.deleted_at | timestamp nullable | SoftDeletes(모델) | — |
 | books.supplier_id · goods.supplier_id | unsignedBigInteger null | 매입처 연결(AP 경로) | 쓰는 화면 |
 | nts_verification_logs (subject_type=`SUPPLIER`) | | 국세청 확인 이력 | SETT-008 연동 |
 | 거래처 유형 테이블 | — | 없음 — 규칙상 `vendor_types` (규칙) | `modal-type` |

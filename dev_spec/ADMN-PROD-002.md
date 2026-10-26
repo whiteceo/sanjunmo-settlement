@@ -120,7 +120,7 @@
 | `lectures.is_active` | tinyint | 사용 여부(미사용 = 신규 편성 후보 제외) | 사용 여부 |
 | `lectures.type` · `source_type` · `source_url` · `year` | | 구분 · 소스 · YouTube URL · 연도 | 폼 '기타' |
 | `lectures.view_count` | uint | 무료강의 조회수 | (화면 없음) |
-| `lectures.deleted_at` | | 소프트 삭제 | — |
+| `lectures.deleted_at` | timestamp nullable | 소프트 삭제 | — |
 | `attachments` (lecture 첨부, private 디스크) | | 교안 PDF | 교안 |
 | `course_lectures` (`course_id`, `lecture_id`, `sort_order`) | | 편성 | 사용 여부 옆 "현재 N개 강좌의 커리큘럼에 편성됨" · 삭제 판정 |
 

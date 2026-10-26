@@ -144,7 +144,7 @@
 ### 001-S1 가상계좌 입금 기한 연장 — 개발 미구현, 규칙 기반 명명
 | 필드 | 규칙 | 프로토타입 대응 |
 |---|---|---|
-| `virtual_account_due_at` (규칙, DB `payments.virtual_account_due_at`) | datetime · 현재 이후 | `#inpNewVbankDue` |
+| `virtual_account_due_at` (규칙. DB 컬럼 `payments.virtual_account_due_at`은 삭제됨(2026_09_08_000076_drop_payment_legacy_columns) — 기한은 `payments.raw_response.virtualAccount.dueDate`(토스 발급 응답)에만 있다) | datetime · 현재 이후 | `#inpNewVbankDue` |
 | `reason` (규칙) | MemberReasonRequest | `#inpVbankReason` |
 
 ### 001-P4 수강권 직권 부여 — 개발 미구현, 규칙 기반 명명
@@ -245,8 +245,9 @@
 | `orders.receiver_name` · `receiver_phone` · `receiver_zipcode` · `receiver_address` · `receiver_address_detail` · `delivery_memo` | 수령인 · 배송지(보정 대상) | S1 |
 | `orders.exemption_basis` | `EDU_SERVICE` 교육용역 · `BOOK_GOODS` 도서 재화 · `MIXED` 복합 | 001 과세근거 · S1 `#detailExemptionBadge` |
 | `orders.course_amount` · `book_amount` · `delivery_fee` · `earned_point` · `has_physical_item` | 강좌 · 교재 합계 · 배송비 · 적립 예정 · 실물 포함 | S1 결제 정보 |
-| `order_items.line_no` · `item_type`(LECTURE · BOOK · SHIPPING_FEE) · `product_name` · `original_price` · `quantity` · `coupon_discount` · `point_discount` · `final_price` · `tax_treatment` · `refund_status` | 주문 라인 | S1 `#detailLinesTbody` |
-| `payments.payment_key` · `approval_no` · `card_name` · `card_number` · `virtual_account_*` · `virtual_account_due_at` | PG 거래 · 가상계좌(입금기한, 주석 "관리자 연장 대상") | S1 `#dtPgTid` · `#vbankDueText` |
+| `order_items.line_no`(int unsigned NOT NULL, 주문 안 1부터 · 송장 업로드 매칭 키) · `product_id`(bigint unsigned nullable — 배송비 라인 SHIPPING_FEE는 NULL) · `item_type`(LECTURE · BOOK · SHIPPING_FEE) · `product_name` · `original_price` · `quantity` · `coupon_discount` · `point_discount` · `final_price` · `tax_treatment` · `refund_status` | 주문 라인 | S1 `#detailLinesTbody` |
+| `payments.payment_key` · `approval_no` · `card_name` · `card_number` · `raw_response`(json, 가상계좌 계좌 · 입금기한은 `virtualAccount.dueDate`에서 읽음, `OrderService::depositInfo`) | PG 거래 · 가상계좌 입금 안내. `virtual_account_*` · `vbank_*` 컬럼은 삭제됨(2026_09_08_000076_drop_payment_legacy_columns) | S1 `#dtPgTid` · `#vbankDueText` |
+| `site_settings.virtual_account_valid_hours` | 가상계좌 입금 기한(발급 후 시간, 1~2160, 지나면 자동 취소, 이미 발급된 계좌에는 미적용) | S1 '발급 후 N시간' 표기 |
 | `order_cs_logs` (`order_id`, `admin_id`, `cs_type`='memo', `content`) | 관리자 메모(추가만) | S1 처리 이력 `#detailTimelineTbody` |
 | `order_status_logs` | 상태 변경 이력 | S1 처리 이력 |
 | `deliveries` (`order_item_id`, `status` READY · SHIPPING · DELIVERED · RETURNING · REFUNDED · REJECTED, `courier`, `tracking_no`, `ship_ordered_at`(= 배송지 Lock), `batch_id`, `shipped_at`, `delivered_at`, `zipcode`, `fee_type`, `notification_sent_at`) | 배송 라인(1행 = 교재 라인 1건) | 002 표 · S1 배송 블록 |
@@ -255,7 +256,7 @@
 | `delivery_batch_items` (`row_no`, `order_no`, `line_no`, `carrier`, `tracking_no`, `shipped_at`, `result`, `error_code`, `error_message`) | 송장 업로드 행 결과 | P1 실패 표 |
 | `refunds.warehouse_received_at` · `inspection_result` · `liability` · `inspection_memo` · `return_tracking_no` | 반품 입고 · 검수 | S3 |
 | `attachments` (type `inspection_photo`, disk `secure`) | 검수 사진 | S3 |
-| `excel_download_logs` | 발주 엑셀 · 조회 엑셀 반출 원장 | 001 엑셀 · 002 발주 |
+| `excel_download_logs` (`admin_id` bigint unsigned nullable) | 발주 엑셀 · 조회 엑셀 반출 원장 | 001 엑셀 · 002 발주 |
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |
@@ -291,7 +292,7 @@
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 001-P4 수강권 직권 부여(0원 주문, 구 ORD-003) — 프로토 `modalDirectGrant` L1696, `submitDirectGrant()` L1831. 개발 검색 결과 없음
-- S1 가상계좌 입금 기한 연장 — 프로토 `#vbankExtendBox` L1067-1077, `extendVbankDueDate()` L3596. 개발 `OrderService.php:490` 의도적 미구현 → Q-ORD-1
+- S1 가상계좌 입금 기한 연장 — 프로토 `#vbankExtendBox` L1067-1077, `extendVbankDueDate()` L3596. 개발 `OrderService.php:490` 의도적 미구현. 기한을 담을 `payments` 컬럼도 없다(`virtual_account_due_at` 삭제, 기한은 PG 발급 응답 원문에만) → Q-ORD-1 (10-27 스키마 재색인 반영)
 - 3PL 외부 계정 격리 모드(ROLE_PARTNER_3PL, 금액 · 결제수단 차단, 연락처 마스킹) — 프로토 L539-540 · L794-803 · `setSessionRole()` L1788. 개발 역할 없음 → Q-ORD-4
 - 001 주문 구분 '일반상품(과세 10%)' — 프로토 L712. 개발 `OrderService::KINDS`(`OrderService.php:96`)는 인강 · 교재 · 복합 3종, `order_items.item_type`도 LECTURE · BOOK · SHIPPING_FEE만
 - 002 배송 권역 필터 · 도서산간만 체크 — 프로토 L857 · `#chkIslandOnly` L864. 개발 `normalizeFilters`에 없음(`DeliveryService.php:130-150`)
@@ -320,7 +321,7 @@
 
 | 번호 | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-ORD-1 | 가상계좌 입금 기한 연장을 제공하는가? 정본은 S1에서 새 기한 + 사유로 연장하고 알림톡(TPL_VBANK_DUE_EXTENDED)을 보낸다. 개발은 "토스에 발급 후 기한 변경 방법이 없어 두지 않는다"며 연장을 뺐지만 DB 주석은 "관리자 연장 대상"이다. 제공하지 않으면 프로토에서 연장 박스를 빼고 '재발급 안내'로 바꿀지 | 프로토 L1067-1077 `#vbankExtendBox`, `extendVbankDueDate()` L3596 | `app/Services/Admin/OrderService.php:490`, `database/migrations/2026_08_14_000023_add_toss_columns_to_payments_table.php:38` |
+| Q-ORD-1 | 가상계좌 입금 기한 연장을 제공하는가? 정본은 S1에서 새 기한 + 사유로 연장하고 알림톡(TPL_VBANK_DUE_EXTENDED)을 보낸다. 개발은 "토스에 발급 후 기한 변경 방법이 없어 두지 않는다"며 연장을 뺐고, 주석이 "관리자 연장 대상"이던 `payments.virtual_account_due_at`도 삭제됐다. 기한은 발급 응답 원문(`raw_response`)에만 남고, 운영자가 정하는 것은 새 발급분의 유효 시간(`site_settings.virtual_account_valid_hours`)뿐이다. 제공하지 않으면 프로토에서 연장 박스를 빼고 '재발급 안내'(또는 기본 유효 시간 안내)로 바꿀지 | 프로토 L1067-1077 `#vbankExtendBox`, `extendVbankDueDate()` L3596 | `app/Services/Admin/OrderService.php:490`, `app/Services/Order/OrderService.php:701`(depositInfo), `database/migrations/2026_09_08_000076_drop_payment_legacy_columns.php`, `2026_10_20_000226_add_virtual_account_valid_hours_to_site_settings_table.php` (10-27 스키마 재색인 반영) |
 | Q-ORD-2 | 주문 조회용 엑셀에 반출 사유를 받는가? 정본(ORD-001 ⑥)은 사유 없이 열람 로그만, 개발은 CONF-005 반출 정책을 따라 공용 사유(ReasonRequest)를 받는다(개발이 충돌 대장에 기록) | 프로토 `downloadOrderLookupExcel()` L3050 | `app/Http/Requests/Admin/OrderDownloadRequest.php:7` |
 | Q-ORD-3 | 반품 검수 사진 필수 범위 — 정본 배송 관리 화면은 '훼손 판정 시 필수', 개발은 훼손 **또는 정상 + 고객 귀책**에도 필수(두 화면 제안을 합친 임시안, 개발도 미확정 표시) | 프로토 L953 "창고 검수 증빙 사진 (훼손 판정 시 필수)" | `app/Http/Requests/Admin/ReturnInspectionRequest.php:32`, `app/Models/Refund.php:281` |
 | Q-ORD-4 | 외부 3PL 대행사 계정(ROLE_PARTNER_3PL)을 두는가? 정본은 배송 관리 전용 격리 세션(금액 · 결제수단 차단, 연락처 마스킹, 발주 · P1 · P2 · S3만)을 정의. 개발은 역할 없이 메뉴 권한(`admin.deliveries.index`)만 있고 발주 파일에 연락처 원문이 실림 | 프로토 L539-540, L794-803, `setSessionRole()` L1788 | `routes/admin.php:866-889`(메뉴 권한만), `app/Services/Admin/DeliveryService.php:53` DISPATCH_HEADERS(수령인연락처) |

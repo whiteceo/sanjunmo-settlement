@@ -84,9 +84,9 @@
 | settlement_adjustments.explanation | text | 소명(최소 20자) | 소명 |
 | settlement_adjustments.adjust_amount | integer | 부호 포함 | 조정 금액 |
 | settlement_adjustments.vat_type · income_category · income_clause · account_type | | 과면세 · 소득 구분 · 호 · 계정 | 계정 / 과면세 |
-| settlement_adjustments.status | string(20) | 모델 상수 pending(등록) · approved(확정) · rejected(반려). 컬럼 주석에는 applied(정산서 반영 완료)도 있음 | 상태 |
+| settlement_adjustments.status | varchar(20) NOT NULL | 모델 상수 pending(등록) · approved(확정) · rejected(반려). 컬럼 주석에는 applied(정산서 반영 완료)도 있음 | 상태 |
 | settlement_adjustments.approved_at · approver1_id · approver2_id · reject_reason · created_by | | 확정 일시 · 확정자 · (2차 승인자 컬럼은 남아 있음) · 반려 사유 · 등록자 | 감사 |
-| settlement_adjustments.origin_settlement_id | unsignedBigInteger | 원 정산서(주석상 instructor_settlements.id) | 원 정산서 |
+| settlement_adjustments.origin_settlement_id | bigint unsigned nullable | 원 정산서(주석상 instructor_settlements.id) | 원 정산서 |
 | settlement_adjustments.matrix_case_id · correction_channel · correction_channel_sub | | 세무 케이스 · 증빙 정정 채널(channel_1 수정 전자세금계산서 · channel_2 수정 전자계산서 · channel_3a 원천세 수정신고 · channel_3b 기록 정정 · channel_4 수취 증빙 재요청 · internal 자사 내부 대체 전표) | 증빙 정정 채널 · S1 미리보기 |
 | settlement_adjustments.transfer_pair_key | string(40) | 대체 전표 쌍 | S1 |
 

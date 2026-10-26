@@ -66,7 +66,7 @@
 | user_agreements (연계) | — | 회원 동의 이력 — 동의 이력 있는 버전은 삭제 불가 | — |
 
 - 공시 기준 일수 상수 `Term::NOTICE_DAYS_UNFAVORABLE`=30 · `NOTICE_DAYS_GENERAL`=7 (주석 "미확정: 설정 분리 확인필요") — Term.php:68-72
-- `version` 은 마이그레이션 000098 이 raw SQL 로 INT → VARCHAR(10)(기본 '1.0', 기존 값에 '.0' 붙임)로 바꿨다. `_index/schema.md` 는 이 변경(DB::statement)을 잡지 못해 integer 로 남아 있음 — database/migrations/2026_09_08_000098_extend_site_config_tables.php:141-160
+- `version` 은 마이그레이션 000098 이 raw SQL 로 INT → VARCHAR(10)(기본 '1.0', 기존 값에 '.0' 붙임)로 바꿨다. `_index/schema.md` 도 10-27 재색인으로 varchar(10) NOT NULL 로 반영됨 — database/migrations/2026_09_08_000098_extend_site_config_tables.php:141-160
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |

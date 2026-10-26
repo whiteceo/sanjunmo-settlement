@@ -117,13 +117,13 @@
 | `packages.duration_days` | integer | 수강일수 | 목록 · S1 |
 | `packages.original_price` | integer | 구성품 정가 합계(서버 계산) | S1 합계 |
 | `packages.sale_price` | integer | 판매 기획가(총액) | 목록 · S1 |
-| `packages.display_status` | string | `selling` · `hidden` · `stopped` (HasDisplayStatus) | 목록 · S1 |
+| `packages.display_status` | string(20) | `selling` · `hidden` · `stopped` (HasDisplayStatus) | 목록 · S1 |
 | `packages.is_pass_refund` · `refund_min_progress` | boolean · tinyint | 합격 환급 대상 · 인정 진도율 | S1 환급 설정 |
 | `packages.thumbnail_path` · `description` | | 대표 이미지 · 소개 | S1 |
 | `packages.is_public` | tinyint | 초기 공개 여부 칸(현재 화면 미사용, 확인 필요) | — |
 | `package_items` (`product_type`, `product_id`, `sort_order`, `original_price_snapshot`, `price_ratio`, `discount_amount`, `is_excluded_from_discount`) | | 구성품 · 할인 배분 원장(교재는 비율 0 · 할인 0 · 제외 1) | S1 구성 표 · 엑셀 |
 | `category_products` (`product_type`='package') | | 노출 카테고리 | 목록 · S1 |
-| `package_instructors` (`is_main`, `settlement_rate`) | | 초기 스키마 — 현재 화면 미사용(확인 필요) | — |
+| `product_instructors` (`product_type`='package', `product_id`, `instructor_id`, `role` m/s/a, `sort_order`) | | 옛 `package_instructors`는 이름이 바뀜(2026_07_10_200000_rename_package_instructors_to_product_instructors — `package_id` → `product_type` · `product_id`, `is_main` → `role`), `settlement_rate`는 삭제됨(2026_09_15_000110_drop_settlement_rate_from_instructors_and_product_instructors). 패키지 화면은 현재 미사용(확인 필요) | — |
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |

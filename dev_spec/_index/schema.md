@@ -9,7 +9,7 @@
 | `login_id` | string(50) | nullable,change | 관리자 로그인 아이디. 일반 회원은 email을 아이디로 사용하므로 NULL | 2026_08_14_000046 |
 | `name` | string(50) | nullable,change | 회원 이름 | 2026_07_23_000003 |
 | `phone` | string(20) | nullable,change | 휴대폰 번호. 하이픈 제거 저장 | 2026_07_23_000003 |
-| `email` | string(100) | nullable,unique | 이메일 주소 | 2026_06_25_000001 |
+| `email` | varchar(100) | nullable,sql | 이메일 주소 | 2026_06_30_095201 |
 | `password` | string(255) | nullable | 해시 비밀번호. 소셜 전용 회원은 NULL 가능 | 2026_06_25_000001 |
 | `address` | string(255) | nullable | 기본 배송지 주소 | 2026_06_25_000001 |
 | `address_detail` | string(100) | nullable | 기본 배송지 상세주소 | 2026_06_25_000001 |
@@ -23,7 +23,7 @@
 | `birth_date` | date | nullable | 생년월일. 본인인증 수취값 | 2026_08_14_000029 |
 | `gender` | string(10) | nullable | male / female. 본인인증 수취값 | 2026_08_14_000029 |
 | `cafe_id` | string(100) | nullable | 산준모 네이버 카페 ID. 선택 입력, 형식 검사 없음 | 2026_08_14_000029 |
-| `locked_until` | timestamp | nullable,change | 자동 해제 예정 시각. 영구 잠금이면 NULL. 해제 가능 여부는 lock_reason으로 판정 | 2026_08_14_000040 |
+| `locked_until` | timestamp | nullable,sql | 자동 해제 예정 시각. 영구 잠금이면 NULL. 해제 가능 여부는 lock_reason으로 판정 | 2026_09_16_000118 |
 | `lock_reason` | string(20) | nullable | 잠금 사유. auto_5fail=로그인 5회 실패(재설정 시 해제) / admin_block=관리자 정지(해제 불가). NULL이면 미잠금 | 2026_08_14_000040 |
 | `marketing_agreed_at` | timestamp | nullable | 마케팅 수신 동의 또는 철회 일시. 발송 시 동의 시점 증빙용 | 2026_08_14_000044 |
 | `last_login_at` | timestamp | nullable | 최종 로그인 일시. 휴면 전환 판정 및 회원 목록 검색·정렬용 | 2026_08_14_000044 |
@@ -106,7 +106,7 @@
 | `status` | string(20) |  | success / fail | 2026_06_25_000001 |
 | `fail_reason` | string(100) | nullable | 실패 사유 | 2026_06_25_000001 |
 | `created_at` | timestamp |  |  | 2026_06_25_000001 |
-| `event` | string(30) |  | LOGIN_SUCCESS / LOGIN_FAIL / ACCOUNT_LOCKED / ACCOUNT_UNLOCKED / PASSWORD_RESET / IP_DENIED / TOKEN_REUSE | 2026_08_14_000045 |
+| `event` | varchar(30) | sql | LOGIN_SUCCESS / LOGIN_FAIL / ACCOUNT_LOCKED / ACCOUNT_UNLOCKED / PASSWORD_RESET / IP_DENIED / TOKEN_REUSE | 2026_09_10_000107 |
 | `country` | char(2) | nullable | ISO 3166-1 alpha-2 국가코드 | 2026_08_14_000045 |
 | `fail_count` | tinyInteger |  | 해당 시점의 누적 로그인 실패 횟수 | 2026_08_14_000045 |
 | `login_id` | string(50) | nullable | 시도한 아이디 원문. 존재하지 않는 계정 시도는 user_id 가 NULL 이라 이 값이 유일한 단서다. 계정명 사전 공격 탐지에 쓴다 | 2026_09_10_000106 |
@@ -118,20 +118,12 @@
 | `id` | id |  | PK | 2026_06_25_000002 |
 | `user_id` | unsignedBigInteger | nullable,change | users.id 참조 | 2026_07_07_200000 |
 | `name` | string(50) |  | 강사명 | 2026_06_25_000002 |
-| `bio` | text | nullable | 강사 소개 | 2026_06_25_000002 |
-| `profile_image` | string(255) | nullable | 프로필 이미지 경로 | 2026_06_25_000002 |
 | `created_at` | timestamp |  |  | 2026_06_25_000002 |
 | `intro_lecture_id` | foreignId | nullable |  | 2026_07_24_100000 |
-| `tax_type` | string(20) | nullable | personal=인적용역 3.3% / business=사업자 10% | 2026_08_14_000031 |
-| `business_number` | string(30) | nullable | 사업자등록번호. tax_type=business 인 경우 | 2026_08_14_000031 |
-| `bank_name` | string(50) | nullable | 정산 입금 은행 | 2026_08_14_000031 |
-| `account_no` | string(255) | nullable | 정산 계좌번호. 암호화 저장 | 2026_08_14_000031 |
-| `account_holder` | string(50) | nullable | 예금주 | 2026_08_14_000031 |
 | `code` | string(20) | nullable,unique | 강사 코드. INST-000012 형식 자동 채번. 등록 후 변경 불가. | 2026_09_07_000062 |
 | `birth_date` | date | nullable | 생년월일. 실명과 조합해 고유 식별. 목록 검색 키. | 2026_09_07_000062 |
 | `phone` | string(20) | nullable | 휴대전화 번호. 식별 보조 및 뒤 4자리 검색. | 2026_09_07_000062 |
 | `email` | string(100) | nullable | 일반 연락용 이메일. | 2026_09_07_000062 |
-| `tax_email` | string(100) | nullable | 세금계산서·계산서 수취 전용 이메일. 사업자 유형 시 필수. | 2026_09_07_000062 |
 | `slug` | string(100) | nullable,unique | 강사홈 URL 슬러그. /instructor/{slug} 라우팅 및 강좌 목록 필터. | 2026_09_07_000062 |
 | `instructor_type` | string(10) |  | 강사 구분. main=정강사 / sub=부강사. 표시·통계용이며 요율은 계약이 결정한다. | 2026_09_07_000062 |
 | `rights_holder_id` | foreignId | nullable | 정산 주체. rights_holders.id. NULL 이면 전시 전용 강사다 | 2026_09_15_000114 |
@@ -156,6 +148,7 @@
 | `vod_verified_at` | timestamp | nullable | VOD Key 유효성 검사 시각. StarPlayer+ API 로 Key 존재·재생 가능 여부·러닝타임을 조회한 시점이다. 값이 없으면 등록만 하고 확인하지 않은 강의다. | 2026_09_08_000092 |
 | `view_count` | unsignedInteger |  | 조회수. 무료강의 목록(USER-FREE-001) 카드 표기 및 조회 많은 순 정렬에 사용한다. 비회원 재생이 허용되므로 세션 기준 중복 집계를 코드에서 차단한다. | 2026_09_08_000092 |
 | `is_active` | tinyInteger |  | 사용 여부. 0이면 신규 커리큘럼 편성 후보에서 제외한다. 이미 편성된 강좌에서 자동으로 빠지지는 않으며 커리큘럼 화면에 경고만 띄운다. 자동 제거는 수강생 커리큘럼을 흔든다. 실무에서 필요한 동작은 삭제가 아니라 이 전환이다. 기본값 1. | 2026_09_08_000092 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000092 |
 | `drm_content_id` | string(100) | nullable | StarPlayer+ 멀티DRM 콘텐츠 ID(OVP drm_content_id). cdn_key 와 별개 | 2026_10_07_000199 |
 
 ## courses
@@ -184,6 +177,8 @@
 | `allow_point` | boolean |  | 포인트 사용 허용 여부. | 2026_09_07_000067 |
 | `start_type` | string(20) |  | 수강 시작 기준. immediate=결제 승인 즉시 / scheduled=지정일 시작(사전판매). | 2026_09_07_000067 |
 | `start_date` | date | nullable | 수강 시작 지정일. start_type=scheduled일 때만 사용. | 2026_09_07_000067 |
+| `display_status` | string(20) |  | 전시 상태. selling=전시·판매중(목록 노출 + 구매 가능) / hidden=비전시(목록 미노출 + 구매 불가, 기결제 회원 학습은 유지) / stopped=판매중지(목록에는 남되 수강신청 버튼이 판매 종료로 대체). 기존 is_public 을 대체하며 is_public 은 화면 개발 시 제거한다. | 2026_09_08_000092 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000092 |
 
 ## course_lectures
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -206,6 +201,8 @@
 | `thumbnail_path` | string(255) | nullable | 썸네일 경로 | 2026_06_25_000002 |
 | `description` | text | nullable | 상세 설명 | 2026_06_25_000002 |
 | `created_at` | timestamp |  |  | 2026_06_25_000002 |
+| `display_status` | string(20) |  | 전시 상태. selling=전시·판매중(목록 노출 + 구매 가능) / hidden=비전시(목록 미노출 + 구매 불가, 기결제 회원 학습은 유지) / stopped=판매중지(목록에는 남되 수강신청 버튼이 판매 종료로 대체). 기존 is_public 을 대체하며 is_public 은 화면 개발 시 제거한다. | 2026_09_08_000092 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000092 |
 | `is_pass_refund` | boolean |  | 합격 환급 대상 패키지. 체크하지 않으면 환급 신청 버튼이 뜨지 않는다 | 2026_09_30_000180 |
 | `refund_min_progress` | unsignedTinyInteger | nullable | 합격 환급 인정 진도율(%). 패키지 단위(PO 2026-09-22). 입력 기본값만 site_settings.refund_claim_min_progress | 2026_09_30_000180 |
 
@@ -229,7 +226,7 @@
 | `created_at` | timestamp |  |  | 2026_06_25_000002 |
 | `cost_price` | integer | nullable | 매입 원가 | 2026_07_10_000012 |
 | `delivery_fee` | integer | nullable | 개별 배송비. NULL이면 site_settings 기본값 적용 | 2026_08_14_000033 |
-| `is_free_delivery` | boolean |  | 금액 조건과 무관하게 항상 무료배송 | 2026_08_14_000033 |
+| `is_free_delivery` | tinyint(1) | sql | 금액 조건과 무관하게 항상 무료배송 | 2026_09_30_000177 |
 | `return_delivery_fee` | integer | nullable | 교재별 반품 왕복 배송비. NULL이면 site_settings 기본값 적용 | 2026_08_14_000038 |
 | `published_at` | date | nullable | 발행일. 목록 검색 조건 및 개정판 구분에 사용. | 2026_09_07_000068 |
 | `edition` | string(30) | nullable | 판·쇄 정보. 예: 3판 2쇄. | 2026_09_07_000068 |
@@ -239,6 +236,8 @@
 | `stock_alert_qty` | integer | nullable | 품절 임박 기준 수량. 재고가 이 값 이하면 대시보드에 알림. | 2026_09_07_000068 |
 | `is_preorder` | boolean |  | 예약 판매 여부. 1이면 3PL 발주 대상에서 제외한다. | 2026_09_07_000068 |
 | `release_date` | date | nullable | 출간 예정일. 예약 판매 시 발송 시작 기준. | 2026_09_07_000068 |
+| `display_status` | string(20) |  | 전시 상태. selling=전시·판매중(목록 노출 + 구매 가능) / hidden=비전시(목록 미노출 + 구매 불가, 기결제 회원 학습은 유지) / stopped=판매중지(목록에는 남되 수강신청 버튼이 판매 종료로 대체). 기존 is_public 을 대체하며 is_public 은 화면 개발 시 제거한다. | 2026_09_08_000092 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000092 |
 | `book_size` | string(30) | nullable | 판형. 4x6배판 등. 화면 "페이지/판형" 표기값. | 2026_09_08_000100 |
 | `restock_date` | date | nullable | 재입고 예정일. 품절 시 화면에 "(예정)" 을 붙여 노출한다. 미입력 시 문장 생략. | 2026_09_08_000100 |
 | `updated_at` | timestamp | nullable | 수정 일시. | 2026_09_08_000100 |
@@ -257,17 +256,6 @@
 | `book_id` | foreignId |  | books.id 참조 | 2026_06_25_000002 |
 | `book_type` | string(20) | nullable | 주교재/부교재 구분. main / sub | 2026_06_25_000002 |
 | `sort_order` | integer |  | 부교재 복수 시 노출 순서 | 2026_06_25_000002 |
-| `created_at` | timestamp |  |  | 2026_06_25_000002 |
-
-## package_instructors
-| 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
-|---|---|---|---|---|
-| `id` | id |  | PK | 2026_06_25_000002 |
-| `package_id` | foreignId |  | packages.id 참조 | 2026_06_25_000002 |
-| `instructor_id` | foreignId |  | instructors.id 참조 | 2026_06_25_000002 |
-| `is_main` | tinyInteger |  | 주강사 여부. 1=주강사, 0=참여강사 | 2026_06_25_000002 |
-| `settlement_rate` | decimal(5, 2) | nullable | 패키지별 강사 요율. NULL이면 instructors.settlement_rate 적용 | 2026_06_25_000002 |
-| `sort_order` | integer |  | 노출 순서 | 2026_06_25_000002 |
 | `created_at` | timestamp |  |  | 2026_06_25_000002 |
 
 ## product_badges
@@ -323,6 +311,7 @@
 | `updated_at` | timestamp | nullable |  | 2026_06_25_000003 |
 | `code` | string(50) | nullable,unique | 카테고리 코드. 영문 대문자+언더스코어. 최초 저장 시 자동 채번 후 수정 불가. | 2026_09_07_000066 |
 | `is_default` | boolean |  | 1Depth 기본 종목 여부. 프론트 첫 진입 시 기본 선택되며 삭제 불가. | 2026_09_07_000066 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000094 |
 
 ## category_products
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -372,11 +361,11 @@
 | `completed_at` | timestamp | nullable | 완료 일시 | 2026_06_25_000003 |
 | `created_at` | timestamp |  |  | 2026_06_25_000003 |
 | `updated_at` | timestamp | nullable |  | 2026_06_25_000003 |
-| `user_course_id` | unsignedBigInteger | nullable | user_courses.id 참조. 수강권한 단위 집계용 | 2026_08_14_000024 |
+| `user_course_id` | bigint unsigned | sql | user_courses.id 참조. 수강권한 단위 집계용 | 2026_09_28_000172 |
 | `watched_seconds` | integer |  | 인정 시청 시간(초). 이수 판정 기준 | 2026_08_14_000024 |
 | `total_play_sec` | integer |  | 총 재생 시간(초). 반복 재생 포함 | 2026_08_14_000024 |
 | `play_count` | integer |  | 재생 횟수 | 2026_08_14_000024 |
-| `duration_sec` | integer |  | 강의 길이 스냅샷(초) | 2026_08_14_000024 |
+| `duration_sec` | int unsigned | sql | 강의 길이 스냅샷(초) | 2026_09_28_000172 |
 | `last_watched_at` | timestamp | nullable | 마지막 시청 일시 | 2026_08_14_000024 |
 
 ## course_pause_logs
@@ -434,7 +423,7 @@
 | `id` | id |  | PK | 2026_06_25_000003 |
 | `order_id` | foreignId |  | orders.id 참조 | 2026_06_25_000003 |
 | `product_type` | string(20) |  | course / package / book | 2026_06_25_000003 |
-| `product_id` | unsignedBigInteger |  | 상품 원본 ID | 2026_06_25_000003 |
+| `product_id` | bigint unsigned | nullable,sql | 상품 원본 ID | 2026_09_30_000177 |
 | `product_name` | string(255) |  | 상품명 스냅샷 | 2026_06_25_000003 |
 | `quantity` | integer |  | 수량 | 2026_06_25_000003 |
 | `unit_price` | integer |  | 단가 | 2026_06_25_000003 |
@@ -448,8 +437,8 @@
 | `sale_price` | integer |  | 구매 당시 판매가 | 2026_08_14_000021 |
 | `refund_status` | string(20) |  | none / partial / full | 2026_08_14_000021 |
 | `refunded_amount` | integer |  | 환불 누계금액 | 2026_08_14_000021 |
-| `line_no` | unsignedInteger | nullable | 주문 내 라인 순번. 1부터 시작. 송장 벌크 업로드 매칭 키(주문번호 + 라인번호). | 2026_09_08_000077 |
-| `cost_snapshot` | integer | nullable | 구매 당시 사입 원가 스냅샷. 교재 라인에만 값이 있다. 원가가 변경되어도 과거 주문의 손익이 소급 변동하지 않도록 고정 보관한다. ADMN-SETT-003 도서 매입 원가 정산의 기준값이다. | 2026_09_08_000092 |
+| `line_no` | int unsigned | sql | 주문 내 라인 순번. 1부터 시작. 송장 벌크 업로드 매칭 키(주문번호 + 라인번호). | 2026_09_08_000077 |
+| `cost_snapshot` | int | nullable,sql | 구매 당시 사입 원가 스냅샷. 교재 라인에만 값이 있다. 원가가 변경되어도 과거 주문의 손익이 소급 변동하지 않도록 고정 보관한다. ADMN-SETT-003 도서 매입 원가 정산의 기준값이다. | 2026_09_21_000156 |
 | `item_type` | string(20) | nullable | 정산 인입 구분. LECTURE / BOOK / SHIPPING_FEE. product_type(상품 종류)과 축이 다르다 (합의서 8.1) | 2026_09_18_000135 |
 | `book_supply_type_snapshot` | string(20) | nullable | 구매 시점 도서 공급 형태. 마스터를 조인하면 재연산 멱등성이 깨진다 (합의서 6.1) | 2026_09_18_000135 |
 | `goods_supply_type_snapshot` | string(20) | nullable | 주문 시점 소비재 공급 형태. PURCHASED_RESALE / DIRECT_SALE. 재연산 멱등성 보존(§18.1) | 2026_09_22_000160 |
@@ -470,30 +459,18 @@
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_06_25_000003 |
 | `order_id` | foreignId |  | orders.id 참조 | 2026_06_25_000003 |
-| `imp_uid` | string(100) | nullable,change | [레거시] 포트원 거래 고유번호 | 2026_08_14_000023 |
-| `merchant_uid` | string(100) | nullable,change | [레거시] 가맹점 주문번호 | 2026_08_14_000023 |
-| `pay_method` | string(30) | nullable,change | [레거시] card / vbank / trans / phone | 2026_08_14_000023 |
 | `pg_provider` | string(50) | nullable | PG사 | 2026_06_25_000003 |
 | `amount` | integer |  | 결제 금액 | 2026_06_25_000003 |
 | `status` | string(30) |  | ready / paid / cancelled / failed 등 | 2026_06_25_000003 |
 | `card_name` | string(50) | nullable | 카드사명 | 2026_06_25_000003 |
 | `card_number` | string(30) | nullable | 카드번호 마스킹 | 2026_06_25_000003 |
-| `vbank_name` | string(50) | nullable | 가상계좌 은행명 | 2026_06_25_000003 |
-| `vbank_num` | string(50) | nullable | 가상계좌 번호 | 2026_06_25_000003 |
-| `vbank_due` | timestamp | nullable | 가상계좌 입금 마감 일시 | 2026_06_25_000003 |
 | `paid_at` | timestamp | nullable | 결제 완료 일시 | 2026_06_25_000003 |
 | `created_at` | timestamp |  |  | 2026_06_25_000003 |
 | `payment_key` | string(255) | nullable,change | PG 거래 키. SeedPay tid. 결제창 인증 전에는 NULL | 2026_09_28_000168 |
 | `approval_no` | string(100) | nullable | 승인번호 | 2026_08_14_000023 |
-| `virtual_account_bank` | string(50) | nullable | 가상계좌 은행 | 2026_08_14_000023 |
-| `virtual_account_no` | string(100) | nullable | 가상계좌 번호 | 2026_08_14_000023 |
-| `virtual_account_holder` | string(50) | nullable | 가상계좌 예금주 | 2026_08_14_000023 |
-| `virtual_account_due_at` | timestamp | nullable | 입금기한. 관리자 연장 대상 | 2026_08_14_000023 |
-| `depositor_name` | string(50) | nullable | 실제 입금자명 | 2026_08_14_000023 |
 | `raw_response` | json | nullable | PG 결제/환불 응답 원문. 매출 대사 근거자료 | 2026_08_14_000023 |
 | `requested_at` | timestamp | nullable | 결제 요청 일시 | 2026_08_14_000023 |
 | `approved_at` | timestamp | nullable | 승인 일시 | 2026_08_14_000023 |
-| `deposited_at` | timestamp | nullable | 가상계좌 입금 일시 | 2026_08_14_000023 |
 | `failed_at` | timestamp | nullable | 결제 실패 일시 | 2026_08_14_000023 |
 | `tax_free_amount` | integer |  | 면세 금액. PG 전송 시 전액 면세로 승인하며 taxFreeAmount = 실결제액, vat = 0 이다. 과세·면세를 라인별로 쪼개 두 번 승인하지 않는다. | 2026_09_08_000104 |
 | `vat_amount` | integer |  | 부가세. 전액 면세이므로 항상 0이다. 사용자 화면에는 이 항목 자체를 노출하지 않는다. | 2026_09_08_000104 |
@@ -578,7 +555,7 @@
 | `order_item_id` | unsignedBigInteger |  | order_items.id 참조 | 2026_06_25_000003 |
 | `courier` | string(50) | nullable | 택배사명 | 2026_06_25_000003 |
 | `tracking_no` | string(100) | nullable | 운송장 번호 | 2026_06_25_000003 |
-| `status` | string(30) |  | ready / shipped / in_transit / delivered 등 | 2026_06_25_000003 |
+| `status` | varchar(30) | sql | ready / shipped / in_transit / delivered 등 | 2026_09_30_000177 |
 | `receiver_name` | string(50) | nullable | 수령인 | 2026_06_25_000003 |
 | `receiver_phone` | string(20) | nullable | 수령인 연락처 | 2026_06_25_000003 |
 | `address` | string(255) | nullable | 배송지 주소 | 2026_06_25_000003 |
@@ -592,7 +569,7 @@
 | `admin_memo` | text | nullable | 관리자 메모 | 2026_08_14_000026 |
 | `notification_sent_at` | timestamp | nullable | 배송 알림 발송 일시. 중복 발송 방지 | 2026_08_14_000026 |
 | `ship_ordered_at` | timestamp | nullable | 출고 지시 일시. 3PL 발주 엑셀 다운로드 시점. 값이 있으면 수령인·배송지 수정을 잠근다. | 2026_09_08_000077 |
-| `batch_id` | unsignedBigInteger | nullable | 3PL 발주 배치. delivery_batches.id 참조. ADMN-SETT-003 물류비 대사 매칭 키. | 2026_09_08_000077 |
+| `batch_id` | bigint unsigned | nullable,sql | 3PL 발주 배치. delivery_batches.id 참조. ADMN-SETT-003 물류비 대사 매칭 키. | 2026_09_21_000156 |
 | `zipcode` | string(5) | nullable | 우편번호 스냅샷. 도서산간 판정 기준값(3PL 발주 엑셀) | 2026_09_30_000177 |
 | `fee_type` | string(20) | nullable | 배송비 구분. FREE 무료 / PREPAID 선불 / ISLAND 도서산간 (3PL 발주 엑셀) | 2026_09_30_000177 |
 
@@ -626,6 +603,14 @@
 | `is_public` | tinyInteger |  | 사용자 페이지 공개 여부(1=공개, 0=비공개) | 2026_07_27_000001 |
 | `expire_at` | date | nullable | 쿠폰 종료일(이 날짜까지 사용, 전원 공통). 비우면 상시 | 2026_07_29_000002 |
 | `max_discount_amount` | integer | nullable | 정률 할인 시 최대 할인금액. NULL이면 상한 없음. type=fixed면 미사용 | 2026_08_14_000032 |
+| `exclude_book` | tinyInteger |  | 도서정가제 자동 바인딩. 실물 교재 카테고리 적용 불가. 저장 시 서버가 1을 무조건 세팅하며 관리자가 해제할 수 없다. API로 0을 밀어 넣어도 서버가 1로 덮는다. | 2026_09_08_000084 |
+| `max_per_user` | unsignedInteger |  | 1인당 발급 매수. 총 발급 매수(max_issue_count)와 별개인 2단 제한이다. 기본값 1. | 2026_09_08_000084 |
+| `allow_stack_coupon` | tinyInteger |  | 다른 쿠폰과 중복 사용 허용. 기본 불가(1주문 1쿠폰). 허용해도 Cap 은 주문 단위 합계에 적용된다. 기본값 0. | 2026_09_08_000084 |
+| `allow_with_point` | tinyInteger |  | 포인트와 함께 사용 허용. 기본 허용이며 쿠폰 적용 후 잔액에 포인트를 차감한다(순서 고정). 기획전 차단(promotion_products.block_*)이 걸린 상품에서는 이 설정과 무관하게 사용 불가다. 차단이 항상 우선한다. 기본값 1. | 2026_09_08_000084 |
+| `issue_method` | string(20) |  | 발급 방식. auto=자동 발급(가입 웰컴 등 트랜잭션 커밋 직후) / bulk=수동 대량 발급(타겟 그룹 대상) / code=코드 입력형(사용자가 마이페이지에서 직접 등록). 기본값 bulk. | 2026_09_08_000084 |
+| `target_group_id` | unsignedBigInteger | nullable | 발급 대상 타겟 그룹. user_groups.id 참조. issue_method=bulk 일 때 필수다. 수동 대량 발급은 ADMN-USER-006 수평적 그룹·태그에서 대상을 고른다. | 2026_09_08_000084 |
+| `scheduled_at` | dateTime | nullable | 발급 예약 일시. 배치가 이 시각에 발급한다. NULL이면 즉시 발급. | 2026_09_08_000084 |
+| `send_notification` | tinyInteger |  | 발급 알림톡 동시 발송 여부. 문구는 ADMN-CONF-004 메시지 템플릿에서 관리한다. 기본값 0. | 2026_09_08_000084 |
 | `issued_count` | unsignedInteger |  | 발급 수(시스템 관리 카운터) | 2026_09_28_000171 |
 | `emergency_suspended_at` | timestamp | nullable | 긴급 사용 중지 일시(최고 관리자). 값이 있으면 보유 · 취소 복원 쿠폰도 사용불가. | 2026_09_30_000175 |
 
@@ -677,6 +662,7 @@
 | `ended_at` | dateTime | nullable | 게시 종료 일시. NULL이면 무기한. 종료일이 지난 글은 자동으로 상태가 종료되며 사용자 화면에서 내려간다. | 2026_09_08_000086 |
 | `allow_comment` | tinyInteger |  | 댓글 허용 여부. 이벤트 글에는 참여 댓글용으로 켠다. 기본값 0. | 2026_09_08_000086 |
 | `related_post_id` | unsignedBigInteger | nullable | 연결 원본 게시글. 당첨자 발표 글이 원본 이벤트 글을 가리키며 두 글이 상호 링크된다. posts.id 자기참조. | 2026_09_08_000086 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000086 |
 | `promotion_id` | unsignedBigInteger | nullable | 당첨자 발표가 연결된 이벤트(promotions.id). 이벤트 1건 : 발표 1건 | 2026_10_15_000208 |
 | `content_type` | string(10) | nullable | 무료콘텐츠 구분. EXAM=빈출자료 / DAILY=정조교의 매일 1문제. 다른 게시판 글은 NULL | 2026_10_21_000239 |
 | `cert_category_id` | unsignedBigInteger | nullable | 무료콘텐츠 자격증 — categories.id(1Depth) 참조. 두 구분 모두 필수(화면 검증) | 2026_10_21_000239 |
@@ -690,7 +676,7 @@
 | `id` | id |  | PK | 2026_06_25_000003 |
 | `attachable_type` | string(100) |  | 연결 대상 모델/도메인 | 2026_06_25_000003 |
 | `attachable_id` | unsignedBigInteger |  | 연결 대상 ID | 2026_06_25_000003 |
-| `original_name` | string(255) | nullable | 업로드 당시 파일명. 저장명은 UUID 라 사람이 읽을 수 없다 | 2026_09_16_000120 |
+| `original_name` | string(255) |  | 원본 파일명 | 2026_06_25_000003 |
 | `file_path` | string(500) |  | 저장 경로 | 2026_06_25_000003 |
 | `mime_type` | string(100) | nullable | MIME 타입 | 2026_06_25_000003 |
 | `size` | unsignedBigInteger |  | 파일 크기(byte) | 2026_06_25_000003 |
@@ -698,7 +684,7 @@
 | `type` | string(30) | nullable |  | 2026_07_10_000010 |
 | `sort_order` | integer | nullable |  | 2026_07_10_000010 |
 | `download_count` | unsignedInteger |  | 다운로드 건수. 원본 경로를 감추는 다운로드 라우트에서 집계한다. | 2026_09_08_000102 |
-| `disk` | string(20) | nullable | 저장 구획 — media(공개) / editor(에디터) / secure(비공개) | 2026_09_16_000120 |
+| `disk` | varchar(20) | sql | 저장 구획 — media(공개) / editor(에디터) / secure(비공개) | 2026_09_16_000120 |
 
 ## admin_menus
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -752,7 +738,7 @@
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_06_25_000003 |
-| `admin_id` | unsignedBigInteger |  | 행위자 users.id | 2026_06_25_000003 |
+| `admin_id` | bigint unsigned | nullable,sql | 행위자 users.id | 2026_09_10_000108 |
 | `menu_id` | unsignedBigInteger | nullable | admin_menus.id | 2026_06_25_000003 |
 | `action` | string(100) |  | 수행 액션 | 2026_06_25_000003 |
 | `target_type` | string(50) | nullable | 대상 타입 | 2026_06_25_000003 |
@@ -775,7 +761,7 @@
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_06_25_000003 |
-| `admin_id` | unsignedBigInteger |  | 요청 관리자 users.id | 2026_06_25_000003 |
+| `admin_id` | bigint unsigned | nullable,sql | 요청 관리자 users.id | 2026_09_10_000108 |
 | `menu_key` | string(100) |  | 요청 메뉴 키 | 2026_06_25_000003 |
 | `download_type` | string(50) |  | 다운로드 유형 | 2026_06_25_000003 |
 | `file_name` | string(255) | nullable | 생성 파일명 | 2026_06_25_000003 |
@@ -809,7 +795,7 @@
 | `created_at` | timestamp |  |  | 2026_06_25_000003 |
 | `step_code` | string(20) | nullable | 정산 스텝 불변 코드. CARRY_IN / ACCRUAL / MMG_ADJ / DEDUCT / SUPPORT_CAP / PREPAY_OFFSET / LUMPSUM_ADD / PAYEE_SPLIT / TAX / CLAIM / PAYOUT | 2026_09_18_000136 |
 | `step_group` | string(20) | nullable | 배치 모니터링·재시도 묶음. AGGREGATE(1~2) / ADJUST(3~5) / DISTRIBUTE(6~8) / TAX_PAYOUT(9~11) | 2026_09_18_000136 |
-| `target_month` | char(7) | nullable | 정산 귀속월 YYYY-MM. 재실행 단위 | 2026_09_18_000136 |
+| `target_month` | char(7) | nullable,sql | 정산 귀속월 YYYY-MM. 재실행 단위 | 2026_09_19_000145 |
 
 ## order_item_allocations
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -873,7 +859,7 @@
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_06_26_000001 |
-| `ip` | string(45) | unique | 허용 IP | 2026_06_26_000001 |
+| `ip` | varchar(45) | sql | 허용 IP | 2026_09_07_000056 |
 | `description` | string(100) | nullable | 메모 (예: 박성민 재택) | 2026_06_26_000001 |
 | `is_active` | tinyInteger |  | 활성 여부 | 2026_06_26_000001 |
 | `created_at` | timestamp |  |  | 2026_06_26_000001 |
@@ -884,6 +870,10 @@
 ## product_instructors
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
 |---|---|---|---|---|
+| `id` | id |  | PK | 2026_06_25_000002 |
+| `instructor_id` | foreignId |  | instructors.id 참조 | 2026_06_25_000002 |
+| `sort_order` | integer |  | 노출 순서 | 2026_06_25_000002 |
+| `created_at` | timestamp |  |  | 2026_06_25_000002 |
 | `product_type` | string(20) |  | course / package | 2026_07_10_200000 |
 | `product_id` | unsignedBigInteger |  | 상품 원본 ID | 2026_07_10_200000 |
 | `role` | char(1) |  | m=대표 / s=부강사 / a=참여 | 2026_07_10_200000 |
@@ -961,7 +951,7 @@
 | `point_earn_rate` | decimal(5, 2) |  | 포인트 적립률(%) | 2026_08_14_000036 |
 | `max_device_count` | unsignedTinyInteger |  | 기기 등록 가능 대수 | 2026_08_14_000036 |
 | `device_abuse_threshold` | unsignedTinyInteger | nullable | 기기 다중 접속 적발 임계치. NULL이면 자동 필터 미적용 | 2026_08_14_000036 |
-| `refund_claim_min_progress` | unsignedTinyInteger |  | 합격 환급 신청 최소 진도율(%). 절사 기준 | 2026_08_14_000036 |
+| `refund_claim_min_progress` | tinyint unsigned | sql | 합격 환급 신청 최소 진도율(%). 절사 기준 | 2026_09_08_000105 |
 | `verify_daily_limit` | unsignedTinyInteger | change | 계정(DI) 기준 인증 요청 한도(롤링 24시간). 기본값 10. | 2026_10_15_000213 |
 | `verify_ip_hourly_limit` | unsignedSmallInteger |  | IP 기준 시간당 소프트캡. 초과 시 쿨다운 적용. 기본값 10. | 2026_09_07_000055 |
 | `verify_ip_daily_limit` | unsignedSmallInteger | change | IP 기준 인증 요청 한도(롤링 24시간). 기본값 10. | 2026_10_15_000213 |
@@ -981,7 +971,7 @@
 | `earn_confirm_timing` | string(30) |  | 적립 확정 시점. paid=결제 승인 즉시 / delivered=배송완료 후 / course_started=수강 시작 후. 기본값 paid. | 2026_09_08_000085 |
 | `free_point_expire_years` | unsignedTinyInteger |  | 무상 포인트 유효기간(년). 가입 축하금·관리자 수동 지급·보상성 지급이 해당한다. 환불 시 회수 대상. | 2026_09_08_000085 |
 | `paid_point_expire_years` | unsignedTinyInteger | nullable | 유상 포인트 유효기간(년). 실결제로 적립된 포인트다. NULL이면 무기한. 환불 시 LIFO 부활 대상. | 2026_09_08_000085 |
-| `deduct_priority` | string(30) |  | 차감 우선순위. expire_asc_free_first=만료 임박순, 같은 만료일이면 무상 우선. 회원 손해를 최소화하는 순서다. | 2026_09_08_000085 |
+| `deduct_priority` | varchar(30) | sql | 차감 우선순위. expire_asc_free_first=만료 임박순, 같은 만료일이면 무상 우선. 회원 손해를 최소화하는 순서다. | 2026_09_30_000179 |
 | `expire_notice_days` | unsignedSmallInteger |  | 소멸 사전 안내 일수. 매일 09:00 배치가 D+N 소멸 예정 포인트를 스캔해 대상 회원에게 발송한다. 0이면 미발송. 1~90일. | 2026_09_08_000085 |
 | `expire_notice_alimtalk` | tinyInteger |  | 소멸 안내 알림톡 발송 여부. 기본값 1. | 2026_09_08_000085 |
 | `expire_notice_lms` | tinyInteger |  | 소멸 안내 알림톡 실패 시 LMS(문자) 대체 발송 여부. 기본값 1. | 2026_09_08_000085 |
@@ -997,7 +987,7 @@
 | `consignment_return_tracking_yn` | boolean |  | 위탁 반품 실물 반환 추적 사용 여부 | 2026_09_18_000137 |
 | `book_reprice_min_months` | unsignedSmallInteger |  | 도서 재정가 가능 최소 경과 개월. 출판문화산업 진흥법 제22조 제2항 | 2026_09_18_000137 |
 | `support_fund_payment_method_default` | string(20) |  | 개발지원금 지급 방식 기본값. LUMP_SUM / INSTALLMENT / REVENUE_SHARE | 2026_09_18_000137 |
-| `support_fund_scope_default` | string(20) |  | R/S형 지원금 기본 모수 범위. TRACK_A_ONLY / TRACK_B1_ONLY / TRACK_A_B1 | 2026_09_18_000137 |
+| `support_fund_scope_default` | varchar(20) | sql | R/S형 지원금 기본 모수 범위. TRACK_A_ONLY / TRACK_B1_ONLY / TRACK_A_B1 | 2026_10_15_000209 |
 | `support_fund_offset_allowed_yn` | boolean |  | R/S형 지원금의 선급금 상계 허용 여부. 겹치면 이중 회수가 된다 | 2026_09_18_000137 |
 | `support_fund_cap_restore_on_refund` | boolean |  | 환불 발생 시 지원금 한도 복원 여부 | 2026_09_18_000137 |
 | `support_fund_termination_policy_default` | string(20) |  | 지원금 종료 시 미소진 잔액 처리 기본값. FORFEIT / LUMP_SETTLE / PRO_RATA | 2026_09_18_000137 |
@@ -1026,7 +1016,7 @@
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_07_16_130001 |
 | `type` | string(30) |  | 약관 종류: service/privacy/refund/marketing | 2026_07_16_130001 |
-| `version` | integer |  | 개정판 버전 | 2026_07_16_130001 |
+| `version` | varchar(10) | sql | 개정판 버전 | 2026_09_08_000098 |
 | `title` | string(255) |  | 제목 | 2026_07_16_130001 |
 | `content` | longText |  | 본문 | 2026_07_16_130001 |
 | `effective_date` | date | nullable | 시행일 | 2026_07_16_130001 |
@@ -1039,6 +1029,7 @@
 | `change_reason` | string(500) | nullable | 개정 사유. 필수. 사용자 공지사항 본문과 재동의 안내 메시지 요약문으로 재사용한다. | 2026_09_08_000098 |
 | `status` | string(20) |  | active=시행중 / pending=공시중(시행 전) / expired=폐지 / draft=작성중(임시저장). 기본값 active. | 2026_09_08_000098 |
 | `admin_id` | unsignedBigInteger | nullable | 최종 수정자 users.id. 목록의 최종 수정자 컬럼. | 2026_09_08_000098 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000098 |
 | `is_unfavorable` | boolean |  | 회원에게 불리한 개정 여부. 1 이면 공시 기준 30일, 0 이면 7일 | 2026_10_02_000182 |
 
 ## popups
@@ -1064,9 +1055,10 @@
 | `alt_text` | string(255) | nullable | 이미지 대체 텍스트(alt). 웹접근성 필수. | 2026_09_08_000098 |
 | `mobile_alt_text` | string(255) | nullable | 모바일 이미지 대체 텍스트(alt). | 2026_09_08_000098 |
 | `link_target` | string(10) |  | 링크 타겟. _blank=새 창 / _self. 기본값 _self. | 2026_09_08_000098 |
-| `use_week_close` | boolean |  |  | 2026_09_08_000098 |
-| `use_close_button` | boolean |  |  | 2026_09_08_000098 |
+| `use_week_close` | boolean |  | '7일간 보지 않기' 옵션 사용 여부. 쿠키 만료 D+7. 기본값 0. | 2026_09_08_000098 |
+| `use_close_button` | boolean |  | '닫기' 버튼 노출 여부. 기본값 1. | 2026_09_08_000098 |
 | `position_type` | string(20) |  | 노출 위치. center=화면 중앙 / custom=pos_x·pos_y 지정. 기본값 center. | 2026_09_08_000098 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000098 |
 | `link_type` | string(10) |  | 클릭 연결 방식: url(링크 직접 입력) / post(등록된 게시물 선택) | 2026_10_02_000181 |
 | `post_id` | unsignedBigInteger | nullable | 연결 게시글(posts.id). link_type=post 일 때만. 팝업 → 게시글 단방향 | 2026_10_02_000181 |
 
@@ -1089,6 +1081,7 @@
 | `device` | string(10) |  | 노출 기기. all=공통 / pc / mobile. 기본값 all. | 2026_09_08_000098 |
 | `alt_text` | string(255) | nullable | PC 이미지 대체 텍스트(alt). 웹접근성 필수. | 2026_09_08_000098 |
 | `mobile_alt_text` | string(255) | nullable | 모바일 이미지 대체 텍스트(alt). | 2026_09_08_000098 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000098 |
 | `target` | string(10) |  | 노출 대상(띠배너): all 전체 · guest 비로그인 · member 로그인. 이미지 배너는 all | 2026_10_15_000212 |
 | `bg_color` | char(7) | nullable | 띠배너 배경색 #RRGGBB. 이미지 배너는 NULL | 2026_10_15_000212 |
 | `text_color` | char(7) | nullable | 띠배너 글자색 #RRGGBB. 이미지 배너는 NULL | 2026_10_15_000212 |
@@ -1225,7 +1218,7 @@
 | `provider_template_code` | string(100) | nullable | 카카오 승인 템플릿 코드 | 2026_08_14_000009 |
 | `subject` | string(255) | nullable | 메일 제목 | 2026_08_14_000009 |
 | `content` | text |  | 본문. 치환변수 포함 | 2026_08_14_000009 |
-| `variables` | json | nullable | 치환변수 목록 | 2026_08_14_000009 |
+| `variables` | json | nullable,sql | 치환변수 목록 | 2026_09_08_000097 |
 | `is_active` | boolean |  | 사용 여부 | 2026_08_14_000009 |
 | `created_at` | timestamp |  | 등록 일시 | 2026_08_14_000009 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_08_14_000009 |
@@ -1241,6 +1234,7 @@
 | `approval_checked_at` | timestamp | nullable | 심사 상태 최종 조회 일시. 값이 낡으면 화면에 조회 실패로 표시한다. | 2026_09_08_000096 |
 | `approved_content` | text | nullable | 직전 승인 본문. 심사중 상태에서는 이 본문으로 발송한다. 승인 시 content 로 갱신. | 2026_09_08_000096 |
 | `is_required` | boolean |  | 필수 템플릿 여부. 1이면 삭제 불가(사용 중지만 가능). 거래성 알림 6종. 기본값 0. | 2026_09_08_000096 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_08_000096 |
 | `is_send_blocked` | boolean |  | 치환 변수 불일치로 인한 발송 차단 여부. 1이면 알림톡을 건너뛰고 LMS 대체로 넘긴다. 알림 자체는 누락되지 않는다. 기본값 0. | 2026_09_08_000097 |
 | `block_reason` | string(500) | nullable | 발송 차단 사유. 매핑이 없는 치환 변수명을 담는다. 화면 경고 박스에 무엇을 고쳐야 하는지 변수명까지 노출한다. | 2026_09_08_000097 |
 | `sens_synced_at` | timestamp | nullable | SENS 템플릿 원본 최종 동기화 일시. 목록의 최종 동기화 컬럼 표시값. | 2026_09_08_000097 |
@@ -1434,8 +1428,10 @@
 | `id` | id |  | PK | 2026_08_14_000039 |
 | `withdrawn_at` | timestamp | nullable | 최근 탈퇴 일시. 30일 미경과 시 재가입 차단. 재가입 또는 30일 경과 배치로 NULL 처리 | 2026_08_14_000039 |
 | `welcome_issued_at` | timestamp | nullable | 웰컴 혜택 최초 발급 일시. 생애 1회 제한 판정용. 초기화하지 않음 | 2026_08_14_000039 |
+| `created_at` | timestamp | nullable |  | 2026_08_14_000039 |
+| `updated_at` | timestamp | nullable |  | 2026_08_14_000039 |
 | `welcome_granted` | tinyInteger |  | 웰컴 혜택 지급 이력. 1이면 이 DI 로 가입 축하금·웰컴 쿠폰을 이미 받았다는 뜻이다. 재가입 시 지급하지 않는다. 생애 1회 판정 근거이므로 탈퇴 후에도 보존한다. | 2026_09_08_000085 |
-| `di_hash` | string(64) | nullable,unique,change | 본인인증 DI의 SHA-256 해시(users.di_hash 와 같은 값). DI당 1행 유지 | 2026_09_29_000174 |
+| `di_hash` | string(64) | unique,change | 본인인증 DI의 SHA-256 해시(users.di_hash 와 같은 값). DI당 1행 유지 | 2026_09_29_000174 |
 | `unpaid_paid_points` | integer |  | 미회수 유상 마이너스 포인트(절대값). 재가입 시 같은 유형으로 복원 후 0 초기화. 기본값 0. | 2026_10_22_000245 |
 | `unpaid_free_points` | integer |  | 미회수 무상 마이너스 포인트(절대값). 재가입 시 같은 유형으로 복원 후 0 초기화. 기본값 0. | 2026_10_22_000245 |
 | `rejoin_count` | unsignedInteger |  | 이 DI 로 재가입한 횟수. 탈퇴 후 다시 가입할 때 1 올린다. 부정 이용 판정 근거라 초기화하지 않는다. | 2026_10_22_000245 |
@@ -1476,6 +1472,8 @@
 | `assign_role` | string(30) | nullable | 담당 부서 라우팅. admin_roles.code 참조값. NULL이면 미배정 | 2026_08_14_000043 |
 | `sort_order` | integer |  | 노출 순서 | 2026_08_14_000043 |
 | `is_active` | tinyInteger |  | 사용 여부. 0이면 신규 접수 시 선택 불가(기존 문의는 유지) | 2026_08_14_000043 |
+| `created_at` | timestamp | nullable |  | 2026_08_14_000043 |
+| `updated_at` | timestamp | nullable |  | 2026_08_14_000043 |
 | `parent_id` | unsignedBigInteger | nullable | 상위 대분류. inquiry_categories.id 자기참조. NULL이면 대분류. 하위 소분류가 남아 있는 대분류는 미사용으로 내릴 수 없다. | 2026_09_08_000087 |
 | `target_screen` | string(50) | nullable | 자동 배정 화면코드. 이 분류로 접수되면 지정 관리자 화면의 처리 큐로 전개된다. 예) VOC-PAY-01(상담 필요)은 환불 관리 상세 뷰 ADMN-RFD-002-S1 로 간다. | 2026_09_08_000087 |
 
@@ -1493,6 +1491,8 @@
 | `user_agent` | string(500) | nullable | 브라우저/기기 정보. | 2026_09_07_000050 |
 | `result` | string(20) |  | requested / success / fail / blocked. | 2026_09_07_000050 |
 | `fail_reason` | string(100) | nullable | 실패·차단 사유 코드. | 2026_09_07_000050 |
+| `created_at` | timestamp | nullable |  | 2026_09_07_000050 |
+| `updated_at` | timestamp | nullable |  | 2026_09_07_000050 |
 | `reset_at` | timestamp | nullable | 카운트 초기화 일시. NULL이 아니면 하드캡 집계에서 제외. | 2026_09_07_000053 |
 | `reset_by` | unsignedBigInteger | nullable | 초기화 처리 관리자 users.id. | 2026_09_07_000053 |
 
@@ -1547,6 +1547,8 @@
 | `reset_at` | timestamp | nullable | 기기 리셋 처리 일시. | 2026_09_07_000060 |
 | `reset_by` | unsignedBigInteger | nullable | 리셋 처리 관리자 users.id. | 2026_09_07_000060 |
 | `reset_reason` | string(255) | nullable | 리셋 사유. 사유 없는 리셋은 불가. | 2026_09_07_000060 |
+| `created_at` | timestamp | nullable |  | 2026_09_07_000060 |
+| `updated_at` | timestamp | nullable |  | 2026_09_07_000060 |
 
 ## instructor_profiles
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1563,6 +1565,8 @@
 | `is_display` | boolean |  | 개별 전시 ON/OFF. 계약 상태가 우선하며 종료·해지 시 강제 숨김. | 2026_09_07_000063 |
 | `sort_order` | integer |  | 강사 목록(USER-INST-002) 노출 순서. | 2026_09_07_000063 |
 | `auto_preview` | boolean |  | 맛보기 자동 노출. 이 강사의 맛보기 ON 강의를 강사 홈에 자동 진열. | 2026_09_07_000063 |
+| `created_at` | timestamp | nullable |  | 2026_09_07_000063 |
+| `updated_at` | timestamp | nullable |  | 2026_09_07_000063 |
 
 ## package_items
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1576,6 +1580,8 @@
 | `price_ratio` | decimal(5, 2) |  | 인강 라인 내 정가 비율(%). 할인 배분 기준. 교재는 0. | 2026_09_07_000069 |
 | `discount_amount` | integer |  | 배분된 할인액(음수). 정가 비율대로 안분. 교재는 0. | 2026_09_07_000069 |
 | `is_excluded_from_discount` | boolean |  | 할인 배분 제외 여부. 교재는 항상 1. 도서정가제 준수. | 2026_09_07_000069 |
+| `created_at` | timestamp | nullable |  | 2026_09_07_000069 |
+| `updated_at` | timestamp | nullable |  | 2026_09_07_000069 |
 
 ## product_qnas
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1595,6 +1601,8 @@
 | `answer_content` | longText | nullable | 답변 본문. | 2026_09_07_000071 |
 | `answered_by` | unsignedBigInteger | nullable | 답변 등록 관리자 users.id. | 2026_09_07_000071 |
 | `answered_at` | timestamp | nullable | 답변 등록 일시. | 2026_09_07_000071 |
+| `created_at` | timestamp | nullable |  | 2026_09_07_000071 |
+| `updated_at` | timestamp | nullable |  | 2026_09_07_000071 |
 | `deleted_at` | timestamp | nullable | 회원이 지운 시각. 사용자 화면에서만 빠지고 관리자 목록 · 집계에는 남는다. | 2026_10_16_000217 |
 
 ## study_qnas
@@ -1603,7 +1611,7 @@
 | `id` | id |  | PK | 2026_09_07_000072 |
 | `user_id` | foreignId |  | 질문 회원 users.id. | 2026_09_07_000072 |
 | `course_id` | foreignId |  | 질문 대상 강좌 courses.id. | 2026_09_07_000072 |
-| `lecture_id` | foreignId |  | 질문 대상 강의 lectures.id. | 2026_09_07_000072 |
+| `lecture_id` | unsignedBigInteger | nullable,change | 질문 대상 강의 lectures.id. 강의 재생 화면 · 목차에서 질문할 때만 채운다. 목록에서 바로 쓴 질문은 NULL | 2026_10_20_000227 |
 | `play_position_sec` | unsignedInteger | nullable | 질문 시점 재생 위치(초). 답변 화면에서 mm:ss로 표기. | 2026_09_07_000072 |
 | `instructor_id` | foreignId |  | 담당 강사 instructors.id. 강사 계정은 본인 담당 강좌만 조회 가능. | 2026_09_07_000072 |
 | `assign_ta_id` | unsignedBigInteger | nullable | 담당 조교 users.id. 조교 계정은 배정된 강사의 강좌만 조회 가능. | 2026_09_07_000072 |
@@ -1614,6 +1622,8 @@
 | `answered_by` | unsignedBigInteger | nullable | 답변 등록자 users.id. 답변자명은 답변 하단에 노출된다. | 2026_09_07_000072 |
 | `answered_at` | timestamp | nullable | 답변 등록 일시. SLA(영업일 48시간) 판정 기준. | 2026_09_07_000072 |
 | `is_public_qna` | boolean |  | 공개 Q&A 전환 여부. 1이면 강좌 상세에 마스킹 노출. | 2026_09_07_000072 |
+| `created_at` | timestamp | nullable |  | 2026_09_07_000072 |
+| `updated_at` | timestamp | nullable |  | 2026_09_07_000072 |
 | `is_secret` | boolean |  | 비밀글 여부. 1 = 작성자 본인 · 담당 강사 · 조교 · 최고 관리자만 열람. 공개 Q&A(is_public_qna) 전환 대상에서 제외 | 2026_10_20_000227 |
 | `view_count` | unsignedInteger |  | 조회수. 회원 화면 상세를 연 횟수(같은 세션의 다시 열기는 세지 않는다). 목록 조회순 정렬 | 2026_10_20_000227 |
 
@@ -1642,6 +1652,8 @@
 | `display_instructor_home` | boolean |  | 강사 홈 노출 여부. 해당 강사 수강생 후기만 가능. | 2026_09_07_000073 |
 | `refund_claim_id` | unsignedBigInteger | nullable | 연계 환급 신청 refund_claims.id. 반려 시 환급 심사도 함께 막힌다. | 2026_09_07_000073 |
 | `point_granted_at` | timestamp | nullable | 우수 후기 포인트 지급 일시. 같은 후기에 대한 지급은 1회로 제한. | 2026_09_07_000073 |
+| `created_at` | timestamp | nullable |  | 2026_09_07_000073 |
+| `updated_at` | timestamp | nullable |  | 2026_09_07_000073 |
 
 ## delivery_batch_items
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1723,13 +1735,13 @@
 | `code` | string(30) | unique | 기획전 코드. PRM-YYMM-{일련} 형식 자동 채번. 등록 후 수정 불가. 정산·통계 집계 키다. | 2026_09_08_000083 |
 | `type` | string(20) |  | 구분자. promotion=기획전(기획상품) / event=이벤트(일반이벤트). 사용자 목록 카드 뱃지 색과 탭 필터가 이 값으로 갈린다. 기본값 promotion. | 2026_09_08_000083 |
 | `title` | string(255) |  | 기획전명. 랜딩 상단 h1 과 목록 카드 제목에 동시 사용한다. | 2026_09_08_000083 |
-| `slug` | string(40) | unique | URL 식별자. 영문 소문자·숫자·하이픈만 2~40자. sanjunmo.com/event/{slug} 로 Dynamic Routing 된다. 종료·중단 기획전의 slug 도 점유 상태로 본다. 재사용 시 옛 랜딩 링크가 오작동한다. | 2026_09_08_000083 |
+| `slug` | varchar(40) | sql | URL 식별자. 영문 소문자·숫자·하이픈만 2~40자. sanjunmo.com/event/{slug} 로 Dynamic Routing 된다. 종료·중단 기획전의 slug 도 점유 상태로 본다. 재사용 시 옛 랜딩 링크가 오작동한다. | 2026_09_08_000101 |
 | `started_at` | dateTime |  | 노출 시작. 분 단위까지 저장한다. 자정으로만 두면 0시 오픈 이벤트와 실제 전환 시점이 어긋난다. 서버 저장은 KST 고정. | 2026_09_08_000083 |
 | `ended_at` | dateTime |  | 노출 종료. 종료 시각에 랜딩이 비노출된다. | 2026_09_08_000083 |
 | `status` | string(20) |  | 상태. scheduled=예약 / active=진행중 / ended=종료 / stopped=중단(관리자 강제). 노출 기간과 배치로 자동 전환되며 직접 입력하지 않는다. | 2026_09_08_000083 |
-| `thumbnail_path` | string(255) | nullable | 목록 썸네일. 720×405 16:9 권장, 1MB 이하. USER-PROM-001 카드에 쓰인다. | 2026_09_08_000083 |
-| `banner_pc_path` | string(255) | nullable | 랜딩 배너 PC. 1920×480 권장, 2MB 이하. | 2026_09_08_000083 |
-| `banner_mobile_path` | string(255) | nullable | 랜딩 배너 모바일. 750×600 권장. 미등록 시 PC 이미지를 축소 사용하되 저장 시 경고한다. | 2026_09_08_000083 |
+| `thumbnail_path` | varchar(255) | nullable,sql | 목록 썸네일. 720×405 16:9 권장, 1MB 이하. USER-PROM-001 카드에 쓰인다. | 2026_09_08_000101 |
+| `banner_pc_path` | varchar(255) | nullable,sql | 랜딩 배너 PC. 1920×480 권장, 2MB 이하. | 2026_09_08_000101 |
+| `banner_mobile_path` | varchar(255) | nullable,sql | 랜딩 배너 모바일. 750×600 권장. 미등록 시 PC 이미지를 축소 사용하되 저장 시 경고한다. | 2026_09_08_000101 |
 | `headline` | string(255) | nullable | 상단 카피. 미입력 시 기획전명으로 자동 채운다. | 2026_09_08_000083 |
 | `sort_type` | string(20) |  | 상품 진열 순서. manual=수동 정렬(드래그) / sales=판매량순 / price_asc=낮은 가격순 / created_desc=등록 역순. 기본값 manual. | 2026_09_08_000083 |
 | `html_content` | longText | nullable | 랜딩 소스 HTML. CodeMirror 3분할 에디터 입력값을 가공 없이 그대로 적재한다. | 2026_09_08_000083 |
@@ -1865,6 +1877,8 @@
 | `started_at` | timestamp | nullable | 발송 시작 일시. | 2026_09_08_000096 |
 | `finished_at` | timestamp | nullable | 발송 종료 일시. | 2026_09_08_000096 |
 | `canceled_at` | timestamp | nullable | 취소 일시. 예약 30분 전까지만 취소 가능하다. | 2026_09_08_000096 |
+| `created_at` | timestamp | nullable |  | 2026_09_08_000096 |
+| `updated_at` | timestamp | nullable |  | 2026_09_08_000096 |
 
 ## player_settings
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1893,6 +1907,8 @@
 | `block_record_mobile` | boolean |  | 모바일 앱 화면 녹화 차단 여부. 기본값 1. | 2026_09_08_000098 |
 | `warn_capture_pc` | boolean |  | PC 캡처 감지 경고 여부. 기본값 1. | 2026_09_08_000098 |
 | `download_allow` | boolean |  | 다운로드 수강 허용 여부. DRM 정책·저작권과 직결되어 기본 미허용. 기본값 0. | 2026_09_08_000098 |
+| `created_at` | timestamp | nullable |  | 2026_09_08_000098 |
+| `updated_at` | timestamp | nullable |  | 2026_09_08_000098 |
 
 ## book_restock_alerts
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1903,6 +1919,8 @@
 | `status` | string(20) |  | waiting=대기 / notified=발송 완료 / canceled=신청 취소. 기본값 waiting. | 2026_09_08_000100 |
 | `notified_at` | timestamp | nullable | 알림 발송 일시. 재고가 0 -> 1 이상으로 변경되는 시점에 기록한다. | 2026_09_08_000100 |
 | `canceled_at` | timestamp | nullable | 신청 취소 일시. | 2026_09_08_000100 |
+| `created_at` | timestamp | nullable |  | 2026_09_08_000100 |
+| `updated_at` | timestamp | nullable |  | 2026_09_08_000100 |
 
 ## faq_search_logs
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1950,6 +1968,8 @@
 | `address_detail` | string(100) | nullable | 상세주소. 사용자가 직접 입력하는 유일한 주소 필드. | 2026_09_08_000105 |
 | `delivery_request` | string(255) | nullable | 배송 요청사항. | 2026_09_08_000105 |
 | `is_default` | boolean |  | 기본 배송지 여부. 회원당 1건만 1이며 삭제할 수 없다. 다른 주소를 기본으로 바꾼 뒤에만 삭제 가능하다. | 2026_09_08_000105 |
+| `created_at` | timestamp | nullable |  | 2026_09_08_000105 |
+| `updated_at` | timestamp | nullable |  | 2026_09_08_000105 |
 
 ## rights_holders
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1958,7 +1978,7 @@
 | `code` | string(20) | unique | 권리자 코드. AUTH-YYYY-NNNN. 등록 후 변경 불가. 채번은 RightsHolderCodeGenerator 단일 지점 | 2026_09_15_000111 |
 | `name` | string(100) |  | 상호명 또는 실명. 국세청 등록명과 일치해야 한다 | 2026_09_15_000111 |
 | `is_internal` | boolean |  | 자사 귀속 여부. true 면 정산 연산은 동일하게 하되 외부 이체·역발행에서 제외한다(합의서 02장) | 2026_09_15_000111 |
-| `tax_type` | string(20) |  | personal=개인 / simplified=간이과세 / general=일반과세 / exempt=면세사업자 | 2026_09_15_000111 |
+| `tax_type` | varchar(20) | sql | personal=개인 / simplified=간이과세 / general=일반과세 / exempt=면세사업자 | 2026_09_18_000130 |
 | `email` | string(100) | nullable | 정산 알림용 이메일 | 2026_09_15_000111 |
 | `phone` | string(20) | nullable | 담당자 연락처 | 2026_09_15_000111 |
 | `partnership_started_at` | date | nullable | 최초 파트너십 체결일 | 2026_09_15_000111 |
@@ -1975,6 +1995,9 @@
 | `bank_name` | string(50) | nullable | 정산 입금 은행 | 2026_09_15_000111 |
 | `account_no_enc` | text | nullable | 정산 계좌번호. AES-256 암호문. 평문 저장 금지 | 2026_09_15_000111 |
 | `account_holder` | string(50) | nullable | 예금주 | 2026_09_15_000111 |
+| `created_at` | timestamp | nullable |  | 2026_09_15_000111 |
+| `updated_at` | timestamp | nullable |  | 2026_09_15_000111 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_15_000111 |
 | `payee_is_author` | boolean | nullable | 저작자 본인 여부. 개인(personal)만 사용한다. false 면 필요경비 의제 없음(합의서 2.3) | 2026_09_15_000117 |
 | `address` | string(255) | nullable | 거주지 주소. 개인 권리자 지급명세서용 | 2026_09_15_000117 |
 | `address_detail` | string(255) | nullable | 거주지 상세 주소 | 2026_09_15_000117 |
@@ -1991,6 +2014,18 @@
 | `consignment_fee_type` | string(20) | nullable | 수수료 수취 방식. NET_DEDUCT=차감 지급(기본) / GROSS_SETTLE=총액 지급 후 청구 (합의서 6.6) | 2026_09_18_000130 |
 | `consignment_cycle` | string(20) | nullable | 위탁 정산 주기 | 2026_09_18_000130 |
 | `consignment_return_owner` | string(20) | nullable | 위탁 재고 회수 담당 주체 | 2026_09_18_000130 |
+| `destruction_hold` | boolean |  |  | 2026_09_21_000151 |
+| `consignment_promo_override_yn` | boolean |  | 행사별 위탁 수수료 오버라이드 허용 | 2026_10_02_000188 |
+| `consignment_return_tracking_yn` | boolean | nullable | 반품 실물 추적. NULL 이면 site_settings 기본값 | 2026_10_02_000188 |
+| `consignment_return_days` | unsignedSmallInteger | nullable | 위탁 반품 회수 기한(일) | 2026_10_02_000188 |
+| `consignment_started_at` | date | nullable | 위탁 계약 시작일(잠정 — 합의서 문언 확인 필요) | 2026_10_02_000188 |
+| `consignment_ended_at` | date | nullable | 위탁 계약 종료일(잠정 — 합의서 문언 확인 필요) | 2026_10_02_000188 |
+| `business_subtype` | string(20) | nullable | 사업자 세부 유형. SOLE=개인사업자 / CORP=법인·단체. 자사 귀속은 is_internal 로 판정한다 (합의서 미수록 · v16 businessSubtype 기준) | 2026_10_15_000207 |
+| `open_date` | date | nullable | 개업일자. 국세청 API 요청 필드 start_dt 와 1:1 매핑 (합의서 2.4절 · 17.4절) | 2026_10_15_000207 |
+| `suspended_approval_reason` | string(255) | nullable | 휴업자 계약 승인 사유. 저장 시 감사 로그에도 함께 남긴다 (합의서 17.4절 상태 게이트) | 2026_10_15_000207 |
+| `tax_decision_status` | string(20) | nullable | 세무 판정 상태. DECIDED=판정 완료 / PENDING_REVIEW=검토 보류. 권리자 단위 수동 표시값. 정산 라인 판정은 9단계(TAX) 산출물 (합의서 11.1절) | 2026_10_15_000207 |
+| `matrix_case_id` | string(10) | nullable | 세무 판정 케이스 식별자 TX-01~TX-13. 권리자 단위 수동 표시값. 정산 라인 판정은 9단계(TAX) 산출물 (합의서 11.1절) | 2026_10_15_000207 |
+| `tax_decision_reason` | text | nullable | 판정 근거 · 검토 메모 (합의서 미수록 · v16 taxDecisionReason 기준) | 2026_10_15_000207 |
 | `birth_date` | date | nullable | 개인 권리자 생년월일. 주민등록번호 앞 7자리에서 계산(App\Support\ResidentNo) · 화면 입력 칸 없음. | 2026_10_22_000246 |
 
 ## rights_holder_contracts
@@ -2009,6 +2044,8 @@
 | `is_locked` | boolean |  | 거래 발생 시 수정 차단. 거래 판정은 Set 4, 이번 차수는 플래그 저장·차단만 | 2026_09_15_000112 |
 | `memo` | text | nullable | 메모 | 2026_09_15_000112 |
 | `admin_id` | foreignId | nullable | 등록 관리자 users.id | 2026_09_15_000112 |
+| `created_at` | timestamp | nullable |  | 2026_09_15_000112 |
+| `updated_at` | timestamp | nullable |  | 2026_09_15_000112 |
 | `sequence_no` | unsignedInteger |  | 계약 차수. 권리자별 1부터 채번. 설계서 ⑤ 갱신 회차 | 2026_09_15_000116 |
 | `prepayment_tax_type` | string(20) | nullable | 선급금 세무 처리. INCOME_PREPAY=소득 선지급(상계액을 과세표준에서 차감) / LOAN=대여금(차감 없음) (합의서 5.3) | 2026_09_18_000131 |
 | `mmg_annual_cap` | integer | nullable | 연간 MMG 보전 총액 상한. 초과 시 알럿 후 재무 승인 대상 (합의서 5.3) | 2026_09_18_000131 |
@@ -2018,7 +2055,24 @@
 | `origin_type` | string(20) |  | 계약 발생 구분 NEW(신규) / SUCCESSION(승계 — 선행 계약 이어받기) | 2026_10_02_000184 |
 | `predecessor_contract_id` | unsignedBigInteger | nullable | 선행 계약 rights_holder_contracts.id. origin_type = SUCCESSION 일 때만. 요율은 이어받지 않는다 | 2026_10_02_000184 |
 | `renewal_unit_years` | unsignedTinyInteger | nullable | 자동 갱신 단위(년) 1 · 2 · 3. auto_extend = 1 일 때만. 동일 조건 연장만 자동 갱신한다 | 2026_10_02_000184 |
+| `term_course_yn` | boolean |  |  | 2026_10_02_000186 |
+| `term_book_yn` | boolean |  |  | 2026_10_02_000186 |
+| `term_cons_yn` | boolean |  |  | 2026_10_02_000186 |
+| `vat_exception_yn` | boolean |  |  | 2026_10_02_000186 |
 | `vat_exception_reason` | string(255) | nullable | VAT 가산 예외 승인 사유. vat_exception_yn = 1 일 때 필수 | 2026_10_02_000186 |
+| `term_exc_yn` | boolean |  | 전속계약금 조항 적용 | 2026_10_03_000192 |
+| `term_dev_yn` | boolean |  | 콘텐츠 개발지원금 조항 적용 | 2026_10_03_000192 |
+| `term_buyout_yn` | boolean |  | 판권 일시 매입(매절) 조항 적용 | 2026_10_03_000192 |
+| `term_etc_yn` | boolean |  | 기타 수당 조항 적용 | 2026_10_03_000192 |
+| `etc_amount_type` | string(10) | nullable | 기타 수당 방식. FIXED=정액 / PER_UNIT=건당 | 2026_10_03_000192 |
+| `etc_unit_price` | unsignedInteger | nullable | 기타 수당 건당 단가. PER_UNIT 전용 | 2026_10_03_000192 |
+| `term_adv_yn` | boolean |  | 선급금 상계 조항 적용 | 2026_10_03_000197 |
+| `prepayment_offset_target` | string(10) | nullable | 선급금 상계 대상. RS_BOOK=강의 R/S + 인세 비율 안분 / RS=강의 R/S만 / BOOK=인세만 | 2026_10_03_000197 |
+| `initial_end_date` | date | nullable | 최초 종료일. 계약서에 적힌 종료일이며 자동 갱신으로 바뀌지 않는다. 현재 종료일은 ended_at (합의서 5.5절) | 2026_10_15_000207 |
+| `renewal_stop_yn` | boolean |  | 다음 자동 갱신 중단 여부. 다음 갱신만 막고 종료일은 바꾸지 않는다 (합의서 5.5절) | 2026_10_15_000207 |
+| `min_payout_limit` | integer |  | 최소 정산 지급 기준액(원). 세후 실지급액이 미만이면 지급 이월. VAT 포함 기준 (합의서 7.3절 · 부록 B default_min_payout_limit) | 2026_10_15_000207 |
+| `min_claim_limit` | integer |  | 최소 정산 청구 기준액(원). 당월 정산액 음수의 절대값이 이 값의 절대값을 넘을 때만 청구 발행 (합의서 7.3절 · 부록 B default_min_claim_limit) | 2026_10_15_000207 |
+| `contract_expiry_alert_days` | unsignedSmallInteger |  | 만료 알림 기준(일). 현재 종료일에서 이 일수 안에 들면 만료 알림 · 목록 스코어카드 대상 (설계서 v12 191줄 · 부록 B 기본 30일) | 2026_10_15_000214 |
 
 ## contract_rate_lines
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2030,6 +2084,8 @@
 | `rate` | decimal(5, 2) |  | 수익 배분 요율(%) | 2026_09_15_000113 |
 | `mmg_amount` | integer | nullable | 월 보장액(Minimum Monthly Guarantee). 보전 연산은 Set 4(합의서 08장) | 2026_09_15_000113 |
 | `reason` | string(255) | nullable | 요율 적용 사유 | 2026_09_15_000113 |
+| `created_at` | timestamp | nullable |  | 2026_09_15_000113 |
+| `updated_at` | timestamp | nullable |  | 2026_09_15_000113 |
 | `rate_type` | string(20) |  | 요율 종류. BASIC=기본 R/S(8.3절 Step 3 바인딩 대상) / SUPPORT=지원금 S 라인 | 2026_09_18_000131 |
 | `rate_basis` | string(30) | nullable | 산정 모수 NET_PG=순매출(PG 차감) / GROSS=결제 총액 / NET_PG_COUPON=순매출(PG+쿠폰 차감). 코드값 잠정 | 2026_10_02_000187 |
 | `agreement_id` | unsignedBigInteger | nullable | support_fund_agreements.id 참조. SUPPORT 라인은 필수 · BASIC 은 NULL | 2026_10_22_000244 |
@@ -2040,6 +2096,8 @@
 | `id` | id |  | PK | 2026_09_17_000122 |
 | `instructor_id` | unsignedBigInteger |  | 강사 instructors.id | 2026_09_17_000122 |
 | `category_id` | unsignedBigInteger |  | 담당 과목. categories 1Depth(자격증 종목)만 허용한다 | 2026_09_17_000122 |
+| `created_at` | timestamp | nullable |  | 2026_09_17_000122 |
+| `updated_at` | timestamp | nullable |  | 2026_09_17_000122 |
 
 ## suppliers
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2062,6 +2120,7 @@
 | `cost_account_type` | string(30) |  | 원가 계정. INVENTORY_PURCHASE=재고자산 취득 / BUYOUT_RIGHT=무형 판권 취득 | 2026_09_18_000126 |
 | `created_at` | timestamp |  |  | 2026_09_18_000126 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_18_000126 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_18_000126 |
 
 ## book_price_histories
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2081,11 +2140,11 @@
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_09_18_000129 |
 | `contract_id` | foreignId |  | rights_holder_contracts.id 참조 | 2026_09_18_000129 |
-| `book_id` | unsignedBigInteger |  | books.id 참조. book_supply_type=OWN_PUBLISHED 한정 | 2026_09_18_000129 |
+| `book_id` | bigint unsigned | nullable,sql | books.id 참조. book_supply_type=OWN_PUBLISHED 한정 | 2026_10_16_000215 |
 | `royalty_rate` | decimal(5, 2) |  | 인세 기본 요율(%) | 2026_09_18_000129 |
 | `royalty_basis` | string(20) |  | 인세 계산 기준선. LIST_PRICE=도서 정가 / ACTUAL_PAID=유저 실구매가(배송비 제외) | 2026_09_18_000129 |
 | `started_at` | date |  | 적용 개시일 | 2026_09_18_000129 |
-| `ended_at` | date |  | 적용 만료일 | 2026_09_18_000129 |
+| `ended_at` | date | nullable,sql | 적용 만료일 | 2026_10_16_000215 |
 | `status` | string(20) |  | active=적용중 / ended=종료 | 2026_09_18_000129 |
 | `memo` | string(255) | nullable | 비고 | 2026_09_18_000129 |
 | `created_at` | timestamp |  |  | 2026_09_18_000129 |
@@ -2102,19 +2161,23 @@
 | `rights_holder_id` | foreignId |  | rights_holders.id 참조 | 2026_09_18_000132 |
 | `payee_id` | unsignedBigInteger | nullable | 2계층 수취인 rights_holders.id. NULL 이면 권리자 본인 | 2026_09_18_000132 |
 | `payment_method` | string(20) |  | 지급 방식. LUMP_SUM=일시금 / INSTALLMENT=분할 / REVENUE_SHARE=매출연동(S 라인) | 2026_09_18_000132 |
-| `total_cap_amount` | integer |  | 총 지원 한도. REVENUE_SHARE 는 필수 | 2026_09_18_000132 |
+| `total_cap_amount` | int | nullable,sql | 총 지원 한도. REVENUE_SHARE 는 필수 | 2026_10_03_000193 |
 | `rate_basis` | string(30) | nullable | 요율 모수. 강좌 실결제액 / PG 차감 후 순매출 등 계약별 지정 | 2026_09_18_000132 |
-| `settlement_scope` | string(20) |  | 모수 범위. TRACK_A_ONLY(기본) / TRACK_B1_ONLY / TRACK_A_B1. B-2 는 불가 (합의서 5.2) | 2026_09_18_000132 |
+| `settlement_scope` | varchar(20) | sql | 모수 범위. TRACK_A_ONLY(기본) / TRACK_B1_ONLY / TRACK_A_B1. B-2 는 불가 (합의서 5.2) | 2026_10_15_000209 |
 | `start_date` | date |  | 약정 개시일 | 2026_09_18_000132 |
-| `end_date` | date |  | 약정 종료일 | 2026_09_18_000132 |
-| `offset_type` | string(20) |  | 상계 여부. NON_OFFSET=비상계(기본) / CONDITIONAL=조건부 상계. REVENUE_SHARE 는 NON_OFFSET 고정 | 2026_09_18_000132 |
-| `cap_restore_on_refund` | boolean |  | 환불 발생 시 한도 복원 여부. false 면 환불 많은 달에 한도가 영구 소실된다 | 2026_09_18_000132 |
+| `end_date` | date | nullable,sql | 약정 종료일 | 2026_10_03_000193 |
+| `offset_type` | varchar(20) | sql | 상계 여부. NON_OFFSET=비상계(기본) / CONDITIONAL=조건부 상계. REVENUE_SHARE 는 NON_OFFSET 고정 | 2026_10_15_000209 |
+| `cap_restore_on_refund` | tinyint(1) | nullable,sql | 환불 발생 시 한도 복원 여부. false 면 환불 많은 달에 한도가 영구 소실된다 | 2026_10_03_000193 |
 | `on_termination_policy` | string(20) |  | 종료 시 미소진 잔액. FORFEIT=소멸(기본) / LUMP_SETTLE=일시 정산 / PRO_RATA=이행률 정산(수동) | 2026_09_18_000132 |
 | `income_category` | string(20) | nullable | BUSINESS / OTHER. R/S 형 기본값 BUSINESS | 2026_09_18_000132 |
 | `income_clause` | string(10) | nullable | 기타소득 호. income_category=OTHER 면 필수 | 2026_09_18_000132 |
 | `status` | string(20) |  | ACTIVE=진행 / COMPLETED=한도 소진 / EXPIRED=미소진 만료 / TERMINATED=중도 해지 | 2026_09_18_000132 |
 | `created_at` | timestamp |  |  | 2026_09_18_000132 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_18_000132 |
+| `destruction_hold` | boolean |  |  | 2026_09_21_000151 |
+| `end_basis` | string(20) |  | 종료 기준. FIXED_DATE=지정일 종료 / CONTRACT_LINKED=모계약 종료 연동(end_date NULL) | 2026_10_03_000193 |
+| `lecture_target_scope` | string(10) | nullable | 온라인 강의 대상. ALL=계약 매핑 강의 전체 / PICK=contract_term_targets 의 강의만 | 2026_10_03_000193 |
+| `book_target_scope` | string(10) | nullable | 실물 교재 대상. ALL=계약 매핑 도서 전체 / PICK=contract_term_targets 의 도서만 | 2026_10_03_000193 |
 
 ## buyout_payments
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2137,6 +2200,9 @@
 | `payable_amount` | integer | nullable | 실지급액 | 2026_09_18_000133 |
 | `created_at` | timestamp |  |  | 2026_09_18_000133 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_18_000133 |
+| `exclusive_started_at` | date | nullable | 독점 이용 시작일 | 2026_10_03_000195 |
+| `exclusive_ended_at` | date | nullable | 독점 이용 종료일 | 2026_10_03_000195 |
+| `rights_scope` | string(20) | nullable | 판권 범위. PAPER_EBOOK=종이책 + 전자책 / PAPER_ONLY=종이책만 | 2026_10_03_000195 |
 
 ## carryover_ledgers
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2150,7 +2216,7 @@
 | `track` | string(10) |  | 트랙 귀속. A=강의 R/S / B1=자사 인세 / B2=위탁 / S=지원금 / MIXED. 발생 월 값을 승계한다 | 2026_09_18_000134 |
 | `income_category` | string(20) | nullable | 발생 월 소득 구분 승계 | 2026_09_18_000134 |
 | `income_clause` | string(10) | nullable | 발생 월 기타소득 호 승계 | 2026_09_18_000134 |
-| `reason` | string(30) |  | 이월 사유. payout_under=지급 하한 미달 / claim_under=청구 하한 미달 / post_close_fix=마감 후 정정 | 2026_09_18_000134 |
+| `reason` | varchar(30) | sql | 이월 사유. payout_under=지급 하한 미달 / claim_under=청구 하한 미달 / post_close_fix=마감 후 정정 | 2026_09_19_000145 |
 | `amount` | integer |  | 이월 금액. 세전 계정은 음수 | 2026_09_18_000134 |
 | `is_expired` | boolean |  | 소멸 여부 | 2026_09_18_000134 |
 | `expired_month` | char(7) | nullable | 소멸 반영월 YYYY-MM | 2026_09_18_000134 |
@@ -2211,6 +2277,7 @@
 | `memo` | string(255) | nullable | 비고 | 2026_09_18_000140 |
 | `created_at` | timestamp |  |  | 2026_09_18_000140 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_18_000140 |
+| `destruction_hold` | boolean |  |  | 2026_09_21_000151 |
 
 ## tax_decision_matrices
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2291,6 +2358,14 @@
 | `created_at` | timestamp |  |  | 2026_09_19_000146 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_19_000146 |
 | `clawback_policy` | string(10) |  | 중도 해지 반환 조항. NONE=반환 없음 / PRO_RATA=잔여기간 일할 / FULL=전액 | 2026_10_03_000194 |
+| `penalty_clause_yn` | boolean |  | 위약 조항 유무. 있음이면 발동 조건 문언이 필수다 (기획서 05권 5.2절) | 2026_10_15_000214 |
+| `penalty_calc_type` | string(20) | nullable | 산정 방식. MULTIPLE=배율 / FIXED=정액 (기획서 05권 5.2절) | 2026_10_15_000214 |
+| `penalty_multiple_rate` | decimal(5, 2) | nullable | 위약금 배율(%). MULTIPLE 전용. 예 300.00 (기획서 05권 5.2절) | 2026_10_15_000214 |
+| `penalty_fixed_amount` | integer | nullable | 위약금 정액(원). FIXED 전용 (기획서 05권 5.2절) | 2026_10_15_000214 |
+| `penalty_base` | string(20) | nullable | 산정 기준액. TOTAL_AGREED=약정 총액 / PAID_GROSS=기 지급액. 둘 다 세전 액면 기준 (기획서 05권 5.2절) | 2026_10_15_000214 |
+| `penalty_clawback_relation` | string(20) | nullable | 일할 반환과의 관계. INCLUSIVE=반환액 포함 / CUMULATIVE=반환과 별도 병과 (기획서 05권 5.2절) | 2026_10_15_000214 |
+| `penalty_trigger_text` | string(500) | nullable | 발동 조건 문언(계약서 원문, 최대 500자). 조항 있음이면 필수 (기획서 05권 5.2절 · 설계서 v12 214줄) | 2026_10_15_000214 |
+| `penalty_offset_consent_yn` | boolean |  | 계약상 상계 동의 조항 유무. 위약금 상계 가능 여부 판정 근거 (기획서 05권 5.2절) | 2026_10_15_000214 |
 
 ## exclusive_contract_clawbacks
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2312,6 +2387,7 @@
 | `memo` | string(255) | nullable | 비고 | 2026_09_19_000147 |
 | `created_at` | timestamp |  |  | 2026_09_19_000147 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_19_000147 |
+| `destruction_hold` | boolean |  |  | 2026_09_21_000151 |
 
 ## payee_splits
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2344,10 +2420,10 @@
 | `income_clause` | string(10) | nullable | 기타소득 호. C05 · C15 · C17 · C19 | 2026_09_21_000153 |
 | `account_type` | string(10) |  | 계정 구분. PRE_TAX=세전 / POST_TAX=세후. 이월 잔액 원장과 같은 축이다(§7.4) | 2026_09_21_000153 |
 | `created_by` | unsignedBigInteger | nullable | 등록 관리자 users.id | 2026_09_21_000153 |
-| `approver1_id` | unsignedBigInteger | nullable | 1차 승인 관리자 users.id. 재무 운영자 | 2026_09_21_000153 |
-| `approver2_id` | unsignedBigInteger | nullable | 2차 승인 관리자 users.id. 재무 책임자(§10.3 임계 초과 시) | 2026_09_21_000153 |
-| `status` | string(20) |  | 상태. pending=승인 대기 / approved=승인 / rejected=반려 / applied=정산서 반영 완료 | 2026_09_21_000153 |
-| `origin_settlement_id` | unsignedBigInteger | nullable | 원 정산서 참조 instructor_settlements.id(§10.2 원 정산서 링크) | 2026_09_21_000153 |
+| `approver1_id` | bigint unsigned | nullable,sql | 1차 승인 관리자 users.id. 재무 운영자 | 2026_10_21_000242 |
+| `approver2_id` | bigint unsigned | nullable,sql | 2차 승인 관리자 users.id. 재무 책임자(§10.3 임계 초과 시) | 2026_10_21_000242 |
+| `status` | varchar(20) | sql | 상태. pending=승인 대기 / approved=승인 / rejected=반려 / applied=정산서 반영 완료 | 2026_10_21_000242 |
+| `origin_settlement_id` | bigint unsigned | nullable,sql | 원 정산서 참조 instructor_settlements.id(§10.2 원 정산서 링크) | 2026_10_21_000242 |
 | `matrix_case_id` | string(10) | nullable | 세무 판정 케이스 TX-01~TX-12. 증빙 정정 채널 분기 근거(§10.4) | 2026_09_21_000153 |
 | `correction_channel` | string(20) | nullable | 증빙 정정 채널. channel_1=수정 전자세금계산서 / channel_2=수정 전자계산서 / channel_3a=원천세 수정신고 / channel_3b=기록 정정(TX-05) / channel_4=수취 증빙 재요청 / internal=자사 내부 대체 전표 (§10.4) | 2026_09_21_000153 |
 | `correction_channel_sub` | string(20) | nullable | 병기 채널. 위탁 거래는 수취 정정(채널 4)과 발행 정정(채널 1)이 동시에 필요할 수 있다(§10.4) | 2026_09_21_000153 |
@@ -2384,6 +2460,7 @@
 | `retry_count` | unsignedInteger |  | 재시도 횟수. 지수 백오프 3회 후 큐 적재(§17.6) | 2026_09_21_000154 |
 | `queue_status` | string(20) | nullable | 재시도 큐 상태(탭 4). queued=대기 / retrying=재시도 중 / resolved=해소 / abandoned=포기 | 2026_09_21_000154 |
 | `created_at` | timestamp |  |  | 2026_09_21_000154 |
+| `b_stt_cd` | string(10) | nullable | 사업자 상태 코드. b_stt 한글 상태명과 짝이다 (합의서 17.6절) | 2026_10_15_000207 |
 
 ## consignment_returns
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2413,6 +2490,8 @@
 | `end_date` | date | nullable | 유효 종료일. NULL 이면 기한 없음 | 2026_09_22_000157 |
 | `created_at` | timestamp |  |  | 2026_09_22_000157 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_22_000157 |
+| `end_basis` | string(20) |  | 종료 기준. CONTRACT_LINKED=계약 종료 연동(기본 · end_date NULL) / FIXED_DATE=지정일 | 2026_10_15_000209 |
+| `change_reason` | string(500) | nullable | 지분 등록 · 변경 · 종료 사유. 신규 · 변경 건은 필수 입력(01권 4.3) | 2026_10_15_000209 |
 
 ## book_authors
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2426,6 +2505,8 @@
 | `end_date` | date | nullable | 유효 종료일. NULL 이면 기한 없음 | 2026_09_22_000158 |
 | `created_at` | timestamp |  |  | 2026_09_22_000158 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_22_000158 |
+| `end_basis` | string(20) |  | 종료 기준. CONTRACT_LINKED=계약 종료 연동(기본 · end_date NULL) / FIXED_DATE=지정일 | 2026_10_15_000209 |
+| `change_reason` | string(500) | nullable | 지분 등록 · 변경 · 종료 사유. 신규 · 변경 건은 필수 입력(01권 4.3) | 2026_10_15_000209 |
 
 ## goods
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2451,6 +2532,7 @@
 | `supplier_id` | unsignedBigInteger | nullable | 매입처 suppliers.id. 매입 재판매의 AP 경로 연결(§2.4) | 2026_09_22_000159 |
 | `created_at` | timestamp |  |  | 2026_09_22_000159 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_09_22_000159 |
+| `deleted_at` | timestamp | nullable |  | 2026_09_22_000159 |
 
 ## payment_cancels
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2462,11 +2544,11 @@
 | `cancel_type` | string(20) |  | full=전체취소 / partial=부분취소 / net=망취소 | 2026_09_28_000169 |
 | `cancel_amount` | integer |  | 취소 요청 금액 | 2026_09_28_000169 |
 | `reason` | string(100) |  | 취소 사유. PG ccMsg 로 전송 | 2026_09_28_000169 |
-| `idempotency_key` | string(100) | nullable,unique | 중복 취소 차단 키 | 2026_09_28_000169 |
+| `idempotency_key` | string(255) | nullable,change | 중복 취소 차단 키 | 2026_10_12_000203 |
 | `status` | string(20) |  | requested=전송 전·응답 대기 / succeeded=취소 완료 / failed=PG 거절·통신 실패 | 2026_09_28_000169 |
-| `result_code` | string(10) | nullable | PG 결과 코드. 2001=취소 성공 | 2026_09_28_000169 |
+| `result_code` | string(255) | nullable,change | PG 결과 코드. 성공이면 NULL, 거절이면 PG 오류 코드 | 2026_10_12_000203 |
 | `result_message` | string(200) | nullable | PG 결과 메시지 | 2026_09_28_000169 |
-| `cancel_tid` | string(30) | nullable | PG 가 돌려준 취소 거래 tid | 2026_09_28_000169 |
+| `cancel_tid` | string(255) | nullable,change | PG 가 돌려준 취소 거래 키(transactionKey) | 2026_10_12_000203 |
 | `cc_seq` | unsignedSmallInteger | nullable | PG 부분취소 회차. 부분취소일 때만 온다 | 2026_09_28_000169 |
 | `raw_response` | json | nullable | PG 취소 응답 원문. 매출 대사 근거 | 2026_09_28_000169 |
 | `requested_by` | unsignedBigInteger | nullable | 요청자 users.id. 시스템 망취소면 NULL | 2026_09_28_000169 |
@@ -2478,11 +2560,11 @@
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_09_28_000170 |
 | `pg_provider` | string(20) |  | PG사 | 2026_09_28_000170 |
-| `pg_tid` | string(30) | nullable | 통보의 tid. 취소 통보면 취소 거래 tid | 2026_09_28_000170 |
-| `pg_otid` | string(30) | nullable | 취소 통보의 원거래 tid | 2026_09_28_000170 |
+| `pg_tid` | string(255) | nullable,change | 통보의 결제 키(paymentKey) | 2026_10_12_000203 |
+| `pg_otid` | string(255) | nullable,change | 통보의 마지막 거래 키(transactionKey) | 2026_10_12_000203 |
 | `ord_no` | string(50) | nullable | 통보의 주문번호(orders.order_no) | 2026_09_28_000170 |
 | `kind` | string(20) |  | approval=승인 통보 / cancel=취소 통보 / unknown=판별 불가 | 2026_09_28_000170 |
-| `result_code` | string(10) | nullable | 통보 결과 코드 | 2026_09_28_000170 |
+| `result_code` | string(255) | nullable,change | 통보 결과 코드 | 2026_10_12_000203 |
 | `amount` | integer | nullable | 통보 금액. 승인 goodsAmt / 취소 ccAmt | 2026_09_28_000170 |
 | `payload` | json | nullable | 통보 원문. JSON 이 아니면 NULL | 2026_09_28_000170 |
 | `source_ip` | string(45) |  | 발신 IP | 2026_09_28_000170 |
@@ -2521,9 +2603,11 @@
 | `amount` | unsignedInteger |  | 지급 금액(세전) | 2026_10_03_000190 |
 | `income_category` | string(20) | nullable | BUSINESS / OTHER. 미지정이면 검수 승인 불가 | 2026_10_03_000190 |
 | `income_clause` | string(10) | nullable | 기타소득 호 | 2026_10_03_000190 |
-| `approval_status` | string(20) |  | 검수 상태. pending / approved / rejected | 2026_10_03_000190 |
+| `approval_status` | varchar(20) | sql | 검수 상태. pending / approved / rejected | 2026_10_21_000241 |
 | `approver_id` | unsignedBigInteger | nullable | 승인 관리자 users.id | 2026_10_03_000190 |
 | `paid_at` | date | nullable | 지급 실행일. 값이 있으면 지급완료 — 수정 · 삭제 불가 | 2026_10_03_000190 |
+| `created_at` | timestamp | nullable |  | 2026_10_03_000190 |
+| `updated_at` | timestamp | nullable |  | 2026_10_03_000190 |
 | `code` | string(30) | nullable | 스케줄 식별 코드. EXC-YYYY-NN · SUP-YYYY-NNN · MS-YYYY-NNN 형식의 표시용 번호 | 2026_10_21_000241 |
 | `verify_method` | string(20) | nullable | 검수 방식(7.2절 이원화). EVIDENCE_FILE=증빙 파일 / MANUAL_NOTE=수기 소명 | 2026_10_21_000241 |
 | `review_note` | text | nullable | 검수 의견 · 승인 근거. 승인 · 반려 시 필수 입력(프로토타입 INST-002) | 2026_10_21_000241 |
@@ -2556,6 +2640,8 @@
 | `origin_line_id` | unsignedBigInteger | nullable | 정정 대상 원 라인 prepayment_ledger_lines.id | 2026_10_03_000196 |
 | `memo` | text | nullable | 운영자 메모. 음수 · 정정 · 음수 잔액 라인은 필수 | 2026_10_03_000196 |
 | `admin_id` | unsignedBigInteger | nullable | 등록 관리자 users.id | 2026_10_03_000196 |
+| `created_at` | timestamp | nullable |  | 2026_10_03_000196 |
+| `updated_at` | timestamp | nullable |  | 2026_10_03_000196 |
 
 ## goods_stock_logs
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2719,6 +2805,8 @@
 | `ip` | string(45) | unique | 예외 IPv4 또는 대역(CIDR). 대역은 네트워크 주소로 맞춰 저장한다. 예: 211.45.30.17 · 211.45.30.0/24 | 2026_10_23_000247 |
 | `memo` | string(100) |  | 등록 사유 메모(필수) — 왜 열어 뒀는지 모르는 예외가 쌓이지 않게(설계서 ③) | 2026_10_23_000247 |
 | `created_by` | foreignId | nullable | 등록 관리자 users.id | 2026_10_23_000247 |
+| `created_at` | timestamp | nullable |  | 2026_10_23_000247 |
+| `updated_at` | timestamp | nullable |  | 2026_10_23_000247 |
 
 ## lecture_progress_adjustments
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |

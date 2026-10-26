@@ -103,7 +103,7 @@
 | `contract_milestones.target_month` | char(7) | 귀속월 | 귀속월 |
 | `contract_milestones.unit_count` · `unit_price` · `amount` | | 건수 · 단가 · 금액(세전) | 약정 금액 |
 | `contract_milestones.income_category` · `income_clause` | | 소득 구분 · 기타소득 호 | 소득 구분 · 게이트 A |
-| `contract_milestones.approval_status` | string(20) | `pending` · `approved` · `rejected` · `hold` | 검수 상태 |
+| `contract_milestones.approval_status` | varchar(20) NOT NULL, 기본 `pending` | `pending` · `approved` · `rejected` · `hold`(컬럼 주석은 3값, `hold`는 모델 상수 `APPROVAL_HOLD` — 2026_10_21_000241) | 검수 상태 |
 | `contract_milestones.verify_method` · `review_note` · `approver_id` · `approved_at` | | 검수 방식 · 의견 · 승인자 · 처리 시각 | 검수 레이어 |
 | `contract_milestones.transferred_at` · `settlement_line_id` | | 7단계 이관 시각 · 정산 라인 | 스코어카드 '이관 완료' |
 | `contract_milestones.paid_at` | date | 지급 실행일(값 있으면 수정 불가) | — |

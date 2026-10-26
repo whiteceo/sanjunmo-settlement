@@ -56,7 +56,7 @@
 | logistics_settlement_items.* | | 위 4절 | 출고 표 |
 | book_purchase_costs.* | | 위 4절 | 도서 매입 계산서 대조 |
 | delivery_batches.batch_no · type(export/import) · status | | 3PL 발주 배치 | 매칭 키 |
-| deliveries.batch_id · ship_ordered_at · fee_type(FREE/PREPAID/ISLAND) | | 출고 지시 · 배송비 구분 | 매칭 |
+| deliveries.batch_id · ship_ordered_at · fee_type(FREE/PREPAID/ISLAND) | batch_id bigint unsigned nullable(delivery_batches.id) | 출고 지시 · 배송비 구분 | 매칭 |
 
 출처: dev_spec/_index/schema.md logistics_settlements(1337) · delivery_batches(1273) · logistics_settlement_items(1665) · book_purchase_costs(1685~); database/migrations/2026_08_14_000015 · 2026_09_08_000079.
 

@@ -141,13 +141,13 @@
 | `books.is_free` | boolean | 무료 도서 | 판매 구분 |
 | `books.stock` · `stock_alert_qty` | int | 재고 · 품절 임박 기준 | 재고 |
 | `books.is_preorder` · `release_date` · `restock_date` | | 예약 판매 · 출간 예정일 · 재입고 예정일 | 예약판매 |
-| `books.delivery_fee` · `is_free_delivery` · `free_delivery_threshold` · `island_delivery_fee` · `return_delivery_fee` · `package_bundled_yn` | | 배송 정책 | 배송비 정책 |
+| `books.delivery_fee` · `is_free_delivery` · `free_delivery_threshold` · `island_delivery_fee` · `return_delivery_fee` · `package_bundled_yn` | `is_free_delivery` tinyint(1) NOT NULL(금액 조건과 무관하게 항상 무료배송, 2026_09_30_000177) | 배송 정책 | 배송비 정책 |
 | `books.book_supply_type` · `settlement_required_yn` · `cost_account_type` · `supplier_id` · `own_copyright_yn` | | 공급 형태 · 정산 대상 · 원가 계정 · 매입처 · 자사 권리(BOOK-001 소관) | 공급 형태 🔒 |
 | `books.display_status` | string(20) | `selling` · `hidden` · `stopped` | 전시 상태 |
 | `books.page_count` · `book_size` · `thumbnail_path` · `description` · `table_of_contents` | | 상세 | 상세 콘텐츠 |
-| `books.deleted_at` | | 소프트 삭제 | — |
+| `books.deleted_at` | timestamp nullable | 소프트 삭제 (2026_09_08_000092) | — |
 | `book_stock_logs` (`type`, `quantity`, `before_stock`, `after_stock`, `order_id`, `admin_id`, `memo`) | | 재고 수불 | 재고 이력(프로토 :982 표) |
-| `book_authors` · `product_instructors` | | 저자 · 강사 매핑 | 저자 |
+| `book_authors` · `product_instructors`(`product_type`='book', `product_id`, `instructor_id` foreignId, `role`, `sort_order`) | | 저자 · 강사 매핑(`Book::instructors()`, 색인 주석은 course / package지만 모델이 book으로도 쓴다) | 저자 |
 | `category_products` (`product_type=book`, `is_primary` 1 = 노출 2Depth, 0 = 자격증 종류 1Depth) | | 카테고리 | 카테고리 |
 | `course_books` · `package_items` | | 연결 강좌 · 패키지 | 연결 상품 · 판매중지 영향 |
 | `book_royalty_contracts` | | 인세 계약(가채번 연동 후보, 확인 필요) | 프로토 `modal-temp-book` |

@@ -106,7 +106,7 @@
 | settlement_lines.tax_decision_status | string(20) | DECIDED / PENDING_REVIEW | 상태 tax_pending |
 | settlement_lines.matrix_case_id · income_category(BUSINESS/OTHER) · income_clause | | 세무 매트릭스 케이스 · 소득 구분 | 세무 매트릭스 |
 | settlement_lines.payout_hold_reason | string(30) null | TAX_PENDING 세무 판정 보류 · NTS_EXPIRED 사업자 확인 90일 경과 · PENDING_VERIFY 임시 등록 확인 대기 · PAYEE_SPLIT 수취인 분할 2차 지원 · REFUND_BURDEN 환급 부담 B · C 2차 지원 · PG_RECON_UNCLASSIFIED PG 대사 미분류 불일치 | 상태 배지 · 보류 사유 필터 |
-| carryover_ledgers.origin_month · account_type(PRE_TAX/POST_TAX) · track(A/B1/B2/S/MIXED) · reason(payout_under/claim_under/post_close_fix) · amount · is_expired · payout_reservation_status(NONE/RESERVED/SETTLED) | | 이월 원장 | P1 · 이월 잔액 탭 |
+| carryover_ledgers.origin_month · account_type(PRE_TAX/POST_TAX) · track(A/B1/B2/S/MIXED) · reason(payout_under/claim_under/post_close_fix) · amount · is_expired · payout_reservation_status(NONE/RESERVED/SETTLED) | reason varchar(30) NOT NULL | 이월 원장 | P1 · 이월 잔액 탭 |
 | settlement_review_memos.settlement_month · rights_holder_id · payee_id · memo · created_by · created_at | | 재무팀 검토 메모(수정 · 삭제 없음) | S1 메모 |
 | rights_holders.code · name · is_internal · tax_type | | 권리자 원장 | 권리자 열 |
 

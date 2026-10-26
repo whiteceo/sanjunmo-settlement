@@ -161,9 +161,9 @@
 ## 5. DB 테이블 · 컬럼
 | 테이블.컬럼 | 타입 | 뜻 | 화면 표시 위치 |
 |---|---|---|---|
-| `deliveries.status` | string(30) | READY · SHIPPING · DELIVERED · RETURNING · REFUNDED · REJECTED | 탭 · 상태 칩 |
+| `deliveries.status` | varchar(30) NOT NULL | READY · SHIPPING · DELIVERED · RETURNING · REFUNDED · REJECTED | 탭 · 상태 칩 |
 | `deliveries.receiver_name` · `receiver_phone` · `address` · `address_detail` · `zipcode` · `delivery_request` | | 수령인 · 배송지 | 출고 대상 · 배송중(이름 · 연락처 가림) |
-| `deliveries.ship_ordered_at` · `batch_id` | timestamp · bigint | 출고지시 시각 · 발주 배치 | 출고지시 열 |
+| `deliveries.ship_ordered_at` · `batch_id` | timestamp · bigint unsigned nullable | 출고지시 시각 · 발주 배치 | 출고지시 열 |
 | `deliveries.courier` · `tracking_no` · `shipped_at` · `delivered_at` | | 운송장 · 출고 · 배송완료 | 송장 · 배송 현황 |
 | `deliveries.fee_type` | string(20) | FREE · PREPAID · ISLAND | 배송비 구분(라벨만) |
 | `delivery_batches.*` (`batch_no` · `type` export/import · `total_count` · `success_count` · `fail_count` · `admin_id`) | | 발주 · 업로드 이력 | 발주 · 업로드 이력 표 |

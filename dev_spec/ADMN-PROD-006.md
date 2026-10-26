@@ -66,7 +66,7 @@
 | 파라미터 | 규칙 | 프로토타입 대응 |
 |---|---|---|
 | `name` + `birth_date` | 개인: 이름으로 후보 조회, [선택]은 생년월일 일치 시만 | `#f-ins-master` select(권리자 목록 고정) |
-| `business_number` | 사업자 · 법인 | 〃 |
+| `business_number` | 사업자 · 법인. 대조 컬럼은 `rights_holders.business_number`(`instructors.business_number`는 삭제됨(2026_09_15_000114_move_settlement_columns_from_instructors_to_rights_holders)) | 〃 |
 | `exclude_profile_id` | 수정 중인 자기 프로필 제외 | — |
 | 결과 | 위탁자 · 자사 권리자 제외, 요율 미포함 | — |
 

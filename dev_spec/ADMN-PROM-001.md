@@ -106,11 +106,11 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`). 사용�
 | promotions.code | string(30) unique | PRM-YYMM-{일련} 자동, 수정 불가(정산 · 통계 키) | 기획전 코드 |
 | promotions.type | string(20) | promotion 기획전 · event 이벤트 | 구분 |
 | promotions.title | string(255), 입력 40자 | 기획전명 | 제목 |
-| promotions.slug | string(40) unique | `/event/{slug}` | Slug · 사용자 주소 |
+| promotions.slug | varchar(40) NOT NULL · unique(000083 인덱스, 000101 MODIFY 후에도 유지) | `/event/{slug}` | Slug · 사용자 주소 |
 | promotions.started_at / ended_at | dateTime | 노출 기간(분 단위, KST) | 노출 기간 |
 | promotions.status | string(20) | scheduled 예약 · active 진행중 · ended 종료 · stopped 중단(관리자 강제). 직접 입력 없음 | 상태 배지 |
-| promotions.thumbnail_path | string(255) | 목록 썸네일 | 썸네일 |
-| promotions.banner_pc_path / banner_mobile_path | string(255) | 랜딩 배너(스키마에 있으나 폼 미연결 — form.blade.php:139 "스키마 확인 뒤 붙인다") | — |
+| promotions.thumbnail_path | varchar(255) nullable | 목록 썸네일 | 썸네일 |
+| promotions.banner_pc_path / banner_mobile_path | varchar(255) nullable | 랜딩 배너(스키마에 있으나 폼 미연결 — form.blade.php:139 "스키마 확인 뒤 붙인다") | — |
 | promotions.headline / sort_type | | 상단 카피 · 진열 순서 | 상세 |
 | promotions.html_content / css_content / js_content / css_scoped | longText | 랜딩 소스 · 스코프 변환 CSS | 소스 3분할 |
 | promotions.admin_id | bigint | 최종 수정자 | — |

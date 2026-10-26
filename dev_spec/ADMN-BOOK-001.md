@@ -132,7 +132,7 @@
 | `books.published_at` | date | 재정가 가능일 계산 기준 | 정가 이력 |
 | `book_price_histories` (`price`, `effective_from`, `effective_to`, `price_owner`, `reason`, `admin_id`) | | 정가 이력 | 정가 이력 탭 · 프로토 모달 |
 | `suppliers` (`code` SUP-%05d, `name`, `business_no`, `business_status`, `account_no_enc` …) | | 매입처 | 매입처 탭 |
-| `book_royalty_contracts` (`temp_code`, `book_title`, `royalty_rate`, `royalty_basis`) | | 가채번 · 인세(계약 원장 소관) | 프로토 [경로 1] 모달 대응 데이터 |
+| `book_royalty_contracts` (`temp_code`, `book_title`, `royalty_rate`, `royalty_basis`, `book_id`) | `book_id` bigint unsigned nullable — SKU 연결 전(가채번 단계)은 NULL, 연결 후 books.id(2026_10_16_000215) | 가채번 · 인세(계약 원장 소관) | 프로토 [경로 1] 모달 대응 데이터 |
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |

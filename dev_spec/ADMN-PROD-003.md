@@ -135,7 +135,7 @@
 | `courses.id` · `code` | id · string(50) | PK · `CRS_00001` | 코드 |
 | `courses.title` | string(255) | 강좌명(결제 · 세금계산서 법적 표기) | 강좌명 |
 | `courses.instructor_id` | FK | 대표 강사(정산 집계 키) | 대표 강사 |
-| `product_instructors` (`role` m/s/a) | | 강사 매핑 | 참여 강사 |
+| `product_instructors` (`instructor_id`, `product_type` course · package, `product_id`, `role` m/s/a, `sort_order`) | foreignId · string(20) · unsignedBigInteger · char(1) · integer | 강사 매핑 | 참여 강사 |
 | `category_products` (`product_type=course`, `is_primary`) | | 노출 카테고리 | 카테고리 |
 | `courses.duration_days` | int | 수강 일수(결제 시 `user_courses`로 복사 고정) | 수강 기간 |
 | `courses.start_type` · `start_date` | string · date | `immediate` · `scheduled` + 지정일 | 수강 시작 기준 |
@@ -147,7 +147,7 @@
 | `courses.thumbnail_path` · `description` · `target_audience` · `content` | | 상세 콘텐츠 | 대표 이미지 · 소개 |
 | `courses.intro_lecture_id` · `sample_lecture_id` | FK lectures | 소개 · 샘플 영상 | 기타 |
 | `courses.exam_target_id` | | 과정 매핑(구) | — |
-| `courses.deleted_at` | | 소프트 삭제 | — |
+| `courses.deleted_at` | timestamp nullable | 소프트 삭제 (mig 2026_09_08_000092) | — |
 | `course_lectures` (`course_id`, `lecture_id`, `sort_order`) | | 커리큘럼(섹션 없음) | 커리큘럼 |
 | `course_books` (`book_id`, `book_type` main/sub, `sort_order`) | | 연관 교재 | 교재 매핑 |
 | `product_badges` (`badge_slot`, `badge_type`) | | 강조 배지 | 기타 |

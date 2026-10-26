@@ -140,12 +140,12 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | coupons.expire_days / expire_at | int / date | D+N 일수 · 종료일 | 유효기간 |
 | coupons.status | string(20) | active 사용중 · disabled 발급중지(저장값). 목록 표시는 issuing · suspended · ended(종료일 반영) | 상태 |
 | coupons.emergency_suspended_at | timestamp | 긴급 사용 중지(보유분 사용 불가) | 상태 |
-| coupons.max_issue_count / issued_count / max_per_user | | 총 한도(NULL=무제한) · 발급 수 · 1인당 | 수량 한도 · 발급 |
+| coupons.max_issue_count / issued_count / max_per_user | unsignedInteger(max_issue_count만 nullable) | 총 한도(NULL=무제한) · 발급 수 · 1인당 | 수량 한도 · 발급 |
 | coupons.is_public | tinyint | 사용자 페이지 공개 | 공개 |
 | coupons.memo | string(500) | 비고(중지 사유 등) | 비고 |
 | coupons.exclude_book | tinyint | 도서정가제 자동 바인딩(서버 1 고정) | 도서정가제 |
 | coupons.allow_stack_coupon / allow_with_point | tinyint | 다른 쿠폰 중복(기본 0) · 포인트 병용(기본 1) | 중복 사용 |
-| coupons.issue_method / target_group_id / scheduled_at / send_notification | | auto · bulk · code / user_groups.id / 발급 예약 / 알림톡 | 발급 방식 |
+| coupons.issue_method / target_group_id / scheduled_at / send_notification | string(20) 기본 bulk / unsignedBigInteger nullable / dateTime nullable(NULL=즉시) / tinyint 기본 0 | auto · bulk · code / user_groups.id / 발급 예약 / 알림톡 | 발급 방식 |
 | coupons.target_type / target_id | | 옛 단일 대상(all · course · package · category, 옛 instructor · delivery 는 폐지) | — |
 | coupon_targets.target_type / target_id | | 대상(all · category · course · package · book) 복수 | 적용 대상 |
 | coupon_issue_batches.* | | 지급 배치(수동 · 엑셀 · 텍스트, 성공 · 실패 수) | 지급 결과 |

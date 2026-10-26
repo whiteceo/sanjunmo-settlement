@@ -248,7 +248,7 @@
 | `refunds.pg_cancel_no` · `pg_cancel_status`(normal · failed) | PG 취소 | 003 |
 | `refunds.refund_bank_code` · `refund_account_no`(암호문) · `refund_account_holder` | 환불 계좌 | 002 `#bank-mask-txt` |
 | `refunds.settlement_status` · `settlement_reflected_at` | 정산 반영 | 003 정산 차감 반영월 |
-| `payment_cancels` (`refund_id`, `cancel_type`, `cancel_amount`, `idempotency_key`, `status`, `cancel_tid`, `completed_at`) | PG 취소 거래 | 003 토스 취소 TID |
+| `payment_cancels` (`refund_id`, `cancel_type`, `cancel_amount`, `idempotency_key`, `status`, `cancel_tid`, `completed_at`) | PG 취소 거래. `cancel_tid` · `idempotency_key` · `result_code`는 string(255) nullable로 넓힘(2026_10_12_000203, idempotency_key unique 인덱스는 000169 그대로) | 003 토스 취소 TID |
 | `refund_adjustments` (`refund_id`, `adjustment_type`, `method`, `amount`, `bank_code`, `account_no`, `account_holder`, `reason`, `payment_cancel_id`, `point_log_id`, `idempotency_key`, `admin_id`, `created_at`=정산 반영 월 기준) | 보정 거래(원 거래 불변) | 003-S2 · `#m3f-rfd-adj-body` |
 | `point_logs` (`action` clawback 등, `amount`, `balance_after`, `order_id`, `refund_id`, `idempotency_key`) · `points` | 회수 · 마이너스 · 복원 원장 | P2 `#p2-tbody` |
 | `inquiries` (`category_id`, `sub_type` consult · partial · full, `assign_board`=`ADMN-RFD-002-S1`, `status` received · processing · answered · hold) | 결제 · 환불 문의 | S1 |

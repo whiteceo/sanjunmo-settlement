@@ -112,7 +112,7 @@
 | `categories.is_active` | tinyint | 전시 여부 | 태그 · 활성화 여부 |
 | `categories.code` | string(50) unique | 집계 키, `CAT_%04d` 자동 · 수정 불가 | 카테고리 코드 🔒 |
 | `categories.is_default` | boolean | 기본 종목(삭제 불가). 지정 UI 없음 | Default 태그 |
-| `categories.deleted_at` | timestamp | 소프트 삭제(mig 2026_09_08_000094) | — |
+| `categories.deleted_at` | timestamp nullable | 소프트 삭제(mig 2026_09_08_000094) | — |
 | `category_products` (`category_id`, `product_type` course/package/book, `product_id`, `sort_order`, `is_primary`) | | 상품 ↔ 카테고리 매핑(대표 = `is_primary` 1) | 연결 현황 · 강좌 수 |
 | `admin_logs` (AdminLogService, target_type `App\Models\Category`) | | 등록 · 수정 · 삭제 전후 값 | (화면 없음) |
 

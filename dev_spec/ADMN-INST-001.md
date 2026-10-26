@@ -178,14 +178,14 @@
 ## 5. DB 테이블 · 컬럼 (주요, 전체는 `_index/schema.md`)
 | 테이블 | 주요 컬럼 | 화면 |
 |---|---|---|
-| `rights_holders` | `code`(RH-), `name`, `tax_type`, `is_internal`, `rights_holder_type`, `business_subtype`, `business_number`, `ceo_name`, `open_date`, `business_status`, `api_checked_at`, `resident_no_enc`, `is_resident`, `payee_is_author`, `income_category`, `income_clause`, `tax_decision_status`, `matrix_case_id`, `tax_decision_reason`, `suspended_approval_reason`, `bank_name`, `account_no_enc`, `account_holder`, `tax_email`, `consignment_*` | S1 · 목록 |
+| `rights_holders` | `code`(RH-), `name`, `tax_type`(varchar(20) NOT NULL), `is_internal`, `rights_holder_type`, `business_subtype`, `business_number`, `ceo_name`, `open_date`, `business_status`, `api_checked_at`, `resident_no_enc`, `is_resident`, `payee_is_author`, `income_category`, `income_clause`, `tax_decision_status`, `matrix_case_id`, `tax_decision_reason`, `suspended_approval_reason`, `bank_name`, `account_no_enc`, `account_holder`, `tax_email`, `consignment_*` | S1 · 목록 |
 | `rights_holder_contracts` | `title`, `status`, `sequence_no`, `started_at`, `ended_at`, `initial_end_date`, `terminated_at`, `auto_extend`, `renewal_unit_years`, `renewal_stop_yn`, `contract_expiry_alert_days`, `min_payout_limit`, `min_claim_limit`, `origin_type`, `predecessor_contract_id`, `refund_promo_burden_type` | S2 |
 | `contract_rate_lines` | `rate_type`(BASIC · SUPPORT), `rate`, `rate_basis`, `mmg_amount`, `started_at`, `ended_at`, `agreement_id` | S2 요율 |
 | `contract_terms` · `contract_term_targets` | 조항 on/off · 약정 대상 | S2 |
 | `exclusive_contract_fees` · `exclusive_contract_clawbacks` | 전속계약금 · 반환 | S2 · INST-002 |
 | `support_fund_agreements` · `support_fund_ledgers` | 지원금 약정 · 소진 | S2 · INST-002 |
 | `contract_milestones` | 회차 스케줄(INST-002 검수 대상) | S2 · INST-002 |
-| `book_royalty_contracts` | `book_id`, `temp_code`, `book_title`, `expected_publish_date`, `royalty_rate`, `royalty_basis`, `status` | S2 도서 |
+| `book_royalty_contracts` | `book_id`(bigint unsigned nullable — 출간 전 SKU 미연결이면 NULL), `temp_code`, `book_title`, `expected_publish_date`, `royalty_rate`, `royalty_basis`, `started_at`, `ended_at`(date nullable), `status` | S2 도서 |
 | `prepayment_ledgers` · `prepayment_ledger_lines` | 선급 원장 | S2 선급 |
 | `contract_evidences` · `rights_holder_contract_memos` · `rights_holder_account_histories` · `contract_co_signers` | 증빙 · 메모 · 계좌 이력 · 공동 수취인 | S1 · S2 |
 

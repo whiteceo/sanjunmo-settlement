@@ -193,7 +193,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | posts.allow_comment | tinyint | 댓글 허용 | 게시 설정 |
 | posts.view_count | int | 조회수 | 조회수 |
 | posts.promotion_id | bigint | 당첨자 발표 ↔ 이벤트 1:1 | 연결 이벤트 |
-| posts.deleted_at | (SoftDeletes) | 소프트 삭제(Post 모델 `use SoftDeletes`) | — |
+| posts.deleted_at | timestamp nullable (SoftDeletes, 2026_09_08_000086) | 소프트 삭제(Post 모델 `use SoftDeletes`) | — |
 | attachments.* | attachable_type/id · original_name · file_path · disk(media) · size | 공지 첨부(저장명 UUID, `notices/{id}/`) | 첨부파일 |
 | post_winners.seq / masked_name / masked_login / prize | | 당첨자 명단 — 마스킹 값만 저장(원본 미저장) | 당첨자 명단 |
 | faq_categories.name / sort_order / is_active | string(50) / int / tinyint | FAQ 카테고리(하위 FAQ 있으면 삭제 불가) | 카테고리 팝업 |

@@ -120,10 +120,10 @@
 | users.must_change_password | boolean | 비밀번호 변경 강제(첫 로그인 · 90일 경과) | 변경 화면 진입 |
 | users.password_changed_at | dateTime | 마지막 변경 일시, 90일 판정 기준(`admin.password_max_age_days`) | — |
 | password_histories.user_id · password_hash · created_at | — | 재사용 금지 대조용 과거 해시 | — |
-| login_logs.event | string(30) | 로그인 관련 `LOGIN_SUCCESS` · `LOGIN_FAIL` · `ACCOUNT_LOCKED` · `LOGIN_BLOCKED`(잠긴 계정 재시도) · `ACCOUNT_UNLOCKED` · `PASSWORD_RESET` · `IP_DENIED` · `SESSION_EXPIRED` 등 18종(전체 app/Models/LoginLog.php:23-42, ADMN-CONF-010.md 4절) | CONF-010 로그인 로그 |
+| login_logs.event | varchar(30) NOT NULL | 로그인 관련 `LOGIN_SUCCESS` · `LOGIN_FAIL` · `ACCOUNT_LOCKED` · `LOGIN_BLOCKED`(잠긴 계정 재시도) · `ACCOUNT_UNLOCKED` · `PASSWORD_RESET` · `IP_DENIED` · `SESSION_EXPIRED` 등 18종(전체 app/Models/LoginLog.php:23-42, ADMN-CONF-010.md 4절) | CONF-010 로그인 로그 |
 | login_logs.status · fail_reason | string | success/fail · 사유(`unknown_account` · `no_admin_role` · `invalid_password` 등) | 〃 |
 | login_logs.fail_count · login_id · ip · user_agent · country · detail | — | 시점 실패 횟수 · 시도 아이디 원문 · 잠금 시 직전 실패 스냅샷(JSON) | P1 잠금 일시 = 최신 `ACCOUNT_LOCKED.created_at` |
-| admin_allowed_ips.ip · admin_role_id · user_id · is_active | — | 관리자 접속 허용 IP(전역 · 역할 · 계정) | IP 차단 화면 |
+| admin_allowed_ips.ip · admin_role_id · user_id · is_active | ip varchar(45) NOT NULL — 단일 unique는 없애고 (`ip`, `admin_role_id`) 복합 unique(2026_09_07_000056) | 관리자 접속 허용 IP(전역 · 역할 · 계정) | IP 차단 화면 |
 | admin_roles.code | string(30) | `super` · `cs` · `logistics` · `finance` · `instructor` · `assistant` | 랜딩 결정 |
 | site_settings.cs_tel · cs_hours · email | — | 문의처(값 없으면 줄 숨김) | 로그인 하단 · P1 해제 방법 |
 | site_settings.password_history_count | — | 재사용 금지 비교 개수(기본 3) | — |

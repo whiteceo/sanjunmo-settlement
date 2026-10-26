@@ -74,15 +74,15 @@
 ## 5. DB 테이블 · 컬럼
 | 테이블.컬럼 | 타입 | 뜻 | 화면 표시 위치 |
 |---|---|---|---|
-| admin_logs.admin_id · admin_login_id · admin_role_code | — | 행위자 · 시점 아이디 · 역할 code 스냅샷 | 관리자 · 역할 |
+| admin_logs.admin_id · admin_login_id · admin_role_code | admin_id bigint unsigned nullable | 행위자 · 시점 아이디 · 역할 code 스냅샷 | 관리자 · 역할 |
 | admin_logs.menu_id | — | admin_menus.id | 메뉴 |
 | admin_logs.action · sub_action | string | 대분류 · 도메인 소분류(`approve` · `reject` · `routing_change` · `ship_order` · `confirm` · `unmask` · `dispatch` 등) | 행위 |
 | admin_logs.target_type · target_id | — | 대상 | 대상 |
 | admin_logs.before_value · after_value | json | 변경 전 · 후 | 상세(프로토타입 diffModal) |
 | admin_logs.reason · reason_ref | string | 열람 · 처리 사유(삭제 불가) · 참조번호 | 사유 / 상세 |
 | admin_logs.request_method · request_url · result_status · ip · user_agent · created_at | — | 요청 정보 | Method · IP · 일시 |
-| login_logs.user_id · login_id · event · status · fail_reason · fail_count · ip · user_agent · country · detail · created_at | — | 로그인 · 계정 찾기 이력 | 로그인 로그 |
-| excel_download_logs.admin_id · admin_login_id · admin_role_code · menu_key · download_type · filter_params · row_count · reason · status · ip · expired_at | — | 엑셀 반출 기록 | (전용 화면 없음, 관리자 로그 `excel_download`) |
+| login_logs.user_id · login_id · event · status · fail_reason · fail_count · ip · user_agent · country · detail · created_at | event varchar(30) NOT NULL | 로그인 · 계정 찾기 이력 | 로그인 로그 |
+| excel_download_logs.admin_id · admin_login_id · admin_role_code · menu_key · download_type · filter_params · row_count · reason · status · ip · expired_at | admin_id bigint unsigned nullable | 엑셀 반출 기록 | (전용 화면 없음, 관리자 로그 `excel_download`) |
 
 - 탭 1 · 2 용 컬럼(개발 미구현, 규칙 기반 명명): `admin_logs.settlement_month`(귀속 정산월) (규칙) · `admin_logs.screen_code`(발생 화면) (규칙) · `admin_logs.prev_hash` · `admin_logs.hash`(해시 체인) (규칙) · 월 스냅샷 테이블 `audit_log_snapshots`(month · last_hash · counts · closed_at) (규칙). 해시 체인 관련 컬럼은 개발 마이그레이션에 없음(grep `hash_chain` · `prev_hash` · `block_hash` 결과 0).
 

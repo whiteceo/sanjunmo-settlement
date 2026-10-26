@@ -67,7 +67,7 @@
 | nts_verification_logs.change_review_status | string(20) | unreviewed · approved · held | 통제 상태 |
 | nts_verification_logs.error_code · retry_count · queue_status(queued · retrying · resolved · abandoned) | | 재시도 큐 | 파라미터 · 재시도 탭 |
 | nts_verification_logs.request_payload · response_payload · checked_at · checked_by | | 원문 · 조회 일시 · 조회자(배치 NULL) | |
-| rights_holders.tax_type 등 | | 승인 시 원장 갱신 · 마감 보류 해제 | |
+| rights_holders.tax_type 등 | tax_type varchar(20) NOT NULL(personal · simplified · general · exempt) · open_date date nullable(국세청 start_dt, 2026_10_15_000207) | 승인 시 원장 갱신 · 마감 보류 해제 | |
 | settlement_lines.payout_hold_reason = `NTS_EXPIRED` | | 사업자 확인 90일 경과 보류 | SETT-002 |
 
 출처: dev_spec/_index/schema.md nts_verification_logs(2361-2384); app/Models/NtsVerificationLog.php:25-88.
