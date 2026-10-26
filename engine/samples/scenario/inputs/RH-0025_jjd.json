@@ -11,7 +11,8 @@
    "payee_tax_type": "EXEMPT",
    "tax_invoice_eligible_yn": false,
    "matrix_case_id_hint": "TX-08",
-   "business_status": "계속"
+   "business_status": "계속",
+   "withholding_decision": "APPLY"
   }
  ],
  "contracts": [
