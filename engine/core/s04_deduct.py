@@ -154,7 +154,7 @@ def pass_refund_snapshot(ctx, c, pr, opt, snap, acc, comps, sup):
         formula=("합격 환급반 옵션 B — 환급금을 계약상 R/S 지분율과 같은 비율로 분담" if opt == "B"
                  else "합격 환급반 옵션 C — 원 매출 취소로 간주, 결제액 기준 R/S 스냅샷 대칭 공제"),
         code="q4(refund_amount × snap.share_ratio/100 × snap.rate_value/100)", before=raw, rounding="Q4",
-        ref="V1 §15.1 L605~606 · §15.3 L625", provisional=opt == "B", note="Q-09" if opt == "B" else "",
+        ref="V1 §15.1 L605~607 · §15.3 L625", note="Q-09 총괄 해석 채택(2026-10-26)" if opt == "B" else "",
         output=False)
     comps[(c.id, "1.1")].append(component(ref, cat, amt, snap, c))
 
@@ -210,8 +210,7 @@ def finish_contract(ctx, c, acc, comps, sup, ret):
         cats[cat] = ctx.emit(STEP, name, floor_won(raw), c, line="2.1" if cat == "return_2_1" else "1.1",
                              inputs={"Σ q4": raw}, formula="공제액은 라인별 월 합산 후 1회 내림(절대값 내림 후 부호 복원)",
                              code=f"{name} = floor(Σ q4)", before=raw, rounding="ABS_FLOOR_SIGN",
-                             ref=f"{cref} · §13.1 L566 · L569", provisional=cat == "optB_1_1",
-                             note="Q-09 · Q-26" if cat == "optB_1_1" else "Q-26")
+                             ref=f"{cref} · §13.1 L566 · L569", note="Q-26")
         out[name] = cats[cat]
     components_out = []
     net_lines = []

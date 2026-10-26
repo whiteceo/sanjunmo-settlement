@@ -60,26 +60,28 @@ def tax_payee(ctx, c, p):
         if cl["status"] != "DECIDED":
             ctx.issue("CANON_GAP", f"{pid} {ln['line_id']} 세무 판정 보류: {cl['reason']}", STEP, c.holder_id,
                       "TAX.md 확인 필요 2 · 3", "TAX-2")
-        # [B] VAT — 케이스가 정해졌으면 VAT 규칙은 확정(원천징수만 보류일 수 있음)
+        # [B] VAT — 케이스가 정해졌으면 VAT 규칙은 확정(원천징수만 보류일 수 있음).
+        # 공급가액은 상계 전 금액(분할액) 기준: V2 L264 '공급가액 = 세전 지급액(상계 전 공급가액 기준)'(Q-17 해소 2026-10-26)
         pre = ln["pre_tax_payable"]
+        base = ln["split_amount"]
         if ln["origin"] == "NEW" and cl["vat"]:
-            supply, vat, applied, raw = vat_of(cl["vat"], treat, pre)
+            supply, vat, _, raw = vat_of(cl["vat"], treat, base)
         else:
-            supply, vat, applied, raw = pre, D(0), pre, None
+            supply, vat, raw = pre, D(0), None
+        applied = pre if treat == "VAT_INCLUDED" or cl["vat"] != "TAXABLE_10" else pre + vat
         ln["supply_amount"], ln["vat_amount"], ln["vat_applied_amount"] = supply, vat, applied
         ln["vat_treatment"] = treat if cl["vat"] == "TAXABLE_10" else None
         if ln["origin"] == "NEW":
             ctx.emit(STEP, "vat_amount", vat, c, **kw, inputs={"vat rule": cl["vat"], "vat_treatment": treat,
-                                                               "세전 지급액": pre},
-                     formula=("VAT_EXCLUDED: 부가세 = 내림(공급가액 × 10%), 공급가액 = 세전 지급액 / VAT_INCLUDED: 공급가액 = 내림(총액 × 100/110), 부가세 = 총액 − 공급가액"
+                                                               "상계 전 공급가액(분할액)": base, "세전 지급액(상계 후)": pre},
+                     formula=("VAT_EXCLUDED: 공급가액 = 세전 지급액(상계 전 공급가액 기준), 부가세 = 내림(공급가액 × 10%) / "
+                              "VAT_INCLUDED: 공급가액 = 내림(총액 × 100/110), 부가세 = 총액 − 공급가액"
                               if cl["vat"] == "TAXABLE_10" else f"VAT {cl['vat']} — 가산 없음"),
-                     code="vat_of(rule, treatment, pre_tax_payable)", before=raw,
-                     rounding="FLOOR_WON" if raw is not None else "NONE", ref="V2 §8.3 9단계 L263~265 · TAX.md [B]",
-                     provisional=cl["vat"] == "TAXABLE_10", note="Q-17(공급가액 기준 — 세전 지급액 사용, TAX.md)"
-                     if cl["vat"] == "TAXABLE_10" else "")
-            ctx.emit(STEP, "supply_amount", supply, c, **kw, formula="공급가액", ref="V2 L263~265")
-            ctx.emit(STEP, "vat_applied_amount", applied, c, **kw, formula="부가세 반영 후 정산액(VAT_INCLUDED는 총액)",
-                     ref="V2 L263~265")
+                     code="vat_of(rule, treatment, split_amount)", before=raw,
+                     rounding="FLOOR_WON" if raw is not None else "NONE", ref="V2 §8.3 9단계 L263~265 · TAX.md [B]")
+            ctx.emit(STEP, "supply_amount", supply, c, **kw, formula="공급가액(상계 전)", ref="V2 L264")
+            ctx.emit(STEP, "vat_applied_amount", applied, c, **kw,
+                     formula="부가세 반영 후 정산액 = 세전 지급액 + 부가세(VAT_INCLUDED는 총액, 가산 없음)", ref="V2 L263~265")
         # [C] 원천징수
         ln["income_tax"] = ln["local_income_tax"] = ln["withholding_total"] = None
         if cl["status"] != "DECIDED" or cl["withholding"] != "APPLY":

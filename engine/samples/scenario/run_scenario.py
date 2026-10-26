@@ -276,11 +276,12 @@ def write_md(out, questions):
                          f" ({cr.get('carryover_reason') or ''}, 수취인 {cr.get('payee_id')})")
         for a in h.get("alternatives", []):
             s = a["sett002"]
-            L.append(f"- 대안 — {a['label']}: 원천세 {fmt(s['step9WithholdingTax'])} · 상계 {fmt(s['step6PrepayOffset'])}"
-                     f" · 실지급 {fmt(s['step11NetPayout'])} ({s['payoutCategory']})")
+            L.append(f"- 대안(json `sett002_alt`) — {a['label']}: 원천세 {fmt(s['step9WithholdingTax'])}"
+                     f" · 상계 {fmt(s['step6PrepayOffset'])} · 실지급 {fmt(s['step11NetPayout'])} ({s['payoutCategory']})")
         L.append("")
-    L += ["## 5. 확인 필요", "", "| 번호 | 권리자 | 구분 | 내용 |", "| :--- | :--- | :--- | :--- |"]
-    L += [f"| {q['id']} | {', '.join(q['holders'])} | {q['kind']} | {q['text']} |" for q in questions]
+    L += ["## 5. 확인 필요 · 판정", "", "| 번호 | 권리자 | 구분 | 내용 | 판정 |", "| :--- | :--- | :--- | :--- | :--- |"]
+    L += [f"| {q['id']} | {', '.join(q['holders'])} | {q['kind']} | {q['text']} | {q.get('decision', '미정')} |"
+          for q in questions]
     L.append("")
     (HERE / "scenario_amounts.md").write_text("\n".join(L), encoding="utf-8")
 
@@ -349,6 +350,8 @@ def main():
             a002, _ = sett002(contract_of(ares, e["holderId"], e["contractId"]))
             row.setdefault("alternatives", []).append({"label": alt["label"], "engineStatus": ares["status"],
                                                        "sett002": a002})
+            if alt.get("key"):  # 결정 대기 항목의 대안 세트를 화면 대조용 키로도 둔다(예: sett002_alt)
+                row[alt["key"]] = a002
         scr = screens.get(e["holderId"])
         if scr:
             row["screenDiff"] = {k: (scr.get(k), row["sett002"].get(k)) for k in SETT002_KEYS + ["step2ConsignGross"]

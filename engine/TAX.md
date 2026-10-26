@@ -163,13 +163,15 @@
   PENDING이면: 세액 계산 안 함, taxable_base 보존, 마감 차단 표지. 종료.
 
 [B] 부가가치세  (TX-06·TX-07·TX-09만 과세, TX-05·TX-08·TX-11은 0, TX-13은 Pipeline 2.3 값 인계)
-  VAT_EXCLUDED:  supply_value = pre_tax_amount
+  # 공급가액은 상계 전 금액(8단계 분할액) 기준 — 02권 L264 '공급가액 = 세전 지급액(상계 전 공급가액 기준)'
+  # (2026-10-26 총괄 판정, SPEC Q-17 해소). 선급금 상계는 공급가액 · 부가세를 줄이지 않는다.
+  VAT_EXCLUDED:  supply_value = split_amount                       # 상계 전
                  vat_amount   = floor(supply_value * 0.10)         # 부가세 1회 내림(13.1)
-                 settle_with_vat = pre_tax_amount + vat_amount
-  VAT_INCLUDED:  total = pre_tax_amount
+                 settle_with_vat = pre_tax_amount + vat_amount      # 세전 지급액(상계 후) + 부가세
+  VAT_INCLUDED:  total = split_amount                              # 상계 전 총액
                  supply_value = floor(total * 100 / 110)
                  vat_amount   = total - supply_value               # 역산(13.2)
-                 settle_with_vat = total                           # 추가 가산 없음
+                 settle_with_vat = pre_tax_amount                  # 추가 가산 없음
   위탁(TX-11): consignment_fee_vat = floor(순 위탁 수수료 공급가액 * 0.10)
        NET_DEDUCT   → 위탁 실정산액 = 4단계 순 위탁 정산액 - consignment_fee_vat
        GROSS_SETTLE → 위탁 실정산액 = 4단계 순 위탁 정산액
