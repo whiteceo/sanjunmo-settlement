@@ -16,6 +16,7 @@
       명세서 버전 이력 · 대사 실행 전까지만 3PL 재제출(07), 담당자별 계정 · 거래 중지 · 폐업 · 휴업 자동 차단(09).
     - 디자인은 ADMN-PTNR-001(SNB 밖 파트너 전용 화면)을 그대로 따른다. common-snb.js는 PTNR-001과 같은 이유로 로드하지 않는다(운영자 SNB를 body 맨 앞에 무조건 넣음).
     - 메뉴 노출은 역할 그룹 권한(SJM_MASTER.roles perms.shipout: R 조회 · W 등록 · X 다운로드)으로 판정한다. 역할 그룹 이름을 화면에 직접 적지 않는다.
+      v6.92부터 공통 기준정보 RG-08 최초값이 shipout RWX(출고 지시 = 발주 엑셀) · logibill RW라 발주 엑셀 · 물류비 탭 모두 기준정보 값으로 열린다.
     - 샘플 데이터: 출고 · 배송은 ADMN-ORD-001 SHIP_LINES, 물류비는 ADMN-SETT-011 2026-09 데이터와 같은 값. 실제 서비스에서는 로그인 계정의 소속 거래처 데이터만 서버가 내려준다.
   -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
@@ -620,7 +621,7 @@
     "SUP-0020": { contract: "개인정보 처리위탁 계약 체결 (2025-11-01)", disclosed: "개인정보처리방침 수탁자 공개 — 배송 업무(출고 · 송장 · 반품 회수)" }
   };
   // 물류비 메뉴 키 — 확정(2026-10-27 white, D-PTNR2-02 권고대로): shipout과 따로 logibill을 두어 운영자가 역할 그룹마다 켜고 끈다.
-  // 공통 기준정보 메뉴 목록에 아직 없어(공통 파일은 이 작업에서 고치지 않음) 화면 안 최초값으로 둔다. 기준정보 역할 그룹에 logibill이 생기면 그쪽을 쓴다
+  // v6.92부터 공통 기준정보(메뉴 logibill · RG-08 perms.logibill RW)에서 읽는다. 기준정보 역할 그룹에 logibill 값이 없을 때만(옛 localStorage 등) 아래 최초값을 쓴다
   var PL_BILL_MENU = "logibill";
   var PL_BILL_PERM_DEFAULT = { "RG-08": "RW" };
 

@@ -1,6 +1,6 @@
 # ADMN-INST-002 약정금 마일스톤 검수 · 승인 원장 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-INST-002_baseline.html` (원본 상태: `84c22e2`, 미커밋 변경 없음)
+- 프로토타입 파일: `prototype_clean/ADMN-INST-002_baseline.html` (원본 상태: `18d66c1` v6.92)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: INST-002 탭 1 검수 워크스페이스(목록 + 상세 검수) · 탭 2 전속계약금 중도해지 일할 반환 · 종료 일시정산(LUMP_SETTLE) · 탭 3 검수 · 수기 소명 감사 로그 · `recalcNoticeModal` 자동 재연산 알림
 - 개발 진행: 일부 구현. 검수 큐(귀속월 · 유형 · 상태 · 검색) · 3대 게이트 판정 · 승인/반려(검수 방식 + 의견)만 있음. 탭 2 · 탭 3 · 상세 편집(소득 구분 · 귀속월 · 증빙 파일) · 임시 저장 · 승인 후 자동 재연산은 미구현. `_index/progress.md` INST-002 라우트 주석 있음
@@ -64,7 +64,7 @@
 | `milestone_id` | required · integer | contract_milestones.id | 큐 행 선택 `selectItem(id)` (프로토 식별자 `MS-2026-001`) |
 | `decision` | required | `approve` · `reject` | `approveMilestone()` · `rejectMilestoneItem()` |
 | `verify_method` | required | `EVIDENCE_FILE` 증빙 파일 · `MANUAL_NOTE` 수기 소명 (1차는 파일을 받지 않음) | `#editInspectMode` `EVIDENCE_FILE` · `MANUAL_NOTE` |
-| `review_note` | required · **20자 이상** · 2000자 이하 | | `#editMemo` (프로토 10자 이상 — 8절 Q1) |
+| `review_note` | required · **20자 이상** · 2000자 이하 | | `#editMemo` · 글자 수 `#editMemoCount` (v6.92 프로토도 공백 제외 20자 · 최대 2,000자 — D-PROD-07) |
 | (증빙 파일) | 개발 없음 | | `#editEvidenceFile` |
 | (소득 구분 · 기타소득 호) | 이 화면에서 수정 불가(게이트 A 표시만) | `BUSINESS` · `OTHER` / `C05` · `C15` · `C17` · `C19` | `#editIncomeCategory` · `#editIncomeClause` |
 | (귀속월) | 이 화면에서 수정 불가(스케줄 값) | | `#editTargetMonth` (8절 Q3) |
@@ -154,7 +154,7 @@
 
 | # | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-INST002-1 | 검수 의견 최소 글자 수: 프로토 10자, 개발 20자. 정본 문서는 '필수'만 규정 | 01권 7.2절 '담당자 수기 소명형 검수'(`docs/[산준모 정산시스템]_01_…기획서.md:543`), 프로토 L1517-1520 | `app/Services/Admin/MilestoneReviewService.php:39`, `app/Http/Requests/Admin/MilestoneReviewRequest.php:31` |
+| Q-INST002-1 | 검수 의견 최소 글자 수: 프로토 10자, 개발 20자. 정본 문서는 '필수'만 규정 | 01권 7.2절 '담당자 수기 소명형 검수'(`docs/[산준모 정산시스템]_01_…기획서.md:543`), 프로토 L1517-1520 | `app/Services/Admin/MilestoneReviewService.php:39`, `app/Http/Requests/Admin/MilestoneReviewRequest.php:31` **→ 결정(v6.92 white, D-PROD-07)**: 공백 제외 20자(반려 사유도 같음) — 개발 20자 검사가 공백을 빼고 세는지만 맞춘다 |
 | Q-INST002-2 | 승인 시 정산서 자동 반영: 정본은 배치 실행 후 · 마감 전 승인이면 같은 트랜잭션에서 해당 권리자 1~11단계 재연산 + 알림 모달. 개발 승인은 상태만 바꾸고 "7단계로 인입됩니다" 안내, 재연산 호출 없음 | 01권 7.2절 '승인 시 정산서 자동 반영'(`:548`), 설계서 `:44` · `:508`, 프로토 L681-715 | `MilestoneReviewService.php:264-312`(재연산 호출 없음) |
 | Q-INST002-3 | 귀속월 확정 위치: 정본은 검수 승인 때 귀속월을 확정(마감월 지정 차단). 프로토는 상세에서 귀속월을 고를 수 있음. 개발은 스케줄에 저장된 `target_month`를 그대로 쓰고 이 화면에서 바꿀 수 없음 | 01권 7.2절 '정산 반영 귀속월 확정 및 이관'(`:547`), 프로토 `#editTargetMonth` L1506 | `MilestoneReviewController.php:47-60`(귀속월 입력 없음) |
 | Q-INST002-4 | 게이트 A 범위: 정본은 소득 구분 상위 축 · 기타소득 호 · **저작자 본인 여부(payee_is_author)** 미지정 시 승인 비활성. 개발 게이트 A는 앞의 두 값만 본다 | 01권 7.2절 '소득 구분 미지정 차단'(`:544`) | `MilestoneReviewService.php:109-125` |

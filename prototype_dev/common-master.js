@@ -57,6 +57,8 @@
     { key: "contract", label: "권리자 계약 · 지분 매핑", screens: "INST-001 · SETT-001 · 007 · BOOK-001" },
     { key: "vendor", label: "거래처 관리", screens: "VEND-001" },
     { key: "presettle", label: "정산 마감 전 사전 대사", screens: "SETT-004 · 011 · 008 · INST-002" },
+    // 물류비 청구 · 대사 — 3PL이 월 명세서를 제출하고 재무가 대사(D-PTNR2-07 · D-ORD-11 1차, 2026-10-27 white)
+    { key: "logibill", label: "물류비 청구 · 대사", screens: "SETT-011 · PTNR-002 (물류비 청구)" },
     { key: "refundpass", label: "합격 환급반 관리 · 서류 보완", screens: "SETT-006" },
     { key: "settle", label: "월간 정산 · 지급 · 조회", screens: "SETT-002 · 005 · 009" },
     { key: "statement", label: "본인 정산서 확인 · 세금계산서 제출", screens: "SETT-002-S2 · PTNR-001" },
@@ -96,8 +98,12 @@
       desc: "본인 도서 인세 정산서 확인 · 세금계산서 제출",
       perms: { statement: "RW" } },
     { id: "RG-08", name: "외부 3PL", side: "EXTERNAL", queue: false, aff: ["VENDOR"], on: true, order: 8, dashArea: "NONE", startScreen: { code: "ADMN-ORD-001", label: "출고 · 송장", url: "ADMN-ORD-001_baseline.html?view=ord002&role=ROLE_PARTNER_3PL" },
-      desc: "출고 대상 조회 · 송장 업로드 (금액 비노출)",
-      perms: { shipout: "RW" } }
+      desc: "출고 대상 조회 · 출고 지시(발주 엑셀) · 송장 업로드 · 월 물류비 명세서 제출 (금액 비노출)",
+      perms: { shipout: "RWX", logibill: "RW" } },
+    // 도서 공급사(매입처) 외부 계정 — 공급사 센터(PTNR-003)와 함께 2차에 사용(D-PTNR3-01, 2026-10-27 white). 1차는 미사용
+    { id: "RG-09", name: "도서 공급사", side: "EXTERNAL", queue: false, aff: ["VENDOR"], on: false, order: 9, dashArea: "NONE", startScreen: { code: "ADMN-PTNR-003", label: "공급사 센터", url: "ADMN-PTNR-003_baseline.html" },
+      desc: "본인 공급 도서 입고 · 매입 정산서 확인 · 계산서 제출(2차)",
+      perms: {} }
   ];
 
   // 회원 하위 메뉴 4개는 최초값에서 user 값과 같게(나누기 전과 접근 권한이 같도록, 결정 32)

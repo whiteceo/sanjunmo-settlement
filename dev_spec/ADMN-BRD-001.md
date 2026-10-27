@@ -1,6 +1,6 @@
 # ADMN-BRD-001 공지사항 · FAQ · Q&A · 당첨자 통합 관리 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-BRD-001_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
+- 프로토타입 파일: prototype_clean/ADMN-BRD-001_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-BRD-001 · 001-S1(공지), ADMN-BRD-006 · 006-S1(FAQ), ADMN-BRD-003 · 003-S1(상품 Q&A), ADMN-BRD-004 · 004-S1(학습 Q&A), ADMN-BRD-009 · 009-S1(당첨자 발표)
 - 개발 진행: 구현(다섯 화면 모두 개발 라우트 · 컨트롤러 · 뷰 있음). 담당 이응민(`config/dev-progress.php`). BRD-009 는 progress 표에 "완료 9ec6059 · 1a92439 · ed10474"
@@ -148,7 +148,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | `content` | nullable string | | 본문 + `insertWinnerTemplateText` |
 | `publish_mode` | required in:immediate,scheduled | immediate=즉시 · scheduled=예약 | `winpost-status`(즉시 · 예약 · 임시저장) |
 | `published_at` | required_if:publish_mode,scheduled · date | `publishedAt` | `winpost-date` |
-| `winners_text` | nullable string max:200000 (줄마다 아이디 · 경품) | | `winrow-*` 행 추가 폼 |
+| `winners_text` | nullable string max:200000 (줄마다 아이디 · 경품) | 저장 시 회원 아이디 대조 → 마스킹 값만 저장 | `winrow-*` 행 추가 폼. v6.92: `winrow-member`(아이디 또는 회원번호 — 회원번호 입력은 (규칙)) + [회원 원장 조회] `previewWinnerMember()`(개발 별도 조회 라우트 없음, 저장 시 대조) |
 | `winners_file` | nullable xlsx max 2MB(실제 바이트 검사) | 양식 `admin.winners.template.download` | "엑셀 추가" 라벨만 |
 | `list_query` | hidden | | 없음 |
 
@@ -196,6 +196,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | posts.deleted_at | timestamp nullable (SoftDeletes, 2026_09_08_000086) | 소프트 삭제(Post 모델 `use SoftDeletes`) | — |
 | attachments.* | attachable_type/id · original_name · file_path · disk(media) · size | 공지 첨부(저장명 UUID, `notices/{id}/`) | 첨부파일 |
 | post_winners.seq / masked_name / masked_login / prize | | 당첨자 명단 — 마스킹 값만 저장(원본 미저장) | 당첨자 명단 |
+| (규칙) post_winners.member_id | bigint | v6.92 S-17: 프로토타입 명단 행의 `memberNo`(내부 키, 화면 비표시) — 지급 · 연락 때 회원 원장 조회용. 개발 컬럼 없음(개발은 마스킹 값만) | 당첨자 명단(비표시) |
 | faq_categories.name / sort_order / is_active | string(50) / int / tinyint | FAQ 카테고리(하위 FAQ 있으면 삭제 불가) | 카테고리 팝업 |
 | faqs.category_id / question(100) / answer / weight(0~999) / is_visible / admin_id / view_count / updated_at | | FAQ | FAQ 목록 · 폼 |
 | product_qnas.product_type / product_id / order_id / inquiry_type / title / content / assign_dept / assign_user_id / is_secret / status / answer_content / answered_by / answered_at / deleted_at | | 상품 Q&A. inquiry_type: composition 상품 구성 · price 가격·할인 · delivery 배송 · period 수강 기간 · etc 기타(패키지만), 옛 값 damage · erratum · stock · course | 상품 Q&A 목록 · 답변 |
@@ -234,7 +235,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 공지 목록 행의 상단 고정/해제 즉시 토글(`toggleNoticePin`).
 - FAQ "자주 찾는 질문 TOP" 고정, 카테고리 이름 변경 · 순서 ▲▼ · 노출 토글(개발은 추가 · 삭제만, sort_order · is_active 는 추가 때만 받음).
 - 상품 Q&A 엑셀 다운로드, 선택 숨김 일괄.
-- 당첨자 경품 지급 관리 전체: 경품 유형(포인트 · 기프티콘 · 실물), 지급 상태 · 지급일시 · 송장번호, 개별 즉시 지급 · 일괄 지급, 노출 위치(이벤트 탭 · 공지사항 상단) 선택, 발표 시 당첨자 개별 알림톡, 임시저장 발표 상태, 원본 이름 · 휴대폰 입력(개발은 원본 미저장).
+- 당첨자 경품 지급 관리 전체: 경품 유형(포인트 · 기프티콘 · 실물), 지급 상태 · 지급일시 · 송장번호, 개별 즉시 지급 · 일괄 지급, 노출 위치(이벤트 탭 · 공지사항 상단) 선택, 발표 시 당첨자 개별 알림톡, 임시저장 발표 상태, 원본 이름 · 휴대폰 입력(개발은 원본 미저장). **→ 결정(v6.92 white, S-17)**: 원본 이름 · 아이디 · 휴대폰 입력 · 저장 삭제, 명단은 회원번호 + 마스킹 값(`maskedName` · `maskedLogin`)만 — 개발 post_winners 마스킹 저장과 같아짐(경품 지급 관리는 그대로 프로토타입에만)
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 공지 노출: 프로토타입 `notice-form-visible`(즉시 노출 on/off → 숨김) → 개발 `publish_mode`(immediate/scheduled/draft). 숨김은 목록 일괄 숨김으로만 된다.
@@ -248,7 +249,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_BRD.md` 의 D-BRD 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
 - 공지 분류(일반공지 · 시험일정 · 시스템점검)를 둘지 확인 필요 — 개발은 분류 없이 공지 게시판 하나로 확정(NoticeService::prepare 주석 "ADMN-BRD-001-S1 ① 구분 선택 없음").
-- 당첨자 경품 지급(포인트 · 기프티콘 · 실물 송장)을 BRD-009 에서 처리할지 확인 필요 — 개발은 발표 · 마스킹 명단만, 원본 이름 · 연락처를 저장하지 않는다(PostWinner 주석 · DECISIONS #72).
+- 당첨자 경품 지급(포인트 · 기프티콘 · 실물 송장)을 BRD-009 에서 처리할지 확인 필요 — 개발은 발표 · 마스킹 명단만, 원본 이름 · 연락처를 저장하지 않는다(PostWinner 주석 · DECISIONS #72). **→ 결정(v6.92 white, S-17)**: 명단 저장은 개발처럼 회원번호 + 마스킹 값만, 알림톡 · 배송 연락은 지급 때 회원번호로 회원 원장 조회(경품 지급을 BRD-009에서 할지는 이 결정 범위 밖)
 - FAQ "자주 찾는 TOP 고정"과 개발 가중치(weight) 정렬의 관계 확인 필요.
 - 상품 Q&A 문의 유형 체계(프로토타입 5종 vs 개발 composition 등 5종 + 옛 값) 확인 필요.
 

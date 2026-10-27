@@ -53,7 +53,7 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-CONF-002",
     "devCommit": DEV_COMMIT,
-    "progress": "구현(CONF-002 목록 · 이력 · 개정 편집 · 상세). [유형 2] 직접 수정 · 개정 고지 발송 바로가기 · 에디터 도구는 개발 없음 — 주황 표시",
+    "progress": "구현(CONF-002 목록 · 이력 · 개정 편집 · 상세). [유형 2] 공시중 버전 오탈자 보정(보정 이력) · 개정 고지 발송 바로가기 · 에디터 도구는 개발 없음 — 주황 표시",
     "menus": [
         {"route": "admin.terms.index", "label": "약관·정책 관리"},
     ],
@@ -86,7 +86,7 @@ R('onclick="switchDetailTab(\'edit\')">+ 새 개정 버전 등록하기', attrs(
 
 # ── 개정 편집 (#termForm, TermRequest) ─────────────────
 DEVNAME('name="edit_mode" value="NEW_REV"', "(새 개정 = POST admin.terms.store)")
-DEVNAME('name="edit_mode" value="DIRECT_FIX"', "(없음)", note="[유형 2] 현행/공시예정 본문 직접 수정 — 개발은 확정 버전 수정 불가(정책 D-CONF-01)")
+DEVNAME('name="edit_mode" value="DIRECT_FIX"', "(없음)", note="[유형 2] 공시중(시행 전) 버전 오탈자 보정 — 시행중은 새 개정만(v6.92 D-CONF-01 결정). 개발은 확정 버전 수정 불가 — (규칙) POST admin.terms.corrections.store")
 R('name="edit_mode" value="DIRECT_FIX"', 'name="edit_mode" value="DIRECT_FIX" data-dev-flag="proto-only"')
 NAME("ed-rev-type", "revision", value="minor 일반 개정 · major 전면 개정 (프로토 값 MINOR · MAJOR)")
 NAME("ed-adverse", "is_unfavorable", value="0 일반(7일) · 1 불리(30일) (프로토 값 NO · YES)")
@@ -112,6 +112,10 @@ R('<button type="button" class="btn btn-outline" data-dev-route="admin.terms.sto
   '                  <button type="button" class="btn btn-outline" data-dev-route="admin.terms.store | admin.terms.update"')
 ACT("openSaveConfirmModal", note="개발은 확인 모달 없이 같은 폼 action=confirm 제출")
 ACT("commitTermSave", route="admin.terms.store | admin.terms.update", method="POST | PUT", url=A + "/terms | /terms/{term}", perm="등록 | 수정", value="action=confirm")
+
+# v6.92: 공시중 버전 오탈자 보정 이력(전 · 후 본문 · 사유 · 처리자) — D-CONF-01 결정 반영
+R('<div id="term-correction-box"></div>', '<div id="term-correction-box"' + attrs(flag="proto-only", route="admin.terms.corrections.store (규칙)", method="POST", url=A + "/terms/{term}/corrections", perm="수정",
+  note="(규칙) term_corrections — term_id · before_content · after_content · reason · admin_id · created_at. 공시중(notice_date ≤ 오늘 < effective_date) 버전만") + '></div>')
 
 # ── 이력 · 버전 상세 ────────────────────────────────
 ACT("openVerModal", route="admin.terms.show", method="GET", url=A + "/terms/{term}", perm="조회")

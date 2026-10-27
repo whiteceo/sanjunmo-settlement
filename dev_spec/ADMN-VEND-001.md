@@ -1,5 +1,5 @@
 # ADMN-VEND-001 거래처 관리 — 개발 명세
-- 프로토타입 파일: prototype_clean/ADMN-VEND-001_baseline.html (원본 상태: 84c22e2)
+- 프로토타입 파일: prototype_clean/ADMN-VEND-001_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-VEND-001 (모달 `modal-vendor` 거래처 등록 · `modal-type` 거래처 유형 관리)
 - 개발 진행: **독립 화면은 개발 미구현(d562524a 기준), 규칙 기반 명명.** config/dev-progress.php 에 ADMN-VEND 코드가 없다(tests/Feature/Admin/QaResultAdminTest.php 의 "ADMN-VEND-001 … 화면 없음"은 테스트용 더미 행). 가장 가까운 개발 구현은 도서 공급 원장(`admin.book-supply.index`) 의 **매입처 탭(`?tab=suppliers`) + 매입처 등록** 이다
@@ -11,6 +11,7 @@
 | `admin.book-supply.index` | 도서 공급 원장(매입처 탭 포함) | routes/admin.php:438 · `@adminCan('admin.book-supply.index', 'can_create')`(resources/views/admin/book-supply/_suppliers.blade.php:44) |
 
 - 현재 매입처 등록 `admin.book-supply.suppliers.store` 는 정규화 후 `admin.book-supply.index` 메뉴의 can_create 로 판정.
+- 거래처 소속 외부 계정 역할 그룹(공통 기준정보 `common-master.js`, v6.92): RG-08 외부 3PL — 메뉴 키 `shipout` RWX(출고 대상 조회 · 출고 지시(발주 엑셀) · 송장 업로드) · `logibill` RW(월 물류비 명세서 제출, 메뉴 '물류비 청구 · 대사' = SETT-011 · PTNR-002), RG-09 도서 공급사 — 1차 미사용(`on: false`, 권한 없음, 2차에 PTNR-003과 함께). 거래처 관리 메뉴 키는 `vendor`. 개발 역할 코드 · 메뉴 없음(규칙: `3pl` · `supplier`).
 
 ## 2. 화면별 라우트
 ### 개발 구현분 — 매입처(도서 공급 원장 탭 ③)
@@ -52,6 +53,7 @@
 | `status` (규칙) | `active` 거래 중 · `suspended` 거래 중지 (규칙, 소문자 snake) | | 라디오 ON / OFF |
 | `suspend_reason` (규칙) · `suspend_approved` (규칙) | 거래 중지 시 | 재무 책임자 승인 · 사유 | `vf-susp-reason` · `vf-susp-ok` |
 | `started_at` (규칙) | date | 거래 시작일 | `vf-since` |
+| `return_terms` (규칙) | nullable · 문자열 | 반품(반출) 조건 — 매입 유형만. 비우면 '파본 · 인쇄 불량만 반출' | `vt-ret-cond`(v6.92 추가, D-PTNR3-03) |
 | 유형: `name` · `terms_form`(`purchase` 매입 · `logistics` 물류 대행 · `general` 일반) (규칙) · `evidence_type`(`tax_invoice` 전자세금계산서 · `invoice` 전자계산서) (규칙) | | 거래처 유형 | `nt-name` · `nt-form` · `nt-evidence` |
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼
@@ -102,13 +104,14 @@
 - 국세청 상태조회 실행 — 개발 버튼 disabled.
 - 물류 대행(3PL) 거래처 — 개발 suppliers 는 매입처만.
 - 수정 — 개발 매입처는 등록만 있고 수정 라우트가 없다.
+- 매입 거래 조건 '반품 조건'(`vt-ret-cond`, v6.92) — 사입 도서 반출 허용 범위. 개발 suppliers 칸 없음. **→ 결정(v6.92 white, D-PTNR3-03)**: 파본 · 인쇄 불량은 반출, 그 밖의 반품은 거래 조건에 있을 때만 허용.
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
 |---|---|
 | `vf-name` · `vf-biz` · `vf-ceo` | `name` · `business_no` · `ceo_name` |
 | `vf-tax` 직접 선택 | `payee_tax_type` 국세청 응답으로만 |
 | `vf-contact` 연락처 | `contact_email` 담당 메일 |
-| 거래 조건 구조화 입력(공급률 · 결제 · 건당 단가) | `settlement_terms` 문자열 한 칸 |
+| 거래 조건 구조화 입력(공급률 · 결제 · 반품 조건 · 건당 단가) | `settlement_terms` 문자열 한 칸 — 반품 조건 `return_terms` (규칙)는 개발 칸 없음 |
 | 거래처 코드 SUP-0020 | SUP-%04d (일치) |
 | 거래 중 / 거래 중지 | business_status 기반 발주 가능 / 신규 발주 차단(거래 상태 칸 없음) |
 

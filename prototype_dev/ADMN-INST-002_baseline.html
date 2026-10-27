@@ -453,7 +453,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-INST-002", "devCommit": "d562524a", "progress": "일부 구현(검수 큐 검색 · 3대 게이트 판정 · 승인/반려). 탭 2 일할 반환 · 일시정산, 탭 3 감사 로그, 상세 편집(소득 구분 · 귀속월 · 증빙 파일) · 임시 저장 · 승인 후 자동 재연산은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.rights-holders.milestones.index", "label": "약정금 마일스톤 검수"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
     <div class="top-bar-left">
@@ -700,6 +699,16 @@ code, pre, kbd, samp,
 <script>
   // 마감 완료된 월 목록 (7.0절: Locked=True인 데이터 기준 월에는 신규 이관 절대 차단)
   const LOCKED_MONTHS = ["2026-08", "2026-09"];
+  // 검수 의견 최소 글자 수 — 공백 제외 20자 (white 2026-10-27 D-PROD-07, 정산 수동 조정 소명 20자와 같은 기준)
+  const MEMO_MIN = 20;
+  function memoLen(s) { return String(s || "").replace(/\s/g, "").length; }
+  function updateMemoCount() {
+    const ta = document.getElementById("editMemo"), el = document.getElementById("editMemoCount");
+    if (!ta || !el) return;
+    const n = memoLen(ta.value);
+    el.textContent = `공백 제외 ${n}자 / 최소 ${MEMO_MIN}자`;
+    el.style.color = n >= MEMO_MIN ? "#15803d" : "#b45309";
+  }
   // 정산 배치(SETT-002)를 이미 돌린 미마감 월 — 이 달로 승인하면 해당 권리자 정산서를 자동 재연산(정산 01권 7.2절)
   const SETTLE_BATCH_AT = { "2026-10": "2026-10-14 15:45:00" };
   // 정산서 자동 재연산 기록 — 월간 정산(SETT-002)이 같은 키를 읽어 배치 이후 재연산된 권리자를 표시
@@ -1384,7 +1393,8 @@ code, pre, kbd, samp,
             <input type="text" id="editEvidenceFile" data-dev-flag="proto-only" data-dev-note="증빙 파일 — 개발 1차 미지원(정책 질문 Q-INST002-5)" class="input" style="flex:1;" value="${item.evidenceFileName || ""}" placeholder="첨부 증빙 파일명 (예: 완강확인서_202610.pdf)" ${isApproved ? "disabled" : ""} />
           </div>
         ` : ""}
-        <textarea id="editMemo" name="review_note" data-dev-note="개발 20자 이상 · 2000자 이하(프로토 10자 — 정책 질문 Q-INST002-1), 개발 id msReviewNote" class="input" placeholder="검수 의견 및 승인 근거를 구체적으로 작성하세요 (수기 검수 시 최소 10자 이상 필수)..." ${isApproved ? "disabled" : ""}>${item.memo || ""}</textarea>
+        <textarea id="editMemo" name="review_note" data-dev-note="공백 제외 20자 이상 · 2000자 이하(v6.92 D-PROD-07 결정 — 프로토 · 개발 일치, 개발은 공백 포함 여부 확인), 개발 id msReviewNote · 글자 수 표시 #editMemoCount" class="input" maxlength="2000" oninput="updateMemoCount()" placeholder="검수 의견 및 승인 근거를 구체적으로 작성하세요 (수기 검수 시 공백 제외 최소 20자 필수 · 최대 2,000자)..." ${isApproved ? "disabled" : ""}>${item.memo || ""}</textarea>
+        ${isApproved ? "" : `<div id="editMemoCount" style="font-size:11.5px; color:var(--text-sub, #64748b); margin-top:4px; text-align:right;">공백 제외 ${memoLen(item.memo || "")}자 / 최소 ${MEMO_MIN}자</div>`}
       </div>
 
       ${isApproved ? `
@@ -1529,15 +1539,15 @@ code, pre, kbd, samp,
     }
 
     const memo = document.getElementById("editMemo").value.trim();
-    if (item.inspectionMode === "MANUAL_NOTE" && memo.length < 10) {
-      alert("[담당자 수기 소명형 검수 규칙]\n수기 검수(내부확인) 선택 시 최소 10자 이상의 구체적인 검수 의견 및 승인 근거 작성이 필수입니다.");
+    if (item.inspectionMode === "MANUAL_NOTE" && memoLen(memo) < MEMO_MIN) {
+      alert(`[담당자 수기 소명형 검수 규칙]\n수기 검수(내부확인) 선택 시 공백 제외 최소 ${MEMO_MIN}자 이상의 구체적인 검수 의견 및 승인 근거 작성이 필수입니다. (현재 ${memoLen(memo)}자)`);
       return;
     }
     if (item.inspectionMode === "EVIDENCE_FILE") {
       const fInput = document.getElementById("editEvidenceFile");
       if (fInput) item.evidenceFileName = fInput.value.trim();
-      if (!item.evidenceFileName && memo.length < 10) {
-        alert("첨부 증빙 파일명을 입력하거나, 파일이 없는 경우 '담당자 수기 소명형'으로 전환 후 10자 이상 근거를 작성하세요.");
+      if (!item.evidenceFileName && memoLen(memo) < MEMO_MIN) {
+        alert(`첨부 증빙 파일명을 입력하거나, 파일이 없는 경우 '담당자 수기 소명형'으로 전환 후 공백 제외 ${MEMO_MIN}자 이상 근거를 작성하세요.`);
         return;
       }
     }
@@ -1641,9 +1651,9 @@ code, pre, kbd, samp,
       alert("이미 검수 승인되어 정산서(7단계)로 이관된 항목은 반려할 수 없습니다.");
       return;
     }
-    const reason = prompt("[ADMN-INST-002-P2 마일스톤 검수 반려 · 보완 요청]\n반려 및 증빙 보완 요청 사유를 10자 이상 입력해 주세요:", "납품 문항 검수표 날인 누락 및 소득 구분(사업소득 vs 기타소득) 재확인 필요");
-    if (!reason || reason.trim().length < 10) {
-      alert("반려 사유를 10자 이상 입력해야 합니다.");
+    const reason = prompt("[ADMN-INST-002-P2 마일스톤 검수 반려 · 보완 요청]\n반려 및 증빙 보완 요청 사유를 공백 제외 20자 이상 입력해 주세요:", "납품 문항 검수표 날인 누락 및 소득 구분(사업소득 vs 기타소득) 재확인 필요");
+    if (!reason || memoLen(reason) < MEMO_MIN) {
+      alert(`반려 사유를 공백 제외 ${MEMO_MIN}자 이상 입력해야 합니다. (현재 ${memoLen(reason)}자)`);
       return;
     }
     item.status = "REJECTED";

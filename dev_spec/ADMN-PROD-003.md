@@ -1,6 +1,6 @@
 # ADMN-PROD-003 단과 강좌 관리 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-PROD-003_baseline.html` (원본 상태: `84c22e2` + 미커밋 작업 트리 — 2026-10-27 다른 세션 수정 중. 통합 커밋 후 줄 번호를 다시 맞춘다)
+- 프로토타입 파일: `prototype_clean/ADMN-PROD-003_baseline.html` (원본 상태: `18d66c1` v6.92)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: PROD-003 강좌 목록 · 강좌 상세 · 강좌 등록/수정(커리큘럼 섹션 · 교재 매핑 포함) + 모달 2개(`modal-lecture-picker` · `modal-textbook-picker`)
 - 개발 진행: 구현(목록 · 등록/수정 · 커리큘럼 구성 라우트 · 화면 있음). 강좌 상세(읽기 전용 화면)는 개발 미구현
@@ -106,7 +106,8 @@
 ### 개발 003-S1 커리큘럼 저장 (CourseCurriculumRequest)
 | 필드 name | 규칙 | 프로토타입 대응 |
 |---|---|---|
-| `lectures[]` | required · min 1 · distinct · 편성 가능 강의만. 판매 이력이 있으면 기존 강의 제외 불가(추가만, `CourseService.php:714-724`) | `confirmAddLecturesToSection()` · `removeLectureFromSection()` · `moveLecture()` |
+| `lectures[]` | required · min 1 · distinct · 편성 가능 강의만. 판매 이력이 있으면 기존 강의 제외 불가(추가만, `CourseService.php:714-724`) | `confirmAddLecturesToSection()` · `removeLectureFromSection()` · `moveLecture()` (v6.92 프로토도 판매 이력 강좌는 기존 차시 · 섹션 제외 차단, 추가 차시 '기존 수강생 판정 제외' 배지 · 저장 확인) |
+| (결제 시점 환급 조건 박제) | `order_items.refund_terms_snapshot` (규칙) JSON — 판정 대상 `lecture_ids` · 차시별 재생시간 · 인정 진도율 · 필수 출석일수. 개발 없음(S-14) | `#form-retro-note` |
 | 후보 검색 `category_id` · `instructor_id` · `keyword` · `all` | GET | `#modal-lec-keyword` · `renderLectureModalRows()` |
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼 (003)
@@ -152,6 +153,7 @@
 | `course_books` (`book_id`, `book_type` main/sub, `sort_order`) | | 연관 교재 | 교재 매핑 |
 | `product_badges` (`badge_slot`, `badge_type`) | | 강조 배지 | 기타 |
 | `admin_logs` (target `App\Models\Course`, subAction `stop_selling` · `curriculum`) | | 변경 이력 | (프로토 상세 '판매 상태 변경 이력') |
+| `order_items.refund_terms_snapshot` (규칙) | json | 결제 시점 환급 판정 조건 박제(S-14, v6.92) — 개발 없음 | 편성 변경 안내 `#form-retro-note` |
 
 삭제 거부 참조(`CourseRepository.php:180-202`): `user_courses` · `order_item_allocations` · `instructor_settlement_items` · `lecture_progresses` · `order_items` · `package_items` · `cart_items` → "… 삭제할 수 없습니다. 비전시 또는 판매중지 전환을 이용하세요."
 
@@ -181,7 +183,7 @@
 
 ### 개발에만 있음 (prototype_dev에 정본 디자인으로 추가)
 - 커리큘럼 구성 전용 페이지(S1)와 판매 이력 강좌의 강의 제외 차단(추가만) — 정본 화면설계서 05 PROD-003-S1 "판매 개시 후 강의 제외 금지"와 일치
-- 커리큘럼 변경 영향(기존 수강생 진도율 분모 증가) 미리 보기(`crsImpact` · `curImpact`)
+- 커리큘럼 변경 영향(기존 수강생 진도율 분모 증가) 미리 보기(`crsImpact` · `curImpact`) **→ 결정(v6.92 white, S-14)**: 진도율 기준 변경은 소급 안 함 — 결제 시점 환급 조건(판정 대상 차시 · 재생시간 · 인정 진도율 · 출석일수)을 주문 라인에 박제하고 추가 차시는 기존 수강생 분모에서 뺀다. 개발 '분모 증가' 미리 보기는 '변경 이후 결제분부터 적용' 안내로 바꿔야 함
 - 교재 매핑 필터 · 컬럼(`book_mapped`), 표 머리 정렬, 전시중 건수
 - 대표 강사 계약 종료 배지(자동 판매중지 없음, `CourseService.php:102-103`)
 - 참여 강사(부강사 · 참여) 매핑, 원가, 쿠폰 · 포인트 허용, 수강 시작 기준(즉시 / 지정일), 소개 · 샘플 영상, 강조 배지, 강좌 소개 · 수강대상 · 내용 및 특징 3칸

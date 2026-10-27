@@ -132,19 +132,22 @@ ACT("setInquiryMode", route="admin.refunds.inquiries.sub-type.update", method="P
     note="sub_type · order_id · item_ids[] · judge_reason")
 ACTX("this.parentElement.innerHTML", route="admin.refunds.inquiries.sub-type.update", method="PUT", url=A + "/refunds/inquiries/{inquiry}/sub-type", perm="수정", note="order_id 연결")
 NAME("inq-reply-textarea", "answer_content", note="answer일 때 10자 이상")
-R("<button class=\"btn btn-sm btn-warning\" onclick=\"alert('환불보류 탭으로",
-  '<select class="form-control" name="hold_reason" style="width:150px; padding:4px 8px;"' + attrs(flag="dev-only", note="개발 RefundHoldRequest hold_reason 4종 + hold_memo(500자)") + '>'
-  '<option value="customer_reply">고객 회신 대기</option><option value="return_wait">증정품 · 교재 반환 대기</option>'
-  '<option value="payment_check">결제 정보 확인 중</option><option value="other">기타</option></select>\n'
-  '                  <button class="btn btn-sm btn-warning"' + attrs(route="admin.refunds.inquiries.hold.update", method="PUT", url=A + "/refunds/inquiries/{inquiry}/hold", perm="수정") + " onclick=\"alert('환불보류 탭으로")
+# v6.92: 보류 alert 버튼 → openRfdHold() 모달(#modal-rfd-hold)로 바뀜(결정 반영 S-11). 예전 dev-only 사유 select는 모달 안 hold-reason으로 대체돼 삭제
+R('id="btn-rfd-hold" onclick="openRfdHold()"', 'id="btn-rfd-hold"' + attrs(perm="수정", note="1:1 문의 패널 — 저장 admin.refunds.inquiries.hold.update(PUT /refunds/inquiries/{inquiry}/hold)") + ' onclick="openRfdHold()"')
+R('id="btn-rfd-hold2" onclick="openRfdHold()"', 'id="btn-rfd-hold2"' + attrs(perm="수정", note="환불 상세 계산기 — 저장 admin.refunds.hold.update(PUT /refunds/{refund}/hold)") + ' onclick="openRfdHold()"')
+NAME("hold-reason", "hold_reason", note="RefundHoldRequest — 값 같음(customer_reply · return_wait · payment_check · other)")
+NAME("hold-memo", "hold_memo", note="개발 required · 500자 — 프로토는 기타만 필수(10자)")
+ACT("confirmRfdHold", route="admin.refunds.hold.update", method="PUT", url=A + "/refunds/{refund}/hold", perm="수정",
+    note="1:1 문의 건은 admin.refunds.inquiries.hold.update. 법정 환급 기한 · 처리 기한은 멈추지 않음(S-11)")
 ALERT("1:1 문의 답변이 등록", route="admin.refunds.inquiries.update", method="PUT", url=A + "/refunds/inquiries/{inquiry}", perm="수정", note="action=draft · answer · hold")
 
 # ── 002 검수 · 포인트 · 계산 ──────────────────────────
 ACT("openPointHistory", route="admin.refunds.point-usages.index", method="GET", url=A + "/refunds/{refund}/point-usages", perm="조회")
-NAME("sel-book-inspect", "inspection_result", note="WAIT = 입고 전(개발은 입고 확인 receipt.update 별도), 파본/불량 합격은 개발 없음(Q-RFD-9)")
+NAME("sel-book-inspect", "inspection_result", note="WAIT = 입고 전(개발은 입고 확인 receipt.update 별도). 3값 normal · defective · damaged(D-ORD-09, defective는 개발 추가 필요)")
 DEVNAME('<option value="PASS"', "inspection_result", value="normal")
-DEVNAME('<option value="DAMAGED"', "inspection_result", value="normal + liability=company (재입고됨, Q-RFD-9)")
-DEVNAME('<option value="REJECT"', "inspection_result", value="damaged")
+DEVNAME('<option value="DAMAGED"', "inspection_result", value="defective", note="(규칙) D-ORD-09 — 파본/불량 · 회사 귀책 고정 · 재고 미입고. 프로토 코드 DAMAGED ≠ 개발 damaged")
+DEVNAME('<option value="REJECT"', "inspection_result", value="damaged", note="고객 훼손")
+ACT("attachRfdInspectPhoto", name="photos[]", note="jpg · png · 10MB — 고객 훼손(damaged)만 필수(D-ORD-02)")
 R('<option value="WAIT" selected>', '<option value="WAIT"' + attrs(note="입고 전 — 개발 warehouse_received_at 비어 있음") + ' selected>')
 NAME("sel-fault", "liability", note="개발 customer · company 2종 — 고객 귀책은 항상 왕복(Q-RFD-7)")
 DEVNAME('<option value="CUSTOMER_ONEWAY"', "liability", value="customer", note="편도 구분 없음")
@@ -165,7 +168,13 @@ R('<button class="btn btn-sm btn-outline" onclick="window.print()">🖨️ 명�
   '<button class="btn btn-sm btn-outline"' + attrs(route="admin.refunds.print.show", method="GET", url=A + "/refunds/{refund}/print", perm="조회") + ' onclick="window.print()">🖨️ 명세서 인쇄</button></div>')
 NAME("c-admin-adj", "manual_amount", note="개발은 최종 환불 현금을 덮어씀(절대값 0~1억) — 프로토는 ± 가감액")
 R('<input type="text" class="form-control" placeholder="보정 사유 입력 (최소 10자)"', '<input type="text" class="form-control" name="manual_reason" data-dev-note="manual_amount 있으면 10~500자" placeholder="보정 사유 입력 (최소 10자)"')
-ALERT("환불 거절 / 반품 기각", route="admin.refunds.rejection.update", method="PUT", url=A + "/refunds/{refund}/rejection", perm="수정", note="layerReject — reason(MemberReasonRequest)")
+# v6.92: 거절 alert 버튼 → openRfdReject() 모달(#modal-rfd-reject)로 바뀜(결정 반영 S-11)
+ACT("openRfdReject", perm="수정", note="개발 레이어 layerReject")
+DEVNAME('name="reject-reason" value="LEGAL_NO_REFUND"', "reject_reason", value="legal_no_refund", note="(규칙) 개발은 사유 코드 없음(MemberReasonRequest reason만)")
+DEVNAME('name="reject-reason" value="INSPECTION_FAIL"', "reject_reason", value="inspection_fail")
+DEVNAME('name="reject-reason" value="DUPLICATE"', "reject_reason", value="duplicate")
+NAME("reject-notice", "reason", note="MemberReasonRequest 공백 제외 10자 · 200자 — 고객 안내 알림톡 문구")
+ACT("confirmRfdReject", route="admin.refunds.rejection.update", method="PUT", url=A + "/refunds/{refund}/rejection", perm="수정")
 ACT("submitFinalRefund", route="admin.refunds.approval.update", method="PUT", url=A + "/refunds/{refund}/approval", perm="수정 + 재무(canSettleMoney)",
     note="1:1 문의 건은 admin.refunds.inquiries.cancel.update, PG 기간 초과 계좌 환불은 admin.pass-refunds.account-refunds.update")
 ACT("confirmP1", route="admin.refunds.approval.update", method="PUT", url=A + "/refunds/{refund}/approval", perm="수정 + 재무", note="minus_agree · minus_reason(10~150자)")
@@ -191,6 +200,10 @@ DEVNAME('name="m3f-ra-type" value="ADD"', "adjustment_type", value="extra_refund
 DEVNAME('name="m3f-ra-type" value="RECOVER"', "adjustment_type", value="clawback")
 DEVNAME('name="m3f-ra-type" value="POINT"', "adjustment_type", value="point", note="개발은 유상 P만(무상 P 보정 없음)")
 NAME("m3f-ra-amount", "amount", note="1~1억, 원 또는 P(수단으로 구분) — 개발은 한 칸")
+NAME("m3f-ra-pkind", "point_kind", note="(규칙) S-09 포인트 단독 보정 — paid 적립 P · free 무상 P. 개발은 유상 P만")
+R('<option value="PAID">적립 P', '<option value="PAID"' + attrs(name="point_kind", value="paid") + '>적립 P')
+R('<option value="FREE">무상 P', '<option value="FREE"' + attrs(name="point_kind", value="free") + '>무상 P')
+NAME("m3f-ra-pexp", "point_expires_at", note="(규칙) S-09 포인트 만료일 필수")
 R('id="m3f-ra-point"', 'id="m3f-ra-point" data-dev-flag="proto-only" data-dev-note="금액 · 포인트 동시 입력 — 개발은 한 거래 = 한 수단(amount 한 칸)"')
 NAME("m3f-ra-exec", "method", note="유형별 허용 METHODS_BY_TYPE")
 R('<option>토스페이먼츠 PG 추가 부분취소</option>', '<option data-dev-value="pg_cancel">토스페이먼츠 PG 추가 부분취소</option>')

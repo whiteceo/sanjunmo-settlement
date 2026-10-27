@@ -101,6 +101,8 @@ R('<div class="form-row"><label>거래 조건</label><div id="vf-terms"></div></
   '<input class="f-input" name="account_no" style="width:200px;" placeholder="계좌번호 (숫자 · -)" />'
   '<input class="f-input" name="account_holder" style="width:140px;" placeholder="예금주" /></div></div></div>\n'
   '        <div class="form-row"><label>거래 조건</label><div id="vf-terms"' + attrs(name="settlement_terms", note="개발은 지급 조건 문자열 한 칸(≤100) — 프로토타입 구조화 입력(vt-rate 등)") + '></div></div>')
+# v6.92: 매입 거래 조건 '반품 조건' 칸 추가(D-PTNR3-03 결정 반영) — 개발은 settlement_terms 문자열 한 칸뿐
+NAME("vt-ret-cond", "return_terms", note="(규칙) 반품(반출) 조건 — 파본 · 인쇄 불량은 반출, 그 밖의 반품은 이 조건이 있을 때만(D-PTNR3-03). 개발 suppliers 칸 없음")
 NAME("vf-susp-ok", "suspend_approved", value="1", note="(규칙) 재무 책임자 승인")
 NAME("vf-susp-reason", "suspend_reason", note="(규칙)")
 DEVNAME('name="vf-on" value="ON"', "status", value="active (규칙)")

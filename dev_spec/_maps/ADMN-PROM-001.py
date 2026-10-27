@@ -55,7 +55,7 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-PROM-001",
     "devCommit": DEV_COMMIT,
-    "progress": "구현(PROM-001 · S1 · S2 · S3). 랜딩 배너 PC · 모바일 · alt, 상태 직접 선택, 행별 차단 표시, Beautify, 주소 · 소스 복사는 개발 없음 — 주황 표시",
+    "progress": "구현(PROM-001 · S1 · S2 · S3). 랜딩 배너 PC · 모바일 · alt, Beautify, 주소 · 소스 복사는 개발 없음 — 주황 표시. 개발 S1 중복 할인 차단 · 대상 상품 매핑은 v6.92 결정(S-16 · D-BRD-03, 기획전 = 단순 게시물)으로 프로토타입에서 삭제",
     "menus": [
         {"route": "admin.promotions.index", "label": "이벤트 관리"},
     ],
@@ -67,34 +67,41 @@ OPS.append(dict(kind="insert_before", anchor="</head>", html=(
 
 # 개발 S1 · S2 · S3는 별도 페이지. 프로토타입 SJM_PAGE 구획(view-list · view-detail · view-form)에 개발 id를 단다
 R('<section id="view-form" class="view-panel subview-panel" data-subpage="form">',
-  '<section id="view-form" class="view-panel subview-panel" data-subpage="form"' + attrs(note="개발 폼 id promo-form (S3). S1 차단은 별도 페이지 blockForm") + '>')
+  '<section id="view-form" class="view-panel subview-panel" data-subpage="form"' + attrs(note="개발 폼 id promo-form (S3). 개발 S1 차단 페이지(blockForm)는 v6.92 결정으로 프로토타입에 없음") + '>')
 R('id="promo-role-sim"', 'id="promo-role-sim" data-dev-flag="proto-only" data-dev-note="역할 그룹 시연 — 개발은 로그인 관리자 권한"')
 
 # ── 001 목록 ─────────────────────────────────────────
 ACT("setCategoryFilter", count=3, route="admin.promotions.index", method="GET", url=A + "/promotions", perm="조회", name="type", value="'' · promotion · event")
-ACT("filterBlockOnly", flag="proto-only", note="KPI 중복 할인 차단 작동중 — 개발 없음")
+# v6.92: filterBlockOnly(KPI 중복 할인 차단 작동중) 삭제(결정 반영, S-16 · D-BRD-03)
+ACT("filterStoppedOnly", route="admin.promotions.index", method="GET", url=A + "/promotions", perm="조회", name="status", value="stopped", note="KPI 즉시 중단")
 R('<button type="button" class="btn btn-primary" data-perm-w="promo" onclick="openPromoFormNew()">',
   '<button type="button" class="btn" data-dev-flag="dev-only"' + attrs(route="admin.promotions.download", method="GET", url=A + "/promotions/download", perm="다운로드",
   note="반출 사유 공용 모달 layerReason(reason · reason_etc · reason_ref)") + '>엑셀 다운로드</button>\n'
   '              <button type="button" class="btn btn-primary" data-perm-w="promo"' + attrs(route="admin.promotions.create", method="GET", url=A + "/promotions/create", perm="등록") + ' onclick="openPromoFormNew()">')
 NAME("flt-cat", "type", value="promotion · event")
-DEVNAME('<option value="PROMO">기획전 (기획상품)</option>', "type", value="promotion")
+# v6.92: 구분 이름 '기획전 (기획상품)' → '기획전'(결정 반영, S-16)
+DEVNAME('<option value="PROMO">기획전</option>', "type", value="promotion")
 DEVNAME('<option value="EVENT">이벤트 (일반이벤트)</option>', "type", value="event")
-NAME("flt-status", "status", value="scheduled · active · ended · stopped(개발에만)")
+NAME("flt-status", "status", value="scheduled · active · ended · stopped")
 DEVNAME('<option value="ACTIVE">진행중</option>', "status", value="active")
 DEVNAME('<option value="READY">예약 (노출 대기)</option>', "status", value="scheduled")
 DEVNAME('<option value="ENDED">종료</option>', "status", value="ended")
-R('id="flt-block"', 'id="flt-block" data-dev-flag="proto-only" data-dev-note="차단 ON/OFF 필터 — 개발 없음. 개발 추가 필터: period_from · period_to · sort(started_asc · started_desc)"')
+DEVNAME('<option value="STOPPED">중단 (관리자)</option>', "status", value="stopped")
+# v6.92: flt-block(차단 ON/OFF 필터) 삭제(결정 반영, S-16 · D-BRD-03). 개발 추가 필터: period_from · period_to · sort(started_asc · started_desc)
 NAME("flt-kw", "keyword", note="max:100")
 R("onclick=\"openPromoDetail('${item.code}')\"", attrs(route="admin.promotions.show", method="GET", url=A + "/promotions/{promotion}", perm="조회").lstrip() + " onclick=\"openPromoDetail('${item.code}')\"")
 R("onclick=\"openPromoEdit('${item.code}')\"", attrs(route="admin.promotions.edit", method="GET", url=A + "/promotions/{promotion}/edit", perm="수정",
-  note="차단 설정은 별도 페이지 admin.promotions.blocks.edit(GET /promotions/{promotion}/blocks/edit)").lstrip() + " onclick=\"openPromoEdit('${item.code}')\"")
+  note="중단(stopped) 건은 수정 잠금. 개발 차단 페이지 admin.promotions.blocks.edit는 v6.92 결정으로 1차 미사용").lstrip() + " onclick=\"openPromoEdit('${item.code}')\"")
 
 # ── 001-S2 상세 ─────────────────────────────────────
+# v6.92: dev-only [즉시 중단] 버튼 삭제 — 원본에 btn-dt-stop · modal-promo-stop이 생김(결정 반영, S-16)
 R('<button type="button" class="btn" onclick="copyPromoDetailUrl()">',
-  '<button type="button" class="btn btn-danger" data-dev-flag="dev-only"' + attrs(route="admin.promotions.status.update", method="PUT", url=A + "/promotions/{promotion}/status", perm="수정",
-  name="reason", note="즉시 중단 promotionStopModal — reason 2~200자 필수. 중단 후 수정 · 차단 잠금(정책 질문: 비노출 강제 숨김과 같은지)") + '>⏹ 즉시 중단</button>\n'
-  '              <button type="button" class="btn" data-dev-flag="proto-only" data-dev-note="주소 복사 — 개발 없음" onclick="copyPromoDetailUrl()">')
+  '<button type="button" class="btn" data-dev-flag="proto-only" data-dev-note="주소 복사 — 개발 없음" onclick="copyPromoDetailUrl()">')
+ACT("openPromoStopModal", note="개발 promotionStopModal 열기 — 진행중 · 예약만")
+NAME("stop-reason", "reason", note="개발 2~200자 필수(프로토 maxlength 200)")
+R('id="stop-confirm"', 'id="stop-confirm" data-dev-flag="proto-only" data-dev-note="되돌릴 수 없음 확인 체크 — 개발은 확인 창(confirm)"')
+ACT("confirmPromoStop", route="admin.promotions.status.update", method="PUT", url=A + "/promotions/{promotion}/status", perm="수정",
+    note="status=stopped · reason. 중단 후 수정 잠금 · 슬러그 점유 유지")
 ACT("togglePromoDetailPreview", route="admin.promotions.preview.show", method="GET", url=A + "/promotions/{promotion}/preview", perm="조회", note="개발은 저장본 미리보기 새 창")
 ACT("editCurrentPromoDetail", count=2, route="admin.promotions.edit", method="GET", url=A + "/promotions/{promotion}/edit", perm="수정")
 ACT("copyPromoDetailSource", count=3, flag="proto-only", note="소스 복사 — 개발 없음")
@@ -113,7 +120,8 @@ R('<span class="badge badge-ok" id="slug-valid-badge">',
 NAME("f-promo-slug", "slug", note="promo-slug — 2~40 · ^[a-z0-9]+(-[a-z0-9]+)*$ · 중복 불가(종료 · 중단 포함)")
 NAME("f-promo-start", "started_at", note="Y-m-d\\TH:i")
 NAME("f-promo-end", "ended_at", note="started_at 이후")
-R('id="f-promo-status"', 'id="f-promo-status" data-dev-flag="proto-only" data-dev-note="상태 직접 선택 — 개발은 기간 · 배치로 자동(scheduled · active · ended), 중단은 별도 동작(stopped)"')
+# v6.92: f-promo-status(상태 직접 선택) 삭제(결정 반영, S-16) — 노출 기간으로 자동, 개발과 같음
+R('id="f-promo-status-auto"', 'id="f-promo-status-auto"' + attrs(note="개발 status 자동(scheduled · active · ended) — 입력 없음"))
 R('                <tr>\n                  <th>PC · 모바일 목록 배너',
   '                <tr data-dev-flag="dev-only" data-dev-note="PromotionRequest: thumbnail(등록 때 필수 · jpg · png · webp · 1MB) · headline · sort_type">\n'
   '                  <th>목록 썸네일 · 상단 카피 · 진열 순서</th>\n'
@@ -136,22 +144,8 @@ ACT("validatePromoCodeSecurity", note="개발 promo-lint · lintHtml() · lintBr
 R('id="cm-code-input"', 'id="cm-code-input"' + attrs(name="html_content | css_content | js_content", note="개발은 소스 3분할 textarea(promo-source-html · -css · -js), 각 최대 1,000,000자"))
 
 # ── 001-S1 중복 할인 차단 (blockForm) ──────────────────
-NAME("chk-bulk-disable", "enabled", value="1 · 0(모든 기획전에서 해제)", note="개발 S1은 별도 페이지 admin.promotions.blocks.edit")
-NAME("chk-block-cpn", "benefits[]", value="coupon")
-NAME("chk-block-pt", "benefits[]", value="point")
-NAME("chk-block-earn", "benefits[]", value="earn")
-R('<div id="bulk-disable-config-box"',
-  '<div data-dev-flag="dev-only" data-dev-note="PromotionBlockRequest: block_from · block_to(차단 기간, 노출 기간과 별개) · target(all · selected) + product_ids[] · reason(max:100, 주문서 혜택 입력란 아래 노출)" '
-  'style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; font-size:12px;">\n'
-  '                  <strong>차단 기간</strong> <input type="date" id="blockFrom" name="block_from" class="form-input" /> ~ <input type="date" name="block_to" class="form-input" />\n'
-  '                  <select name="target" class="form-select"><option value="all">전체 대상 상품</option><option value="selected">선택 상품</option></select>\n'
-  '                  <input type="text" name="reason" class="form-input" style="width:280px;" maxlength="100" placeholder="주문서에 보일 차단 사유" />\n'
-  '                  <button type="button" class="btn btn-xs btn-primary"' + attrs(route="admin.promotions.blocks.update", method="PUT", url=A + "/promotions/{promotion}/blocks", perm="수정") + '>차단 저장</button>\n'
-  '                </div>\n'
-  '                <div id="bulk-disable-config-box"')
-NAME("sel-add-prod", "products[n][type|id]", note="개발 promo-target-type · promo-target-keyword · promo-target-search(GET admin.promotions.targets.index JSON). 행: products[n][type|id|promo_price|discount_rate], 1~500행")
-ACT("addMappedProduct", note="개발 addRow() — products[n][…] 행 추가")
-ACT("removeMappedProd", count=2)
+# v6.92: chk-bulk-disable · chk-block-cpn · chk-block-pt · chk-block-earn · bulk-disable-config-box(dev-only 차단 기간 · 대상 · 사유 · 저장) · sel-add-prod · addMappedProduct · removeMappedProd 삭제(결정 반영, S-16 · D-BRD-03)
+# 기획전 = 단순 게시물. 개발 admin.promotions.blocks.edit · blocks.update · targets.index · products[n][…]는 개발에만 남음(1차 미사용)
 
 # ── 검증 ──────────────────────────────────────────
 VERIFY = [

@@ -433,7 +433,6 @@
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-SETT-006", "devCommit": "d562524a", "progress": "일부 구현(2차). 옵션 A 확정만 있고 B · C는 마감 보류(HOLD). 일괄 확정 · 엑셀 · 보완 요청 · 재연산 안내는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.pass-refunds.index", "label": "합격 환급반 관리(정산)"}, {"route": "admin.pass-refunds.index", "label": "합격 환급 심사(회원 쪽, 심사 승인 · 증빙 열람)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
 <div id="v4-root-shell">
@@ -554,6 +553,7 @@
                     <option value="SUPPLEMENT">📨 보완 요청</option>
                     <option value="PENDING">⏳ 차감 승인 대기</option>
                     <option value="APPROVED">✔ 정산 반영 완료</option>
+                    <option value="REJECTED">⛔ 반려 (환급 불가 확정)</option>
                   </select>
                 </td>
                 <th>통합 검색어</th>
@@ -772,6 +772,32 @@
   </div>
 </div>
 
+<!-- 반려 (합격환급 심사 상세 안 작은 팝업) — white 2026-10-27 S-03: 환급 불가 확정 상태, 사유 코드 + 고객 안내 필수 -->
+<div id="rejectModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="rejectTitle">
+  <div class="modal-card" style="width:580px;">
+    <div class="modal-header">
+      <strong id="rejectTitle" style="font-size:15px;">반려 (환급 불가 확정)</strong>
+      <button type="button" class="btn btn-sm" onclick="closeRejectModal()">✕ 닫기</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12.5px; color:var(--text-sub); line-height:1.6;">반려하면 이 건은 <strong>환급 불가로 종결</strong>되고 수험생에게 <strong>[환급 불가 안내] 알림톡</strong>이 발송됩니다. 강사 정산 차감도 없습니다. 서류 미비 · 계좌 문제처럼 다시 받을 수 있는 경우는 반려 대신 [보완 요청]을 쓰세요.</div>
+      <div>
+        <label for="rejectCode" style="display:block; font-weight:700; font-size:12px; color:var(--text-sub); margin-bottom:6px;">반려 사유 코드 <span style="color:var(--danger);">*</span></label>
+        <select id="rejectCode" name="reject_reason" data-dev-note="옵션은 JS(REJECT_REASONS)가 채움. 코드 다름 — 프로토 NOT_PASSED · PROGRESS_SHORT · APPLY_EXPIRED · NAME_MISMATCH · REVIEW_REJECTED · ETC / 개발 name_mismatch · review_length · bankbook_unreadable · link_unavailable · other_round · other(미확정 표시, S-03 목록으로 맞출 것)" class="select" style="width:100%;"></select>
+      </div>
+      <div>
+        <label for="rejectNotice" style="display:block; font-weight:700; font-size:12px; color:var(--text-sub); margin-bottom:6px;">고객 안내 문구 (알림톡에 표시) <span style="color:var(--danger);">*</span></label>
+        <textarea id="rejectNotice" name="reject_detail" data-dev-note="required · 10~1000자(REJECT_DETAIL_MIN) — 고객 안내 문구" class="input" rows="3" style="width:100%; resize:vertical;" placeholder="예) 상품의 환급 인정 진도율 90%에 못 미쳐(최종 82.0%) 합격환급 대상이 아닙니다."></textarea>
+        <div id="rejectError" style="display:none; margin-top:4px; color:var(--danger); font-size:12px; font-weight:700;"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" onclick="closeRejectModal()">취소</button>
+      <button type="button" class="btn btn-primary" id="rejectConfirmBtn" data-dev-route="admin.pass-refunds.update" data-dev-method="PUT" data-dev-url="/sj-admin/pass-refunds/{passRefund}" data-dev-perm="수정(합격 환급 심사 메뉴)" data-dev-note="종결 · 환급 불가 안내 알림톡 · 강사 정산 차감 없음 · 지급 없음" data-dev-name="action" data-dev-value="reject" onclick="confirmReject()">반려 확정 · 안내 발송</button>
+    </div>
+  </div>
+</div>
+
 <div id="recalcNoticeModal" data-dev-flag="proto-only" data-dev-note="정산서 자동 재연산 안내 — 개발 없음(localStorage sjm.settle.recalcEvents.v1)" class="modal-backdrop recalc-notice" role="dialog" aria-modal="true" aria-labelledby="recalcNoticeTitle" style="position:fixed; inset:0; background:rgba(15,23,42,0.55); display:none; align-items:center; justify-content:center; z-index:11000; padding:20px;">
   <div style="background:#fff; border-radius:12px; width:680px; max-width:96%; max-height:86vh; display:flex; flex-direction:column; box-shadow:0 20px 45px rgba(15,23,42,0.25); overflow:hidden;">
     <div style="padding:14px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; gap:8px;"><strong id="recalcNoticeTitle" style="font-size:15px;">정산서 자동 재연산 안내</strong><button type="button" class="btn btn-sm" onclick="closeRecalcNotice()">✕ 닫기</button></div>
@@ -829,6 +855,8 @@
         bankbookCopyFile: "통장사본_KB국민은행_홍길동.png",
         bankNameTier1: "KB국민은행 (시중 1금융권)",
         bankAccountRealName: "123-45-****-890 (예금주: 홍길동 · 실명 일치)",
+        rrnMasked: "880412-1******",
+        rrnIdCheck: true,
         appliedMonth: "2026-10",
         status: "APPROVED",
         memo: "옵션 B — 환급금 410,000원 × 원거래 지분 100% × 요율 50% = 강사료 차감 205,000원. 원 주문 강좌 CRS-1004는 정종대 지분 100%(자사 0%)라 개발지원금 대상이 아니어서(SFA-2026-009 대상은 CRS-1002 · PROD-BK-1004) 원거래 지원금 0원 → 지원금 차감 0원 · 한도 복원 없음. 2026-10-26 승인"
@@ -869,6 +897,9 @@
         bankbookCopyFile: "통장사본_신한은행_최안전.jpg",
         bankNameTier1: "신한은행 (시중 1금융권)",
         bankAccountRealName: "110-382-****91 (예금주: 최안전 · 실명 일치)",
+        rrnMasked: "910723-1******",
+        rrnIdCheck: true,
+        reviewMonth: "2026-10",
         appliedMonth: "2026-11",
         status: "PENDING",
         memo: "4대 제출자료 확인 완료. 정산 반영월 2026-11 지정(10월 정산 제외) — 11월 정산서에서 월 최저보장금(MMG 1,500,000원) 판정을 먼저 한 뒤 매출 취소 차감(환급금 400,000원 × 지분 100% × 요율 50% = 200,000원)을 별도 반영"
@@ -909,6 +940,8 @@
         bankbookCopyFile: "통장사본_우리은행_이수석.png",
         bankNameTier1: "우리은행 (시중 1금융권)",
         bankAccountRealName: "1002-841-****12 (예금주: 이수석 · 실명 일치)",
+        rrnMasked: "950108-1******",
+        rrnIdCheck: true,
         appliedMonth: "2026-10",
         status: "APPROVED",
         memo: "원 결제월(2026-02) 스냅샷 적용 — 환급금 240,000원 × 지분 100% × 요율 50% = 강사료 차감 120,000원. 원 주문 강좌 CRS-1004는 자사 지분 0%라 개발지원금 대상이 아니어서 원거래 지원금 0원 → 지원금 차감 0원 · 한도 복원 없음"
@@ -950,6 +983,8 @@
         bankbookCopyFile: "통장사본_하나은행_최유진.jpg",
         bankNameTier1: "하나은행 (시중 1금융권)",
         bankAccountRealName: "391-910***-**107 (예금주: 최유진 · 실명 일치)",
+        rrnMasked: "970330-2******",
+        rrnIdCheck: true,
         appliedMonth: "2026-10",
         status: "APPROVED",
         memo: "옵션 B — 강사료 차감 43,350원 = 환급금 144,500원 × 원거래 지분 60% × 요율 50%(내림), 원거래 확정 지원금 14,450원(= 144,500원 × 10% 내림) × 분담 100% = 개발지원금 차감 14,450원 · 잔여 한도 +14,450원 복원(SFA-2026-015). D-9 규칙(복원 한도 당월 사용) 시연 — 복원 한도는 같은 달 지원금 확정에 사용. 2026-10-25 승인"
@@ -990,6 +1025,8 @@
         bankbookCopyFile: "통장사본_IBK기업은행_정하늘.png",
         bankNameTier1: "IBK기업은행 (시중 1금융권)",
         bankAccountRealName: "221-08****-01-011 (예금주: 정하늘 · 실명 일치)",
+        rrnMasked: "990914-2******",
+        rrnIdCheck: true,
         appliedMonth: "2026-10",
         status: "APPROVED",
         memo: "6월 막차 특가 프로모션 옵션 A(플랫폼 부담) — 강사 정산 차감 0원. 4대 제출 증빙 확인 후 2026-10-26 승인"
@@ -1030,6 +1067,8 @@
         bankbookCopyFile: "통장사본_KB국민은행_한승우.png",
         bankNameTier1: "KB국민은행 (시중 1금융권)",
         bankAccountRealName: "531-21-****-447 (예금주: 한승우)",
+        rrnMasked: "930605-1******",
+        rrnIdCheck: true,
         appliedMonth: "",
         status: "REVIEW",
         memo: "2026-10-24 합격환급 신청 접수(USER-MY-011) — 4대 증빙 제출, 심사 대기. 심사 승인 시 승인월 정산 차감 대기열로 넘어감(옵션 B 예상 차감 = 410,000원 × 지분 100% × 요율 50% = 205,000원, 원 주문 강좌 CRS-1004 자사 지분 0%라 지원금 차감 0원)"
@@ -1199,8 +1238,8 @@
           </td>
           <td>${statusBadge}${item.appliedMonth && item.appliedMonth !== curMonth() ? `<div style="margin-top:4px;"><span class="badge badge-neutral">정산 반영월 ${item.appliedMonth}</span></div>` : ""}</td>
           <td style="text-align:center;" onclick="event.stopPropagation();">
-            <button type="button" class="btn btn-sm ${item.status === "APPROVED" ? "" : "btn-primary"}" data-dev-route="admin.settlement.pass-refunds.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pass-refunds/{claim}" data-dev-perm="조회" onclick="openHrfDetailPage('${item.id}')">
-              ${item.status === "PENDING" ? "상세 · 승인" : (item.status === "APPROVED" ? "상세 보기" : "상세 · 심사")}
+            <button type="button" class="btn btn-sm ${item.status === "APPROVED" || item.status === "REJECTED" ? "" : "btn-primary"}" data-dev-route="admin.settlement.pass-refunds.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/pass-refunds/{claim}" data-dev-perm="조회" onclick="openHrfDetailPage('${item.id}')">
+              ${item.status === "PENDING" ? "상세 · 승인" : (item.status === "APPROVED" || item.status === "REJECTED" ? "상세 보기" : "상세 · 심사")}
             </button>
           </td>
         </tr>
@@ -1212,12 +1251,48 @@
 
   // 심사 · 정산 반영 상태 — REVIEW(심사 대기) → [심사 승인] → PENDING(정산 차감 승인 대기) → [당월 정산 차감 확정 승인] → APPROVED
   //                         └ [보완 요청] → SUPPLEMENT(수험생 재업로드 대기) → 재업로드 시 REVIEW   (통합설계서 Flow 4-2 Step 2 · 3)
+  //                         └ [반려] → REJECTED(환급 불가 확정 · 종결, 사유 코드 + 고객 안내 필수) — 영영 채울 수 없는 요건(white 2026-10-27 S-03)
+  //                           계좌 문제(지급 가능 은행 아님 · 계좌 오류)는 새 상태 없이 [보완 요청]으로 처리
   const STATUS_META = {
     REVIEW: { badge: "badge-neutral", list: "🔍 심사 대기", detail: "🔍 4대 증빙 · 명의 3중 대조 심사 대기" },
     SUPPLEMENT: { badge: "badge-danger", list: "📨 보완 요청", detail: "📨 보완 요청 — 수험생 재업로드 대기" },
     PENDING: { badge: "badge-warn", list: "⏳ 승인 대기", detail: "⏳ 정산 차감 승인 대기" },
-    APPROVED: { badge: "badge-success", list: "✔ 정산반영 완료", detail: "✔ 당월 정산 반영 완료" }
+    APPROVED: { badge: "badge-success", list: "✔ 정산반영 완료", detail: "✔ 당월 정산 반영 완료" },
+    REJECTED: { badge: "badge-neutral", list: "⛔ 반려 (환급 불가)", detail: "⛔ 반려 — 환급 불가 확정 (종결)" }
   };
+
+  // 반려 사유 코드 (S-03) — 고객 안내 알림톡에 사유가 함께 나간다
+  const REJECT_REASONS = [
+    { code: "NOT_PASSED", label: "불합격 · 합격 사실 확인 불가" },
+    { code: "PROGRESS_SHORT", label: "진도율 · 출석 기준 미달" },
+    { code: "APPLY_EXPIRED", label: "신청 기한 경과" },
+    { code: "NAME_MISMATCH", label: "명의 불일치 해소 불가" },
+    { code: "REVIEW_REJECTED", label: "합격수기 반려 미해소" },
+    { code: "ETC", label: "기타 (안내 문구에 사유 기재)" }
+  ];
+  function rejectReasonLabel(code) {
+    const r = REJECT_REASONS.find(x => x.code === code);
+    return r ? r.label : code;
+  }
+
+  // 환급금 지급 일정 (S-03) — 월 1회 일괄 이체, 기본 '심사 승인월의 익월 10일'(휴일이면 다음 영업일).
+  // 10일은 정본 근거 없는 운영 편의값이라 설정값으로 둔다(정산 운영 설정에서 바꿀 수 있는 기본값).
+  const HRF_PAYOUT_CONFIG = { cycle: "월 1회 일괄 이체", monthOffset: 1, day: 10, isDefault: true };
+  function nextBizDay(d) {
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    return d;
+  }
+  function hrfPayoutDateOf(item) {
+    const m = item.reviewMonth || item.appliedMonth;
+    if (!m || item.status === "REVIEW" || item.status === "SUPPLEMENT" || item.status === "REJECTED") return null;
+    const [y, mo] = m.split("-").map(Number);
+    const d = nextBizDay(new Date(y, mo - 1 + HRF_PAYOUT_CONFIG.monthOffset, HRF_PAYOUT_CONFIG.day));
+    const z = n => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}(${"일월화수목금토"[d.getDay()]})`;
+  }
+  function hrfPayoutRuleText() {
+    return `${HRF_PAYOUT_CONFIG.cycle} · 심사 승인월 익월 ${HRF_PAYOUT_CONFIG.day}일(휴일이면 다음 영업일)${HRF_PAYOUT_CONFIG.isDefault ? " — 기본값 · 설정 가능" : ""}`;
+  }
 
   // 상품별 합격환급 인정 진도율(target_progress_rate) · 출석일수 기준 — 상품 설정(ADMN-PROD-005 '환급 인정 진도율')의 값.
   // 상품에 값이 없으면 기본 90%(통합설계서 S4-01 · 개정 v3.2.14 '90% 고정 아님'). 출석일수 기준이 없는 상품은 진도율만 판정한다.
@@ -1249,18 +1324,27 @@
       { key: "cert", label: "합격증 사본", ok: !!item.certImageFile },
       { key: "review", label: "합격수기 아웃링크", ok: !!item.reviewOutlinkUrl },
       { key: "bankbook", label: "통장 사본", ok: !!item.bankbookCopyFile },
-      { key: "account", label: "1금융권 은행명 · 실명 계좌", ok: !!(item.bankNameTier1 && item.bankAccountRealName) }
+      { key: "account", label: "지급 가능 은행(1금융권) · 실명 계좌", ok: !!(item.bankNameTier1 && item.bankAccountRealName) }
     ];
     return { list, ok: list.every(x => x.ok) };
   }
+  // 원천징수용 주민등록번호 (S-02) — 증빙 서류가 아니라 번호만 따로 입력 · 암호화 보관(ADMN-USER-007). 신분증 사본은 받지 않는다.
+  // 기타소득 지급명세서(소득세법 제164조)에 적어야 하므로 신청 때 항상 받는다. 본인인증(이름 · 생년월일 · 성별)으로 앞 7자리 실명 대조.
+  function rrnCheckOf(item) {
+    const entered = !!item.rrnMasked;
+    return { entered, masked: item.rrnMasked || "", match: entered && item.rrnIdCheck === true };
+  }
   function reviewGate(item) {
-    const p = progressInfo(item), n = nameCheckOf(item), e = evidenceOf(item);
+    const p = progressInfo(item), n = nameCheckOf(item), e = evidenceOf(item), r = rrnCheckOf(item);
     const why = [];
     if (!p.met) why.push(`진도율 목표 ${p.rule.target}% 미달`);
     if (!e.ok) why.push("4대 증빙 미제출 " + e.list.filter(x => !x.ok).map(x => x.label).join(", "));
     if (!n.ok) why.push("명의 3중 대조 불일치");
+    if (!r.entered) why.push("원천징수용 주민등록번호 미입력");
+    else if (!r.match) why.push("주민등록번호 · 본인인증 실명 대조 불일치");
     if (item.status === "SUPPLEMENT") why.push("보완 요청 후 수험생 재업로드 대기");
-    return { ok: why.length === 0 && item.status === "REVIEW", why, p, n, e };
+    if (item.status === "REJECTED") why.push("반려 종결 건");
+    return { ok: why.length === 0 && item.status === "REVIEW", why, p, n, e, r };
   }
   function nowStamp() {
     const d = new Date(), z = n => String(n).padStart(2, "0");
@@ -1341,9 +1425,10 @@
             <span>📎 <code>${item.bankbookCopyFile}</code> <button type="button" class="btn btn-sm" data-dev-route="admin.pass-refunds.files.show" data-dev-method="GET" data-dev-url="/sj-admin/pass-refunds/{passRefund}/files/{file}" data-dev-perm="조회(합격 환급 심사 메뉴)" onclick="showToast('통장 사본 이미지를 열람합니다: ${item.bankbookCopyFile}')">사본 보기</button></span>
           </div>
           <div class="info-row">
-            <span style="color:#1e40af; font-weight:700;">[4] 시중 1금융권 은행 · 실명 계좌</span>
+            <span style="color:#1e40af; font-weight:700;">[4] 지급 가능 은행(1금융권) · 실명 계좌</span>
             <span>🏦 <strong>${item.bankNameTier1}</strong> · <code>${item.bankAccountRealName}</code></span>
           </div>
+          <div style="font-size:11.5px; color:var(--text-muted); line-height:1.6; margin-top:6px;">지급 가능 은행 = 환급금 대량이체가 되는 은행 목록(기준정보). 목록 밖 은행 · 계좌 오류는 반려하지 않고 [보완 요청] '지급 가능 은행 계좌 필요'로 다시 받습니다. 신분증 사본은 받지 않습니다(원천징수용 주민등록번호는 2번 칸에서 번호만 확인).</div>
         </div>
 
         <!-- 2. 명의 3중 대조 · 심사 결과 -->
@@ -1355,15 +1440,24 @@
           </div>
           ${nameRow("합격증 성명", g.n.cert)}
           ${nameRow("예금주 실명", g.n.holder)}
+          <div class="info-row" id="hrfRrnRow">
+            <span style="color:var(--text-sub); font-weight:600;">원천징수용 주민등록번호<br><span style="font-weight:500; font-size:11px;">번호만 입력 · 암호화 보관(USER-007) · 신분증 사본 미수집</span></span>
+            <span>${g.r.entered ? `<code>${g.r.masked}</code> ${ok(g.r.match, "본인인증 실명 대조 일치", "본인인증 대조 불일치")}` : `<span class="badge badge-danger">미입력</span>`}</span>
+          </div>
           <div class="info-row" style="background:${g.n.ok ? "#f0fdf4" : "#fef2f2"}; padding:8px 10px; border-radius:6px; margin-top:4px;">
             <span style="font-weight:700; color:${g.n.ok ? "#166534" : "#991b1b"};">대조 결과</span>
             <strong id="hrfNameResult" style="color:${g.n.ok ? "#166534" : "#991b1b"};">${g.n.ok ? "통과 — 심사 승인 가능" : "불일치 — 심사 승인 불가 (보완 요청)"}</strong>
           </div>
           <div class="info-row">
             <span style="color:var(--text-sub); font-weight:600;">심사 번호 / 심사 결과</span>
-            <span>${item.rfdApproveId ? `<code>${item.rfdApproveId}</code> ` : ""}${item.status === "REVIEW" || item.status === "SUPPLEMENT" ? `<span class="badge ${sm.badge}">${sm.list}</span>` : `<span class="badge badge-success">심사 승인 완료</span>`}</span>
+            <span>${item.rfdApproveId ? `<code>${item.rfdApproveId}</code> ` : ""}${item.status === "REVIEW" || item.status === "SUPPLEMENT" || item.status === "REJECTED" ? `<span class="badge ${sm.badge}">${sm.list}</span>` : `<span class="badge badge-success">심사 승인 완료</span>`}</span>
           </div>
-          ${g.why.length && (item.status === "REVIEW" || item.status === "SUPPLEMENT") ? `<div class="info-row"><span style="color:var(--danger); font-weight:700;">승인 불가 사유</span><span style="color:var(--danger); font-size:12px;">${g.why.join(" · ")}</span></div>` : ""}
+          ${item.rejection ? `<div id="hrfRejectInfo" style="margin-top:8px; padding:8px 10px; border:1px solid #fecaca; background:#fef2f2; border-radius:6px; font-size:12px; line-height:1.6;">
+            <div><strong style="color:#991b1b;">반려 사유</strong> <code>${item.rejection.code}</code> ${rejectReasonLabel(item.rejection.code)}</div>
+            <div><strong>고객 안내 (알림톡 발송)</strong> ${item.rejection.notice}</div>
+            <div style="color:var(--text-muted);">${item.rejection.at} · ${item.rejection.actor} — 환급 불가 확정 · 종결</div>
+          </div>` : ""}
+          ${g.why.length && (item.status === "REVIEW" || item.status === "SUPPLEMENT") ?`<div class="info-row"><span style="color:var(--danger); font-weight:700;">승인 불가 사유</span><span style="color:var(--danger); font-size:12px;">${g.why.join(" · ")}</span></div>` : ""}
           ${supHist ? `<div style="font-weight:700; font-size:12px; color:var(--text-sub); margin-top:10px;">보완 요청 이력</div>${supHist}` : ""}
         </div>
       </div>
@@ -1391,6 +1485,10 @@
           <div class="info-row" style="background:#f0fdf4; padding:8px 10px; border-radius:6px; margin-top:4px;">
             <span style="color:#166534; font-weight:700;">세후 실지급액 (수험생 계좌 입금)</span>
             <strong style="color:var(--success); font-size:13.5px;">${fmt(item.netPayoutToStudent)}</strong>
+          </div>
+          <div class="info-row" id="hrfPayoutRow">
+            <span style="color:var(--text-sub);">환급금 지급 예정일<br><span style="font-size:11px;">${hrfPayoutRuleText()}</span></span>
+            <span>${item.status === "REJECTED" ? "지급 없음 (반려)" : (hrfPayoutDateOf(item) ? `<strong>${hrfPayoutDateOf(item)}</strong> 일괄 이체` : "심사 승인 후 확정")}</span>
           </div>
         </div>
 
@@ -1426,8 +1524,9 @@
     footEl.innerHTML = `
       <button type="button" class="btn" onclick="SJM_PAGE.back()">목록</button>
       ${inReview ? `
+      <button type="button" class="btn" style="color:var(--danger); border-color:var(--danger);" id="hrfRejectBtn" data-dev-perm="수정(합격 환급 심사 메뉴)" data-dev-note="개발 반려 레이어 — reject_reason · reject_detail" onclick="openRejectModal('${item.id}')">⛔ 반려 (환급 불가)</button>
       <button type="button" class="btn" data-dev-flag="proto-only" data-dev-note="보완 요청 — 개발 심사는 action verify · approve · reject · memo만(반려 reject_reason · reject_detail)" onclick="openSupplementModal('${item.id}')">📨 보완 요청</button>
-      <button type="button" class="btn btn-primary" id="hrfReviewApproveBtn" data-dev-route="admin.pass-refunds.update" data-dev-method="PUT" data-dev-url="/sj-admin/pass-refunds/{passRefund}" data-dev-perm="수정(합격 환급 심사 메뉴)" data-dev-note="PassRefundReviewRequest action=approve + checks[](8종) · exam_year · exam_round · admin_memo" onclick="approveReview('${item.id}')" ${g.ok ? "" : "disabled"} title="${g.ok ? "" : g.why.join(" · ")}">✔ 심사 승인</button>` : `
+      <button type="button" class="btn btn-primary" id="hrfReviewApproveBtn" data-dev-route="admin.pass-refunds.update" data-dev-method="PUT" data-dev-url="/sj-admin/pass-refunds/{passRefund}" data-dev-perm="수정(합격 환급 심사 메뉴)" data-dev-note="PassRefundReviewRequest action=approve + checks[](8종) · exam_year · exam_round · admin_memo" onclick="approveReview('${item.id}')" ${g.ok ? "" : "disabled"} title="${g.ok ? "" : g.why.join(" · ")}">✔ 심사 승인</button>` : item.status === "REJECTED" ? "" : `
       <button type="button" class="btn btn-primary" id="hrfDeductApproveBtn" data-dev-route="admin.settlement.pass-refunds.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/pass-refunds/{claim}" data-dev-perm="수정" data-dev-note="opinion 필수. 옵션 A만 rs · support 차감 0으로 확정, B · C는 검증 오류(마감 보류 HOLD) — 정책 질문 D-SETT" onclick="approveSettlementDeduct('${item.id}')" ${item.status === "PENDING" ? "" : "disabled"}>
         ${item.status === "APPROVED" ? "✔ 당월 정산 반영 완료됨" : "✔ 당월 정산 차감 확정 승인"}
       </button>`}
@@ -1467,7 +1566,11 @@
     const item = state.items.find(x => x.id === id);
     if (!item) return;
     const g = reviewGate(item);
-    const opts = g.e.list.map(x => ({ label: x.label, on: !x.ok })).concat([{ label: "명의 불일치 (합격증 성명 · 예금주)", on: !g.n.ok }]);
+    const opts = g.e.list.map(x => ({ label: x.label, on: !x.ok })).concat([
+      { label: "명의 불일치 (합격증 성명 · 예금주)", on: !g.n.ok },
+      { label: "지급 가능 은행 계좌 필요 (목록 밖 은행 · 계좌 오류)", on: false },
+      { label: "원천징수용 주민등록번호 재입력 (미입력 · 본인인증 대조 불일치)", on: !g.r.match }
+    ]);
     document.getElementById("supplementTitle").textContent = `보완 요청 — ${item.studentName} (${item.id})`;
     document.getElementById("supplementItems").innerHTML = opts.map((o, i) =>
       `<label style="display:flex; align-items:center; gap:6px; cursor:pointer;"><input type="checkbox" class="sup-item" name="items[]" value="${o.label}" ${o.on ? "checked" : ""}> ${o.label}</label>`).join("");
@@ -1510,6 +1613,55 @@
     renderAuditLogs();
     fillHrfDetail(item.id);
     showToast(`[${item.id}] 보완 요청 알림톡을 발송했습니다. 수험생이 서류를 다시 올리면 심사 대기로 돌아옵니다.`);
+  }
+
+  /* [반려] 팝업(P) — 환급 불가 확정(종결). 사유 코드 + 고객 안내 문구 필수, [환급 불가 안내] 알림톡 발송 (S-03) */
+  function openRejectModal(id) {
+    const item = state.items.find(x => x.id === id);
+    if (!item) return;
+    document.getElementById("rejectTitle").textContent = `반려 (환급 불가 확정) — ${item.studentName} (${item.id})`;
+    document.getElementById("rejectCode").innerHTML = `<option value="">사유 코드를 고르세요</option>` +
+      REJECT_REASONS.map(r => `<option value="${r.code}">${r.label}</option>`).join("");
+    document.getElementById("rejectNotice").value = "";
+    const err = document.getElementById("rejectError");
+    err.style.display = "none"; err.textContent = "";
+    const m = document.getElementById("rejectModal");
+    m.dataset.id = id;
+    m.classList.add("show");
+    m.style.setProperty("display", "flex", "important");
+    m.removeAttribute("aria-hidden");
+  }
+  function closeRejectModal() {
+    const m = document.getElementById("rejectModal");
+    m.classList.remove("show");
+    m.style.setProperty("display", "none", "important");
+  }
+  function confirmReject() {
+    const m = document.getElementById("rejectModal");
+    const item = state.items.find(x => x.id === m.dataset.id);
+    if (!item) return;
+    const code = document.getElementById("rejectCode").value;
+    const notice = document.getElementById("rejectNotice").value.trim();
+    const err = document.getElementById("rejectError");
+    const msg = !code ? "반려 사유 코드를 고르세요." : (!notice ? "고객 안내 문구를 입력하세요(수험생 알림톡에 표시됩니다)." : "");
+    if (msg) { err.textContent = msg; err.style.display = "block"; return; }
+    const at = nowStamp();
+    item.status = "REJECTED";
+    item.appliedMonth = "";
+    item.rejection = { at, actor: "CS담당자 (김검수)", code, notice };
+    state.auditLogs.unshift({
+      time: at,
+      actor: "CS담당자 (김검수)",
+      targetId: item.id,
+      burden: burdenShort(item),
+      action: `[반려] 환급 불가 확정 — 사유 ${code}(${rejectReasonLabel(code)}) · [환급 불가 안내] 알림톡 발송 · 강사 정산 차감 없음`,
+      basis: notice
+    });
+    closeRejectModal();
+    renderTable();
+    renderAuditLogs();
+    fillHrfDetail(item.id);
+    showToast(`[${item.id}] 반려(환급 불가 확정) — 수험생에게 안내 알림톡을 발송했습니다.`);
   }
 
   function toggleCheckAll(master) {

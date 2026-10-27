@@ -1,6 +1,6 @@
 # ADMN-BRD-002 1:1 문의 관리 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-BRD-002_baseline.html (원본 상태: 84c22e2)
+- 프로토타입 파일: prototype_clean/ADMN-BRD-002_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-BRD-002(목록), ADMN-BRD-002-S1(1:1 답변 등록 · 알림톡), ADMN-BRD-002-P1(회원 컨텍스트 모달)
 - 개발 진행: 구현. 담당 이응민(`config/dev-progress.php`), 커밋 언급 BRD-002 10 · S1 10 · P1 2(dev_spec/_index/progress.md)
@@ -53,7 +53,9 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | `internal_memo` | nullable string | 회원 미노출 | 없음(이관 모달 `modal-memo` 가 비슷) |
 | `draft_content` | nullable string | 임시 저장 초안 | 없음 |
 | `hold_reason` | hold 일 때 required · max:255. 답변완료 건은 보류 불가(서비스) | | `dt-hold-reason` |
-| `hold_until` | hold 일 때 required · date · 오늘 이후 | 재개 예정일 | 없음 |
+| `hold_until` | hold 일 때 required · date · 오늘 이후 | 재개 예정일 | v6.92: `dt-hold-until`(필수, 이날 자동 '처리중' 복귀) · [지금 재개] `resumeHold()`(개발 라우트 없음) |
+| (규칙) 보류 자동 재개 | 배치 — hold_until 도래 시 status hold → processing, 보류 중 SLA 정지 | | v6.92 S-19: `autoResumeHolds()` · `[시연] 재개 예정일 도래` `simulateHoldDue()` — 개발 배치 없음 |
+| (규칙) 재문의 재개 | 답변완료 후 `inquiry_reopen_days`(설정값 30일) 안 재문의 → 같은 문의 processing · 담당자 유지 · SLA 재문의 시점부터, 지나면 새 문의 | | v6.92 S-19: `[시연] 회원 재문의 도착` `simulateReInquiry()` — 개발은 재문의를 늘 새 문의로 받음(Front InquiryService:29) |
 | `edit_reason` | max:255. 답변완료 건을 다시 answer 하면 필수(서비스) | [답변 수정] 펼친 뒤 입력 | 없음 |
 | `notify` | nullable boolean, 기본 ON(hidden 0 + checkbox 1) | `notifyAnswer` | 체크박스 "답변 등록 시 카카오 알림톡(SENS) + 이메일 동시 발송"(id 없음) |
 | `notify_skip_reason` | max:200. 새 답변에서 notify 끄면 필수(서비스) | `notifySkipRow` | 없음 |
@@ -136,7 +138,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 ### 개발에만 있음 (prototype_dev에 정본 디자인으로 추가)
 - 엑셀 다운로드(현재 조건 · 선택) + 반출 사유.
 - 담당자 일괄 지정(최고 관리자), 잠금 해제(사유 필수, 최고 관리자).
-- 보류 재개 예정일 `hold_until`, 내부 메모, 답변완료 건 수정 사유 `edit_reason`, 알림 끌 때 사유 `notify_skip_reason`.
+- 보류 재개 예정일 `hold_until`(**→ 결정(v6.92 white, S-19)**: 프로토도 보류 = 사유 + 재개 예정일 필수, 보류 중 SLA 정지 · 예정일 자동 '처리중' — 같아짐. 자동 복귀 배치는 개발에 없음), 내부 메모, 답변완료 건 수정 사유 `edit_reason`, 알림 끌 때 사유 `notify_skip_reason`.
 - 스코어카드 "알림톡 발송 실패" · 발송 이력 · 재발송.
 - 검색 필터: 첨부 있음 · SLA 초과 · 오늘 답변완료 · 회원 검색(이름 · 이메일 · 회원번호).
 - P1 회원 컨텍스트 모달(회원 · 최근 주문 · 수강 진도) + 임시 저장 후 회원 상세 이동.
@@ -147,6 +149,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 이관 모달의 내부 이관 메모 · 담당 부서 표시, "환불 심사 큐로 즉시 이관" 버튼(개발은 분류 변경 하나로 이관).
 - 세션 강제 로그아웃(개발은 회원 수강 · 기기 제어 ADMN-USER-003 쪽 라우트).
 - 상태 "타부서 이관중"(TRANSFERRED), 주문연동 필터.
+- (v6.92 S-19) 보류 재개 예정일 자동 '처리중' 복귀 · 보류 중 SLA 정지 표시, 답변완료 건 재문의(30일 설정값 안) → 같은 문의 '처리중' · 담당자 유지 · SLA 재문의 시점부터 — 개발은 재문의를 새 문의로 받고 자동 복귀 배치 없음.
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 상태 코드: WAITING → `received`(접수), IN_PROGRESS → `processing`, ANSWERED → `answered`, HOLD → `hold`. TRANSFERRED 는 개발에 없음(이관되면 RFD-002-S1 목록으로 이동).

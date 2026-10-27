@@ -110,6 +110,12 @@ ACT("approveReview", route="admin.pass-refunds.update", method="PUT", url=A + "/
     note="PassRefundReviewRequest action=approve + checks[](8종) · exam_year · exam_round · admin_memo")
 ACT("approveSettlementDeduct", route="admin.settlement.pass-refunds.update", method="PUT", url=A + "/settlement/pass-refunds/{claim}", perm="수정",
     note="opinion 필수. 옵션 A만 rs · support 차감 0으로 확정, B · C는 검증 오류(마감 보류 HOLD) — 정책 질문 D-SETT")
+# v6.92 S-03: 반려(환급 불가 확정) — 개발 PassRefundReviewRequest action=reject 와 같은 동작
+ACT("openRejectModal", perm="수정(합격 환급 심사 메뉴)", note="개발 반려 레이어 — reject_reason · reject_detail")
+NAME("rejectCode", "reject_reason", note="옵션은 JS(REJECT_REASONS)가 채움. 코드 다름 — 프로토 NOT_PASSED · PROGRESS_SHORT · APPLY_EXPIRED · NAME_MISMATCH · REVIEW_REJECTED · ETC / 개발 name_mismatch · review_length · bankbook_unreadable · link_unavailable · other_round · other(미확정 표시, S-03 목록으로 맞출 것)")
+NAME("rejectNotice", "reject_detail", note="required · 10~1000자(REJECT_DETAIL_MIN) — 고객 안내 문구")
+ACT("confirmReject", route="admin.pass-refunds.update", method="PUT", url=A + "/pass-refunds/{passRefund}", perm="수정(합격 환급 심사 메뉴)",
+    name="action", value="reject", note="종결 · 환급 불가 안내 알림톡 · 강사 정산 차감 없음 · 지급 없음")
 ACT("openSupplementModal", flag="proto-only", note="보완 요청 — 개발 심사는 action verify · approve · reject · memo만(반려 reject_reason · reject_detail)")
 ACT("sendSupplementRequest", flag="proto-only", route="admin.pass-refunds.supplements.store (규칙)", method="POST", url=A + "/pass-refunds/{passRefund}/supplements", perm="등록")
 NAME("supplementReason", "reason")

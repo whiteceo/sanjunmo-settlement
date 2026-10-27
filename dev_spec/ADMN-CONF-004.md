@@ -1,8 +1,8 @@
 # ADMN-CONF-004 메시지 템플릿 · 타겟 발송 · 발송 이력 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-CONF-004_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
+- 프로토타입 파일: prototype_clean/ADMN-CONF-004_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
-- 포함 화면: ADMN-CONF-004 메시지 템플릿 관리 · ADMN-CONF-004-S1 타겟 단체 알림톡/LMS 예약 발송 · 프로토타입 3번째 탭 "통합 발송 이력 및 실패 재발송 (ADMN-CONF-007)" · 개발 ADMN-CONF-007 알림톡 SENS 템플릿 관리
+- 포함 화면: ADMN-CONF-004 메시지 템플릿 관리 · ADMN-CONF-004-S1 타겟 단체 알림톡/LMS 예약 발송 · 프로토타입 3번째 탭 "통합 발송 이력 및 실패 재발송 (ADMN-CONF-004-S2, v6.92 전 표기 ADMN-CONF-007)" · 개발 ADMN-CONF-007 알림톡 SENS 템플릿 관리
 - 개발 진행: 구현(담당 이응민, `_index/progress.md` 109 · 110 · 113행). 통합 발송 이력 · 실패 재발송 화면은 개발 미구현(7절)
 
 ## 1. 메뉴 · 권한
@@ -38,6 +38,18 @@
 
 - 예약 취소는 발송 30분 전까지(`MessageCampaignService::CANCEL_LEAD_MINUTES`, "미확정" 주석) — MessageCampaignService.php:48-49
 - 실제 발송은 스케줄 명령 `SendScheduledCampaigns`(routes/console.php)
+
+### ADMN-CONF-004-S2 통합 발송 이력 · 실패 재발송 — 개발 미구현, 규칙 기반 명명 (v6.92, D-ORD-12: 1차 = 이력 조회 + 발송사 장애 건 재발송)
+| 동작 | 메서드 | URL | 라우트 이름 | 권한 | 컨트롤러@메서드 |
+|---|---|---|---|---|---|
+| 이력 목록(`?status=&keyword=`) | GET | `/{admin}/message-logs` (규칙) | `admin.message-logs.index` (규칙) | can_view | (규칙) MessageLogController@index |
+| 배치 실패 건 | GET | `/{admin}/message-logs/{batch}` (규칙) | `admin.message-logs.show` (규칙) | can_view | (규칙) |
+| 발송사 장애 건 재발송 | POST | `/{admin}/message-logs/{batch}/resends` (규칙) | `admin.message-logs.resends.store` (규칙) | can_create | (규칙) |
+| 예약 취소(이력 행) | PUT | `/{admin}/message-templates/campaigns/{campaign}/status` | `admin.message-templates.campaigns.status.update` | can_update | MessageCampaignController@cancel (개발 구현) |
+
+- 메뉴는 `admin.message-templates.index` 하위 자원으로 판정(규칙). 재발송 대상 실패 사유: `provider_error` 발송사 오류 · `timeout` 응답 시간 초과. 재발송 안 함: `optout` 수신 거부 · `invalid_number` 번호 오류 · `not_kakao_user` 카카오 미사용자 (규칙). 광고성 재발송은 야간 구간 · 수신 동의를 다시 확인.
+- 즉시 발송(S1, v6.92): 재확인 모달(`#modal-send-confirm`, 대상 수 · 비용 · 본문) 후 `admin.message-templates.campaigns.store` 로 `send_mode` = `immediate` (규칙) · `scheduled_at` 없음 — 개발 MessageCampaignRequest는 `scheduled_at` 필수라 확장 필요.
+- 설정값(규칙): `adSendStartLimit` 광고성 즉시 · 예약 시작 상한 기본 20:50, `sendCancelLeadMin` 예약 취소 마감 기본 30분(개발 `CANCEL_LEAD_MINUTES`). 법정 금지 구간 21:00~08:00 은 고정.
 
 ### 개발 ADMN-CONF-007 알림톡 SENS 템플릿
 | 동작 | 메서드 | URL | 라우트 이름 | 권한 | 컨트롤러@메서드 |
@@ -134,16 +146,17 @@
 - 발송 사유 `send_reason`(필수).
 - SENS 템플릿 관리 화면(치환 변수 대조), 치환 변수 불일치 발송 차단 표시.
 - 발송 조건 분류 `group` 필터(8종).
+- (v6.92) 예약 취소는 프로토타입 발송 이력(S2) 행에도 생김 — 개발 `campaigns.status.update` 와 같은 동작.
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
-- "통합 발송 이력 및 실패 재발송" 탭(발송배치 ID · 성공/실패 · 재발송) — 개발에 건별 이력 · 재발송 화면 없음(notification_logs 테이블만). 규칙 기반 명명: `admin.message-logs.index`(규칙) · 재발송 `admin.message-logs.resends.store`(규칙)
-- 즉시 발송(`send-schedule-mode` = 즉시) — 개발은 예약만(`scheduled_at` required · after:now).
+- "통합 발송 이력 및 실패 재발송" 탭(ADMN-CONF-004-S2 — 발송배치 ID · 성공/실패 · 상태 필터 · 검색 · 실패 건 모달 · 재발송) — 개발에 건별 이력 · 재발송 화면 없음(notification_logs 테이블만). 규칙 기반 명명: `admin.message-logs.index`(규칙) · 재발송 `admin.message-logs.resends.store`(규칙). **→ 결정(v6.92 white, D-ORD-12)**: 1차에 이력 조회와 발송사 장애 건 재발송만 넣는다(전체 재발송 · 일괄 재시도 · 발송 중단은 2차).
+- 즉시 발송(`send-schedule-mode` = 즉시) — 개발은 예약만(`scheduled_at` required · after:now). **→ 결정(v6.92 white, S-23 + D-CONF-02)**: 즉시 발송 허용(재확인 모달), 광고성 금지 구간은 법정 21:00~08:00 표기, 즉시 · 예약 시작 상한 20:50 · 예약 취소 30분 전(둘 다 설정값).
 - 템플릿 모달의 SENS 상태 직접 선택(`#tpl-form-status`) · 반려 사유 입력 — 개발은 SENS 동기화 결과로만 바뀜.
 - 메시지 성격 필터(`#tpl-type-filter` 정보성/광고성), 알림톡 버튼명 입력(`#tpl-form-btn-name`) — 개발은 SENS 동기화본 `buttons`.
 - 저장 후 SENS 상태 동기화 버튼.
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
-- 화면 코드: 프로토타입 탭 3 "ADMN-CONF-007 = 통합 발송 이력", 개발 ADMN-CONF-007 = 알림톡 SENS 템플릿 관리 — 코드 의미가 다름.
+- 화면 코드: 프로토타입 탭 3 "ADMN-CONF-007 = 통합 발송 이력", 개발 ADMN-CONF-007 = 알림톡 SENS 템플릿 관리 — 코드 의미가 다름. **→ 해결(v6.92)**: 프로토타입 탭 3 코드를 `ADMN-CONF-004-S2` 로 고침(`?view=ADMN-CONF-007` 은 옛 링크 호환으로만 남음). CONF-007 = SENS 템플릿 관리로 일치.
 - 채널 값: 프로토타입 `ALIMTALK` · `SMS/LMS` · `EMAIL` → `alimtalk` · `sms` · `email`.
 - SENS 상태: 프로토타입 APPROVED · INSPECTING · REJECTED · 초안 → `approved` · `pending` · `rejected` · `none`.
 - 세그먼트 select(`#send-target-seg` 고정 목록) → `target_type` + `saved_group_id` / `tags[]` / 회원 검색 조건.
@@ -152,9 +165,9 @@
 ## 8. 정책 질문 (white 확인 필요)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 즉시 발송 허용 여부(개발은 예약만) — 확인 필요.
-- ADMN-CONF-007 화면 코드: 정본은 "발송 이력 · 실패 재발송" 인지 "SENS 템플릿 관리" 인지 — 확인 필요.
-- 예약 취소 마감 30분(개발 "미확정") — 확인 필요.
+- 즉시 발송 허용 여부(개발은 예약만) — 확인 필요. **→ 결정(v6.92 white, S-23 + D-CONF-02)**: 즉시 발송 허용 — 대상 수 · 비용 · 본문 재확인 모달 후 실행, 시작 후 취소 불가.
+- ADMN-CONF-007 화면 코드: 정본은 "발송 이력 · 실패 재발송" 인지 "SENS 템플릿 관리" 인지 — 확인 필요. **→ 결정(v6.92 white, D-ORD-12)**: 발송 이력 · 실패 재발송은 `ADMN-CONF-004-S2`(1차 = 이력 조회 + 발송사 장애 건 재발송), CONF-007 은 SENS 템플릿.
+- 예약 취소 마감 30분(개발 "미확정") — 확인 필요. **→ 결정(v6.92 white, S-23 + D-CONF-02)**: 예약 취소 발송 30분 전까지 · 광고성 예약 시작 상한 20:50(둘 다 설정 가능한 기본값).
 
 ## 출처
 - routes/admin.php:1101-1135

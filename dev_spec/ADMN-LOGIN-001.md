@@ -1,6 +1,6 @@
 # ADMN-LOGIN-001 관리자 로그인 · 계정 찾기 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-LOGIN-001_baseline.html (원본 상태: 84c22e2)
+- 프로토타입 파일: prototype_clean/ADMN-LOGIN-001_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-LOGIN-001 관리자 로그인 · ADMN-LOGIN-001-P1 5회 오입력 잠금 안내 · 세션 만료 안내(연장) · 비밀번호 주기 변경(개발 ADMN-LOGIN-B) · ADMN-LOGIN-002 아이디 찾기 · ADMN-LOGIN-003 비밀번호 찾기 · 재설정
 - 개발 진행: 구현(담당 박성민, `_index/progress.md` 7~10행). P1 은 로그인 화면 안 레이어로 구현
@@ -79,7 +79,7 @@
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
 |---|---|---|---|
 | `current_password` | required · string | — | `#inp-chg-cur` 임시 비밀번호 |
-| `password` | required · string · min:8 · max:12 · 영문+숫자+특수문자 · confirmed (`AdminPasswordPolicyService::rules()`) | — | `#inp-chg-pw1` |
+| `password` | required · string · min:8 · max:12 · 영문+숫자+특수문자 · confirmed (`AdminPasswordPolicyService::rules()`) — **결정 후 max:64**(D-CONF-05) | — | `#inp-chg-pw1` (maxlength 64) |
 | `password_confirmation` | (confirmed 대상) | — | `#inp-chg-pw2` |
 
 - 서비스 추가 판정(AdminPasswordPolicyService.php:89-200): 아이디(이메일 로컬파트) · 이름 3자 이상 포함 금지, 연속 문자열 4자(1234 · qwer) 금지, 현재 + 최근 `site_settings.password_history_count`(기본 3)개 재사용 금지. 실패 시 오류 키 `password_change`, 입력값은 돌려주지 않음.
@@ -100,7 +100,7 @@
 | 2 휴대전화 | `name` | required · string · 2~20자 | (없음) |
 | 2 휴대전화 | `phone` | required · digits_between:10,11 | `#inp-reset-phone` |
 | 2 휴대전화 | `code` | required · digits:6 | `#inp-reset-otp` |
-| 3 저장 | `password` · `password_confirmation` | required · 8~12자 · 영문+숫자+특수문자 · confirmed | `#inp-reset-pw1` · `#inp-reset-pw2` |
+| 3 저장 | `password` · `password_confirmation` | required · 8~12자 · 영문+숫자+특수문자 · confirmed — **결정 후 8~64자**(D-CONF-05) | `#inp-reset-pw1` · `#inp-reset-pw2` (maxlength 64) |
 
 - 인증번호 한도(config/admin.php:59-81): 계정 · IP 각 24시간 롤링 3회 발송, IP 실패 시도 24시간 10회, SMS 유효 180초(이메일은 별도 — 설계서 5분 주석).
 
@@ -171,7 +171,7 @@
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 필드 id: `inp-login-email`→`login_id`, `inp-login-pw`→`password`, `inp-chg-cur/pw1/pw2`→`current_password`/`password`/`password_confirmation`, `inp-find-name/phone/otp`→`name`/`phone`/`code`, `inp-reset-*`→`login_id`·`phone`·`code`·`password`.
-- 비밀번호 길이: 프로토타입 8~20자, 개발 8~12자.
+- 비밀번호 길이: 프로토타입 8~20자, 개발 8~12자. **→ 결정(v6.92 white, D-CONF-05)**: 8~64자, 조합 규칙(영문 · 숫자 · 특수문자) 유지 — 프로토타입은 8~64자로 고침, 개발 max:12 → 64.
 - 휴대전화: 프로토타입 하이픈 포함 샘플, 개발 숫자 10~11자리.
 - P1: 프로토타입 인라인 경고 박스 → 개발 레이어 `#layerAccountLock`.
 - 아이디 찾기 결과 → 로그인: 프로토타입 링크 클릭(아이디를 JS 로 채움), 개발 POST `admin.find-id.to-login`(URL 에 아이디를 싣지 않음).
@@ -181,7 +181,7 @@
 ## 8. 정책 질문 (white 확인 필요)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 비밀번호 길이 상한: 프로토타입 20자 vs 개발 12자 — 확인 필요.
+- 비밀번호 길이 상한: 프로토타입 20자 vs 개발 12자 — 확인 필요. **→ 결정(v6.92 white, D-CONF-05)**: 8~64자(변경 · 재설정 공통), 조합 규칙 현행 유지.
 - 비밀번호 찾기 인증 순서: 프로토타입은 아이디 + 휴대전화 SMS 1회, 개발은 이메일 인증번호 → 휴대전화 SMS 2단계 — 확인 필요.
 - 파트너(출판사 · 저작권자) 로그인: 프로토타입은 통합 게이트웨이, 개발 역할 코드는 super · cs · logistics · finance · instructor · assistant 뿐 — 확인 필요.
 - 로그인 비밀번호 min:6(LoginRequest) vs 정책 8자 — 로그인 입력 하한이 6자인 이유가 코드에 없음 — 확인 필요.

@@ -483,7 +483,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-USER-001", "devCommit": "d562524a", "progress": "구현(USER-001~006). 002-P3 · 006-S3 · 비밀번호 초기화 등은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.members.index", "label": "회원 관리 (목록 · 상세)"}, {"route": "admin.members.course.index", "label": "수강 · 기기 제어"}, {"route": "admin.member-progress.index", "label": "진도율 / 이어보기"}, {"route": "admin.members.blacklist.index", "label": "블랙리스트"}, {"route": "admin.members.group.index", "label": "그룹 · 태그"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
   <aside id="v4-master-snb"></aside>
@@ -942,8 +941,8 @@ code, pre, kbd, samp,
                   </select></div>
                 <div id="cm-dept-wrap" style="display:none;"><label for="cm-dept">이관 부서 * (1:1 문의 담당 부서)</label>
                   <select id="cm-dept" class="f-select" style="width:100%;"></select></div>
-                <div><label for="cm-result-note" id="cm-result-note-label">처리 결과 메모</label><input type="text" id="cm-result-note" class="f-input" style="width:100%;" placeholder="예: 배송지 변경 반영 (이관 시 이관 사유 필수)" /></div>
-                <div class="cm-full"><label for="cm-content">상담 내용 * (10자 이상)</label><textarea id="cm-content" name="content" data-dev-note="(규칙) CS 상담 기록 — 개발 미구현" class="f-input" placeholder="문의 요지와 안내한 내용을 적습니다. 고객 화면·알림톡에는 노출되지 않습니다."></textarea></div>
+                <div><label for="cm-result-note" id="cm-result-note-label">처리 결과 메모</label><input type="text" id="cm-result-note" name="result_note" data-dev-note="(규칙) 처리 결과 메모 · 이관 사유 — 200자 이하(M-04)" maxlength="200" class="f-input" style="width:100%;" placeholder="예: 배송지 변경 반영 (이관 시 이관 사유 필수)" /></div>
+                <div class="cm-full"><label for="cm-content">상담 내용 * (10~1,000자)</label><textarea id="cm-content" name="content" data-dev-note="(규칙) CS 상담 기록 — 개발 미구현. 공백 제외 10자 이상 · 1,000자 이하(v6.92 M-04 서술형 칸)" class="f-input" maxlength="1000" placeholder="문의 요지와 안내한 내용을 적습니다. 고객 화면·알림톡에는 노출되지 않습니다."></textarea></div>
                 <div class="cm-err" id="cm-error"></div>
                 <div class="cm-full" style="display:flex; justify-content:flex-end;"><button type="button" class="btn btn-primary btn-sm" data-dev-route="admin.members.cs-memos.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/members/{member}/cs-memos" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="개발은 관리자 메모 1칸(users.admin_memo, PUT /members/{member})" onclick="addCsMemo()">＋ 상담 기록 추가</button></div>
               </div>
@@ -1345,7 +1344,7 @@ code, pre, kbd, samp,
                   <div style="margin-bottom:10px;">
                     <label style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">조정 사유 (필수 · 최소 10자 · 감사 타임라인 기록)</label>
                     <select class="f-select" name="reason_code" style="width:100%; margin-bottom:6px;" data-dev-flag="dev-only" data-dev-note="개발 UserCourseControlService::REASONS"><option value="">조정 사유 구분 선택</option><option value="cs_compensation">CS 보상(서비스 장애)</option><option value="device_issue">기기 문제</option><option value="long_absence">군입대·장기부재</option><option value="event">이벤트 제공</option><option value="correction">오적용 정정</option><option value="etc">기타</option></select>
-                    <input type="text" id="ext-reason-input" name="reason" class="f-input" style="width:100%;" placeholder="예) 병가 입원 증빙 확인에 따른 수강기간 15일 예외 연장 (CS-20261017-09)" />
+                    <input type="text" id="ext-reason-input" name="reason" maxlength="200" class="f-input" style="width:100%;" placeholder="예) 병가 입원 증빙 확인에 따른 수강기간 15일 예외 연장 (CS-20261017-09)" />
                   </div>
                   <button type="button" class="btn btn-primary" style="width:100%;" data-dev-route="admin.members.course.extend.update | admin.members.course.pause.update" data-dev-method="POST" data-dev-url="/sj-admin/members/course/{userCourse}/extend | /pause" data-dev-perm="수정" onclick="applyCourseExtend()">수강 기간 조정 확정</button>
                 </div>
@@ -2008,7 +2007,7 @@ code, pre, kbd, samp,
           <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">
             다운로드 사유 <span style="color:var(--danger);">*</span> <span style="font-weight:500; color:var(--text-muted);">— 공백 제외 10자 이상 필수 (같은 글자 반복 거부)</span>
           </label>
-          <textarea id="memberDownloadReason" name="reason" data-dev-note="ReasonRequest: reason · reason_etc · reason_ref" class="f-textarea" rows="3" oninput="validateExcelModal()" placeholder="예) 2026년 4분기 산업안전기사 실기 교재 발송 대상자 주소 확인 요청 (CS-2026-1017-14)"></textarea>
+          <textarea id="memberDownloadReason" name="reason" data-dev-note="ReasonRequest: reason · reason_etc · reason_ref" maxlength="200" class="f-textarea" rows="3" oninput="validateExcelModal()" placeholder="예) 2026년 4분기 산업안전기사 실기 교재 발송 대상자 주소 확인 요청 (CS-2026-1017-14)"></textarea>
           <div id="excel-reason-help" style="font-size:11.5px; color:var(--danger); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
         </div>
 
@@ -2090,7 +2089,7 @@ code, pre, kbd, samp,
             <option>오지급 포인트 회수 차감</option>
             <option>기타 관리자 직권 조정</option>
           </select>
-          <input type="text" id="pt-reason-txt" name="reason" class="f-input" style="width:100%;" oninput="updatePointPreview()" placeholder="최소 10자 이상 상세 사유 입력 (회원 화면에는 노출되지 않습니다)" value="실기 3강 일시 스트리밍 지연에 따른 CS 보상 지급" />
+          <input type="text" id="pt-reason-txt" name="reason" maxlength="200" class="f-input" style="width:100%;" oninput="updatePointPreview()" placeholder="최소 10자 이상 상세 사유 입력 (회원 화면에는 노출되지 않습니다)" value="실기 3강 일시 스트리밍 지연에 따른 CS 보상 지급" />
         </div>
 
         <div style="margin-bottom:12px; font-size:12px;">
@@ -2145,7 +2144,7 @@ code, pre, kbd, samp,
         </div>
         <div>
           <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">상태 변경 사유 (필수 · 공백 제외 10자 이상)</label>
-          <textarea id="modal-st-reason" name="reason" class="f-textarea" rows="3" placeholder="예) 환불 후 마이너스 포인트(-2,400P) 미납 및 계정 불법 공유 적발에 따른 정지 처리" oninput="showReasonCount('modal-st-reason-count', this.value)"></textarea>
+          <textarea id="modal-st-reason" name="reason" maxlength="200" class="f-textarea" rows="3" placeholder="예) 환불 후 마이너스 포인트(-2,400P) 미납 및 계정 불법 공유 적발에 따른 정지 처리" oninput="showReasonCount('modal-st-reason-count', this.value)"></textarea>
           <div id="modal-st-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
         </div>
       </div>
@@ -2265,7 +2264,7 @@ code, pre, kbd, samp,
           연동을 해제하면 해당 소셜로는 즉시 로그인할 수 없습니다. 회원에게 안내 메일이 발송되며, 로그인 수단이 하나도 남지 않는 해제는 차단됩니다. 다시 연동은 회원이 마이페이지에서 직접 합니다.
         </div>
         <label for="socialUnlinkReason" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">해제 사유 (필수 · 최소 10자)</label>
-        <textarea id="socialUnlinkReason" name="reason" class="f-textarea" rows="2" style="width:100%;" placeholder="예) 고객 요청 — 타인 소셜 계정으로 잘못 연동" oninput="updateSocialReasonCount()"></textarea>
+        <textarea id="socialUnlinkReason" name="reason" maxlength="200" class="f-textarea" rows="2" style="width:100%;" placeholder="예) 고객 요청 — 타인 소셜 계정으로 잘못 연동" oninput="updateSocialReasonCount()"></textarea>
         <div id="social-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
         <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
           <button type="button" class="btn btn-outline" onclick="closeModal('layerSocialUnlink')">닫기</button>
@@ -2293,7 +2292,7 @@ code, pre, kbd, samp,
         </div>
         <div id="unmask-perm" style="font-size:11.5px; color:var(--text-muted); margin-bottom:8px;"></div>
         <label for="unmask-reason" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">상세 사유 (필수 · 공백 제외 10자 이상)</label>
-        <textarea id="unmask-reason" name="reason" data-dev-note="개발 마스킹 해제는 사유를 받지 않음(정책 질문 회원관리 #2)" class="f-textarea" rows="3" style="width:100%;" placeholder="예) 수강생 본인 요청 CS-20261017-09 — 전화 본인확인 후 배송지 정정 안내" oninput="updateUnmaskReasonCount()"></textarea>
+        <textarea id="unmask-reason" name="reason" data-dev-note="개발 마스킹 해제는 사유를 받지 않음(정책 질문 회원관리 #2)" maxlength="200" class="f-textarea" rows="3" style="width:100%;" placeholder="예) 수강생 본인 요청 CS-20261017-09 — 전화 본인확인 후 배송지 정정 안내" oninput="updateUnmaskReasonCount()"></textarea>
         <div id="unmask-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
         <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
           <button type="button" class="btn btn-outline" onclick="closeModal('modal-unmask-reason')">취소</button>
@@ -2319,7 +2318,7 @@ code, pre, kbd, samp,
           · 발송 즉시 기존 비밀번호는 무효가 되고, 임시 비밀번호는 24시간 유효합니다. 회원은 임시 비밀번호로 로그인한 직후 비밀번호 변경 화면으로 이동합니다.
         </div>
         <label for="pwt-reason" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">발송 사유 (필수 · 공백 제외 10자 이상)</label>
-        <textarea id="pwt-reason" name="reason" class="f-textarea" rows="2" style="width:100%;" placeholder="예) 회원 전화 요청 — 비밀번호 분실, 가입 이메일 수신 가능 확인" oninput="showReasonCount('pwt-reason-count', this.value)"></textarea>
+        <textarea id="pwt-reason" name="reason" maxlength="200" class="f-textarea" rows="2" style="width:100%;" placeholder="예) 회원 전화 요청 — 비밀번호 분실, 가입 이메일 수신 가능 확인" oninput="showReasonCount('pwt-reason-count', this.value)"></textarea>
         <div id="pwt-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
       </div>
       <div class="modal-foot">
@@ -2354,7 +2353,7 @@ code, pre, kbd, samp,
             <div><label for="pwr-pw2" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">임시 비밀번호 확인</label><input type="password" id="pwr-pw2" class="f-input" style="width:100%;" autocomplete="new-password" /></div>
           </div>
           <label for="pwr-reason" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">초기화 사유 (필수 · 공백 제외 10자 이상)</label>
-          <textarea id="pwr-reason" class="f-textarea" rows="2" style="width:100%;" placeholder="예) 가입 이메일 오타로 메일 수신 불가 — 유선 본인확인 후 임시값 설정" oninput="showReasonCount('pwr-reason-count', this.value)"></textarea>
+          <textarea id="pwr-reason" maxlength="200" class="f-textarea" rows="2" style="width:100%;" placeholder="예) 가입 이메일 오타로 메일 수신 불가 — 유선 본인확인 후 임시값 설정" oninput="showReasonCount('pwr-reason-count', this.value)"></textarea>
           <div id="pwr-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
         </div>
       </div>
@@ -2377,7 +2376,7 @@ code, pre, kbd, samp,
           대상: <strong id="blr-target">—</strong><br /><span id="blr-effect" style="color:var(--text-muted);"></span>
         </div>
         <label for="blr-reason" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">해제 사유 (필수 · 공백 제외 10자 이상)</label>
-        <textarea id="blr-reason" name="reason" class="f-textarea" rows="3" style="width:100%;" placeholder="예) 소명 자료(가족 공용 PC 사용) 확인 — 1회 경고 후 해제" oninput="showReasonCount('blr-reason-count', this.value)"></textarea>
+        <textarea id="blr-reason" name="reason" maxlength="200" class="f-textarea" rows="3" style="width:100%;" placeholder="예) 소명 자료(가족 공용 PC 사용) 확인 — 1회 경고 후 해제" oninput="showReasonCount('blr-reason-count', this.value)"></textarea>
         <div id="blr-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
       </div>
       <div class="modal-foot">
@@ -2399,7 +2398,7 @@ code, pre, kbd, samp,
         <div id="rsn-note" style="display:none; background:#FFFBEB; border:1px solid #FDE68A; border-left:4px solid #D97706; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#92400E;"></div>
         <div id="rsn-extra"></div>
         <label for="rsn-reason" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">사유 (필수 · 공백 제외 10자 이상)</label>
-        <textarea id="rsn-reason" class="f-textarea" rows="3" style="width:100%;" oninput="showReasonCount('rsn-reason-count', this.value)"></textarea>
+        <textarea id="rsn-reason" maxlength="200" class="f-textarea" rows="3" style="width:100%;" oninput="showReasonCount('rsn-reason-count', this.value)"></textarea>
         <div id="rsn-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>
       </div>
       <div class="modal-foot">
@@ -2499,16 +2498,21 @@ code, pre, kbd, samp,
 
     // ===== 공용: 사유 검사(P-09) · 관리 이력(P-04) · 로그인 역할 =====
     // 사유 규칙: 공백 제외 10자 이상 · 서로 다른 글자 3개 이상(같은 글자 반복 거부). 모든 사유 입력이 이 함수 하나를 쓴다
-    function reasonCheck(text) {
-      const s = String(text || '').replace(/\s/g, '');
+    // M-04(white 결정): 짧은 사유는 공백 포함 200자 이하, 서술형 칸(CS 상담 내용 · 블랙리스트 상세 경위)은 1,000자 이하(1,000은 운영 편의값)
+    const REASON_MAX = 200, REASON_MAX_LONG = 1000;
+    function reasonCheck(text, max) {
+      max = max || REASON_MAX;
+      const raw = String(text || '');
+      const s = raw.replace(/\s/g, '');
       const len = s.length;
       const distinct = new Set(Array.from(s)).size;
+      if (raw.length > max) return { ok: false, len, msg: `공백 포함 ${raw.length.toLocaleString()}자 / 최대 ${max.toLocaleString()}자` };
       if (len < 10) return { ok: false, len, msg: `공백 제외 ${len}자 / 최소 10자` };
       if (distinct < 3) return { ok: false, len, msg: `같은 글자 반복은 사유로 인정하지 않습니다 (공백 제외 ${len}자)` };
       return { ok: true, len, msg: `공백 제외 ${len}자 · 입력 완료` };
     }
-    function showReasonCount(countId, text) {
-      const c = reasonCheck(text);
+    function showReasonCount(countId, text, max) {
+      const c = reasonCheck(text, max);
       const el = document.getElementById(countId);
       if (el) { el.textContent = c.msg; el.style.color = c.ok ? 'var(--success)' : 'var(--text-muted)'; }
       return c;
@@ -2650,7 +2654,7 @@ code, pre, kbd, samp,
       const isTransfer = result === '타 부서 이관';
       const dept = isTransfer ? document.getElementById('cm-dept').value : '';
       if (!at) return fail('상담 일시를 입력해 주십시오.');
-      if (!reasonCheck(content).ok) return fail('상담 내용을 공백 제외 10자 이상, 같은 글자 반복 없이 입력해 주십시오.');
+      if (!reasonCheck(content, REASON_MAX_LONG).ok) return fail('상담 내용을 공백 제외 10자 이상 · 1,000자 이하로, 같은 글자 반복 없이 입력해 주십시오.');
       if (isTransfer && !dept) return fail('타 부서 이관은 이관 부서를 선택해 주십시오.');
       if (isTransfer && !reasonCheck(note).ok) return fail('타 부서 이관은 이관 사유를 공백 제외 10자 이상 적어 주십시오.');
       const atText = at.replace('T', ' ').replace(/-/g, '.');
@@ -3912,7 +3916,7 @@ code, pre, kbd, samp,
       <!-- STEP 4: 상세 사유 및 증빙 -->
       <div>
         <label style="display:block; font-size:12px; font-weight:800; color:#334155; margin-bottom:6px;">STEP 4. 상세 적발 경위 및 증빙 로그 기록 (필수 · 공백 제외 10자 이상 · 감사로그 ADMN-CONF-010 자동 기록) *</label>
-        <textarea id="bl-detail-memo" rows="3" placeholder="예: 2026-10-16 중고거래 카페 내 계정 공유 판매글 적발 및 서로 다른 4개 광역시 IP 동시 스트리밍 로그 확인" oninput="showReasonCount('bl-detail-count', this.value)" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:7px; font-size:13px;"></textarea>
+        <textarea id="bl-detail-memo" name="reason" data-dev-note="상세 적발 경위 — 서술형 1,000자(v6.92 M-04 결정). 개발 MemberReasonRequest는 200자 — 이 칸만 1,000자로 늘려야 함" rows="3" placeholder="예: 2026-10-16 중고거래 카페 내 계정 공유 판매글 적발 및 서로 다른 4개 광역시 IP 동시 스트리밍 로그 확인" maxlength="1000" oninput="showReasonCount('bl-detail-count', this.value, REASON_MAX_LONG)" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:7px; font-size:13px;"></textarea>
         <div id="bl-detail-count" style="font-size:11.5px; color:#64748b; margin-top:4px;">공백 제외 0자 / 최소 10자</div>
       </div>
       <div style="margin-top:12px; padding:10px 12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; font-size:12px; color:#991b1b; line-height:1.6;">
@@ -3950,7 +3954,7 @@ code, pre, kbd, samp,
     document.getElementById('bl-reason-cat').value = 'SHARE';
     document.getElementById('bl-reason-etc').value = '';
     onBlReasonChange();
-    showReasonCount('bl-detail-count', '');
+    showReasonCount('bl-detail-count', '', REASON_MAX_LONG);
     selectedBlCandidate = null;
     filterBlacklistCandidateMembers();
     if (typeof no === 'string' && MEMBERS[no]) selectBlacklistCandidate(no);
@@ -4041,7 +4045,7 @@ code, pre, kbd, samp,
     if (isSuspended(no)) { showToast(`회원번호 ${no}는 이미 정지 중입니다. 기존 등재를 확인하세요. (중복 등재 불가)`); return; }
     if (code === 'ETC' && etc.replace(/\s/g, '').length < 2) { showToast('기타 사유명을 직접 입력해 주세요.'); document.getElementById('bl-reason-etc').focus(); return; }
     if (!period) { showToast('정지 기간을 선택해 주세요.'); return; }
-    if (!reasonCheck(memo).ok) { showToast('상세 적발 경위를 공백 제외 10자 이상, 같은 글자 반복 없이 입력해 주세요.'); document.getElementById('bl-detail-memo').focus(); return; }
+    if (!reasonCheck(memo, REASON_MAX_LONG).ok) { showToast('상세 적발 경위를 공백 제외 10자 이상 · 1,000자 이하로, 같은 글자 반복 없이 입력해 주세요.'); document.getElementById('bl-detail-memo').focus(); return; }
     if (!pendingAcked(m, 'bl-pending-ack')) { showToast('진행 중인 환불 · 합격환급 심사 건 확인에 체크해 주세요.'); return; }
     const reasonText = code === 'ETC' ? `기타 · ${etc}` : BL_REASON_LABEL[code];
     blAddLedgerRow({ no, type: code, typeLabel: reasonText, detail: memo, period });
@@ -4165,7 +4169,7 @@ code, pre, kbd, samp,
       </div>
       <div class="m3f-field">
         <label for="m3f-pa-reason">상세 보정 사유 <span class="m3f-req">*</span> <span style="font-weight:500; color:var(--text-muted);">(최소 10자 · 감사 로그 기록)</span></label>
-        <textarea id="m3f-pa-reason" name="detail" data-dev-note="개발 20~1000자" class="f-textarea" rows="3" style="width:100%;" placeholder="예) 10/17 오후 CDN 일시 순단으로 시청 완료 로그가 유실된 것을 서버 로그로 확인하여 보정함" oninput="m3fUpdateReasonCount()"></textarea>
+        <textarea id="m3f-pa-reason" name="detail" data-dev-note="개발 20~1000자" maxlength="200" class="f-textarea" rows="3" style="width:100%;" placeholder="예) 10/17 오후 CDN 일시 순단으로 시청 완료 로그가 유실된 것을 서버 로그로 확인하여 보정함" oninput="m3fUpdateReasonCount()"></textarea>
         <div class="m3f-hint" id="m3f-pa-reason-count">공백 제외 0자 / 최소 10자</div>
       </div>
       <div class="m3f-field">

@@ -804,7 +804,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-BRD-001", "devCommit": "d562524a", "progress": "구현(BRD-001 · 006 · 003 · 004 · 009와 각 S1). 공지 분류 · 행 고정 토글 · FAQ TOP 고정 · 카테고리 이름 변경/순서/노출 · 상품 Q&A 엑셀 · 당첨자 경품 지급은 개발 없음 — 주황 표시", "menus": [{"route": "admin.notices.index", "label": "공지사항 관리"}, {"route": "admin.faqs.index", "label": "FAQ 관리"}, {"route": "admin.product-qnas.index", "label": "상품 Q&A 관리"}, {"route": "admin.study-qnas.index", "label": "학습 Q&A 관리"}, {"route": "admin.winners.index", "label": "당첨자 발표 관리"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 
 <body>
@@ -1179,7 +1178,7 @@ code, pre, kbd, samp,
 
           <div class="kpi-val" id="win-kpi-total">6명</div>
 
-          <div class="kpi-sub">개인정보 자동 마스킹(홍*동, 010-****-1234) 적용</div>
+          <div class="kpi-sub">명단은 회원번호 + 마스킹 값(홍*동, hon***)만 저장</div>
 
         </div>
 
@@ -1444,9 +1443,9 @@ code, pre, kbd, samp,
         </div>
         <!-- 포인트 당첨자를 포인트 관리(ADMN-PROM-003) 일괄 지급으로 넘긴 명단 — 지급 실행은 포인트 관리(통합 설계서 Flow 1-3) -->
         <div id="winner-handoff" style="display:none; padding:12px 18px; border-bottom:1px solid var(--border); background:#eff6ff; font-size:12.5px; line-height:1.7;"></div>
-        <!-- 당첨자 명단 추가 (자동 마스킹 적용) — 예전 별도 팝업을 페이지 안 입력 영역으로 -->
+        <!-- 당첨자 명단 추가 — 회원 원장 조회 후 회원번호 + 마스킹 값만 저장(S-17), 원본 이름 · 아이디 · 휴대폰 미저장 -->
         <div id="winner-row-form" style="display:none; padding:14px 18px; border-bottom:1px solid var(--border); background:#f8fafc;">
-          <div style="font-weight:800; margin-bottom:10px;">+ 당첨자 대상 추가 (자동 마스킹 적용)</div>
+          <div style="font-weight:800; margin-bottom:10px;">+ 당첨자 대상 추가 (회원 원장 조회 · 회원번호 + 마스킹 값만 저장)</div>
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label">등수 / 구분 *</label>
@@ -1461,12 +1460,18 @@ code, pre, kbd, samp,
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">당첨 회원명 / ID *</label>
-              <input type="text" id="winrow-name" placeholder="예: 김산준 (sanjun99)" />
+              <label class="form-label">당첨 회원 아이디 또는 회원번호 *</label>
+              <div style="display:flex; gap:6px;">
+                <input type="text" id="winrow-member" data-dev-note="줄마다 '아이디 경품' 중 아이디 — 개발은 저장 시 회원 아이디 대조 · 마스킹 값만 저장(회원번호 입력은 (규칙))" data-dev-name="winners_text" placeholder="예: jinwoo_p 또는 100451" style="flex:1;" oninput="previewWinnerMember()" />
+                <button type="button" class="btn btn-outline btn-sm" data-dev-flag="proto-only" data-dev-note="회원 원장 조회 미리 보기 — 개발은 저장 시 아이디 대조(별도 조회 라우트 없음)" onclick="previewWinnerMember()">회원 원장 조회</button>
+              </div>
             </div>
             <div class="form-group">
-              <label class="form-label">휴대폰 번호 *</label>
-              <input type="text" id="winrow-phone" data-dev-flag="proto-only" data-dev-note="원본 휴대폰 — 개발은 원본 미저장(마스킹 값만)" placeholder="예: 010-8821-4512" />
+              <label class="form-label">명단에 저장되는 값</label>
+              <div id="winrow-lookup" style="padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:#fff; font-size:12.5px; color:var(--text-sub);">아이디 또는 회원번호로 조회하세요.</div>
+            </div>
+            <div class="form-group full" id="winrow-privacy-note" style="font-size:11.5px; color:var(--text-sub); line-height:1.6;">
+              이름 · 아이디 · 휴대폰 원본은 명단에 저장하지 않습니다. 명단에는 회원번호(화면 비표시)와 마스킹 값(이름 가운데 · 아이디 앞 3자 뒤)만 남고, 휴대폰은 발표에 싣지 않습니다. 알림톡 · 배송 연락은 지급 때 회원번호로 회원 원장에서 조회합니다.
             </div>
             <div class="form-group full">
               <label class="form-label">지급 경품명 / 포인트 금액 *</label>
@@ -1483,8 +1488,7 @@ code, pre, kbd, samp,
             <tr>
               <th style="width:42px;"><input type="checkbox" id="win-chk-all" onclick="toggleAllWinnerChecks(this.checked)" /></th>
               <th style="width:90px;">등수/구분</th>
-              <th style="width:160px;">당첨 회원 (원본)</th>
-              <th style="width:170px;">프론트 노출 (자동 마스킹)</th>
+              <th style="width:200px;">당첨 회원 (마스킹 저장값 · 발표 노출)</th>
               <th style="width:120px;">경품 유형</th>
               <th>지급 경품명 / 수량</th>
               <th style="width:120px;">지급 상태</th>
@@ -1793,6 +1797,28 @@ code, pre, kbd, samp,
     { code: 'PRM-2610-NEWJOIN', name: '신규 가입 학습지원 포인트 추첨 이벤트' }
   ];
 
+  // 당첨자 명단 저장 원칙(S-17, 2026-10-27 white): 원본 이름 · 아이디 · 휴대폰은 저장하지 않고 회원번호(내부 키) + 마스킹 표시값만 저장한다.
+  // 지급 · 연락(알림톡 · 배송)은 회원번호로 회원 원장(ADMN-USER-001)을 그때그때 조회한다. 개인정보위 '온라인 경품행사' 가이드 — 공개 시 마스킹.
+  // 아래 WIN_MEMBER_LEDGER는 회원 원장 조회 응답을 흉내 낸 샘플이다(명단 데이터가 아님). 명단에는 조회 결과의 회원번호 · 마스킹 값만 옮긴다.
+  const WIN_MEMBER_LEDGER = [
+    { memberNo: '100318', name: '김민준', loginId: 'minjun92' },
+    { memberNo: '100327', name: '이서윤', loginId: 'seoyoon_l' },
+    { memberNo: '100335', name: '박도현', loginId: 'dohyun_p' },
+    { memberNo: '100341', name: '최유진', loginId: 'yujin_c' },
+    { memberNo: '100356', name: '정우성', loginId: 'wsjung7' },
+    { memberNo: '100362', name: '강하늘', loginId: 'skykang' },
+    { memberNo: '100451', name: '박진우', loginId: 'jinwoo_p' },
+    { memberNo: '100479', name: '김수연', loginId: 'sooyeon_k' },
+    { memberNo: '100482', name: '홍길동', loginId: 'hong88' }
+  ];
+  // 아이디 또는 회원번호로 회원 원장을 조회해 회원번호 + 마스킹 값만 돌려준다(원본은 돌려주지 않음)
+  function lookupWinnerMember(q) {
+    const key = String(q || '').trim();
+    if (!key) return null;
+    const m = WIN_MEMBER_LEDGER.find(r => r.memberNo === key || r.loginId.toLowerCase() === key.toLowerCase());
+    return m ? { memberNo: m.memberNo, maskedName: maskName(m.name), maskedLogin: maskId(m.loginId) } : null;
+  }
+
   let WINNER_POSTS = [
 
     {
@@ -1819,13 +1845,13 @@ code, pre, kbd, samp,
 
       winners: [
 
-        { id: 1, rank: '1등 (실물)', userName: '김민준', userId: 'minjun92', memberNo: '100318', phone: '010-4821-3391', type: 'PHYSICAL', prize: '애플 에어팟 프로 2세대 (1명)', status: 'PENDING', meta: '배송지 수집 완료 (송장 미등록)' },
+        { id: 1, rank: '1등 (실물)', memberNo: '100318', maskedName: '김*준', maskedLogin: 'min***', type: 'PHYSICAL', prize: '애플 에어팟 프로 2세대 (1명)', status: 'PENDING', meta: '배송지 수집 완료 (송장 미등록)' },
 
-        { id: 2, rank: '2등 (기프티콘)', userName: '이서윤', userId: 'seoyoon_l', memberNo: '100327', phone: '010-7712-8904', type: 'GIFTICON', prize: '교촌치킨 허니콤보 세트 모바일쿠폰', status: 'COMPLETED', meta: '2026-10-17 15:10 알림톡 발송' },
+        { id: 2, rank: '2등 (기프티콘)', memberNo: '100327', maskedName: '이*윤', maskedLogin: 'seo***', type: 'GIFTICON', prize: '교촌치킨 허니콤보 세트 모바일쿠폰', status: 'COMPLETED', meta: '2026-10-17 15:10 알림톡 발송' },
 
-        { id: 3, rank: '3등 (포인트)', userName: '박도현', userId: 'dohyun_p', memberNo: '100335', phone: '010-3390-1128', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'COMPLETED', meta: '2026-10-17 15:05 원장 적립' },
+        { id: 3, rank: '3등 (포인트)', memberNo: '100335', maskedName: '박*현', maskedLogin: 'doh***', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'COMPLETED', meta: '2026-10-17 15:05 원장 적립' },
 
-        { id: 4, rank: '3등 (포인트)', userName: '최유진', userId: 'yujin_c', memberNo: '100341', phone: '010-9182-5541', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'PENDING', meta: '포인트 관리 일괄 지급 대기' }
+        { id: 4, rank: '3등 (포인트)', memberNo: '100341', maskedName: '최*진', maskedLogin: 'yuj***', type: 'POINT', prize: '학습지원 무상 포인트 10,000P', status: 'PENDING', meta: '포인트 관리 일괄 지급 대기' }
 
       ]
 
@@ -1855,9 +1881,9 @@ code, pre, kbd, samp,
 
       winners: [
 
-        { id: 5, rank: '우수참여상', userName: '정우성', userId: 'wsjung7', memberNo: '100356', phone: '010-6214-0982', type: 'GIFTICON', prize: '스타벅스 아메리카노 T 2매', status: 'COMPLETED', meta: '2026-10-14 16:00 알림톡 발송' },
+        { id: 5, rank: '우수참여상', memberNo: '100356', maskedName: '정*성', maskedLogin: 'wsj***', type: 'GIFTICON', prize: '스타벅스 아메리카노 T 2매', status: 'COMPLETED', meta: '2026-10-14 16:00 알림톡 발송' },
 
-        { id: 6, rank: '참여상', userName: '강하늘', userId: 'skykang', memberNo: '100362', phone: '010-2091-7743', type: 'POINT', prize: '학습지원 무상 포인트 5,000P', status: 'COMPLETED', meta: '2026-10-14 16:00 원장 적립' }
+        { id: 6, rank: '참여상', memberNo: '100362', maskedName: '강*늘', maskedLogin: 'sky***', type: 'POINT', prize: '학습지원 무상 포인트 5,000P', status: 'COMPLETED', meta: '2026-10-14 16:00 원장 적립' }
 
       ]
 
@@ -2734,10 +2760,9 @@ code, pre, kbd, samp,
       <tr>
         <td><input type="checkbox" class="win-row-chk" value="${w.id}" ${w.status === 'COMPLETED' ? 'disabled' : ''} /></td>
         <td style="font-weight:700;">${w.rank}</td>
-        <td>${w.userName} (${w.userId})<br/><span style="font-size:11px; color:var(--text-sub);">${w.phone}</span></td>
-        <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; color:#1e40af; font-weight:700;">
-          ${maskName(w.userName)} (${maskId(w.userId)})<br/>
-          <span style="font-size:11px;">${maskPhone(w.phone)}</span>
+        <td class="win-masked" style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; color:#1e40af; font-weight:700;">
+          ${w.maskedName} (${w.maskedLogin})<br/>
+          <span style="font-size:11px; color:var(--text-sub); font-weight:500;">연락처는 지급 때 회원 원장 조회</span>
         </td>
         <td><span class="badge ${typeBadge[w.type] || 'badge-slate'}">${typeLabel[w.type] || w.type}</span></td>
         <td style="font-weight:700;">${w.prize}</td>
@@ -2760,7 +2785,7 @@ code, pre, kbd, samp,
           }
         </td>
       </tr>
-    `).join('') || '<tr><td colspan="9" style="text-align:center; padding:24px; color:var(--text-sub);">당첨자 명단이 없습니다. [+ 당첨자 개별/엑셀 추가]로 등록하세요.</td></tr>';
+    `).join('') || '<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--text-sub);">당첨자 명단이 없습니다. [+ 당첨자 개별/엑셀 추가]로 등록하세요.</td></tr>';
   }
 
 
@@ -2792,7 +2817,7 @@ code, pre, kbd, samp,
     /* Init FAQ Cat Modal */
     if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
 
-    showToast(`${w.userName}님에게 [${w.prize}] 지급 처리가 완료되었습니다.`);
+    showToast(`${w.maskedName}님에게 [${w.prize}] 지급 처리가 완료되었습니다. 알림톡 연락처는 회원번호로 회원 원장에서 조회했습니다.`);
 
   }
 
@@ -2806,7 +2831,7 @@ code, pre, kbd, samp,
 
     if (!w) return;
 
-    const tracking = prompt(`${w.userName}님의 실물 경품(${w.prize}) CJ대한통운 송장번호를 입력하세요:`, '6482-9910-4412');
+    const tracking = prompt(`${w.maskedName}님의 실물 경품(${w.prize}) CJ대한통운 송장번호를 입력하세요(배송지 · 연락처는 회원번호로 회원 원장에서 조회):`, '6482-9910-4412');
 
     if (!tracking) return;
 
@@ -2893,7 +2918,7 @@ code, pre, kbd, samp,
   function showPointHandoff(post, list) {
     const box = document.getElementById('winner-handoff');
     box.innerHTML = `<strong>포인트 관리로 넘긴 명단</strong> — ${post.postId} · ${list.length}명 (회원번호 <span id="winner-handoff-members">${list.map(w => w.memberNo).join(', ')}</span>) · `
-      + list.map(w => `${maskName(w.userName)} ${w.prize}`).join(' / ') + '<br/>'
+      + list.map(w => `${w.maskedName} ${w.prize}`).join(' / ') + '<br/>'
       + `<span style="color:#92400e;">포인트 관리 화면은 아직 넘긴 명단을 자동으로 불러오지 않습니다. 열린 화면의 수동 지급에서 위 회원번호로 무상 포인트(유효기간 2년)를 지급하고, 지급 결과는 포인트 관리 원장에서 확인합니다.</span>`
       + `<a class="btn btn-primary btn-sm" id="winner-handoff-link" href="${pointHandoffUrl(post, list)}" target="_blank" rel="noopener" style="margin-left:8px;">포인트 관리 열기 →</a>`;
     box.style.display = 'block';
@@ -3004,23 +3029,36 @@ code, pre, kbd, samp,
     document.getElementById('winner-row-form').style.display = show ? 'block' : 'none';
   }
 
+  // 회원 원장 조회 결과 미리 보기 — 명단에 저장될 마스킹 값만 보여 준다
+  function previewWinnerMember() {
+    const box = document.getElementById('winrow-lookup');
+    if (!box) return;
+    const q = document.getElementById('winrow-member').value.trim();
+    const m = lookupWinnerMember(q);
+    box.innerHTML = !q ? '아이디 또는 회원번호로 조회하세요.'
+      : m ? `<strong style="color:#1e40af;">${m.maskedName} (${m.maskedLogin})</strong> · 회원 원장 확인됨 — 이 마스킹 값과 회원번호만 저장`
+      : '<span style="color:#b91c1c;">회원 원장에서 찾을 수 없습니다.</span>';
+  }
+
   function addWinnerRow() {
     const post = getSelectedWinnerPost();
     if (!post) return;
     const rank = document.getElementById('winrow-rank').value.trim() || '당첨';
     const type = document.getElementById('winrow-type').value;
-    const nameRaw = document.getElementById('winrow-name').value.trim() || '신규회원 (newuser1)';
-    const phone = document.getElementById('winrow-phone').value.trim() || '010-1234-5678';
     const prize = document.getElementById('winrow-prize').value.trim() || '학습지원 무상 포인트 10,000P';
-    const match = nameRaw.match(/^([^\(]+)\(([^\)]+)\)/);
-    const userName = match ? match[1].trim() : nameRaw;
-    const userId = match ? match[2].trim() : 'user_' + (Date.now() % 1000);
-    // 회원번호(memberNo) — 실제는 아이디로 회원 원장을 조회해 얻는다(샘플은 임의 번호). 포인트 관리로 넘길 때 쓴다
-    post.winners.push({ id: Date.now(), rank, userName, userId, memberNo: String(100400 + (Date.now() % 600)), phone, type, prize, status: 'PENDING', meta: '신규 등록 (지급 대기)' });
+    // 회원 원장 조회 → 회원번호(내부 키) + 마스킹 값만 저장. 원본 이름 · 아이디 · 휴대폰은 명단에 남기지 않는다(S-17)
+    const q = document.getElementById('winrow-member').value.trim();
+    if (!q) { alert('당첨 회원의 아이디 또는 회원번호를 입력해 회원 원장에서 조회하세요.'); return; }
+    const m = lookupWinnerMember(q);
+    if (!m) { alert('회원 원장에서 찾을 수 없는 회원입니다. 아이디 또는 회원번호를 확인하세요.'); return; }
+    if (post.winners.some(w => w.memberNo === m.memberNo)) { alert(`${m.maskedName} (${m.maskedLogin}) 회원은 이미 이 발표의 당첨자 명단에 있습니다.`); return; }
+    post.winners.push({ id: Date.now(), rank, memberNo: m.memberNo, maskedName: m.maskedName, maskedLogin: m.maskedLogin, type, prize, status: 'PENDING', meta: '신규 등록 (지급 대기)' });
+    document.getElementById('winrow-member').value = '';
+    previewWinnerMember();
     toggleWinnerRowForm(false);
     renderWinnerView();
     if (typeof renderFaqCatModalTable === 'function') renderFaqCatModalTable();
-    showToast('당첨자 명단에 추가되었으며 프론트 마스킹이 자동 적용되었습니다.');
+    showToast(`당첨자 명단에 ${m.maskedName} (${m.maskedLogin})을 추가했습니다. 원본 개인정보는 저장하지 않고 회원번호 · 마스킹 값만 남겼습니다.`);
   }
 
 

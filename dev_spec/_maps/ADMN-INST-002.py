@@ -107,7 +107,7 @@ R('<select id="editIncomeClause"', '<select id="editIncomeClause" data-dev-flag=
 R('<select id="editInspectMode"', '<select id="editInspectMode" name="verify_method" data-dev-value="EVIDENCE_FILE 증빙 파일 · MANUAL_NOTE 수기 소명"')
 R('<select id="editTargetMonth"', '<select id="editTargetMonth" data-dev-flag="proto-only" data-dev-note="귀속월 — 개발은 스케줄 target_month 그대로(정책 질문 Q-INST002-3)"')
 R('<input type="text" id="editEvidenceFile"', '<input type="text" id="editEvidenceFile" data-dev-flag="proto-only" data-dev-note="증빙 파일 — 개발 1차 미지원(정책 질문 Q-INST002-5)"')
-R('<textarea id="editMemo"', '<textarea id="editMemo" name="review_note" data-dev-note="개발 20자 이상 · 2000자 이하(프로토 10자 — 정책 질문 Q-INST002-1), 개발 id msReviewNote"')
+R('<textarea id="editMemo"', '<textarea id="editMemo" name="review_note" data-dev-note="공백 제외 20자 이상 · 2000자 이하(v6.92 D-PROD-07 결정 — 프로토 · 개발 일치, 개발은 공백 포함 여부 확인), 개발 id msReviewNote · 글자 수 표시 #editMemoCount"')
 ACT("saveDraft", flag="proto-only", route="admin.rights-holders.milestones.draft.update (규칙)", method="PUT", url=M + "/{milestone}/draft", perm="수정")
 ACT("approveMilestone", route="admin.rights-holders.milestones.update", method="PUT", url=M, perm="수정",
     note="milestone_id · decision=approve · verify_method · review_note — 개발 msApproveBtn. 승인 후 자동 재연산 없음(정책 질문 Q-INST002-2)")

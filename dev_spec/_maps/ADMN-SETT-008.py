@@ -107,6 +107,9 @@ ACT("approveTaxTypeChange", route="admin.settlement.nts.update", method="PUT", u
 ACT("confirmTaxTypeTransition", route="admin.settlement.nts.update", method="PUT", url=A + "/settlement/nts/tax-type", perm="수정",
     note="개발 #ntsReviewApproveBtn · hold=0. 승인 후 tab=history로 복귀(조건 유지)")
 R('onclick="confirmTaxTypeTransition()"', 'id="ntsReviewApproveBtn" onclick="confirmTaxTypeTransition()"')
+# v6.92 D-SETT-04: 매입처 과세유형 전환은 1차 감지 · 수기 확인 기록만(원장 행 안 바꿈, 승인 2차)
+ACT("recordSupplierManualCheck", flag="proto-only", route="admin.settlement.nts.supplier-checks.store (규칙)", method="POST", url=A + "/settlement/nts/supplier-checks", perm="수정",
+    note="매입처 전환 감지 건의 매입 증빙 수기 확인(확인자 · 시각) — 원장 과세유형 행은 바꾸지 않음. 매입처 감지 건은 SETT-002 마감 차단에서 뺌")
 ACT("resolvePendingReview", flag="proto-only", route="admin.settlement.nts.tax-decision.update (규칙)", method="PUT", url=A + "/settlement/nts/tax-decision", perm="수정",
     note="세무 판정 보류(PENDING_REVIEW) 해제 — 개발 경로 없음")
 R('id="inputReviewMemo"', 'id="inputReviewMemo" name="memo"' + attrs(note="(규칙) 세무 판정 확정 근거"))

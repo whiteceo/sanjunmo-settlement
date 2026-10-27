@@ -124,6 +124,10 @@ NAME("tiFile", "file", note="(규칙) PDF")
 ACT("submitTaxDoc", flag="proto-only", route=RT + ".tax-documents.store (규칙)", method="POST", url=B + "/tax-documents", perm="등록",
     note="저장 테이블 없음 — 이름 규칙상 tax_document_submissions (규칙)")
 
+# v6.92: 정산서 지급일 · 이번 지급 반영 기한 표시(S-04 · S-05 결정 반영) — 표시 전용, ADMN-SETT-002-S2와 같은 문구
+R('id="stmtPayoutDate"', 'id="stmtPayoutDate"' + attrs(note="(규칙) 지급 예정일 = 귀속월 다음 달 10일(휴일이면 다음 영업일) — site_settings settlement_payout_day(기본 10) (규칙). 이월(CARRY)은 차월 합산"))
+R('id="stmtDisputeDeadline"', 'id="stmtDisputeDeadline"' + attrs(note="(규칙) 이번 지급 반영 기한 = 발행일 + site_settings statement_dispute_reflect_days(기본 7) — 기한 뒤 이견은 마감 후 정정, 이견 불가 · 승인 간주 없음"))
+
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [
     ("홈", "switchPtnrTab('home')", "#tab-home"),

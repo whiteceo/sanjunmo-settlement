@@ -130,14 +130,14 @@ R('            <div class="form-group">\n              <label class="form-label"
 NAME("inp-reset-phone", "phone", note="2단계 · digits_between:10,11 (개발 #owner_phone)")
 R("onclick=\"sendSmsOtp('reset')\"", attrs(route="admin.password-reset.sms.send-code", method="POST", url=A + "/password-reset/sms/send-code", perm="로그인 밖").lstrip() + " onclick=\"sendSmsOtp('reset')\"")
 NAME("inp-reset-otp", "code", note="2단계 · digits:6 (개발 #sms_code) → POST admin.password-reset.sms.verify-code")
-NAME("inp-reset-pw1", "password", note="3단계 · 개발 8~12자(프로토 8~20자 — 정책 D-CONF-05)")
+NAME("inp-reset-pw1", "password", note="3단계 · 8~64자 영문+숫자+특수문자(v6.92 D-CONF-05 결정 — 개발 max:12 → 64로) · maxlength 64")
 NAME("inp-reset-pw2", "password_confirmation")
 ACT("submitPasswordReset", route="admin.password-reset.store", method="POST", url=A + "/password-reset", perm="로그인 밖", note="개발 #pwResetForm · #pwResetSubmit")
 
 # ── 비밀번호 변경 (개발 ADMN-LOGIN-B, AdminPasswordChangeRequest) ───
 R('<div id="panel-change-pw" class="view-panel">', '<div id="panel-change-pw" class="view-panel" data-dev-note="개발 password-change 페이지 — 첫 로그인 · 90일 경과 공용(must_change_password)">')
 NAME("inp-chg-cur", "current_password")
-NAME("inp-chg-pw1", "password", note="개발 8~12자 · 아이디 · 이름 3자 포함 금지 · 연속 4자 금지 · 최근 3개 재사용 금지")
+NAME("inp-chg-pw1", "password", note="8~64자(v6.92 D-CONF-05 결정, 개발 max:12 → 64) · 아이디 · 이름 3자 포함 금지 · 연속 4자 금지 · 최근 3개 재사용 금지")
 NAME("inp-chg-pw2", "password_confirmation")
 ACT("submitChangePw", route="admin.password-change.update", method="PUT", url=A + "/password-change", perm="로그인만")
 

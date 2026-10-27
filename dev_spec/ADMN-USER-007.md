@@ -1,6 +1,6 @@
 # ADMN-USER-007 민감 정보 열람 통제 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-USER-007_baseline.html` (원본 상태: `2960434` + 미커밋 작업 트리 — 2026-10-27 기준 18줄 추가 · 7줄 삭제 수정분 포함. 통합 커밋 후 다시 맞춘다)
+- 프로토타입 파일: `prototype_clean/ADMN-USER-007_baseline.html` (원본 상태: `18d66c1` v6.92)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: USER-007(탭 3개: 1 민감정보 금고 · 2 보존기한 · 파기 · 3 필드 매핑 · 열람 이력) · 열람 사유 모달(`unmaskReasonModal`) · 증빙 뷰어(`docViewerModal`) · 007-P2 파기 결과 보고서(`modal-pii-destruction-result`)
 - 개발 진행: **미구현(규칙 기반 명명)**. `_index/progress.md`에 USER-007 줄 없음, 라우트 · 뷰 없음(routes/admin.php에서 privacy · pii · retention · destruct 검색 0건). 화면 밖 공용 부품만 있다 — 마스킹 해제 API(`admin.masking.unmask`) · `<x-masked>` 컴포넌트 · 공용 사유 모달(`layerReason`) · 암호화 보관(권리자 · 매입처 · 환급 · 환불 계좌) · `destruction_hold` 플래그 · 비공개 첨부 다운로드 · 관리자 로그(`admin_logs`)
@@ -69,7 +69,7 @@
 | `field` | required · max 30 | `resident_no_enc` 주민번호 · `account_no_enc` 계좌번호 | 프로토는 한 번에 둘 다 해제(`requestUnmask(id,'UNMASK')` L925) |
 | `level` | nullable · `high` · `basic` — 권리자 · 환급 필드는 basic을 보내도 high로 확정(MaskingService.php:85-95, MaskingUnmaskRequest.php:75-82) | | (없음 — 전부 사유 필수) |
 | `reason` | high면 required · `in:` ReasonRequest::REASONS | `refund_account` 환불 계좌 확인 · `delivery_error` 배송 오류 확인 · `identity_check` 본인 확인 요청 · `payment_inquiry` 결제 오류 조사 · `legal_request` 법적 요청 대응 · `settlement_check` 정산 · 지급 확인 · `etc` 기타(직접 입력) (ReasonRequest.php:48-56) | 빠른 선택 칩 4개 `.reason-chip`(L512-515) — 프로토 칩은 문장을 채울 뿐 |
-| `reason_etc` | reason=etc일 때 required · 10~150자(ReasonRequest.php:64-86) | | `#unmaskReasonInput`(공백 제외 10자 · 서로 다른 글자 3개 이상, `reasonCheck` L958) |
+| `reason_etc` | reason=etc일 때 required · 10~150자(ReasonRequest.php:64-86) | | `#unmaskReasonInput`(공백 제외 10자 · 서로 다른 글자 3개 이상 · v6.92부터 공백 포함 200자 이하 `maxlength=200`(M-04), `reasonCheck`) — 개발 150자 상한과 50자 차이 |
 | `reason_ref` | nullable · max 50 · 영숫자 하이픈 | | (없음) |
 | `screen` | nullable · max 100 (호출 라우트 이름) | | (없음) |
 | 응답 | `{success, value, level, ttl}` — ttl = 30초 상수(MaskingService.php:106) | | 열람 유지시간 `remaskHolderSec` 기본 30(`ttlSec()` L659, common-master.js:421) |
@@ -212,7 +212,7 @@
 회원관리 검토 4절에 이미 있는 것: **#1**(재마스킹 시간 — 결정됨, 개발 30초 상수는 전달 대상) · **#3**(마스킹 해제 권한 — 재무 담당자가 권리자 · 환급 계좌를 열 수 있게 할지. USER-007 실무가 여기에 달려 있다). 아래는 이 화면에서 새로 나온 것이다.
 
 1. **증빙 사본(신분증 · 통장) 열람 사유** — 정본: 증빙 사본 다운로드도 10자 사유 팝업 강제(03권 데이터사전:358, 프로토 `requestUnmask(id,'DOC')` L925 → `confirmUnmaskAction` L987). 개발: "사유 입력까지 요구할지는 정하지 않았다. 이번 차수는 기록만 남긴다"(AttachmentController.php:106). 비공개 구획에는 문의 · 후기 · 진도 보정 첨부와 유료 자료도 함께 있어(:32-49), 사유를 권리자 · 환급 증빙에만 받을지 비공개 첨부 전체에 받을지 정해야 한다.
-2. **합격환급 수취인 주민번호 수집 · 22% 원천징수** — 정본: 설계서 407행 "기타소득세 22% 원천징수 후 지급", 프로토 REFUND 행 "제세공과금 22% 신고용 주민번호 수집"(L344 · L719-735). 개발: `refund_claims`에 주민번호 컬럼 없음(계좌만, `_index/schema.md` refund_claims), 화면설계서 07:1448 "제세공과금(기타소득) 처리는 1차 범위에 넣지 않는다". 1차에 주민번호를 받고 원천징수하는지.
+2. **합격환급 수취인 주민번호 수집 · 22% 원천징수** — 정본: 설계서 407행 "기타소득세 22% 원천징수 후 지급", 프로토 REFUND 행 "제세공과금 22% 신고용 주민번호 수집"(L344 · L719-735). 개발: `refund_claims`에 주민번호 컬럼 없음(계좌만, `_index/schema.md` refund_claims), 화면설계서 07:1448 "제세공과금(기타소득) 처리는 1차 범위에 넣지 않는다". 1차에 주민번호를 받고 원천징수하는지. **→ 결정(v6.92 white, S-02)**: 합격환급 신청 때 주민번호를 항상 받음(신분증 이미지 없이 번호만 입력 · USER-007 암호화 보관), 원천징수 대상 맞음 — 개발 `refund_claims`에 주민번호 암호문 칸 추가 필요.
 3. **계층 3 파기 보류 판정 방식** — 프로토: 미상계 선급금 · 미소진 지원금 · 대손 · 소송이 있으면 "파기 대상에서 자동 격리"(L378). 개발: 4개 테이블에 저장형 boolean 플래그만 두고 값을 세팅하는 코드가 없다(000151:17, 저장소 전체 검색 결과 마이그레이션 · 테스트 외 사용처 0). 잔액 · 상태로 파기 시점에 자동 산출할지, 운영자가 플래그를 거는지(세무조사 · 소송은 수동일 수밖에 없음).
 4. **환불 수취 계좌 보관 기간 기산점** — 프로토 · 정본 계층 1은 "국세 법정신고기한 + 5년"(L377 · L386, L1130). 개발 `refunds.refund_account_*`는 "환불 완료 후 5년(전자상거래법 대금결제 기록)"을 파트장 안으로 적고 미확정 표시(2026_10_19_000219:12-14). 환불 수취 계좌 · 환급 계좌는 어느 기준으로 파기하는지. **→ 결정(v6.87 white, D-USER7-01): 환불 수취 계좌 원번호는 환불 완료일 + 5년 후 파기(정산 03권 v4.0.13).**
 

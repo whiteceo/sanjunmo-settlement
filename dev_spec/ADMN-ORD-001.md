@@ -1,6 +1,6 @@
 # ADMN-ORD-001 주문 · 배송 통합 관리 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-ORD-001_baseline.html` (원본 상태: `2960434` + 미커밋 작업 트리(17줄 변경, 10-27 01:34 수정본). 줄 번호는 이 작업 트리 기준 — 통합 커밋 후 다시 맞춘다)
+- 프로토타입 파일: `prototype_clean/ADMN-ORD-001_baseline.html` (원본 상태: 18d66c1 v6.92. 본문 줄 번호 L… 는 v6.92 이전 기준이 남아 있을 수 있다 — 함수 · id 이름으로 찾는다)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: ORD-001 주문 목록 · 001-S1 주문 상세(배송지 Lock) · 001-P4 수강권 직권 부여 · ORD-002 배송 관리(탭 4개: 출고 대기 · S1 배송중 · S2 배송완료 · S3 반품 수거 · 검수) · 002-P1 송장 벌크 업로드 · 002-P2 송장 단건 등록/정정 · 002-P3 발주 배치 · 업로드 이력 · 3PL 발주 확인 모달
 - 개발 진행: 구현(ORD-001 · 001-S1 · 002 · 002-P1 라우트 · 화면 있음, `_index/progress.md` 48~51행). 001-P4 직권 부여 · 가상계좌 입금 기한 연장 · 3PL 외부 계정(ROLE_PARTNER_3PL)은 미구현 → 규칙 기반 명명
@@ -52,9 +52,14 @@
 | 상세(열람 로그 `order_detail`) | GET | `/orders/{order}` | `admin.orders.show` | 조회 | OrderController@show |
 | 거래명세서 · 주문서 인쇄 | GET | `/orders/{order}/print` | `admin.orders.print.show` | 조회 | OrderController@showPrint |
 | 배송지 수기 보정(사유 필수 · 알림톡 `TPL_DELIVERY_ADDRESS_CHANGED`) | PUT | `/orders/{order}/address` | `admin.orders.address.update` | 수정 | OrderController@updateAddress |
-| 출고지시 회수(잠금 해제) | DELETE | `/orders/{order}/dispatch` | `admin.orders.dispatch.destroy` | 삭제 + 최고관리자 | OrderController@destroyDispatch |
+| 출고지시 회수(잠금 해제) | DELETE | `/orders/{order}/dispatch` | `admin.orders.dispatch.destroy` | 삭제 + 최고관리자 | OrderController@destroyDispatch — v6.92 프로토에서 버튼 삭제(S-13), 아래 출고보류 · 맞교환으로 대체 |
+| 3PL 출고보류 요청(사유 · 메모, 상태 requested) | POST | `/orders/{order}/ship-holds` (규칙) | `admin.orders.ship-holds.store` (규칙) | 수정 | 개발 미구현(S-13) — `sendShipHoldRequest()` |
+| 3PL 회신 입력(보류 완료 → 잠금 해제 / 이미 출고 → 잠금 유지) | PUT | `/orders/{order}/ship-holds/{hold}` (규칙) | `admin.orders.ship-holds.update` (규칙) | 수정(3PL 계정 또는 물류팀 대리) | 개발 미구현(S-13) — `recordShipHoldReply('HELD'\|'SHIPPED')` |
+| 맞교환 재출고 등록(다음 발주 배치에 재출고 라인) | POST | `/orders/{order}/reships` (규칙) | `admin.orders.reships.store` (규칙) | 등록 | 개발 미구현(S-13) — `saveSwapReship()` |
 | 관리자 메모 추가 | POST | `/orders/{order}/memos` | `admin.orders.memos.store` | 등록 | OrderController@storeMemo |
-| 가상계좌 입금 기한 연장 | PUT | `/orders/{order}/deposit-due` (규칙) | `admin.orders.deposit-due.update` (규칙) | 수정 | 개발 미구현(의도적 미구현, Q-ORD-1) |
+| ~~가상계좌 입금 기한 연장~~ | | | | | v6.92 삭제(D-ORD-01, 개발과 같음) |
+| 가상계좌 입금 계좌 · 기한 재안내(알림톡 `TPL_VBANK_ISSUED`, 기한 그대로) | POST | `/orders/{order}/deposit-notice` (규칙) | `admin.orders.deposit-notice.store` (규칙) | 수정 | 개발 미구현(D-ORD-01) — `resendVbankNotice()` |
+| 도서산간 추가 배송비 결제 · 입금 확인(확인 전 3PL 발주 제외) | PUT | `/orders/{order}/island-fee` (규칙) | `admin.orders.island-fee.update` (규칙) | 수정 | 개발 미구현(D-ORD-10) — `confirmIslandFeePaid()` |
 | 회원 상세 | → | `/members/{member}` | `admin.members.show` | 조회(회원 메뉴) | |
 | 배송 관리에서 보기 | → | `/deliveries?tab=…&search_type=order_no&keyword=<주문번호>` | `admin.deliveries.index` | 조회 | |
 | 반품 배너 [환불 건 보기] | → | `/refunds/{refund}` | `admin.refunds.show` | 조회(환불 메뉴) | |
@@ -130,22 +135,33 @@
 | `delivery_memo` | nullable · max 100 | | `#inpShipMsg` |
 | `reason` | MemberReasonRequest(공백 제외 10자 · 서로 다른 글자 3개 · 200자) | | `#inpAddrChangeReason`(프로토는 2자 이상) |
 | (도서산간 판정 배지) | 개발 폼 없음(`deliveries.fee_type` ISLAND은 주문 시 판정) | `FREE` 무료 · `PREPAID` 선불 · `ISLAND` 도서산간 | `#islandCheckBadge` |
+| `island_fee_liability` (규칙, D-ORD-10) | 도서산간으로 바뀌어 추가 배송비가 생길 때 required | `customer` 고객 귀책 · `admin` 관리자 귀책 | radio `islandFault` CUSTOMER · ADMIN |
+| `island_fee_method` (규칙) | liability=customer일 때 required | `pg_link` PG 추가 결제(결제 링크 · 개인 결제창) · `bank_transfer` 무통장 입금 안내 · `reorder` 취소 후 재주문 안내(주소 미적용) | radio `islandMethod` PG_LINK · BANK · REORDER |
+| `island_fee_cost_account` (규칙) | liability=admin일 때 required(미청구 · 운영 비용) | `sga` 판관비 · `misc_loss` 잡손실 | `#inpIslandCostAcct` SGA · MISC_LOSS |
 
-### 001-S1 출고지시 회수 (MemberReasonRequest)
+### 001-S1 출고지시 회수 (MemberReasonRequest) — v6.92 프로토 버튼 삭제(S-13)
 | 필드 | 규칙 | 프로토타입 대응 |
 |---|---|---|
-| `reason` | MemberReasonRequest | `#btnToggleShipLock` · `#btnRecallShipOrder` → prompt 사유 |
+| `reason` | MemberReasonRequest | 없음(예전 `#btnToggleShipLock` · `#btnRecallShipOrder`) |
+
+### 001-S1 3PL 출고보류 요청 · 회신 · 맞교환 재출고 — 개발 미구현, 규칙 기반 명명(S-13)
+| 필드 | 규칙 | 코드값 | 프로토타입 대응 |
+|---|---|---|---|
+| `reason_code` (출고보류) | required | `address` 배송지 오기재 · 변경 · `cancel` 주문 취소 · `item` 품목 오류 · `etc` 기타 | `#inpShipHoldReason` ADDR · CANCEL · ITEM · ETC |
+| `memo` | etc일 때 required | | `#inpShipHoldMemo` |
+| `result` (3PL 회신) | required | `held` 보류 완료(잠금 해제) · `already_shipped` 이미 출고(잠금 유지) | `#btnHoldReplyHeld` · `#btnHoldReplyShipped` |
+| `reason_code` (맞교환) | required | `address` · `wrong_item` · `defective` · `etc` | `#inpSwapReason` ADDR · WRONG_ITEM · DEFECTIVE · ETC |
+| `order_item_id` | required · 주문 실물 라인(교재 · 일반상품) | | `#inpSwapItem` |
+| `return_tracking_no` | required · 숫자 10~14자리 | | `#inpSwapReturnWb` |
+| (조건) | 보류 요청 = 출고지시 잠금 + 미출고, 맞교환 = '이미 출고' 회신 또는 배송중 · 배송완료 | | `applyShipLockUiState()` |
 
 ### 001-S1 관리자 메모 (OrderMemoRequest)
 | 필드 | 규칙 | 프로토타입 대응 |
 |---|---|---|
 | `content` | required · max 500(`OrderService::MEMO_MAX`). 추가만, 내부 전용 | `#inpAdminMemo` · `addAdminTimelineMemo()` |
 
-### 001-S1 가상계좌 입금 기한 연장 — 개발 미구현, 규칙 기반 명명
-| 필드 | 규칙 | 프로토타입 대응 |
-|---|---|---|
-| `virtual_account_due_at` (규칙. DB 컬럼 `payments.virtual_account_due_at`은 삭제됨(2026_09_08_000076_drop_payment_legacy_columns) — 기한은 `payments.raw_response.virtualAccount.dueDate`(토스 발급 응답)에만 있다) | datetime · 현재 이후 | `#inpNewVbankDue` |
-| `reason` (규칙) | MemberReasonRequest | `#inpVbankReason` |
+### 001-S1 가상계좌 입금 기한 연장 — v6.92 삭제(D-ORD-01)
+- 프로토의 `#inpNewVbankDue` · `#inpVbankReason` · `extendVbankDueDate()` 삭제. 기한은 `payments.raw_response.virtualAccount.dueDate`(토스 발급 응답) 그대로, 기본 유효 시간 `site_settings.virtual_account_valid_hours` = 72. 재안내 `#btnVbankResend` · `resendVbankNotice()`는 입력 필드 없음.
 
 ### 001-P4 수강권 직권 부여 — 개발 미구현, 규칙 기반 명명
 | 필드 | 규칙 | 프로토타입 대응 |
@@ -183,10 +199,10 @@
 ### 002-S3 반품 검수 (ReturnInspectionRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
-| `inspection_result` | required | `normal` 정상(재판매 가능) · `damaged` 훼손(재판매 불가) | `#inpInspectResult` NORMAL · DAMAGED |
+| `inspection_result` | required | `normal` 정상(재판매 가능) · `defective` 파본 · 불량(규칙, D-ORD-09 — 회사 귀책 고정 · 재고 미입고 · 교재비 차감 없음) · `damaged` 고객 훼손(재판매 불가) | `#inpInspectResult` NORMAL · DEFECTIVE · DAMAGED |
 | `liability` | normal일 때 required | `customer` 고객 귀책 · `company` 회사 귀책 | `#inpInspectFault` CUSTOMER_ONEWAY(편도) · CUSTOMER(왕복) · COMPANY → Q-RFD-7(ADMN-RFD-002.md) |
 | `inspection_memo` | nullable · max 2000 | | `#inpInspectMemo` |
-| `photos[]` | jpg · png · 10MB · 최대 `RefundService::INSPECTION_PHOTO_MAX`. 필수 = 훼손 또는 고객 귀책(이미 올린 사진 있으면 면제) | | 📷 검수 사진 첨부 · `#inspectPhotoLabel` → Q-ORD-3 |
+| `photos[]` | jpg · png · 10MB · 최대 `RefundService::INSPECTION_PHOTO_MAX`. 필수 = 훼손 또는 고객 귀책(이미 올린 사진 있으면 면제) → D-ORD-02로 고객 훼손(`damaged`)만 필수 | | `#btnInspectPhoto` · `attachInspectPhoto()` · `#inspectPhotoLabel` · `#inspectPhotoReq` → Q-ORD-3 |
 | `row_id` · `inspection_row` | 화면 내부(선택 행) | | `selectReturnRow()` |
 | (입고 확인) | 이 화면에서 받지 않음 — 입고 전 건은 선택 불가, 환불 관리 `refunds.receipt.update`에서 | | 프로토도 입고 입력 없음 |
 
@@ -292,12 +308,14 @@
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 001-P4 수강권 직권 부여(0원 주문, 구 ORD-003) — 프로토 `modalDirectGrant` L1696, `submitDirectGrant()` L1831. 개발 검색 결과 없음
-- S1 가상계좌 입금 기한 연장 — 프로토 `#vbankExtendBox` L1067-1077, `extendVbankDueDate()` L3596. 개발 `OrderService.php:490` 의도적 미구현. 기한을 담을 `payments` 컬럼도 없다(`virtual_account_due_at` 삭제, 기한은 PG 발급 응답 원문에만) → Q-ORD-1 (10-27 스키마 재색인 반영)
-- 3PL 외부 계정 격리 모드(ROLE_PARTNER_3PL, 금액 · 결제수단 차단, 연락처 마스킹) — 프로토 L539-540 · L794-803 · `setSessionRole()` L1788. 개발 역할 없음 → Q-ORD-4
+- S1 가상계좌 입금 기한 연장 — 프로토 `#vbankExtendBox` L1067-1077, `extendVbankDueDate()` L3596. 개발 `OrderService.php:490` 의도적 미구현. 기한을 담을 `payments` 컬럼도 없다(`virtual_account_due_at` 삭제, 기한은 PG 발급 응답 원문에만) → Q-ORD-1 (10-27 스키마 재색인 반영) **→ 결정(v6.92 white, D-ORD-01)**: 연장 없음(개발과 같음) · 기본 기한 72시간, 프로토는 연장 박스 삭제 · 재안내 알림톡(`resendVbankNotice()`, 개발 미구현)으로 바꿈
+- 3PL 외부 계정 격리 모드(ROLE_PARTNER_3PL, 금액 · 결제수단 차단, 연락처 마스킹) — 프로토 L539-540 · L794-803 · `setSessionRole()` L1788. 개발 역할 없음 → Q-ORD-4 (v6.92: 3PL 보기 마스킹 위치를 PTNR-002와 같게 — 이름 가운데 글자 · 연락처 끝 4자리, 출고 대기 외 탭 · 검수 패널까지. `pName()` · `pPhone()`)
 - 001 주문 구분 '일반상품(과세 10%)' — 프로토 L712. 개발 `OrderService::KINDS`(`OrderService.php:96`)는 인강 · 교재 · 복합 3종, `order_items.item_type`도 LECTURE · BOOK · SHIPPING_FEE만
 - 002 배송 권역 필터 · 도서산간만 체크 — 프로토 L857 · `#chkIslandOnly` L864. 개발 `normalizeFilters`에 없음(`DeliveryService.php:130-150`)
 - KPI '배송중' 카드 — 프로토 `#kpi-ord-ship` L626. 개발 요약은 4개 + 건수
-- S1 주소 변경 시 도서산간 추가배송비 고객 청구 판정 배지 — 프로토 `simulateZipSearch()` L3565. 개발 배송지 보정은 금액 재판정 없음(확인 필요)
+- S1 주소 변경 시 도서산간 추가배송비 고객 청구 판정 배지 — 프로토 `simulateZipSearch()` L3565. 개발 배송지 보정은 금액 재판정 없음(확인 필요) **→ 결정(v6.92 white, D-ORD-10)**: 고객 귀책은 PG 추가 결제 · 무통장 입금 · 재주문 안내 중 택1(결제 · 입금 확인 전 3PL 발주 제외), 관리자 귀책은 미청구 · 판관비/잡손실 — 프로토 `#islandFeeBox` · `confirmIslandFeePaid()`, 개발 미구현
+- S1 3PL 출고보류 요청 · 3PL 회신 · 맞교환 재출고 등록(v6.92 신설, S-13) — 프로토 `#shipHoldPanel` · `sendShipHoldRequest()` · `recordShipHoldReply()` · `saveSwapReship()`. 개발은 출고지시 회수(`orders.dispatch.destroy`)만 있음 **→ 결정(v6.92 white, S-13)**: 회수(잠금만 해제) 버튼 없음, 보류 완료 회신 때만 잠금 해제 · 이미 출고면 맞교환
+- 002-S3 검수 결과 '파본 · 불량'(v6.92 신설) **→ 결정(v6.92 white, D-ORD-09)**: 정상 · 파본/불량(회사 귀책 · 재고 미입고) · 고객 훼손 3값, 개발 `inspection_result`에 `defective` 추가 필요
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
@@ -309,7 +327,7 @@
 | `#fSearchKey` ORDER_NO · BUYER · RECEIVER · PHONE | `search_type` `order_no` · `buyer` · `receiver` · `phone` |
 | 배송 검색 주문번호 · 수령인명 · 휴대전화 · 운송장번호 | `search_type` `order_no` · `receiver` · `phone` · `tracking` |
 | `shipTab-READY` · `SHIPPING` · `DELIVERED` · `RETURN` | `tab` `ready` · `shipping` · `delivered` · `return` |
-| `#inpInspectResult` NORMAL · DAMAGED | `inspection_result` `normal` · `damaged` |
+| `#inpInspectResult` NORMAL · DEFECTIVE · DAMAGED | `inspection_result` `normal` · `defective`(규칙, D-ORD-09) · `damaged` |
 | `#inpInspectFault` CUSTOMER_ONEWAY · CUSTOMER · COMPANY | `liability` `customer` · `company`(편도 구분 없음 — Q-RFD-7) |
 | `#p2Courier` 한글 택배사명 | `courier` `CJ` · `HANJIN` · `LOTTE` · `EPOST` |
 | `#p2ReasonType` 한글 | `reason_code` `missing` · `typo` · `courier` · `etc` |
@@ -321,9 +339,9 @@
 
 | 번호 | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-ORD-1 | 가상계좌 입금 기한 연장을 제공하는가? 정본은 S1에서 새 기한 + 사유로 연장하고 알림톡(TPL_VBANK_DUE_EXTENDED)을 보낸다. 개발은 "토스에 발급 후 기한 변경 방법이 없어 두지 않는다"며 연장을 뺐고, 주석이 "관리자 연장 대상"이던 `payments.virtual_account_due_at`도 삭제됐다. 기한은 발급 응답 원문(`raw_response`)에만 남고, 운영자가 정하는 것은 새 발급분의 유효 시간(`site_settings.virtual_account_valid_hours`)뿐이다. 제공하지 않으면 프로토에서 연장 박스를 빼고 '재발급 안내'(또는 기본 유효 시간 안내)로 바꿀지 | 프로토 L1067-1077 `#vbankExtendBox`, `extendVbankDueDate()` L3596 | `app/Services/Admin/OrderService.php:490`, `app/Services/Order/OrderService.php:701`(depositInfo), `database/migrations/2026_09_08_000076_drop_payment_legacy_columns.php`, `2026_10_20_000226_add_virtual_account_valid_hours_to_site_settings_table.php` (10-27 스키마 재색인 반영) |
+| Q-ORD-1 | 가상계좌 입금 기한 연장을 제공하는가? 정본은 S1에서 새 기한 + 사유로 연장하고 알림톡(TPL_VBANK_DUE_EXTENDED)을 보낸다. 개발은 "토스에 발급 후 기한 변경 방법이 없어 두지 않는다"며 연장을 뺐고, 주석이 "관리자 연장 대상"이던 `payments.virtual_account_due_at`도 삭제됐다. 기한은 발급 응답 원문(`raw_response`)에만 남고, 운영자가 정하는 것은 새 발급분의 유효 시간(`site_settings.virtual_account_valid_hours`)뿐이다. 제공하지 않으면 프로토에서 연장 박스를 빼고 '재발급 안내'(또는 기본 유효 시간 안내)로 바꿀지 | 프로토 L1067-1077 `#vbankExtendBox`, `extendVbankDueDate()` L3596 | `app/Services/Admin/OrderService.php:490`, `app/Services/Order/OrderService.php:701`(depositInfo), `database/migrations/2026_09_08_000076_drop_payment_legacy_columns.php`, `2026_10_20_000226_add_virtual_account_valid_hours_to_site_settings_table.php` (10-27 스키마 재색인 반영)  **→ 결정(v6.92 white, D-ORD-01)**: 연장 없음 · 기본 입금 기한 72시간(`virtual_account_valid_hours` 기본값 24 → 72) · 같은 계좌 · 기한 재안내(`TPL_VBANK_ISSUED`)만 |
 | Q-ORD-2 | 주문 조회용 엑셀에 반출 사유를 받는가? 정본(ORD-001 ⑥)은 사유 없이 열람 로그만, 개발은 CONF-005 반출 정책을 따라 공용 사유(ReasonRequest)를 받는다(개발이 충돌 대장에 기록) | 프로토 `downloadOrderLookupExcel()` L3050 | `app/Http/Requests/Admin/OrderDownloadRequest.php:7` |
-| Q-ORD-3 | 반품 검수 사진 필수 범위 — 정본 배송 관리 화면은 '훼손 판정 시 필수', 개발은 훼손 **또는 정상 + 고객 귀책**에도 필수(두 화면 제안을 합친 임시안, 개발도 미확정 표시) | 프로토 L953 "창고 검수 증빙 사진 (훼손 판정 시 필수)" | `app/Http/Requests/Admin/ReturnInspectionRequest.php:32`, `app/Models/Refund.php:281` |
+| Q-ORD-3 | 반품 검수 사진 필수 범위 — 정본 배송 관리 화면은 '훼손 판정 시 필수', 개발은 훼손 **또는 정상 + 고객 귀책**에도 필수(두 화면 제안을 합친 임시안, 개발도 미확정 표시) | 프로토 L953 "창고 검수 증빙 사진 (훼손 판정 시 필수)" | `app/Http/Requests/Admin/ReturnInspectionRequest.php:32`, `app/Models/Refund.php:281`  **→ 결정(v6.92 white, D-ORD-02)**: 고객 훼손 판정 때만 필수(정상 + 고객 귀책 필수 제거). 함께 D-ORD-09 검수 3값 |
 | Q-ORD-4 | 외부 3PL 대행사 계정(ROLE_PARTNER_3PL)을 두는가? 정본은 배송 관리 전용 격리 세션(금액 · 결제수단 차단, 연락처 마스킹, 발주 · P1 · P2 · S3만)을 정의. 개발은 역할 없이 메뉴 권한(`admin.deliveries.index`)만 있고 발주 파일에 연락처 원문이 실림 | 프로토 L539-540, L794-803, `setSessionRole()` L1788 | `routes/admin.php:866-889`(메뉴 권한만), `app/Services/Admin/DeliveryService.php:53` DISPATCH_HEADERS(수령인연락처) |
 
 - 반품 배송비 귀책(편도 3,000 / 왕복 6,000) 질문은 계산 규칙이라 `ADMN-RFD-002.md` Q-RFD-7에 둔다(S3 `#inpInspectFault` 값도 그 결정을 따른다).

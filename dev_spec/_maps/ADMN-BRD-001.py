@@ -198,7 +198,9 @@ R('<button type="button" class="btn btn-outline btn-sm" onclick="toggleWinnerRow
   '            <label class="btn btn-outline btn-sm" data-dev-flag="dev-only" data-dev-note="winners_file — xlsx · 2MB">명단 엑셀 업로드 <input type="file" name="winners_file" accept=".xlsx" style="display:none;" /></label>\n'
   '            <button type="button" class="btn btn-outline btn-sm" onclick="toggleWinnerRowForm(true)">')
 R('id="winrow-type"', 'id="winrow-type" data-dev-flag="proto-only" data-dev-note="경품 지급 유형 — 개발 없음(정책 질문)"')
-R('id="winrow-phone"', 'id="winrow-phone" data-dev-flag="proto-only" data-dev-note="원본 휴대폰 — 개발은 원본 미저장(마스킹 값만)"')
+# v6.92: winrow-phone(원본 휴대폰 입력) 삭제(결정 반영, S-17) — 명단은 회원번호 + 마스킹 값만
+DEVNAME('id="winrow-member"', "winners_text", note="줄마다 '아이디 경품' 중 아이디 — 개발은 저장 시 회원 아이디 대조 · 마스킹 값만 저장(회원번호 입력은 (규칙))")
+ACT("previewWinnerMember", flag="proto-only", note="회원 원장 조회 미리 보기 — 개발은 저장 시 아이디 대조(별도 조회 라우트 없음)")
 ACT("addWinnerRow", name="winners_text", note="개발은 줄마다 '아이디 경품' 텍스트로 받음")
 ACT("batchGrantSelectedWinners", flag="proto-only", note="경품 일괄 지급 — 개발 없음")
 ACT("grantSingleWinner", flag="proto-only", note="경품 개별 지급 — 개발 없음")

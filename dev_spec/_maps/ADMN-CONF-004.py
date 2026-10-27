@@ -53,9 +53,9 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-CONF-004",
     "devCommit": DEV_COMMIT,
-    "progress": "구현(CONF-004 템플릿 · S1 예약 발송 · 개발 CONF-007 SENS 템플릿). 통합 발송 이력 · 실패 재발송 · 즉시 발송은 개발 미구현 — 주황 표시",
+    "progress": "구현(CONF-004 템플릿 · S1 예약 발송 · 개발 CONF-007 SENS 템플릿). 통합 발송 이력 · 실패 재발송(프로토 CONF-004-S2, 예전 표기 CONF-007 — v6.92) · 즉시 발송(재확인 모달)은 개발 미구현 — 주황 표시",
     "menus": [
-        {"route": "admin.message-templates.index", "label": "메시지 템플릿 관리 (S1 campaigns 포함)"},
+        {"route": "admin.message-templates.index", "label": "메시지 템플릿 관리 (S1 campaigns · S2 발송 이력(규칙) 포함)"},
         {"route": "admin.sens-templates.index", "label": "알림톡 SENS 템플릿 관리 (개발 CONF-007)"},
     ],
 }
@@ -68,7 +68,7 @@ OPS.append(dict(kind="insert_before", anchor="</head>", html=(
 R('onclick="switchTab(\'tpl\')" id="tab-btn-tpl"', attrs(route="admin.message-templates.index", method="GET", url=A + "/message-templates", perm="조회").lstrip() + ' onclick="switchTab(\'tpl\')" id="tab-btn-tpl"')
 R('onclick="switchTab(\'send\')" id="tab-btn-send"', attrs(route="admin.message-templates.campaigns.index", method="GET", url=A + "/message-templates/campaigns", perm="조회").lstrip() + ' onclick="switchTab(\'send\')" id="tab-btn-send"')
 R('onclick="switchTab(\'hist\')" id="tab-btn-hist"', attrs(flag="proto-only", route="admin.message-logs.index (규칙)", method="GET", url=A + "/message-logs", perm="조회",
-                                                         note="통합 발송 이력 · 실패 재발송 — 개발 미구현(notification_logs만). 개발 CONF-007 코드는 SENS 템플릿 관리 — 정본도 CONF-007=SENS 템플릿").lstrip() + ' onclick="switchTab(\'hist\')" id="tab-btn-hist"')
+                                                         note="ADMN-CONF-004-S2 통합 발송 이력 · 실패 재발송(v6.92 코드 정정, 예전 표기 CONF-007) — 개발 미구현(notification_logs만). 1차는 이력 조회 + 발송사 장애 건 재발송만(D-ORD-12). CONF-007 코드는 개발 · 정본 모두 SENS 템플릿 관리").lstrip() + ' onclick="switchTab(\'hist\')" id="tab-btn-hist"')
 R('<section id="view-hist" class="view-section">', '<section id="view-hist" class="view-section" data-dev-flag="proto-only" data-dev-note="재발송(규칙) admin.message-logs.resends.store POST /message-logs/{log}/resends">')
 
 # ── CONF-004 템플릿 목록 ────────────────────────────────
@@ -142,6 +142,20 @@ R('<button class="btn btn-primary" onclick="executeTargetSend()">',
   '              <button class="btn btn-primary"' + attrs(route="admin.message-templates.campaigns.store", method="POST", url=A + "/message-templates/campaigns", perm="등록",
                                                       note="예약 상세 admin.message-templates.campaigns.show · 취소 PUT …/campaigns/{campaign}/status(발송 30분 전까지)") + ' onclick="executeTargetSend()">')
 
+# ── v6.92: 즉시 발송 재확인 · 발송 이력 S2(조회 · 예약 취소 · 발송사 장애 건 재발송) — S-23 + D-CONF-02 · D-ORD-12 결정 반영 ──
+R('<div class="ctx-note" id="send-rule-note"', '<div class="ctx-note" id="send-rule-note" data-dev-note="광고성 법정 금지 21:00~08:00 · 즉시 · 예약 시작 상한 20:50(설정값 adSendStartLimit) · 예약 취소 30분 전(설정값 sendCancelLeadMin = 개발 CANCEL_LEAD_MINUTES)"')
+R('<div class="modal-backdrop" id="modal-send-confirm">', '<div class="modal-backdrop" id="modal-send-confirm" data-dev-flag="proto-only" data-dev-note="즉시 발송 재확인(대상 수 · 비용 · 본문) — 개발은 예약만. 즉시 발송 허용(S-23 · D-CONF-02 결정)">')
+ACT("confirmImmediateSend", flag="proto-only", route="admin.message-templates.campaigns.store", method="POST", url=A + "/message-templates/campaigns", perm="등록",
+    note="(규칙) 즉시 발송 = send_mode immediate · scheduled_at 없음 — 개발 MessageCampaignRequest는 scheduled_at 필수(after:now)")
+NAME("hist-status-filter", "status", value="'' 전체 · done 발송완료 · reserved 예약 · canceled 예약 취소 · failed 실패 있음 (규칙, 프로토 값 ALL · DONE · RESERVED · CANCELED · FAILED 유지)")
+NAME("hist-keyword", "keyword", note="(규칙) 배치 ID · 템플릿 코드 · 제목")
+ACT("cancelReserved", route="admin.message-templates.campaigns.status.update", method="PUT", url=A + "/message-templates/campaigns/{campaign}/status", perm="수정",
+    note="예약 취소 — 발송 30분 전까지(CANCEL_LEAD_MINUTES · 설정값)")
+ACT("openFailModal", flag="proto-only", route="admin.message-logs.show (규칙)", method="GET", url=A + "/message-logs/{batch}", perm="조회", note="(규칙) 실패 건 · 실패 사유")
+R('<div class="modal-backdrop" id="modal-hist-fail">', '<div class="modal-backdrop" id="modal-hist-fail" data-dev-flag="proto-only" data-dev-note="실패 사유 provider_error · timeout(재발송 대상) · optout · invalid_number · not_kakao_user(재발송 안 함) (규칙)">')
+ACT("resendProviderFails", flag="proto-only", route="admin.message-logs.resends.store (규칙)", method="POST", url=A + "/message-logs/{batch}/resends", perm="등록",
+    note="발송사 장애 건만 재발송(D-ORD-12) — 광고성은 야간 구간 · 수신 동의 재확인")
+
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 U = "document.querySelectorAll('.modal-backdrop').forEach(m => m.style.removeProperty('display')); "
 VERIFY = [
@@ -152,4 +166,5 @@ VERIFY = [
     ("템플릿 상세 모달", U + "switchTab('tpl'); openTemplateModal(TEMPLATES[0].code)", "#modal-template"),
     ("채널 필터", "switchTab('tpl'); document.getElementById('tpl-channel-filter').value='EMAIL'; renderTemplates()", "#view-tpl"),
     ("발송 실행", "switchTab('send'); executeTargetSend()", "#view-send|#view-hist"),
+    ("실패 건 · 재발송 모달(v6.92 S2)", U + "switchTab('hist'); openFailModal('SND-261016-01')", "#modal-hist-fail"),
 ]

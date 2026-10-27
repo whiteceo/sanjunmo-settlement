@@ -233,7 +233,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-SETT-001", "devCommit": "d562524a", "progress": "구현(SETT-001 목록 · S1 편집 별도 페이지 · P1 위반 모달). 감사 이력 탭 · 모계약 종료일 동기화 · 잔여 지분 자동 채우기 · 스냅샷 · 일반 상품은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.rights-mapping.index", "label": "상품별 권리자 매핑 (show · store · contracts 같은 메뉴 권한)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
     <div class="top-bar-left">
@@ -357,7 +356,7 @@ code, pre, kbd, samp,
                   <span class="chip info" id="editorUnitSub"></span>
                 </div>
                 <div class="inline">
-                  <button class="btn" id="quickFillBtn" type="button" data-dev-flag="proto-only" data-dev-note="잔여 지분 자사 자동 채우기 — 개발 미구현" data-action="quickFillRemainder" hidden="">잔여 지분 자사(엘캠퍼스) 자동 채우기</button>
+                  <button class="btn" id="internalRowBtn" type="button" data-dev-note="자사 권리자(rights_holders.is_internal=1) 행을 addShareRow와 같은 레이어로 — 지분 직접 입력, 자동 채우기 없음. 개발은 권리자 선택 레이어에서 자사 권리자를 고름(전용 버튼 없음)" data-action="addInternalRow" title="자사(엘캠퍼스) 지분 행을 추가합니다. 지분율은 계약 근거로 직접 입력합니다.">+ 자사 권리자 행 추가</button>
                   <button class="btn pr" id="addRowBtn" type="button" data-dev-route="admin.settlement.rights-mapping.contracts" data-dev-method="GET" data-dev-url="/sj-admin/settlement/rights-mapping/contracts?rights_holder_id=&amp;type=&amp;id=" data-dev-perm="조회" data-dev-note="개발 .layer__open[data-target=layerHolderPick] → 권리자 선택 후 적용 계약 후보(JSON)" data-action="addShareRow">+ 권리자 지분 행 추가</button>
                 </div>
               </header>
@@ -1222,12 +1221,8 @@ function renderDetailView(){
   const autoLocked = !isCourse && (p.ownCopyright || p.supplyType === "PURCHASED_RESALE" || p.supplyType === "CONSIGNMENT");
   $("addRowBtn").disabled = autoLocked;
 
-  /* 100% 미달 시 남은 지분을 자사(엘캠퍼스)로 1클릭 채우는 편의 버튼 */
-  const needRemainder = !autoLocked && uRes.currentSum >= 0 && uRes.currentSum < 100;
-  $("quickFillBtn").hidden = !needRemainder;
-  if(needRemainder){
-    $("quickFillBtn").textContent = `+ 잔여 ${pct(100 - uRes.currentSum)} 자사(엘캠퍼스) 지분 자동 채우기`;
-  }
+  /* 자사 권리자 행 추가 — 남은 지분을 자사로 자동 채우지 않는다(white 2026-10-27 S-06). 지분율은 직접 입력, 저장 시 자사 지분 확인 */
+  $("internalRowBtn").disabled = autoLocked;
 
   if(!isCourse && p.ownCopyright){
     $("autoLockBanner").hidden = false;
@@ -1387,14 +1382,34 @@ function openEndRowModal(rowId){
   });
 }
 
-function openRowModal(rowId = null){
+/* 현재 단위 매핑 저장 — 미저장(draft) 표시를 떼고 스냅샷 · 감사 로그를 남긴다 */
+function saveUnitMapping(unitKey, note){
+  (state.mappings[unitKey] || []).forEach(r => { delete r.draft; });
+  state.dirty = false;
+  state.savedAt = stamp();
+  state.savedSnapshot = JSON.parse(JSON.stringify(state.mappings[unitKey]));
+  logAudit(unitKey, "1계층 지분 매핑 트랜잭션 저장", `합계 100.00% 저장 완료${note ? " · " + note : ""}`);
+  toast(`[${unitKey}] 지분 매핑이 저장되었습니다.`);
+  refresh();
+}
+
+function openRowModal(rowId = null, internal = false){
   const unitKey = currentUnitKey();
   const rows = state.mappings[unitKey] || [];
   const current = rows.find(r => r.id === rowId);
   const usedSum = rows.filter(r => r.id !== rowId).reduce((s, r) => s + Number(r.share || 0), 0);
   const defaultRemain = Math.max(0.01, Number((100 - usedSum).toFixed(2)));
 
-  const r = current || {
+  /* 자사 권리자 행 — 지분 칸은 비워 두고 계약 근거로 직접 입력(white 2026-10-27 S-06, 잔여 자동 채우기 없음) */
+  const r = current || (internal ? {
+    holderId:"RH-INTERNAL",
+    contractId:"CT-INTERNAL-000",
+    share:"",
+    start:rows[0]?.start || FIRST_OPEN_DATE,
+    endBasis:"FIXED_DATE",
+    end:rows[0] ? effectiveEndDate(rows[0]) : "2027-12-31",
+    reason:""
+  } : null) || {
     holderId:"RH-0025",
     contractId:"CT-2026-0501",
     share:defaultRemain,
@@ -1405,7 +1420,8 @@ function openRowModal(rowId = null){
   };
 
   const savedRow = current && !current.draft; // 저장된 행 — 직접 덮어쓰지 않고 종료 + 새 행(01권 4.3)
-  openModal(current ? (savedRow ? "권리자 지분 행 변경 (기존 행 종료 + 새 행 추가)" : "권리자 지분 행 수정 (미저장 행)") : "권리자 지분 행 추가", `
+  openModal(current ? (savedRow ? "권리자 지분 행 변경 (기존 행 종료 + 새 행 추가)" : "권리자 지분 행 수정 (미저장 행)") : (internal ? "자사 권리자 행 추가" : "권리자 지분 행 추가"), `
+    ${internal && !current ? `<div class="alert warn" id="internalRowNotice">남은 지분을 자사로 자동 채우지 않습니다. 자사(엘캠퍼스) 지분은 계약에 근거가 있을 때만 <b>직접 입력</b>하세요. 강사 지분을 수익 배분 요율(예: 70%)과 헷갈려 넣지 않았는지 먼저 확인하세요. 자사 지분이 0보다 크면 개발지원금 약정 대상 · 재원이 됩니다.</div>` : ""}
     ${savedRow ? `<div class="alert warn">저장된 행은 직접 고치지 않습니다. 권리자 · 계약 · 지분율을 바꾸면 기존 행은 <b>유효 시작일 전날</b>로 종료되고 바꾼 값으로 새 행이 추가됩니다(이력 보존). 유효 시작일에 변경 적용일(기존 시작일 ${esc(current.start)} 이후)을 넣으세요. 종료일 · 종료 기준 · 사유만 바꾸면 기존 행의 종료 조건만 바뀝니다.</div>` : ""}
     <div class="row c2">
       <div>
@@ -1423,7 +1439,7 @@ function openRowModal(rowId = null){
     </div>
     <div class="row c3">
       <div>
-        <label class="lbl" for="m_share">1계층 지분율 (%) · 잔여 ${pct(defaultRemain)}</label>
+        <label class="lbl" for="m_share">1계층 지분율 (%) · ${internal && !current ? `직접 입력 (현재 합계 ${pct(Number(usedSum.toFixed(2)))})` : `잔여 ${pct(defaultRemain)}`}</label>
         <input class="fc" id="m_share" name="share" data-dev-note="0~100 · 소수 2자리" data-dev-name="rows[n][share_ratio]" type="number" step="0.01" min="0.01" max="100" value="${esc(r.share)}" required>
       </div>
       <div>
@@ -1446,7 +1462,7 @@ function openRowModal(rowId = null){
       </div>
       <div>
         <label class="lbl" for="m_reason">변경 사유 (필수)</label>
-        <input class="fc" id="m_reason" name="reason" data-dev-note="개발 행에 변경 사유 필드 없음" data-dev-name="(없음)" type="text" value="${esc(r.reason)}" required maxlength="200">
+        <input class="fc" id="m_reason" name="reason" data-dev-note="개발 행에 변경 사유 필드 없음" data-dev-name="(없음)" type="text" value="${esc(r.reason)}" required maxlength="200"${internal && !current ? ' placeholder="계약 근거 (예: 자사 기획 · 제작 지분 — 계약서 조항)"' : ""}>
       </div>
     </div>
   `, data => {
@@ -1560,32 +1576,7 @@ document.addEventListener("click", e => {
     refresh();
   }
   if(action === "endRow") openEndRowModal(btn.dataset.id);
-  if(action === "quickFillRemainder"){
-    const unitKey = currentUnitKey();
-    const rows = state.mappings[unitKey] || [];
-    const used = rows.reduce((s, r) => s + Number(r.share || 0), 0);
-    const remain = Number((100 - used).toFixed(2));
-    if(remain <= 0) return;
-    const baseStart = rows[0]?.start || FIRST_OPEN_DATE;
-    const baseEnd = rows[0] ? effectiveEndDate(rows[0]) : "2027-12-31";
-    rows.push({
-      id:"MAP-"+(++state.seq),
-      holderId:"RH-INTERNAL",
-      contractId:"CT-INTERNAL-000",
-      share:remain,
-      start:baseStart,
-      endBasis:"FIXED_DATE",
-      end:baseEnd,
-      reason:`잔여 자사(엘캠퍼스) 지분 ${pct(remain)} 자동 배정`,
-      locked:false,
-      draft:true
-    });
-    state.mappings[unitKey] = rows;
-    state.dirty = true;
-    logAudit(unitKey, "잔여 자사 지분 자동 채우기", `RH-INTERNAL ${pct(remain)} 추가 → 합계 100.00% 완성`);
-    toast(`잔여 ${pct(remain)}를 자사(엘캠퍼스) 지분으로 채워 100.00%를 완성했습니다.`);
-    refresh();
-  }
+  if(action === "addInternalRow") openRowModal(null, true);
   if(action === "copyToAllLessons"){
     const p = currentProduct();
     if(p.kind !== "COURSE") return;
@@ -1636,13 +1627,20 @@ document.addEventListener("click", e => {
     const unitKey = currentUnitKey();
     const {errors} = analyzeUnit(unitKey, p.supportAgreements, p);
     if(errors.length) return toast("100.00% 검증 오류를 먼저 해결하세요.");
-    (state.mappings[unitKey] || []).forEach(r => { delete r.draft; });
-    state.dirty = false;
-    state.savedAt = stamp();
-    state.savedSnapshot = JSON.parse(JSON.stringify(state.mappings[unitKey]));
-    logAudit(unitKey, "1계층 지분 매핑 트랜잭션 저장", `합계 100.00% 저장 완료`);
-    toast(`[${unitKey}] 지분 매핑이 저장되었습니다.`);
-    refresh();
+    /* 저장 시 자사 지분 확인(white 2026-10-27 S-06) — 이번에 새로 들어가는 자사 지분 행이 있으면 계약 근거를 확인받는다 */
+    const newInternal = (state.mappings[unitKey] || []).filter(r => r.draft && getHolder(r.holderId)?.isInternal && Number(r.share) > 0);
+    if(newInternal.length){
+      const sum = Number(newInternal.reduce((s, r) => s + Number(r.share || 0), 0).toFixed(2));
+      openModal("자사 지분 확인", `
+        <div class="alert warn" id="internalShareConfirm">이번 저장으로 <b>자사(엘캠퍼스) 지분 ${pct(sum)}</b>가 생깁니다. 계약에 근거가 있는 지분인지 확인하세요. 자사 지분은 개발지원금 약정 대상 · 재원이 되고, 그만큼 외부 권리자 정산 몫에서 빠집니다.</div>
+        <table><thead><tr><th>행</th><th class="num">자사 지분율</th><th>적용 기간</th><th>계약 근거(사유)</th></tr></thead><tbody>
+          ${newInternal.map(r => `<tr><td>${esc(r.id)}</td><td class="num">${pct(r.share)}</td><td>${esc(r.start)} ~ ${esc(effectiveEndDate(r))}</td><td>${esc(r.reason)}</td></tr>`).join("")}
+        </tbody></table>
+        <div class="note" style="margin-top:8px">근거가 없으면 [닫기]를 누르고 행을 고치세요. [반영]을 누르면 저장합니다.</div>
+      `, () => { saveUnitMapping(unitKey, `자사 지분 ${pct(sum)} 계약 근거 확인`); return true; });
+      return;
+    }
+    saveUnitMapping(unitKey, "");
   }
   if(action === "snapshot"){
     if(!state.savedSnapshot) return toast("저장된 스냅샷이 없습니다.");

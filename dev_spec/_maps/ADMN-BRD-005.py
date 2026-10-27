@@ -55,7 +55,7 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-BRD-005",
     "devCommit": DEV_COMMIT,
-    "progress": "구현(BRD-005 · 005-S1 · BRD-010 · 010-S1). 수강후기/합격수기 분리 탭 · 진도율 · 별점 · 무료특강 영상(VOD) · 버전 이력은 개발 없음 — 주황 표시",
+    "progress": "구현(BRD-005 · 005-S1 · BRD-010 · 010-S1). 수강후기/합격수기 분리 탭 · 진도율 · 별점 · 후기 보상 회수 · 버전 이력은 개발 없음 — 주황 표시",
     "menus": [
         {"route": "admin.reviews.index", "label": "수기 / 합격 후기 관리"},
         {"route": "admin.free-contents.index", "label": "무료콘텐츠 관리"},
@@ -96,27 +96,18 @@ ACT("openPassAuditModal", count=2, route="admin.reviews.show", method="GET", url
 R('onclick="decidePassEssay(\'REJECTED\')"', attrs(route="admin.reviews.update", method="PUT", url=A + "/reviews/{review}", perm="수정",
   name="verify_status", value="rejected", note="reject_reason 10~255자 필수(회원 마이페이지 · 알림에 노출)").lstrip() + ' onclick="decidePassEssay(\'REJECTED\')"')
 R('onclick="decidePassEssay(\'APPROVED\')"', attrs(route="admin.reviews.update", method="PUT", url=A + "/reviews/{review}", perm="수정",
-  name="verify_status", value="verified", note="개발은 검증과 포인트 지급을 분리 — 지급은 admin.members.review-points.store(정책 질문)").lstrip() + ' onclick="decidePassEssay(\'APPROVED\')"')
-R('<div class="ctx-note" id="pe-reward-note" style="margin-top:14px; margin-bottom:0;"></div>',
-  '<div class="ctx-note" id="pe-reward-note" style="margin-top:14px; margin-bottom:0;"></div>\n'
-  '      <div class="form-grid" style="margin-top:14px;" data-dev-flag="dev-only" data-dev-note="개발 modForm · 우수 후기 포인트 지급 폼(ReviewPointRequest)">\n'
-  '        <div class="form-group full">\n'
-  '          <label class="form-label">반려 사유 (반려 시 필수 · 10자 이상)</label>\n'
-  '          <input type="text" name="reject_reason" placeholder="예: 합격증 미제출 · 타 회차 합격증 · 글자 수 미달" />\n'
-  '        </div>\n'
-  '        <div class="form-group">\n'
-  '          <label class="form-label">우수 후기 포인트</label>\n'
-  '          <input type="number" name="amount" min="1" placeholder="지급 포인트" />\n'
-  '        </div>\n'
-  '        <div class="form-group">\n'
-  '          <label class="form-label">지급 사유</label>\n'
-  '          <input type="text" name="reason" placeholder="10자 이상" />\n'
-  '        </div>\n'
-  '        <div class="form-group full">\n'
-  '          <button type="button" class="btn btn-outline btn-sm"' + attrs(route="admin.members.review-points.store", method="POST", url=A + "/members/review-points/{review}", perm="등록(회원관리 메뉴)",
-  note="검증 완료 후 후기당 1회(reviews.point_granted_at)") + '>우수 후기 포인트 지급</button>\n'
-  '        </div>\n'
-  '      </div>')
+  name="verify_status", value="verified", note="검증만(지급 없음) — 지급은 따로 admin.members.review-points.store(v6.92 D-BRD-02로 개발과 같아짐)").lstrip() + ' onclick="decidePassEssay(\'APPROVED\')"')
+# v6.92: pe-reward-note 아래 dev-only 반려 사유 · 우수 후기 포인트 폼 삭제(결정 반영, D-BRD-02 · S-21) — 원본에 반려 사유 · 후기 보상 지급 모달이 생겨 그 요소에 개발 이름을 단다
+DEVNAME('id="pe-reject-chip"', "reject_reason", note="개발 공통 사유 칩(Review::REJECT_REASONS) — 고르면 reject_reason 앞에 채움, 별도 필드 없음. '증빙 식별 불가'는 개발 칩에 없음")
+NAME("pe-reject-text", "reject_reason", note="rejected일 때 required · 10~255자(rejectReason)")
+ACT("openReviewRewardModal", route="admin.members.review-points.store", method="POST", url=A + "/members/review-points/{review}", perm="등록(회원관리 메뉴)",
+    note="ReviewService::pointPanel ready일 때만(검증 완료 · 미지급). 후기당 1회(reviews.point_granted_at)")
+NAME("rw-amount", "amount", note="required · 1~999,999,999 정수. 기본값 = 포인트 정책 후기 보상값")
+NAME("rw-reason", "reason", note="개발은 항상 required 10~200자 · 공백 제외 10자 · 서로 다른 글자 3개(프로토는 금액을 바꿀 때만)")
+ACT("confirmReviewReward", route="admin.members.review-points.store", method="POST", url=A + "/members/review-points/{review}", perm="등록(회원관리 메뉴)",
+    note="ReviewPointRequest amount · reason")
+ACT("openReviewRevokeModal", flag="proto-only", note="후기 보상 회수(S-21) — 개발 없음")
+ACT("confirmReviewRevoke", flag="proto-only", note="후기 보상 회수 — 개발 없음(무상 P 잔액 한도 회수 라우트 없음)")
 
 # ── BRD-010 무료콘텐츠 목록 ───────────────────────────
 NAME("fl-type-filter", "type", value="EXAM 빈출자료 · DAILY 매일 1문제")
@@ -130,15 +121,18 @@ R("onclick=\"openFreeLecturePage('${item.id}')\"",
   attrs(route="admin.free-contents.edit", method="GET", url=A + "/free-contents/{freeContent}/edit", perm="수정").lstrip() + " onclick=\"openFreeLecturePage('${item.id}')\"")
 
 # ── BRD-010-S1 등록 · 수정 (freeContentForm) ─────────────
-NAME("fl-form-type", "content_type", value="EXAM 빈출자료 · DAILY 매일 1문제", note="개발 FreeContent::TYPES — DAILY는 프로토타입에 없음(정책 질문)")
-DEVNAME('<option value="FREQ_EXAM">', "content_type", value="EXAM", count=2)
+NAME("fl-form-type", "content_type", value="EXAM 빈출자료 · DAILY 매일 1문제", note="개발 FreeContent::TYPES와 같음(v6.92 S-22 · D-BRD-01)")
+# v6.92: FREQ_EXAM 옵션 삭제(결정 반영, S-22 · D-BRD-01) — 원본 구분이 EXAM · DAILY로 개발과 같아짐
+DEVNAME('<option value="EXAM">', "content_type", value="EXAM", count=2)
+DEVNAME('<option value="DAILY">', "content_type", value="DAILY", count=2)
 NAME("fl-form-cert", "cert_category_id", note="값 = categories.id (1Depth)")
 R('id="fl-form-year" value="2026 대비" style="width:120px;" />',
   'id="fl-form-year" value="2026 대비" style="width:120px;" />\n'
   '              <input type="number" name="round_no" min="1" max="999" placeholder="회차" style="width:80px;" data-dev-flag="dev-only" data-dev-note="roundNo — EXAM이면 필수 · 1~999, DAILY는 비움" />')
 NAME("fl-form-year", "year", note="정수 2000~2100 (프로토타입 '2026 대비' 문구)")
 NAME("fl-form-title", "title", note="max:100")
-R('id="fl-form-vod"', 'id="fl-form-vod" data-dev-flag="proto-only" data-dev-note="VOD 에셋 코드 · 러닝타임 — 개발 없음"')
+# v6.92: fl-form-vod(VOD 에셋 · 러닝타임) 삭제(결정 반영, S-22 · D-BRD-01) — 무료특강 영상은 PROD-002 · 003에서 등록
+NAME("fl-form-date", "started_at", note="개발 전시 시작일 nullable Y-m-d — 프로토 게시일(필수)")
 NAME("fl-form-pdf", "attachments[]", note="PDF만 · 최대 5개 · 개당 10MB (프로토타입은 파일명 텍스트). 삭제는 delete_attachments[]")
 R('id="fl-form-body"', 'id="fl-form-body"' + attrs(name="content", note="nullable(에디터)"))
 R('<div style="font-weight:800; font-size:13.5px; margin-bottom:6px;">파일 · 본문 버전 이력</div>',

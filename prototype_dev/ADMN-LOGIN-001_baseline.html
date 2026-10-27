@@ -215,7 +215,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-LOGIN-001", "devCommit": "d562524a", "progress": "구현(LOGIN-001 · P1 레이어 · LOGIN-002 아이디 찾기 · LOGIN-003 비밀번호 찾기 · 비밀번호 변경). 시연 버튼 · 역할 프리셋 · 권한 없음 안내는 프로토 전용 — 주황 표시", "menus": [{"route": "admin.login", "label": "관리자 로그인 (메뉴 권한 밖 — admin.ip 허용 IP만)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
   <aside id="v4-master-snb"></aside>
@@ -378,12 +377,12 @@ code, pre, kbd, samp,
               <input type="text" id="inp-reset-otp" name="code" data-dev-note="2단계 · digits:6 (개발 #sms_code) → POST admin.password-reset.sms.verify-code" class="form-input" value="839104" maxlength="6" />
             </div>
             <div class="form-group">
-              <label class="form-label">새 비밀번호 (영문+숫자+특수문자 조합 8~20자) *</label>
-              <input type="password" id="inp-reset-pw1" name="password" data-dev-note="3단계 · 개발 8~12자(프로토 8~20자 — 정책 D-CONF-05)" class="form-input" value="NewSanjun!2026" />
+              <label class="form-label">새 비밀번호 (영문+숫자+특수문자 조합 8~64자) *</label>
+              <input type="password" id="inp-reset-pw1" name="password" data-dev-note="3단계 · 8~64자 영문+숫자+특수문자(v6.92 D-CONF-05 결정 — 개발 max:12 → 64로) · maxlength 64" class="form-input" value="NewSanjun!2026" maxlength="64" />
             </div>
             <div class="form-group">
               <label class="form-label">새 비밀번호 확인 *</label>
-              <input type="password" id="inp-reset-pw2" name="password_confirmation" class="form-input" value="NewSanjun!2026" />
+              <input type="password" id="inp-reset-pw2" name="password_confirmation" class="form-input" value="NewSanjun!2026" maxlength="64" />
             </div>
             <button type="button" class="btn-submit" data-dev-route="admin.password-reset.store" data-dev-method="POST" data-dev-url="/sj-admin/password-reset" data-dev-perm="로그인 밖" data-dev-note="개발 #pwResetForm · #pwResetSubmit" onclick="submitPasswordReset()">비밀번호 변경 및 계정 잠금 해제</button>
           </div>
@@ -400,12 +399,12 @@ code, pre, kbd, samp,
               <input type="password" id="inp-chg-cur" name="current_password" class="form-input" value="Temp!2026" />
             </div>
             <div class="form-group">
-              <label class="form-label">새 비밀번호 (영문+숫자+특수문자 조합 8~20자) *</label>
-              <input type="password" id="inp-chg-pw1" name="password" data-dev-note="개발 8~12자 · 아이디 · 이름 3자 포함 금지 · 연속 4자 금지 · 최근 3개 재사용 금지" class="form-input" value="NewStaff!2026" />
+              <label class="form-label">새 비밀번호 (영문+숫자+특수문자 조합 8~64자) *</label>
+              <input type="password" id="inp-chg-pw1" name="password" data-dev-note="8~64자(v6.92 D-CONF-05 결정, 개발 max:12 → 64) · 아이디 · 이름 3자 포함 금지 · 연속 4자 금지 · 최근 3개 재사용 금지" class="form-input" value="NewStaff!2026" maxlength="64" />
             </div>
             <div class="form-group">
               <label class="form-label">새 비밀번호 확인 *</label>
-              <input type="password" id="inp-chg-pw2" name="password_confirmation" class="form-input" value="NewStaff!2026" />
+              <input type="password" id="inp-chg-pw2" name="password_confirmation" class="form-input" value="NewStaff!2026" maxlength="64" />
             </div>
             <div id="chg-msg" style="display:none; font-size:12px; font-weight:700; margin-top:6px;"></div>
             <button type="button" class="btn-submit" id="btn-change-pw" data-dev-route="admin.password-change.update" data-dev-method="PUT" data-dev-url="/sj-admin/password-change" data-dev-perm="로그인만" onclick="submitChangePw()">비밀번호 변경 후 이동</button>
@@ -515,6 +514,10 @@ code, pre, kbd, samp,
       window.location.href = land.url;
     }
 
+    // D-CONF-05(white 결정): 관리자 비밀번호 8~64자(NIST SP 800-63B 최대 64자 이상 허용), 조합 규칙(영문 · 숫자 · 특수문자)은 현행 유지 — 변경 · 재설정 공통
+    const ADMIN_PW_RULE = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,64}$/;
+    const ADMIN_PW_MSG = "새 비밀번호는 영문+숫자+특수문자 조합 8~64자여야 합니다.";
+
     function submitChangePw() {
       const cur = document.getElementById("inp-chg-cur").value;
       const p1 = document.getElementById("inp-chg-pw1").value;
@@ -522,7 +525,7 @@ code, pre, kbd, samp,
       const msg = document.getElementById("chg-msg");
       const fail = t => { msg.style.color = "var(--danger)"; msg.textContent = t; msg.style.display = "block"; };
       if (!cur) return fail("임시 비밀번호를 입력해 주세요.");
-      if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,20}$/.test(p1)) return fail("새 비밀번호는 영문+숫자+특수문자 조합 8~20자여야 합니다.");
+      if (!ADMIN_PW_RULE.test(p1)) return fail(ADMIN_PW_MSG);
       if (p1 !== p2) return fail("새 비밀번호 확인이 일치하지 않습니다.");
       if (p1 === cur) return fail("임시 비밀번호와 다른 비밀번호를 써야 합니다.");
       msg.style.color = "var(--success, #059669)";
@@ -684,8 +687,12 @@ code, pre, kbd, samp,
     function submitPasswordReset() {
       const p1 = document.getElementById("inp-reset-pw1").value;
       const p2 = document.getElementById("inp-reset-pw2").value;
-      if (p1.length < 8 || p1 !== p2) {
-        alert("새 비밀번호(영문+숫자+특수문자 8~20자)가 일치하지 않습니다.");
+      if (!ADMIN_PW_RULE.test(p1)) {
+        alert(ADMIN_PW_MSG);
+        return;
+      }
+      if (p1 !== p2) {
+        alert("새 비밀번호 확인이 일치하지 않습니다.");
         return;
       }
       loginFailCount = 0;

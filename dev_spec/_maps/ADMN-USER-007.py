@@ -77,7 +77,7 @@ OPS.append(dict(kind="insert_before", anchor="</head>", html=(
 RENAME_ID("unmaskReasonModal", "layerReason", 4)
 RENAME_ID("docViewerModal", "layerDocViewer", 5)
 RENAME_ID("modal-pii-destruction-result", "layerPiiDestructionResult", 3)
-RENAME_ID("unmaskReasonInput", "reasonEtc", 5)
+RENAME_ID("unmaskReasonInput", "reasonEtc", 5)  # v6.92: maxlength 200(M-04 결정) — 개발 reason_etc 10~150자
 RENAME_ID("btnConfirmUnmask", "reasonSubmit", 2)
 RENAME_ID("reasonCharCount", "reasonEtcCount", 2)
 RENAME_ID("modalTargetSummary", "reasonLead", 2)

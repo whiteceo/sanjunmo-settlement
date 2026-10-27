@@ -151,7 +151,9 @@ ACT("confirmPwReset", flag="proto-only", route="admin.members.password.update (�
 ACT("unlockPw5", flag="proto-only", route="admin.members.lock.update (규칙)", method="PUT", url=A + "/members/{member}/lock", perm="수정")
 ACT("addCsMemo", flag="proto-only", route="admin.members.cs-memos.store (규칙)", method="POST", url=A + "/members/{member}/cs-memos", perm="등록",
     note="개발은 관리자 메모 1칸(users.admin_memo, PUT /members/{member})")
-NAME("cm-content", "content", note="(규칙) CS 상담 기록 — 개발 미구현")
+NAME("cm-content", "content", note="(규칙) CS 상담 기록 — 개발 미구현. 공백 제외 10자 이상 · 1,000자 이하(v6.92 M-04 서술형 칸)")
+# v6.92: 사유 입력 상한 — 짧은 사유 200자 · 서술형 1,000자(M-04 결정 반영)
+NAME("cm-result-note", "result_note", note="(규칙) 처리 결과 메모 · 이관 사유 — 200자 이하(M-04)")
 
 # ── 003 수강 · 기기 ─────────────────────────────────
 NAME("crs-search-type", "type")
@@ -187,6 +189,7 @@ NAME("m3f-pa-reason", "detail", note="개발 20~1000자")
 NAME("m3f-pa-file", "evidence[]", note="1~5개 필수")
 
 # ── 005 블랙리스트 ──────────────────────────────────
+NAME("bl-detail-memo", "reason", note="상세 적발 경위 — 서술형 1,000자(v6.92 M-04 결정). 개발 MemberReasonRequest는 200자 — 이 칸만 1,000자로 늘려야 함")
 ACT("openManualBlacklistModal", count=4, route="admin.members.blacklist.create", method="GET", url=A + "/members/blacklist/create?member_id=", perm="등록(블랙리스트 메뉴)")
 ACT("submitManualBlacklistMember", route="admin.members.blacklist.store", method="POST", url=A + "/members/blacklist", perm="등록",
     note="member_id · reason_type(concurrent_ip · concurrent_session · speed_tamper · minus_point · other) · duration(7 · 30 · permanent) · reason")

@@ -522,9 +522,8 @@ code, pre, kbd, samp,
   <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
   <script id="v4-common-snb" src="common-snb.js" defer></script>
   <link rel="stylesheet" href="dev-overlay.css" />
-  <script type="application/json" id="dev-map">{"code": "ADMN-ORD-001", "devCommit": "d562524a", "progress": "구현(ORD-001 · 001-S1 · 002 · 002-P1~P3). 001-P4 직권 부여 · 가상계좌 기한 연장 · 3PL 외부 계정은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.orders.index", "label": "주문 내역 관리 (목록 · 상세)"}, {"route": "admin.deliveries.index", "label": "배송 관리 · 3PL 연동"}]}</script>
+  <script type="application/json" id="dev-map">{"code": "ADMN-ORD-001", "devCommit": "d562524a", "progress": "구현(ORD-001 · 001-S1 · 002 · 002-P1~P3). 001-P4 직권 부여 · 3PL 출고보류 · 맞교환 재출고 · 도서산간 추가 배송비 처리 · 가상계좌 재안내 · 3PL 외부 계정은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.orders.index", "label": "주문 내역 관리 (목록 · 상세)"}, {"route": "admin.deliveries.index", "label": "배송 관리 · 3PL 연동"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
   <aside id="v4-master-snb"></aside>
@@ -622,8 +621,8 @@ code, pre, kbd, samp,
           </div>
 
           <div class="kpi-card" id="kpi-ord-vbank" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders?statuses[]=waiting" data-dev-perm="조회" onclick="filterOrdListByKpi('결제대기')">
-            <div class="k-title"><span>입금대기 (가상계좌 미입금)</span><span class="badge">24시간 입금 기한</span></div>
-            <div class="k-num" style="color:var(--purple);" id="kpiNumVbank">3건 (기한연장 가능)</div>
+            <div class="k-title"><span>입금대기 (가상계좌 미입금)</span><span class="badge">72시간 입금 기한</span></div>
+            <div class="k-num" style="color:var(--purple);" id="kpiNumVbank">3건 (기한 만료 시 자동 기각)</div>
             <div class="k-sub">입금 웹훅 수신 시점에만 결제완료 및 정산월 귀속</div>
           </div>
 
@@ -800,7 +799,7 @@ code, pre, kbd, samp,
             <div>
               🔒 <b>외부 물류 파트너(ROLE_PARTNER_3PL) 보안 격리 모드 활성:</b><br>
               • <b>데이터 스코프 격리:</b> 개인정보보호법 및 정산 보안 통제에 따라 강좌 결제금액, 매출 및 회원의 결제 수단 정보가 100% 차단/마스킹됩니다.<br>
-              • <b>출고 업무 필수 정보만 제한 제공:</b> 실물 교재 피킹 및 배송에 필요한 <b>수취인명, 마스킹 연락처(010-****-5678), 배송지 주소, 도서 SKU(PROD-BK-1006 등), 수량</b>만 노출됩니다.<br>
+              • <b>출고 업무 필수 정보만 제한 제공:</b> 실물 교재 피킹 및 배송에 필요한 <b>마스킹 수취인명(홍*동) · 연락처(010-1234-****), 배송지 주소, 도서 SKU(PROD-BK-1006 등), 수량</b>만 노출됩니다.<br>
               • 3PL 발주 엑셀 다운로드, 송장 벌크 업로드(P1), 단건 등록/정정(P2), 반품 수거 창고 검수(S3) 기능만 안전하게 수행할 수 있습니다.
             </div>
             <span class="badge b-purple">Data Scope: 3PL 풀필먼트 격리</span>
@@ -936,10 +935,11 @@ code, pre, kbd, samp,
                       <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">검수 결과 판정 (운영자 수동 판정 필수) <span style="color:var(--danger);">*</span></label>
                       <select class="form-select" id="inpInspectResult" name="inspection_result" onchange="onChangeInspectResult()" style="width:100%;">
                         <option value="NORMAL" data-dev-name="inspection_result" data-dev-value="normal">🟢 정상 (재판매 가능 ➔ ADMN-PROD-004 교재 재고 +1권 자동 재입고)</option>
-                        <option value="DAMAGED" data-dev-name="inspection_result" data-dev-value="damaged">🔴 훼손 · 파본 · 필기 흔적 (재판매 불가 ➔ 교재비(도서 실판매가)만 차감 · 고객 착불 반송 · 폐기/손실 처리)</option>
+                        <option value="DEFECTIVE" data-dev-note="(규칙) D-ORD-09 값 추가 — 회사 귀책 고정 · 재고 미입고 · 교재비 차감 없음" data-dev-name="inspection_result" data-dev-value="defective">🟠 파본 · 불량 (회사 귀책 ➔ 재고 미입고 · 교재비 차감 없음 · 반품 배송비 0원)</option>
+                        <option value="DAMAGED" data-dev-note="D-ORD-09 이후 의미 = 고객 훼손" data-dev-name="inspection_result" data-dev-value="damaged">🔴 고객 훼손 · 필기 흔적 (재판매 불가 ➔ 교재비(도서 실판매가)만 차감 · 고객 착불 반송 · 검수 사진 필수)</option>
                       </select>
                       <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">
-                        ※ 훼손(재판매 불가) 선택 시 해당 교재비(도서 실판매가)만 환불에서 차감되고, 같은 주문의 강좌 환불은 그대로 진행됩니다. 귀책 선택은 비활성화됩니다.
+                        ※ 고객 훼손 선택 시 해당 교재비(도서 실판매가)만 환불에서 차감되고, 같은 주문의 강좌 환불은 그대로 진행됩니다. 파본 · 불량은 회사 귀책이라 교재비를 차감하지 않고 재고에도 넣지 않습니다. 정상 외 판정은 귀책 선택이 잠깁니다.
                       </div>
                     </div>
                     <div>
@@ -950,7 +950,7 @@ code, pre, kbd, samp,
                         <option value="COMPANY" data-dev-name="liability" data-dev-value="company">회사 귀책 (파본 · 오배송 ➔ 배송비 차감 없음 0원)</option>
                       </select>
                       <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">
-                        ※ 정상 판정 시에만 선택하며, <code>ADMN-RFD-002</code> 13단계 계산기의 배송비 차감 모수로 자동 연동됩니다.
+                        ※ 정상 판정 시에만 선택하며(파본 · 불량은 회사 귀책 0원으로 고정), <code>ADMN-RFD-002</code> 13단계 계산기의 배송비 차감 모수로 자동 연동됩니다.
                       </div>
                     </div>
                     <div>
@@ -958,10 +958,10 @@ code, pre, kbd, samp,
                       <input type="text" class="form-input" id="inpInspectMemo" name="inspection_memo" data-dev-note="2000자 이하" value="래핑 미개봉 신품 상태 확인 완료, 모서리 찍힘 없음" placeholder="파본 위치, 필기 흔적, 래핑 개봉 여부 등 판정 근거 입력" style="width:100%;" />
                     </div>
                     <div>
-                      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">창고 검수 증빙 사진 (훼손 판정 시 필수)</label>
+                      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">창고 검수 증빙 사진 <span id="inspectPhotoReq" style="color:var(--text-muted);font-weight:600;">(선택 — 고객 훼손 판정 때만 필수)</span></label>
                       <div style="display:flex;align-items:center;gap:8px;">
-                        <button type="button" class="btn btn-outline" data-dev-note="jpg · png · 10MB — 필수: 훼손 또는 고객 귀책(Q-ORD-3). 열람 admin.deliveries.returns.show" data-dev-name="photos[]" onclick="alert('창고 검수 사진(return_check_0809.jpg)이 S3 보안 버킷에 첨부되었습니다.')">📷 검수 사진 첨부</button>
-                        <span style="font-size:12px;color:var(--success);font-weight:600;" id="inspectPhotoLabel">첨부됨: warehouse_cam_0044.jpg</span>
+                        <button type="button" class="btn btn-outline" id="btnInspectPhoto" data-dev-note="jpg · png · 10MB — 필수: 고객 훼손(damaged)만(D-ORD-02, 개발 Refund::inspectionNeedsPhoto 조건 축소 필요). 열람 admin.deliveries.returns.show" data-dev-name="photos[]" onclick="attachInspectPhoto()">📷 검수 사진 첨부</button>
+                        <span style="font-size:12px;color:var(--text-muted);font-weight:600;" id="inspectPhotoLabel">첨부 없음</span>
                       </div>
                     </div>
                   </div>
@@ -977,7 +977,7 @@ code, pre, kbd, samp,
         </section>
 
         <!-- =====================================================================
-             [VIEW 3] ADMN-ORD-001-S1 : 주문 상세 & 배송지 Lock / 입금기한 연장 제어
+             [VIEW 3] ADMN-ORD-001-S1 : 주문 상세 & 배송지 Lock / 가상계좌 입금 안내 / 3PL 출고보류 요청
              ===================================================================== -->
         <section id="view-ord001s1" class="subview-panel">
           <!-- 상단 샘플 시나리오 전환 바 -->
@@ -991,7 +991,7 @@ code, pre, kbd, samp,
                 <select class="form-select" id="detailPresetSelect" onchange="loadOrderDetailPreset(this.value)" style="width:430px;font-weight:700;">
                   <option value="SJM20260818-0021">[케이스 1] SJM20260818-0021 (홍길동 · 복합패키지 · 🔒 3PL 출고지시 완료 Lock 상태)</option>
                   <option value="SJM20260818-0019">[케이스 2] SJM20260818-0019 (김수현 · 교재단독 · 출고지시 전 ➔ 배송지 수정 가능)</option>
-                  <option value="SJM20260817-0132">[케이스 3] SJM20260817-0132 (이서준 · 가상계좌 입금대기 ➔ 입금 기한 연장 활성)</option>
+                  <option value="SJM20260817-0132">[케이스 3] SJM20260817-0132 (이서준 · 가상계좌 입금대기 ➔ 입금 기한 · 재안내)</option>
                 </select>
                 <button type="button" class="btn btn-outline btn-sm" onclick="switchOrdView('ord001')">← 주문 목록으로</button>
               </div>
@@ -1008,9 +1008,68 @@ code, pre, kbd, samp,
 
           <div class="notice-bar warn" id="detailLockBanner">
             <div>
-              🔒 <b>3PL 출고 지시 완료 (2026.08.18 14:02 · 배치 <code>BATCH-20260818-01</code>)</b> — 포장 라벨 출력 불일치로 인한 오배송 방지를 위해 <b>수령인 정보 및 배송지 주소 수정이 서버와 화면 모두 잠금(Lock)</b> 되었습니다. 주소 변경이 꼭 필요하면 3PL 대행사에 출고 보류를 먼저 요청한 뒤 우측 <b>[출고지시 회수]</b>로 잠금을 해제하세요.
+              🔒 <b>3PL 출고 지시 완료 (2026.08.18 14:02 · 배치 <code>BATCH-20260818-01</code>)</b> — 포장 라벨 출력 불일치로 인한 오배송 방지를 위해 <b>수령인 정보 및 배송지 주소 수정이 서버와 화면 모두 잠금(Lock)</b> 되었습니다. 주소 변경이 꼭 필요하면 우측 <b>[3PL 출고보류 요청]</b>을 보내세요. 3PL이 <b>보류 완료</b>로 회신하면 잠금이 풀리고, <b>이미 출고</b>로 회신하면 <b>[맞교환 재출고 등록]</b>으로 처리합니다.
             </div>
-            <button type="button" class="btn btn-sm btn-outline" id="btnToggleShipLock" data-dev-route="admin.orders.dispatch.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/orders/{order}/dispatch" data-dev-perm="삭제 + 최고관리자" data-dev-note="개발 레이어 layerRevoke — reason(MemberReasonRequest)" onclick="toggleShipOrderLock()">🔓 출고지시 회수 (잠금 해제)</button>
+            <button type="button" class="btn btn-sm btn-outline" id="btnShipHoldReq" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerShipHold — 출고지시 잠금 + 미출고 주문만(S-13)" onclick="openShipHoldPanel()">⏸️ 3PL 출고보류 요청</button>
+          </div>
+
+          <!-- S-13(white 2026-10-27): 출고지시 회수(잠금만 해제) 버튼 없음 — 3PL 출고보류 요청(3PL 회신: 보류 완료 / 이미 출고) · 맞교환 재출고 등록 -->
+          <div class="card" id="shipHoldPanel" style="display:none;border:1.5px solid #FDE68A;">
+            <div class="card-header" style="background:#FFFBEB;">
+              <h3 class="card-title">⏸️ 3PL 출고보류 요청 · 맞교환 재출고 등록</h3>
+              <span class="badge b-gray" id="shipHoldStateBadge">요청 전</span>
+            </div>
+            <div class="card-body">
+              <div id="shipHoldReqBox">
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">출고 보류 여부는 3PL이 정합니다. 요청을 보내도 3PL이 <b>보류 완료</b>로 회신하기 전까지 잠금은 그대로입니다.</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                  <select class="form-select" id="inpShipHoldReason" name="reason_code" data-dev-note="(규칙) address · cancel · item · etc" style="width:260px;">
+                    <option value="">— 보류 요청 사유 선택 —</option>
+                    <option value="ADDR">고객 배송지 오기재 · 변경 요청</option>
+                    <option value="CANCEL">고객 주문 취소 요청</option>
+                    <option value="ITEM">출고 품목 오류</option>
+                    <option value="ETC">기타 (메모 필수)</option>
+                  </select>
+                  <input type="text" class="form-input" id="inpShipHoldMemo" name="memo" data-dev-note="(규칙) reason_code=etc일 때 필수" placeholder="요청 메모 (3PL 전달 · 감사 로그 기록)" style="flex:1;min-width:240px;" />
+                  <button type="button" class="btn btn-dark btn-sm" id="btnShipHoldSend" data-dev-route="admin.orders.ship-holds.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/orders/{order}/ship-holds" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="상태 requested — 3PL 회신 전까지 잠금 유지" onclick="sendShipHoldRequest()">📨 3PL에 출고보류 요청</button>
+                </div>
+              </div>
+              <div id="shipHoldReplyBox" style="display:none;margin-top:12px;padding:10px 12px;background:#F8FAFC;border:1px solid var(--border);border-radius:8px;">
+                <div style="font-size:12.5px;margin-bottom:8px;"><b>3PL 회신 입력</b> <span style="color:var(--text-muted);">(3PL 계정 또는 물류팀 대리 입력)</span> — <span id="shipHoldReqInfo"></span></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button type="button" class="btn btn-sm btn-outline" id="btnHoldReplyHeld" data-dev-route="admin.orders.ship-holds.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/ship-holds/{hold}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="3PL 계정 또는 물류팀 대리 입력 — held면 출고지시 잠금 해제" data-dev-name="result" data-dev-value="held" onclick="recordShipHoldReply('HELD')">✅ 보류 완료 (출고 전 멈춤 ➔ 잠금 해제)</button>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnHoldReplyShipped" data-dev-route="admin.orders.ship-holds.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/ship-holds/{hold}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="잠금 유지 → 맞교환 재출고" data-dev-name="result" data-dev-value="already_shipped" onclick="recordShipHoldReply('SHIPPED')">🚚 이미 출고 (잠금 유지 ➔ 맞교환 재출고)</button>
+                </div>
+              </div>
+              <div id="shipHoldResultNote" style="display:none;margin-top:12px;font-size:12.5px;"></div>
+              <div id="swapReshipBox" style="display:none;margin-top:12px;padding:12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;">
+                <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🔁 맞교환 재출고 등록 <span style="font-weight:500;font-size:12px;color:var(--text-muted);">— 바른 품목 · 배송지로 다시 보내고 이미 나간 품목은 회수합니다 (다음 3PL 발주 배치에 재출고 라인으로 포함)</span></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+                  <div>
+                    <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;">재출고 사유 <span style="color:var(--danger);">*</span></label>
+                    <select class="form-select" id="inpSwapReason" name="reason_code" data-dev-note="(규칙) address · wrong_item · defective · etc" style="width:100%;">
+                      <option value="">— 선택 —</option>
+                      <option value="ADDR">배송지 오기재로 출고됨</option>
+                      <option value="WRONG_ITEM">오배송 (품목 오류)</option>
+                      <option value="DEFECTIVE">파본 · 불량 교환</option>
+                      <option value="ETC">기타</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;">재출고 품목 <span style="color:var(--danger);">*</span></label>
+                    <select class="form-select" id="inpSwapItem" name="order_item_id" data-dev-note="(규칙) 주문 실물 라인(교재 · 일반상품)" style="width:100%;"></select>
+                  </div>
+                  <div>
+                    <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;">회수 송장번호 (나간 품목 회수) <span style="color:var(--danger);">*</span></label>
+                    <input type="text" class="form-input" id="inpSwapReturnWb" name="return_tracking_no" data-dev-note="(규칙) 숫자 10~14자리" placeholder="예: 641299001199" style="width:100%;" />
+                  </div>
+                </div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:6px;">재출고 배송지는 아래 배송지 정보(보정 후 값)를 씁니다. 원 주문 결제 금액과 정산 스냅샷은 바뀌지 않습니다.</div>
+                <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+                  <button type="button" class="btn btn-dark btn-sm" id="btnSwapSave" data-dev-route="admin.orders.reships.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/orders/{order}/reships" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="다음 3PL 발주 배치에 재출고 라인 포함 · 원 주문 금액 불변" onclick="saveSwapReship()">💾 맞교환 재출고 등록</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- 2. 주문 · 결제 정보 -->
@@ -1071,18 +1130,17 @@ code, pre, kbd, samp,
                 </tbody>
               </table>
 
-              <!-- 가상계좌 입금대기 주문 전용 확장 블록 (피드백 #440 · #451 · 합의서 8.2절) -->
-              <div id="vbankExtendBox" data-dev-flag="proto-only" data-dev-note="가상계좌 입금 기한 연장 — 개발 의도적 미구현(OrderService.php:490, Q-ORD-1)" style="display:none;margin-top:12px;padding:12px 16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;">
+              <!-- 가상계좌 입금대기 주문 전용 안내 블록 (D-ORD-01 white 2026-10-27: PG가 발급 후 기한 변경을 지원하지 않아 연장 버튼 없음 · 기본 입금 기한 72시간) -->
+              <div id="vbankExtendBox" data-dev-note="가상계좌 입금 안내 — 연장 없음(D-ORD-01, 개발과 같음). 기한은 PG 발급 응답 raw_response · 기본 유효 시간 site_settings.virtual_account_valid_hours(72)" style="display:none;margin-top:12px;padding:12px 16px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:8px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
                   <div>
                     <span class="badge b-amber">가상계좌 입금대기 (결제대기)</span>
                     <b style="margin-left:6px;">국민은행 가상계좌 <code>012345-67-890123</code> (예금주: (주)엘캠퍼스)</b>
-                    <span style="margin-left:10px;color:#B45309;">입금 기한: <b id="vbankDueText">2026.08.18 18:41</b> 까지 (발급 후 24시간 · 만료 시 자동 기각 및 쿠폰/포인트 복원)</span>
+                    <span style="margin-left:10px;color:#B45309;">입금 기한: <b id="vbankDueText">2026.08.20 18:41</b> 까지 (발급 후 72시간 · 만료 시 자동 기각 및 쿠폰/포인트 복원)</span>
+                    <div id="vbankNoExtendNote" style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">이미 발급된 가상계좌의 입금 기한은 PG에서 바꿀 수 없어 연장하지 않습니다. 기한 안에 입금하지 못하면 주문이 자동 기각되고 고객은 다시 주문합니다. 기본 입금 기한(새로 발급하는 계좌의 유효 시간)은 사이트 설정 값이며 기본 72시간입니다.</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:6px;">
-                    <input type="datetime-local" class="form-input" id="inpNewVbankDue" name="virtual_account_due_at" data-dev-note="(규칙) payments.virtual_account_due_at" value="2026-08-20T18:41" style="width:185px;" />
-                    <input type="text" class="form-input" id="inpVbankReason" name="reason" placeholder="기한 연장 사유 입력 (필수)" style="width:210px;" />
-                    <button type="button" class="btn btn-dark btn-sm" data-dev-route="admin.orders.deposit-due.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/deposit-due" data-dev-perm="수정" data-dev-flag="proto-only" onclick="extendVbankDueDate()">⏳ 입금 기한 연장 실행</button>
+                    <button type="button" class="btn btn-outline btn-sm" id="btnVbankResend" data-dev-route="admin.orders.deposit-notice.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/orders/{order}/deposit-notice" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="같은 계좌 · 같은 기한 재안내 — 알림톡 TPL_VBANK_ISSUED(D-ORD-01)" onclick="resendVbankNotice()">📨 입금 계좌 · 기한 재안내 알림톡</button>
                   </div>
                 </div>
               </div>
@@ -1161,7 +1219,8 @@ code, pre, kbd, samp,
               <h3 class="card-title">🏠 3. 배송지 정보 및 운영자 수기 보정 (실물 교재·상품 라인 존재 시 노출 · 3PL 출고지시 Lock 연동)</h3>
               <div style="display:flex;gap:8px;">
                 <button type="button" class="btn btn-sm btn-outline" id="btnEnableAddrEdit" data-dev-perm="수정" data-dev-note="개발은 레이어 layerAddress · addressForm(인라인 편집 아님)" onclick="enableAddressEditMode()" disabled>✏️ 배송지 수정 모드 전환</button>
-                <button type="button" class="btn btn-sm btn-warn" id="btnRecallShipOrder" data-dev-route="admin.orders.dispatch.destroy" data-dev-method="DELETE" data-dev-url="/sj-admin/orders/{order}/dispatch" data-dev-perm="삭제 + 최고관리자" data-dev-note="개발 레이어 layerRevoke — reason(MemberReasonRequest)" onclick="toggleShipOrderLock()">🔓 출고지시 회수 (잠금 해제)</button>
+                <button type="button" class="btn btn-sm btn-warn" id="btnShipHoldReq2" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerShipHold — 출고지시 잠금 + 미출고 주문만(S-13)" onclick="openShipHoldPanel()">⏸️ 3PL 출고보류 요청</button>
+                <button type="button" class="btn btn-sm btn-outline" id="btnSwapReship" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerReship — '이미 출고' 회신 또는 배송중 · 배송완료 주문만" onclick="openSwapReship()">🔁 맞교환 재출고 등록</button>
               </div>
             </div>
             <div class="card-body">
@@ -1185,7 +1244,7 @@ code, pre, kbd, samp,
                       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
                         <input type="text" class="form-input addr-field" id="inpZipcode" name="receiver_zipcode" value="13529" style="width:95px;" disabled />
                         <button type="button" class="btn btn-sm btn-outline addr-field" id="btnFindZip" data-dev-note="우편번호 찾기 결과만 receiver_zipcode로" onclick="simulateZipSearch()" disabled>우편번호 찾기 (카카오 주소 API)</button>
-                        <span class="badge b-gray" id="islandCheckBadge" data-dev-flag="proto-only" data-dev-note="배송지 보정 시 도서산간 추가배송비 판정 — 개발 보정은 금액 재판정 없음(확인 필요)">도서산간·제주 판정: 해당 없음 (추가 배송비 0원)</span>
+                        <span class="badge b-gray" id="islandCheckBadge" data-dev-flag="proto-only" data-dev-note="배송지 보정 시 도서산간 추가배송비 판정 — 개발 보정은 금액 재판정 없음(D-ORD-10 반영 필요)">도서산간·제주 판정: 해당 없음 (추가 배송비 0원)</span>
                       </div>
                       <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <input type="text" class="form-input addr-field" id="inpAddr1" name="receiver_address" data-dev-note="사서함 · 군사우편 차단(Delivery::UNSHIPPABLE_ADDRESS_PATTERN)" value="경기도 성남시 분당구 판교역로 235" style="width:360px;" readonly disabled />
@@ -1225,6 +1284,26 @@ code, pre, kbd, samp,
                     </div>
                   </div>
                 </div>
+                <!-- D-ORD-10(white 2026-10-27): 출고 전 배송지가 제주 · 도서산간으로 바뀌어 추가 배송비가 생길 때 귀책 · 처리 방법 선택 -->
+                <div id="islandFeeBox" data-dev-flag="proto-only" data-dev-note="(규칙) 배송지 보정(admin.orders.address.update)에 island_fee_liability · island_fee_method · island_fee_cost_account 추가(D-ORD-10)" style="display:none;margin-top:12px;padding:12px;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;">
+                  <div style="font-weight:800;font-size:12.5px;color:#9A3412;margin-bottom:8px;">🏝️ 바뀐 배송지가 제주 · 도서산간입니다 — 추가 배송비 <span id="islandFeeAmt">3,000원</span> 처리 방법을 고르세요 (필수)</div>
+                  <div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:8px;font-size:12.5px;">
+                    <label style="cursor:pointer;"><input type="radio" name="islandFault" value="CUSTOMER" data-dev-name="island_fee_liability" data-dev-value="customer" onchange="onIslandFaultChange()" /> <b>고객 귀책</b> (고객이 주소를 잘못 입력 · 변경 요청)</label>
+                    <label style="cursor:pointer;"><input type="radio" name="islandFault" value="ADMIN" data-dev-name="island_fee_liability" data-dev-value="admin" onchange="onIslandFaultChange()" /> <b>관리자 귀책</b> (운영자 입력 · 처리 오류)</label>
+                  </div>
+                  <div id="islandCustomerBox" style="display:none;font-size:12.5px;line-height:1.9;padding:6px 10px;background:#fff;border:1px solid #FED7AA;border-radius:6px;">
+                    <label style="display:block;cursor:pointer;"><input type="radio" name="islandMethod" value="PG_LINK" data-dev-name="island_fee_method" data-dev-value="pg_link" /> PG 추가 결제 — 결제 링크 발송 또는 개인 결제창 생성 (결제 확인 후 출고)</label>
+                    <label style="display:block;cursor:pointer;"><input type="radio" name="islandMethod" value="BANK" data-dev-name="island_fee_method" data-dev-value="bank_transfer" /> 무통장 입금 안내 — 지정 계좌 입금 확인 후 출고</label>
+                    <label style="display:block;cursor:pointer;"><input type="radio" name="islandMethod" value="REORDER" data-dev-note="주소 변경 미적용 · 재주문 안내" data-dev-name="island_fee_method" data-dev-value="reorder" /> 기존 주문 취소 후 올바른 주소로 재주문 안내 — 부분 추가 결제가 어렵거나 관리가 복잡할 때 (이 배송지 변경은 적용하지 않음)</label>
+                  </div>
+                  <div id="islandAdminBox" style="display:none;font-size:12.5px;padding:6px 10px;background:#fff;border:1px solid #FED7AA;border-radius:6px;">
+                    고객에게 청구하지 않고 운영 비용으로 처리합니다. 비용 구분
+                    <select class="form-select" id="inpIslandCostAcct" name="island_fee_cost_account" data-dev-note="(규칙) sga(판관비) · misc_loss(잡손실)" style="width:150px;display:inline-block;margin-left:6px;">
+                      <option value="SGA">판관비</option>
+                      <option value="MISC_LOSS">잡손실</option>
+                    </select>
+                  </div>
+                </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;flex-wrap:wrap;">
                   <input type="text" class="form-input" id="inpAddrChangeReason" name="reason" data-dev-note="MemberReasonRequest 10자 이상(프로토 2자)" placeholder="배송지 수기 보정 사유 필수 입력 (예: 고객 CS 유입으로 수령지 오기재 정정 요청)" style="flex:1;min-width:320px;" />
                   <div style="display:flex;gap:8px;">
@@ -1234,6 +1313,12 @@ code, pre, kbd, samp,
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- D-ORD-10 고객 귀책 추가 배송비 결제 · 입금 대기 (확인 전 출고 보류) -->
+          <div class="notice-bar warn" id="islandFeePendingBox" style="display:none;">
+            <div id="islandFeePendingText"></div>
+            <button type="button" class="btn btn-sm btn-outline" id="btnIslandFeePaid" data-dev-route="admin.orders.island-fee.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/island-fee" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="고객 귀책 (1)(2) 결제 · 입금 확인 — 확인 전 3PL 발주 제외" onclick="confirmIslandFeePaid()">✅ 추가 배송비 결제 · 입금 확인</button>
           </div>
 
           <!-- 6 & 7. 배송·환불 연동 및 관리자 메모·통합 처리 이력 -->
@@ -1344,7 +1429,7 @@ code, pre, kbd, samp,
         <p style="margin:0 0 8px;font-size:13px;line-height:1.6;">
           • 이미 출고 지시된 라인은 중복 발주 방지를 위해 자동 제외되며, 파일 생성 실패 시 잠금(Lock)은 100% 롤백됩니다.<br>
           • 이 시점에는 실제 운송장이 없으므로 <b>고객 알림톡을 발송하지 않습니다.</b> (송장 업로드 시 발송)<br>
-          • 잘못 발주한 경우 3PL에 전달되기 전에 한해 <b>주문 상세(ORD-001-S1)의 [출고지시 회수]</b>로만 잠금을 풀 수 있습니다.
+          • 잘못 발주한 경우 <b>주문 상세(ORD-001-S1)의 [3PL 출고보류 요청]</b>을 보내고, 3PL이 <b>보류 완료</b>로 회신했을 때만 잠금이 풀립니다(이미 출고면 맞교환 재출고 등록).
         </p>
       </div>
       <div class="modal-footer">
@@ -1798,6 +1883,11 @@ code, pre, kbd, samp,
     // 0. 역할(RBAC) 세션 스코프 (ADMIN vs ROLE_PARTNER_3PL)
     // =========================================================================
     let currentRole = "ADMIN";
+    // 3PL 격리 보기 수령인 마스킹 — PTNR-002(3PL 파트너 화면)와 같은 위치(개인정보위 운송장 권고: 이름 가운데 글자 · 연락처 끝 4자리). 위치가 화면마다 다르면 맞춰 보아 원문이 드러난다
+    function maskRecvName(n) { if (!n) return "-"; if (n.indexOf("*") !== -1) return n; if (n.length <= 2) return n.charAt(0) + "*"; return n.charAt(0) + "*".repeat(n.length - 2) + n.charAt(n.length - 1); }
+    function maskRecvPhone(p) { return p ? String(p).replace(/(\d{3})-(\d{3,4})-(\d{4})/, "$1-$2-****") : "-"; }
+    function pName(n) { return currentRole === "ROLE_PARTNER_3PL" ? maskRecvName(n) : n; }
+    function pPhone(p) { return currentRole === "ROLE_PARTNER_3PL" ? maskRecvPhone(p) : p; }
 
     function setSessionRole(role) {
       currentRole = role;
@@ -2024,7 +2114,7 @@ code, pre, kbd, samp,
           { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "입금대기", sCls: "b-gray", sub: "입금 웹훅 수신 시 수강 부여", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
           { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "입금대기", sCls: "b-gray", sub: "입금 시 배송준비중 자동전이", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
         ],
-        deliverySub: "국민은행 가상계좌 · 입금 기한 2026.08.18 18:41 (발급 후 24h)",
+        deliverySub: "국민은행 가상계좌 · 입금 기한 2026.08.20 18:41 (발급 후 72h)",
         paidAmt: "190,000원",
         priceNote: "미입금 (정산 미산입)",
         payMethod: "가상계좌",
@@ -2716,6 +2806,35 @@ code, pre, kbd, samp,
         refs: ["환불 RFD-2026-001189 (ADMN-RFD-002)"]
       },
       {
+        orderNo: "SJM20261012-0107",
+        basis: "강좌 교육면세 (VAT 0%)",
+        paidAt: "10.12 09:30",
+        buyer: "윤서아",
+        receiver: "— (배송 없음)",
+        phone: "010-5151-7272",
+        type: "인강",
+        hasDelivery: false,
+        lines: [
+          { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "환불접수", sCls: "b-red", sub: "교육용역 면세 0% · 포인트 10,000P 사용", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 10000, linePaid: 140000, holder: "정종대 70% · 자사 30%" }
+        ],
+        deliverySub: "배송 대상 아님 — 배송지 정보 없음",
+        paidAmt: "140,000원",
+        priceNote: "정가 150,000 · 포인트 10,000P 사용",
+        payMethod: "신용/체크카드",
+        paySub: "국민카드 · 일시불",
+        status: "결제완료",
+        shipLocked: false,
+        presetKey: "SJM20261012-0107",
+        paidAtFull: "2026.10.12 09:30:18",
+        pgTid: "tvivarepublica20261012093018",
+        listTotal: 150000,
+        couponAmt: 0,
+        pointAmt: 10000,
+        shipFee: 0,
+        paidAmount: 140000,
+        refs: ["환불 RFD-2026-001195 (ADMN-RFD-002)"]
+      },
+      {
         orderNo: "SJM20260901-0219",
         basis: "강좌 교육면세 (VAT 0%)",
         paidAt: "09.01 08:55",
@@ -3001,7 +3120,7 @@ code, pre, kbd, samp,
 
         let actionBtn = `<button type="button" class="btn btn-sm btn-outline" onclick="openOrderDetail('${o.orderNo}')">상세</button>`;
         if (o.status === "결제대기") {
-          actionBtn = `<button type="button" class="btn btn-sm btn-warn" onclick="openOrderDetail('SJM20260817-0132')">⏳ 기한연장</button>`;
+          actionBtn = `<button type="button" class="btn btn-sm btn-warn" onclick="openOrderDetail('${o.orderNo}')">📨 입금 안내</button>`;
         } else if (o.status === "반품수거중") {
           actionBtn = `<a href="ADMN-RFD-002_baseline.html" class="btn btn-sm btn-danger" style="text-decoration:none;">환불건 ➔</a>`;
         }
@@ -3125,7 +3244,7 @@ code, pre, kbd, samp,
       ],
       RETURN: [
         { key: "SJM20260809-0044 #2", recv: "홍길동", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299001122", inDate: "2026.08.18", status: "검수 대기", sCls: "b-amber", selectable: true },
-        { key: "SJM20260805-0012 #1", recv: "서지호", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×1", returnWb: "641288774411", inDate: "2026.08.17", status: "훼손 · 교재비 차감 (환불심사 전달 완료)", sCls: "b-red", selectable: true },
+        { key: "SJM20260805-0012 #1", recv: "서지호", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×1", returnWb: "641288774411", inDate: "2026.08.17", status: "고객 훼손 · 교재비 차감 (사진 첨부 · 환불심사 전달 완료)", sCls: "b-red", selectable: true },
         { key: "SJM20260811-0030 #1", recv: "이도윤", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299004455", inDate: "입고 전", status: "창고 입고 대기", sCls: "b-gray", selectable: false }
       ]
     };
@@ -3166,8 +3285,8 @@ code, pre, kbd, samp,
         `;
         tbody.innerHTML = list.map((r, idx) => {
           const is3pl = (currentRole === "ROLE_PARTNER_3PL");
-          const maskedName = is3pl ? (r.recv.length > 2 ? r.recv[0] + "*" + r.recv.slice(2) : r.recv[0] + "*") : r.recv;
-          const maskedPhone = is3pl ? r.phone.replace(/(\d{3})-(\d{4})-(\d{4})/, "$1-****-$3") : r.phone;
+          const maskedName = pName(r.recv);
+          const maskedPhone = pPhone(r.phone);
           const orderLink = is3pl 
             ? `<span style="font-weight:800;color:var(--text-main);">${r.key}</span>` 
             : `<a href="javascript:void(0)" onclick="openOrderDetail('SJM20260818-0021')" style="font-weight:800;color:var(--primary);">${r.key}</a>`;
@@ -3215,8 +3334,8 @@ code, pre, kbd, samp,
           <tr class="${r.checked ? 'row-selected' : ''}">
             <td><input type="checkbox" class="ship-cb" data-idx="${idx}" ${r.checked ? "checked" : ""} onchange="onShipCheckboxChange()" /></td>
             <td><b>${r.key}</b></td>
-            <td><b>${r.recv}</b></td>
-            <td class="mono">${r.phone}</td>
+            <td><b>${pName(r.recv)}</b></td>
+            <td class="mono">${pPhone(r.phone)}</td>
             <td>${r.addr}</td>
             <td><b>${r.book}</b></td>
             <td>${r.qty}</td>
@@ -3246,7 +3365,7 @@ code, pre, kbd, samp,
         tbody.innerHTML = list.map(r => `
           <tr>
             <td><b>${r.key}</b></td>
-            <td><b>${r.recv}</b></td>
+            <td><b>${pName(r.recv)}</b></td>
             <td><b>${r.book}</b></td>
             <td>${r.qty}</td>
             <td class="mono">${r.shipDate}</td>
@@ -3276,18 +3395,18 @@ code, pre, kbd, samp,
           <tr class="${selectedReturnKey === r.key ? 'row-selected' : ''}">
             <td>
               ${r.selectable
-                ? `<input type="radio" name="returnPick" ${selectedReturnKey === r.key ? "checked" : ""} onchange="selectReturnRow('${r.key}', '${r.recv}', '${r.book}', '${r.returnWb}')" />`
+                ? `<input type="radio" name="returnPick" ${selectedReturnKey === r.key ? "checked" : ""} onchange="selectReturnRow('${r.key}', '${pName(r.recv)}', '${r.book}', '${r.returnWb}')" />`
                 : `<span style="color:#94A3B8;">—</span>`}
             </td>
             <td><b>${r.key}</b></td>
-            <td><b>${r.recv}</b></td>
+            <td><b>${pName(r.recv)}</b></td>
             <td><b>${r.book}</b></td>
             <td class="mono">${r.returnWb}</td>
             <td class="mono">${r.inDate}</td>
             <td><span class="badge ${r.sCls}">${r.status}</span></td>
           </tr>
         `).join("");
-        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>반품 수거 · 검수 탭(ORD-002-S3) 안내:</b> 창고 입고일이 찍힌 건만 단일 선택하여 하단 검수 판정을 입력할 수 있습니다 (피드백 #460). 정상 판정 시 교재 재고에 자동 재입고되며, 훼손 판정 시 교재비만 차감하고(고객 착불 반송) 강좌 환불은 진행됩니다.</div></div>`;
+        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>반품 수거 · 검수 탭(ORD-002-S3) 안내:</b> 창고 입고일이 찍힌 건만 단일 선택하여 하단 검수 판정을 입력할 수 있습니다 (피드백 #460). 정상 판정 시 교재 재고에 자동 재입고되고, 파본 · 불량(회사 귀책)은 재고에 넣지 않으며, 고객 훼손 판정 시 교재비만 차감하고(고객 착불 반송 · 검수 사진 필수) 강좌 환불은 진행됩니다.</div></div>`;
       }
 
       updateShipToolbarButtons();
@@ -3341,6 +3460,7 @@ code, pre, kbd, samp,
 
     function selectReturnRow(key, recv, book, wb) {
       selectedReturnKey = key;
+      setInspectPhoto(false);
       document.getElementById("inspectionTarget").textContent = `🔍 반품 수거 실물 검수 판정 입력 — 선택한 건: ${key} (${recv} · ${book} · 수거송장 ${wb})`;
       renderShipTable();
     }
@@ -3350,25 +3470,52 @@ code, pre, kbd, samp,
       renderShipTable();
     }
 
+    // D-ORD-09(white 2026-10-27): 검수 결과 3값 — 정상(재입고) · 파본/불량(회사 귀책 · 재고 미입고) · 고객 훼손(교재비 차감 · 반송)
+    // D-ORD-02(white 2026-10-27): 검수 사진은 고객 훼손 판정 때만 필수
+    let inspectPhotoAttached = false;
+    function setInspectPhoto(on) {
+      inspectPhotoAttached = on;
+      const lb = document.getElementById("inspectPhotoLabel");
+      lb.textContent = on ? "첨부됨: warehouse_cam_0044.jpg" : "첨부 없음";
+      lb.style.color = on ? "var(--success)" : "var(--text-muted)";
+    }
+    function attachInspectPhoto() {
+      setInspectPhoto(true);
+      alert("창고 검수 사진(warehouse_cam_0044.jpg)이 S3 보안 버킷에 첨부되었습니다.");
+    }
+
     function onChangeInspectResult() {
       const res = document.getElementById("inpInspectResult").value;
       const faultSel = document.getElementById("inpInspectFault");
-      faultSel.disabled = (res === "DAMAGED");
+      if (res === "DEFECTIVE") faultSel.value = "COMPANY";
+      faultSel.disabled = (res !== "NORMAL");
+      const req = document.getElementById("inspectPhotoReq");
+      req.textContent = res === "DAMAGED" ? "(필수 — 고객 훼손 판정)" : "(선택 — 고객 훼손 판정 때만 필수)";
+      req.style.color = res === "DAMAGED" ? "var(--danger)" : "var(--text-muted)";
     }
 
     function saveReturnInspection() {
       const res = document.getElementById("inpInspectResult").value;
+      if (res === "DAMAGED" && !inspectPhotoAttached) {
+        alert("고객 훼손 판정은 검수 사진을 1장 이상 첨부해야 저장할 수 있습니다.");
+        return;
+      }
       const target = SHIP_LINES.RETURN.find(r => r.key === selectedReturnKey);
       if (target) {
         if (res === "NORMAL") {
           target.status = "정상 · 환불 심사(RFD-002) 전달 완료 (재고 +1)";
           target.sCls = "b-green";
+        } else if (res === "DEFECTIVE") {
+          target.status = "파본 · 불량 (회사 귀책) · 재고 미입고 · 환불 심사 전달 완료";
+          target.sCls = "b-amber";
         } else {
-          target.status = "훼손 · 교재비 차감 (착불 반송 · 폐기)";
+          target.status = "고객 훼손 · 교재비 차감 (사진 첨부 · 착불 반송)";
           target.sCls = "b-red";
         }
       }
-      alert("✅ [검수 결과 저장 완료]\n• 판정 결과와 배송비 귀책이 환불 심사(ADMN-RFD-002)로 전달되었습니다.\n• 정상 판정 건은 교재 재고(ADMN-PROD-004)에 자동 재입고(+1권) 처리되었습니다.");
+      const stockMsg = res === "NORMAL" ? "정상 판정이라 교재 재고(ADMN-PROD-004)에 자동 재입고(+1권)했습니다."
+        : (res === "DEFECTIVE" ? "파본 · 불량(회사 귀책)이라 재고에 넣지 않았고, 교재비 차감 · 반품 배송비는 없습니다." : "고객 훼손이라 재고에 넣지 않고 교재비만 차감하며, 교재는 고객에게 착불 반송합니다.");
+      alert("✅ [검수 결과 저장 완료]\n• 판정 결과와 배송비 귀책이 환불 심사(ADMN-RFD-002)로 전달되었습니다.\n• " + stockMsg);
       renderShipTable();
     }
 
@@ -3524,6 +3671,11 @@ code, pre, kbd, samp,
       const lockBanner = document.getElementById("detailLockBanner");
       const compareBox = document.getElementById("addrCompareConfirmBox");
       compareBox.style.display = "none";
+      const holdPanel = document.getElementById("shipHoldPanel");
+      if (holdPanel) holdPanel.style.display = "none";
+      delete shipHoldByOrder[key];  // 샘플 프리셋을 다시 고르면 보류 요청 기록도 처음 상태로
+      const islandPend = document.getElementById("islandFeePendingBox");
+      if (islandPend) islandPend.style.display = "none";
       const data = ORDERS_DATA.find(x => x.orderNo === key);
       if (data) renderOrderDetailFromData(data);
       if (data && !["SJM20260818-0021", "SJM20260818-0019", "SJM20260817-0132"].includes(key)) {
@@ -3566,30 +3718,118 @@ code, pre, kbd, samp,
 
     function applyShipLockUiState() {
       const btnEdit = document.getElementById("btnEnableAddrEdit");
-      const btnRecall = document.getElementById("btnRecallShipOrder");
+      const btnRecall = document.getElementById("btnShipHoldReq2");
       const lockIcons = document.querySelectorAll(".lock-icon");
       const line2Lock = document.getElementById("line2LockText");
 
       btnEdit.disabled = isDetailShipLocked;
-      btnRecall.textContent = isDetailShipLocked ? "🔓 출고지시 회수 (잠금 해제)" : "🔒 출고지시 재적용 (잠금)";
+      const hold = curShipHold();
+      // 보류 요청은 출고지시 잠금 상태에서 아직 요청하지 않았을 때만, 맞교환 재출고는 3PL '이미 출고' 회신 또는 배송중 · 배송완료 주문만
+      const btnSwap = document.getElementById("btnSwapReship");
+      const od = ORDERS_DATA.find(x => x.orderNo === curDetailOrderNo());
+      const shippedOut = !!(od && ["배송중", "배송완료"].includes(od.status));
+      const canHold = isDetailShipLocked && hold.state === "NONE" && !shippedOut;
+      if (btnRecall) { btnRecall.disabled = !canHold; btnRecall.title = canHold ? "" : (shippedOut ? "이미 출고된 주문은 맞교환 재출고 등록으로 처리합니다." : (isDetailShipLocked ? "이미 출고보류를 요청했습니다." : "출고지시 전 주문은 보류 요청 없이 배송지를 고칠 수 있습니다.")); }
+      if (btnSwap) { btnSwap.disabled = !(hold.state === "SHIPPED" || shippedOut); btnSwap.title = btnSwap.disabled ? "3PL이 '이미 출고'로 회신했거나 배송중 · 배송완료인 주문만 등록합니다." : ""; }
+      const bHold = document.getElementById("btnShipHoldReq");
+      if (bHold) bHold.disabled = !canHold;
       lockIcons.forEach(el => el.style.display = isDetailShipLocked ? "inline" : "none");
       if (line2Lock) line2Lock.textContent = isDetailShipLocked ? "🔒 출고지시 완료" : "출고지시 전 (수정 가능)";
 
       document.querySelectorAll(".addr-field").forEach(el => el.disabled = true);
     }
 
-    function toggleShipOrderLock() {
-      if (isDetailShipLocked) {
-        const reason = prompt("[상위 권한 예외 기능 — 출고지시 회수]\n3PL 대행사에 출고 보류를 확인하셨습니까? 회수 사유를 입력해 주세요:", "고객 배송지 오기재 CS 인입으로 3PL 유선 출고보류 확인 후 회수");
-        if (!reason) return;
+    // S-13(white 2026-10-27): 출고지시 회수(잠금만 해제) 없음. 3PL 출고보류 요청 → 3PL 회신(보류 완료 / 이미 출고) → 보류 완료일 때만 잠금 해제, 이미 출고면 맞교환 재출고 등록
+    const shipHoldByOrder = {};
+    const SHIP_HOLD_REASON = { ADDR: "고객 배송지 오기재 · 변경 요청", CANCEL: "고객 주문 취소 요청", ITEM: "출고 품목 오류", ETC: "기타" };
+    const SWAP_REASON = { ADDR: "배송지 오기재로 출고됨", WRONG_ITEM: "오배송 (품목 오류)", DEFECTIVE: "파본 · 불량 교환", ETC: "기타" };
+    function curDetailOrderNo() { const el = document.getElementById("dtOrderNo"); return el ? el.textContent.trim() : ""; }
+    function curShipHold() { const k = curDetailOrderNo(); return shipHoldByOrder[k] || (shipHoldByOrder[k] = { state: "NONE" }); }
+
+    function renderShipHold() {
+      const h = curShipHold();
+      const badge = document.getElementById("shipHoldStateBadge");
+      const map = { NONE: ["b-gray", "요청 전"], REQUESTED: ["b-amber", "보류 요청됨 · 3PL 회신 대기 (잠금 유지)"], HELD: ["b-green", "3PL 회신: 보류 완료 · 잠금 해제"], SHIPPED: ["b-red", "3PL 회신: 이미 출고 · 잠금 유지"] };
+      const m = map[h.state];
+      badge.className = "badge " + m[0];
+      badge.textContent = h.swap ? m[1] + " · 맞교환 재출고 등록됨" : m[1];
+      document.getElementById("shipHoldReqBox").style.display = h.state === "NONE" && isDetailShipLocked ? "block" : "none";
+      document.getElementById("shipHoldReplyBox").style.display = h.state === "REQUESTED" ? "block" : "none";
+      if (h.state === "REQUESTED") document.getElementById("shipHoldReqInfo").textContent = `요청 ${h.at} · 사유: ${SHIP_HOLD_REASON[h.reason]}${h.memo ? " · " + h.memo : ""}`;
+      const note = document.getElementById("shipHoldResultNote");
+      note.style.display = (h.state === "HELD" || h.state === "SHIPPED") ? "block" : "none";
+      if (h.state === "HELD") note.innerHTML = `✅ 3PL이 출고를 멈췄습니다. 배송지를 고칠 수 있으며, 다음 3PL 발주 때 다시 잠깁니다.`;
+      if (h.state === "SHIPPED") note.innerHTML = `🚚 3PL이 이미 출고했습니다. 배송지 잠금은 유지되며, <b>맞교환 재출고 등록</b>으로 다시 보냅니다.`;
+      const swapOpen = h.state === "SHIPPED" || h.swapOpen;
+      document.getElementById("swapReshipBox").style.display = swapOpen && !h.swap ? "block" : "none";
+      if (h.swap) { note.style.display = "block"; note.innerHTML = (h.state === "SHIPPED" ? note.innerHTML + "<br>" : "") + `🔁 맞교환 재출고 등록됨 — ${h.swap.item} · 회수 송장 ${h.swap.wb} · 사유: ${SWAP_REASON[h.swap.reason]} (다음 3PL 발주 배치에 재출고 라인 포함)`; }
+    }
+
+    function openShipHoldPanel() {
+      const h = curShipHold();
+      if (!isDetailShipLocked && h.state === "NONE") { alert("출고지시 전 주문은 보류 요청 없이 배송지를 바로 고칠 수 있습니다."); return; }
+      document.getElementById("shipHoldPanel").style.display = "block";
+      renderShipHold();
+    }
+
+    function sendShipHoldRequest() {
+      const reason = document.getElementById("inpShipHoldReason").value;
+      const memo = document.getElementById("inpShipHoldMemo").value.trim();
+      if (!reason) { alert("보류 요청 사유를 선택해 주세요."); return; }
+      if (reason === "ETC" && memo.length < 2) { alert("기타 사유는 요청 메모를 입력해 주세요."); return; }
+      const h = curShipHold();
+      Object.assign(h, { state: "REQUESTED", reason: reason, memo: memo, at: "08.18 15:20" });
+      appendTimelineRow("김운영", "출고보류요청", "b-amber", `3PL 출고보류 요청 — 사유: ${SHIP_HOLD_REASON[reason]}${memo ? " · " + memo : ""} · 배치 BATCH-20260818-01 · 3PL 회신 대기 (잠금 유지)`);
+      renderShipHold();
+      applyShipLockUiState();
+    }
+
+    function recordShipHoldReply(result) {
+      const h = curShipHold();
+      if (h.state !== "REQUESTED") return;
+      if (result === "HELD") {
+        h.state = "HELD";
         isDetailShipLocked = false;
         document.getElementById("detailLockBanner").style.display = "none";
-        appendTimelineRow("물류팀", "출고지시회수", "b-amber", `출고지시 잠금(Lock) 해제 완료 — 사유: ${reason}`);
+        appendTimelineRow("3PL", "출고보류완료", "b-green", "3PL 회신: 보류 완료 — 출고 전 멈춤 · 출고지시 잠금 해제 (배송지 수정 가능, 다음 3PL 발주 때 다시 잠김)");
       } else {
-        isDetailShipLocked = true;
-        document.getElementById("detailLockBanner").style.display = "flex";
+        h.state = "SHIPPED";
+        appendTimelineRow("3PL", "이미출고", "b-red", "3PL 회신: 이미 출고 — 잠금 유지 · 맞교환 재출고 등록 필요");
+        fillSwapItems();
       }
+      renderShipHold();
       applyShipLockUiState();
+    }
+
+    function fillSwapItems() {
+      const od = ORDERS_DATA.find(x => x.orderNo === curDetailOrderNo());
+      const items = od ? od.lines.filter(l => l.itemType === "BOOK" || l.itemType === "GOODS_ITEM") : [];
+      document.getElementById("inpSwapItem").innerHTML = items.length
+        ? items.map(l => `<option value="${l.productId}">${l.productId} · ${l.name}</option>`).join("")
+        : `<option value="">실물 품목 없음</option>`;
+    }
+
+    function openSwapReship() {
+      const h = curShipHold();
+      h.swapOpen = true;
+      fillSwapItems();
+      document.getElementById("shipHoldPanel").style.display = "block";
+      renderShipHold();
+    }
+
+    function saveSwapReship() {
+      const reason = document.getElementById("inpSwapReason").value;
+      const itemSel = document.getElementById("inpSwapItem");
+      const wb = document.getElementById("inpSwapReturnWb").value.trim();
+      if (!reason) { alert("재출고 사유를 선택해 주세요."); return; }
+      if (!itemSel.value) { alert("재출고할 실물 품목이 없습니다."); return; }
+      if (!/^[0-9]{10,14}$/.test(wb)) { alert("회수 송장번호를 숫자 10~14자리로 입력해 주세요."); return; }
+      const h = curShipHold();
+      const item = itemSel.options[itemSel.selectedIndex].text;
+      h.swap = { reason: reason, item: item, wb: wb };
+      appendTimelineRow("김운영", "맞교환재출고", "b-blue", `맞교환 재출고 등록 — 품목 ${item} · 회수 송장 ${wb} · 사유: ${SWAP_REASON[reason]} · 다음 3PL 발주 배치에 재출고 라인 포함 (원 주문 금액 불변)`);
+      renderShipHold();
+      alert("✅ 맞교환 재출고가 등록되었습니다.\n• 다음 3PL 발주 배치에 재출고 라인으로 들어가며, 나간 품목은 회수 송장으로 회수합니다.");
     }
 
     function enableAddressEditMode() {
@@ -3597,6 +3837,8 @@ code, pre, kbd, samp,
         alert("409 Conflict: 출고 지시된 주문은 배송지를 수정할 수 없습니다.");
         return;
       }
+      addrOrig = { name: document.getElementById("inpRecvName").value, phone: document.getElementById("inpRecvPhone").value, zip: document.getElementById("inpZipcode").value, a1: document.getElementById("inpAddr1").value, a2: document.getElementById("inpAddr2").value };
+      resetIslandFee();
       document.querySelectorAll(".addr-field").forEach(el => el.disabled = false);
       document.getElementById("inpRecvName").value = "홍길순";
       document.getElementById("inpRecvPhone").value = "010-2222-3333";
@@ -3606,16 +3848,50 @@ code, pre, kbd, samp,
       document.getElementById("addrCompareConfirmBox").style.display = "block";
     }
 
+    // D-ORD-10(white 2026-10-27): 출고 전 배송지를 도서산간으로 바꿔 추가 배송비가 생기면 귀책별 처리 — 고객 귀책은 PG 추가 결제 · 무통장 입금 · 재주문 안내 중 선택, 관리자 귀책은 미청구 · 운영 비용 처리
+    const ISLAND_FEE = 3000;
+    let addrOrig = null, islandPending = false;
+    function resetIslandFee() {
+      islandPending = false;
+      document.getElementById("islandFeeBox").style.display = "none";
+      document.querySelectorAll('input[name="islandFault"], input[name="islandMethod"]').forEach(r => r.checked = false);
+      document.getElementById("islandCustomerBox").style.display = "none";
+      document.getElementById("islandAdminBox").style.display = "none";
+      document.getElementById("islandCheckBadge").className = "badge b-gray";
+      document.getElementById("islandCheckBadge").textContent = "도서산간·제주 판정: 해당 없음 (추가 배송비 0원)";
+    }
+    function onIslandFaultChange() {
+      const f = (document.querySelector('input[name="islandFault"]:checked') || {}).value;
+      document.getElementById("islandCustomerBox").style.display = f === "CUSTOMER" ? "block" : "none";
+      document.getElementById("islandAdminBox").style.display = f === "ADMIN" ? "block" : "none";
+    }
     function simulateZipSearch() {
       document.getElementById("inpZipcode").value = "63309";
       document.getElementById("inpAddr1").value = "제주특별자치도 제주시 첨단로 242";
       document.getElementById("islandCheckBadge").className = "badge b-amber";
-      document.getElementById("islandCheckBadge").textContent = "🏝️ 도서산간·제주 판정: 제주 권역 (+3,000원 고객 청구 대상)";
+      document.getElementById("islandCheckBadge").textContent = "🏝️ 도서산간·제주 판정: 제주 권역 (추가 배송비 +3,000원 — 처리 방법 선택 필요)";
+      islandPending = true;
+      document.getElementById("islandFeeBox").style.display = "block";
     }
 
     function cancelAddressEditMode() {
       document.getElementById("addrCompareConfirmBox").style.display = "none";
+      if (addrOrig) {
+        document.getElementById("inpRecvName").value = addrOrig.name;
+        document.getElementById("inpRecvPhone").value = addrOrig.phone;
+        document.getElementById("inpZipcode").value = addrOrig.zip;
+        document.getElementById("inpAddr1").value = addrOrig.a1;
+        document.getElementById("inpAddr2").value = addrOrig.a2;
+      }
+      resetIslandFee();
       applyShipLockUiState();
+    }
+
+    function confirmIslandFeePaid() {
+      appendTimelineRow("김운영", "추가배송비확인", "b-green", `도서산간 추가 배송비 ${ISLAND_FEE.toLocaleString("ko-KR")}원 결제 · 입금 확인 — 출고 보류 해제 (3PL 발주 대상 포함)`);
+      document.getElementById("islandFeePendingBox").style.display = "none";
+      document.getElementById("islandCheckBadge").className = "badge b-green";
+      document.getElementById("islandCheckBadge").textContent = "🏝️ 제주 권역 · 추가 배송비 3,000원 결제 확인";
     }
 
     function commitAddressChange() {
@@ -3623,6 +3899,37 @@ code, pre, kbd, samp,
       if (reason.length < 2) {
         alert("수정 사유를 입력해 주세요.");
         return;
+      }
+      let islandMsg = "";
+      if (islandPending) {
+        const fault = (document.querySelector('input[name="islandFault"]:checked') || {}).value;
+        const method = (document.querySelector('input[name="islandMethod"]:checked') || {}).value;
+        if (!fault) { alert("도서산간 추가 배송비의 귀책(고객 / 관리자)을 선택해 주세요."); return; }
+        if (fault === "CUSTOMER" && !method) { alert("고객 귀책 추가 배송비 처리 방법(PG 추가 결제 / 무통장 입금 / 재주문 안내)을 선택해 주세요."); return; }
+        const feeTxt = ISLAND_FEE.toLocaleString("ko-KR") + "원";
+        if (fault === "CUSTOMER" && method === "REORDER") {
+          appendTimelineRow("김운영", "재주문안내", "b-amber", `배송지 변경 미적용 — 도서산간 추가 배송비 ${feeTxt} 고객 귀책 · 기존 주문 취소 후 올바른 주소로 재주문 안내 발송 · 사유: ${reason}`);
+          cancelAddressEditMode();
+          alert("📨 배송지 변경을 적용하지 않았습니다.\n• 고객에게 기존 주문 취소 후 올바른 주소로 재주문하도록 안내했습니다.\n• 주문 취소는 고객 요청 또는 취소 처리 화면에서 진행합니다.");
+          return;
+        }
+        const badge = document.getElementById("islandCheckBadge");
+        if (fault === "CUSTOMER") {
+          const how = method === "PG_LINK" ? "PG 추가 결제 링크 발송(개인 결제창)" : "무통장 입금 안내(지정 계좌)";
+          islandMsg = ` · 도서산간 추가 배송비 ${feeTxt} 고객 귀책 — ${how} · 결제(입금) 확인 전 출고 보류`;
+          document.getElementById("islandFeePendingText").innerHTML = `🏝️ <b>도서산간 추가 배송비 ${feeTxt} ${method === "PG_LINK" ? "결제" : "입금"} 대기</b> — ${how}. 확인 전에는 3PL 발주 대상에서 빠집니다(출고 보류).`;
+          document.getElementById("islandFeePendingBox").style.display = "flex";
+          badge.className = "badge b-amber";
+          badge.textContent = `🏝️ 제주 권역 · 추가 배송비 ${feeTxt} 고객 청구 (${method === "PG_LINK" ? "PG 추가 결제" : "무통장 입금"} 대기)`;
+        } else {
+          const acct = document.getElementById("inpIslandCostAcct");
+          const acctTxt = acct.options[acct.selectedIndex].text;
+          islandMsg = ` · 도서산간 추가 배송비 ${feeTxt} 미청구 — 관리자 귀책 · 운영 비용(${acctTxt}) 처리`;
+          badge.className = "badge b-blue";
+          badge.textContent = `🏝️ 제주 권역 · 추가 배송비 ${feeTxt} 미청구 (회사 부담 · ${acctTxt})`;
+        }
+        islandPending = false;
+        document.getElementById("islandFeeBox").style.display = "none";
       }
       const name = document.getElementById("inpRecvName").value;
       const phone = document.getElementById("inpRecvPhone").value;
@@ -3633,21 +3940,15 @@ code, pre, kbd, samp,
       document.getElementById("addrAfterText").innerHTML = `<b>${name}</b> / ${phone}<br>[${zip}] ${a1} ${a2}`;
       document.getElementById("addrCompareConfirmBox").style.display = "none";
       applyShipLockUiState();
-      appendTimelineRow("김운영", "배송지보정", "b-blue", `수령인/배송지 수기 보정 완료 ([${zip}] ${a1} ${a2}) · 사유: ${reason}`);
+      appendTimelineRow("김운영", "배송지보정", "b-blue", `수령인/배송지 수기 보정 완료 ([${zip}] ${a1} ${a2}) · 사유: ${reason}${islandMsg}`);
       alert("✅ 배송지가 수정되었습니다.\n• 고객에게 변경 안내 알림톡이 발송되었으며 감사 로그에 변경 전/후 스냅샷이 기록되었습니다.");
     }
 
-    function extendVbankDueDate() {
-      const newDue = document.getElementById("inpNewVbankDue").value;
-      const reason = document.getElementById("inpVbankReason").value.trim();
-      if (!reason) {
-        alert("가상계좌 입금 기한 연장 사유를 입력해 주세요.");
-        return;
-      }
-      const formatted = newDue.replace("T", " ").replace(/-/g, ".");
-      document.getElementById("vbankDueText").textContent = formatted;
-      appendTimelineRow("김운영", "기한연장", "b-purple", `가상계좌 입금 기한 연장 (${formatted} 까지) · 사유: ${reason} · 알림톡(TPL_VBANK_DUE_EXTENDED) 발송`);
-      alert(`⏳ 가상계좌 입금 기한이 [${formatted}]까지 연장되었습니다.\n• 고객에게 입금 기한 연장 안내 알림톡이 발송되었습니다.`);
+    // D-ORD-01(white 2026-10-27): 입금 기한 연장 없음 — 같은 계좌 · 같은 기한을 다시 안내만 한다(TPL_VBANK_ISSUED)
+    function resendVbankNotice() {
+      const due = document.getElementById("vbankDueText").textContent;
+      appendTimelineRow("김운영", "입금재안내", "b-purple", `가상계좌 입금 계좌 · 기한 재안내 (기한 ${due} 그대로 · 연장 없음) · 알림톡(TPL_VBANK_ISSUED) 발송`);
+      alert(`📨 입금 계좌와 기한(${due})을 고객에게 다시 안내했습니다.\n• 기한은 바뀌지 않습니다. 기한이 지나면 주문은 자동 기각되고 고객은 다시 주문합니다.`);
     }
 
     function addAdminTimelineMemo() {

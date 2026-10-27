@@ -71,7 +71,7 @@ NAME("fCat1", "root_category_id", note="개발 #searchRoot (categories.id 1Depth
 NAME("fCat2", "category_id", note="개발 #searchChild (2Depth, root로 좁힘)")
 NAME("fInst", "instructor_id")
 NAME("fSample", "is_preview", value="'' 전체 · 1 Y · 0 N (프로토 ALL · Y · N)")
-NAME("fKeyword", "keyword", note="제목 또는 cdn_key 부분 일치")
+NAME("fKeyword", "keyword", note="제목 또는 cdn_key 부분 일치 — 프로토는 DRM ID도 검색(v6.92), 개발 LectureRepository에 drm_content_id 검색 추가 필요")
 R('          <tr>\n            <th>맛보기</th>',
   '          <tr data-dev-flag="dev-only" data-dev-note="개발 검색 year · type (Lecture::TYPE_LABELS)">\n'
   '            <th>연도</th>\n'
@@ -98,7 +98,8 @@ R('<th style="width:70px;">번호</th>',
   '<th style="width:36px;" data-dev-flag="dev-only"><input type="checkbox" id="checkAll" /></th>\n              <th style="width:70px;">번호</th>')
 R('        <td>${item.no}</td>',
   '        <td data-dev-flag="dev-only"><input type="checkbox" class="check-item" name="ids[]" value="${item.no}" /></td>\n        <td>${item.no}</td>')
-R('<th style="width:190px;">VOD Key</th>', '<th style="width:190px;"' + attrs(name="cdn_key", note="수정 권한이 없으면 뒤 4자리 **** 마스킹 · 비면 '미등록' 배지") + '>VOD Key</th>')
+# v6.92: 'VOD Key' 열 → '영상 (CDN 경로 · DRM ID)'(결정 반영 D-PROD-01)
+R('<th style="width:230px;">영상 (CDN 경로 · DRM ID)</th>', '<th style="width:230px;"' + attrs(name="cdn_key", note="+ drm_content_id. 수정 권한이 없으면 뒤 4자리 **** 마스킹 · 비면 '미등록' 배지") + '>영상 (CDN 경로 · DRM ID)</th>')
 R('<th style="width:145px;">재생시간</th>', '<th style="width:145px;"' + attrs(name="duration_sec", note="개발 표시 '2,940초 (49:00)', 0이면 '미입력'") + '>재생시간</th>')
 R('<th style="width:75px;">맛보기</th>', '<th style="width:75px;"' + attrs(name="is_preview") + '>맛보기</th>')
 R('<th style="width:180px;">정산 매핑 (SETT-001)</th>', '<th style="width:180px;" data-dev-flag="proto-only" data-dev-note="개발 목록에 정산 매핑 컬럼 없음">정산 매핑 (SETT-001)</th>')
@@ -111,10 +112,15 @@ R('<select id="s1Cat1">', '<select id="s1Cat1"' + attrs(name="(전송 안 함)",
 NAME("s1Cat2", "category_id", note="개발 #formChild — 2Depth만")
 NAME("s1Inst", "instructor_id", note="개발 #instructorSelect — 프로필 등록 + 계약 유효 강사만")
 NAME("s1Title", "title", note="required · max 255 (화면 maxlength 80)")
-NAME("s1VodKey", "cdn_key",
-     note="개발은 CDN 경로(예 2026/LEC_00001.mp4, 5~255 · 전체 유일) + 별도 drm_content_id(#drmContentId) 2칸 — 정본은 VOD Key 1칸(Q-PROD002-2, 정책 확인 전이라 칸 추가 안 함)")
-ACT("verifyVodKey", route="admin.lectures.vod-info.index", method="GET", url=A + "/lectures/vod-info?drm_content_id=", perm="조회", note="개발 #vodVerify → #vodVerifyResult (lectures.vod_verified_at)")
-R('id="s1VodVerifiedBadge"', 'id="s1VodVerifiedBadge"' + attrs(name="vod_verified_at", note="개발 #vodVerifyResult"))
+# v6.92: VOD Key 1칸(s1VodKey · verifyVodKey · s1VodVerifiedBadge) 삭제 → 영상 출처 + CDN 경로 + DRM ID + YouTube 링크(결정 반영 D-PROD-01, 개발안과 같음)
+NAME("s1Source", "source_type", note="cdn · youtube(맛보기 Y 강의만)")
+DEVNAME('<option value="CDN">', "source_type", value="cdn")
+DEVNAME('<option value="YOUTUBE">', "source_type", value="youtube")
+NAME("s1CdnPath", "cdn_key", note="5~255 · CDN_KEY_PATTERN · 전체 유일, 도메인 · 서명 URL 금지")
+NAME("s1DrmId", "drm_content_id", note="max 100 · 전체 유일. 유료(맛보기 N) 필수 — 개발은 nullable(D-PROD-01 필수 규칙 반영 필요). 값이 있으면 duration_sec을 OVP 값으로")
+ACT("verifyDrmId", route="admin.lectures.vod-info.index", method="GET", url=A + "/lectures/vod-info?drm_content_id=", perm="조회", note="개발 #vodVerify → #vodVerifyResult (lectures.vod_verified_at)")
+R('id="s1DrmVerifiedBadge"', 'id="s1DrmVerifiedBadge"' + attrs(name="vod_verified_at", note="개발 #vodVerifyResult"))
+NAME("s1YtUrl", "source_url", note="max 500 · http/https — youtube일 때")
 NAME("s1Duration", "duration_sec", note="drm_content_id 없을 때 required · min 1 — 있으면 OVP 값으로 채우고 입력 잠금(#durationAutoHelp)")
 R('id="s1DurationFormatted"', 'id="s1DurationFormatted"' + attrs(note="개발 #durationClock"))
 ACT("fetchFromVodMeta", route="admin.lectures.vod-info.index", method="GET", url=A + "/lectures/vod-info?drm_content_id=", perm="조회", note="개발 #vodMeta")

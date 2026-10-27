@@ -1,5 +1,5 @@
 # ADMN-PTNR-001 파트너 센터(권리자 · 강사 전용) — 개발 명세
-- 프로토타입 파일: prototype_clean/ADMN-PTNR-001_baseline.html (원본 상태: 84c22e2)
+- 프로토타입 파일: prototype_clean/ADMN-PTNR-001_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-PTNR-001 (탭 5: 홈 · 본인 정산서 · 학습 Q&A 관리 · 세금계산서 · 증빙 제출 · 내 정보, 모달 `modalQnaDetail`)
 - 개발 진행: **개발 미구현(d562524a 기준), 규칙 기반 명명.** config/dev-progress.php 에 ADMN-PTNR 코드 자체가 없다. 관련 기능만 따로 있음: 강사 · 조교 역할 범위 제한(instructorScope), 학습 Q&A 관리(`admin.study-qnas.*`), 권리자 제공 정산서(`admin.settlement.statements.*`)
@@ -68,6 +68,7 @@
 | instructors.user_id · instructor_assistants | | 로그인 계정 ↔ 강사 연결 | 범위 판정 |
 | rights_holders.(code · name · tax_type · bank_name …) | | 내 정보 | 내 정보 |
 | 세금계산서 · 증빙 제출 저장 테이블 | — | 없음(개발 미구현) — 이름 규칙상 `tax_document_submissions` (규칙) | 증빙 제출 |
+| site_settings `settlement_payout_day` (규칙, 기본 10) · `statement_dispute_reflect_days` (규칙, 기본 7) | int | 정산금 지급일(매월 10일, 휴일이면 다음 영업일) · 이번 지급 반영 기한(발행일 + 7일) — v6.92 S-04 · S-05 | 본인 정산서 `#stmtPayoutDate` · `#stmtDisputeDeadline` |
 
 ## 6. 개발 JS · 마크업 이름
 개발 미구현, 규칙 기반 명명.
@@ -86,6 +87,7 @@
 - 파트너 센터 화면 전체(홈 요약 · 본인 정산서 월 이동 · PDF · 증빙 제출 · 내 정보).
 - 세금계산서 · 증빙 제출 저장 — SETT-002 의 증빙 탭(evidence)도 개발에서 비활성이다.
 - 이름 · 아이디 마스킹 표시(ptnrMaskName · ptnrMaskId).
+- (v6.92) 본인 정산서의 지급일 줄(`#stmtPayoutDate` — 지급 완료 · 이월 차월 합산 · 지급 없음 · 반환 청구 구분)과 이번 지급 반영 기한 줄(`#stmtDisputeDeadline`). **→ 결정(v6.92 white, S-04 · S-05)**: 정산금 지급일 매월 10일(휴일이면 다음 영업일), 이견은 '이번 지급 반영 기한'(기본 발행일 + 7일, 설정값)으로만 적고 기한 후 이견 불가 · 승인 간주는 넣지 않음 — ADMN-SETT-002-S2와 같은 문구.
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
 |---|---|

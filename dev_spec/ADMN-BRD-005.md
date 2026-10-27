@@ -1,6 +1,6 @@
 # ADMN-BRD-005 수강후기 · 합격수기 관리 및 무료콘텐츠 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-BRD-005_baseline.html (원본 상태: 84c22e2)
+- 프로토타입 파일: prototype_clean/ADMN-BRD-005_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-BRD-005(수기 / 합격 후기 관리), ADMN-BRD-005-S1(합격 후기 검증), ADMN-BRD-010(무료콘텐츠 관리), ADMN-BRD-010-S1(무료콘텐츠 등록 · 수정)
 - 개발 진행: 구현. 담당 이응민(`config/dev-progress.php`). progress 표 BRD-005 커밋 언급 9 · S1 4 · BRD-010 2 · 010-S1 1
@@ -51,7 +51,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소(id · 라벨) |
 |---|---|---|---|
 | `verify_status` | required in:verified,rejected,hidden (`verifyStatus`) | verified=검증 완료 · rejected=반려 · hidden=숨김 | `decidePassEssay('APPROVED'/'REJECTED')` |
-| `reject_reason` | rejected 일 때 required · 10~255자 (`rejectReason`). 공통 사유 칩: 합격증 미제출 · 타 회차 합격증 · 글자 수 미달 · 광고·비방 포함 · 수강 이력 없음(Review::REJECT_REASONS) | 회원 마이페이지 · 알림에 그대로 노출 | 반려 버튼 라벨 "증빙 불일치/식별불가" |
+| `reject_reason` | rejected 일 때 required · 10~255자 (`rejectReason`). 공통 사유 칩: 합격증 미제출 · 타 회차 합격증 · 글자 수 미달 · 광고·비방 포함 · 수강 이력 없음(Review::REJECT_REASONS) | 회원 마이페이지 · 알림에 그대로 노출 | v6.92: `pe-reject-chip`(사유 유형 6종 — '증빙 식별 불가'는 개발 칩에 없음) + `pe-reject-text`(10~255자) |
 | `display_site` | nullable boolean | 사이트 후기 목록 노출 | 수강후기 `toggleCourseReviewVisible` |
 | `is_best` | nullable boolean. 베스트 동시 최대 12(Review::BEST_MAX) | 베스트 | `toggleBestCourseReview` |
 | `display_instructor_home` | nullable boolean | 강사 홈 노출 | 없음 |
@@ -60,8 +60,9 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 ### 우수 후기 포인트 지급 (ReviewPointRequest extends MemberReasonRequest)
 | 필드 name | 규칙 | 코드값 | 프로토타입 대응 |
 |---|---|---|---|
-| `amount` | required · 1~999,999,999 정수(정규식) | 지급 포인트 | "합격인증 승인 및 후기 보상 포인트 지급"(승인과 한 버튼) |
-| `reason` | required · 10~200자 · 공백 제외 10자 · 서로 다른 글자 3개 이상 | 지급 사유 | 없음 |
+| `amount` | required · 1~999,999,999 정수(정규식) | 지급 포인트 | v6.92: 목록 [후기 보상 지급] `openReviewRewardModal()` → 모달 `modal-review-reward` `rw-amount`(기본값 = 포인트 정책 후기 보상값) · [지급] `confirmReviewReward()` |
+| `reason` | required · 10~200자 · 공백 제외 10자 · 서로 다른 글자 3개 이상 | 지급 사유 | v6.92: `rw-reason` — 프로토는 금액을 정책값에서 바꿀 때만 필수(개발은 항상 필수) |
+| (규칙) 후기 보상 회수 | 사유 `revoke_reason` in:false_fact,plagiarism,self_delete(게시 후 기본 30일 `reviewRevokeDays`) · 무상 P 잔액 한도 | 허위 사실 · 표절 · 단기 자진 삭제 | v6.92 S-21: `modal-review-revoke` `rv-reason` 라디오 · `confirmReviewRevoke()` — 개발 라우트 없음 |
 - 지급 가능 상태(ReviewService::pointPanel): granted 지급함 · unverified 검증 전 · forbidden 권한 없음 · ready 지급 가능. 후기당 1회(reviews.point_granted_at).
 
 ### 후기 일괄 `bulkForm` (컨트롤러 인라인 검증)
@@ -74,19 +75,19 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 ### 무료콘텐츠 등록 · 수정 `freeContentForm` (FreeContentRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
-| `content_type` | required in FreeContent::TYPES | EXAM=빈출자료 · DAILY=매일 1문제(정조교의 매일 1문제) | `fl-form-type`(FREE_LECTURE 무료특강 영상 · FREQ_EXAM 빈출문제 해설) |
+| `content_type` | required in FreeContent::TYPES | EXAM=빈출자료 · DAILY=매일 1문제(정조교의 매일 1문제) | `fl-form-type`(v6.92: EXAM 빈출자료 · DAILY 매일 1문제 — 개발과 같음) |
 | `cert_category_id` | required integer (categories 1Depth) | 자격증 | `fl-form-cert` |
 | `year` | required 2000~2100 | 연도 | `fl-form-year` |
 | `round_no` (`roundNo`) | EXAM 이면 required · 1~999. DAILY 는 서비스가 비움 | 회차 | 없음 |
 | `title` | required max:100 | | `fl-form-title` |
 | `content` | nullable(에디터) | 본문 · 해설 | `fl-form-body` |
 | `status` | required in published,hidden | published=전시 · hidden=비전시 | 노출상태 |
-| `started_at` | nullable Y-m-d | 전시 시작일 | 없음 |
+| `started_at` | nullable Y-m-d | 전시 시작일 | v6.92: `fl-form-date` 게시일(프로토 필수, 매일 1문제는 게시일 하루 1문제) |
 | `related_course_id` | nullable integer | 관련 강좌(상세 하단 카드) | 없음 |
 | `attachments[]` | max 5 · PDF만 · 개당 10MB(실제 바이트 검사) | | `fl-form-pdf`(파일명 텍스트) |
 | `delete_attachments[]` | integer | | 없음 |
 | `list_query` | max:1000 | 저장 후 목록 조건 | 없음 |
-| (없음) | | | `fl-form-vod` 연동 VOD 에셋 코드 / 러닝타임 |
+| (없음) | | | ~~`fl-form-vod` 연동 VOD 에셋 코드 / 러닝타임~~ v6.92 삭제(S-22 · D-BRD-01). 공개 범위 고정 표시 `fl-form-access`(본문 누구나 · PDF 로그인 회원만, 입력 없음) |
 
 ### 중복 경고 (FreeContentDuplicateRequest, GET JSON)
 `content_type` · `cert_category_id` · `year` · `round_no` · `except_id` — 같은 구분 · 자격증 · 연도 · 회차가 있으면 막지 않고 경고.
@@ -106,7 +107,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 ### 무료콘텐츠 목록 (FreeContentIndexRequest:29-49)
 - 필터: `type`(EXAM/DAILY) · `cert` · `year` · `round` · `display`(published/hidden) · `keyword`(100자) · `sort`(latest 등록일순 · year 연도순 · round 회차순) · `page`.
 - 표 컬럼(개발): 선택 · No · 구분 · 자격증 · 제목 · 연도 · 회차 · PDF · 등록일 · 등록자 · 전시.
-- 프로토타입: 콘텐츠 ID · 구분 · 종목/대비연도 · 제목 · 연동 VOD/러닝타임 · PDF · 조회수 · 노출상태 · 관리. 필터 `fl-type-filter` · `fl-cert-filter`.
+- 프로토타입: 콘텐츠 ID · 구분 · 종목/대비연도 · 제목 · 게시일 · PDF(로그인 회원만) · 조회수 · 노출상태 · 관리(v6.92: '연동 VOD/러닝타임' 열 → '게시일'). 필터 `fl-type-filter`(EXAM · DAILY) · `fl-cert-filter`.
 
 ## 5. DB 테이블 · 컬럼
 | 테이블.컬럼 | 타입 | 뜻 | 화면 표시 위치 |
@@ -134,7 +135,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 |---|---|---|
 | `bulkForm` · `bulkShow` · `bulkBest` · `toggleAll()` · `submitBulk()` | 후기 목록 일괄 노출 · 베스트 | 행 버튼 `toggleCourseReviewVisible` · `toggleBestCourseReview` |
 | `modForm` · `verifyStatus` · `rejectReason` · `btnVerify` · `refresh()` · `submitMod()` | 검증 처리 폼 | 서브페이지 `pass-audit` · `decidePassEssay()` |
-| 포인트 지급 폼(action `admin.members.review-points.store`, `amount` · `reason`) | 우수 후기 포인트 | 승인 버튼에 포함 |
+| 포인트 지급 폼(action `admin.members.review-points.store`, `amount` · `reason`) | 우수 후기 포인트 | v6.92: 모달 `modal-review-reward`(`rw-amount` · `rw-reason` · `confirmReviewReward()`) |
 | `admin.inc._notify-history` | 지급 알림 이력 · 재발송 | 없음 |
 | `freeContentForm` · `roundField` · `roundNo` · `roundNone` | 무료콘텐츠 폼(DAILY 이면 회차 숨김) | 서브페이지 `free-lecture` · `fl-form-*` |
 | `filterType` · `filterRound` | 목록 필터(구분에 따라 회차 필터) | `fl-type-filter` |
@@ -145,18 +146,19 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 ## 7. 기능 차이
 ### 개발에만 있음 (prototype_dev에 정본 디자인으로 추가)
 - 후기: 상태 숨김(hidden) · 강사 홈 노출 · 카페 공유 확인 · 환급 신청 연계 표시/필터 · 스코어카드 5종 · 일괄 노출/베스트 · 응시 종목 · 회차 · 강사 · 포인트 지급 여부 필터 · 반려 공통 사유 칩.
-- 우수 후기 포인트 지급을 검증과 분리(금액 · 사유 입력, 회원관리 등록 권한) + 지급 알림 재발송.
-- 무료콘텐츠: 매일 1문제(DAILY) 구분, 회차, 전시 시작일, 관련 강좌, PDF 다중 첨부(5), 저장 전 중복 경고, 정렬(등록일 · 연도 · 회차), 엑셀, 일괄 전시/비전시 · 삭제.
+- 우수 후기 포인트 지급을 검증과 분리(금액 · 사유 입력, 회원관리 등록 권한) + 지급 알림 재발송. **→ 결정(v6.92 white, D-BRD-02)**: 프로토도 승인(검증 완료)과 후기 보상 지급을 나눔 — 목록 [후기 보상 지급] 모달, 1건 1회, 금액 기본 = 정책값(바꾸면 사유). 지급 알림 재발송은 여전히 개발에만
+- 무료콘텐츠: ~~매일 1문제(DAILY) 구분~~(v6.92 프로토에 추가), 회차, ~~전시 시작일~~(v6.92 프로토 게시일), 관련 강좌, PDF 다중 첨부(5), 저장 전 중복 경고, 정렬(등록일 · 연도 · 회차), 엑셀, 일괄 전시/비전시 · 삭제.
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 수강후기와 합격수기의 분리 운영(별도 탭 · 별도 상태 체계). 개발 reviews 는 한 테이블 · 한 목록이다.
 - 수강후기 표의 수강 진도율 · 별점 열, 합격수기 "합격 구분" 열.
-- 무료특강 영상(FREE_LECTURE) 구분과 VOD 에셋 코드 · 러닝타임.
+- 무료특강 영상(FREE_LECTURE) 구분과 VOD 에셋 코드 · 러닝타임. **→ 결정(v6.92 white, S-22 · D-BRD-01)**: 무료콘텐츠는 빈출자료 · 매일 1문제 2종(개발 TYPES와 같음), VOD 필드 · 열 삭제 — 무료특강 영상은 PROD-002 맛보기 · PROD-003 무료 강좌에서 등록
+- (v6.92 S-21) 후기 보상 회수(허위 · 표절 · 게시 후 30일 안 자진 삭제, 무상 P 잔액 한도) · 보상 후기 '포인트 지급 후기' 배지 · 합격수기 반려 시 합격환급 '보완 요청' 연동 표시.
 - 무료콘텐츠 버전 이력 표(버전 · 저장일 · PDF · 본문 요약 · 변경 내용).
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 검수 상태: 심사대기 → `pending`, 인증승인 완료(APPROVED) → `verified`, 반려(REJECTED) → `rejected`.
-- 무료콘텐츠 구분: FREQ_EXAM → `EXAM`(빈출자료). FREE_LECTURE 는 개발에 없고 개발 DAILY(매일 1문제)는 프로토타입에 없음.
+- 무료콘텐츠 구분: FREQ_EXAM → `EXAM`(빈출자료). FREE_LECTURE 는 개발에 없고 개발 DAILY(매일 1문제)는 프로토타입에 없음. **→ 결정(v6.92 white, S-22 · D-BRD-01)**: 프로토 값이 `EXAM` · `DAILY`로 바뀌어 차이 없음
 - 노출상태 → 무료콘텐츠 `status` published(전시) · hidden(비전시), 후기 `display_site`.
 - 화면 단위: 탭 3개 → 개발 메뉴 2개(`reviews` · `free-contents`).
 
@@ -164,8 +166,8 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_BRD.md` 의 D-BRD 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
 - 수강후기와 합격수기를 분리 운영할지 확인 필요 — 개발은 "수기·합격 후기" 한 테이블(reviews)로 검증 · 노출 · 포인트를 처리한다(Review 모델 주석).
-- 합격 인증 승인과 보상 포인트 지급을 한 동작으로 묶을지 확인 필요 — 개발은 검증 후 별도 지급(금액 · 사유, 회원관리 등록 권한).
-- 무료콘텐츠 구분(무료특강 영상 · 빈출문제 vs 개발 빈출자료 · 매일 1문제)과 VOD 연동 여부 확인 필요.
+- 합격 인증 승인과 보상 포인트 지급을 한 동작으로 묶을지 확인 필요 — 개발은 검증 후 별도 지급(금액 · 사유, 회원관리 등록 권한). **→ 결정(v6.92 white, D-BRD-02 · S-21)**: 나눈다 — 승인은 검증만, 지급은 목록 [후기 보상 지급](1건 1회, 정책값 기본 · 바꾸면 사유), 회수는 허위 · 표절 · 30일 안 자진 삭제만
+- 무료콘텐츠 구분(무료특강 영상 · 빈출문제 vs 개발 빈출자료 · 매일 1문제)과 VOD 연동 여부 확인 필요. **→ 결정(v6.92 white, S-22 · D-BRD-01)**: 빈출자료(EXAM) · 매일 1문제(DAILY) 2종 1차 운영, VOD 연동 없음(무료특강 영상은 PROD-002 · 003)
 
 ## 출처
 - routes/admin.php:721-730, 837-848, 993 (dev_spec/_index/routes.md)

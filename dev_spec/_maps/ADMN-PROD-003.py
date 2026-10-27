@@ -192,6 +192,8 @@ R('name="f-display-yn" value="Y"', 'name="f-display-yn" value="Y" data-dev-name=
 R('name="f-display-yn" value="N"', 'name="f-display-yn" value="N" data-dev-name="display_status" data-dev-value="hidden"')
 
 # ── 커리큘럼(개발 PROD-003-S1 별도 페이지) ───────────────────
+# v6.92: 판매 후 편성 변경 소급 안 함 안내(S-14 결정 반영) — 추가 차시는 기존 수강생 판정 분모에서 뺌, 결제 시점 조건을 주문 라인에 박제
+R('<div id="form-retro-note"', '<div id="form-retro-note"' + attrs(note="기존 수강생 소급 안 함(S-14) — 개발 '진도율 분모 증가' 영향 미리 보기(#crsImpact · #curImpact)와 반대 방향. (규칙) order_items.refund_terms_snapshot JSON — 결제 시점 판정 대상 lecture_ids · 재생시간 · refund_min_progress · 필수 출석일수"))
 R('id="form-curriculum-summary"', 'id="form-curriculum-summary"' + attrs(note="개발 #clCount · #clSeconds · #clLabel (폼 안 요약) / 커리큘럼 페이지 #curCount · #curSeconds · #curLabel"))
 ACT("addCurriculumSection", flag="proto-only", note="섹션(대단원) 구분 — 개발 없음(course_lectures 1단 순서만)")
 R('            <div id="form-sections-wrapper"></div>',

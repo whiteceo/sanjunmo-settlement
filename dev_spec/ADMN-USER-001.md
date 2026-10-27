@@ -1,6 +1,6 @@
 # ADMN-USER-001 회원관리 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-USER-001_baseline.html` (원본 상태: `84c22e2` + 미커밋 작업 트리 — 2026-10-27 01:40 회원관리 스레드가 수정 중. 통합 커밋 후 다시 맞춘다)
+- 프로토타입 파일: `prototype_clean/ADMN-USER-001_baseline.html` (원본 상태: `18d66c1` v6.92)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: USER-001 · 001-P1 · 002 · 002-P1 · 002-P2 · 002-P3 · 003 · 004 · 004-P1 · 005 · 006 · 006-S1 · 006-S2 · 006-S3(프로토타입 한 파일 안의 view 5개 + 모달)
 - 개발 진행: 구현(001~006 라우트 · 화면 있음). 002-P3(1:1 메시지) · 006-S3(처리 결과)는 미구현 → 규칙 기반 명명
@@ -145,6 +145,8 @@
 | `status` | `active` · `dormant`만(EDITABLE_STATUSES). 정지는 블랙리스트 등재로만, 탈퇴는 본인 절차로만 | `#modal-st-val` |
 | `reason` | 공백 제외 10자 · 서로 다른 글자 3개 이상 · 200자 이하 | `#modal-st-reason` |
 
+- (v6.92, M-04 결정) 짧은 사유 칸은 공백 포함 200자 이하(프로토 `maxlength=200` — `#modal-st-reason` · `#pt-reason-txt` · `#ext-reason-input` · `#excel-reason` · `#social-reason` · `#unmask-reason` · `#pwt-reason` · `#pwr-reason` · `#blr-reason` · `#rsn-reason` · `#m3f-pa-reason` · `#cm-result-note`), 서술형 칸(CS 상담 내용 `#cm-content` · 블랙리스트 상세 경위 `#bl-detail-memo`)은 1,000자 이하. 개발 MemberReasonRequest 200자와 일치, 서술형 두 칸만 1,000자로 늘린다.
+
 ### 002-P1 포인트 (MemberPointRequest extends MemberReasonRequest)
 | 필드 | 규칙 | 코드값 | 프로토타입 대응 |
 |---|---|---|---|
@@ -188,7 +190,7 @@
 | `member_id` | required | | 수동 등재 모달 회원 선택 |
 | `reason_type` | required | `concurrent_ip` 동시 접속 IP · `concurrent_session` 동시 재생 세션 · `speed_tamper` 배속 · 탐색 변조 · `minus_point` 마이너스 포인트 · `other` 기타 | 적발 유형 |
 | `duration` | required | `7` · `30` · `permanent` (권장: 1회 7 · 2회 30 · 3회 이상 영구) | 정지 기간 |
-| `reason` | MemberReasonRequest | | 상세 사유 |
+| `reason` | MemberReasonRequest — 서술형 1,000자로 늘림(v6.92 M-04, 개발 200자) | | 상세 사유 `#bl-detail-memo` |
 | `refund_confirm` | nullable boolean | | |
 | 해제 `reason` | MemberReasonRequest | | `#blr-reason` |
 | 목록 `tab` · `state` · `keyword` | GET | `state`: `active` · `closed` | 필터 |
@@ -298,7 +300,7 @@
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 001 · 002 회원번호 · 산준모 카페 ID 검색 · 표시 · 수정(DB `cafe_id`는 있음)
-- 002 CS 상담 이력 타임라인(일시 · 담당자 · 채널 · 처리 결과 4종 · 이관 부서) — 개발은 `admin_memo` 1칸
+- 002 CS 상담 이력 타임라인(일시 · 담당자 · 채널 · 처리 결과 4종 · 이관 부서) — 개발은 `admin_memo` 1칸. 규칙 기반 이름: 상담 내용 `content` (규칙, 10~1,000자) · 처리 결과 메모 `result_note` (규칙, 200자)
 - 002 임시 비밀번호 메일 · 비밀번호 수동 초기화 · 5회 잠금 해제
 - 002-P3 1:1 메시지(알림톡 · SMS · 이메일) 즉시 발송
 - 002 마스킹 해제 사유 10자 · 재마스킹 남은 시간 배지 · 즉시 재마스킹(설정값 `remaskMemberSec` 600초)
@@ -327,3 +329,5 @@
 
 ## 8. 정책 질문
 회원관리 정책 판단 23건은 `scripts/qa/reports/review/findings/member/회원관리_개발검토_종합.md` 4절에 있다(#1 결정됨). 이 화면 작업에서 새로 생긴 질문은 없다. 정책 큐(`findings/POLICY_QUEUE.md`)로 옮길 때는 그 문서 번호를 그대로 쓴다.
+
+- 관리자 사유 입력 200자 상한(개발에만 있음)을 정본에 넣을지(정책 큐 M-04). **→ 결정(v6.92 white, M-04)**: 짧은 사유 10~200자 공통 규칙, 서술형 칸(CS 상담 내용 · 블랙리스트 상세 경위)은 1,000자.

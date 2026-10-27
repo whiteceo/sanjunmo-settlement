@@ -4,7 +4,7 @@
 `prototype_dev/`는 이 문서를 보고 prototype_clean 사본의 name · id · 링크 · 권한 단위를 개발 이름으로 바꾼다.
 
 - 디자인 · 배치 · 업무 규칙은 prototype_clean + 정본이 기준이다. 개발 화면 배치는 따르지 않는다.
-- 예외: SNB는 디자인만 프로토타입, 접기 · 펼치기 같은 동작은 개발 기준(`public/admin/assets/js/custom.js` "관리자메뉴(좌측)" 아코디언). prototype_dev는 `dev-snb.js`로 재현하고, `apply_dev_map.py`가 모든 화면에 붙인다(white 2026-10-27).
+- 예외: SNB는 디자인만 프로토타입, 접기 · 펼치기 같은 동작은 개발 기준(`public/admin/assets/js/custom.js` "관리자메뉴(좌측)" 아코디언). v6.92부터 `common-snb.js`가 아코디언을 직접 하므로 prototype_dev는 공통 파일 사본으로 따라간다(white 2026-10-27, 임시로 쓰던 `dev-snb.js`는 삭제).
 - 이름 · 연결(라우트 · 필드명 · DB 컬럼 · 권한 단위 · JS id)은 개발 코드가 기준이다.
 - 진행 · 분업 · 질문은 `_STATUS.md`.
 

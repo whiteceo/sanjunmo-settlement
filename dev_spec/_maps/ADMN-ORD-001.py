@@ -62,7 +62,7 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-ORD-001",
     "devCommit": DEV_COMMIT,
-    "progress": "구현(ORD-001 · 001-S1 · 002 · 002-P1~P3). 001-P4 직권 부여 · 가상계좌 기한 연장 · 3PL 외부 계정은 개발 미구현 — 주황 표시",
+    "progress": "구현(ORD-001 · 001-S1 · 002 · 002-P1~P3). 001-P4 직권 부여 · 3PL 출고보류 · 맞교환 재출고 · 도서산간 추가 배송비 처리 · 가상계좌 재안내 · 3PL 외부 계정은 개발 미구현 — 주황 표시",
     "menus": [
         {"route": "admin.orders.index", "label": "주문 내역 관리 (목록 · 상세)"},
         {"route": "admin.deliveries.index", "label": "배송 관리 · 3PL 연동"},
@@ -151,19 +151,44 @@ ACT("goToDeliveryManageWithReady", route="admin.deliveries.index", method="GET",
 ACT("toggleAllOrdRows", note="개발 목록은 행 선택 없음(조회 · 엑셀만)")
 
 # ── 001-S1 주문 상세 ─────────────────────────────────
-ACT("toggleShipOrderLock", count=2, route="admin.orders.dispatch.destroy", method="DELETE", url=A + "/orders/{order}/dispatch", perm="삭제 + 최고관리자",
-    note="개발 레이어 layerRevoke — reason(MemberReasonRequest)")
+# v6.92: 출고지시 회수(toggleShipOrderLock ×2) 삭제(결정 반영 S-13) — 개발 admin.orders.dispatch.destroy(layerRevoke)는 프로토에 대응 버튼 없음
+# S-13: 3PL 출고보류 요청 → 3PL 회신(보류 완료 / 이미 출고) → 맞교환 재출고 등록. 개발 미구현 — (규칙) 이름
+ACT("openShipHoldPanel", count=2, flag="proto-only", perm="수정", note="(규칙) 레이어 layerShipHold — 출고지시 잠금 + 미출고 주문만(S-13)")
+NAME("inpShipHoldReason", "reason_code", note="(규칙) address · cancel · item · etc")
+NAME("inpShipHoldMemo", "memo", note="(규칙) reason_code=etc일 때 필수")
+ACT("sendShipHoldRequest", flag="proto-only", route="admin.orders.ship-holds.store (규칙)", method="POST", url=A + "/orders/{order}/ship-holds", perm="수정",
+    note="상태 requested — 3PL 회신 전까지 잠금 유지")
+ACTX("recordShipHoldReply('HELD')", flag="proto-only", route="admin.orders.ship-holds.update (규칙)", method="PUT", url=A + "/orders/{order}/ship-holds/{hold}", perm="수정",
+     name="result", value="held", note="3PL 계정 또는 물류팀 대리 입력 — held면 출고지시 잠금 해제")
+ACTX("recordShipHoldReply('SHIPPED')", flag="proto-only", route="admin.orders.ship-holds.update (규칙)", method="PUT", url=A + "/orders/{order}/ship-holds/{hold}", perm="수정",
+     name="result", value="already_shipped", note="잠금 유지 → 맞교환 재출고")
+ACT("openSwapReship", flag="proto-only", perm="등록", note="(규칙) 레이어 layerReship — '이미 출고' 회신 또는 배송중 · 배송완료 주문만")
+NAME("inpSwapReason", "reason_code", note="(규칙) address · wrong_item · defective · etc")
+NAME("inpSwapItem", "order_item_id", note="(규칙) 주문 실물 라인(교재 · 일반상품)")
+NAME("inpSwapReturnWb", "return_tracking_no", note="(규칙) 숫자 10~14자리")
+ACT("saveSwapReship", flag="proto-only", route="admin.orders.reships.store (규칙)", method="POST", url=A + "/orders/{order}/reships", perm="등록",
+    note="다음 3PL 발주 배치에 재출고 라인 포함 · 원 주문 금액 불변")
 ALERT("회원 상세(ADMN-MBR-001)", route="admin.members.show", method="GET", url=A + "/members/{member}", perm="조회(회원 메뉴)")
-R('id="vbankExtendBox"', 'id="vbankExtendBox" data-dev-flag="proto-only" data-dev-note="가상계좌 입금 기한 연장 — 개발 의도적 미구현(OrderService.php:490, Q-ORD-1)"')
-NAME("inpNewVbankDue", "virtual_account_due_at", note="(규칙) payments.virtual_account_due_at")
-NAME("inpVbankReason", "reason")
-ACT("extendVbankDueDate", flag="proto-only", route="admin.orders.deposit-due.update (규칙)", method="PUT", url=A + "/orders/{order}/deposit-due", perm="수정")
+R('id="vbankExtendBox"', 'id="vbankExtendBox" data-dev-note="가상계좌 입금 안내 — 연장 없음(D-ORD-01, 개발과 같음). 기한은 PG 발급 응답 raw_response · 기본 유효 시간 site_settings.virtual_account_valid_hours(72)"')
+# v6.92: 가상계좌 입금 기한 연장(inpNewVbankDue · inpVbankReason · extendVbankDueDate) 삭제(결정 반영 D-ORD-01)
+ACT("resendVbankNotice", flag="proto-only", route="admin.orders.deposit-notice.store (규칙)", method="POST", url=A + "/orders/{order}/deposit-notice", perm="수정",
+    note="같은 계좌 · 같은 기한 재안내 — 알림톡 TPL_VBANK_ISSUED(D-ORD-01)")
 ACT("enableAddressEditMode", perm="수정", note="개발은 레이어 layerAddress · addressForm(인라인 편집 아님)")
 NAME("inpRecvName", "receiver_name")
 NAME("inpRecvPhone", "receiver_phone", note="숫자만 10~11자리")
 NAME("inpZipcode", "receiver_zipcode")
 ACT("simulateZipSearch", note="우편번호 찾기 결과만 receiver_zipcode로")
-R('id="islandCheckBadge"', 'id="islandCheckBadge" data-dev-flag="proto-only" data-dev-note="배송지 보정 시 도서산간 추가배송비 판정 — 개발 보정은 금액 재판정 없음(확인 필요)"')
+R('id="islandCheckBadge"', 'id="islandCheckBadge" data-dev-flag="proto-only" data-dev-note="배송지 보정 시 도서산간 추가배송비 판정 — 개발 보정은 금액 재판정 없음(D-ORD-10 반영 필요)"')
+# D-ORD-10: 도서산간 추가 배송비 귀책 · 처리 방법 — 개발 미구현, (규칙) 이름은 orders.address.update에 붙는 칸
+R('id="islandFeeBox"', 'id="islandFeeBox"' + attrs(flag="proto-only", note="(규칙) 배송지 보정(admin.orders.address.update)에 island_fee_liability · island_fee_method · island_fee_cost_account 추가(D-ORD-10)"))
+DEVNAME('name="islandFault" value="CUSTOMER"', "island_fee_liability", value="customer")
+DEVNAME('name="islandFault" value="ADMIN"', "island_fee_liability", value="admin")
+DEVNAME('name="islandMethod" value="PG_LINK"', "island_fee_method", value="pg_link")
+DEVNAME('name="islandMethod" value="BANK"', "island_fee_method", value="bank_transfer")
+DEVNAME('name="islandMethod" value="REORDER"', "island_fee_method", value="reorder", note="주소 변경 미적용 · 재주문 안내")
+NAME("inpIslandCostAcct", "island_fee_cost_account", note="(규칙) sga(판관비) · misc_loss(잡손실)")
+ACT("confirmIslandFeePaid", flag="proto-only", route="admin.orders.island-fee.update (규칙)", method="PUT", url=A + "/orders/{order}/island-fee", perm="수정",
+    note="고객 귀책 (1)(2) 결제 · 입금 확인 — 확인 전 3PL 발주 제외")
 NAME("inpAddr1", "receiver_address", note="사서함 · 군사우편 차단(Delivery::UNSHIPPABLE_ADDRESS_PATTERN)")
 NAME("inpAddr2", "receiver_address_detail")
 NAME("inpShipMsg", "delivery_memo", note="100자 이하")
@@ -214,13 +239,15 @@ R('                  <button type="button" class="btn btn-outline" id="batchesBu
 # ── 002-S3 반품 검수 ─────────────────────────────────
 NAME("inpInspectResult", "inspection_result")
 DEVNAME('<option value="NORMAL"', "inspection_result", value="normal")
-DEVNAME('<option value="DAMAGED"', "inspection_result", value="damaged")
+R('<option value="DEFECTIVE">🟠', '<option value="DEFECTIVE"' + attrs(name="inspection_result", value="defective", note="(규칙) D-ORD-09 값 추가 — 회사 귀책 고정 · 재고 미입고 · 교재비 차감 없음") + '>🟠')
+DEVNAME('<option value="DAMAGED"', "inspection_result", value="damaged", note="D-ORD-09 이후 의미 = 고객 훼손")
 NAME("inpInspectFault", "liability", note="normal일 때 required — 개발은 customer · company 2종(편도 · 왕복 구분 없음, Q-RFD-7)")
 DEVNAME('<option value="CUSTOMER_ONEWAY"', "liability", value="customer", note="편도 구분 없음")
 R('<option value="CUSTOMER">', '<option value="CUSTOMER"' + attrs(name="liability", value="customer") + '>')
 DEVNAME('<option value="COMPANY"', "liability", value="company")
 NAME("inpInspectMemo", "inspection_memo", note="2000자 이하")
-ALERT("창고 검수 사진", name="photos[]", note="jpg · png · 10MB — 필수: 훼손 또는 고객 귀책(Q-ORD-3). 열람 admin.deliveries.returns.show")
+# v6.92: 검수 사진 alert 버튼 → attachInspectPhoto() 로 바뀜(결정 반영 D-ORD-02)
+ACT("attachInspectPhoto", name="photos[]", note="jpg · png · 10MB — 필수: 고객 훼손(damaged)만(D-ORD-02, 개발 Refund::inspectionNeedsPhoto 조건 축소 필요). 열람 admin.deliveries.returns.show")
 ACT("clearReturnSelection", note="개발 inspectionClear")
 ACT("saveReturnInspection", route="admin.deliveries.returns.update", method="PUT", url=A + "/deliveries/returns/{refund}", perm="수정(배송 관리 메뉴)")
 

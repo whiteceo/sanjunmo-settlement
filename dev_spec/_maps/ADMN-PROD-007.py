@@ -119,8 +119,10 @@ ACT("saveProductForm", route="admin.goods.store | admin.goods.update", method="P
 # ── 007-P1 재고 조정 ─────────────────────────────────
 NAME("p1-dir", "(quantity 부호)", note="개발은 quantity 부호 있는 정수 1칸(음수 = 차감)")
 NAME("p1-qty", "quantity", note="not 0, 결과 재고 < 0이면 거부")
-NAME("p1-reason", "type", value="inbound 입고 · restore 복구 · adjust 수기 조정 · damaged 파손 · lost 분실 — 프로토 목록과 다름(정책 질문 Q-PROD007-4)")
-NAME("p1-memo", "memo", note="개발 선택 · 255자")
+NAME("p1-reason", "type", value="입고 inbound · 반품 입고 restore · 파손·불량 폐기 damaged · 분실 lost · 실사 조정 adjust · 기타 etc (규칙) — v6.92 D-PROD-06 결정: 사유 6종, 기타는 직접 입력")
+# v6.92: 기타 사유 직접 입력(D-PROD-06 결정 반영)
+NAME("p1-reason-etc", "reason_etc", note="(규칙) type=etc일 때 필수 · 최대 50자 — 개발 ADJUST_TYPE_LABELS에 etc 없음")
+NAME("p1-memo", "memo", note="개발 선택 · 255자 — 프로토 200자, 실사 조정이면 필수(v6.92)")
 R('id="p1-after-stock"', 'id="p1-after-stock" data-dev-flag="proto-only" data-dev-note="조정 후 재고 미리보기 — 개발 없음"')
 ACT("confirmStockAdjust", route="admin.goods.stock.update", method="PUT", url=A + "/goods/{goods}/stock", perm="수정")
 

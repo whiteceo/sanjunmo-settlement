@@ -53,7 +53,7 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-CONF-010",
     "devCommit": DEV_COMMIT,
-    "progress": "개발 미구현(CONF-010 메뉴 · 라우트 없음). 탭 3은 개발 CONF-006 관리자 로그 · 로그인 로그(구현)에 대응. 탭 1 · 2 · 해시 체인은 규칙 기반 명명 — 주황 표시",
+    "progress": "개발 미구현(CONF-010 메뉴 · 라우트 없음). 탭 3은 개발 CONF-006 관리자 로그 · 로그인 로그(구현)에 대응. 탭 1 · 2는 규칙 기반 명명 — 주황 표시. 해시 체인 · 블록 해시는 2차(v6.92 D-CONF-03)",
     "menus": [
         {"route": "admin.audit-logs.index (규칙)", "label": "시스템 감사 로그 (개발 미구현)"},
         {"route": "admin.admin-logs.index", "label": "관리자 로그 (개발 CONF-006)"},
@@ -67,7 +67,7 @@ OPS.append(dict(kind="insert_before", anchor="</head>", html=(
 
 # ── 상단 버튼 ────────────────────────────────────────
 ACT("verifyHashChain", flag="proto-only", route="admin.audit-logs.verifications.store (규칙)", method="POST", url=A + "/audit-logs/verifications", perm="등록",
-    note="해시 체인 — 개발 흔적 없음(정책 D-CONF-03: 2차 권고)")
+    note="해시 체인 — 2차 기능(v6.92 D-CONF-03 결정). 1차 = Append-Only 저장(수정 · 삭제 권한 없음) + 월별 감사 원장 추출")
 ACT("exportAuditCsv", flag="proto-only", route="admin.audit-logs.download (규칙)", method="GET", url=A + "/audit-logs/download", perm="다운로드",
     note="ReasonRequest reason · reason_ref · reason_etc (공통 사유 모달)")
 
@@ -100,7 +100,7 @@ R('<div class="modal-backdrop" id="diffModal">', '<div class="modal-backdrop" id
 # ── 탭 2 월별 통계 (개발 미구현) ──────────────────────────
 ACT("jumpToMonthLogs", count=3, flag="proto-only", route="admin.audit-logs.index (규칙)", method="GET", url=A + "/audit-logs?settlement_month=", perm="조회")
 ACT("exportMonthPackage", count=3, flag="proto-only", route="admin.audit-logs.monthly.download (규칙)", method="GET", url=A + "/audit-logs/monthly/download", perm="다운로드",
-    note="(규칙) audit_log_snapshots month · last_hash · counts · closed_at")
+    note="(규칙) 월별 감사 원장 추출 — audit_log_snapshots month · counts · closed_at (last_hash는 2차, D-CONF-03)")
 
 # ── 탭 3 접근 · 권한 · 다운로드 → 개발 관리자 로그 · 로그인 로그 ─────
 NAME("accessTypeSelect", "event", value="LOGIN_SUCCESS · LOGIN_FAIL · ACCOUNT_LOCKED · ACCOUNT_UNLOCKED … 18종 (관리자 로그는 type: personal_view · unmask · member_update · excel_download · setting_change · role_change)",

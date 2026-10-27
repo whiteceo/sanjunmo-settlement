@@ -117,9 +117,11 @@ R('class="btn btn-primary" onclick="submitFinalAnswer()"',
   'class="btn btn-primary"' + attrs(route="admin.inquiries.update", method="PUT", url=A + "/inquiries/{inquiry}", perm="수정", name="action", value="answer",
   note="개발 버튼 문구 '답변 등록'(id answerSubmit) + notify 체크. 답변완료 건 재답변은 edit_reason 필수") + ' onclick="submitFinalAnswer()"')
 NAME("dt-hold-reason", "hold_reason", note="action=hold일 때 필수 · max:255")
-R('placeholder="보류 사유 (타 부서 확인 대기 등)" style="height:28px; width:220px;" />',
-  'placeholder="보류 사유 (타 부서 확인 대기 등)" style="height:28px; width:220px;" />\n'
-  '            <input type="date" class="input" name="hold_until" style="height:28px;" data-dev-flag="dev-only" data-dev-note="보류 재개 예정일 — action=hold일 때 필수 · 오늘 이후" />')
+# v6.92: dev-only hold_until 입력 삭제 — 원본에 dt-hold-until(재개 예정일 필수)이 생김(결정 반영, S-19)
+NAME("dt-hold-until", "hold_until", note="action=hold일 때 필수 · date · 오늘 이후. 재개 예정일 자동 '처리중' 복귀 배치는 개발에 없음(규칙)")
+ACT("resumeHold", flag="proto-only", note="지금 재개 — 개발 라우트 없음(처리중 복귀는 임시저장 · 답변으로)")
+ACT("simulateHoldDue", flag="proto-only", note="[시연] 재개 예정일 도래 — 시연 전용")
+ACT("simulateReInquiry", flag="proto-only", note="[시연] 재문의 도착 — 개발은 재문의를 새 문의로 받음(Front InquiryService:29, 스레드 없음)")
 ACT("holdCase", route="admin.inquiries.update", method="PUT", url=A + "/inquiries/{inquiry}", perm="수정", name="action", value="hold")
 NAME("dt-reassign", "assign_user_id", note="1:1 문의 답변 가능 관리자만")
 ACT("reassignCase", route="admin.inquiries.assignees.update", method="PUT", url=A + "/inquiries/assignees", perm="수정 + 최고 관리자",

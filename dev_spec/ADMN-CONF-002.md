@@ -1,6 +1,6 @@
 # ADMN-CONF-002 약관 및 개인정보처리방침 관리 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-CONF-002_baseline.html (원본 상태: de0d93c v6.87)
+- 프로토타입 파일: prototype_clean/ADMN-CONF-002_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-CONF-002 약관 목록 · 버전 이력 · 개정 등록/편집 · 버전 상세
 - 개발 진행: 구현(담당 이응민, `_index/progress.md` 107행)
@@ -21,6 +21,7 @@
 | 작성중 편집 | GET | `/{admin}/terms/{term}/edit` | `admin.terms.edit` | can_update | TermController@edit |
 | 작성중 저장(임시/확정) | PUT | `/{admin}/terms/{term}` | `admin.terms.update` | can_update | TermController@update |
 | 작성중 개정본 버리기 | DELETE | `/{admin}/terms/{term}` | `admin.terms.destroy` | can_delete | TermController@destroy |
+| 공시중(시행 전) 버전 오탈자 보정 — 개발 미구현 (v6.92, D-CONF-01) | POST | `/{admin}/terms/{term}/corrections` (규칙) | `admin.terms.corrections.store` (규칙) | can_update | (규칙) TermController@correct |
 
 - `type` 쿼리는 6종 키(아래 코드값)만 받고, 아니면 목록으로 "약관 종류를 다시 골라 주세요." — TermController.php:181-187
 - 확정(`draft` 아님)된 버전의 edit 는 show 로 돌려보냄("확정된 버전은 고칠 수 없습니다…") — TermController.php:98-108
@@ -42,6 +43,13 @@
 | `is_unfavorable` | nullable · boolean | 1 불리(공시 30일) / 0 일반(7일) — 기준 미달은 경고만 | `#ed-adverse` |
 | `change_reason` | confirm 이면 required · max:500 | 사용자 공지 · 재동의 안내 요약문으로 재사용 | `#ed-reason` |
 
+### 오탈자 보정 (규칙, v6.92 — D-CONF-01)
+| 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
+|---|---|---|---|
+| `content` | required | 보정 후 본문(버전 번호 유지) | `#ed-body`(`edit_mode` = `DIRECT_FIX`) |
+| `change_reason` | required · max:500 | 보정 사유 | `#ed-reason` |
+
+- 대상은 공시중(`pending`, 시행 전) 버전만. 시행중(`active`)은 거절("시행중 버전은 고칠 수 없습니다. 신규 개정으로 등록하세요"). 보정 이력 `term_corrections` (규칙): `term_id` · `before_content` · `after_content` · `reason` · `admin_id` · `created_at` — 화면 `#term-correction-box`.
 - 버전 번호는 서버가 `revision` 으로 채번(문자열 `'1.5'`) — app/Models/Term.php:12, :50-55, :122-126. 화면 `#termVersion` · `[data-term-version]` 은 표시용.
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼
@@ -90,7 +98,7 @@
 - 종류 T02 개인정보 수집·이용 동의, T06 만 14세 이상 확인(프로토타입 switcher 는 T01~T05 5종).
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
-- [유형 2] 현행/공시예정 본문 직접 수정(`DIRECT_FIX`) — 개발은 확정 버전 수정 불가(새 개정만).
+- [유형 2] 현행/공시예정 본문 직접 수정(`DIRECT_FIX`) — 개발은 확정 버전 수정 불가(새 개정만). **→ 결정(v6.92 white, D-CONF-01)**: 시행중 버전은 새 개정만, 공시중(시행 전) 버전만 사유 · 전후 본문 이력을 남기고 오탈자 보정 허용 — 프로토타입 [유형 2]를 공시중 보정으로 좁히고 보정 이력 표 추가.
 - [전체 회원 개정 고지 발송 (CONF-004-S1)] 바로가기 `goTermsNoticeSend()`.
 - 에디터 도구(굵게 · 밑줄 · 조항 추가 · 개정 강조), [현행 조문으로 초기화], 이력에서 [이 버전 본문을 편집창으로 불러오기].
 - [신규 약관 종류 추가 안내] — 개발은 6종 고정.
@@ -106,7 +114,7 @@
 ## 8. 정책 질문 (white 확인 필요)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 공시중(시행 전) 버전 본문 수정 허용 여부: 프로토타입 [유형 2] 허용, 개발은 불가(TermService.php:182 주석 "미확정") — 확인 필요.
+- 공시중(시행 전) 버전 본문 수정 허용 여부: 프로토타입 [유형 2] 허용, 개발은 불가(TermService.php:182 주석 "미확정") — 확인 필요. **→ 결정(v6.92 white, D-CONF-01)**: 공시중 버전만 오탈자 보정(사유 · 전후 본문 이력), 시행중은 새 개정만.
 - 약관 종류: 정본이 T01~T06 6종인지(프로토타입 5종 표시) — 확인 필요.
 
 ## 출처

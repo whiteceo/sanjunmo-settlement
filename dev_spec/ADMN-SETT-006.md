@@ -1,5 +1,5 @@
 # ADMN-SETT-006 합격 환급반 관리(정산 반영) — 개발 명세
-- 프로토타입 파일: prototype_clean/ADMN-SETT-006_baseline.html (원본 상태: 84c22e2)
+- 프로토타입 파일: prototype_clean/ADMN-SETT-006_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-SETT-006 (프로토타입 상세 모달 `sett006DetailModal` → 개발은 상세 페이지)
 - 개발 진행: 일부 구현 (담당 박성민, 라우트 주석 있음 · 커밋 언급 2건). dev-progress 초기값 "2차"(DECISIONS 108 · 113 ② — 1차는 부담 방식 A 만, B · C 차감은 2차). d562524a 에는 A 확정만 있고 B · C 는 마감 보류
@@ -20,6 +20,7 @@
 | 정산 차감 확정(검수 승인) | PUT | `/{admin}/settlement/pass-refunds/{claim}` | `admin.settlement.pass-refunds.update` | can_update | PassRefundSettleController@update |
 
 - `{claim}` = refund_claims.id (숫자 18자리까지). 목록 조건 KEEP = month · tab · burden.
+- v6.92 반려(환급 불가 확정, S-03): 심사 상세 [⛔ 반려] `#hrfRejectBtn` → `openRejectModal()` → `#rejectModal` → `confirmReject()` = 개발 `admin.pass-refunds.update`(PUT `/{admin}/pass-refunds/{passRefund}`, PassRefundReviewRequest `action=reject`, 합격 환급 심사 메뉴 can_update).
 - 일괄 확정 라우트 없음 — 건별 update 만.
 
 ## 3. 폼 필드 · 검증
@@ -27,6 +28,13 @@
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
 |---|---|---|---|
 | `opinion` | required · string 10~500 (trim) | 검수 의견(감사 로그 reason) | 상세 모달 승인(approveSettlementDeduct) — 프로토타입은 의견 입력 없음 |
+
+### 반려 (PassRefundReviewRequest action=reject) — v6.92 S-03
+| 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
+|---|---|---|---|
+| `action` | required | `reject` | `confirmReject()` |
+| `reject_reason` | reject일 때 required · `PassRefundService::REJECT_REASONS` | 개발 `name_mismatch` · `review_length` · `bankbook_unreadable` · `link_unavailable` · `other_round` · `other`(미확정 표시) | `#rejectCode`(JS `REJECT_REASONS`) NOT_PASSED · PROGRESS_SHORT · APPLY_EXPIRED · NAME_MISMATCH · REVIEW_REJECTED · ETC — **코드 목록 다름**, S-03 결정 목록으로 개발 상수를 맞출 것 |
+| `reject_detail` | reject일 때 required · 10~1000자 | 고객 안내 문구(환급 불가 알림톡) | `#rejectNotice` |
 
 - 금액은 입력받지 않는다. 옵션 A 면 rs_deduct_amount · support_deduct_amount 를 0 으로 확정, B · C 면 검증 오류("1차에서 차감을 확정할 수 없습니다 … 마감 보류")(app/Services/Admin/PassRefundSettleService.php:148-190).
 
@@ -78,12 +86,14 @@
 - 체크박스 일괄 확정(`chkAll` · approveSelectedItems), 정산 대사용 엑셀 다운로드, KPI "해당 건만 보기".
 - 4대 제출증빙 확인 · 인정 진도율 열, 재계산 안내 모달(`recalcNoticeModal`, localStorage `sjm.settle.recalcEvents.v1`).
 - 감사 이력 표를 화면 안에 그림 — 개발은 관리자 로그로 보낸다.
+- 반려 상태 `REJECTED`(⛔ 환급 불가 확정) · 반려 모달 **→ 결정(v6.92 white, S-03)**: 사유 코드 + 고객 안내 필수, 종결 · 정산 차감 없음 · 지급 없음, 계좌 문제는 새 상태 없이 보완 요청, 지급은 월 1회 심사 승인월 익월 10일(설정값) — 개발은 반려(action=reject)가 있으나 사유 코드 목록이 다름(3절)
+- 원천징수용 주민등록번호 행 · 본인인증 실명 대조(`#hrfRrnRow`, 미입력 · 불일치면 승인 불가) · 환급금 지급 예정일(`#hrfPayoutRow`) **→ 결정(v6.92 white, S-02 · S-03)**: 주민번호 항상 받음(번호만 · 암호화, 신분증 사본 없음) — 개발 심사 체크 항목 대응 확인 필요
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
 |---|---|
 | `topMonthSelect` | `month` |
 | `burdenFilter` 옵션 A/B/C 라벨 | `burden` A · B · C |
-| `fStatus` 차감 승인 대기 / 정산 반영 완료 | settle_review_status PENDING / CONFIRMED (+HOLD) |
+| `fStatus` 차감 승인 대기 / 정산 반영 완료 / 반려(REJECTED, v6.92) | settle_review_status PENDING / CONFIRMED (+HOLD) · 반려는 refund_claims.status `rejected` |
 | `sett006DetailModal` | `admin.settlement.pass-refunds.show` 페이지 |
 | 강사료(R/S) 차감액 · 개발지원금 차감 | rs_deduct_amount · support_deduct_amount |
 

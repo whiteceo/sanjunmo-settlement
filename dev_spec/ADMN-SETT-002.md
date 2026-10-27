@@ -1,5 +1,5 @@
 # ADMN-SETT-002 월간 정산 및 집행 — 개발 명세
-- 프로토타입 파일: prototype_clean/ADMN-SETT-002_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
+- 프로토타입 파일: prototype_clean/ADMN-SETT-002_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-SETT-002 · ADMN-SETT-002-S1 · ADMN-SETT-002-S2 · ADMN-SETT-002-P1(이월 발생 내역) · ADMN-SETT-002-P2(마감 게이트)
 - 개발 진행: 일부 구현 (담당 박성민, 라우트 주석 있음 · 커밋 언급 9건). 탭 중 "증빙 승인 현황"(evidence)은 enabled=false, 개발지원금 소진 원장 · 은행 결과 파일 대사는 없음
@@ -45,6 +45,7 @@
 | 정산서 엑셀(사유 필수) | GET | `/{admin}/settlement/statements/download` | `admin.settlement.statements.download` | can_download | SettlementStatementController@download |
 
 - S2 는 `guard($month, $rightsHolderId)` 가 막으면(추정: 미마감 등) 문구만 보이고 미리보기를 그리지 않는다(SettlementStatementController.php index · download).
+- v6.92 S2 표시 추가(입력 없음): 지급일 박스 `#s2PayoutDateBox`(S-04 — 매월 10일, 휴일이면 다음 영업일 · 최소 지급액 미달은 차월 합산 · 반환 청구는 지급 없음) · 이번 지급 반영 기한 `#s2DisputeDeadlineBox`(S-05 — 발행일 + 설정값 기본 7일, 설정 키 (규칙) `site_settings.stmt_dispute_reflect_days`, 기한 뒤 이견도 접수는 막지 않고 SETT-005 정정 대상 안내).
 
 ## 3. 폼 필드 · 검증
 ### 배치 재실행 (SettlementBoardRecalculateRequest)
@@ -137,6 +138,8 @@
 - 탭 2 개발지원금 소진 원장(tabSupportLedger).
 - 탭 3 2채널 증빙 제출 · 홈택스 대사 · 위탁 계산서 수취(modalTaxSubmit · 재발송 · 홈택스 업로드) — 개발 `evidence` 탭 비활성.
 - 탭 4 은행 이체 결과 파일 등록 · 1:1 대사 · 송금 실패 시연 — 개발은 이체 리스트 엑셀만.
+- S2 정산금 지급일 표기(`#s2PayoutDateBox`) **→ 결정(v6.92 white, S-04)**: 매월 10일(휴일이면 다음 영업일), 최소 지급액 미달 이월은 차월 합산 지급 — 개발 S2 머리 '지급 예정일' 산출 규칙 확인 필요
+- S2 '이번 지급 반영 기한'(`#s2DisputeDeadlineBox`) **→ 결정(v6.92 white, S-05)**: '이견 제기 기간' 대신 발행일 + 설정값(기본 7일) 반영 기한, 기한 경과로 이견 접수를 막지 않음 — 개발 설정 키 (규칙) `stmt_dispute_reflect_days`
 - S1 "0원/미해당 테이블 전체 보기", 마스킹 해제, 단건 확정, 월 이동. S2 발송 대상 선택 · 발송.
 - 이월 원장 P1 의 계정 필터(selP1AccountType) · 이월 엑셀(개발 disabled).
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
@@ -154,7 +157,7 @@
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
 - 확인 필요: 개발 보드 상수에 `P2_2`(위탁 도서 판매대금)가 있으나 settlement_lines.pipeline_id 주석에는 P2_2 가 없고 `LUMPSUM` 이 있다(1차 미수집 처리). 프로토타입 표기와 일치 여부.
-- 확인 필요: 이체 리스트 다운로드에 수정 권한까지 요구하는 규칙(ROUTE_PERMISSIONS)을 프로토타입 권한 안내에 반영할지.
+- 확인 필요: 이체 리스트 다운로드에 수정 권한까지 요구하는 규칙(ROUTE_PERMISSIONS)을 프로토타입 권한 안내에 반영할지. **→ 결정(v6.92 white, D-SETT-05)**: 쓰기(W) + 엑셀(X) 함께 필요(개발 규칙 그대로 확정), 프로토 탭 4에 안내 `#firmbankingPermNote` 추가
 
 ## 출처
 - routes/admin.php:543-564

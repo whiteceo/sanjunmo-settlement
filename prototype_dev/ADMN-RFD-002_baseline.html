@@ -429,7 +429,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-RFD-002", "devCommit": "d562524a", "progress": "구현(RFD-004 · 002 · 002-S1 · P1 · P2 · 003 · 003-S2). 상세 라인 체크 · 목록 진입 보정 · 무상 P 보정은 개발 없음 — 주황 표시", "menus": [{"route": "admin.refunds.index", "label": "환불 요청 관리 (목록 · 상세 · 1:1 문의)"}, {"route": "admin.refund-histories.index", "label": "환불 내역 조회 (완료 · 보정 거래)"}, {"route": "admin.pass-refunds.index", "label": "합격 환급 심사 (케이스 4 계좌 환불만)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
 
@@ -601,6 +600,23 @@ code, pre, kbd, samp,
                   <td><span class="badge badge-blue">접수</span></td>
                   <td><button class="btn btn-sm btn-primary">상세 열기 ➔</button></td>
                 </tr>
+
+                <!-- 케이스 5: 윤서아 (결제 때 포인트 10,000P를 쓴 강좌 부분 환불 — 사용 포인트 비율 복원 S-12) -->
+                <tr class="clickable-row" data-status="접수" onclick="openDetailView('YOON')">
+                  <td><strong>RFD-2026-001195</strong><br/><span style="font-size:11px; color:var(--text-muted);">2026-10-16 10:05</span></td>
+                  <td><span class="badge badge-green">D-4일 여유</span></td>
+                  <td><span class="badge badge-blue">주문목록 직접신청</span></td>
+                  <td><strong>SJM20261012-0107</strong></td>
+                  <td><strong>윤서아</strong> (seoa_y)</td>
+                  <td>[단과] <code>CRS-1002</code> 정종대 산업안전 실전 빈출특강 (인강 단독) <span style="font-size:11px;color:var(--text-muted);">· 귀속 정종대</span></td>
+                  <td style="max-width:260px;">
+                    <strong>[개인 사정]</strong> "포인트 1만 P를 써서 결제했는데 15회차까지 듣고 그만두려고 합니다."
+                  </td>
+                  <td><span class="badge badge-gray">없음 (0건)</span></td>
+                  <td class="num"><strong>140,000원</strong><br/><span style="font-size:11px; color:var(--text-muted);">+ 포인트 10,000P 사용</span></td>
+                  <td><span class="badge badge-blue">접수</span></td>
+                  <td><button class="btn btn-sm btn-primary">상세 열기 ➔</button></td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -621,6 +637,7 @@ code, pre, kbd, samp,
             <span class="badge badge-blue" id="detail-channel-badge" style="font-size:12px; padding:5px 10px;">
               유입 경로: 마이페이지 주문목록 직접 신청
             </span>
+            <span class="badge badge-amber" id="detail-hold-badge" style="display:none; font-size:12px; padding:5px 10px;"></span>
           </div>
 
           <!-- 검수용 샘플 전환 버튼 -->
@@ -630,6 +647,7 @@ code, pre, kbd, samp,
             <button class="btn btn-sm btn-outline" id="sample-btn-kim" data-dev-route="admin.refunds.inquiries.show" data-dev-method="GET" data-dev-url="/sj-admin/refunds/inquiries/{inquiry}" data-dev-perm="조회" data-dev-note="판정 전 1:1 문의 — 개발은 별도 화면 inquiry-show" onclick="openDetailView('KIM')">[케이스 2] 김철수 (1:1문의 · 교재만 환불)</button>
             <button class="btn btn-sm btn-outline" id="sample-btn-choi" data-dev-route="admin.refunds.show" data-dev-method="GET" data-dev-url="/sj-admin/refunds/{refund}" data-dev-perm="조회" onclick="openDetailView('CHOI')">[케이스 3] 최민아 (적립 P 회수 부족분)</button>
             <button class="btn btn-sm btn-outline" id="sample-btn-park" data-dev-route="admin.refunds.show" data-dev-method="GET" data-dev-url="/sj-admin/refunds/{refund}" data-dev-perm="조회" onclick="openDetailView('PARK')">[케이스 4] 박민서 (휴대폰 익월 PG불가 ➔ 현금폴백)</button>
+            <button class="btn btn-sm btn-outline" id="sample-btn-yoon" onclick="openDetailView('YOON')">[케이스 5] 윤서아 (포인트 사용 강좌 부분환불)</button>
           </div>
         </div>
 
@@ -796,8 +814,7 @@ code, pre, kbd, samp,
                 </div>
 
                 <div style="display:flex; justify-content:space-between;">
-                  <select class="form-control" name="hold_reason" style="width:150px; padding:4px 8px;" data-dev-flag="dev-only" data-dev-note="개발 RefundHoldRequest hold_reason 4종 + hold_memo(500자)"><option value="customer_reply">고객 회신 대기</option><option value="return_wait">증정품 · 교재 반환 대기</option><option value="payment_check">결제 정보 확인 중</option><option value="other">기타</option></select>
-                  <button class="btn btn-sm btn-warning" data-dev-route="admin.refunds.inquiries.hold.update" data-dev-method="PUT" data-dev-url="/sj-admin/refunds/inquiries/{inquiry}/hold" data-dev-perm="수정" onclick="alert('환불보류 탭으로 이동합니다.')">⏸️ 환불 보류 전환</button>
+                  <button class="btn btn-sm btn-warning" id="btn-rfd-hold" data-dev-perm="수정" data-dev-note="1:1 문의 패널 — 저장 admin.refunds.inquiries.hold.update(PUT /refunds/inquiries/{inquiry}/hold)" onclick="openRfdHold()">⏸️ 환불 보류 전환</button>
                   <button class="btn btn-sm btn-primary" data-dev-route="admin.refunds.inquiries.update" data-dev-method="PUT" data-dev-url="/sj-admin/refunds/inquiries/{inquiry}" data-dev-perm="수정" data-dev-note="action=draft · answer · hold" onclick="alert('1:1 문의 답변이 등록되었으며 고객에게 알림톡이 발송되었습니다.')">📨 문의 답변 저장</button>
                 </div>
               </div>
@@ -834,19 +851,23 @@ code, pre, kbd, samp,
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                   <div class="form-group">
                     <label>3PL 실물 교재 입고·검수 판정</label>
-                    <select class="form-control" id="sel-book-inspect" name="inspection_result" data-dev-note="WAIT = 입고 전(개발은 입고 확인 receipt.update 별도), 파본/불량 합격은 개발 없음(Q-RFD-9)" onchange="recalcDetail()">
+                    <select class="form-control" id="sel-book-inspect" name="inspection_result" data-dev-note="WAIT = 입고 전(개발은 입고 확인 receipt.update 별도). 3값 normal · defective · damaged(D-ORD-09, defective는 개발 추가 필요)" onchange="recalcDetail()">
                       <option value="WAIT" data-dev-note="입고 전 — 개발 warehouse_received_at 비어 있음" selected>⏳ 입고 대기 (미판정 · 3PL 입고 전)</option>
-                      <option value="PASS" data-dev-name="inspection_result" data-dev-value="normal">✅ 검수 합격 (미개봉 정상 ➔ 재고 +1)</option>
-                      <option value="DAMAGED" data-dev-name="inspection_result" data-dev-value="normal + liability=company (재입고됨, Q-RFD-9)">⚠️ 파본/불량 합격 (재고 미산입·폐기)</option>
-                      <option value="REJECT" data-dev-name="inspection_result" data-dev-value="damaged">❌ 검수 불합격 (고객 훼손 ➔ 교재비만 차감 · 강좌 환불은 진행)</option>
+                      <option value="PASS" data-dev-name="inspection_result" data-dev-value="normal">✅ 정상 (미개봉 ➔ 재고 +1)</option>
+                      <option value="DAMAGED" data-dev-note="(규칙) D-ORD-09 — 파본/불량 · 회사 귀책 고정 · 재고 미입고. 프로토 코드 DAMAGED ≠ 개발 damaged" data-dev-name="inspection_result" data-dev-value="defective">⚠️ 파본/불량 (회사 귀책 ➔ 재고 미입고 · 교재비 차감 없음 · 반품 배송비 0원)</option>
+                      <option value="REJECT" data-dev-note="고객 훼손" data-dev-name="inspection_result" data-dev-value="damaged">❌ 고객 훼손 (교재비만 차감 · 고객 반송 · 강좌 환불은 진행)</option>
                     </select>
+                    <div style="display:flex; align-items:center; gap:6px; margin-top:6px; font-size:11.5px;">
+                      <button type="button" class="btn btn-sm btn-outline" id="btn-inspect-photo" data-dev-note="jpg · png · 10MB — 고객 훼손(damaged)만 필수(D-ORD-02)" data-dev-name="photos[]" onclick="attachRfdInspectPhoto()">📷 검수 사진 첨부</button>
+                      <span id="inspect-photo-txt" style="color:var(--text-muted);">검수 사진 — 고객 훼손 판정 때만 필수 · 첨부 없음</span>
+                    </div>
                   </div>
                   <div class="form-group">
                     <label>반품 배송비 귀책 판정</label>
                     <select class="form-control" id="sel-fault" name="liability" data-dev-note="개발 customer · company 2종 — 고객 귀책은 항상 왕복(Q-RFD-7)" onchange="recalcDetail()">
                       <option value="CUSTOMER_ONEWAY" data-dev-note="편도 구분 없음" data-dev-name="liability" data-dev-value="customer">고객 귀책 – 단순변심 편도 3,000원 (유료배송 주문)</option>
                       <option value="CUSTOMER" data-dev-name="liability" data-dev-value="customer" selected>고객 귀책 – 무료배송 주문 취소 왕복 6,000원</option>
-                      <option value="COMPANY" data-dev-name="liability" data-dev-value="company">당사 귀책 (파본/오배송 ➔ 배송비 0원)</option>
+                      <option value="COMPANY" data-dev-name="liability" data-dev-value="company">당사 귀책 (파본/불량 · 오배송 ➔ 배송비 0원)</option>
                     </select>
                   </div>
                 </div>
@@ -904,6 +925,11 @@ code, pre, kbd, samp,
                       <td>인강 환불 산출액 (<span id="c-lec-net">120,000</span>원) + 교재 환불 산출액 (<span id="c-book-net">20,000</span>원) <span style="font-size:11px;color:var(--text-muted);">· 훼손 판정 시 교재 환불 산출액 0원(교재비만 차감)</span></td>
                       <td class="num" id="c-sub-sum">140,000원</td>
                     </tr>
+                    <tr class="calc-step-row" id="row-pt-restore">
+                      <td>Step 7-1</td>
+                      <td id="c-pt-restore-rule">강좌 사용 포인트 복원 — 라인 현금 : 포인트 결제 비율대로 인강 환불액을 나눔 (복원 포인트 = 라인 사용 포인트 × 인강 환불액 ÷ 라인 결제액, 원 단위 내림 · 나머지는 현금 · 복원 순서 적립 P → 무상 P)</td>
+                      <td class="num" id="c-pt-restore">0원 (+0 P)</td>
+                    </tr>
                     <tr class="calc-step-row">
                       <td>Step 8</td>
                       <td>실물 교재 반품 배송비 공제 (주문당 1회)</td>
@@ -911,7 +937,7 @@ code, pre, kbd, samp,
                     </tr>
                     <tr class="calc-step-row sub">
                       <td>Step 9</td>
-                      <td>1차 환불 예정 합계액</td>
+                      <td>1차 환불 예정 합계액 (현금 · 포인트 복원분 제외)</td>
                       <td class="num" id="c-step9">134,000원</td>
                     </tr>
                     <tr class="calc-step-row">
@@ -955,7 +981,8 @@ code, pre, kbd, samp,
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
                   <div style="display:flex; gap:6px;">
                     <button class="btn btn-outline" onclick="showMainView('list')">목록</button>
-                    <button class="btn btn-danger" data-dev-route="admin.refunds.rejection.update" data-dev-method="PUT" data-dev-url="/sj-admin/refunds/{refund}/rejection" data-dev-perm="수정" data-dev-note="layerReject — reason(MemberReasonRequest)" onclick="alert('환불 거절 / 반품 기각 사유 입력 팝업을 호출합니다.')">🚫 환불 거절·기각</button>
+                    <button class="btn btn-warning" id="btn-rfd-hold2" data-dev-perm="수정" data-dev-note="환불 상세 계산기 — 저장 admin.refunds.hold.update(PUT /refunds/{refund}/hold)" onclick="openRfdHold()">⏸️ 환불 보류</button>
+                    <button class="btn btn-danger" id="btn-rfd-reject" data-dev-perm="수정" data-dev-note="개발 레이어 layerReject" onclick="openRfdReject()">🚫 환불 거절·기각</button>
                   </div>
                   <button class="btn btn-lg btn-primary" id="approveButton" data-dev-route="admin.refunds.approval.update" data-dev-method="PUT" data-dev-url="/sj-admin/refunds/{refund}/approval" data-dev-perm="수정 + 재무(canSettleMoney)" data-dev-note="1:1 문의 건은 admin.refunds.inquiries.cancel.update, PG 기간 초과 계좌 환불은 admin.pass-refunds.account-refunds.update" onclick="submitFinalRefund()">
                     ⚡ 환불 승인 · 토스페이먼츠 PG 취소 실행 (243,600원)
@@ -1054,7 +1081,7 @@ code, pre, kbd, samp,
                   <th>보정 거래 유형</th>
                   <th class="num">금회 보정 금액 / 포인트</th>
                   <th class="num">보정 후 누적 환불액</th>
-                  <th>집행 수단 · 정산 반영월</th>
+                  <th>집행 수단 · 반영 기준월 (원 발생월)</th>
                   <th>사유 및 처리자</th>
                 </tr>
               </thead>
@@ -1113,7 +1140,7 @@ code, pre, kbd, samp,
               </label>
               <label class="m3f-type-card" data-type="POINT">
                 <input type="radio" name="m3f-ra-type" value="POINT" data-dev-note="개발은 유상 P만(무상 P 보정 없음)" data-dev-name="adjustment_type" data-dev-value="point" onchange="m3fRaTypeChange()" />
-                <span><strong>포인트 단독 보정 (P)</strong><small>현금 변동 없이 LIFO 복원 구매적립 포인트(적립 P) 또는 마이너스 부채 포인트 보정</small></span>
+                <span><strong>포인트 단독 보정 (P)</strong><small>현금 0원 — 적립 P · 무상 P 복원(+) 또는 차감(−) · 포인트 구분 · 만료일 필수</small></span>
               </label>
             </div>
           </div>
@@ -1141,7 +1168,24 @@ code, pre, kbd, samp,
                 </select>
               </div>
             </div>
-            <div class="m3f-settle" id="m3f-ra-settle">정산 연동: 당월(2026-10) 미마감 ➔ 4단계 환불 공제 자동 합산</div>
+            <div class="m3f-grid3" id="m3f-ra-point-meta" style="display:none; margin-top:10px;">
+              <div>
+                <label class="m3f-lbl" for="m3f-ra-pkind">포인트 구분 <span class="m3f-req">*</span></label>
+                <select class="form-select" id="m3f-ra-pkind" name="point_kind" data-dev-note="(규칙) S-09 포인트 단독 보정 — paid 적립 P · free 무상 P. 개발은 유상 P만" style="width:100%; height:34px;" onchange="m3fRaRefresh()">
+                  <option value="">— 선택 —</option>
+                  <option value="PAID" data-dev-name="point_kind" data-dev-value="paid">적립 P (구매 적립)</option>
+                  <option value="FREE" data-dev-name="point_kind" data-dev-value="free">무상 P (이벤트 · CS 지급)</option>
+                </select>
+              </div>
+              <div>
+                <label class="m3f-lbl" for="m3f-ra-pexp">만료일 <span class="m3f-req">*</span></label>
+                <input type="date" class="form-control" id="m3f-ra-pexp" name="point_expires_at" data-dev-note="(규칙) S-09 포인트 만료일 필수" style="width:100%; height:34px;" onchange="m3fRaRefresh()" oninput="m3fRaRefresh()" />
+                <div class="m3f-hint">복원(+)은 새로 붙일 만료일, 차감(−)은 차감할 포인트의 만료일</div>
+              </div>
+              <div class="m3f-hint" style="align-self:center;">증감은 위 '금회 보정 포인트'(복원 +, 차감 −). 적립 P 차감으로 잔액이 음수가 되면 마이너스 부채 규칙을 따릅니다.</div>
+            </div>
+            <div class="m3f-settle" id="m3f-ra-settle">정산 연동: 반영 기준월 — 원 환불 건을 고르면 표시</div>
+            <div class="m3f-hint" id="m3f-ra-settle-rule">반영 기준월 = 승인 시점에 마감되지 않은 가장 이른 귀속월. 원 발생월이 미마감이면 그 달 정산 4단계, 마감됐으면 진행 중인 달의 정산 조정 라인(ADMN-SETT-005). 원 발생월은 전표에 따로 남깁니다.</div>
           </div>
 
           <div class="m3f-sec">
@@ -1246,6 +1290,70 @@ code, pre, kbd, samp,
     </div>
   </div>
 
+  <!-- [모달] 환불 보류 전환 — 사유 4종, 보류해도 법정 환급 기한 · 처리 기한(5영업일)은 계속 진행 (white 2026-10-27 S-11) -->
+  <div class="modal-overlay" id="modal-rfd-hold" role="dialog" aria-modal="true" aria-labelledby="hold-title">
+    <div class="modal-box" style="max-width:560px; width:95%;">
+      <div class="modal-header" style="background:#FFFBEB; color:#92400E;">
+        <span id="hold-title">⏸️ 환불 보류 전환</span>
+      </div>
+      <div class="modal-body">
+        <div id="hold-target" style="font-size:12.5px; margin-bottom:10px;"></div>
+        <div class="form-group" style="margin-bottom:10px;">
+          <label for="hold-reason">보류 사유 (필수)</label>
+          <select class="form-control" id="hold-reason" name="hold_reason" data-dev-note="RefundHoldRequest — 값 같음(customer_reply · return_wait · payment_check · other)" onchange="rfdHoldReasonChange()">
+            <option value="">— 선택 —</option>
+            <option value="customer_reply">고객 회신 대기</option>
+            <option value="return_wait">교재 반환(회수) 대기</option>
+            <option value="payment_check">결제 확인 대기 (PG · 입금 확인)</option>
+            <option value="other">기타 (메모 필수)</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:10px;">
+          <label for="hold-memo" id="hold-memo-label">보류 메모 (선택 · 감사 로그 기록)</label>
+          <textarea class="form-control" id="hold-memo" name="hold_memo" data-dev-note="개발 required · 500자 — 프로토는 기타만 필수(10자)" rows="2" placeholder="예) 환불 계좌 예금주 확인 회신 요청 (10/16 알림톡 발송)"></textarea>
+        </div>
+        <div id="hold-deadline-note" style="font-size:12px; line-height:1.6; color:#991B1B; background:#FEF2F2; border:1px solid #FECACA; border-radius:6px; padding:8px 12px;">
+          ⚠ 보류는 처리 대기 표시일 뿐 <strong>기한을 멈추지 않습니다.</strong> 법정 환급 기한(청약철회 후 3영업일, 전자상거래법 제18조)과 처리 기한 5영업일은 보류 중에도 계속 진행되며, 기한을 넘기면 지연배상금 대상입니다. 목록의 처리 기한 표시도 그대로 셉니다.
+        </div>
+        <div id="hold-err" style="display:none; margin-top:8px; font-size:12px; color:var(--danger); font-weight:700;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeRfdModal('modal-rfd-hold')">취소</button>
+        <button type="button" class="btn btn-warning" id="hold-confirm" data-dev-route="admin.refunds.hold.update" data-dev-method="PUT" data-dev-url="/sj-admin/refunds/{refund}/hold" data-dev-perm="수정" data-dev-note="1:1 문의 건은 admin.refunds.inquiries.hold.update. 법정 환급 기한 · 처리 기한은 멈추지 않음(S-11)" onclick="confirmRfdHold()">⏸️ 보류 전환</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- [모달] 환불 거절 · 반품 기각 — 사유 3가지만(법정 환불 불가 · 검수 불량 · 중복 신청), 고객 안내 필수 (white 2026-10-27 S-11) -->
+  <div class="modal-overlay" id="modal-rfd-reject" role="dialog" aria-modal="true" aria-labelledby="reject-title">
+    <div class="modal-box" style="max-width:600px; width:95%;">
+      <div class="modal-header" style="background:#FEF2F2; color:var(--danger);">
+        <span id="reject-title">🚫 환불 거절 · 반품 기각</span>
+      </div>
+      <div class="modal-body">
+        <div id="reject-target" style="font-size:12.5px; margin-bottom:10px;"></div>
+        <div class="form-group" style="margin-bottom:10px;">
+          <label>거절 사유 (필수 · 아래 3가지만)</label>
+          <label style="display:flex; gap:6px; align-items:flex-start; font-weight:500; cursor:pointer; margin:4px 0;"><input type="radio" name="reject-reason" value="LEGAL_NO_REFUND" data-dev-note="(규칙) 개발은 사유 코드 없음(MemberReasonRequest reason만)" data-dev-name="reject_reason" data-dev-value="legal_no_refund" /> <span><strong>법정 환불 불가</strong> — 반환 대상이 아님(원 수강기간 종료 등 법정 환불 기준상 환불액 0원)</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; font-weight:500; cursor:pointer; margin:4px 0;"><input type="radio" name="reject-reason" value="INSPECTION_FAIL" data-dev-name="reject_reason" data-dev-value="inspection_fail" /> <span><strong>교재 반품 검수 불량</strong> — 훼손 · 구성품 누락 · 개봉으로 재판매 불가(반품 기각)</span></label>
+          <label style="display:flex; gap:6px; align-items:flex-start; font-weight:500; cursor:pointer; margin:4px 0;"><input type="radio" name="reject-reason" value="DUPLICATE" data-dev-name="reject_reason" data-dev-value="duplicate" /> <span><strong>중복 신청</strong> — 같은 품목에 진행 중이거나 완료된 환불이 있음</span></label>
+        </div>
+        <div style="font-size:12px; line-height:1.6; color:#92400E; background:#FFFBEB; border:1px solid #FDE68A; border-radius:6px; padding:8px 12px; margin-bottom:10px;">
+          결제 후 7일 경과 · 2강 초과 학습은 거절 사유가 아닙니다 — 학습 회차분을 공제한 <strong>부분환불</strong>로 처리합니다. 청약철회는 법이 정한 권리라 위 3가지에 해당할 때만 거절합니다.
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label for="reject-notice">고객 안내 문구 (필수 · 10자 이상 · 알림톡 발송 · 감사 로그 기록)</label>
+          <textarea class="form-control" id="reject-notice" name="reason" data-dev-note="MemberReasonRequest 공백 제외 10자 · 200자 — 고객 안내 알림톡 문구" rows="3" placeholder="예) 반송된 교재의 표지 훼손이 확인되어 반품이 어렵습니다. 사진을 첨부해 드리며, 문의는 1:1 문의로 남겨 주세요."></textarea>
+        </div>
+        <div id="reject-err" style="display:none; margin-top:8px; font-size:12px; color:var(--danger); font-weight:700;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeRfdModal('modal-rfd-reject')">취소</button>
+        <button type="button" class="btn btn-danger" id="reject-confirm" data-dev-route="admin.refunds.rejection.update" data-dev-method="PUT" data-dev-url="/sj-admin/refunds/{refund}/rejection" data-dev-perm="수정" onclick="confirmRfdReject()">🚫 거절 확정 · 고객 안내 발송</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== JAVASCRIPT ==================== -->
   <script>
     let currentMember = 'HONG'; // 'HONG' | 'KIM' | 'CHOI'
@@ -1287,12 +1395,15 @@ code, pre, kbd, samp,
       HONG: { meta: '주문번호: SJM20260809-0044 · 원 결제월: 2026-08 (마감 Locked) · 귀속 정종대', lecCode: 'OI-0044-1 · CRS-1002', lecTitle: '[강좌] 정종대 산업안전 실전 빈출특강', lecList: 150000, bookCode: 'OI-0044-2 · PROD-BK-1006', bookTitle: '[교재] 2026 정종대 산업안전기사 필기 기본서 ×1 (쿠폰/포인트 제외)', bookList: 20000, lecPtShare: 0 },
       KIM:  { meta: '주문번호: SJM20261004-0091 · 원 결제월: 2026-10 · 귀속 최지도', lecCode: 'OI-0091-1 · CRS-2606', lecTitle: '[강좌] 2026 산업안전지도사 1차 산업안전일반 핵심이론 단과', lecList: 200000, bookCode: 'OI-0091-2 · PROD-BK-1007', bookTitle: '[교재] 2026 산업안전지도사 1차 산업안전일반 핵심요약집 ×2 (쿠폰/포인트 제외)', bookList: 40000, lecPtShare: 0 },
       CHOI: { meta: '주문번호: SJM20260918-0063 · 원 결제월: 2026-09 (마감 Locked) · 귀속 김안전', lecCode: 'OI-0063-1 · CRS-2601', lecTitle: '[강좌] 2026 산업안전기사 필기 한권완성 개념+빈출 단과 (정가 180,000 → 판매가 144,000)', lecList: 144000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0, lecPtShare: 0 },
-      PARK: { meta: '주문번호: SJM20260817-0148 · 원 결제월: 2026-08 (마감 Locked) · 휴대폰결제 · 귀속 박보건', lecCode: 'OI-0148-1 · CRS-2605', lecTitle: '[강좌] 2026 산업안전기사 실기 작업형 동영상 빈출 마스터반 (정가 150,000 → 판매가 125,000)', lecList: 125000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0, lecPtShare: 0 }
+      PARK: { meta: '주문번호: SJM20260817-0148 · 원 결제월: 2026-08 (마감 Locked) · 휴대폰결제 · 귀속 박보건', lecCode: 'OI-0148-1 · CRS-2605', lecTitle: '[강좌] 2026 산업안전기사 실기 작업형 동영상 빈출 마스터반 (정가 150,000 → 판매가 125,000)', lecList: 125000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0, lecPtShare: 0 },
+      // 케이스 5(S-12): 강좌 150,000원을 현금 140,000원 + 포인트 10,000P로 결제(ADMN-ORD-001 SJM20261012-0107 pointAmt 10,000)
+      YOON: { meta: '주문번호: SJM20261012-0107 · 원 결제월: 2026-10 · 포인트 10,000P 사용 · 귀속 정종대', lecCode: 'OI-0107-1 · CRS-1002', lecTitle: '[강좌] 정종대 산업안전 실전 빈출특강', lecList: 150000, bookCode: '—', bookTitle: '(교재 없음 — 인강 단독 주문)', bookList: 0, lecPtShare: 10000 }
     };
 
     function openDetailView(memberKey) {
       currentMember = memberKey;
       showMainView('detail');
+      renderRfdHoldBadge();
       const co = CASE_ORDERS[memberKey] || CASE_ORDERS.HONG;
       const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
       setTxt('detail-order-meta', co.meta);
@@ -1303,10 +1414,10 @@ code, pre, kbd, samp,
       setTxt('book-title', co.bookTitle);
       setTxt('book-list', co.bookList.toLocaleString() + '원');
       setTxt('book-paid', co.bookList.toLocaleString() + '원');
-      setTxt('lec-pt-share', '포인트 몫 ' + (co.lecPtShare || 0).toLocaleString() + ' P (결제 때 안분 스냅샷)');
+      setTxt('lec-pt-share', co.lecPtShare ? '현금 ' + (co.lecList - co.lecPtShare).toLocaleString() + '원 + 포인트 몫 ' + co.lecPtShare.toLocaleString() + ' P (결제 때 안분 스냅샷)' : '포인트 몫 0 P (결제 때 안분 스냅샷)');
       setTxt('book-pt-share', co.bookList ? '포인트 몫 0 P (도서 포인트 사용 잠금)' : '—');
 
-      ['hong', 'kim', 'choi', 'park'].forEach(k => {
+      ['hong', 'kim', 'choi', 'park', 'yoon'].forEach(k => {
         const b = document.getElementById('sample-btn-' + k);
         if (b) b.className = (k.toUpperCase() === memberKey) ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline';
       });
@@ -1343,7 +1454,16 @@ code, pre, kbd, samp,
         document.getElementById('chk-book').checked = false;
         setInquiryMode('REFUND');
         switchLeftTab('reason');
+      } else if (memberKey === 'YOON') {
+        // [케이스 5] 윤서아: 결제 때 포인트 10,000P를 쓴 강좌 부분 환불 — 사용 포인트를 라인 현금 : 포인트 비율로 복원(S-12)
+        document.getElementById('detail-channel-badge').className = 'badge badge-blue';
+        document.getElementById('detail-channel-badge').textContent = '유입 경로: 마이페이지 직접 신청 ( 윤서아 · 포인트 사용 강좌 부분 환불 )';
+        document.getElementById('chk-lec').checked = true;
+        document.getElementById('chk-book').checked = false;
+        setInquiryMode('REFUND');
+        switchLeftTab('reason');
       }
+      rfdInspectPhoto = false;
       recalcDetail();
     }
 
@@ -1392,8 +1512,22 @@ code, pre, kbd, samp,
       HONG: { paid: 150000, days: 4,  totalLessons: 60, learnedLessons: 12, periodEnded: false, ptA: 1500, ptB: 300 },
       KIM:  { paid: 200000, days: 4,  totalLessons: 60, learnedLessons: 12, periodEnded: false, ptA: 2000, ptB: 2200 },
       CHOI: { paid: 144000, days: 27, totalLessons: 60, learnedLessons: 30, periodEnded: false, ptA: 1440, ptB: 0 },
-      PARK: { paid: 125000, days: 20, totalLessons: 60, learnedLessons: 18, periodEnded: false, ptA: 1250, ptB: 2200 }
+      PARK: { paid: 125000, days: 20, totalLessons: 60, learnedLessons: 18, periodEnded: false, ptA: 1250, ptB: 2200 },
+      YOON: { paid: 150000, days: 4,  totalLessons: 60, learnedLessons: 15, periodEnded: false, ptA: 1400, ptB: 2000 }
     };
+    // S-12(white 2026-10-27): 강좌 부분 환불 때 그 라인의 사용 포인트 복원 = 라인 사용 포인트 × 인강 환불액 ÷ 라인 결제액(현금 + 포인트), 원 단위 내림. 나머지는 현금.
+    //   paid = 라인 결제액(현금 + 포인트 몫), lecPtShare = 결제 때 안분한 라인 포인트 몫(C-16). 복원 순서는 정본 LIFO(적립 P → 무상 P).
+    function lecPointRestore(paid, ptShare, lecRefund) {
+      if (!ptShare || !paid || lecRefund <= 0) return 0;
+      return Math.floor(ptShare * lecRefund / paid);
+    }
+    // D-ORD-02(white 2026-10-27): 검수 사진은 고객 훼손(REJECT) 판정 때만 필수
+    let rfdInspectPhoto = false, lastPtRestore = 0;
+    function attachRfdInspectPhoto() {
+      rfdInspectPhoto = true;
+      alert('창고 검수 사진(warehouse_cam_0044.jpg)이 S3 보안 버킷에 첨부되었습니다.');
+      recalcDetail();
+    }
     function lecRefundRule(L) {
       if (L.periodEnded) return { kind: 'ENDED', refund: 0, badgeCls: 'badge-red', label: '반환 없음 (원 수강기간 종료)', stepText: '인강 반환 없음 — 원 수강기간이 끝난 강좌는 반환하지 않음 (환불액 0원)' };
       if (L.days <= 7 && L.learnedLessons <= 2) return { kind: 'FULL', refund: L.paid, badgeCls: 'badge-green', label: '전액환불 (7일 이내 · 2강 이하)', stepText: '인강 전액환불 — 결제 후 7일 이내 · 학습 2회차 이하 (공제 0원)' };
@@ -1432,6 +1566,21 @@ code, pre, kbd, samp,
       const ruleTxt = document.getElementById('c-lec-rule');
       if (ruleTxt) ruleTxt.textContent = lecRule.stepText;
 
+      const lecPtShare = (CASE_ORDERS[currentMember] || CASE_ORDERS.HONG).lecPtShare || 0;
+      const ptRestore = lecOn ? lecPointRestore(LEC.paid, lecPtShare, lecNet) : 0;
+      lastPtRestore = ptRestore;
+      document.getElementById('c-pt-restore').textContent = ptRestore ? '−' + ptRestore.toLocaleString() + '원 (+' + ptRestore.toLocaleString() + ' P 복원)' : '0원 (+0 P · 라인 사용 포인트 없음)';
+
+      // D-ORD-09: 파본/불량(DAMAGED)은 회사 귀책 고정, 고객 훼손(REJECT)은 반품 배송비 귀책 판정 없음
+      const faultSel = document.getElementById('sel-fault');
+      if (inspect === 'DAMAGED') faultSel.value = 'COMPANY';
+      faultSel.disabled = (inspect === 'DAMAGED' || inspect === 'REJECT');
+      const photoTxt = document.getElementById('inspect-photo-txt');
+      if (photoTxt) {
+        photoTxt.textContent = '검수 사진 — ' + (inspect === 'REJECT' ? '고객 훼손 판정이라 필수' : '고객 훼손 판정 때만 필수') + ' · ' + (rfdInspectPhoto ? '첨부됨: warehouse_cam_0044.jpg' : '첨부 없음');
+        photoTxt.style.color = (inspect === 'REJECT' && !rfdInspectPhoto) ? 'var(--danger)' : (rfdInspectPhoto ? 'var(--success)' : 'var(--text-muted)');
+      }
+
       let bookBase = 0, bookNet = 0, shipDed = 0;
       const BOOK_PAID = (CASE_ORDERS[currentMember] || CASE_ORDERS.HONG).bookList;
       if (bookOn && inspect === 'REJECT') {
@@ -1445,7 +1594,7 @@ code, pre, kbd, samp,
         shipDed = inspectOk ? (fault === 'CUSTOMER' ? 6000 : (fault === 'CUSTOMER_ONEWAY' ? 3000 : 0)) : 0;
       }
 
-      const step9 = Math.max(0, lecNet + bookNet - shipDed);
+      const step9 = Math.max(0, lecNet - ptRestore + bookNet - shipDed);
       // 교재 단독 환불(인강 미체크)이면 적립금 회수 대상 0원, 인강 포함이면 부족분(A − B)
       const pointShortage = lecOn ? Math.max(0, LEC.ptA - PT_B) : 0;
       document.getElementById('pt-a-txt').textContent = (lecOn ? LEC.ptA : 0).toLocaleString() + ' P';
@@ -1491,9 +1640,11 @@ code, pre, kbd, samp,
       const btn = document.getElementById('approveButton');
       const lockNote = document.getElementById('rfd-lock-note');
       const bookWait = bookOn && inspect === 'WAIT';
+      const photoMissing = bookOn && inspect === 'REJECT' && !rfdInspectPhoto;
       let lockMsg = '';
       if (lecBlocked) lockMsg = '원 수강기간이 끝난 강좌는 반환 대상이 아닙니다(인강 환불액 0원). 환불 거절 안내 또는 인강 항목 체크 해제 후 교재만 진행합니다.';
       else if (bookWait) lockMsg = '3PL 교재 입고 완료·정상 판정 전에는 [환불 승인 및 PG 취소]가 비활성화됩니다(하드락). 입고·검수 판정을 선택해 주세요.';
+      else if (photoMissing) lockMsg = '고객 훼손 판정은 검수 사진을 1장 이상 첨부해야 승인할 수 있습니다(교재비 차감 근거). [검수 사진 첨부]를 눌러 주세요.';
       lockNote.style.display = lockMsg ? 'block' : 'none';
       lockNote.textContent = lockMsg ? '🔒 ' + lockMsg : '';
       btn.disabled = !!lockMsg;
@@ -1501,7 +1652,7 @@ code, pre, kbd, samp,
       btn.style.cursor = lockMsg ? 'not-allowed' : '';
       if (lockMsg) {
         btn.className = 'btn btn-lg btn-primary';
-        btn.textContent = lecBlocked ? '🔒 수강기간 종료 — 반환 없음 (승인 비활성)' : '🔒 교재 입고·정상 판정 대기 중 (승인 비활성)';
+        btn.textContent = lecBlocked ? '🔒 수강기간 종료 — 반환 없음 (승인 비활성)' : (photoMissing ? '🔒 고객 훼손 검수 사진 필요 (승인 비활성)' : '🔒 교재 입고·정상 판정 대기 중 (승인 비활성)');
       } else if (currentMember === 'PARK') {
         btn.className = 'btn btn-lg btn-warning';
         btn.textContent = `⚡ 휴대폰 익월 폴백 승인 · 현금 계좌 이체 실행 (${step13Final.toLocaleString()}원)`;
@@ -1529,7 +1680,8 @@ code, pre, kbd, samp,
         document.getElementById('layerMinus').classList.add('open');
       } else {
         const amt = document.getElementById('c-step13').textContent;
-        alert(`[토스페이먼츠 결제 취소 완료]\n• 취소 금액: ${amt}\n• 정산 4단계(DEDUCT) 역참조 공제 대기열 반영 완료\n• 환불 완료 내역(ADMN-RFD-003)으로 이동합니다.`);
+        const ptLine = lastPtRestore ? `\n• 사용 포인트 복원: +${lastPtRestore.toLocaleString()} P (라인 현금 : 포인트 비율 · 적립 P → 무상 P)` : '';
+        alert(`[토스페이먼츠 결제 취소 완료]\n• 취소 금액: ${amt}${ptLine}\n• 정산 4단계(DEDUCT) 역참조 공제 대기열 반영 완료\n• 환불 완료 내역(ADMN-RFD-003)으로 이동합니다.`);
         showMainView('done');
       }
     }
@@ -1609,6 +1761,91 @@ code, pre, kbd, samp,
 
     function closePointHistory() {
       document.getElementById('layerPointUsages').classList.remove('open');
+    }
+
+    // 환불 보류 · 거절 (white 2026-10-27 S-11) — 보류 사유 4종(기한 정지 없음), 거절 사유 3가지 + 고객 안내 필수
+    const RFD_CASE_LABEL = { HONG: 'RFD-2026-001173 · 홍길동', KIM: '김철수 (1:1 문의 인입)', CHOI: '최민아', PARK: '박민서' };
+    const HOLD_REASON = { customer_reply: '고객 회신 대기', return_wait: '교재 반환(회수) 대기', payment_check: '결제 확인 대기', other: '기타' };
+    const REJECT_REASON = { LEGAL_NO_REFUND: '법정 환불 불가', INSPECTION_FAIL: '교재 반품 검수 불량', DUPLICATE: '중복 신청' };
+    const RFD_STATE = {};
+
+    function openRfdModal(id) {
+      const m = document.getElementById(id);
+      m.style.removeProperty('display');
+      m.classList.add('open');
+    }
+    function closeRfdModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+    function rfdListRow(key) {
+      return document.querySelector(`#rfd-list-table tbody tr[onclick="openDetailView('${key}')"]`);
+    }
+    function setRfdListStatus(key, status, badgeClass, text) {
+      const tr = rfdListRow(key);
+      if (!tr) return;
+      tr.dataset.status = status;
+      const b = tr.cells[9] && tr.cells[9].querySelector('.badge');
+      if (b) { b.className = 'badge ' + badgeClass; b.textContent = text; }
+    }
+    function renderRfdHoldBadge() {
+      const el = document.getElementById('detail-hold-badge');
+      if (!el) return;
+      const st = RFD_STATE[currentMember];
+      if (!st) { el.style.display = 'none'; el.textContent = ''; return; }
+      el.style.display = '';
+      if (st.status === 'HOLD') {
+        el.className = 'badge badge-amber';
+        el.textContent = `⏸️ 환불 보류 — ${HOLD_REASON[st.reason]} · 법정 환급 기한 · 처리 기한(5영업일) 계속 진행`;
+      } else {
+        el.className = 'badge badge-red';
+        el.textContent = `🚫 환불 거절 — ${REJECT_REASON[st.reason]}`;
+      }
+    }
+
+    function openRfdHold() {
+      document.getElementById('hold-target').innerHTML = `대상: <strong>${RFD_CASE_LABEL[currentMember] || currentMember}</strong>`;
+      document.getElementById('hold-reason').value = '';
+      document.getElementById('hold-memo').value = '';
+      document.getElementById('hold-err').style.display = 'none';
+      rfdHoldReasonChange();
+      openRfdModal('modal-rfd-hold');
+    }
+    function rfdHoldReasonChange() {
+      const other = document.getElementById('hold-reason').value === 'other';
+      document.getElementById('hold-memo-label').textContent = other ? '보류 메모 (기타는 필수 · 10자 이상 · 감사 로그 기록)' : '보류 메모 (선택 · 감사 로그 기록)';
+    }
+    function confirmRfdHold() {
+      const reason = document.getElementById('hold-reason').value;
+      const memo = document.getElementById('hold-memo').value.trim();
+      const err = document.getElementById('hold-err');
+      const msg = !reason ? '보류 사유를 선택해 주세요.' : (reason === 'other' && memo.length < 10 ? '기타 사유는 보류 메모를 10자 이상 입력해 주세요.' : '');
+      if (msg) { err.textContent = '⚠ ' + msg; err.style.display = 'block'; return; }
+      RFD_STATE[currentMember] = { status: 'HOLD', reason: reason, memo: memo };
+      setRfdListStatus(currentMember, '환불보류', 'badge-amber', '환불보류 (' + HOLD_REASON[reason] + ')');
+      closeRfdModal('modal-rfd-hold');
+      renderRfdHoldBadge();
+      alert(`⏸️ 환불 보류로 전환했습니다 — 사유: ${HOLD_REASON[reason]}\n• 법정 환급 기한과 처리 기한(5영업일)은 보류 중에도 계속 진행됩니다.\n• 사유가 풀리면 이 화면에서 계산 · 승인을 이어 갑니다.`);
+    }
+
+    function openRfdReject() {
+      document.getElementById('reject-target').innerHTML = `대상: <strong>${RFD_CASE_LABEL[currentMember] || currentMember}</strong>`;
+      document.querySelectorAll('input[name="reject-reason"]').forEach(r => { r.checked = false; });
+      document.getElementById('reject-notice').value = '';
+      document.getElementById('reject-err').style.display = 'none';
+      openRfdModal('modal-rfd-reject');
+    }
+    function confirmRfdReject() {
+      const r = document.querySelector('input[name="reject-reason"]:checked');
+      const notice = document.getElementById('reject-notice').value.trim();
+      const err = document.getElementById('reject-err');
+      const msg = !r ? '거절 사유를 3가지 중에서 선택해 주세요.' : (notice.length < 10 ? '고객 안내 문구를 10자 이상 입력해 주세요.' : '');
+      if (msg) { err.textContent = '⚠ ' + msg; err.style.display = 'block'; return; }
+      RFD_STATE[currentMember] = { status: 'REJECT', reason: r.value, notice: notice };
+      setRfdListStatus(currentMember, '거절기각', 'badge-red', '환불거절 (' + REJECT_REASON[r.value] + ')');
+      closeRfdModal('modal-rfd-reject');
+      renderRfdHoldBadge();
+      alert(`🚫 환불 거절을 확정했습니다 — 사유: ${REJECT_REASON[r.value]}\n• 고객 안내 알림톡을 발송했습니다.\n• 환불거절 · 반품기각 탭으로 옮겨졌습니다.`);
+      showMainView('list');
     }
 
 </script>
@@ -1737,7 +1974,10 @@ code, pre, kbd, samp,
   }
 
   var OPERATOR = '운영1팀 이지훈';
-  var CURRENT_MONTH = '2026-10';
+  /* 반영 기준월(S-10, white 2026-10-27): 승인 시점에 마감되지 않은 가장 이른 귀속월. 마감 완료 귀속월은 CLOSED_THROUGH까지 */
+  var CLOSED_THROUGH = '2026-09';
+  function nextMonth(m) { var y = +m.slice(0, 4), n = +m.slice(5, 7) + 1; if (n > 12) { y += 1; n = 1; } return y + '-' + pad(n, 2); }
+  function appliedMonthOf(origin) { return origin > CLOSED_THROUGH ? origin : nextMonth(CLOSED_THROUGH); }
   var EXEC_BY_TYPE = { ADD: '토스페이먼츠 PG 추가 부분취소', RECOVER: '고객 과오납 환수 입금 확인', POINT: '포인트 원장만 조정' };
 
   /* 원 환불 건 (원 거래 금액은 불변 · 보정 누적은 별도 필드로 관리) */
@@ -1753,8 +1993,8 @@ code, pre, kbd, samp,
   };
 
   var ledger = [
-    { id: 'ADJ-20260916-001', at: '2026-09-16 14:20', rfd: 'RFD-2026-001120', type: 'ADD', typeLabel: '추가 환불 지급 (+현금)', amountText: '+4,800원 (포인트 0P)', cumText: '100,800원 ➔ 105,600원', execText: 'PG 추가 부분취소 · 2026-09 정산 차감 반영 (마감)', reason: '재생 오류 회차(2회차)를 학습 회차로 잘못 집계한 분 사후 추가 환불 (144,000 × 2 ÷ 60)', operator: '재무 이정산' },
-    { id: 'ADJ-20261011-001', at: '2026-10-11 11:02', rfd: 'RFD-2026-001098', type: 'POINT', typeLabel: '포인트 보정 (+유상P 복원)', amountText: '0원 (+1,000 P 추가 복원)', cumText: '0원 (변동없음)', execText: '포인트 원장 직권 보정 (D+7 만료유예 부여) · 정산 무관', reason: 'LIFO 복원 시 만료일 경계 차감 오차 +1,000P 사후 복원', operator: 'CS 김상담' }
+    { id: 'ADJ-20260916-001', at: '2026-09-16 14:20', rfd: 'RFD-2026-001120', type: 'ADD', typeLabel: '추가 환불 지급 (+현금)', amountText: '+4,800원 (포인트 0P)', cumText: '100,800원 ➔ 105,600원', execText: 'PG 추가 부분취소 · 반영 기준월 2026-09 (원 발생월 2026-09 · 등록 당시 미마감 · 4단계 차감, 현재 마감)', reason: '재생 오류 회차(2회차)를 학습 회차로 잘못 집계한 분 사후 추가 환불 (144,000 × 2 ÷ 60)', operator: '재무 이정산' },
+    { id: 'ADJ-20261011-001', at: '2026-10-11 11:02', rfd: 'RFD-2026-001098', type: 'POINT', typeLabel: '포인트 단독 보정 (+적립 P 복원)', amountText: '0원 (+1,000 P 추가 복원)', cumText: '0원 (변동없음)', execText: '포인트 원장 직권 보정 · 적립 P · 만료일 2026-10-18 (D+7 만료유예) · 정산 무관', reason: 'LIFO 복원 시 만료일 경계 차감 오차 +1,000P 사후 복원', operator: 'CS 김상담' }
   ];
   // 보정 전표 번호 ADJ-YYYYMMDD-NNN — 등록일별 일련번호
   function nextAdjId() {
@@ -1789,15 +2029,19 @@ code, pre, kbd, samp,
 
   function settleInfo(o, type) {
     if (type === 'POINT') return { full: '정산 연동: 포인트 원장 직권 보정 ➔ 정산 무관 (현금 변동 없음)', short: '정산 무관' };
-    if (!o.closed) {
+    var applied = appliedMonthOf(o.month);
+    var verb = type === 'RECOVER' ? '복원' : '차감';
+    if (applied === o.month) {
       return {
-        full: '정산 연동: 당월(' + CURRENT_MONTH + ') 미마감 ➔ 4단계 환불 공제 자동 합산',
-        short: CURRENT_MONTH + ' 당월 정산 ' + (type === 'RECOVER' ? '복원' : '차감') + ' 반영'
+        full: '정산 연동: 반영 기준월 ' + applied + ' — 원 발생월(' + o.month + ')이 승인 시점 미마감이라 그 달 정산 4단계 환불 공제에 ' + verb + ' 합산 · 원 발생월 ' + o.month + ' 전표에 보존',
+        short: '반영 기준월 ' + applied + ' (원 발생월 ' + o.month + ' 미마감 · 4단계 ' + verb + ')',
+        origin: o.month, applied: applied
       };
     }
     return {
-      full: '정산 연동: 전월 마감 건 (원귀속 ' + o.month + ') ➔ 정산 수동 조정 전표 자동 생성 (ADMN-SETT-005 화면 이관)',
-      short: '원귀속 ' + o.month + ' 마감 ➔ 정산 수동 조정 전표 생성'
+      full: '정산 연동: 반영 기준월 ' + applied + ' — 원 발생월(' + o.month + ')이 마감돼 승인 시점 미마감 가장 이른 귀속월에 정산 조정 라인(ADMN-SETT-005)으로 ' + verb + ' 반영 · 마감 월은 다시 열지 않음 · 원 발생월 ' + o.month + ' 전표에 보존',
+      short: '반영 기준월 ' + applied + ' (원 발생월 ' + o.month + ' 마감 · SETT-005 조정 라인)',
+      origin: o.month, applied: applied
     };
   }
 
@@ -1810,13 +2054,15 @@ code, pre, kbd, samp,
     pt = isNaN(pt) ? 0 : pt;
     if (type === 'POINT') amt = 0;
     var delta = type === 'RECOVER' ? -amt : amt;
-    return { o: o, type: type, amt: amt, delta: delta, pt: pt, exec: $('m3f-ra-exec').value, reason: $('m3f-ra-reason').value.trim() };
+    return { o: o, type: type, amt: amt, delta: delta, pt: pt, pkind: $('m3f-ra-pkind').value, pexp: $('m3f-ra-pexp').value, exec: $('m3f-ra-exec').value, reason: $('m3f-ra-reason').value.trim() };
   }
 
   function validate(v) {
     var finalRefund = v.o.cumRefund + v.delta;
     if (v.type === 'POINT') {
       if (v.pt === 0) return '포인트 단독 보정은 0이 아닌 보정 포인트(복원 +, 차감 −)를 입력해 주세요.';
+      if (!v.pkind) return '포인트 단독 보정은 포인트 구분(적립 P / 무상 P)을 선택해 주세요.';
+      if (!v.pexp) return '포인트 단독 보정은 만료일을 입력해 주세요.';
       if (v.exec !== EXEC_BY_TYPE.POINT) return '포인트 단독 보정은 집행 방식을 [포인트 원장만 조정]으로 선택해 주세요.';
     } else {
       if (v.amt <= 0) return '금회 보정 금액(원)을 1원 이상 입력해 주세요.';
@@ -1841,6 +2087,7 @@ code, pre, kbd, samp,
       '<div><span>원 환불확정액 (불변)</span><strong>' + won(o.origRefund) + '</strong><br>포인트 ' + signed(o.origPoint, ' P') + '</div>' +
       '<div><span>현재 누적 (기 보정 ' + o.adjCount + '건 포함)</span><strong style="color:#2563EB;">' + won(o.cumRefund) + '</strong><br>포인트 ' + signed(o.cumPoint, ' P') + '</div>';
 
+    $('m3f-ra-point-meta').style.display = (v.type === 'POINT') ? 'grid' : 'none';
     $('m3f-ra-amount').disabled = (v.type === 'POINT');
     $('m3f-ra-amount').style.background = (v.type === 'POINT') ? '#F1F5F9' : '#FFFFFF';
     $('m3f-ra-amount-hint').textContent = v.type === 'POINT' ? '포인트 단독 보정은 현금 변동 0원 고정' : (v.type === 'RECOVER' ? '양수로 입력 · 회수(−)로 자동 적용' : '양수로 입력 · 추가 지급(+)으로 자동 적용');
@@ -1856,7 +2103,7 @@ code, pre, kbd, samp,
 
     var err = validate(v);
     var warn = $('m3f-ra-warn');
-    var touched = $('m3f-ra-amount').value !== '' || $('m3f-ra-point').value !== '';
+    var touched = $('m3f-ra-amount').value !== '' || $('m3f-ra-point').value !== '' || $('m3f-ra-pkind').value !== '' || $('m3f-ra-pexp').value !== '';
     warn.style.display = (err && touched) ? 'block' : 'none';
     warn.textContent = err ? '⚠ ' + err : '';
   };
@@ -1866,6 +2113,7 @@ code, pre, kbd, samp,
     document.querySelectorAll('#adjustForm .m3f-type-card').forEach(function (c) { c.classList.toggle('on', c.getAttribute('data-type') === type); });
     $('m3f-ra-exec').value = EXEC_BY_TYPE[type];
     if (type === 'POINT') $('m3f-ra-amount').value = '';
+    else { $('m3f-ra-pkind').value = ''; $('m3f-ra-pexp').value = ''; }
     window.m3fRaRefresh();
   };
 
@@ -1897,6 +2145,8 @@ code, pre, kbd, samp,
     document.querySelectorAll('input[name="m3f-ra-type"]').forEach(function (r) { r.checked = (r.value === 'ADD'); });
     $('m3f-ra-amount').value = '';
     $('m3f-ra-point').value = '';
+    $('m3f-ra-pkind').value = '';
+    $('m3f-ra-pexp').value = '';
     $('m3f-ra-reason').value = '';
     window.m3fRaTypeChange();
     window.m3fRaReasonCount();
@@ -1921,12 +2171,12 @@ code, pre, kbd, samp,
     var st = settleInfo(o, v.type);
     var typeLabel = v.type === 'ADD' ? '추가 환불 지급 (+현금)'
       : v.type === 'RECOVER' ? '과오납 환불금 회수 (−현금)'
-      : (v.pt > 0 ? '포인트 보정 (+유상P 복원)' : '포인트 보정 (−P 차감)');
+      : '포인트 단독 보정 (' + (v.pt > 0 ? '+' : '−') + (v.pkind === 'FREE' ? '무상 P' : '적립 P') + (v.pt > 0 ? ' 복원)' : ' 차감)');
     var amountText = v.type === 'POINT'
       ? '0원 (' + signed(v.pt, ' P') + (v.pt > 0 ? ' 추가 복원' : ' 차감') + ')'
       : signed(v.delta, '원') + ' (포인트 ' + (v.pt ? signed(v.pt, ' P') : '0P') + ')';
     var cumText = v.delta !== 0 ? won(before) + ' ➔ ' + won(after) : won(before) + ' (변동없음)';
-    var execShort = v.exec === EXEC_BY_TYPE.POINT ? '포인트 원장 직권 보정' : v.exec.replace('토스페이먼츠 ', '');
+    var execShort = v.exec === EXEC_BY_TYPE.POINT ? '포인트 원장 직권 보정 · ' + (v.pkind === 'FREE' ? '무상 P' : '적립 P') + ' · 만료일 ' + v.pexp : v.exec.replace('토스페이먼츠 ', '');
 
     var row = { id: nextAdjId(), at: nowText(), rfd: rfdNo, type: v.type, typeLabel: typeLabel, amountText: amountText, cumText: cumText, execText: execShort + ' · ' + st.short, reason: v.reason, operator: OPERATOR };
 
@@ -1980,7 +2230,7 @@ code, pre, kbd, samp,
 
     var c2 = '<div class="m3f-sum-grid">'
       + kv('원 주문 결제 시 사용 포인트', d.usedAtPay ? signed(d.usedAtPay, ' P') : '0 P (복원 대상 없음)')
-      + kv('사용 포인트 복원 (적립 P → 무상 P, LIFO)', '적립 P ' + signed(d.restorePaid, ' P') + ' · 무상 P ' + signed(d.restoreFree, ' P'))
+      + kv('사용 포인트 복원 (라인 현금 : 포인트 비율 · 적립 P → 무상 P, LIFO)', '적립 P ' + signed(d.restorePaid, ' P') + ' · 무상 P ' + signed(d.restoreFree, ' P'))
       + kv('만료분 유예 (복원일 + 7일)', d.graceUntil ? esc(d.graceUntil) + '까지' : '해당 없음')
       + kv('원 주문 적립 P 회수', d.recoverPaid == null ? '—' : pts(d.recoverPaid) + ' (보유 잔액 ' + pts(d.recoverFromBalance) + ' · 현금 선차감 ' + won(d.recoverFromCash) + ')')
       + kv('적립 P 마이너스 부채', d.minusDebt < 0 ? signed(d.minusDebt, ' P') : '없음', d.minusDebt < 0 ? '#DC2626' : '')
@@ -1994,7 +2244,7 @@ code, pre, kbd, samp,
       + kv('정산 차감 반영월', esc(d.appliedMonth))
       + kv('마감 여부', o.closed ? '마감' : '미마감')
       + kv('반영 방식', '정산 4단계(DEDUCT) — 원 결제 시점 정산율 스냅샷 역참조')
-      + '</div>';
+      + '</div><div class="rfd-done-note">이 건에 보정 전표를 새로 승인하면 반영 기준월은 ' + appliedMonthOf(o.month) + '입니다 — 승인 시점에 마감되지 않은 가장 이른 귀속월(원 발생월이 미마감이면 그 달 4단계, 마감됐으면 진행 중인 달의 정산 조정 라인 ADMN-SETT-005). 원 발생월 ' + esc(o.month) + '은 전표에 따로 남깁니다.</div>';
 
     var adjRows = adj.length ? adj.map(function (r) {
       return '<tr data-adj="' + esc(r.id) + '"' + (r.id === lastAdjId ? ' class="m3f-flash"' : '') + '>'
@@ -2010,7 +2260,7 @@ code, pre, kbd, samp,
       + kv('보정 누적 금액', signed(o.cumRefund - o.origRefund, '원'))
       + kv('현재 누적 환불액', won(o.cumRefund), '#2563EB')
       + kv('보정 전표', adj.length + '건')
-      + '</div><div class="table-wrap"><table class="data-table"><thead><tr><th>보정거래번호 / 등록일시</th><th>보정 거래 유형</th><th class="num">금회 보정 금액 / 포인트</th><th class="num">보정 후 누적 환불액</th><th>집행 수단 · 정산 반영월</th><th>사유 및 처리자</th></tr></thead><tbody id="rfd-done-adj-body">' + adjRows + '</tbody></table></div>';
+      + '</div><div class="table-wrap"><table class="data-table"><thead><tr><th>보정거래번호 / 등록일시</th><th>보정 거래 유형</th><th class="num">금회 보정 금액 / 포인트</th><th class="num">보정 후 누적 환불액</th><th>집행 수단 · 반영 기준월 (원 발생월)</th><th>사유 및 처리자</th></tr></thead><tbody id="rfd-done-adj-body">' + adjRows + '</tbody></table></div>';
 
     body.innerHTML = card('1. 환불 확정 내역', '<span class="badge badge-gray">원 거래 불변 · 직접 수정 불가</span>', c1)
       + card('2. 포인트 처리 (LIFO 복원 · 마이너스 부채)', '', c2)

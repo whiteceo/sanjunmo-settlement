@@ -377,9 +377,8 @@ code, pre, kbd, samp,
 
   </style>
   <link rel="stylesheet" href="dev-overlay.css" />
-  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-004", "devCommit": "d562524a", "progress": "구현(CONF-004 템플릿 · S1 예약 발송 · 개발 CONF-007 SENS 템플릿). 통합 발송 이력 · 실패 재발송 · 즉시 발송은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.message-templates.index", "label": "메시지 템플릿 관리 (S1 campaigns 포함)"}, {"route": "admin.sens-templates.index", "label": "알림톡 SENS 템플릿 관리 (개발 CONF-007)"}]}</script>
+  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-004", "devCommit": "d562524a", "progress": "구현(CONF-004 템플릿 · S1 예약 발송 · 개발 CONF-007 SENS 템플릿). 통합 발송 이력 · 실패 재발송(프로토 CONF-004-S2, 예전 표기 CONF-007 — v6.92) · 즉시 발송(재확인 모달)은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.message-templates.index", "label": "메시지 템플릿 관리 (S1 campaigns · S2 발송 이력(규칙) 포함)"}, {"route": "admin.sens-templates.index", "label": "알림톡 SENS 템플릿 관리 (개발 CONF-007)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
 <aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside>
@@ -409,8 +408,8 @@ code, pre, kbd, samp,
         <button class="sub-tab-btn" data-dev-route="admin.message-templates.campaigns.index" data-dev-method="GET" data-dev-url="/sj-admin/message-templates/campaigns" data-dev-perm="조회" onclick="switchTab('send')" id="tab-btn-send">
           🚀 타겟 메시지 수동/예약 발송 (ADMN-CONF-004-S1)
         </button>
-        <button class="sub-tab-btn" data-dev-route="admin.message-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/message-logs" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="통합 발송 이력 · 실패 재발송 — 개발 미구현(notification_logs만). 개발 CONF-007 코드는 SENS 템플릿 관리 — 정본도 CONF-007=SENS 템플릿" onclick="switchTab('hist')" id="tab-btn-hist">
-          📊 통합 발송 이력 및 실패 재발송 (ADMN-CONF-007) <span class="cnt" id="cnt-hist">5</span>
+        <button class="sub-tab-btn" data-dev-route="admin.message-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/message-logs" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="ADMN-CONF-004-S2 통합 발송 이력 · 실패 재발송(v6.92 코드 정정, 예전 표기 CONF-007) — 개발 미구현(notification_logs만). 1차는 이력 조회 + 발송사 장애 건 재발송만(D-ORD-12). CONF-007 코드는 개발 · 정본 모두 SENS 템플릿 관리" onclick="switchTab('hist')" id="tab-btn-hist">
+          📊 통합 발송 이력 및 실패 재발송 (ADMN-CONF-004-S2) <span class="cnt" id="cnt-hist">5</span>
         </button>
       </div>
     </div>
@@ -506,7 +505,7 @@ code, pre, kbd, samp,
         <div class="info-callout">
           <strong>[ADMN-CONF-004-S1] 타겟 메시지 수동/예약 발송 가드레일:</strong><br/>
           [1] 알림톡 채널 선택 시 <strong>카카오 검수승인(<code>APPROVED</code>)이 완료된 템플릿만 발송</strong>할 수 있습니다.<br/>
-          [2] <strong>광고성(<code>AD</code>) 메시지</strong>는 야간 시간대(20:50 ~ 익일 08:00) 즉시 발송이 자동 차단되며, <code>is_marketing_agreed = true</code> 수신 동의 회원만 자동 필터링됩니다.
+          [2] <strong>광고성(<code>AD</code>) 메시지</strong>는 법정 금지 구간 <strong>21:00 ~ 익일 08:00</strong>(정보통신망법 제50조)에 보내지 않습니다. 발송이 21:00 전에 끝나도록 광고성 즉시 발송 · 예약 시작은 <strong>20:50까지만</strong> 받고(설정 가능한 기본값), <code>is_marketing_agreed = true</code> 수신 동의 회원만 자동 필터링됩니다.
         </div>
 
         <div class="form-grid" style="grid-template-columns: 1.3fr 1fr; gap:22px;">
@@ -535,13 +534,14 @@ code, pre, kbd, samp,
             <div class="form-group">
               <label class="form-label">3. 발송 시점 및 대체문자(Fallback) 옵션</label>
               <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                <select id="send-schedule-mode" data-dev-note="개발은 예약만(scheduled_at 필수 · 지금 이후) — 즉시 발송은 정책 D-CONF-02" style="width:150px;">
+                <select id="send-schedule-mode" data-dev-note="개발은 예약만(scheduled_at 필수 · 지금 이후) — 즉시 발송은 정책 D-CONF-02" style="width:150px;" onchange="renderSendRuleNote()">
                   <option value="NOW" data-dev-flag="proto-only">즉시 발송</option>
                   <option value="RESERVE">예약 발송</option>
                 </select>
-                <input type="datetime-local" id="send-schedule-dt" name="scheduled_at" data-dev-note="Y-m-d\TH:i · 광고성 21:00~08:00 불가" value="2026-10-20T10:00" />
+                <input type="datetime-local" id="send-schedule-dt" name="scheduled_at" data-dev-note="Y-m-d\TH:i · 광고성 21:00~08:00 불가" value="2026-10-20T10:00" onchange="renderSendRuleNote()" />
                 <label><input type="checkbox" id="send-fallback-chk" data-dev-note="개발은 템플릿 use_fallback을 따름 — 발송 단위 옵션 없음" checked /> 알림톡 실패 시 SMS/LMS 자동 대체발송</label>
               </div>
+              <div class="ctx-note" id="send-rule-note" data-dev-note="광고성 법정 금지 21:00~08:00 · 즉시 · 예약 시작 상한 20:50(설정값 adSendStartLimit) · 예약 취소 30분 전(설정값 sendCancelLeadMin = 개발 CANCEL_LEAD_MINUTES)" style="margin-top:8px; margin-bottom:0; font-size:12px; line-height:1.6;"></div>
             </div>
             <div class="form-group" data-dev-flag="dev-only" data-dev-note="MessageCampaignRequest send_reason (필수 · max 200) · expected_target(화면 대상 수)">
               <label class="form-label">발송 사유 (내부) *</label>
@@ -576,8 +576,22 @@ code, pre, kbd, samp,
       </div>
     </section>
 
-    <!-- ==================== 3. 통합 발송 이력 (ADMN-CONF-007) ==================== -->
+    <!-- ==================== 3. 통합 발송 이력 · 실패 재발송 (ADMN-CONF-004-S2, 예전 표기 CONF-007) — D-ORD-12: 1차는 이력 조회 + 발송사 장애 건 재발송만 ==================== -->
     <section id="view-hist" class="view-section" data-dev-flag="proto-only" data-dev-note="재발송(규칙) admin.message-logs.resends.store POST /message-logs/{log}/resends">
+      <div class="ctx-note" id="hist-scope-note" style="font-size:12px; line-height:1.6;">
+        <strong>1차 범위:</strong> 발송 이력 조회와 <strong>발송사 장애 건(발송사 오류 · 응답 시간 초과) 재발송</strong>만 합니다. 수신 거부 · 번호 오류 · 카카오 미사용자는 재발송하지 않습니다(광고성은 재발송 때 야간 구간 · 수신 동의를 다시 확인). 예약 발송은 발송 <span id="hist-cancel-lead">30</span>분 전까지 취소할 수 있습니다(설정 가능한 기본값).
+        <span style="color:var(--text-muted);">2차: 전체 재발송 · 일괄 재시도 · 발송 중 남은 건 중단 · 수신자별 상세 검색.</span>
+      </div>
+      <div class="card" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <select id="hist-status-filter" name="status" data-dev-value="'' 전체 · done 발송완료 · reserved 예약 · canceled 예약 취소 · failed 실패 있음 (규칙, 프로토 값 ALL · DONE · RESERVED · CANCELED · FAILED 유지)" onchange="renderHistory()" style="width:150px;">
+          <option value="ALL">상태 전체</option>
+          <option value="DONE">발송완료</option>
+          <option value="RESERVED">예약</option>
+          <option value="CANCELED">예약 취소</option>
+          <option value="FAILED">실패 있음</option>
+        </select>
+        <input type="text" id="hist-keyword" name="keyword" data-dev-note="(규칙) 배치 ID · 템플릿 코드 · 제목" placeholder="배치 ID · 템플릿 코드 · 제목 검색" oninput="renderHistory()" style="width:260px;" />
+      </div>
       <div class="card" style="padding:0; overflow:hidden;">
         <table class="data-table">
           <thead>
@@ -589,6 +603,7 @@ code, pre, kbd, samp,
               <th style="width:150px;">성공 / 실패 (Fallback)</th>
               <th style="width:140px;">발송일시</th>
               <th style="width:120px;">상태</th>
+              <th style="width:150px;">관리</th>
             </tr>
           </thead>
           <tbody id="hist-tbody"></tbody>
@@ -598,6 +613,44 @@ code, pre, kbd, samp,
   </div>
 </div>
 
+<!-- 즉시 발송 재확인 (S-23 · D-CONF-02) — 대상 수 · 비용 · 본문을 다시 보여 주고 실행. 즉시 발송은 시작 후 취소 불가 -->
+<div class="modal-backdrop" id="modal-send-confirm" data-dev-flag="proto-only" data-dev-note="즉시 발송 재확인(대상 수 · 비용 · 본문) — 개발은 예약만. 즉시 발송 허용(S-23 · D-CONF-02 결정)">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-header">
+      <h3>즉시 발송 재확인</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-send-confirm')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="sc-summary" style="font-size:13px; line-height:1.7;"></div>
+      <pre id="sc-body" style="white-space:pre-wrap; background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:10px; font-size:12.5px; margin-top:10px;"></pre>
+      <div style="font-size:12px; color:var(--danger); font-weight:700; margin-top:8px;">즉시 발송은 시작한 뒤 취소할 수 없습니다.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-send-confirm')">취소</button>
+      <button class="btn btn-primary" id="sc-go" data-dev-route="admin.message-templates.campaigns.store" data-dev-method="POST" data-dev-url="/sj-admin/message-templates/campaigns" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="(규칙) 즉시 발송 = send_mode immediate · scheduled_at 없음 — 개발 MessageCampaignRequest는 scheduled_at 필수(after:now)" onclick="confirmImmediateSend()">확인하고 즉시 발송</button>
+    </div>
+  </div>
+</div>
+<!-- 실패 건 · 발송사 장애 건 재발송 (D-ORD-12) -->
+<div class="modal-backdrop" id="modal-hist-fail" data-dev-flag="proto-only" data-dev-note="실패 사유 provider_error · timeout(재발송 대상) · optout · invalid_number · not_kakao_user(재발송 안 함) (규칙)">
+  <div class="modal-box" style="max-width:620px;">
+    <div class="modal-header">
+      <h3 id="hf-title">실패 건</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-hist-fail')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <table class="data-table">
+        <thead><tr><th style="width:150px;">수신 번호</th><th>실패 사유</th><th style="width:130px;">재발송</th></tr></thead>
+        <tbody id="hf-tbody"></tbody>
+      </table>
+      <div id="hf-note" style="font-size:12px; color:var(--text-sub); margin-top:8px; line-height:1.6;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-hist-fail')">닫기</button>
+      <button class="btn btn-primary" id="hf-resend" data-dev-route="admin.message-logs.resends.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/message-logs/{batch}/resends" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="발송사 장애 건만 재발송(D-ORD-12) — 광고성은 야간 구간 · 수신 동의 재확인" onclick="resendProviderFails()">발송사 장애 건 재발송</button>
+    </div>
+  </div>
+</div>
 <!-- ==================== 모달: 신규 메시지 템플릿 등록 / 수정 / 카카오 검수 상태 관리 ==================== -->
 <div class="modal-backdrop" id="modal-template" data-dev-note="개발은 레이어가 아니라 별도 페이지 create · show(#templateForm)">
   <div class="modal-box">
@@ -812,8 +865,29 @@ code, pre, kbd, samp,
     { batchId: 'SND-261018-04', code: 'TPL-ALIM-002', channel: 'ALIMTALK', title: '[산준모] 교재 출고 및 송장번호 안내 (출고건 128명)', stat: '성공 126 / 대체SMS 2', date: '2026-10-18 16:05', status: 'DONE' },
     { batchId: 'SND-261018-02', code: 'TPL-ALIM-001', channel: 'ALIMTALK', title: '[산준모] 수강신청 및 결제 완료 안내 (실시간 트리거 94명)', stat: '성공 94 / 실패 0', date: '2026-10-18 14:00', status: 'DONE' },
     { batchId: 'SND-261017-01', code: 'TPL-ALIM-003', channel: 'ALIMTALK', title: '[산준모] 합격환급금 심사 승인 안내 (환급승인 18명)', stat: '성공 18 / 실패 0', date: '2026-10-17 17:30', status: 'DONE' },
-    { batchId: 'SND-261016-01', code: 'TPL-SMS-007', channel: 'SMS_LMS', title: '(광고) [산준모] 2026 실기 얼리버드 특가 안내 (마케팅동의 985명)', stat: '성공 981 / 실패 4', date: '2026-10-16 10:30', status: 'DONE' }
+    { batchId: 'SND-261016-01', code: 'TPL-SMS-007', channel: 'SMS_LMS', title: '(광고) [산준모] 2026 실기 얼리버드 특가 안내 (마케팅동의 985명)', stat: '성공 981 / 실패 4', date: '2026-10-16 10:30', status: 'DONE', ad: true,
+      fails: [{ to: '010-****-2231', reason: 'provider_error' }, { to: '010-****-8812', reason: 'timeout' }, { to: '010-****-4410', reason: 'optout' }, { to: '010-****-0937', reason: 'invalid_number' }] }
   ];
+  // 예약 발송 샘플 — 지금(시연 기준 2026-10-19 15:30) 뒤에 나갈 건. 예약 취소는 발송 30분 전까지
+  SEND_HISTORY.unshift(
+    { batchId: 'SND-261019-R2', code: 'TPL-ALIM-001', channel: 'ALIMTALK', title: '[산준모] 수강신청 및 결제 완료 안내 (재안내 32명)', stat: '대상 32', date: '2026-10-19 15:50', status: 'RESERVED' },
+    { batchId: 'SND-261020-R1', code: 'TPL-SMS-007', channel: 'SMS_LMS', title: '(광고) [산준모] 2026 실기 얼리버드 특가 마감 안내 (마케팅동의 985명)', stat: '대상 985', date: '2026-10-20 10:00', status: 'RESERVED', ad: true }
+  );
+  // S-23 · D-CONF-02(white 결정): 광고성 법정 금지 구간 21:00~08:00(정보통신망법 제50조), 광고성 즉시 · 예약 시작 상한 20:50,
+  // 예약 취소는 발송 30분 전까지 — 20:50 · 30분은 근거 없는 운영 편의값(설정 가능한 기본값). 정보성(거래) 알림은 시간 제한 없음
+  const CONF_NOW = '2026-10-19T15:30';
+  function confSetting(k, d) { const v = window.SJM_MASTER ? SJM_MASTER.settings.get(k) : undefined; return v === undefined || v === null || v === '' ? d : v; }
+  const AD_LEGAL_FROM = '21:00', AD_LEGAL_TO = '08:00';
+  function adStartLimit() { return confSetting('adSendStartLimit', '20:50'); }
+  function cancelLeadMin() { return Number(confSetting('sendCancelLeadMin', 30)); }
+  function adBlockedAt(hhmm) { return hhmm >= adStartLimit() || hhmm < AD_LEGAL_TO; }
+  const FAIL_REASON = {
+    provider_error: ['발송사 오류(장애)', true],
+    timeout: ['응답 시간 초과(발송사 장애)', true],
+    optout: ['수신 거부', false],
+    invalid_number: ['번호 오류', false],
+    not_kakao_user: ['카카오 미사용자', false]
+  };
 
   function switchTab(tab) {
     document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
@@ -824,7 +898,7 @@ code, pre, kbd, samp,
     const meta = {
       tpl: ['ADMN-CONF-004', '3채널 메시지 템플릿 및 카카오 검수 관리'],
       send: ['ADMN-CONF-004-S1', '타겟 메시지 수동/예약 발송'],
-      hist: ['ADMN-CONF-007', '통합 메시지 발송 이력 및 대체발송(Fallback) 결과']
+      hist: ['ADMN-CONF-004-S2', '통합 메시지 발송 이력 및 실패 재발송']
     };
     document.getElementById('current-screen-code').textContent = meta[tab][0];
     document.getElementById('current-screen-title').textContent = meta[tab][1];
@@ -1032,6 +1106,7 @@ code, pre, kbd, samp,
     document.getElementById('prev-channel-title').textContent =
       t.channel === 'ALIMTALK' ? '카카오 알림톡 (산준모)' : t.channel === 'SMS_LMS' ? '문자 메시지 (SMS/LMS)' : '이메일 안내문';
     document.getElementById('prev-bubble-btn').textContent = t.btnName || '산준모 바로가기';
+    renderSendRuleNote();
     syncPhonePreview();
   }
 
@@ -1096,26 +1171,113 @@ code, pre, kbd, samp,
       return;
     }
     const segSel = document.getElementById('send-target-seg');
-    const segText = segSel.options[segSel.selectedIndex].text;
-    const cnt = segSel.options[segSel.selectedIndex].getAttribute('data-cnt');
-
+    const opt = segSel.options[segSel.selectedIndex];
+    const segText = opt.text;
+    const isAd = t.type === 'AD';
+    const cnt = Number((isAd && opt.getAttribute('data-consent')) || opt.getAttribute('data-cnt') || 0);
+    const mode = document.getElementById('send-schedule-mode').value;
+    const at = mode === 'NOW' ? CONF_NOW : document.getElementById('send-schedule-dt').value;
+    if (!at) { alert('예약 일시를 입력하세요.'); return; }
+    if (mode === 'RESERVE' && at <= CONF_NOW) { alert('예약 일시는 지금 이후여야 합니다.'); return; }
+    if (isAd && adBlockedAt(at.slice(11, 16))) {
+      alert(`[저장 차단] 광고성 메시지는 법정 금지 구간 ${AD_LEGAL_FROM} ~ 익일 ${AD_LEGAL_TO}(정보통신망법 제50조)에 보낼 수 없습니다.\n발송이 ${AD_LEGAL_FROM} 전에 끝나도록 즉시 발송 · 예약 시작은 ${adStartLimit()}까지만 받습니다(설정 가능한 기본값).`);
+      return;
+    }
+    PENDING_SEND = { t, segText, cnt, at, isAd };
+    if (mode === 'RESERVE') { commitSend('RESERVED'); return; }
+    const body = document.getElementById('send-body-preview').value;
+    document.getElementById('sc-summary').innerHTML = `템플릿 <strong>${t.code}</strong> · ${t.channel} · ${isAd ? '광고성' : '정보성'}<br/>대상 <strong>${cnt.toLocaleString()}명</strong>${isAd ? '(수신 동의 회원만)' : ''} · 예상 비용 <strong>${(cnt * 9).toLocaleString()}원</strong>(알림톡 단가 9원 기준)<br/>대상: ${segText}`;
+    document.getElementById('sc-body').textContent = body;
+    const m = document.getElementById('modal-send-confirm');
+    m.style.removeProperty('display');
+    m.classList.add('open');
+  }
+  let PENDING_SEND = null;
+  function confirmImmediateSend() { closeModal('modal-send-confirm'); commitSend('DONE'); }
+  function commitSend(status) {
+    const s = PENDING_SEND;
+    if (!s) return;
     SEND_HISTORY.unshift({
-      batchId: 'SND-261019-0' + (SEND_HISTORY.length + 1),
-      code: t.code,
-      channel: t.channel,
-      title: `${t.title} (${segText})`,
-      stat: `성공 ${cnt} / 실패 0`,
-      date: '2026-10-19 15:30',
-      status: 'DONE'
+      batchId: (status === 'RESERVED' ? 'SND-R' : 'SND-261019-0') + (SEND_HISTORY.length + 1),
+      code: s.t.code,
+      channel: s.t.channel,
+      title: `${s.t.title} (${s.segText})`,
+      stat: status === 'RESERVED' ? `대상 ${s.cnt.toLocaleString()}` : `성공 ${s.cnt.toLocaleString()} / 실패 0`,
+      date: s.at.replace('T', ' '),
+      status,
+      ad: s.isAd
     });
+    PENDING_SEND = null;
     renderHistory();
-    showToast(`타겟 메시지 발송이 완료되었습니다. (${segText})`);
+    showToast(status === 'RESERVED' ? `예약 발송을 등록했습니다(${s.at.replace('T', ' ')}). 발송 ${cancelLeadMin()}분 전까지 취소할 수 있습니다.` : `타겟 메시지 발송이 완료되었습니다. (${s.segText})`);
     switchTab('hist');
+  }
+  function renderSendRuleNote() {
+    const el = document.getElementById('send-rule-note');
+    if (!el) return;
+    const code = document.getElementById('send-tpl-select').value;
+    const t = TEMPLATES.find(item => item.code === code);
+    const isAd = t && t.type === 'AD';
+    const mode = document.getElementById('send-schedule-mode').value;
+    const at = mode === 'NOW' ? CONF_NOW : (document.getElementById('send-schedule-dt').value || '');
+    let warn = '';
+    if (isAd && at && adBlockedAt(at.slice(11, 16))) warn = ` <strong style="color:var(--danger);">지금 선택한 시각(${at.slice(11, 16)})은 광고성 발송 불가 — 저장되지 않습니다.</strong>`;
+    el.innerHTML = (isAd
+      ? `광고성: 법정 금지 구간 <strong>${AD_LEGAL_FROM} ~ 익일 ${AD_LEGAL_TO}</strong>(정보통신망법 제50조). 즉시 발송 · 예약 시작은 <strong>${adStartLimit()}까지</strong>(설정 가능한 기본값).`
+      : '정보성(거래) 알림은 시간 제한이 없습니다.') +
+      ` 즉시 발송은 대상 수 · 비용 · 본문을 한 번 더 확인한 뒤 실행하며 취소할 수 없습니다. 예약 발송은 발송 <strong>${cancelLeadMin()}분 전까지</strong> 취소할 수 있습니다(설정 가능한 기본값).` + warn;
+  }
+  function minutesUntil(dateStr) { return Math.round((new Date(dateStr.replace(' ', 'T')) - new Date(CONF_NOW)) / 60000); }
+  function cancelReserved(batchId) {
+    const h = SEND_HISTORY.find(x => x.batchId === batchId);
+    if (!h || h.status !== 'RESERVED') return;
+    if (minutesUntil(h.date) < cancelLeadMin()) { alert(`발송 ${cancelLeadMin()}분 전이 지나 취소할 수 없습니다.`); return; }
+    h.status = 'CANCELED';
+    renderHistory();
+    showToast(`${batchId} 예약 발송을 취소했습니다.`);
+  }
+  let currentFailBatch = null;
+  function openFailModal(batchId) {
+    const h = SEND_HISTORY.find(x => x.batchId === batchId);
+    if (!h || !h.fails) return;
+    currentFailBatch = batchId;
+    document.getElementById('hf-title').textContent = `실패 건 — ${batchId}`;
+    document.getElementById('hf-tbody').innerHTML = h.fails.map(f => {
+      const r = FAIL_REASON[f.reason] || [f.reason, false];
+      return `<tr><td>${f.to}</td><td>${r[0]}</td><td>${f.resent ? '<span class="badge badge-green">재발송함</span>' : (r[1] ? '<span class="badge badge-blue">재발송 대상</span>' : '<span class="badge">재발송 안 함</span>')}</td></tr>`;
+    }).join('');
+    const n = h.fails.filter(f => (FAIL_REASON[f.reason] || [])[1] && !f.resent).length;
+    document.getElementById('hf-note').textContent = `발송사 장애(발송사 오류 · 응답 시간 초과) 건만 재발송합니다. 수신 거부 · 번호 오류 · 카카오 미사용자는 재발송하지 않습니다.` + (h.ad ? ` 광고성이라 재발송 시각(${CONF_NOW.slice(11)})이 금지 구간 · 상한(${adStartLimit()})에 걸리는지와 수신 동의를 다시 확인합니다.` : '');
+    document.getElementById('hf-resend').disabled = n === 0;
+    document.getElementById('hf-resend').textContent = `발송사 장애 건 재발송 (${n}건)`;
+    const m = document.getElementById('modal-hist-fail');
+    m.style.removeProperty('display');
+    m.classList.add('open');
+  }
+  function resendProviderFails() {
+    const h = SEND_HISTORY.find(x => x.batchId === currentFailBatch);
+    if (!h) return;
+    if (h.ad && adBlockedAt(CONF_NOW.slice(11, 16))) { alert(`광고성 재발송은 ${adStartLimit()} ~ 익일 ${AD_LEGAL_TO}에 할 수 없습니다.`); return; }
+    const targets = h.fails.filter(f => (FAIL_REASON[f.reason] || [])[1] && !f.resent);
+    if (!targets.length) return;
+    targets.forEach(f => { f.resent = true; });
+    h.resentCnt = (h.resentCnt || 0) + targets.length;
+    closeModal('modal-hist-fail');
+    renderHistory();
+    showToast(`${h.batchId} 발송사 장애 건 ${targets.length}건을 재발송했습니다${h.ad ? '(수신 동의 · 야간 구간 재확인)' : ''}.`);
   }
 
   function renderHistory() {
     document.getElementById('cnt-hist').textContent = SEND_HISTORY.length;
-    document.getElementById('hist-tbody').innerHTML = SEND_HISTORY.map(h => `
+    const lead = document.getElementById('hist-cancel-lead');
+    if (lead) lead.textContent = cancelLeadMin();
+    const fst = (document.getElementById('hist-status-filter') || {}).value || 'ALL';
+    const fkw = ((document.getElementById('hist-keyword') || {}).value || '').trim().toLowerCase();
+    const HST = { DONE: ['badge-green', '발송완료'], RESERVED: ['badge-amber', '예약'], CANCELED: ['badge-red', '예약 취소'] };
+    const rows = SEND_HISTORY.filter(h =>
+      (fst === 'ALL' || (fst === 'FAILED' ? (h.fails && h.fails.length) : h.status === fst)) &&
+      (!fkw || (h.batchId + ' ' + h.code + ' ' + h.title).toLowerCase().includes(fkw)));
+    document.getElementById('hist-tbody').innerHTML = rows.map(h => `
       <tr>
         <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;">${h.batchId}</td>
         <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;">${h.code}</td>
@@ -1123,7 +1285,12 @@ code, pre, kbd, samp,
         <td style="font-weight:700;">${h.title}</td>
         <td style="font-weight:700; color:var(--success);">${h.stat}</td>
         <td>${h.date}</td>
-        <td><span class="badge badge-green">발송완료</span></td>
+        <td><span class="badge ${(HST[h.status] || HST.DONE)[0]}">${(HST[h.status] || HST.DONE)[1]}</span>${h.resentCnt ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">재발송 ${h.resentCnt}건</div>` : ''}</td>
+        <td>${h.status === 'RESERVED'
+          ? (minutesUntil(h.date) >= cancelLeadMin()
+            ? `<button class="btn btn-outline btn-sm" data-dev-route="admin.message-templates.campaigns.status.update" data-dev-method="PUT" data-dev-url="/sj-admin/message-templates/campaigns/{campaign}/status" data-dev-perm="수정" data-dev-note="예약 취소 — 발송 30분 전까지(CANCEL_LEAD_MINUTES · 설정값)" onclick="cancelReserved('${h.batchId}')">예약 취소</button>`
+            : `<span style="font-size:11.5px; color:var(--text-muted);">취소 마감(발송 ${cancelLeadMin()}분 전 지남)</span>`)
+          : (h.fails && h.fails.length ? `<button class="btn btn-outline btn-sm" data-dev-route="admin.message-logs.show (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/message-logs/{batch}" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="(규칙) 실패 건 · 실패 사유" onclick="openFailModal('${h.batchId}')">실패 ${h.fails.length}건 보기</button>` : '—')}</td>
       </tr>
     `).join('');
   }
@@ -1144,11 +1311,12 @@ code, pre, kbd, samp,
     renderTemplates();
     populateSendSelect();
     renderHistory();
+    renderSendRuleNote();
 
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view') || params.get('tab');
     if (view === 'ADMN-CONF-004-S1' || view === 'send') switchTab('send');
-    else if (view === 'ADMN-CONF-007' || view === 'hist') switchTab('hist');
+    else if (view === 'ADMN-CONF-004-S2' || view === 'ADMN-CONF-007' || view === 'hist') switchTab('hist');
     const grp = params.get('grp');
     if (grp) {
       if (view !== 'ADMN-CONF-004-S1' && view !== 'send') switchTab('send');

@@ -627,7 +627,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-PROD-003", "devCommit": "d562524a", "progress": "구현(목록 · 등록/수정 · 커리큘럼 구성). 프로토 003-S2 '상세 조회'는 개발 미구현. 개발 코드는 등록/수정 = 003-S2, 커리큘럼 = 003-S1(별도 페이지)", "menus": [{"route": "admin.courses.index", "label": "단과 강좌 관리"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
     <div class="top-bar-left">
@@ -1263,6 +1262,7 @@ code, pre, kbd, samp,
             </div>
           </div>
           <div class="card-body">
+            <div id="form-retro-note" data-dev-note="기존 수강생 소급 안 함(S-14) — 개발 '진도율 분모 증가' 영향 미리 보기(#crsImpact · #curImpact)와 반대 방향. (규칙) order_items.refund_terms_snapshot JSON — 결제 시점 판정 대상 lecture_ids · 재생시간 · refund_min_progress · 필수 출석일수" style="margin-bottom:10px; font-size:12px; line-height:1.6; color:#1E3A8A; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:8px 12px;">판매를 시작한 뒤 편성을 바꿔도 기존 수강생에게는 소급하지 않습니다 — 결제 시점의 판정 대상 차시 · 재생시간 · 인정 진도율 · 필수 출석일수를 주문 라인에 박제합니다.</div>
             <div class="field-hint" data-dev-flag="dev-only" data-dev-route="admin.courses.curriculum.index" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/curriculum" data-dev-perm="조회" data-dev-note="개발 커리큘럼 구성 페이지(#curriculumForm) · 변경 영향 미리 보기 #crsImpact · #curImpact">판매 이력이 있는 강좌는 기존 강의를 제외할 수 없고 추가만 가능하다. 저장 전에 기존 수강생 진도율 분모 변화(영향 인원)를 미리 보여 준다.</div>
             <div id="form-sections-wrapper" data-dev-name="lectures[]" data-dev-note="순서 = 배열 순서 · 편성 가능(VOD Key + 재생시간) 강의만"></div>
           </div>
@@ -1917,6 +1917,28 @@ code, pre, kbd, samp,
     }
 
     let activeSectionIndexForModal = 0;
+    /* 판매 후 편성 변경 — 기존 수강생 소급 안 함 (white 2026-10-27 S-14)
+       판매 이력(판매대기 외 상태) 있는 강좌 수정: 기존 차시 제외 불가(추가만), 추가 차시는 기존 수강생 판정 분모에서 뺌.
+       결제 시점의 판정 대상 차시 · 재생시간 · 인정 진도율 · 출석일수는 주문 라인에 박제(스냅샷) */
+    let editingSoldCourse = false;
+    let curriculumBaseCodes = null;
+    function curriculumCodes() {
+      const s = new Set();
+      curriculumSections.forEach(sec => sec.lectures.forEach(l => s.add(l.code)));
+      return s;
+    }
+    function addedLectureCodes() {
+      if (!curriculumBaseCodes) return [];
+      return [...curriculumCodes()].filter(c => !curriculumBaseCodes.has(c));
+    }
+    function renderRetroNote() {
+      const el = document.getElementById("form-retro-note");
+      if (!el) return;
+      const added = addedLectureCodes();
+      el.innerHTML = editingSoldCourse
+        ? `<strong>판매 이력이 있는 강좌 — 기존 수강생 소급 안 함.</strong> 결제 시점의 환급 조건(판정 대상 차시 목록과 재생시간 · 인정 진도율 · 필수 출석일수)은 주문 라인에 박제돼 있습니다. 기존 차시는 제외할 수 없고(추가만 가능), 새로 추가한 차시${added.length ? ` ${added.length}개(${added.join(", ")})` : ""}는 기존 수강생의 판정 분모에서 빠지며 변경 이후 결제분부터 판정 대상이 됩니다.`
+        : `판매를 시작한 뒤 편성을 바꿔도 기존 수강생에게는 소급하지 않습니다 — 결제 시점의 판정 대상 차시 · 재생시간 · 인정 진도율 · 필수 출석일수를 주문 라인에 박제합니다.`;
+    }
 
     /* =========================================================================
        3. 유틸 함수
@@ -2098,6 +2120,9 @@ code, pre, kbd, samp,
       document.getElementById("f-discount-val").value = 10;
       document.getElementById("f-settlement-sim").value = "0";
       applySettlementHardLock();
+      editingSoldCourse = false;
+      curriculumBaseCodes = null;
+      renderRetroNote();
       switchSubview("form");
     }
 
@@ -2123,6 +2148,9 @@ code, pre, kbd, samp,
       { const _r = document.querySelector('input[name="f-sale-status"][value="' + c.saleStatus + '"]'); if (_r) _r.checked = true; }
       applySettlementHardLock();
       recalcCoursePrice();
+      editingSoldCourse = c.saleStatus !== "판매대기";
+      curriculumBaseCodes = editingSoldCourse ? curriculumCodes() : null;
+      renderRetroNote();
       /* Init PROD-003 Picker Modals */
       if (typeof renderLectureModalRows === 'function') renderLectureModalRows();
       var tb = document.getElementById('modal-textbook-tbody');
@@ -2329,7 +2357,7 @@ code, pre, kbd, samp,
                       <button type="button" class="btn btn-outline btn-sm" style="padding:0 5px; height:22px;" data-dev-note="개발은 드래그 순서(#curRenumber)" onclick="moveLecture(${sIdx}, ${lIdx}, 1)">▼</button>
                     </td>
                     <td><span class="code-pill">${lec.code}</span></td>
-                    <td style="font-weight:600;">${lec.title}</td>
+                    <td style="font-weight:600;">${lec.title}${curriculumBaseCodes && !curriculumBaseCodes.has(lec.code) ? ` <span class="badge badge-info" title="기존 수강생 판정 분모에서 제외 · 변경 이후 결제분부터 판정 대상">신규 추가 · 기존 수강생 판정 제외</span>` : ""}</td>
                     <td class="text-center">${formatDuration(lec.durationSec)}</td>
                     <td style="font-size:12px; color:var(--primary);">${lec.pdf || "-"}</td>
                     <td class="text-center">
@@ -2348,6 +2376,7 @@ code, pre, kbd, samp,
 
       document.getElementById("form-curriculum-summary").textContent =
         `총 ${curriculumSections.length}개 섹션 · ${totalLec}강 · 합계 ${formatDuration(totalSec)}`;
+      renderRetroNote();
     }
 
     function updateSectionTitle(sIdx, val) {
@@ -2370,6 +2399,10 @@ code, pre, kbd, samp,
         showToast("최소 1개 이상의 커리큘럼 섹션이 유지되어야 합니다.");
         return;
       }
+      if (curriculumBaseCodes && curriculumSections[sIdx].lectures.some(l => curriculumBaseCodes.has(l.code))) {
+        showToast("판매 이력이 있는 강좌는 기존 차시가 든 섹션을 삭제할 수 없습니다(추가만 가능) — 기존 수강생의 판정 대상 차시가 바뀝니다.");
+        return;
+      }
       curriculumSections.splice(sIdx, 1);
       renderFormSections();
     }
@@ -2389,6 +2422,11 @@ code, pre, kbd, samp,
     }
 
     function removeLectureFromSection(sIdx, lIdx) {
+      const lec = curriculumSections[sIdx].lectures[lIdx];
+      if (curriculumBaseCodes && lec && curriculumBaseCodes.has(lec.code)) {
+        showToast(`판매 이력이 있는 강좌는 기존 차시(${lec.code})를 제외할 수 없습니다(추가만 가능) — 기존 수강생은 결제 시점 차시 목록으로 판정합니다.`);
+        return;
+      }
       curriculumSections[sIdx].lectures.splice(lIdx, 1);
       renderFormSections();
     }
@@ -2555,6 +2593,11 @@ code, pre, kbd, samp,
       if (totalLecCount === 0) {
         showToast("커리큘럼에 최소 1개 이상의 강의를 매핑해야 저장할 수 있습니다.");
         return;
+      }
+
+      {
+        const added = addedLectureCodes();
+        if (editingSoldCourse && added.length && !confirm(`추가 차시 ${added.length}개(${added.join(", ")})는 변경 이후 결제분부터 환급 판정 대상이 됩니다.\n기존 수강생은 결제 시점의 판정 대상 차시 · 재생시간 · 인정 진도율 · 출석일수로 판정하며 소급하지 않습니다. 저장할까요?`)) return;
       }
 
       const codeVal = document.getElementById("f-code").value;

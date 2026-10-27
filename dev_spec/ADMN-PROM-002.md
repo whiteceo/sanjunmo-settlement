@@ -1,6 +1,6 @@
 # ADMN-PROM-002 쿠폰 마스터 관리 · 포인트 정책 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-PROM-002_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
+- 프로토타입 파일: prototype_clean/ADMN-PROM-002_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-PROM-002(쿠폰 마스터 등록 · 목록), ADMN-PROM-002-P1(정액 감면 Cap 초과 경고), ADMN-PROM-003(포인트 정책 설정 · 원장 내역)
 - 개발 진행: PROM-002 · P1 구현(담당 노승원). PROM-003 일부 — 별도 화면 없이 사이트 설정(`admin.site-settings`)의 "③ 포인트" 구획으로 구현, 포인트 원장 목록 화면은 개발 미구현(d562524a 기준)
@@ -73,7 +73,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | `unlimited` (`coupon-unlimited`) | nullable boolean | 무제한 체크 | `f-limit-unlim` |
 | `max_per_user` | nullable ≥1 (비우면 1) | 1인당 발급 매수 | `f-limit-per` |
 | `allow_with_point` | nullable boolean(기본 허용) | 포인트와 함께 사용 | `f-dup-point` |
-| (다른 쿠폰 중복) | 폼 입력 없음 — allow_stack_coupon 기본 0(1주문 1쿠폰) | | `f-dup-coupon` |
+| (다른 쿠폰 중복) | 폼 입력 없음 — allow_stack_coupon 기본 0(1주문 1쿠폰) | | v6.92: `f-one-coupon-fixed` '1주문 1쿠폰 (다른 쿠폰과 함께 쓸 수 없음 · 고정)' 표시만(`f-dup-coupon` 삭제) — 개발과 같음 |
 | `target_scope` | required in all,selected | all=전체 상품 · selected=카테고리 · 개별 상품 지정 | `setTargetScope('ALL'/'CAT'/'ITEM')` |
 | `target_category_ids[]` / `target_course_ids[]` / `target_package_ids[]` | selected 일 때 하나 이상 · 각각 최대 200/500/500 · 존재 | 카테고리 · 강좌 · 패키지(교재 없음) | 카테고리 select + "추가" |
 | `issue_method` | required in auto,bulk,code | auto=자동 발급(가입 웰컴) · bulk=수동 대량 발급 · code=코드 입력형 | `setIssueMethod('AUTO'/'BULK'/'CODE')` |
@@ -187,7 +187,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 포인트 원장 전체 목록(ADMN-PROM-003 원장 표).
 - 포인트 정책의 후기 보상 금액(`pol-review` · `pol-best`)과 무상 포인트 잔액 상한(`pol-cap`) — 개발 site_settings 에 해당 칸 없음(우수 후기 포인트는 BRD-005-S1 에서 금액 직접 입력).
-- 다른 쿠폰과 중복 사용 허용 체크(`f-dup-coupon`) — 개발은 컬럼만 있고 폼 입력 없음.
+- 다른 쿠폰과 중복 사용 허용 체크(`f-dup-coupon`) — 개발은 컬럼만 있고 폼 입력 없음. **→ 결정(v6.92 white, D-BRD-04)**: 체크 삭제 → '1주문 1쿠폰' 고정 표시, 포인트 병용만 쿠폰별 — 차이 없음. '기획전 차단(PROM-001-S1) 우선' 안내도 삭제
 - 절대 기간의 시작일(`f-exp-start`) — 개발은 종료일만.
 - Cap 시뮬레이터 입력(`sim-lec` · `sim-book`) — 개발은 고정 예시 문구(`cap-sim`).
 - P1 입력 중 즉시 경고(개발은 저장 시 서버 검증 후 경고).
@@ -207,7 +207,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 
 - 포인트 정책을 쿠폰 화면(프로토타입 PROM-003 서브뷰)에 둘지, 개발처럼 사이트 설정 안에 둘지 확인 필요.
 - 후기 보상 포인트 고정액(일반 · 베스트)과 무상 포인트 잔액 상한을 정책값으로 둘지 확인 필요 — 개발에 없음.
-- 다른 쿠폰과 중복 사용(allow_stack_coupon)을 관리자가 켤 수 있게 할지 확인 필요 — 개발은 컬럼 기본 0, 폼 없음.
+- 다른 쿠폰과 중복 사용(allow_stack_coupon)을 관리자가 켤 수 있게 할지 확인 필요 — 개발은 컬럼 기본 0, 폼 없음. **→ 결정(v6.92 white, D-BRD-04)**: 켤 수 없음 — 1차 '1주문 1쿠폰' 고정(개발 기본 0 그대로)
 - 포인트 원장 전체 조회 화면이 필요한지 확인 필요.
 
 ## 출처

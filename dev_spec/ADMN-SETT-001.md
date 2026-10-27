@@ -1,5 +1,5 @@
 # ADMN-SETT-001 상품별 권리자 매핑 — 개발 명세
-- 프로토타입 파일: prototype_clean/ADMN-SETT-001_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
+- 프로토타입 파일: prototype_clean/ADMN-SETT-001_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-SETT-001 · ADMN-SETT-001-S1 · ADMN-SETT-001-P1
 - 개발 진행: 구현 (담당 박성민, `_index/progress.md` 라우트 주석 있음 · 커밋 언급 6건). S1 은 별도 페이지, P1 은 S1 안의 모달
@@ -48,6 +48,8 @@
 | `list[...]` | (컨트롤러가 읽음) | 목록 복귀용 검색 조건 | — |
 
 출처: app/Http/Requests/Admin/RightsMappingRequest.php:23-44 · 47-70.
+
+- v6.92(S-06): 프로토 [+ 자사 권리자 행 추가](`#internalRowBtn` · `data-action="addInternalRow"`)는 같은 `rows[]` 행을 자사 권리자(`rows.*.rights_holder_id` = `rights_holders.is_internal=1`)로 연다 — 지분 `share_ratio`는 직접 입력, 사유 칸에 계약 근거. 새 필드 없음. 저장 때 새 자사 지분 행이 있으면 확인 모달(`#internalShareConfirm`, 화면 전용 — 개발 없음).
 
 ### 적용 계약 후보 (RightsMappingContractRequest) — GET 쿼리
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
@@ -131,7 +133,8 @@
 - S1 머리 정보: 마감 경계 · 저장 허용 시작 · 계약 원장 링크.
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - "3. 지분 변경 · 감사 이력" 탭 — 개발은 `변경 이력` 버튼이 disabled "준비 중"(edit.blade.php:210).
-- 모계약 종료일 일괄 동기화, 잔여 지분 자사(엘캠퍼스) 자동 채우기, 최근 저장 스냅샷 JSON 보기.
+- 모계약 종료일 일괄 동기화, 최근 저장 스냅샷 JSON 보기.
+- ~~잔여 지분 자사(엘캠퍼스) 자동 채우기~~ **→ 결정(v6.92 white, S-06)**: 자동 채우기 삭제 → [자사 권리자 행 추가](지분 직접 입력) + 저장 시 자사 지분 확인 모달. 개발은 권리자 선택 레이어에서 자사 권리자를 고를 수 있으나 저장 전 자사 지분 확인은 없음(추가 필요)
 - 상품 구분 "일반 상품(자사 매출)" — 개발 목록은 강좌 · 도서만.
 - 매핑 일괄 업로드 · 엑셀 다운로드 — 개발은 버튼만 있고 disabled.
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)

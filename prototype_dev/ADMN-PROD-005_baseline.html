@@ -585,7 +585,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-PROD-005", "devCommit": "d562524a", "progress": "구현(목록 · 등록 · 수정 · 삭제 · 복사 · 판매중지 · 미리보기 · 엑셀). 005-S2 읽기 전용 상세 · 패키지 유형 3종 · 안분 가중치 직접 수정 · 정산 1계층 게이트는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.packages.index", "label": "패키지(올패스)관리"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
     <div class="top-bar-left">
@@ -1212,7 +1211,7 @@ code, pre, kbd, samp,
                   <th>필수 진도율 기준 <span class="req-star">*</span></th>
                   <td>
                     <div class="input-with-unit" style="width:200px;">
-                      <input type="number" id="f-refund-progress" name="refund_min_progress" data-dev-note="환급 대상이면 필수 1~100, 기본 site_settings refund_claim_min_progress" class="form-input text-right" value="90" min="0" max="100">
+                      <input type="number" id="f-refund-progress" name="refund_min_progress" data-dev-note="환급 대상이면 필수 1~100, 기본 site_settings refund_claim_min_progress. 판매 후 변경은 기존 수강생에 소급 안 함(v6.92 S-14)" class="form-input text-right" value="90" min="0" max="100" oninput="renderRefundRetroDiff()">
                       <span class="input-unit">% 이상 수강 완료</span>
                     </div>
                     <div class="field-hint">포함된 단과 강좌(ADMN-PROD-003) 전체 차시 기준 평균 진도율 (상품별로 정하는 값, 기본 90%)</div>
@@ -1220,7 +1219,7 @@ code, pre, kbd, samp,
                   <th>필수 출석일수 기준 <span class="req-star">*</span></th>
                   <td>
                     <div class="input-with-unit" style="width:200px;">
-                      <input type="number" id="f-refund-attendance" data-dev-flag="proto-only" data-dev-note="필수 출석일수 — 개발 없음(정책 질문 Q-PROD005-7)" class="form-input text-right" value="60" min="0" max="365">
+                      <input type="number" id="f-refund-attendance" data-dev-flag="proto-only" data-dev-note="필수 출석일수 — 개발 없음(정책 질문 Q-PROD005-7)" class="form-input text-right" value="60" min="0" max="365" oninput="renderRefundRetroDiff()">
                       <span class="input-unit">일 이상 출석</span>
                     </div>
                     <div class="field-hint">1일 1강(러닝타임 90% 이상) 시청 시 1일 출석 인정</div>
@@ -1249,6 +1248,13 @@ code, pre, kbd, samp,
                       <option value="OPT_B">[옵션 B] R/S 지분율 비율 공동 부담 (환급 발생 시 강좌 안분 매출에서 차감)</option>
                       <option value="OPT_C">[옵션 C] 매출 취소 처리</option>
                     </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>기존 수강생 적용</th>
+                  <td colspan="3">
+                    <div id="f-refund-retro-note" data-dev-flag="proto-only" data-dev-note="(규칙) order_items.refund_terms_snapshot JSON — 결제 시점 판정 대상 lecture_ids · 재생시간 · refund_min_progress · 필수 출석일수. 개발은 packages.refund_min_progress 현재 값 1개 · 스냅샷 없음" style="font-size:12px; line-height:1.6; color:#1E3A8A; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:8px 12px;">판매 후 인정 진도율 · 필수 출석일수를 바꿔도 <strong>기존 수강생에게 소급하지 않습니다.</strong> 결제 시점의 환급 조건(인정 진도율 · 필수 출석일수 · 판정 대상 차시)은 주문 라인에 박제되며, 바뀐 값은 변경 이후 결제분부터 적용됩니다.</div>
+                    <div id="f-refund-retro-diff" style="display:none; margin-top:6px; font-size:12px; font-weight:700; color:#92400E;"></div>
                   </td>
                 </tr>
               </tbody>
@@ -1812,7 +1818,32 @@ code, pre, kbd, samp,
       document.getElementById("f-refund-attendance").value = 60;
       document.getElementById("f-pkg-settlement-sim").value = "70";
       applyPkgSettlementLock();
+      pkgRefundOrig = null;
+      renderRefundRetroDiff();
       switchSubview("form");
+    }
+
+    /* 판매 후 환급 조건 변경 — 기존 수강생 소급 안 함 (white 2026-10-27 S-14)
+       판매 이력(판매대기 외 상태) 있는 환급반의 인정 진도율 · 출석일수 변경은 변경 이후 결제분부터. 결제 시점 조건은 주문 라인에 박제 */
+    let pkgRefundOrig = null;
+    function refundRetroChange() {
+      if (!pkgRefundOrig) return null;
+      const typeEl = document.querySelector('input[name="f-pkg-type"]:checked');
+      if (!typeEl || typeEl.value !== "환급반") return null;
+      const pv = document.getElementById("f-refund-progress").value;
+      const prog = pv === "" ? 90 : Number(pv);
+      const att = Number(document.getElementById("f-refund-attendance").value || 60);
+      const parts = [];
+      if (prog !== pkgRefundOrig.progress) parts.push(`인정 진도율 ${pkgRefundOrig.progress}% → ${prog}%`);
+      if (att !== pkgRefundOrig.attendance) parts.push(`필수 출석일수 ${pkgRefundOrig.attendance}일 → ${att}일`);
+      return parts.length ? parts : null;
+    }
+    function renderRefundRetroDiff() {
+      const el = document.getElementById("f-refund-retro-diff");
+      if (!el) return;
+      const ch = refundRetroChange();
+      el.style.display = ch ? "block" : "none";
+      el.textContent = ch ? `변경: ${ch.join(" · ")} — 기존 수강생은 결제 시점 조건(${pkgRefundOrig.progress}% · ${pkgRefundOrig.attendance}일)으로 판정, 변경 이후 결제분부터 새 조건 적용` : "";
     }
 
     function editCurrentDetailPkg() {
@@ -1838,6 +1869,8 @@ code, pre, kbd, samp,
       document.getElementById("f-pkg-settlement-sim").value = p.settlementShare === 100 ? "100" : "70";
       { const _r = document.querySelector('input[name="f-pkg-status"][value="' + p.status + '"]'); if (_r) _r.checked = true; }
       applyPkgSettlementLock();
+      pkgRefundOrig = (p.pkgType === "환급반" && p.status !== "판매대기") ? { progress: p.refundProgress, attendance: p.refundAttendance } : null;
+      renderRefundRetroDiff();
       recalcPackagePricing();
       /* Pre-populate picker tables */
       var ctb = document.getElementById('modal-course-picker-tbody');
@@ -2185,6 +2218,11 @@ code, pre, kbd, samp,
       if (!mappedPkgCourses.length || listSumChk <= 0) {
         showToast("매출 안분 기준인 포함 강좌 정가 합계가 0원입니다. 포함 강좌의 정가를 확인해 주세요.");
         return;
+      }
+
+      {
+        const ch = refundRetroChange();
+        if (ch && !confirm(`${ch.join(" · ")}\n이 환급반을 이미 결제한 기존 수강생은 결제 시점의 환급 조건(인정 진도율 ${pkgRefundOrig.progress}% · 출석일수 ${pkgRefundOrig.attendance}일 · 판정 대상 차시)으로 판정하며 소급하지 않습니다.\n바뀐 조건은 변경 이후 결제분부터 적용됩니다. 저장할까요?`)) return;
       }
 
       const rawCode = document.getElementById("f-pkg-code").value;

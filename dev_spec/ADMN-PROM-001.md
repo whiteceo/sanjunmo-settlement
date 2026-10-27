@@ -1,8 +1,8 @@
 # ADMN-PROM-001 이벤트 · 기획전 관리 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-PROM-001_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
+- 프로토타입 파일: prototype_clean/ADMN-PROM-001_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
-- 포함 화면: ADMN-PROM-001(이벤트 관리 목록), ADMN-PROM-001-S1(중복 할인 일괄 차단), ADMN-PROM-001-S2(이벤트 상세 조회), ADMN-PROM-001-S3(기획전 등록 · 수정)
+- 포함 화면: ADMN-PROM-001(이벤트 관리 목록), ADMN-PROM-001-S1(중복 할인 일괄 차단 — v6.92 결정으로 프로토타입 삭제, 화면 코드 -S1 미사용), ADMN-PROM-001-S2(이벤트 상세 조회), ADMN-PROM-001-S3(기획전 등록 · 수정)
 - 개발 진행: 구현. 담당 이응민(`config/dev-progress.php`). progress 표 커밋 언급 PROM-001 8 · S1 4 · S2 0 · S3 7(S2 는 뷰 주석 `promotions/show.blade.php:1` 로 구현 확인)
 
 ## 1. 메뉴 · 권한
@@ -60,13 +60,13 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`). 사용�
 | (코드) | 서버 자동 채번 `PRM-YYMM-{일련}`, 수정 불가 | promotions.code | `f-promo-code`(입력란) |
 | `slug` (`promo-slug`) | required 2~40 · `^[a-z0-9]+(-[a-z0-9]+)*$` · 중복 불가(종료 · 중단 포함). 확인 버튼 `promo-slug-check` | URL 식별자 | `f-promo-slug` |
 | `started_at` / `ended_at` | required `Y-m-d\TH:i` · ended_at after started_at | 노출 기간(분 단위) | `f-promo-start` · `f-promo-end` |
-| (상태) | 입력 없음 — 기간 · 배치로 자동(scheduled · active · ended), 중단은 별도 동작 | | `f-promo-status`(진행중 · 예약 · 비노출) |
+| (상태) | 입력 없음 — 기간 · 배치로 자동(scheduled · active · ended), 중단은 별도 동작 | | v6.92: `f-promo-status-auto`(노출 기간으로 자동 배지, 입력 없음 — 개발과 같음) |
 | `thumbnail` | 등록 때 required · jpg,jpeg,png,webp · 1MB(실제 바이트) | 목록 썸네일(720×405 권장) | `f-banner-pc` · `f-banner-mo` · `f-banner-alt`(배너 · alt) |
 | `headline` | nullable max:255 (비우면 기획전명) | 상단 카피 | 없음 |
 | `sort_type` | required in manual,sales,price_asc,created_desc | 수동 정렬 · 판매량순 · 낮은 가격순 · 등록 역순 | 없음(대상 상품 "노출순서" 열만) |
 | `html_content` | required · 최대 1,000,000자 | 랜딩 HTML | `cm-code-input` + `switchCodeTab('HTML')` |
 | `css_content` / `js_content` | nullable · 최대 1,000,000자. CSS 는 `#sanjunmo-promotion-wrapper` 스코프 자동 접두(css_scoped), z-index 900 · document.write 경고 | 랜딩 CSS · JS | `switchCodeTab('CSS'/'JS')` |
-| `products[n][type]` | required in course,package,book | 대상 상품 구분 | `sel-add-prod` 옵션 접두(패키지 · 단과 · 교재) |
+| `products[n][type]` | required in course,package,book | 대상 상품 구분 | 없음(v6.92 `sel-add-prod` 삭제 — 기획전 = 단순 게시물, 상품 연결 안내 행만) |
 | `products[n][id]` | required integer min:1 · 1~500행 | 상품 id | 상품코드 |
 | `products[n][promo_price]` | nullable integer min:0 (교재는 도서정가제로 정가 고정) | 기획전가 | 판매가 열 |
 | `products[n][discount_rate]` | nullable 0~100 (한쪽 입력 시 다른 쪽 원 단위 절사 자동 계산) | 할인율 | 없음 |
@@ -74,13 +74,13 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`). 사용�
 ### 즉시 중단 `promotionStopModal` (PromotionStopRequest)
 | 필드 name | 규칙 | 프로토타입 대응 |
 |---|---|---|
-| `reason` | required 2~200자 | 없음(상태 "비노출(강제 숨김)" 선택이 비슷) |
+| `reason` | required 2~200자 | v6.92: 상세 [⛔ 즉시 중단] `openPromoStopModal()` → `modal-promo-stop` `stop-reason`(사유 필수, 200자) + `stop-confirm`(되돌릴 수 없음 확인, 프로토만) · `confirmPromoStop()` → 상태 `STOPPED`='stopped' |
 
 ### 중복 할인 일괄 차단 `blockForm` (PromotionBlockRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
-| `enabled` | required in 0,1. 0 이면 모든 기획전에서 해제(완료 문구) | 차단 사용 | `chk-bulk-disable` |
-| `benefits[]` | in coupon,point,earn | 쿠폰 · 포인트 · 적립 차단 | `chk-block-cpn` · `chk-block-pt` · `chk-block-earn` |
+| `enabled` | required in 0,1. 0 이면 모든 기획전에서 해제(완료 문구) | 차단 사용 | ~~`chk-bulk-disable`~~ v6.92 삭제 — 이 폼 전체가 프로토타입에 없음(개발에만, 1차 미사용) |
+| `benefits[]` | in coupon,point,earn | 쿠폰 · 포인트 · 적립 차단 | ~~`chk-block-cpn` · `chk-block-pt` · `chk-block-earn`~~ v6.92 삭제 |
 | `block_from` / `block_to` (`blockFrom`) | enabled=1 이면 required date | 차단 기간(노출 기간과 별개) | 없음 |
 | `target` | enabled=1 이면 required in all,selected · `toggleTarget()` | 전체 대상 상품 / 선택 상품 | 없음(행별 쿠폰 · 포인트 · 적립 열) |
 | `product_ids[]` | integer | 선택 대상 | 대상 상품 행 |
@@ -95,10 +95,10 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`). 사용�
 `reason`(refund_account · delivery_error · identity_check · payment_inquiry · legal_request · settlement_check · etc) · `reason_etc`(etc 일 때 10~150자) · `reason_ref`.
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼
-- 필터(PromotionService::normalizeFilters:189-211): `period_from` · `period_to`(첫 진입은 이번 달 1일 ~ 4개월 뒤) · `status`(scheduled 예약 · active 진행중 · ended 종료 · stopped 중단) · `type`(promotion 기획전 · event 이벤트) · `keyword`(100자) · `sort`(started_asc / started_desc, 노출 기간 머리 클릭 토글 ▲▼).
+- 필터(PromotionService::normalizeFilters:189-211): `period_from` · `period_to`(첫 진입은 이번 달 1일 ~ 4개월 뒤) · `status`(scheduled 예약 · active 진행중 · ended 종료 · stopped 중단 — v6.92 프로토 `flt-status` STOPPED '중단 (관리자)' · KPI `filterStoppedOnly()` 추가) · `type`(promotion 기획전 · event 이벤트) · `keyword`(100자) · `sort`(started_asc / started_desc, 노출 기간 머리 클릭 토글 ▲▼).
 - 진행중 건수(`activeCount`) 표시.
 - 표 컬럼(개발): No · 기획전 코드 · 구분 · 기획전명 · 노출 기간 · 대상 상품 · 상태 · 관리.
-- 프로토타입: 코드 · 카테고리 구분 · 제목/동적 URL 슬러그 · 노출 기간 · 대상 상품 · 중복할인 차단(001-S1) · 진행 상태 · 당첨발표(BRD-009) · 관리. 필터 `flt-cat` · `flt-status`(진행중 · 예약 · 종료) · `flt-block`(차단 ON/OFF) · `flt-kw`.
+- 프로토타입(v6.92): 코드 · 카테고리 구분 · 제목/동적 URL 슬러그 · 노출 기간 · 진행 상태 · 당첨발표(BRD-009) · 관리('대상 상품' · '중복할인 차단' 열 삭제). 필터 `flt-cat` · `flt-status`(진행중 · 예약 · 종료 · 중단 (관리자)) · `flt-kw`(`flt-block` 삭제).
 
 ## 5. DB 테이블 · 컬럼
 | 테이블.컬럼 | 타입 | 뜻 | 화면 표시 위치 |
@@ -126,47 +126,48 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`). 사용�
 |---|---|---|
 | `promo-form` | 등록 · 수정 폼 | `view-form`(`data-subpage="form"`) |
 | `promo-slug` · `promo-slug-check` · `promo-slug-result` | Slug 입력 · 중복 확인 | `f-promo-slug` |
-| `promo-target-type` · `promo-target-keyword` · `promo-target-search` · `promo-target-results` · `promo-products` · `promo-products-empty` · `addRow()` · `bindRow()` · `search()` | 대상 상품 검색 · 추가 | `sel-add-prod` · `addMappedProduct()` · `removeMappedProd()` |
+| `promo-target-type` · `promo-target-keyword` · `promo-target-search` · `promo-target-results` · `promo-products` · `promo-products-empty` · `addRow()` · `bindRow()` · `search()` | 대상 상품 검색 · 추가 | 없음(v6.92 삭제) |
 | `promo-source-html` / `-css` / `-js`(name `html_content` 등, `_source-panes`) | 소스 3분할 | `cm-code-input` · `switchCodeTab()` |
 | `promo-lint` · `promo-lint-result` · `lintHtml()` · `lintBraces()` | 문법 점검 | `validatePromoCodeSecurity()` |
 | `promo-preview` | 작성 중 미리보기(POST preview.index) | `openFullPreviewModal()` · `setPreviewViewport()` |
 | `promo-asset-drop` · `promo-asset-input` · `promo-asset-message` · `promo-assets` · `upload()` · `removeAsset()` · `renderAssets()` | 랜딩 에셋 | `uploadNewS3Asset()` · `insertAssetToEditor()` · `copyAssetUrl()` |
-| `promotionStopModal`(`data-target`) | 즉시 중단 모달(사유) | 없음 |
-| `blockForm` · `blockFrom` · `toggleTarget()` | 중복 할인 차단 페이지 | `chk-bulk-disable` 구획(폼 안) |
+| `promotionStopModal`(`data-target`) | 즉시 중단 모달(사유) | v6.92: `modal-promo-stop` · `btn-dt-stop` |
+| `blockForm` · `blockFrom` · `toggleTarget()` | 중복 할인 차단 페이지 | 없음(v6.92 삭제) |
 | `.layer__open[data-target="layerReason"]` | 엑셀 사유 모달 | 없음 |
 | `.promo-pending` | 미연결 항목 표시(배너) | — |
 
-하위 화면: 개발 S1 · S2 · S3 모두 별도 페이지(`blocks.edit` · `show` · `create`/`edit`). 프로토타입은 SJM_PAGE 서브페이지 `list` · `detail` · `form` 이고 S1 은 S3 폼 안 4번 구획에 합쳐져 있다.
+하위 화면: 개발 S1 · S2 · S3 모두 별도 페이지(`blocks.edit` · `show` · `create`/`edit`). 프로토타입은 SJM_PAGE 서브페이지 `list` · `detail` · `form` 이고, S1(차단)은 v6.92 결정으로 프로토타입에 없다(예전엔 S3 폼 4번 구획).
 
 ## 7. 기능 차이
 ### 개발에만 있음 (prototype_dev에 정본 디자인으로 추가)
-- 즉시 중단(사유 필수) · 중단 상태(stopped), 중단 후 수정 · 차단 잠금.
+- 즉시 중단(사유 필수) · 중단 상태(stopped), 중단 후 수정 · 차단 잠금. **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 프로토에도 [⛔ 즉시 중단](진행중 · 예약만, 사유 필수 · 되돌릴 수 없음) · 상태 '중단 (관리자)' · 수정 진입 차단 · 슬러그 점유 유지 — 개발과 같아짐
 - 상품 진열 순서 `sort_type`, 상단 카피 `headline`, 할인율 자동 계산 · 정가 스냅샷.
-- 차단 기간(block_from/to) · 대상 범위(전체/선택) · 사용자 노출 사유, 차단 해제(enabled=0).
+- 차단 기간(block_from/to) · 대상 범위(전체/선택) · 사용자 노출 사유, 차단 해제(enabled=0). **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 기획전 = 단순 게시물 — 중복 할인 차단 · 대상 상품 매핑은 1차에 쓰지 않음(개발 S1 · products[n] · targets는 개발에만 남음, 기획 상품은 PROD-003 · 005 · 004 · 007에서 등록)
 - Slug 중복 확인 버튼, 노출 기간 정렬 토글, 기간 필터, 엑셀 다운로드(사유).
 - 에셋 형식 · 용량 제한(20개 · 20MB, 영상 · 웹폰트 포함).
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 랜딩 배너 PC · 모바일 · 대체 텍스트(개발 폼에 "스키마 확인 뒤 연결" 표시).
-- 상태 직접 선택(진행중 · 예약 · 비노출 강제 숨김) — 개발은 자동 + 중단.
-- 목록 열 "중복할인 차단" · "당첨발표(BRD-009)", 차단 ON/OFF 필터, KPI "중복 할인 일괄 차단 작동중".
-- 상품 행마다 쿠폰 · 포인트 · 적립 개별 표시/설정(개발은 차단 페이지에서 혜택 · 대상 일괄 지정, 저장은 행 단위 컬럼).
+- 상태 직접 선택(진행중 · 예약 · 비노출 강제 숨김) — 개발은 자동 + 중단. **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 상태 선택 삭제, 노출 기간으로 자동 — 차이 없음
+- 목록 열 "중복할인 차단" · "당첨발표(BRD-009)", 차단 ON/OFF 필터, KPI "중복 할인 일괄 차단 작동중". **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 열 "대상 상품" · "중복할인 차단", 차단 필터, 차단 KPI 삭제("당첨발표" 열은 유지)
+- 상품 행마다 쿠폰 · 포인트 · 적립 개별 표시/설정(개발은 차단 페이지에서 혜택 · 대상 일괄 지정, 저장은 행 단위 컬럼). **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 삭제
 - 코드 자동 정렬(Beautify), 상세 화면 주소 복사 · 소스 복사.
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 구분: `promo_cat` → `type`(promotion · event).
 - 코드: 프로토타입 입력 `f-promo-code` → 개발 자동 채번(입력 없음, `PRM-YYMM-NNN`).
-- 상태 값: 진행중 → `active`, 예약 → `scheduled`, 종료 → `ended`, 비노출(강제 숨김) → 개발 `stopped`(중단, 사유 필수 · 되돌리기 없음 — 추정: 재개 라우트 없음).
-- 대상 상품: `sel-add-prod` → `products[n][type|id|promo_price|discount_rate]`.
-- 차단 체크: `chk-block-cpn/pt/earn` → `benefits[]` = coupon · point · earn, `chk-bulk-disable` → `enabled`.
+- 상태 값: 진행중 → `active`, 예약 → `scheduled`, 종료 → `ended`, 비노출(강제 숨김) → 개발 `stopped`(중단, 사유 필수 · 되돌리기 없음 — 추정: 재개 라우트 없음). **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 프로토 `STOPPED` '중단 (관리자)' → `stopped`
+- 대상 상품: ~~`sel-add-prod` → `products[n][type|id|promo_price|discount_rate]`~~ v6.92 프로토 삭제.
+- 차단 체크: ~~`chk-block-cpn/pt/earn` → `benefits[]`, `chk-bulk-disable` → `enabled`~~ v6.92 프로토 삭제.
+- 구분 이름: '기획전 (기획상품)' → '기획전'(v6.92 S-16), 값 `promotion` 그대로.
 - 제목 길이: 개발 40자 제한.
 
 ## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_BRD.md` 의 D-BRD 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- "비노출(강제 숨김)"과 개발 "즉시 중단(stopped, 사유 필수 · 이후 수정 불가)"을 같은 것으로 볼지 확인 필요.
+- "비노출(강제 숨김)"과 개발 "즉시 중단(stopped, 사유 필수 · 이후 수정 불가)"을 같은 것으로 볼지 확인 필요. **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 상태 선택 삭제 → 노출 기간 자동 + [즉시 중단](사유 필수 · 되돌릴 수 없음, `stopped`) — 개발 방식
 - 랜딩 배너(PC · 모바일 · alt) 저장 위치 확인 필요 — 개발 주석은 banner_pc/mobile_path 를 목록 썸네일 용도로 보고 미연결.
-- 중복 할인 차단을 상품 행별로 다르게 둘지(프로토타입) 혜택 · 대상을 일괄로 둘지(개발 S1) 확인 필요.
+- 중복 할인 차단을 상품 행별로 다르게 둘지(프로토타입) 혜택 · 대상을 일괄로 둘지(개발 S1) 확인 필요. **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 둘 다 아님 — 기획전 = 단순 게시물, 중복 할인 차단 · 대상 상품 매핑 1차 미사용(쿠폰 중복은 PROM-002 '1주문 1쿠폰' 고정)
 
 ## 출처
 - routes/admin.php:1061-1083 (dev_spec/_index/routes.md)

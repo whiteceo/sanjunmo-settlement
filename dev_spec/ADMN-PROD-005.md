@@ -1,6 +1,6 @@
 # ADMN-PROD-005 패키지 · 환급반 상품 관리 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-PROD-005_baseline.html` (원본 상태: `84c22e2`, 미커밋 변경 없음)
+- 프로토타입 파일: `prototype_clean/ADMN-PROD-005_baseline.html` (원본 상태: `18d66c1` v6.92)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: PROD-005 목록 · 005-S2 패키지 상세(프로토에만) · 005-S1 등록 · 수정 · 강좌 선택 모달 · 교재 선택 모달
 - 개발 진행: 구현(목록 · 등록 · 수정 · 삭제 · 복사 · 판매중지 · 미리보기 · 엑셀). `_index/progress.md` PROD-005 커밋 언급 7건(라우트 주석 없음). 005-S2 읽기 전용 상세는 개발 미구현
@@ -82,6 +82,7 @@
 | `is_pass_refund` | required · boolean | | `f-pkg-type`=환급반 · `toggleRefundSection()` |
 | `refund_min_progress` | 환급 대상이면 required · 1~100 (기본 site_settings `refund_claim_min_progress`) | | `#f-refund-progress` |
 | (필수 출석일수 · 환급 신청 기한) | 개발 없음 | | `#f-refund-attendance` · `#f-refund-deadline` |
+| (결제 시점 환급 조건 박제) | `order_items.refund_terms_snapshot` (규칙) JSON — 인정 진도율 · 필수 출석일수 · 판정 대상 차시. 판매 후 변경은 변경 이후 결제분부터(S-14) | | `#f-refund-retro-note` · `#f-refund-retro-diff`(변경 전 → 후) |
 | (환급 분담 옵션) | 개발은 패키지에 없음(계약 단위 `refund_promo_burden_type`) | | `#f-refund-burden-opt` `OPT_A` · `OPT_B` · `OPT_C` (8절 Q5) |
 | (정산 1계층 매핑 검증) | 개발 없음 | | `#f-pkg-settlement-sim` · `#f-pkg-settlement-banner` (8절 Q4) |
 | `description` | nullable · Purifier | | 프로토 없음(개발에만) |
@@ -159,6 +160,7 @@
 - 안분 가중치 직접 수정 · 자동 안분 버튼(L989)
 - 교재 연동 상태 경고 · 자동 판매중지 로그(`bk*` 함수, localStorage `sjm.prod.bookStatus.v1` 등 L1337-1523)
 - 목록 유형 · 등록일 필터, 강좌 결제액 · 교재 결제액 분리 컬럼
+- (v6.92) '기존 수강생 적용' 행 — 판매 이력 환급반의 인정 진도율 · 출석일수를 바꾸면 변경 전 → 후를 보여 주고 저장 때 확인. 개발은 `refund_min_progress` 현재 값 1개 · 결제 시점 스냅샷 없음. **→ 결정(v6.92 white, S-14)**: 진도율 기준 변경 소급 안 함, 결제 시점 환급 조건을 주문 라인에 박제(`order_items.refund_terms_snapshot` (규칙)).
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |

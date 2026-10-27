@@ -328,7 +328,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-PROD-007", "devCommit": "d562524a", "progress": "구현(목록 · 등록 · 수정 · 판매중지 · 일괄 판매중지 · 재고 조정 · 입출고 이력 · 엑셀). 판매대기 · 판매종료 · P2 기간 · 구분 필터 · 조정 후 재고 미리보기는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.goods.index", "label": "상품 마스터(추정)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
   <aside id="v4-master-snb"></aside>
@@ -681,18 +680,24 @@ code, pre, kbd, samp,
 
         <div style="margin-bottom:12px;">
           <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">조정 사유 <span style="color:var(--danger);">*</span></label>
-          <select id="p1-reason" name="type" data-dev-value="inbound 입고 · restore 복구 · adjust 수기 조정 · damaged 파손 · lost 분실 — 프로토 목록과 다름(정책 질문 Q-PROD007-4)" class="f-select" style="width:100%;">
+          <!-- 조정 사유 (white 2026-10-27 D-PROD-06: 재고는 조정 기록으로만, '기타'를 고르면 사유 직접 입력 필수) -->
+          <select id="p1-reason" name="type" data-dev-value="입고 inbound · 반품 입고 restore · 파손·불량 폐기 damaged · 분실 lost · 실사 조정 adjust · 기타 etc (규칙) — v6.92 D-PROD-06 결정: 사유 6종, 기타는 직접 입력" class="f-select" style="width:100%;" onchange="onP1ReasonChange()">
             <option value="입고">신규 발주 입고</option>
             <option value="반품 입고">고객 반품 양품 입고</option>
             <option value="파손·불량 폐기">파손 · 불량 폐기</option>
-            <option value="실사 조정">물류센터 재고 실사 조정</option>
-            <option value="기타">기타 (메모 필수)</option>
+            <option value="분실">분실</option>
+            <option value="실사 조정">물류센터 재고 실사 조정 (메모 필수)</option>
+            <option value="기타">기타 (사유 직접 입력)</option>
           </select>
+          <div id="p1-reason-etc-wrap" style="display:none; margin-top:8px;">
+            <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">기타 사유 직접 입력 <span style="color:var(--danger);">*</span></label>
+            <input type="text" id="p1-reason-etc" name="reason_etc" data-dev-note="(규칙) type=etc일 때 필수 · 최대 50자 — 개발 ADJUST_TYPE_LABELS에 etc 없음" class="f-input" style="width:100%;" maxlength="50" placeholder="목록에 없는 조정 사유를 직접 입력 (최대 50자)" />
+          </div>
         </div>
 
         <div>
-          <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">사유 메모 (최대 200자 · 기타 선택 시 필수)</label>
-          <input type="text" id="p1-memo" name="memo" data-dev-note="개발 선택 · 255자" class="f-input" style="width:100%;" value="2026년 10월 2차분 파주 3PL 센터 입고 검수 완료" />
+          <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">사유 메모 (최대 200자 · 실사 조정 선택 시 필수)</label>
+          <input type="text" id="p1-memo" name="memo" data-dev-note="개발 선택 · 255자 — 프로토 200자, 실사 조정이면 필수(v6.92)" class="f-input" style="width:100%;" value="2026년 10월 2차분 파주 3PL 센터 입고 검수 완료" />
         </div>
       </div>
       <div class="modal-foot">
@@ -1097,8 +1102,18 @@ code, pre, kbd, samp,
       document.getElementById('p1-cur-stock').textContent = g.stock;
       document.getElementById('p1-dir').value = 'PLUS';
       document.getElementById('p1-qty').value = 30;
+      document.getElementById('p1-reason').value = '입고';
+      document.getElementById('p1-reason-etc').value = '';
+      onP1ReasonChange();
       updateP1Preview();
       document.getElementById('layerGoodsStockAdjust').classList.add('show');
+    }
+
+    // '기타'를 고르면 사유 직접 입력칸을 연다 (D-PROD-06)
+    function onP1ReasonChange() {
+      const etc = document.getElementById('p1-reason').value === '기타';
+      document.getElementById('p1-reason-etc-wrap').style.display = etc ? '' : 'none';
+      if (etc) document.getElementById('p1-reason-etc').focus();
     }
 
     function updateP1Preview() {
@@ -1128,9 +1143,15 @@ code, pre, kbd, samp,
       const qty = parseInt(document.getElementById('p1-qty').value || '0', 10);
       const reason = document.getElementById('p1-reason').value;
       const memo = document.getElementById('p1-memo').value.trim();
+      const etcReason = document.getElementById('p1-reason-etc').value.trim();
 
-      if (reason === '기타' && !memo) {
-        showToast('조정 사유가 [기타]인 경우 상세 메모 입력이 필수입니다.');
+      if (reason === '기타' && !etcReason) {
+        showToast('조정 사유로 [기타]를 고르면 사유를 직접 입력해야 합니다.');
+        document.getElementById('p1-reason-etc').focus();
+        return;
+      }
+      if (reason === '실사 조정' && !memo) {
+        showToast('[재고 실사 조정]은 실사 결과 메모 입력이 필수입니다.');
         return;
       }
 
@@ -1145,7 +1166,7 @@ code, pre, kbd, samp,
         type: '수기 조정',
         diff,
         after: g.stock,
-        memo: `[${reason}] ${memo}`,
+        memo: `[${reason === '기타' ? '기타: ' + etcReason : reason}] ${memo}`,
         ref: 'admin_kim (김물류)'
       });
 

@@ -1,6 +1,6 @@
 # ADMN-RFD-002 환불 요청 관리 (통합 목록 · 상세) — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-RFD-002_baseline.html` (원본 상태: de0d93c v6.87). 줄 번호는 이 작업 트리 기준, 통합 커밋 후 다시 맞춘다)
+- 프로토타입 파일: `prototype_clean/ADMN-RFD-002_baseline.html` (원본 상태: 18d66c1 v6.92. 본문 줄 번호 L… 는 v6.92 이전 기준이 남아 있을 수 있다 — 함수 · id 이름으로 찾는다)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: RFD-004 환불 요청 목록 · RFD-002 환불 처리 상세(부분 환불 계산기) · 002-S1 연관 1:1 결제 · 환불 문의 · 002-P1 마이너스 포인트 전환 확인 · 002-P2 포인트 사용 내역 · RFD-003 환불 완료 내역 · 003-S1 완료 상세 · 003-S2 보정 거래 등록
 - 제외: RFD-001 올패스 합격 환급 심사(`admin.pass-refunds.*`)는 프로토에서 ADMN-SETT-006으로 보낸다(L449 링크) → SETT-006 명세 소관. 단 계좌 환불(`pass-refunds.account-refunds.update`)은 이 화면 케이스 4와 이어져 2절에 적는다
@@ -105,10 +105,10 @@
 ### 002 반품 검수 (RefundInspectionRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
-| `inspection_result` | required | `normal` 정상(재판매 가능) · `damaged` 훼손(재판매 불가) | `#sel-book-inspect` WAIT(입고 대기) · PASS(검수 합격) · DAMAGED(파본/불량 합격, 재고 미산입) · REJECT(검수 불합격) → Q-RFD-9 |
+| `inspection_result` | required | `normal` 정상(재판매 가능) · `defective` 파본 · 불량(규칙, D-ORD-09 — 회사 귀책 고정 · 재고 미입고 · 교재비 차감 없음) · `damaged` 고객 훼손(재판매 불가) | `#sel-book-inspect` WAIT(입고 대기) · PASS(정상) · DAMAGED(파본/불량 → `defective`) · REJECT(고객 훼손 → `damaged`) → Q-RFD-9 |
 | `liability` | normal일 때 required | `customer` 고객 귀책 · `company` 회사 귀책 | `#sel-fault` CUSTOMER_ONEWAY · CUSTOMER · COMPANY → Q-RFD-7 |
 | `inspection_memo` | nullable · max 2000 | | 프로토 없음(배송 관리 `#inpInspectMemo`에만) |
-| `photos[]` | 훼손 또는 고객 귀책이면 required · jpg/png · 10MB · 최대 INSPECTION_PHOTO_MAX | | 프로토 없음 → ADMN-ORD-001.md Q-ORD-3 |
+| `photos[]` | 훼손 또는 고객 귀책이면 required → D-ORD-02로 고객 훼손(`damaged`)만 required · jpg/png · 10MB · 최대 INSPECTION_PHOTO_MAX | | `#btn-inspect-photo` · `attachRfdInspectPhoto()` · `#inspect-photo-txt`(v6.92 추가, 고객 훼손 + 사진 없음이면 승인 잠금) → ADMN-ORD-001.md Q-ORD-3 |
 
 ### 002 라인 선택
 | 필드 | 규칙 | 프로토타입 대응 |
@@ -127,13 +127,14 @@
 ### 002 거절 (MemberReasonRequest)
 | 필드 | 규칙 | 프로토타입 대응 |
 |---|---|---|
-| `reason` | 공백 제외 10자 · 서로 다른 글자 3개 · 200자 이하 | 🚫 환불 거절·기각 버튼(L941, alert만) |
+| `reason` | 공백 제외 10자 · 서로 다른 글자 3개 · 200자 이하 | `#reject-notice`(고객 안내 문구 10자 이상) — `#btn-rfd-reject` → `openRfdReject()` → 모달 `#modal-rfd-reject` → `confirmRfdReject()` (v6.92, S-11) |
+| `reject_reason` (규칙, S-11) | required | `legal_no_refund` 법정 환불 불가 · `inspection_fail` 교재 반품 검수 불량 · `duplicate` 중복 신청 | radio `reject-reason` LEGAL_NO_REFUND · INSPECTION_FAIL · DUPLICATE — 개발은 사유 코드 없음 |
 
 ### 002 · S1 보류 (RefundHoldRequest)
 | 필드 | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
-| `hold_reason` | required | `customer_reply` 고객 회신 대기 · `return_wait` 증정품 · 교재 반환 대기 · `payment_check` 결제 정보 확인 중 · `other` 기타 | ⏸️ 환불 보류 전환(L788, alert만) |
-| `hold_memo` | required · max 500 | | 없음 |
+| `hold_reason` | required | `customer_reply` 고객 회신 대기 · `return_wait` 증정품 · 교재 반환 대기 · `payment_check` 결제 정보 확인 중 · `other` 기타 | `#hold-reason`(값 같음) — `#btn-rfd-hold`(S1 문의 패널 → `inquiries.hold.update`) · `#btn-rfd-hold2`(계산기 → `refunds.hold.update`) → 모달 `#modal-rfd-hold` → `confirmRfdHold()` (v6.92, S-11) |
+| `hold_memo` | required · max 500 | | `#hold-memo` — 프로토는 기타만 필수(10자 이상) |
 
 ### S1 하위 분류 판정 (RefundInquirySubTypeRequest) · 환불 건 생성 (RefundInquiryRefundRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
@@ -187,7 +188,9 @@
 | `reason` | required · 공백 제외 10자 · max 2000 | | `#m3f-ra-reason` · `#m3f-ra-reason-count` |
 | `bank_code` · `account_no` · `account_holder` | bank_transfer일 때 서비스가 필수 판정 | | 없음 |
 | `evidences[]` | jpg · png · pdf · 10MB · 최대 3개(EVIDENCE_MAX) | | 없음 |
-| (정산 반영 월) | 등록일이 속한 월, 마감 월 소급 없음(`RefundAdjustmentService.php:71-74`) | | `#m3f-ra-settle` |
+| (정산 반영 월) | 등록일이 속한 월, 마감 월 소급 없음(`RefundAdjustmentService.php:71-74`) | | `#m3f-ra-settle` · `#m3f-ra-settle-rule` — S-10: 승인 시점 미마감 가장 이른 귀속월, 원 발생월 보존 |
+| `point_kind` (규칙, S-09) | adjustment_type=point일 때 required | `paid` 적립 P · `free` 무상 P | `#m3f-ra-pkind` PAID · FREE — 개발은 유상 P만 |
+| `point_expires_at` (규칙, S-09) | adjustment_type=point일 때 required · date | | `#m3f-ra-pexp` |
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼
 
@@ -284,7 +287,7 @@
 - 002 검수 결과 라디오 전환 시 서버 재계산 미리보기(저장 없음) — `RefundController.php:97-110`
 - 002 [재계산] · 계산 명세 인쇄 · 회원 첨부 사진 열람 — `routes/admin.php:906-911`
 - 002 PG 응답 대기(`pg_pending`) 상태와 재전송 — `RefundController.php:330-332`
-- 002 · S1 보류 사유 4종 + 메모 — `Refund.php:56-61`
+- 002 · S1 보류 사유 4종 + 메모 — `Refund.php:56-61` **→ 결정(v6.92 white, S-11)**: 프로토도 보류 모달(사유 4종 · 기타 메모 필수) · 거절 모달(사유 3종 + 고객 안내) 추가, 보류는 법정 · 처리 기한을 멈추지 않음. 거절 사유 코드 `reject_reason`은 개발에 없음
 - 004 요청 유형(취소 · 부분 · 반품) · 처리 기한 필터 — `RefundAdminService.php:55-62`
 - S1 하위 분류 판정 사유(`judge_reason`) · 답변 임시저장 · 보류 재개 예정일 · 알림 미발송 사유 — `RefundInquirySubTypeRequest.php`, `InquiryProcessRequest.php`
 - 003 탭 7개 · 상세 필터(PG 실패 · 복원 · 유예 · 마이너스 · 담당자) — `RefundAdminService.php:78-86,768-786`
@@ -296,7 +299,9 @@
 - 002 법정 환불 불가 하드락(인정진도율 50% 초과 · 기간 1/2 경과) — 프로토 `recalcDetail()` L1380 · L1440 → Q-RFD-3 **→ 결정(v6.87 white, D-ORD-03): 인강 부분환불 = 실결제 × (전체 − 학습 회차) ÷ 전체, 원 단위 절사(평생교육법 시행령 별표 3 비고 4). 위약금 · 기간 경과 차감 · 1/2 경과 환불 불가 삭제 — 개발 산식과 같아짐(통합 설계서 v3.2.22).**
 - 002 왼쪽 탭 '고객 환불 신청서 원문' · '연관 1:1 문의 원문 & 답변'을 한 화면에 — 개발은 환불 상세 / 문의 상세 두 화면
 - 003 목록에서 원 환불을 골라 보정 등록(`openRefundAdjustPage(null,'list')` L966) — 개발은 완료 상세에서만
-- 003-S2 금액 · 포인트 동시 입력, 무상 P 포인트 보정 — 개발은 한 거래 = 한 수단, 포인트는 유상만(`refund-histories/adjust.blade.php:61`)
+- 003-S2 금액 · 포인트 동시 입력, 무상 P 포인트 보정 — 개발은 한 거래 = 한 수단, 포인트는 유상만(`refund-histories/adjust.blade.php:61`) **→ 결정(v6.92 white, S-09)**: 포인트 단독 보정은 현금 0 · 포인트 구분(적립 P / 무상 P) · 만료일 필수 — 개발 `point_kind` · `point_expires_at` 추가 필요
+- 003-S2 보정 전표 반영 기준월 — 개발은 등록일이 속한 월 **→ 결정(v6.92 white, S-10)**: 승인 시점 미마감 가장 이른 귀속월(원 발생월이 미마감이면 그 달), 원 발생월을 전표에 보존
+- 002 계산기 Step 7-1 강좌 사용 포인트 복원(v6.92 신설) **→ 결정(v6.92 white, S-12)**: 복원 P = ⌊라인 사용 포인트 × 인강 환불액 ÷ 라인 결제액⌋, 나머지 현금 — 개발 '유상만 미수강 비율 복원'과 비율 방식은 같음(무상 P 처리는 Q-RFD-6)
 - 002 케이스 4 마이페이지 직접 신청 건의 휴대폰 익월 계좌 폴백 — 개발은 1:1 문의 건만 계좌 환불 경로 → Q-RFD-8
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
@@ -305,7 +310,7 @@
 | 상태 탭 한글(접수 · 상담필요 · 환불진행 · 환불보류 · 환불완료 · 거절기각) | `tab` `requested` · `consult` · `progress` · `held` · `completed` · `rejected` |
 | 상품 구분 패키지 복합 · 인강 단과 · 실물 교재 포함 | `product` `within`(1개월 이내) · `over`(1개월 초과) · `book`(교재 포함) |
 | 유입 경로 3옵션 | `inflow` `mypage` · `inquiry` |
-| `#sel-book-inspect` WAIT · PASS · DAMAGED · REJECT | 입고 `received_at`(WAIT 해제) + `inspection_result` `normal` · `damaged` |
+| `#sel-book-inspect` WAIT · PASS · DAMAGED · REJECT | 입고 `received_at`(WAIT 해제) + `inspection_result` `normal` · `defective`(규칙, D-ORD-09) · `damaged` — 프로토 DAMAGED = 개발 `defective`, 프로토 REJECT = 개발 `damaged` |
 | `#sel-fault` CUSTOMER_ONEWAY · CUSTOMER · COMPANY | `liability` `customer` · `company` |
 | `inq_mode` CONSULT · REFUND | `sub_type` `consult` · `partial` · `full` |
 | `#c-admin-adj` (± 가감, 사유 1칸) | `manual_amount`(최종 현금 절대값) · `manual_reason`(10~500자) |
@@ -328,4 +333,4 @@
 | Q-RFD-6 | 결제에 쓴 무상 P의 환불 처리 — 정본은 사용 포인트를 **적립 P → 무상 P 순으로 LIFO 복원**(만료분 복원일 + 7일 유예). 개발은 **유상만 미수강 비율로 복원, 무상은 소멸** | 프로토 L1212 · L1938 | `RefundCalculator.php:25`, `refund-histories/adjust.blade.php:61` |
 | Q-RFD-7 | 반품 배송비 고객 귀책 공제 — 정본은 단순변심 **편도 3,000원**(유료배송 주문) / 무료배송 혜택 취소 **왕복 6,000원**, 주문당 1회. 개발은 고객 귀책이면 **항상 왕복**(설정값, 비면 편도 × 2), 귀책 코드도 2종뿐 | 프로토 L834-838 `#sel-fault`, ORD-001 L939-943, 설계서 L348, `docs/screen_spec/07_환불관리_ADMN-RFD.md:1496` | `app/Services/Refund/RefundInputBuilder.php:74`, `RefundCalculator.php:110-117`, `app/Models/Refund.php:74-86` |
 | Q-RFD-8 | PG 직취소 불가(휴대폰 익월 등) 계좌 폴백 범위 — 정본 케이스 4는 **마이페이지 직접 신청** 건도 등록 환불계좌로 현금 폴백. 개발은 **1:1 문의 유입 건만** 계좌 환불 경로가 있고, 마이페이지 건은 "관리자 수기 환불에서 그때 계좌를 받는다"는 주석뿐(경로 확인 필요) | 프로토 L1307-1310 · L1459, `submitFinalRefund()` L1479 | `RefundController.php:298`, `app/Services/Admin/RefundInquiryService.php:239-242`, `app/Services/Front/MyRefundService.php:493` |
-| Q-RFD-9 | 파본 · 불량(회사 귀책) 반품 교재의 재고 — 정본은 '파본/불량 합격'을 **재고 미산입 · 폐기**로 따로 두고, 정상 합격만 재고 +1. 개발은 검수 2값(정상 · 훼손)이라 **정상 + 회사 귀책도 재입고** | 프로토 L825-829 `#sel-book-inspect` | `app/Services/Refund/RefundService.php:254` |
+| Q-RFD-9 | 파본 · 불량(회사 귀책) 반품 교재의 재고 — 정본은 '파본/불량 합격'을 **재고 미산입 · 폐기**로 따로 두고, 정상 합격만 재고 +1. 개발은 검수 2값(정상 · 훼손)이라 **정상 + 회사 귀책도 재입고** | 프로토 L825-829 `#sel-book-inspect` | `app/Services/Refund/RefundService.php:254` **→ 결정(v6.92 white, D-ORD-09)**: 검수 3값 정상 · 파본/불량(회사 귀책 고정 · 재고 미입고 · 교재비 차감 · 반품 배송비 없음) · 고객 훼손 — 개발 `inspection_result`에 `defective` 추가, 정상 + 회사 귀책 재입고와 분리 |

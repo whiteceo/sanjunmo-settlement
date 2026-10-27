@@ -370,7 +370,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-PROM-002", "devCommit": "d562524a", "progress": "PROM-002 · P1 구현. PROM-003 일부(사이트 설정 ③ 포인트 구획) — 포인트 원장 목록 · 후기 보상 P · 무상 잔액 상한은 개발 없음(주황 표시)", "menus": [{"route": "admin.coupons.index", "label": "쿠폰 관리"}, {"route": "admin.site-settings.index", "label": "사이트 설정 (③ 포인트 정책)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body>
   <aside id="v4-master-snb"></aside>
@@ -730,20 +729,18 @@ code, pre, kbd, samp,
                       </td>
                     </tr>
 
-                    <!-- 중복 사용 -->
+                    <!-- 중복 사용 (white 2026-10-27 D-BRD-04: 1차는 '1주문 1쿠폰' 고정 — 다른 쿠폰과 중복 허용 설정 항목 없음, 포인트 병용만 쿠폰별) -->
                     <tr>
                       <th>중복 사용</th>
                       <td>
                         <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
-                          <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer;">
-                            <input type="checkbox" id="f-dup-coupon" data-dev-flag="proto-only" data-dev-note="다른 쿠폰 중복 — 개발 폼 없음(allow_stack_coupon 기본 0, 정책 질문)" /> 다른 쿠폰과 중복 사용 허용 (기본 1주문 1쿠폰)
-                          </label>
+                          <span class="badge badge-slate" id="f-one-coupon-fixed" data-dev-note="개발 coupons.allow_stack_coupon 기본 0 — 폼 입력 없음(1주문 1쿠폰 고정, v6.92 D-BRD-04)" data-dev-name="allow_stack_coupon" data-dev-value="0">1주문 1쿠폰 (다른 쿠폰과 함께 쓸 수 없음 · 고정)</span>
                           <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:700;">
                             <input type="checkbox" id="f-dup-point" name="allow_with_point" data-dev-value="1" checked /> 포인트와 함께 사용 허용 (쿠폰 선적용 후 잔액에 포인트 차감)
                           </label>
                         </div>
-                        <div class="help-txt warn">
-                          • 기획전 차단(<code>ADMN-PROM-001-S1</code> Bulk Disable)이 걸린 상품에서는 이 설정과 <b>무관하게 사용 불가</b> — 차단이 항상 우선합니다.
+                        <div class="help-txt">
+                          • 한 주문에는 쿠폰 1장만 적용됩니다. 쿠폰마다 정할 수 있는 것은 포인트와 함께 사용할지 여부뿐입니다.
                         </div>
                       </td>
                     </tr>

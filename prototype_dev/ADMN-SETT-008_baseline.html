@@ -443,7 +443,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-SETT-008", "devCommit": "d562524a", "progress": "구현(전환 승인 · 보류는 권리자 건만, 위탁자 · 매입처는 2차). 정기 일괄 조회 · 재시도 즉시 호출 · 세무 판정 보류 해제는 개발 미구현 — 주황 표시", "menus": [{"route": "admin.settlement.nts.index", "label": "사업자등록 확인 이력"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
     <div class="top-bar-left">
@@ -519,7 +518,7 @@ code, pre, kbd, samp,
           <div class="card">
             <div class="card-header">
               <div class="card-title">권리자 · 위탁자 · 매입처 국세청 오픈API 확인 이력 목록</div>
-              <span style="font-size:11.5px; color:var(--text-muted);">행을 클릭하여 API 원문 스냅샷 확인 및 과세유형 버전 전환 승인을 처리하세요.</span>
+              <span style="font-size:11.5px; color:var(--text-muted);">행을 클릭하여 API 원문 스냅샷 확인 및 과세유형 버전 전환 승인을 처리하세요. 전환 승인은 권리자 · 위탁자 대상이며, 매입처는 감지 표시와 수기 확인만 합니다(매입처 전환 승인은 2차).</span>
             </div>
             <div class="filter-bar">
               <input type="text" id="searchInput" name="keyword" data-dev-note="b_no · rights_holders.name LIKE" class="input" placeholder="거래처명, 사업자등록번호, 식별자 검색..." style="width:230px;">
@@ -1089,18 +1088,22 @@ code, pre, kbd, samp,
     document.getElementById("kpiReview").textContent = `${reviewList.length}건`;
     document.getElementById("kpiNormal").textContent = `${normalList.length}건`;
 
-    const actionNeeded = changeList.length + reviewList.length;
+    // 매입처 전환 감지는 수기 확인 대상이라 마감 확인 건수에서 뺀다(D-SETT-04, 전환 승인 2차)
+    const supplierChange = changeList.filter(r => r.partnerType === "매입처");
+    const supplierNote = supplierChange.length ? ` · 매입처 전환 감지 ${supplierChange.length}건은 수기 확인 대상(전환 승인 2차, 마감 차단 안 함)` : "";
+    const approveList = changeList.filter(r => r.partnerType !== "매입처");
+    const actionNeeded = approveList.length + reviewList.length;
     const footerBadge = document.getElementById("footerBadge");
     const footerText = document.getElementById("footerText");
 
     if (actionNeeded === 0) {
       footerBadge.className = "badge badge-success";
       footerBadge.textContent = "전 거래처 과세유형·세무 버전 확정 완료";
-      footerText.innerHTML = `미승인 과세유형 전환 <strong>0건</strong>, 세무 판정 보류 <strong>0건</strong> (폐업 · 휴업 감지 ${closedList.length}건은 후속 처리 연동 완료)`;
+      footerText.innerHTML = `미승인 과세유형 전환 <strong>0건</strong>, 세무 판정 보류 <strong>0건</strong> (폐업 · 휴업 감지 ${closedList.length}건은 후속 처리 연동 완료)${supplierNote}`;
     } else {
       footerBadge.className = "badge badge-warn";
       footerBadge.textContent = `마감 전 확인 필요 (${actionNeeded}건)`;
-      footerText.innerHTML = `과세유형 전환 승인 대기 <strong>${changeList.length}건</strong>, 비영리/법인면세 세무 판정 보류 <strong>${reviewList.length}건</strong>을 확정해야 해당 거래처의 월간 정산 마감이 가능합니다.`;
+      footerText.innerHTML = `과세유형 전환 승인 대기 <strong>${approveList.length}건</strong>, 비영리/법인면세 세무 판정 보류 <strong>${reviewList.length}건</strong>을 확정해야 해당 거래처의 월간 정산 마감이 가능합니다.${supplierNote}`;
     }
   }
 
@@ -1175,7 +1178,23 @@ code, pre, kbd, samp,
     badge.className = r.controlStatus === "NORMAL" ? "badge badge-success" : "badge badge-warn";
 
     let actionPanel = "";
-    if (r.controlStatus === "CHANGE_DETECTED" || r.controlStatus === "CHANGE_UNKNOWN_DATE") {
+    if ((r.controlStatus === "CHANGE_DETECTED" || r.controlStatus === "CHANGE_UNKNOWN_DATE") && r.partnerType === "매입처") {
+      // white 2026-10-27 D-SETT-04: 과세유형 전환 승인은 권리자 · 위탁자 1차, 매입처는 2차 — 1차는 감지 표시 + 매입 증빙 수기 확인만
+      actionPanel = `
+        <div id="supplierChangePanel" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="font-weight:700; color:#334155;">
+            🔎 매입처 과세유형 전환 감지 — 감지 · 수기 확인만 (전환 승인은 2차)
+          </div>
+          <div style="font-size:12px; color:#475569;">
+            매입처는 권리자 정산 금액 계산에 들어가지 않으므로 1차에서는 원장 과세유형 행을 바꾸지 않습니다. 담당자가 이번 달 매입 증빙(세금계산서 · 계산서) 종류가 바뀐 과세유형과 맞는지 직접 확인하고 기록합니다. 신규 유효일자 행 생성(전환 승인)은 2차에 엽니다. 이 건은 월간 정산 마감을 막지 않습니다.
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+            <span style="font-size:12px; color:#475569;">${r.manualCheckedAt ? `수기 확인 기록: <strong>${r.manualCheckedAt}</strong>` : "수기 확인 기록 없음"}</span>
+            <button class="btn" id="btnSupplierManualCheck" data-dev-route="admin.settlement.nts.supplier-checks.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/settlement/nts/supplier-checks" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="매입처 전환 감지 건의 매입 증빙 수기 확인(확인자 · 시각) — 원장 과세유형 행은 바꾸지 않음. 매입처 감지 건은 SETT-002 마감 차단에서 뺌" onclick="recordSupplierManualCheck('${r.id}')" ${r.manualCheckedAt ? "disabled" : ""}>매입 증빙 수기 확인 기록</button>
+          </div>
+        </div>
+      `;
+    } else if (r.controlStatus === "CHANGE_DETECTED" || r.controlStatus === "CHANGE_UNKNOWN_DATE") {
       actionPanel = `
         <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
           <div style="font-weight:700; color:#92400e;">
@@ -1273,9 +1292,25 @@ code, pre, kbd, samp,
 
   let pendingTaxChangeId = null;
 
+  // 매입처 과세유형 전환은 1차에서 수기 확인 기록만 남긴다(D-SETT-04, 전환 승인은 2차)
+  function recordSupplierManualCheck(id) {
+    const r = state.records.find(x => x.id === id);
+    if (!r || r.partnerType !== "매입처") return;
+    r.manualCheckedAt = "2026-10-27 즉시등록 · 재무관리자(white)";
+    r.controlStatusLabel = "전환 감지 · 수기 확인 완료 (원장 전환은 2차)";
+    updateKpis();
+    renderTable();
+    renderDetail();
+    showToast(`✔ [${r.partnerName}] 매입 증빙 수기 확인을 기록했습니다. 원장 과세유형 행은 바꾸지 않았습니다(전환 승인은 2차).`);
+  }
+
   function approveTaxTypeChange(id) {
     const r = state.records.find(x => x.id === id);
     if (!r) return;
+    if (r.partnerType === "매입처") {
+      alert("매입처 과세유형 전환 승인은 2차 범위입니다. 1차에서는 감지 목록 표시와 매입 증빙 수기 확인만 합니다.");
+      return;
+    }
     const effDate = document.getElementById("inputEffDate").value;
     if (!effDate) {
       alert("[17.5절 효력일 통제]\n전환 효력 시작일자가 비어 있습니다. 국세청 응답에 전환일이 없는 경우 임의로 7월 1일을 기본값으로 넣지 않으며, 정정된 사업자등록증에서 실제 효력일을 확인하여 입력해야 합니다.");
@@ -1305,7 +1340,7 @@ code, pre, kbd, samp,
   function confirmTaxTypeTransition() {
     if (!pendingTaxChangeId) return;
     const r = state.records.find(x => x.id === pendingTaxChangeId);
-    if (!r) return;
+    if (!r || r.partnerType === "매입처") return;
     const effDate = document.getElementById("inputEffDate").value;
 
     r.taxTypeChangeDt = effDate;

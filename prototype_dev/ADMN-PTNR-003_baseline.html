@@ -17,8 +17,9 @@
       폐업 · 휴업 · 거래 중지는 열람 전용 · 미지급 잔액 0이면 잠금(07), 계좌 변경은 요청 → 전화 확인 → 재무 책임자 승인 → 반영(08).
     - 대상: 거래처 소속 외부 계정 중 도서 · 상품 매입처(거래처 유형 양식 PURCHASE). 진입 ?vendor=SUP-NNNN&role=RG-09
       (거래처 코드는 SJM_MASTER.vendors의 SUP-NNNN을 따른다. 지시서의 VD-NNNN 대신 기존 코드 체계 사용)
-    - 역할 그룹 '도서 공급사'(RG-09)는 추가가 확정(2026-10-27 white, D-PTNR3-01 권고대로)됐지만 공통 기준정보(common-master.js)에는 아직 없다. 공통 파일을 고치지 않고 이 화면 안의 최초값(ROLE_PROPOSED)으로 둔다.
-      기준정보에 같은 id가 생기면 그쪽을 쓴다.
+    - 역할 그룹 '도서 공급사'(RG-09)는 v6.92에서 공통 기준정보(common-master.js)에 들어갔다(1차 미사용 on:false · perms 비어 있음 — 2차에 권한을 준다).
+      이름 · side · aff는 기준정보 값을 읽고, 기준정보에 supply 권한 값이 없을 때만 이 화면의 최초값(ROLE_PROPOSED.perms.supply = RWX)을 쓴다.
+      기준정보에 RG-09 자체가 없으면(옛 localStorage 등) ROLE_PROPOSED 전체를 쓴다.
     - 운영자 SNB(common-snb.js)는 PTNR-001과 같이 로드하지 않는다: common-snb.js는 body 맨 앞에 운영자 SNB를 무조건 넣는다.
     - 숫자는 ADMN-SETT-011 S1 도서 매입 계산서 대조(2026년 9월분) · ADMN-PROD-004(PROD-BK-2001 재고 140권) · VEND-001 거래 조건과 같다.
       8월 · 10월분과 수불 상세는 이 화면에서 정한 가상 샘플(원본 화면에 없는 달).
@@ -500,7 +501,8 @@
   var VD_MONTH_DEADLINE = { "2026-08": "2026-09-10", "2026-09": "2026-10-10", "2026-10": "2026-11-10" };
   var VD_CLOSED_MONTHS = ["2026-08", "2026-09"]; // 10월은 마감 전(잠정)
 
-  // 역할 그룹 '도서 공급사' — 추가 확정(2026-10-27 white, D-PTNR3-01 권고대로). 공통 기준정보에 아직 없어 이 화면의 최초값으로 둔다. 기준정보에 RG-09가 생기면 그쪽을 쓴다
+  // 역할 그룹 '도서 공급사' — 추가 확정(2026-10-27 white, D-PTNR3-01 권고대로). v6.92부터 공통 기준정보 RG-09를 읽는다(1차 미사용 · perms 비어 있음).
+  // 기준정보에 값이 있으면 그 값, 없을 때만(RG-09 없음 · supply 권한 키 없음) 아래 최초값을 쓴다
   var ROLE_PROPOSED = { id: "RG-09", name: "도서 공급사", side: "EXTERNAL", aff: ["VENDOR"], on: true, perms: { supply: "RWX" }, proposed: true };
 
   // 발주 시스템화 단계 — 확정(2026-10-27 white, D-PTNR3-05 권고대로): 1단계는 발주를 시스템으로 내지 않고(물류팀 기존 방식) 입고 전표 확인 · 이의만 연다.
@@ -721,11 +723,13 @@
     if (!t || t.form !== "PURCHASE") {
       return "매입처(도서 · 상품 공급사) 소속 계정 전용 화면입니다. 물류 대행사 계정은 출고 · 송장 화면으로 로그인해 주세요.";
     }
-    var g = M.roles.get(roleId) || (roleId === ROLE_PROPOSED.id ? ROLE_PROPOSED : null);
+    var gm = M.roles.get(roleId);
+    var g = gm || (roleId === ROLE_PROPOSED.id ? ROLE_PROPOSED : null);
     if (!g || g.side !== "EXTERNAL" || !g.aff || g.aff.indexOf("VENDOR") === -1) {
       return "거래처 소속 공급사 계정 전용 화면입니다. 운영자 계정은 백오피스로 로그인해 주세요.";
     }
-    var perm = (g.perms && g.perms.supply) || "";
+    // supply 권한: 기준정보 값이 있으면 그 값(빈 문자열 = 권한 없음), 없으면 RG-09 최초값
+    var perm = (g.perms && g.perms.supply !== undefined) ? (g.perms.supply || "") : (roleId === ROLE_PROPOSED.id ? ROLE_PROPOSED.perms.supply : "");
     if (perm.indexOf("R") === -1) return "이 역할 그룹에는 공급사 메뉴 권한이 없습니다. 운영자에게 역할 그룹 확인을 요청해 주세요.";
     VD.vendor = v;
     VD.vendorType = t;

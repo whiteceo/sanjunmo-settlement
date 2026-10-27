@@ -1,8 +1,8 @@
 # ADMN-SETT-008 사업자등록 확인 이력 — 개발 명세
-- 프로토타입 파일: prototype_clean/ADMN-SETT-008_baseline.html (원본 상태: 84c22e2)
+- 프로토타입 파일: prototype_clean/ADMN-SETT-008_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-SETT-008 (프로토타입 모달 `modal-tax-transition` → 개발 모달 `#layerNtsReview`)
-- 개발 진행: 구현 (담당 박성민, 라우트 주석 있음 · 커밋 언급 5건). 전환 승인은 권리자 건만(위탁자 · 매입처는 2차)
+- 개발 진행: 구현 (담당 박성민, 라우트 주석 있음 · 커밋 언급 5건). 전환 승인은 권리자 건만(위탁자 · 매입처는 2차) — v6.92 D-SETT-04로 위탁자는 1차에 넣어야 함(8절)
 
 ## 1. 메뉴 · 권한
 | 메뉴(admin_menus.route_name) | 메뉴명 | 확인 방법 |
@@ -20,6 +20,10 @@
 
 - 승인 후에는 `tab=history` 로 돌아가며 나머지 조건(subject_type · trigger_type · review · keyword · page)을 유지한다.
 - 정기 일괄 조회 · 재시도 큐 즉시 재호출 라우트는 없다(배치 · 스케줄러, 추정).
+
+| 동작 | 메서드 | URL | 라우트 이름 | 권한 | 컨트롤러@메서드 |
+|---|---|---|---|---|---|
+| 매입처 전환 감지 — 매입 증빙 수기 확인 기록(v6.92, D-SETT-04) | POST | `/{admin}/settlement/nts/supplier-checks` (규칙) | `admin.settlement.nts.supplier-checks.store` (규칙) | can_update | 개발 미구현 — `recordSupplierManualCheck()` · `#btnSupplierManualCheck`(확인자 · 시각만 기록, 원장 행 안 바꿈, 입력 필드 없음 — `log_id`만) |
 
 ## 3. 폼 필드 · 검증
 ### 전환 승인 · 보류 (NtsTaxTypeReviewRequest) — `#ntsReviewForm`
@@ -90,6 +94,7 @@
 - "🔄 정기 일괄 상태조회 실행", "⚡ 실패 재시도 큐 즉시 재호출" 버튼.
 - 우측 상세 패널(renderDetail · 폐업 관계 표 closureTableHtml) · 버전 분할 표(버전 구분 · 유효 기간 · 원장 상태).
 - 사업자번호 · 법인번호 마스킹 표시 함수(maskBizNo · maskCorpNo) — 개발 마스킹 적용 여부 미확인.
+- 매입처 전환 감지 패널(`#supplierChangePanel`) · 수기 확인 기록(v6.92) — 개발 미구현(위 2절 규칙 이름)
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
 |---|---|
@@ -103,7 +108,7 @@
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
 - 확인 필요: 프로토타입 트리거 "정산 마감 전 90일"은 개발 trigger_type 에 대응 값이 없다(가까운 값 PERIODIC · MILESTONE_APPROVAL). 반대로 PURCHASE_ORDER · CONSIGNMENT_REG 는 프로토타입에 없다.
-- 확인 필요: 위탁자 · 매입처 전환 승인은 개발 1차 범위 밖(서비스 문구 "2차") — 프로토타입 표시 여부.
+- 확인 필요: 위탁자 · 매입처 전환 승인은 개발 1차 범위 밖(서비스 문구 "2차") — 프로토타입 표시 여부. **→ 결정(v6.92 white, D-SETT-04)**: 전환 승인은 권리자 + 위탁자까지 1차(개발 범위 넓힘 필요), 매입처는 1차 감지 · 수기 확인 기록만(원장 미변경, 승인 2차) · 매입처 감지 건은 SETT-002 마감 차단에서 뺌
 
 ## 출처
 - routes/admin.php:519, 637-639

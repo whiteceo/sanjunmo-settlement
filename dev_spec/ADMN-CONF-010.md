@@ -1,6 +1,6 @@
 # ADMN-CONF-010 시스템 감사 로그 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-CONF-010_baseline.html (원본 상태: de0d93c v6.87)
+- 프로토타입 파일: prototype_clean/ADMN-CONF-010_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-CONF-010 탭 1 감사 이벤트 건별 원장 · 탭 2 정산월별 감사 통계 · 월마감 스냅샷 · 탭 3 운영자 접근 · 권한 · 다운로드 로그(정본에서 CONF-006 을 통합)
 - 개발 진행: 화면 코드 ADMN-CONF-010 은 개발 미구현(d562524a 기준 — 메뉴 · 라우트 없음, 정산 화면 두 곳의 안내 카드 제목에만 등장). 대응 화면은 개발 ADMN-CONF-006 이력/보안 로그(구현, 담당 이응민, `_index/progress.md` 112행) = 관리자 로그 · 로그인 로그. 탭 1(정산 원장 감사 원장) · 탭 2(월별 통계 · 해시 체인)는 개발 미구현
@@ -38,7 +38,7 @@
 | 기간 원장 추출 | GET | `/{admin}/audit-logs/download` | `admin.audit-logs.download` (규칙) | can_download |
 | 월별 통계 | GET | `/{admin}/audit-logs/monthly` | `admin.audit-logs.monthly.index` (규칙) | can_view |
 | 월별 패키지 추출 | GET | `/{admin}/audit-logs/monthly/download` | `admin.audit-logs.monthly.download` (규칙) | can_download |
-| 해시 체인 검증 | POST | `/{admin}/audit-logs/verifications` | `admin.audit-logs.verifications.store` (규칙) | can_create |
+| 해시 체인 검증 — 2차(v6.92 D-CONF-03) | POST | `/{admin}/audit-logs/verifications` | `admin.audit-logs.verifications.store` (규칙) | can_create |
 
 ## 3. 폼 필드 · 검증
 
@@ -84,7 +84,7 @@
 | login_logs.user_id · login_id · event · status · fail_reason · fail_count · ip · user_agent · country · detail · created_at | event varchar(30) NOT NULL | 로그인 · 계정 찾기 이력 | 로그인 로그 |
 | excel_download_logs.admin_id · admin_login_id · admin_role_code · menu_key · download_type · filter_params · row_count · reason · status · ip · expired_at | admin_id bigint unsigned nullable | 엑셀 반출 기록 | (전용 화면 없음, 관리자 로그 `excel_download`) |
 
-- 탭 1 · 2 용 컬럼(개발 미구현, 규칙 기반 명명): `admin_logs.settlement_month`(귀속 정산월) (규칙) · `admin_logs.screen_code`(발생 화면) (규칙) · `admin_logs.prev_hash` · `admin_logs.hash`(해시 체인) (규칙) · 월 스냅샷 테이블 `audit_log_snapshots`(month · last_hash · counts · closed_at) (규칙). 해시 체인 관련 컬럼은 개발 마이그레이션에 없음(grep `hash_chain` · `prev_hash` · `block_hash` 결과 0).
+- 탭 1 · 2 용 컬럼(개발 미구현, 규칙 기반 명명): `admin_logs.settlement_month`(귀속 정산월) (규칙) · `admin_logs.screen_code`(발생 화면) (규칙) · `admin_logs.prev_hash` · `admin_logs.hash`(해시 체인 — 2차, D-CONF-03) (규칙) · 월 스냅샷 테이블 `audit_log_snapshots`(month · last_hash · counts · closed_at) (규칙). 해시 체인 관련 컬럼은 개발 마이그레이션에 없음(grep `hash_chain` · `prev_hash` · `block_hash` 결과 0).
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |
@@ -106,8 +106,8 @@
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 탭 1 정산 원장 감사(귀속 정산월 · 발생 화면 · 감사 이벤트 구분 · 권리자) — 개발은 정산 행위도 admin_logs 에 쌓지만 정산월 · 화면 코드 컬럼과 전용 화면이 없음.
-- 탭 2 정산월별 감사 통계 · 월마감 스냅샷 · 월별 패키지 추출 · 월별 마지막 블록 해시.
-- [해시 체인 위변조 무결성 검증].
+- 탭 2 정산월별 감사 통계 · 월마감 스냅샷 · 월별 패키지 추출 · 월별 마지막 블록 해시. **→ 결정(v6.92 white, D-CONF-03)**: 1차 = 월별 통계 · 월별 감사 원장 추출, 블록 해시 칸은 '2차'로 표시.
+- [해시 체인 위변조 무결성 검증]. **→ 결정(v6.92 white, D-CONF-03)**: 2차 기능 — 버튼은 '(2차)' 표시 · 안내 토스트만, 1차는 Append-Only 저장(수정 · 삭제 권한 없음).
 - 월 선택(`#monthFilterSelect`) · 전월 마감분 · 전체 기간 프리셋(개발 최대 90일).
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
@@ -118,7 +118,7 @@
 ## 8. 정책 질문 (white 확인 필요)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 감사 로그 해시 체인 · 월마감 스냅샷을 1차 범위로 둘지(개발 흔적 없음) — 확인 필요.
+- 감사 로그 해시 체인 · 월마감 스냅샷을 1차 범위로 둘지(개발 흔적 없음) — 확인 필요. **→ 결정(v6.92 white, D-CONF-03)**: 1차 = Append-Only 저장 + 월별 감사 원장 추출, 해시 체인 · 블록 해시는 2차.
 - 조회 기간 상한: 개발 90일, 프로토타입 "전체 기간" — 확인 필요.
 - 화면 코드 CONF-006 → CONF-010 통합을 개발(dev-progress · 메뉴)에도 맞출지 — 확인 필요.
 

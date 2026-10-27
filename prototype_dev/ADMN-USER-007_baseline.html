@@ -281,7 +281,6 @@ code, pre, kbd, samp,
   <link rel="stylesheet" href="dev-overlay.css" />
   <script type="application/json" id="dev-map">{"code": "ADMN-USER-007", "devCommit": "d562524a", "progress": "미구현(규칙 기반 명명). 개발에 있는 것은 마스킹 해제 API(admin.masking.unmask) · 비공개 첨부 다운로드 · 관리자 로그뿐 — 나머지 주황 표시", "menus": [{"route": "admin.pii-records.index (규칙)", "label": "민감 정보 열람 통제"}, {"route": "admin.admin-logs.index", "label": "관리자 로그 (열람 이력 원본)"}]}</script>
   <script src="dev-overlay.js" defer></script>
-  <script src="dev-snb.js" defer></script>
 </head>
 <body><aside id="v4-master-snb" role="navigation" aria-label="산준모 마스터 사이드바"></aside><div id="v4-root-shell"><header class="top-bar v4-gen3-topbar" id="v4-gen3-topbar">
     <div class="top-bar-left">
@@ -529,7 +528,7 @@ code, pre, kbd, samp,
           <span>구체적 열람 사유 수기 입력 (필수 · 공백 제외 10자 이상 · 같은 글자 반복 불가)</span>
           <span id="reasonEtcCount" class="code" style="color:var(--bad);">0 / 최소 10자</span>
         </label>
-        <textarea id="reasonEtc" name="reason_etc" data-dev-note="개발 reason=etc일 때 10~150자 — 정본은 모든 해제에 10자" class="textarea" rows="3" style="width:100%; margin-top:6px;" placeholder="예: 2026-10 귀속 원천세 신고서 작성 중 주민등록번호 오류 검증을 위한 열람 (단순 '확인용', '테스트' 등 10자 미만 입력 시 차단)" oninput="updateReasonCounter()"></textarea>
+        <textarea id="reasonEtc" name="reason_etc" data-dev-note="개발 reason=etc일 때 10~150자 — 정본은 모든 해제에 10자" class="textarea" maxlength="200" rows="3" style="width:100%; margin-top:6px;" placeholder="예: 2026-10 귀속 원천세 신고서 작성 중 주민등록번호 오류 검증을 위한 열람 (단순 '확인용', '테스트' 등 10자 미만 입력 시 차단)" oninput="updateReasonCounter()"></textarea>
       </div>
     </div>
     <div class="modal-ft">
@@ -962,11 +961,15 @@ code, pre, kbd, samp,
     updateReasonCounter();
   }
 
-  // 사유 검사 공용 규칙(USER-001과 같음): 공백 제외 10자 이상 · 서로 다른 글자 3개 이상(같은 글자 반복 거부)
-  function reasonCheck(text) {
-    const s = String(text || "").replace(/\s/g, "");
+  // 사유 검사 공용 규칙(USER-001과 같음): 공백 제외 10자 이상 · 서로 다른 글자 3개 이상(같은 글자 반복 거부) · 공백 포함 200자 이하(M-04)
+  const REASON_MAX = 200;
+  function reasonCheck(text, max) {
+    max = max || REASON_MAX;
+    const raw = String(text || "");
+    const s = raw.replace(/\s/g, "");
     const len = s.length;
     const distinct = new Set(Array.from(s)).size;
+    if (raw.length > max) return { ok: false, len: len, msg: `공백 포함 ${raw.length.toLocaleString()}자 / 최대 ${max.toLocaleString()}자` };
     if (len < 10) return { ok: false, len: len, msg: `공백 제외 ${len}자 / 최소 10자` };
     if (distinct < 3) return { ok: false, len: len, msg: `같은 글자 반복은 사유로 인정하지 않습니다 (공백 제외 ${len}자)` };
     return { ok: true, len: len, msg: `공백 제외 ${len}자 · 입력 완료` };

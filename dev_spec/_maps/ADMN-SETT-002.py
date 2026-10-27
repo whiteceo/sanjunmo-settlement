@@ -124,7 +124,7 @@ R('id="modalTaxSubmit"', 'id="modalTaxSubmit" data-dev-flag="proto-only"')
 ACT("simulateBankFailure", flag="proto-only", note="QA 시연 — 개발 없음")
 ACTX("showFirmbankingToast('result'", flag="proto-only", route="admin.settlement.board.transfer-results.store (규칙)", method="POST", url=BOARD + "/transfer-results", perm="등록",
     note="은행 결과 파일 1:1 대사 — 개발 미구현")
-ACTX("showFirmbankingToast('download'", route="admin.settlement.board.download", method="GET", url=BOARD + "/download?month=", perm="다운로드 + 수정(ROUTE_PERMISSIONS)",
+ACTX("showFirmbankingToast('download'", route="admin.settlement.board.download", method="GET", url=BOARD + "/download?month=", perm="다운로드 + 수정(ROUTE_PERMISSIONS) — v6.92 D-SETT-05 확정(쓰기 W + 엑셀 X), 프로토 #firmbankingPermNote",
     note="개발은 .layer__open[data-target=layerReason] 사유 모달(reason · reason_ref · reason_etc) 후 다운로드")
 
 # ── S1 통합 정산서 상세(개발 별도 페이지 board.show) ─────────────

@@ -145,7 +145,8 @@ R('<span id="detailSaleBadge"></span>',
 DA("syncContractDates", flag="proto-only", route="admin.settlement.rights-mapping.contract-sync.update (규칙)", method="PUT",
    url=A + "/settlement/rights-mapping/contract-sync", perm="수정", note="모계약 종료일 일괄 동기화 — 개발 미구현")
 DA("copyToAllLessons", note="개발: #checkAllLectures · .js-lecture-group → lecture_ids[] 로 같은 행을 여러 강의에 저장")
-DA("quickFillRemainder", flag="proto-only", note="잔여 지분 자사 자동 채우기 — 개발 미구현")
+# v6.92: 잔여 지분 자사 자동 채우기(quickFillRemainder) 삭제(결정 반영 S-06) → 자사 권리자 행 추가(지분 직접 입력) + 저장 시 자사 지분 확인
+DA("addInternalRow", note="자사 권리자(rights_holders.is_internal=1) 행을 addShareRow와 같은 레이어로 — 지분 직접 입력, 자동 채우기 없음. 개발은 권리자 선택 레이어에서 자사 권리자를 고름(전용 버튼 없음)")
 DA("addShareRow", route="admin.settlement.rights-mapping.contracts", method="GET", url=A + "/settlement/rights-mapping/contracts?rights_holder_id=&type=&id=", perm="조회",
    note="개발 .layer__open[data-target=layerHolderPick] → 권리자 선택 후 적용 계약 후보(JSON)")
 DA("snapshot", flag="proto-only", note="최근 저장 스냅샷 JSON — 개발 미구현")
