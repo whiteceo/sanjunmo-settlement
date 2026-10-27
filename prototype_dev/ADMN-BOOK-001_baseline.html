@@ -730,7 +730,7 @@ code, pre, kbd, samp,
           <a class="step-node" href="ADMN-PROD-004_baseline.html">
             <div class="step-node-top">
               <span class="step-num">Step 4. 교재 상세 · 재고 · 전시 (PROD-004)</span>
-              <span class="step-light light-green" id="step4-light">🟢 전시 판매중 (420권)</span>
+              <span class="step-light light-green" id="step4-light">🟢 전시 판매중 (가용 402권)</span>
             </div>
             <div class="step-desc">
               <code>ADMN-PROD-004</code> · 최고 관리자가 표지/목차/미리보기 PDF와 물류 재고를 입력하여 프론트에 전시합니다.
@@ -1350,7 +1350,7 @@ code, pre, kbd, samp,
                       <input type="number" id="f-init-stock" data-dev-flag="proto-only" data-dev-note="초기 재고 — 개발은 교재 관리(PROD-004)" class="form-input text-right" value="" min="0" step="1" placeholder="0">
                       <span class="input-unit">권</span>
                     </div>
-                    <div class="field-hint" id="f-init-stock-hint">신규 SKU 등록 때만 입력합니다. 등록 뒤 입고 · 재고 조정은 교재 관리(ADMN-PROD-004)에서 합니다.</div>
+                    <div class="field-hint" id="f-init-stock-hint">신규 SKU 등록 때만 입력합니다(초기 재고 = 실재고 = 가용, 예약 0). 등록 뒤 입고 · 재고 조정은 교재 관리(ADMN-PROD-004)에서 합니다.</div>
                   </td>
                 </tr>
                 <tr>
@@ -1497,7 +1497,7 @@ code, pre, kbd, samp,
         step1Ok: true,
         step3Ok: true,
         step4Ok: true,
-        prodStatus: "판매중 (420권)"
+        prodStatus: "판매중 (가용 402권)"
       },
       {
         sku: "PROD-BK-1012",
@@ -1518,7 +1518,7 @@ code, pre, kbd, samp,
         step1Ok: true,
         step3Ok: true,
         step4Ok: true,
-        prodStatus: "판매중 (185권)"
+        prodStatus: "판매중 (가용 178권)"
       },
       {
         sku: "PROD-BK-3003",
@@ -1539,7 +1539,7 @@ code, pre, kbd, samp,
         step1Ok: false,
         step3Ok: true,
         step4Ok: true,
-        prodStatus: "일시품절 (0권)"
+        prodStatus: "일시품절 (가용 0권)"
       },
       {
         sku: "PROD-BK-2017",
@@ -1581,7 +1581,7 @@ code, pre, kbd, samp,
         step1Ok: true,
         step3Ok: true,
         step4Ok: true,
-        prodStatus: "판매중 (180권)"
+        prodStatus: "판매중 (가용 175권)"
       },
       {
         sku: "PROD-BK-1008",
@@ -1602,7 +1602,7 @@ code, pre, kbd, samp,
         step1Ok: true,
         step3Ok: true,
         step4Ok: true,
-        prodStatus: "판매중 (180권)"
+        prodStatus: "판매중 (가용 180권)"
       }
     ];
 

@@ -1,7 +1,8 @@
 # ADMN-PROD-004 교재 관리 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-PROD-004_baseline.html` (원본 상태: `84c22e2` + 미커밋 작업 트리 — 2026-10-27 다른 세션 수정 중. 통합 커밋 후 줄 번호를 다시 맞춘다)
+- 프로토타입 파일: `prototype_clean/ADMN-PROD-004_baseline.html` (원본 상태: d6723b0 v7.01)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- v7.01 정본 변경: 재고 2단 차감(white 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
 - 포함 화면: PROD-004 교재 목록 · 004-S2 교재 상세 · 재고이력 · 004-S1 교재 등록/수정 + 모달 4개(`modal-temp-book` 가채번 불러오기 · `modal-supply-sku` 공급원장 SKU 불러오기 · `modal-stock-adjust` 재고 수불 · `modal-autostop-confirm` 연결 상품 자동 판매중지 확인)
 - 개발 진행: 구현(목록 · 등록 · 수정 · 재고 조정 · 판매중지 · 재고 이력 레이어). 교재 상세 화면 · 가채번/공급원장 불러오기 · 3원장 신호등은 미구현
 

@@ -1,7 +1,8 @@
 # ADMN-ORD-001 주문 · 배송 통합 관리 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-ORD-001_baseline.html` (원본 상태: 18d66c1 v6.92. 본문 줄 번호 L… 는 v6.92 이전 기준이 남아 있을 수 있다 — 함수 · id 이름으로 찾는다)
+- 프로토타입 파일: `prototype_clean/ADMN-ORD-001_baseline.html` (원본 상태: d6723b0 v7.01)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- v7.01 정본 변경: 재고 2단 차감(white 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
 - 포함 화면: ORD-001 주문 목록 · 001-S1 주문 상세(배송지 Lock) · 001-P4 수강권 직권 부여 · ORD-002 배송 관리(탭 4개: 출고 대기 · S1 배송중 · S2 배송완료 · S3 반품 수거 · 검수) · 002-P1 송장 벌크 업로드 · 002-P2 송장 단건 등록/정정 · 002-P3 발주 배치 · 업로드 이력 · 3PL 발주 확인 모달
 - 개발 진행: 구현(ORD-001 · 001-S1 · 002 · 002-P1 라우트 · 화면 있음, `_index/progress.md` 48~51행). 001-P4 직권 부여 · 가상계좌 입금 기한 연장 · 3PL 외부 계정(ROLE_PARTNER_3PL)은 미구현 → 규칙 기반 명명
 - 근거: 개발 `routes/admin.php:851-889`, `app/Http/Controllers/Admin/OrderController.php` · `DeliveryController.php` · `RefundController.php`(반품 검수), `app/Services/Admin/OrderService.php` · `DeliveryService.php`, `config/delivery.php`

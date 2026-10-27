@@ -377,14 +377,14 @@ code, pre, kbd, samp,
             <div class="k-sub">자사 권리자 100% 매핑 유효</div>
           </div>
           <div class="kpi-card" data-dev-route="admin.goods.index" data-dev-method="GET" data-dev-url="/sj-admin/goods" data-dev-perm="조회" data-dev-note="스코어카드(전체 · 판매중 · 재고 임박 · 품절) 클릭 → sale_status · stock_status 필터" onclick="filterStock('LOW')">
-            <div class="k-top"><span class="k-title">재고 임박 (임계치 이하)</span><span class="badge badge-amber">LOW STOCK</span></div>
+            <div class="k-top"><span class="k-title">재고 임박 (가용 임계치 이하)</span><span class="badge badge-amber">LOW STOCK</span></div>
             <div class="k-num" style="color:var(--warning);" id="kpi-low">1</div>
-            <div class="k-sub">알림 임계치(20개) 이하 발주 필요</div>
+            <div class="k-sub">가용 재고(= 실재고 − 예약) 20개 이하 · 발주 필요</div>
           </div>
           <div class="kpi-card" data-dev-route="admin.goods.index" data-dev-method="GET" data-dev-url="/sj-admin/goods" data-dev-perm="조회" data-dev-note="스코어카드(전체 · 판매중 · 재고 임박 · 품절) 클릭 → sale_status · stock_status 필터" onclick="filterStock('OUT')">
-            <div class="k-top"><span class="k-title">품절 (재고 0)</span><span class="badge badge-red">SOLD OUT</span></div>
+            <div class="k-top"><span class="k-title">품절 (가용 0)</span><span class="badge badge-red">SOLD OUT</span></div>
             <div class="k-num" style="color:var(--danger);" id="kpi-out">1</div>
-            <div class="k-sub">재고 0 도달 시 결제 자동 차단</div>
+            <div class="k-sub">가용 0 도달 시 결제 자동 차단</div>
           </div>
           <div class="kpi-card" onclick="window.location.href='ADMN-SETT-009_baseline.html'">
             <div class="k-top"><span class="k-title">당월 일반 상품 판매매출</span><span class="badge badge-purple">일반상품 매출</span></div>
@@ -422,13 +422,13 @@ code, pre, kbd, samp,
                       <option value="판매종료">판매종료 (단종 · 미노출)</option>
                     </select>
                   </td>
-                  <th>재고 상태</th>
+                  <th>재고 상태 (가용 기준)</th>
                   <td>
                     <select id="fl-stock" name="stock_status" data-dev-value="normal · low · soldout (프로토 NORMAL · LOW · OUT)" class="f-select" style="width:180px;">
                       <option value="ALL">전체</option>
                       <option value="NORMAL">정상</option>
-                      <option value="LOW">재고 임박 (임계치 이하)</option>
-                      <option value="OUT">품절 (0개)</option>
+                      <option value="LOW">재고 임박 (가용 임계치 이하)</option>
+                      <option value="OUT">품절 (가용 0개)</option>
                     </select>
                   </td>
                 </tr>
@@ -473,7 +473,7 @@ code, pre, kbd, samp,
                   <th class="tr-right">판매가 (VAT 포함)</th>
                   <th class="tr-right">공급가액 / 부가세 (10/11)</th>
                   <th class="tr-right">사입 원가 (대외비)</th>
-                  <th class="tr-right">재고 (임계치 20)</th>
+                  <th class="tr-right">재고 (가용 / 실재고 · 예약)</th>
                   <th class="tr-center">세무 / 정산</th>
                   <th class="tr-center">판매 상태</th>
                   <th class="tr-center">재고 제어 / 관리</th>
@@ -588,16 +588,17 @@ code, pre, kbd, samp,
             <table class="form-tbl">
               <tbody>
                 <tr>
-                  <th>현재 재고</th>
+                  <th>실재고 (창고 보유)</th>
                   <td>
                     <input type="text" id="f-stock" data-dev-note="개발 수정 폼은 stock 직접 입력(이력 없이 덮어씀) — 프로토는 조정 레이어로만(정책 질문 Q-PROD007-3)" data-dev-name="stock" class="f-input tr-right" style="width:120px; font-weight:800;" value="142 개" readonly />
                     <button type="button" class="btn btn-sm btn-primary" id="btn-inline-adj" style="margin-left:6px;" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P1은 수정 화면 안 레이어(.layer__open[data-target=layerGoodsStockAdjust]) — 목록에서 바로 여는 버튼은 개발 없음" onclick="openStockAdjustModal(currentEditId)">재고 조정 (ADMN-PROD-007-P1)</button>
                     <button type="button" class="btn btn-sm btn-outline" id="btn-inline-hist" data-dev-route="admin.goods.edit" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/edit" data-dev-perm="수정" data-dev-note="개발 P2는 수정 폼에 함께 실린 stockLogs를 레이어에 그림" onclick="openStockHistoryModal(currentEditId)">입출고 이력 (ADMN-PROD-007-P2)</button>
                     <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">수정 모드에서 현재고 직접 덮어쓰기 불가 — 반드시 [재고 조정] 레이어를 통해 증감 수량과 사유를 `goods_stock_log`에 기록해야 합니다.</div>
+                    <div id="f-stock-trio" data-dev-flag="proto-only" data-dev-note="실재고 · 예약 · 가용 3칸 — 개발은 goods.stock 1칸. 예약(결제 완료 ~ 3PL 송장 업로드) · 가용은 개발 미구현, reserved_stock (규칙)" style="font-size:11.5px; margin-top:6px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:#F8FAFC;">실재고 142개 · 예약(결제 완료 미출고) 4개 → <strong>가용 138개</strong> (판매 가능 수량 · 임박 · 품절 판정 기준)</div>
                   </td>
                   <th>재고 알림 임계치 <span style="color:var(--danger);">*</span></th>
                   <td>
-                    <input type="number" id="f-threshold" name="stock_alert_qty" data-dev-note="개발 nullable(정책 질문 Q-PROD007-5)" class="f-input tr-right" style="width:100px;" value="20" /> 개 이하 시 <span class="badge badge-amber">임박</span> 강조 및 알림
+                    <input type="number" id="f-threshold" name="stock_alert_qty" data-dev-note="개발 nullable(정책 질문 Q-PROD007-5)" class="f-input tr-right" style="width:100px;" value="20" /> 개 이하 시(가용 재고 기준) <span class="badge badge-amber">임박</span> 강조 및 알림
                   </td>
                 </tr>
                 <tr>
@@ -656,7 +657,7 @@ code, pre, kbd, samp,
       <div class="modal-body">
         <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:12.5px;">
           대상 상품: <strong id="p1-target-name">GDS-0001 · 산준모 안전모 키링</strong><br/>
-          현재 재고: <strong id="p1-cur-stock">142</strong> 개
+          실재고: <strong id="p1-cur-stock" data-dev-name="stock (현재 실재고)">142</strong> 개 · 예약(결제 완료 미출고): <strong id="p1-cur-res" data-dev-flag="proto-only" data-dev-name="reserved_stock (규칙)">4</strong> 개 · 가용: <strong id="p1-cur-avail" data-dev-flag="proto-only" data-dev-name="available_stock (규칙, stock − reserved_stock 파생)">138</strong> 개<br/><span style="font-size:11.5px; color:var(--text-muted);">재고 조정은 실재고를 바꿉니다. 결제 예약 · 예약 해제 · 출고 확정은 주문 · 3PL 송장 업로드에서 자동 기록됩니다.</span>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
@@ -674,8 +675,8 @@ code, pre, kbd, samp,
         </div>
 
         <div style="background:#EFF6FF; border:1px solid #BFDBFE; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:12px; font-weight:700; color:#1E3A8A;">조정 후 예상 재고 (음수 불가)</span>
-          <strong id="p1-after-stock" data-dev-flag="proto-only" data-dev-note="조정 후 재고 미리보기 — 개발 없음" style="font-size:16px; color:var(--primary);">172 개 (+30)</strong>
+          <span style="font-size:12px; font-weight:700; color:#1E3A8A;">조정 후 예상 실재고 · 가용 (음수 불가)</span>
+          <strong id="p1-after-stock" data-dev-flag="proto-only" data-dev-note="조정 후 재고 미리보기 — 개발 없음" style="font-size:16px; color:var(--primary);">172 개 · 가용 168 개 (+30)</strong>
         </div>
 
         <div style="margin-bottom:12px;">
@@ -725,8 +726,10 @@ code, pre, kbd, samp,
             <select id="p2-filter-type" data-dev-route="admin.goods.stock-logs.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/goods/{goods}/stock-logs" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-name="type" data-dev-value="outbound 판매 출고 · restore 복구 · adjust 수기 조정 …" class="f-select" style="width:140px;" onchange="renderStockHistoryTable()">
               <option value="ALL">전체</option>
               <option value="수기 조정">수기 조정</option>
-              <option value="주문 차감">주문 차감</option>
-              <option value="취소·반품 복원">취소·반품 복원</option>
+              <option value="결제 예약">결제 예약</option>
+              <option value="예약 해제">예약 해제</option>
+              <option value="출고 확정">출고 확정</option>
+              <option value="반품 입고">반품 입고</option>
             </select>
           </div>
           <button type="button" class="btn btn-sm btn-outline" data-dev-flag="proto-only" data-dev-note="입출고 이력 엑셀 — 개발 없음" onclick="showToast('입출고 원장(goods_stock_log) 엑셀 다운로드가 완료되었습니다.')">엑셀 다운로드</button>
@@ -738,7 +741,9 @@ code, pre, kbd, samp,
               <th>일시</th>
               <th>구분</th>
               <th class="tr-right">증감</th>
-              <th class="tr-right">처리 후 재고</th>
+              <th class="tr-right">처리 후 실재고</th>
+              <th class="tr-right">예약</th>
+              <th class="tr-right">가용</th>
               <th>사유 · 메모</th>
               <th>근거 (주문번호 / 처리자)</th>
             </tr>
@@ -768,14 +773,16 @@ code, pre, kbd, samp,
         price: 11000,
         cost: 5500,
         stock: 142,
+        reserved: 4,
         threshold: 20,
         status: '판매중',
         supplier: 'SUP-0007',
         hasSalesHistory: true,
         logs: [
-          { dt: '2026.10.16 15:20', type: '주문 차감', diff: -2, after: 142, memo: '수험생 주문 결제 완료 차감', ref: 'ORD-20261016-0041' },
-          { dt: '2026.10.12 11:05', type: '취소·반품 복원', diff: +1, after: 144, memo: '출고 전 주문 취소 재고 복원', ref: 'RFD-20261012-0009' },
-          { dt: '2026.10.01 09:30', type: '수기 조정', diff: +50, after: 143, memo: '신규 발주 입고 (파주 3PL)', ref: 'admin_kim (김물류)' }
+          { dt: '2026.10.16 15:20', type: '결제 예약', diff: -2, after: 142, res: 4, memo: '수험생 주문 결제 완료 — 가용 재고에서 예약 차감 (실재고 변동 없음)', ref: 'ORD-20261016-0041' },
+          { dt: '2026.10.15 17:00', type: '출고 확정', diff: -3, after: 142, res: 2, memo: '3PL 송장 업로드 — 예약 3개 실재고 확정 차감 (가용 변동 없음)', ref: 'BATCH-20261015-01' },
+          { dt: '2026.10.12 11:05', type: '예약 해제', diff: +1, after: 145, res: 5, memo: '출고 전 주문 취소 — 예약 해제 · 가용 복원 (실재고 변동 없음)', ref: 'RFD-20261012-0009' },
+          { dt: '2026.10.01 09:30', type: '수기 조정', diff: +50, after: 145, res: 6, memo: '신규 발주 입고 (파주 3PL)', ref: 'admin_kim (김물류)' }
         ]
       },
       {
@@ -787,12 +794,14 @@ code, pre, kbd, samp,
         price: 8800,
         cost: 0,
         stock: 12,
+        reserved: 0,
         threshold: 20,
         status: '판매중',
         supplier: 'SELF',
         hasSalesHistory: true,
         logs: [
-          { dt: '2026.10.15 18:10', type: '주문 차감', diff: -5, after: 12, memo: '패키지 부가 구매 차감 (임계치 20개 이하 도달)', ref: 'ORD-20261015-0112' }
+          { dt: '2026.10.16 14:00', type: '출고 확정', diff: -5, after: 12, res: 0, memo: '3PL 송장 업로드 — 예약 5개 실재고 확정 차감 (가용 변동 없음)', ref: 'BATCH-20261016-01' },
+          { dt: '2026.10.15 18:10', type: '결제 예약', diff: -5, after: 17, res: 5, memo: '패키지 부가 구매 결제 — 가용 12개로 임계치 20개 이하 도달 (임박 경고)', ref: 'ORD-20261015-0112' }
         ]
       },
       {
@@ -804,12 +813,14 @@ code, pre, kbd, samp,
         price: 4400,
         cost: 1800,
         stock: 0,
+        reserved: 0,
         threshold: 20,
         status: '품절',
         supplier: 'SUP-0007',
         hasSalesHistory: true,
         logs: [
-          { dt: '2026.10.14 20:01', type: '주문 차감', diff: -3, after: 0, memo: '잔여 재고 전량 소진 → 자동 품절 전환', ref: 'ORD-20261014-0088' }
+          { dt: '2026.10.15 10:30', type: '출고 확정', diff: -3, after: 0, res: 0, memo: '3PL 송장 업로드 — 예약 3개 실재고 확정 차감', ref: 'BATCH-20261015-01' },
+          { dt: '2026.10.14 20:01', type: '결제 예약', diff: -3, after: 3, res: 3, memo: '가용 재고 전량 예약 → 가용 0개 자동 품절 전환 (결제 차단)', ref: 'ORD-20261014-0088' }
         ]
       },
       {
@@ -821,15 +832,29 @@ code, pre, kbd, samp,
         price: 27500,
         cost: 19000,
         stock: 64,
+        reserved: 0,
         threshold: 20,
         status: '판매중',
         supplier: 'SUP-0012',
         hasSalesHistory: false,
         logs: [
-          { dt: '2026.10.05 10:00', type: '수기 조정', diff: +64, after: 64, memo: '초도 물량 입고', ref: 'admin_kim (김물류)' }
+          { dt: '2026.10.05 10:00', type: '수기 조정', diff: +64, after: 64, res: 0, memo: '초도 물량 입고', ref: 'admin_kim (김물류)' }
         ]
       }
     ];
+
+    /* Q-3PL-1(white 2026-10-27) 재고 2단 차감: stock = 실재고, reserved = 예약(결제 완료 · 미출고), 가용 = 실재고 − 예약
+       결제 완료 → 예약(가용 −) · 결제 취소 / 출고 전 환불 → 예약 해제(가용 +) · 3PL 송장 업로드 → 실재고 확정 차감(가용 변동 없음)
+       임박 · 자동 품절은 가용 기준, 3PL 재고 피드백(출고 불가 라인)은 실재고와 대조 */
+    function goodsAvail(g) { return Math.max(0, Number(g.stock || 0) - Number(g.reserved || 0)); }
+    function renderGoodsStockTrio(g) {
+      const el = document.getElementById('f-stock-trio');
+      if (!el) return;
+      if (!g) { el.innerHTML = '신규 등록: 입력한 초기 재고가 실재고 · 가용이 됩니다 (예약 0개).'; return; }
+      const rs = Number(g.reserved || 0);
+      const short = g.stock < rs ? ` <span style="color:var(--danger);">⚠️ 실재고가 예약보다 ${rs - g.stock}개 적음 — 3PL 출고 불가 라인과 대조</span>` : '';
+      el.innerHTML = `실재고 ${g.stock}개 · 예약(결제 완료 미출고) ${rs}개 → <strong>가용 ${goodsAvail(g)}개</strong> (판매 가능 수량 · 임박 · 품절 판정 기준)${short}`;
+    }
 
     function splitVat(price) {
       const supply = Math.floor((price * 100) / 110);
@@ -849,9 +874,9 @@ code, pre, kbd, samp,
       let rows = GOODS.filter(g => {
         if (supFilter !== 'ALL' && g.supplyType !== supFilter) return false;
         if (stFilter !== 'ALL' && g.status !== stFilter) return false;
-        if (stkFilter === 'LOW' && !(g.stock > 0 && g.stock <= g.threshold)) return false;
-        if (stkFilter === 'OUT' && g.stock !== 0) return false;
-        if (stkFilter === 'NORMAL' && g.stock <= g.threshold) return false;
+        if (stkFilter === 'LOW' && !(goodsAvail(g) > 0 && goodsAvail(g) <= g.threshold)) return false;
+        if (stkFilter === 'OUT' && goodsAvail(g) !== 0) return false;
+        if (stkFilter === 'NORMAL' && goodsAvail(g) <= g.threshold) return false;
         if (kw && !(g.name.toLowerCase().includes(kw) || g.id.toLowerCase().includes(kw))) return false;
         return true;
       });
@@ -860,17 +885,19 @@ code, pre, kbd, samp,
 
       rows.forEach(g => {
         const { supply, vat } = splitVat(g.price);
-        const isLow = g.stock > 0 && g.stock <= g.threshold;
-        const isOut = g.stock === 0;
+        const av = goodsAvail(g);
+        const isLow = av > 0 && av <= g.threshold;
+        const isOut = av === 0;
 
         let costDisplay = '— (직판)';
         if (g.supplyType === 'PURCHASED_RESALE') {
           costDisplay = hasFinanceRole ? g.cost.toLocaleString() + '원' : '**** (권한제한)';
         }
 
-        let stockBadge = `<strong style="font-weight:800;">${g.stock}개</strong>`;
-        if (isLow) stockBadge = `<strong style="color:var(--warning);">${g.stock}개</strong> <span class="badge badge-amber">임박</span>`;
-        if (isOut) stockBadge = `<strong style="color:var(--danger);">0개</strong> <span class="badge badge-red">품절</span>`;
+        let stockBadge = `<strong style="font-weight:800;">가용 ${av}개</strong>`;
+        if (isLow) stockBadge = `<strong style="color:var(--warning);">가용 ${av}개</strong> <span class="badge badge-amber">임박</span>`;
+        if (isOut) stockBadge = `<strong style="color:var(--danger);">가용 0개</strong> <span class="badge badge-red">품절</span>`;
+        stockBadge += `<div style="font-size:10.5px; color:var(--text-muted); margin-top:2px;">실재고 ${g.stock} · 예약 ${g.reserved || 0}</div>`;
 
         let stBadge = '<span class="badge badge-green">판매중</span>';
         if (g.status === '판매종료') stBadge = '<span class="badge badge-gray">판매종료(미노출)</span>';
@@ -901,9 +928,9 @@ code, pre, kbd, samp,
       });
 
       document.getElementById('kpi-all').textContent = GOODS.length;
-      document.getElementById('kpi-sale').textContent = GOODS.filter(x => x.status === '판매중' && x.stock > 0).length;
-      document.getElementById('kpi-low').textContent = GOODS.filter(x => x.stock > 0 && x.stock <= x.threshold).length;
-      document.getElementById('kpi-out').textContent = GOODS.filter(x => x.stock === 0).length;
+      document.getElementById('kpi-sale').textContent = GOODS.filter(x => x.status === '판매중' && goodsAvail(x) > 0).length;
+      document.getElementById('kpi-low').textContent = GOODS.filter(x => goodsAvail(x) > 0 && goodsAvail(x) <= x.threshold).length;
+      document.getElementById('kpi-out').textContent = GOODS.filter(x => goodsAvail(x) === 0).length;
     }
 
     function toggleFinanceRole(checked) {
@@ -969,6 +996,7 @@ code, pre, kbd, samp,
         document.getElementById('f-price').value = 11000;
         document.getElementById('f-cost').value = hasFinanceRole ? 5000 : '****';
         document.getElementById('f-stock').value = '0 (초기 재고 입력 가능)';
+        renderGoodsStockTrio(null);
         document.getElementById('f-stock').readOnly = false;
         document.getElementById('btn-inline-adj').disabled = true;
         document.getElementById('btn-inline-hist').disabled = true;
@@ -990,6 +1018,7 @@ code, pre, kbd, samp,
         syncGoodsStatusHint();
         document.getElementById('f-price').value = g.price;
         document.getElementById('f-stock').value = g.stock + ' 개';
+        renderGoodsStockTrio(g);
         document.getElementById('f-stock').readOnly = true;
         document.getElementById('f-threshold').value = g.threshold;
         document.getElementById('f-supplier').value = g.supplier;
@@ -1039,7 +1068,7 @@ code, pre, kbd, samp,
           g.price = price;
           g.cat = document.getElementById('f-cat').value;
           const selSt = document.getElementById('f-status').value;
-          g.status = (g.stock === 0 && selSt !== '판매종료' && selSt !== '판매대기') ? '품절' : selSt;
+          g.status = (goodsAvail(g) === 0 && selSt !== '판매종료' && selSt !== '판매대기') ? '품절' : selSt;
           g.threshold = parseInt(document.getElementById('f-threshold').value || '20', 10);
         }
       } else {
@@ -1054,6 +1083,7 @@ code, pre, kbd, samp,
           price,
           cost: st === 'PURCHASED_RESALE' ? 5000 : 0,
           stock: parseInt(document.getElementById('f-stock').value || '0', 10) || 0,
+          reserved: 0,
           threshold: parseInt(document.getElementById('f-threshold').value || '20', 10),
           status: ['판매대기', '판매종료'].includes(document.getElementById('f-status').value) ? document.getElementById('f-status').value : '판매중',
           supplier: document.getElementById('f-supplier').value,
@@ -1100,6 +1130,8 @@ code, pre, kbd, samp,
       currentEditId = g.id;
       document.getElementById('p1-target-name').textContent = `${g.id} · ${g.name}`;
       document.getElementById('p1-cur-stock').textContent = g.stock;
+      document.getElementById('p1-cur-res').textContent = g.reserved || 0;
+      document.getElementById('p1-cur-avail').textContent = goodsAvail(g);
       document.getElementById('p1-dir').value = 'PLUS';
       document.getElementById('p1-qty').value = 30;
       document.getElementById('p1-reason').value = '입고';
@@ -1130,8 +1162,9 @@ code, pre, kbd, samp,
         el.style.color = 'var(--danger)';
         btn.disabled = true;
       } else {
-        el.textContent = `${next} 개 (${dir === 'PLUS' ? '+' : '-'}${qty})`;
-        el.style.color = 'var(--primary)';
+        const rs = Number(g.reserved || 0);
+        el.textContent = `${next} 개 · 가용 ${Math.max(0, next - rs)} 개 (${dir === 'PLUS' ? '+' : '-'}${qty})${next < rs ? ' ⚠️ 예약보다 적어 출고 불가 라인 발생' : ''}`;
+        el.style.color = next < rs ? 'var(--warning)' : 'var(--primary)';
         btn.disabled = false;
       }
     }
@@ -1158,24 +1191,26 @@ code, pre, kbd, samp,
       const diff = dir === 'PLUS' ? qty : -qty;
       g.stock += diff;
       if (g.status === '판매종료' || g.status === '판매대기') { /* 재고가 바뀌어도 판매종료 · 판매대기 유지 */ }
-      else if (g.stock === 0) g.status = '품절';
-      else if (g.status === '품절' && g.stock > 0) g.status = '판매중';
+      else if (goodsAvail(g) === 0) g.status = '품절';
+      else if (g.status === '품절' && goodsAvail(g) > 0) g.status = '판매중';
 
       g.logs.unshift({
         dt: '2026.10.17 14:35',
         type: '수기 조정',
         diff,
         after: g.stock,
+        res: Number(g.reserved || 0),
         memo: `[${reason === '기타' ? '기타: ' + etcReason : reason}] ${memo}`,
         ref: 'admin_kim (김물류)'
       });
 
       document.getElementById('f-stock').value = g.stock + ' 개';
+        renderGoodsStockTrio(g);
       closeModal('layerGoodsStockAdjust');
       renderTable();
       /* Init PROD-007 Stock Modal */
       if (typeof renderStockHistoryTable === 'function') renderStockHistoryTable();
-      showToast(`재고 조정(${diff > 0 ? '+' : ''}${diff}개 → ${g.stock}개)이 goods_stock_log 원장에 기록되었습니다.`);
+      showToast(`재고 조정(실재고 ${diff > 0 ? '+' : ''}${diff}개 → 실재고 ${g.stock}개 · 가용 ${goodsAvail(g)}개)이 goods_stock_log 원장에 기록되었습니다.`);
     }
 
     /* ADMN-PROD-007-P2 입출고 이력 모달 */
@@ -1198,17 +1233,19 @@ code, pre, kbd, samp,
 
       const logs = g.logs.filter(l => fType === 'ALL' || l.type === fType);
       logs.forEach(l => {
-        const isOrder = l.ref.startsWith('ORD-') || l.ref.startsWith('RFD-');
+        const isOrder = l.ref.startsWith('ORD-') || l.ref.startsWith('RFD-') || l.ref.startsWith('BATCH-');
         const refHtml = isOrder
-          ? `<a href="${l.ref.startsWith('ORD-') ? 'ADMN-ORD-001_baseline.html' : 'ADMN-RFD-002_baseline.html'}" style="color:var(--primary); font-weight:700;">${l.ref} ↗</a>`
+          ? `<a href="${l.ref.startsWith('RFD-') ? 'ADMN-RFD-002_baseline.html' : 'ADMN-ORD-001_baseline.html'}" style="color:var(--primary); font-weight:700;">${l.ref} ↗</a>`
           : `<code>${l.ref}</code>`;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${l.dt}</td>
-          <td><span class="badge ${l.type === '수기 조정' ? 'badge-blue' : (l.diff < 0 ? 'badge-amber' : 'badge-green')}">${l.type}</span></td>
-          <td class="tr-right" style="font-weight:800; color:${l.diff > 0 ? 'var(--primary)' : 'var(--danger)'};">${l.diff > 0 ? '+' + l.diff : l.diff}</td>
+          <td><span class="badge ${l.type === '수기 조정' ? 'badge-blue' : (l.type === '출고 확정' ? 'badge-purple' : (l.diff < 0 ? 'badge-amber' : 'badge-green'))}">${l.type}</span></td>
+          <td class="tr-right" style="font-weight:800; color:${l.diff > 0 ? 'var(--primary)' : 'var(--danger)'};">${(l.type === '결제 예약' || l.type === '예약 해제') ? '가용 ' : '실재고 '}${l.diff > 0 ? '+' + l.diff : l.diff}</td>
           <td class="tr-right" style="font-weight:700;">${l.after}개</td>
+          <td class="tr-right">${l.res || 0}개</td>
+          <td class="tr-right" style="font-weight:700; color:var(--primary);">${Math.max(0, l.after - (l.res || 0))}개</td>
           <td>${l.memo}</td>
           <td>${refHtml}</td>
         `;

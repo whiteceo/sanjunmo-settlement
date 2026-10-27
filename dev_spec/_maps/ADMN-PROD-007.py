@@ -136,6 +136,12 @@ R('onclick="showToast(\'입출고 원장(goods_stock_log) 엑셀 다운로드가
   'data-dev-flag="proto-only" data-dev-note="입출고 이력 엑셀 — 개발 없음" onclick="showToast(\'입출고 원장(goods_stock_log) 엑셀 다운로드가 완료되었습니다.\')"')
 
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
+# ── v7.01 재고 2단 차감(white 결정 Q-3PL-1) ──
+R('id="f-stock-trio"', 'id="f-stock-trio" data-dev-flag="proto-only"' + attrs(note="실재고 · 예약 · 가용 3칸 — 개발은 goods.stock 1칸. 예약(결제 완료 ~ 3PL 송장 업로드) · 가용은 개발 미구현, reserved_stock (규칙)"))
+R('id="p1-cur-stock"', 'id="p1-cur-stock"' + attrs(name="stock (현재 실재고)"))
+R('id="p1-cur-res"', 'id="p1-cur-res" data-dev-flag="proto-only"' + attrs(name="reserved_stock (규칙)"))
+R('id="p1-cur-avail"', 'id="p1-cur-avail" data-dev-flag="proto-only"' + attrs(name="available_stock (규칙, stock − reserved_stock 파생)"))
+
 VERIFY = [
     ("목록 view", "switchView('list')", "#view-list"),
     ("등록 view", "openForm('NEW')", "#view-form"),

@@ -1,7 +1,8 @@
 # ADMN-PROD-007 상품 마스터(일반상품) — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-PROD-007_baseline.html` (원본 상태: `18d66c1` v6.92)
+- 프로토타입 파일: `prototype_clean/ADMN-PROD-007_baseline.html` (원본 상태: d6723b0 v7.01)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- v7.01 정본 변경: 재고 2단 차감(white 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
 - 포함 화면: PROD-007 목록 · 007-S1 등록 · 수정 · 007-P1 재고 조정 · 007-P2 입출고 이력
 - 개발 진행: 구현(목록 · 등록 · 수정 · 판매중지 · 일괄 판매중지 · 재고 조정 · 입출고 이력 · 엑셀). `_index/progress.md` PROD-007 · 007-S1 라우트 주석 있음
 
