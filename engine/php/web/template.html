@@ -159,6 +159,31 @@ details.ct > summary .note { font-weight: 400; }
 .paper .ptnr-sec-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 18px 0 8px; font-size: 13.5px; font-weight: 800; color: #0F172A; }
 .paper .ptnr-sec-title small { font-size: 11.5px; color: #64748B; font-weight: 600; }
 .paper .ptnr-equation { margin-top: 8px; padding: 9px 12px; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 6px; font-size: 12px; color: #92400E; line-height: 1.6; }
+/* 접는 영역 */
+details.fold > summary { list-style: none; cursor: pointer; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::before { content: "▸"; color: var(--muted); }
+details.fold[open] > summary::before { content: "▾"; }
+details.fold:not([open]) { gap: 0; }
+/* 관계 그래프 */
+.graph-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--sunk); }
+#graph { display: block; min-width: 760px; width: 100%; height: auto; }
+#graph .lk { fill: none; stroke-opacity: .42; transition: stroke-opacity .15s; }
+#graph .lk.in { stroke: var(--up); } #graph .lk.out { stroke: var(--down); }
+#graph .lk.pay { stroke: var(--ok); } #graph .lk.carry { stroke: var(--warn); } #graph .lk.claim { stroke: var(--bad); }
+#graph .nd rect { fill: var(--total); rx: 3; }
+#graph .nd.src rect { fill: var(--up); } #graph .nd.sink rect { fill: var(--down); }
+#graph .nd.pay rect { fill: var(--ok); } #graph .nd.carry rect { fill: var(--warn); } #graph .nd.claim rect { fill: var(--bad); }
+#graph .nd text { fill: var(--ink); font-size: 12px; font-family: var(--font-body); }
+#graph .nd text.amt { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+#graph .nd { cursor: pointer; }
+#graph .nd:focus { outline: none; } #graph .nd:focus rect, #graph .nd.sel rect { stroke: var(--ink); stroke-width: 2; }
+#graph .colh { fill: var(--muted); font-size: 11px; letter-spacing: .04em; font-family: var(--font-body); }
+#graph.dim .lk { stroke-opacity: .08; } #graph.dim .lk.hl { stroke-opacity: .7; }
+.g-detail { display: grid; gap: 8px; }
+.g-detail:empty { display: none; }
+.g-detail .lks { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 6px 16px; font-size: 13px; }
+.g-detail .lks div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dashed var(--line); padding: 3px 0; }
 ul.issues { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 ul.issues li span { color: var(--muted); font-size: 12px; }
 @media (prefers-reduced-motion: no-preference) { button { transition: filter .15s; } button:hover:not(:disabled) { filter: brightness(1.05); } }
@@ -173,21 +198,33 @@ ul.issues li span { color: var(--muted); font-size: 12px; }
     <span id="engine" class="pill">PHP 엔진 준비 중</span>
   </header>
 
-  <section class="panel" aria-labelledby="h-in">
-    <div class="row spread">
-      <h2 id="h-in">입력 조건</h2>
-      <div class="row">
-        <button id="run" class="primary" disabled>다시 계산</button>
-        <button id="copy" disabled>결과 JSON 복사</button>
-      </div>
-    </div>
+  <section class="panel" aria-label="계산 대상">
     <div class="row">
       <label class="f" for="example" style="flex: 1 1 320px">예시 불러오기(가상 값)<select id="example"></select></label>
       <span class="filebtn"><input id="file" type="file" accept=".json,application/json">JSON 파일 열기</span>
+      <button id="run" class="primary" disabled>다시 계산</button>
+      <button id="copy" disabled>결과 JSON 복사</button>
     </div>
+    <div class="row spread"><div id="msg" class="note"></div><span id="parity" class="pill">파이썬판 대조 전</span></div>
+    <div id="stats" class="stats"></div>
+    <div id="errors"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-graph">
+    <div class="row spread">
+      <h2 id="h-graph">돈의 관계 그래프</h2>
+      <label class="f" for="g-holder" style="width: min(280px, 100%)">권리자<select id="g-holder"></select></label>
+    </div>
+    <p class="note" style="margin:0">왼쪽 매출 원천에서 계약으로 모이고, 계약에서 수취인으로 나뉜 뒤 지급 · 이월 · 청구로 끝납니다. 선 굵기가 금액입니다. 환불 · 선급금 회수 · 세금처럼 빠져나가는 돈은 주황 선입니다. 상자를 누르면 그 대상의 계산 근거가 아래에 나옵니다.</p>
+    <div class="graph-wrap"><svg id="graph" role="img" aria-label="정산 금액 관계 그래프"></svg></div>
+    <div id="g-detail" class="g-detail"></div>
+  </section>
+
+  <details class="panel fold" id="fold-in">
+    <summary><h2 id="h-in">입력 조건 보기 · 고치기</h2><span class="note">값을 고치면 0.6초 뒤 자동으로 다시 계산합니다</span></summary>
     <div class="top" id="topfields"></div>
     <div class="row spread">
-      <span class="note">값을 고치면 0.6초 뒤 자동으로 다시 계산합니다. 숫자 금액은 원 단위, 비율은 % 수치(50 = 50%)로 넣습니다.</span>
+      <span class="note">숫자 금액은 원 단위, 비율은 % 수치(50 = 50%)로 넣습니다.</span>
       <label class="check"><input id="showall" type="checkbox"> 비어 있는 항목도 보기</label>
     </div>
     <div class="groups" id="tables"></div>
@@ -196,55 +233,38 @@ ul.issues li span { color: var(--muted); font-size: 12px; }
       <textarea id="input" spellcheck="false" aria-label="입력 JSON"></textarea>
       <div class="row"><button id="applyjson">JSON을 입력칸에 반영</button></div>
     </details>
-    <div id="msg" class="note"></div>
-  </section>
+  </details>
 
-  <section class="panel" aria-labelledby="h-sum">
-    <div class="row spread">
-      <h2 id="h-sum">결과 요약</h2>
-      <span id="parity" class="pill">파이썬판 대조 전</span>
-    </div>
-    <div id="stats" class="stats"></div>
-    <div id="errors"></div>
-  </section>
-
-  <section class="panel" aria-labelledby="h-pay">
-    <h2 id="h-pay">수취인별 정산</h2>
+  <details class="panel fold">
+    <summary><h2 id="h-pay">수취인별 정산표</h2></summary>
     <div class="scroll"><table id="payees"></table></div>
-  </section>
+  </details>
 
-  <section class="panel" aria-labelledby="h-flow">
-    <div class="row spread">
-      <h2 id="h-flow">돈의 흐름 요약</h2>
-      <span class="note">수취인마다 이번 달 금액이 어떻게 지급액(또는 이월)이 됐는지. 0원인 단계는 뺐습니다.</span>
-    </div>
+  <details class="panel fold">
+    <summary><h2 id="h-flow">수취인별 흐름 풀어 쓰기</h2><span class="note">한 문단 설명과 막대 그림</span></summary>
     <div id="flows" class="flows"></div>
-  </section>
+  </details>
 
-  <section class="panel" aria-labelledby="h-stmt">
-    <div class="row spread">
-      <h2 id="h-stmt">권리자 정산서</h2>
-      <label class="f" for="stmt-who" style="width: min(420px, 100%)">정산 받는 분<select id="stmt-who"></select></label>
-    </div>
-    <p class="note" style="margin:0">파트너 센터(ADMN-PTNR-001) · 권리자 제공 정산서(ADMN-SETT-002-S2) 양식에 이 계산 결과를 넣은 미리보기입니다. 권리자 이름 · 계좌 · 강좌명처럼 계산 입력에 없는 정보는 번호로 대신 표시합니다.</p>
+  <details class="panel fold">
+    <summary><h2 id="h-stmt">권리자 정산서</h2><span class="note">파트너 센터(ADMN-PTNR-001) 정산서 양식 미리보기</span></summary>
+    <label class="f" for="stmt-who" style="width: min(420px, 100%)">정산 받는 분<select id="stmt-who"></select></label>
+    <p class="note" style="margin:0">권리자 이름 · 계좌 · 강좌명처럼 계산 입력에 없는 정보는 번호로 대신 표시합니다.</p>
     <div class="paper-wrap"><div id="stmt" class="paper"></div></div>
-  </section>
+  </details>
 
-  <section class="panel" aria-labelledby="h-tr">
-    <div class="row spread">
-      <h2 id="h-tr">계약별 계산 과정</h2>
-      <div class="row">
-        <label class="f" for="f-q" style="width: 220px">찾기<input id="f-q" type="search" placeholder="항목 · 수식 · 근거"></label>
-        <label class="check"><input id="f-all" type="checkbox"> 중간 계산(건별)도 보기</label>
-      </div>
+  <details class="panel fold">
+    <summary><h2 id="h-tr">계약별 계산 과정(전체)</h2><span class="note">단계마다 업무 설명과 모든 계산 항목</span></summary>
+    <div class="row">
+      <label class="f" for="f-q" style="width: 220px">찾기<input id="f-q" type="search" placeholder="항목 · 수식 · 근거"></label>
+      <label class="check"><input id="f-all" type="checkbox"> 중간 계산(건별)도 보기</label>
     </div>
     <div id="trace" class="groups"></div>
-  </section>
+  </details>
 
-  <section class="panel" aria-labelledby="h-is">
-    <h2 id="h-is">확인 필요 · 잠정 규칙</h2>
+  <details class="panel fold">
+    <summary><h2 id="h-is">확인 필요 · 잠정 규칙</h2><span id="is-cnt" class="note"></span></summary>
     <ul id="issues" class="issues"></ul>
-  </section>
+  </details>
 </div>
 
 <script type="module">
@@ -498,7 +518,8 @@ function render() {
     pe.className = 'pill ' + (diff ? 'bad' : 'ok');
     pe.textContent = diff ? `파이썬판과 ${diff}건 다름` : `파이썬판과 ${a.length.toLocaleString()}개 항목 모두 일치`;
   } else { pe.className = 'pill'; pe.textContent = '조건을 바꿈(파이썬판 대조는 예시 그대로일 때만)'; }
-  renderPayees(r); renderFlows(r); fillStmt(r); renderTrace();
+  renderPayees(r); renderFlows(r); fillStmt(r); fillGraph(r); renderTrace();
+  $('is-cnt').textContent = r.issues.length + '건';
   $('issues').innerHTML = r.issues.length ? r.issues.map(i => `<li>${esc(i.message)} <span>${esc([L.values[i.kind] || i.kind, i.step_code && (r.steps.find(s => s.code === i.step_code) || {}).name, i.question, i.ref].filter(Boolean).join(' · '))}</span></li>`).join('')
     : '<li class="note">없음</li>';
 }
@@ -804,6 +825,131 @@ function renderStmt() {
     + '</div></div>');
   $('stmt').innerHTML = H.join('');
 }
+
+// ---------------------------------------------------------------- 돈의 관계 그래프
+function fillGraph(r) {
+  const keep = $('g-holder').value;
+  const hs = r.rights_holders.filter(h => h.contracts.some(c => c.payees.length)).map(h => h.rights_holder_id);
+  $('g-holder').innerHTML = (hs.length > 1 ? '<option value="">전체</option>' : '') + hs.map(h => `<option>${esc(h)}</option>`).join('');
+  const many = hs.length > 2;
+  $('g-holder').value = hs.includes(keep) || keep === '' && !many ? keep : (many ? hs[0] || '' : '');
+  renderGraph();
+}
+$('g-holder').addEventListener('change', renderGraph);
+let G = null;
+function buildGraph(r, holder) {
+  const nodes = new Map(), links = [];
+  const node = (id, col, label, kind) => { if (!nodes.has(id)) nodes.set(id, { id, col, label, kind, inV: 0, outV: 0, ref: [] }); return nodes.get(id); };
+  const link = (s, t, v, kind, why) => { v = Number(v) || 0; if (Math.abs(v) < 0.5) return; links.push({ s, t, v: Math.abs(v), kind, why });
+    nodes.get(s).outV += Math.abs(v); nodes.get(t).inV += Math.abs(v); };
+  for (const h of r.rights_holders) {
+    if (holder && h.rights_holder_id !== holder) continue;
+    for (const c of h.contracts) {
+      if (!c.payees.length) continue;
+      const cid = c.contract_id, cs = c.steps || {}, C = 'C:' + cid;
+      node(C, 1, `계약 ${cid}`, 'contract').holder = h.rights_holder_id;
+      const lec = new Map();
+      for (const e of contractTrace(r, cid, 'rs_q4')) { const k = String(e.scope.ref_id || '').split('/').pop(); lec.set(k, (lec.get(k) || 0) + N(e.result)); }
+      for (const [k, v] of lec) { node('L:' + k, 0, `강의 ${k}`, 'src'); link('L:' + k, C, v, 'in', '강좌 R/S(지분율 × 요율)'); }
+      if (N((cs.MMG_ADJ || {}).mmg_subsidy)) { node('MMG', 0, '월 보장액(MMG) 보전', 'src'); link('MMG', C, cs.MMG_ADJ.mmg_subsidy, 'in', 'MMG 보전금'); }
+      for (const e of contractTrace(r, cid, 'p2_1_royalty')) { node('B:' + e.scope.ref_id, 0, `도서 ${e.scope.ref_id}`, 'src'); link('B:' + e.scope.ref_id, C, e.result, 'in', '도서 인세'); }
+      if ((cs.ACCRUAL || {}).consignment) { node('K:' + cid, 0, '위탁 도서 판매', 'src'); link('K:' + cid, C, cs.ACCRUAL.consignment.consignment_input, 'in', '위탁 정산 입력액'); }
+      for (const s of Array.isArray(cs.SUPPORT_CAP) ? cs.SUPPORT_CAP : []) { node('S:' + s.agreement_id, 0, `개발지원금 ${s.agreement_id}`, 'src'); link('S:' + s.agreement_id, C, s.accrued_amount, 'in', '지원금 발생액');
+        if (N(s.expired_excess)) { node('X:exp', 2, '한도 초과 소멸', 'sink'); link(C, 'X:exp', s.expired_excess, 'out', '지원금 한도 초과'); } }
+      for (const x of (cs.LUMPSUM_ADD || {}).lines || []) { node('M:' + x.milestone_id, 0, `${L.values[x.item_kind] || x.item_kind} ${x.milestone_id}`, 'src'); link('M:' + x.milestone_id, C, x.amount, 'in', '승인 약정금'); }
+      const D = cs.DEDUCT || {};
+      const ded = Math.abs(N(D.refund_deduct_1_1)) + Math.abs(N(D.optB_deduct_1_1)) + Math.abs(N(D.optC_deduct_1_1)) + Math.abs(N(D.return_deduct_2_1))
+        + Math.abs(N(D.return_deduct_2_2)) + (D.support_deduct_total || []).reduce((a, x) => a + Math.abs(N(x.total)), 0);
+      if (ded) { node('X:ded', 2, '환불 · 반품 공제', 'sink'); link(C, 'X:ded', ded, 'out', '원 결제 요율로 되돌려 뺀 금액'); }
+      if (N((cs.PREPAY_OFFSET || {}).offset_amount)) { node('X:pre', 2, '선급금 회수', 'sink'); link(C, 'X:pre', cs.PREPAY_OFFSET.offset_amount, 'out', '이미 준 선급금에서 회수'); }
+      for (const p of c.payees) {
+        const f = payeeFigures(r, h, c, p);
+        const consIn = (p.lines || []).filter(l => l.origin === 'CONSIGNMENT').reduce((a, l) => a + N(l.pre_tax_payable), 0);
+        const preIn = N((p.TAX || {}).pre_tax_payable_total) + consIn;
+        if (!preIn && !f.carryPre && !f.judge && !f.claim && !f.postCarry) continue;
+        const P = `P:${p.payee_id}@${cid}`;
+        const pn = node(P, 2, `수취인 ${p.payee_id}`, 'payee'); pn.f = f; pn.sub = `계약 ${cid}`;
+        link(C, P, preIn, 'in', '수취인 분할 후 세전 지급액');
+        if (f.carryPre || f.postCarry) { node('CI', 1, '지난달 이월', 'src'); link('CI', P, f.carryPre + f.postCarry, 'in', '지난달 세전 · 세후 이월'); }
+        if (f.vatAdded > 0) { node('VAT', 1, '부가세(지급에 더함)', 'src'); link('VAT', P, f.vatAdded, 'in', '사업자 수취인 부가세'); }
+        if (f.wt) { node('T:wt', 3, '원천세(소득세 · 지방소득세)', 'sink'); link(P, 'T:wt', f.wt, 'out', '원천징수'); }
+        const feeVat = N((p.TAX || {}).consignment_fee_vat);
+        if (feeVat) { node('T:fv', 3, '위탁 수수료 부가세', 'sink'); link(P, 'T:fv', feeVat, 'out', '위탁 수수료 부가세'); }
+        if (f.carryPre !== f.carryAT && f.carryAT) { node('T:wt', 3, '원천세(소득세 · 지방소득세)', 'sink'); link(P, 'T:wt', f.carryPre - f.carryAT, 'out', '이월분 원천세'); }
+        if (f.claimAdj < 0 && !f.claim) { node('T:ret', 3, '반환 · 청구 상계', 'sink'); link(P, 'T:ret', -f.claimAdj, 'out', '반환채권 상계'); }
+        if (f.claim) { node('R:claim', 3, '반환 청구', 'claim'); link(P, 'R:claim', f.claim, 'claim', '청구서 발행'); }
+        else if (f.confirmed && f.payout) { node('R:pay', 3, '지급 확정', 'pay'); link(P, 'R:pay', f.payout, 'pay', '이번 달 지급'); }
+        else if (f.carryLoad) { node('R:carry', 3, '다음 달 이월', 'carry'); link(P, 'R:carry', f.carryLoad, 'carry', '최소 지급액 미달'); }
+      }
+    }
+  }
+  return { nodes: [...nodes.values()].filter(n => n.inV || n.outV), links };
+}
+function renderGraph() {
+  const r = result; if (!r) return;
+  G = buildGraph(r, $('g-holder').value);
+  const svg = $('graph');
+  if (!G.links.length) { svg.setAttribute('viewBox', '0 0 1000 60'); svg.innerHTML = '<text x="20" y="34" class="colh">이 권리자에게는 이번 달 움직인 금액이 없습니다.</text>'; $('g-detail').innerHTML = ''; return; }
+  const W = 1000, NW = 12, X = [8, 300, 560, 820], TOP = 26, GAP = 14;
+  const cols = [0, 1, 2, 3].map(i => G.nodes.filter(n => n.col === i));
+  const order = { src: 0, contract: 0, payee: 0, sink: 1, pay: 0, carry: 1, claim: 2 };
+  cols.forEach(cn => cn.sort((a, b) => (order[a.kind] - order[b.kind]) || ((a.holder || '') > (b.holder || '') ? 1 : -1)));
+  const H = Math.max(260, Math.max(...cols.map(c => c.length)) * 46 + 40);
+  const k = Math.min(...cols.filter(c => c.length).map(c => (H - TOP - 10 - GAP * (c.length - 1)) / c.reduce((a, n) => a + Math.max(n.inV, n.outV), 0)));
+  const SLOT = 34; // 이름 · 금액 두 줄이 겹치지 않는 최소 칸
+  let Hn = H;
+  for (const cn of cols) {
+    const hs = cn.map(n => Math.max(8, Math.max(n.inV, n.outV) * k));
+    const total = hs.reduce((a, b) => a + Math.max(b, SLOT), 0) + GAP * (cn.length - 1);
+    let y = TOP + Math.max(0, (H - TOP - 10 - total) / 2);
+    cn.forEach((n, i) => { n.x = X[n.col]; n.y = y; n.h = hs[i]; n.io = 0; n.oo = 0; y += Math.max(hs[i], SLOT) + GAP; });
+    Hn = Math.max(Hn, y + 10);
+  }
+  const byId = new Map(G.nodes.map(n => [n.id, n]));
+  const lk = G.links.map((l, i) => {
+    const s = byId.get(l.s), t = byId.get(l.t), w = Math.max(1.5, l.v * k);
+    const sy = s.y + s.oo + w / 2, ty = t.y + t.io + w / 2; s.oo += w; t.io += w;
+    const x0 = s.x + NW, x1 = t.x, mx = (x0 + x1) / 2;
+    return `<path class="lk ${l.kind}" data-i="${i}" d="M${x0},${sy} C${mx},${sy} ${mx},${ty} ${x1},${ty}" stroke-width="${w.toFixed(1)}"><title>${esc(s.label)} → ${esc(t.label)} ${won(l.v)} · ${esc(l.why)}</title></path>`;
+  }).join('');
+  const kindCls = { src: 'src', contract: '', payee: '', sink: 'sink', pay: 'pay', carry: 'carry', claim: 'claim' };
+  const nd = G.nodes.map(n => {
+    const right = n.col === 3, tx = right ? n.x - 6 : n.x + NW + 6, anchor = right ? 'end' : 'start';
+    const amt = won(Math.max(n.inV, n.outV));
+    return `<g class="nd ${kindCls[n.kind]}" tabindex="0" data-id="${esc(n.id)}" role="button" aria-label="${esc(n.label)} ${amt}"><rect x="${n.x}" y="${n.y.toFixed(1)}" width="${NW}" height="${n.h.toFixed(1)}"></rect>`
+      + `<text x="${tx}" y="${(n.y + Math.min(n.h / 2, 14) + 4).toFixed(1)}" text-anchor="${anchor}">${esc(n.label)}</text>`
+      + `<text class="amt" x="${tx}" y="${(n.y + Math.min(n.h / 2, 14) + 18).toFixed(1)}" text-anchor="${anchor}">${amt}${n.sub && $('g-holder').value === '' ? ' · ' + esc(n.sub) : ''}</text></g>`;
+  }).join('');
+  const heads = ['매출 원천', '계약', '수취인 · 빠져나간 돈', '결과 · 세금'].map((t, i) => `<text class="colh" x="${i === 3 ? X[i] + NW : X[i]}" y="14" text-anchor="${i === 3 ? 'end' : 'start'}">${t}</text>`).join('');
+  svg.setAttribute('viewBox', `0 0 ${W} ${Hn}`);
+  svg.innerHTML = heads + lk + nd;
+  svg.classList.remove('dim');
+  $('g-detail').innerHTML = '<p class="note" style="margin:0">상자를 누르면 그 대상의 금액이 어디서 와서 어디로 갔는지, 계산 근거가 여기에 나옵니다.</p>';
+}
+function showNode(id) {
+  const n = G.nodes.find(x => x.id === id); if (!n) return;
+  const svg = $('graph'); svg.classList.add('dim');
+  svg.querySelectorAll('.nd').forEach(g => g.classList.toggle('sel', g.dataset.id === id));
+  svg.querySelectorAll('.lk').forEach(p => { const l = G.links[p.dataset.i]; p.classList.toggle('hl', l.s === id || l.t === id); });
+  const lab = x => (G.nodes.find(m => m.id === x) || {}).label || x;
+  const ins = G.links.filter(l => l.t === id), outs = G.links.filter(l => l.s === id);
+  let html = `<h3>${esc(n.label)}${n.sub ? ` <span class="note">${esc(n.sub)}</span>` : ''}</h3>`;
+  if (n.f) html += `<p class="story" style="margin:0">${esc(story(n.f))}</p>`;
+  if (ins.length) html += `<div class="note">들어온 돈</div><div class="lks">${ins.map(l => `<div><span>${esc(lab(l.s))} <small class="note">${esc(l.why)}</small></span><b>${won(l.v)}</b></div>`).join('')}</div>`;
+  if (outs.length) html += `<div class="note">나간 돈</div><div class="lks">${outs.map(l => `<div><span>${esc(lab(l.t))} <small class="note">${esc(l.why)}</small></span><b>${won(l.v)}</b></div>`).join('')}</div>`;
+  const KEY = { contract: ['accrual_total', 'adjusted_1_1', 'mmg_subsidy', 'deduct_total', 'confirmed_amount', 'offset_amount', 'lumpsum_total', 'payee_split_base', 'splits_used'],
+    payee: ['split_amount_total', 'offset_amount_total', 'taxable_base_total', 'vat_total', 'withholding_total', 'net_settle_amount', 'claim_negative_net', 'payable_net_for_payout', 'payout_judgement_amount', 'payout_confirmed_yn', 'payout_amount', 'carry_load'] };
+  let rows = [];
+  if (n.kind === 'contract') { const cid = n.id.slice(2); rows = result.trace.filter(e => e.output && e.scope.contract_id === cid && !e.scope.payee_id && KEY.contract.includes(e.field)); }
+  else if (n.kind === 'payee') { rows = result.trace.filter(e => e.output && e.scope.contract_id === n.f.cid && e.scope.payee_id === n.f.pid && !e.scope.line_id && KEY.payee.includes(e.field)); }
+  else if (n.id.startsWith('L:')) { const lec = n.id.slice(2); rows = result.trace.filter(e => e.field === 'rs_q4' && String(e.scope.ref_id || '').endsWith('/' + lec)); }
+  else if (n.id.startsWith('B:')) { rows = result.trace.filter(e => (e.field === 'p2_1_royalty' || e.field === 'sku_royalty_total') && e.scope.ref_id === n.id.slice(2)); }
+  else if (n.id.startsWith('S:')) { rows = result.trace.filter(e => e.output && e.scope.agreement_id === n.id.slice(2) && ['support_basis', 'support_new', 'avail_cap', 'new_confirmed', 'expired_excess', 'confirmed_amount', 'remaining_cap'].includes(e.field)); }
+  if (rows.length) html += `<div class="note">계산 근거</div><div class="calc">${rows.map(lineHTML).join('')}</div>`;
+  $('g-detail').innerHTML = html;
+}
+$('graph').addEventListener('click', e => { const g = e.target.closest('.nd'); if (g) showNode(g.dataset.id); else { $('graph').classList.remove('dim'); $('graph').querySelectorAll('.nd.sel').forEach(x => x.classList.remove('sel')); } });
+$('graph').addEventListener('keydown', e => { const g = e.target.closest('.nd'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); showNode(g.dataset.id); } });
 
 $('f-q').addEventListener('input', renderTrace);
 $('f-all').addEventListener('change', renderTrace);
