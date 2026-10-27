@@ -116,6 +116,49 @@ details.ct > summary .note { font-weight: 400; }
 .line .ref { grid-column: 1 / -1; font-size: 11px; color: var(--muted); }
 .line .ref .mono { font-size: 10.5px; }
 .tag { font-size: 11px; border-radius: 4px; padding: 0 6px; background: var(--warn-bg); color: var(--warn); white-space: nowrap; font-weight: 400; }
+/* 돈의 흐름(폭포형 막대): 늘어난 금액 = 강조색, 줄어든 금액 = 감소색, 합계 = 잉크 */
+:root { --up: #2f7d66; --down: #c0703a; --total: #3b4a57; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --up: #5fbf9c; --down: #e3955f; --total: #a9b6c2; } }
+:root[data-theme="dark"] { --up: #5fbf9c; --down: #e3955f; --total: #a9b6c2; }
+.flows { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr)); gap: 14px; }
+.flow { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 10px; min-width: 0; }
+.flow .who { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.flow .story { margin: 0; font-size: 13px; max-width: 75ch; }
+.wf { display: grid; gap: 4px; }
+.wf .r { display: grid; grid-template-columns: minmax(96px, 9.5em) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 12.5px; }
+.wf .r .t { color: var(--muted); }
+.wf .r.total .t { color: var(--ink); font-weight: 600; }
+.wf .track { position: relative; height: 14px; }
+.wf .track::before { content: ""; position: absolute; inset: 6px 0; border-top: 1px dashed var(--line); }
+.wf .bar { position: absolute; top: 0; height: 14px; border-radius: 3px; min-width: 2px; }
+.wf .bar.up { background: var(--up); } .wf .bar.down { background: var(--down); } .wf .bar.total { background: var(--total); }
+.wf .v { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; min-width: 8.5em; }
+.wf .r.total .v { font-weight: 600; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.outcome { font-size: 12.5px; border-radius: 6px; padding: 6px 10px; background: var(--sunk); }
+/* 권리자 정산서 — 프로토타입(ADMN-PTNR-001 · SETT-002-S2) 문서 양식 그대로, 문서는 항상 흰 종이 */
+.paper-wrap { background: #e2e8f0; border-radius: 12px; padding: 16px; overflow-x: auto; }
+.paper { background: #ffffff; color: #0F172A; max-width: 1040px; margin: 0 auto; border: 1px solid #cbd5e1; border-radius: 8px; padding: 28px 32px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); font-family: "Pretendard", "Malgun Gothic", var(--font-body); font-size: 13px; color-scheme: light; }
+.paper .ptnr-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.paper .ptnr-table th { background: #F8FAFC; color: #334155; font-weight: 700; text-align: left; padding: 9px 10px; border: 1px solid #E2E8F0; white-space: nowrap; letter-spacing: 0; }
+.paper .ptnr-table td { padding: 9px 10px; border: 1px solid #E2E8F0; vertical-align: top; color: #0F172A; }
+.paper .ptnr-table td.num, .paper .ptnr-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.paper .ptnr-table-wrap { overflow-x: auto; }
+.paper .ptnr-notice { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 13px 16px; border-radius: 8px; margin-bottom: 14px; font-size: 12.5px; line-height: 1.65; }
+.paper .ptnr-notice.is-blue { background: #EFF6FF; border: 1px solid #BFDBFE; color: #1E3A8A; }
+.paper .ptnr-notice.is-gray { background: #F8FAFC; border: 1px solid #E2E8F0; color: #475569; }
+.paper .ptnr-notice strong { font-weight: 800; }
+.paper .ptnr-doc-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 2px solid #0F172A; }
+.paper .ptnr-doc-head h3 { margin: 4px 0 0; font-size: 20px; font-weight: 900; color: #0F172A; }
+.paper .ptnr-doc-meta { text-align: right; font-size: 12px; color: #475569; line-height: 1.7; }
+.paper .ptnr-party-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.paper .ptnr-party { padding: 12px 14px; border: 1px solid #E2E8F0; border-radius: 8px; background: #F8FAFC; font-size: 12.5px; line-height: 1.75; }
+.paper .ptnr-party-title { font-size: 12px; font-weight: 800; color: #1D4ED8; margin-bottom: 4px; }
+.paper .ptnr-sec-title { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 18px 0 8px; font-size: 13.5px; font-weight: 800; color: #0F172A; }
+.paper .ptnr-sec-title small { font-size: 11.5px; color: #64748B; font-weight: 600; }
+.paper .ptnr-equation { margin-top: 8px; padding: 9px 12px; background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 6px; font-size: 12px; color: #92400E; line-height: 1.6; }
 ul.issues { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
 ul.issues li span { color: var(--muted); font-size: 12px; }
 @media (prefers-reduced-motion: no-preference) { button { transition: filter .15s; } button:hover:not(:disabled) { filter: brightness(1.05); } }
@@ -168,6 +211,23 @@ ul.issues li span { color: var(--muted); font-size: 12px; }
   <section class="panel" aria-labelledby="h-pay">
     <h2 id="h-pay">수취인별 정산</h2>
     <div class="scroll"><table id="payees"></table></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-flow">
+    <div class="row spread">
+      <h2 id="h-flow">돈의 흐름 요약</h2>
+      <span class="note">수취인마다 이번 달 금액이 어떻게 지급액(또는 이월)이 됐는지. 0원인 단계는 뺐습니다.</span>
+    </div>
+    <div id="flows" class="flows"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-stmt">
+    <div class="row spread">
+      <h2 id="h-stmt">권리자 정산서</h2>
+      <label class="f" for="stmt-who" style="width: min(420px, 100%)">정산 받는 분<select id="stmt-who"></select></label>
+    </div>
+    <p class="note" style="margin:0">파트너 센터(ADMN-PTNR-001) · 권리자 제공 정산서(ADMN-SETT-002-S2) 양식에 이 계산 결과를 넣은 미리보기입니다. 권리자 이름 · 계좌 · 강좌명처럼 계산 입력에 없는 정보는 번호로 대신 표시합니다.</p>
+    <div class="paper-wrap"><div id="stmt" class="paper"></div></div>
   </section>
 
   <section class="panel" aria-labelledby="h-tr">
@@ -438,7 +498,7 @@ function render() {
     pe.className = 'pill ' + (diff ? 'bad' : 'ok');
     pe.textContent = diff ? `파이썬판과 ${diff}건 다름` : `파이썬판과 ${a.length.toLocaleString()}개 항목 모두 일치`;
   } else { pe.className = 'pill'; pe.textContent = '조건을 바꿈(파이썬판 대조는 예시 그대로일 때만)'; }
-  renderPayees(r); renderTrace();
+  renderPayees(r); renderFlows(r); fillStmt(r); renderTrace();
   $('issues').innerHTML = r.issues.length ? r.issues.map(i => `<li>${esc(i.message)} <span>${esc([L.values[i.kind] || i.kind, i.step_code && (r.steps.find(s => s.code === i.step_code) || {}).name, i.question, i.ref].filter(Boolean).join(' · '))}</span></li>`).join('')
     : '<li class="note">없음</li>';
 }
@@ -497,6 +557,254 @@ function renderTrace() {
   }
   $('trace').innerHTML = html || '<p class="note">조건에 맞는 계산이 없습니다.</p>';
 }
+// ---------------------------------------------------------------- 수취인별 금액 흐름(요약 · 그림 · 정산서 공용)
+const N = v => (v === null || v === undefined || v === '') ? 0 : Number(v);
+const won = n => (n < 0 ? '-' : '') + Math.abs(Math.round(n)).toLocaleString('ko-KR') + '원';
+const signed = n => n === 0 ? '0원' : (n > 0 ? '+' : '-') + Math.abs(Math.round(n)).toLocaleString('ko-KR') + '원';
+function traceSum(r, cid, pid, field) {
+  return r.trace.filter(e => e.scope.contract_id === cid && e.scope.payee_id === pid && e.field === field).reduce((a, e) => a + N(e.result), 0);
+}
+function payeeFigures(r, h, c, p) {
+  const T = p.TAX || {}, C = p.CLAIM || {}, O = p.PAYOUT || {};
+  const cid = c.contract_id, pid = p.payee_id;
+  const ded = traceSum(r, cid, pid, 'split_deduct_snapshot'), adj = traceSum(r, cid, pid, 'adjustment_line');
+  const split = N(T.split_amount_total), offset = N(T.offset_amount_total), wt = N(T.withholding_total), cons = N(T.consignment_settle_amount);
+  const net = N(T.net_settle_amount), carryAT = N(T.carry_pre_tax_after_tax_total), carryPre = traceSum(r, cid, pid, 'carry_pre_tax_line');
+  const vatAdded = net - (split - offset - wt + cons);
+  const payable = N(C.payable_net_for_payout), claimAdj = payable - net - carryAT, postCarry = N(O.carry_post_tax_pos_total);
+  return { h, c, p, T, C, O, cid, pid, ded, adj, gross: split - ded - adj, split, offset, wt, cons, net, carryAT, carryPre, vatAdded,
+    payable, claimAdj, postCarry, judge: N(O.payout_judgement_amount), confirmed: !!O.payout_confirmed_yn, payout: N(O.payout_amount),
+    carryLoad: N(O.carry_load), claim: N(C.claim_amount), limit: N(O.min_payout_limit), reasons: O.force_settle_reasons || [],
+    cases: T.matrix_case_ids || [] };
+}
+function allFigures(r) {
+  const out = [];
+  for (const h of r.rights_holders) for (const c of h.contracts) for (const p of c.payees) {
+    const f = payeeFigures(r, h, c, p);
+    if (f.split || f.carryPre || f.cons || f.judge || f.postCarry || f.claim || f.payable) out.push(f);
+  }
+  return out;
+}
+const REASON = { SIX_MONTHS: '최초 지급 대상 확정 후 6개월 경과', DECEMBER: '12월 강제 정산', CONTRACT_END: '계약 만료 · 해지', BUSINESS_CLOSED: '폐업' };
+function story(f) {
+  const parts = [];
+  if (f.carryAT) parts.push(`지난달 세전 이월 ${won(f.carryPre)}(세후 ${won(f.carryAT)})`);
+  parts.push(`이번 달 발생 ${won(f.gross)}`);
+  if (f.ded) parts.push(`환불 · 반품 공제 ${won(f.ded)}`);
+  if (f.adj) parts.push(`전월 정산 조정 ${signed(f.adj)}`);
+  if (f.offset) parts.push(`선급금 회수 ${won(-f.offset)}`);
+  if (f.vatAdded) parts.push(`부가세 ${signed(f.vatAdded)}`);
+  if (f.wt) parts.push(`원천세 ${won(-f.wt)}`);
+  if (f.cons) parts.push(`위탁 정산 ${signed(f.cons)}`);
+  let s = parts.join(', ') + `으로 세후 실정산액은 ${won(f.net + f.carryAT)}입니다.`;
+  if (f.claimAdj) s += ` 반환 · 청구를 반영하면 ${signed(f.claimAdj)}입니다.`;
+  if (f.postCarry) s += ` 지난달 세후 이월 ${won(f.postCarry)}을 더해 지급 판정 금액은 ${won(f.judge)}입니다.`;
+  if (f.claim) s += ` 금액이 음수라 ${won(f.claim)}을 청구합니다.`;
+  else if (f.confirmed) s += f.reasons.length ? ` ${f.reasons.map(x => REASON[x] || x).join(' · ')} 사유로 지급을 확정합니다(지급액 ${won(f.payout)}).`
+    : ` 최소 지급액 ${won(f.limit)} 이상이라 ${won(f.payout)}을 지급합니다.`;
+  else if (f.carryLoad) s += ` 최소 지급액 ${won(f.limit)}에 못 미쳐 세전 ${won(f.carryLoad)}을 다음 달로 넘깁니다.`;
+  else if (f.judge <= 0) s += ' 이번 달 지급할 금액이 없습니다.';
+  return s;
+}
+function renderFlows(r) {
+  const fs = allFigures(r);
+  $('flows').innerHTML = fs.length ? fs.map(f => {
+    const steps = [['전월 이월(세후)', f.carryAT], ['당월 발생', f.gross], ['환불 · 반품 공제', f.ded], ['전월 정산 조정', f.adj],
+      ['선급금 회수', -f.offset], ['부가세', f.vatAdded], ['원천세', -f.wt], ['위탁 정산', f.cons]].filter(x => x[1]);
+    const after = [['반환 · 청구 반영', f.claimAdj], ['전월 세후 이월', f.postCarry]].filter(x => x[1]);
+    let run = 0; const rows = [];
+    for (const [t, v] of steps) { rows.push({ t, a: run, b: run + v, v }); run += v; }
+    rows.push({ t: '세후 실정산액', a: 0, b: run, v: run, total: true });
+    for (const [t, v] of after) { rows.push({ t, a: run, b: run + v, v }); run += v; }
+    if (after.length) rows.push({ t: '지급 판정 금액', a: 0, b: run, v: run, total: true });
+    const lo = Math.min(0, ...rows.map(x => Math.min(x.a, x.b))), hi = Math.max(1, ...rows.map(x => Math.max(x.a, x.b)));
+    const pos = x => ((x - lo) / (hi - lo) * 100).toFixed(2);
+    const bars = rows.map(x => {
+      const cls = x.total ? 'total' : x.v >= 0 ? 'up' : 'down';
+      const l = pos(Math.min(x.a, x.b)), w = Math.max(0.4, pos(Math.max(x.a, x.b)) - l);
+      return `<div class="r${x.total ? ' total' : ''}" title="${esc(x.t)} ${esc(x.total ? won(x.v) : signed(x.v))}"><span class="t">${esc(x.t)}</span>`
+        + `<span class="track"><span class="bar ${cls}" style="left:${l}%; width:${w}%"></span></span><span class="v">${x.total ? won(x.v) : signed(x.v)}</span></div>`;
+    }).join('');
+    const out = f.claim ? `<span class="neg">청구 ${won(f.claim)}</span>` : f.confirmed ? `<span class="yes">지급 확정 ${won(f.payout)}</span>`
+      : f.carryLoad ? `다음 달 이월 ${won(f.carryLoad)}` : '지급 없음';
+    return `<div class="flow"><div class="who"><h3>${esc(f.h.rights_holder_id)} · 계약 ${esc(f.cid)}${f.pid !== f.h.rights_holder_id ? ' → 수취인 ' + esc(f.pid) : ''}</h3>`
+      + `<span class="note">${esc(f.cases.map(x => x).join(', '))}</span></div><p class="story">${esc(story(f))}</p>`
+      + `<div class="wf" role="img" aria-label="${esc(story(f))}">${bars}</div><div class="outcome">결과: ${out}</div></div>`;
+  }).join('') + `<div class="legend"><span><i style="background:var(--up)"></i>늘어난 금액</span><span><i style="background:var(--down)"></i>줄어든 금액</span><span><i style="background:var(--total)"></i>합계</span></div>`
+    : '<p class="note">수취인에게 지급할 금액이 생긴 계약이 없습니다.</p>';
+}
+
+// ---------------------------------------------------------------- 권리자 정산서(ADMN-PTNR-001 본인 정산서 양식)
+let stmtList = [];
+function fillStmt(r) {
+  const keep = $('stmt-who').value;
+  stmtList = allFigures(r);
+  $('stmt-who').innerHTML = stmtList.map((f, i) => `<option value="${i}">${esc(f.pid)} · 계약 ${esc(f.cid)}${f.pid !== f.h.rights_holder_id ? ` (권리자 ${esc(f.h.rights_holder_id)})` : ''}</option>`).join('');
+  if (keep && stmtList[keep]) $('stmt-who').value = keep;
+  renderStmt();
+}
+$('stmt-who').addEventListener('change', renderStmt);
+const CASE_INCOME = { 'TX-01': '자사 권리자', 'TX-02': '개인 사업소득(인적용역)', 'TX-03': '개인 기타소득(인세 · 저작권)', 'TX-04': '개인 기타소득(비정기)',
+  'TX-05': '간이과세자', 'TX-06': '면세사업자', 'TX-07': '일반과세 사업자', 'TX-08': '간이과세자(세금계산서 발급)', 'TX-09': '법인(저작권 사용료)', 'TX-11': '도서 위탁 공급(재화)', 'TX-13': '일반 상품' };
+function monthEnd(m) { const [y, mo] = m.split('-').map(Number); const d = new Date(y, mo, 0); return `${m}-${String(d.getDate()).padStart(2, '0')}`; }
+function dayStr(d) { const z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}(${'일월화수목금토'[d.getDay()]})`; }
+function payoutDate(m, add) { const [y, mo] = m.split('-').map(Number); const d = new Date(y, mo - 1 + add, 10); while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); return dayStr(d); }
+function stmtTable(headers, rows) {
+  return '<div class="ptnr-table-wrap"><table class="ptnr-table"><thead><tr>' + headers.map(h => `<th${h.num ? ' class="num"' : ''}>${h.t}</th>`).join('')
+    + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+function contractTrace(r, cid, field) { return r.trace.filter(e => e.scope.contract_id === cid && e.field === field); }
+function renderStmt() {
+  const r = result, f = stmtList[$('stmt-who').value];
+  if (!r || !f) { $('stmt').innerHTML = '<div class="ptnr-notice is-gray"><div>이 달에는 정산서를 낼 수취인이 없습니다.</div></div>'; return; }
+  const m = r.settlement_month, end = monthEnd(m), inp = state, cid = f.cid, cs = f.c.steps || {};
+  const mainCase = f.cases[0] || '';
+  const deductions = f.ded + Math.min(0, f.adj), gross = f.gross + Math.max(0, f.adj);
+  const taxBase = f.split + f.carryPre;
+  const prepayCarry = -f.offset - (f.confirmed ? 0 : f.carryLoad);
+  const taxAmt = f.vatAdded - f.wt;
+  const final = f.claim ? -f.claim : f.confirmed ? f.payout : 0;
+  const status = f.claim ? '반환 청구' : f.confirmed ? '지급 예정' : f.carryLoad ? '차월 이월' : '지급 없음';
+  const H = [];
+  H.push(`<div class="ptnr-doc-head"><div><div style="font-size:11.5px; color:#64748b; font-weight:700;">산준모닷컴 권리자 정산 내역서</div>`
+    + `<h3>${m.replace('-', '년 ')}월 귀속 정산 내역서 · ${esc(f.pid)}</h3></div>`
+    + `<div class="ptnr-doc-meta"><div>문서번호 <strong>STMT-${m.replace('-', '')}-${esc(f.pid)}</strong> · 상태 <strong>${status}</strong></div><div>발행일자 <strong>${end}</strong> · 정산 대상기간 <strong>${m}-01 ~ ${end}</strong></div></div></div>`);
+  H.push('<div class="ptnr-party-grid">'
+    + '<div class="ptnr-party"><div class="ptnr-party-title">정산 발행 기관</div><div><strong>상호</strong> 주식회사 엘캠퍼스 (산준모닷컴)</div><div><strong>사업자등록번호</strong> 120-88-00000 · <strong>대표이사</strong> 김영호</div><div><strong>문의</strong> 재무팀 settlement@sanjunmo.com</div></div>'
+    + `<div class="ptnr-party"><div class="ptnr-party-title">정산 받는 분</div><div><strong>수취인</strong> ${esc(f.pid)}${f.pid !== f.h.rights_holder_id ? ` · 권리자 ${esc(f.h.rights_holder_id)}` : ''} · 계약 ${esc(cid)}</div>`
+    + `<div><strong>소득 구분</strong> ${esc(f.cases.map(x => CASE_INCOME[x] || x).join(' · ') || '—')}</div><div><strong>식별번호</strong> (입력 없음) · <strong>입금 계좌</strong> (입력 없음)</div></div></div>`);
+  H.push(`<div class="ptnr-sec-title"><span>1. 정산 요약</span><small>적용 세무 기준: ${esc(f.cases.join(', ') || '—')}</small></div>`);
+  H.push('<div class="ptnr-table-wrap"><table class="ptnr-table"><thead><tr>'
+    + '<th class="num">전월 세전 이월</th><th class="num">당월 총 발생액</th><th class="num">환불 · 반품 · 공제</th>'
+    + '<th class="num" style="background:#EFF6FF; color:#1E40AF;">세전 정산금 (증빙 · 원천세 기준액)</th>'
+    + '<th class="num">선급금 차감 · 이월</th><th class="num">세액 (부가세 · 원천세)</th>'
+    + '<th class="num" style="background:#F0FDF4; color:#15803D;">세후 지급액</th></tr></thead><tbody><tr>'
+    + `<td class="num" style="font-weight:700; color:${f.carryPre < 0 ? '#DC2626' : '#0F172A'};">${won(f.carryPre)}</td>`
+    + `<td class="num" style="font-weight:700;">${won(gross)}</td><td class="num" style="font-weight:700; color:#DC2626;">${won(deductions)}</td>`
+    + `<td class="num" style="font-weight:800; background:#EFF6FF; color:#1D4ED8;">${won(taxBase)}</td>`
+    + `<td class="num" style="font-weight:700; color:#B45309;">${won(prepayCarry)}</td><td class="num" style="font-weight:700;">${signed(taxAmt)}</td>`
+    + `<td class="num" style="font-weight:900; font-size:14px; background:#F0FDF4; color:#15803D;">${won(final)}</td></tr></tbody></table></div>`);
+  const eq = [`세전 정산금 ${won(taxBase)}`];
+  if (f.offset) eq.push(`− 선급금 차감 ${won(f.offset)}`);
+  if (f.vatAdded) eq.push(`+ 부가세 ${won(f.vatAdded)}`);
+  if (f.wt) eq.push(`− 원천징수세액 ${won(f.wt)}`);
+  if (f.carryPre !== f.carryAT && f.carryPre) eq.push(`− 이월분 원천세 ${won(f.carryPre - f.carryAT)}`);
+  if (f.cons) eq.push(`(위탁 정산 ${won(f.cons)} 포함)`);
+  if (f.claimAdj) eq.push(`${f.claimAdj > 0 ? '+' : '−'} 반환 · 청구 반영 ${won(Math.abs(f.claimAdj))}`);
+  if (f.postCarry) eq.push(`+ 전월 세후 이월 ${won(f.postCarry)}`);
+  let eqs = eq.join(' ') + ` = ${won(f.judge)}`;
+  eqs += f.claim ? ` → 반환 청구 ${won(f.claim)}` : f.confirmed ? ` → 세후 지급액 ${won(f.payout)}` : f.carryLoad ? ` → 최소 지급액 ${won(f.limit)} 미달로 세전 ${won(f.carryLoad)} 차월 이월` : ' → 지급 없음';
+  H.push(`<div class="ptnr-equation"><strong>산출 요약</strong> ${esc(eqs)}</div>`);
+  const rule = '정산금은 매월 10일(휴일이면 다음 영업일)에 지급합니다.';
+  const pnote = f.claim ? ' 이번 달은 지급액이 없고 반환 청구서가 발행됩니다.' : f.confirmed ? ` 지급 예정일 <strong>${payoutDate(m, 1)}</strong>.`
+    : f.carryLoad ? ` 이번 달은 최소 지급액 미달로 이월되어 <strong>차월 합산 지급</strong> 예정입니다(다음 지급 예정일 <strong>${payoutDate(m, 2)}</strong>).` : ' 이번 달은 지급액이 없습니다.';
+  H.push(`<div class="ptnr-equation"><strong>지급일</strong> ${rule}${pnote}</div>`);
+  const [ey, emo, ed] = end.split('-').map(Number), due = new Date(ey, emo - 1, ed + 7);
+  H.push(`<div class="ptnr-equation"><strong>이번 지급 반영 기한</strong> 정산 내용에 이견이 있으면 <strong>${dayStr(due)}</strong>(발행일로부터 7일)까지 재무팀에 알려 주세요. 이번 지급 전에 확인해 바로잡습니다. 기한 뒤에 알려 주신 이견도 마감 후 정정으로 처리해 다음 정산에 반영합니다.</div>`);
+  let no = 2;
+  // 이월 내역
+  const opening = (cs.CARRY_IN ? [...(cs.CARRY_IN.carry_pre_tax_pos || []), ...(cs.CARRY_IN.carry_pre_tax_neg || []), ...(cs.CARRY_IN.carry_post_tax_pos || []), ...(cs.CARRY_IN.carry_post_tax_neg || [])] : [])
+    .filter(x => x.payee_id === f.pid);
+  const moves = [...(f.O.payout_carry_rows || []), ...(f.C.claim_carry_rows || [])];
+  const crows = opening.map(x => {
+    const mv = moves.find(y => y.ledger_id === x.ledger_id && y.action === 'RESERVE');
+    const amt = N(x.carryover_amount), impact = mv ? -amt : 0;
+    return { origin: x.origin_month || '—', pipe: L.values[String(x.pipeline_id)] || x.pipeline_id || '—', opening: amt, impact, add: 0, closing: amt + impact,
+      note: mv ? '이번 달 지급에 합산' : `${L.values[x.account_type] || x.account_type} 이월 유지` };
+  }).concat(moves.filter(y => y.action === 'NEW').map(y => ({ origin: m, pipe: L.values[String(y.pipeline_id)] || y.pipeline_id || '—', opening: 0, impact: 0,
+    add: N(y.carryover_amount), closing: N(y.carryover_amount), note: y.carryover_reason || '' })));
+  if (crows.length) {
+    H.push(`<div class="ptnr-sec-title"><span>${no++}. 이월 내역</span><small>최소 지급액 미달 · 환불 초과 등으로 다음 달에 넘긴 금액</small></div>`);
+    H.push(stmtTable([{ t: '이월 발생월' }, { t: '정산 항목' }, { t: '전월 넘어온 이월액', num: 1 }, { t: '이번 달 합산 · 차감액', num: 1 }, { t: '이번 달 새로 넘기는 금액', num: 1 }, { t: '다음 달 이월 잔액', num: 1 }, { t: '안내' }],
+      crows.map(x => `<tr><td><strong>${esc(x.origin)}</strong></td><td>${esc(x.pipe)}</td><td class="num" style="color:${x.opening < 0 ? '#DC2626' : '#0F172A'};">${won(x.opening)}</td>`
+        + `<td class="num">${signed(x.impact)}</td><td class="num" style="color:#D97706;">${signed(x.add)}</td><td class="num" style="font-weight:800; color:#1D4ED8;">${won(x.closing)}</td><td>${esc(x.note)}</td></tr>`).join('')));
+  }
+  // 온라인 강좌
+  const rs = contractTrace(r, cid, 'rs_q4');
+  if (rs.length) {
+    const by = new Map();
+    for (const e of rs) {
+      const lec = String(e.scope.ref_id || '').split('/').pop();
+      const g = by.get(lec) || { lec, n: 0, base: 0, share: e.inputs['권리자 지분율'], rate: e.inputs['계약 요율'], rs: 0 };
+      g.n++; g.base += N(e.inputs['강의 기준금']); g.rs += N(e.result); by.set(lec, g);
+    }
+    const refund = N((cs.DEDUCT || {}).refund_deduct_1_1) + N((cs.DEDUCT || {}).optB_deduct_1_1) + N((cs.DEDUCT || {}).optC_deduct_1_1);
+    const total = contractTrace(r, cid, 'p1_1_new').reduce((a, e) => a + N(e.result), 0);
+    const mmg = N((cs.MMG_ADJ || {}).mmg_subsidy);
+    const splitNote = f.pid !== f.h.rights_holder_id || (f.c.payees || []).length > 1 ? ' · 수취인 분할 전 계약 전체 금액' : '';
+    H.push(`<div class="ptnr-sec-title"><span>${no++}. 온라인 강좌 정산 내역</span><small>본인 귀속 강좌 · 지분율 기준${splitNote}</small></div>`);
+    H.push(stmtTable([{ t: '강의(상품코드)' }, { t: '결제건수', num: 1 }, { t: '정산 대상 순매출', num: 1 }, { t: '귀속 지분율', num: 1 }, { t: '정산 요율', num: 1 }, { t: '당월 정산금(소수 4자리)', num: 1 }],
+      [...by.values()].map(g => `<tr><td><strong>${esc(g.lec)}</strong></td><td class="num">${g.n}건</td><td class="num">${won(g.base)}</td><td class="num">${esc(g.share)}%</td><td class="num" style="font-weight:700;">${esc(g.rate)}%</td><td class="num">${g.rs.toLocaleString('ko-KR', { maximumFractionDigits: 4 })}원</td></tr>`).join('')
+      + `<tr><td colspan="5"><strong>월 합계(원 단위 내림)</strong>${mmg ? ` · 월 보장액(MMG) 보전 +${won(mmg)}` : ''}${refund ? ` · 환불 차감 ${won(-refund)}` : ''}</td><td class="num" style="font-weight:800;">${won(total + mmg - refund)}</td></tr>`));
+  }
+  // 교재 인세
+  const roy = contractTrace(r, cid, 'p2_1_royalty');
+  if (roy.length) {
+    const skuRows = roy.map(e => {
+      const sku = e.scope.ref_id;
+      const items = (inp.order_items || []).filter(x => x.item_type === 'BOOK' && x.book_sku_id === sku && x.book_supply_type_snapshot === 'OWN_PUBLISHED');
+      const qty = items.reduce((a, x) => a + N(x.confirmed_qty), 0), price = items.length ? items[0].royalty_base_price : null;
+      const rl = (inp.rate_lines || []).find(x => x.contract_id === cid && x.rate_type === 'BASIC' && (!x.pipeline_id || x.pipeline_id === '2.1'));
+      const ret = (inp.refund_lines || []).filter(x => (x.snapshot || []).some(s => s.contract_id === cid && String(s.pipeline_id) === '2.1')).reduce((a, x) => a + N(x.refund_qty), 0);
+      return `<tr><td><strong>${esc(sku)}</strong></td><td class="num">확정 ${qty}부${ret ? ` · 반품 ${ret}부` : ''}</td><td class="num">${price == null ? '—' : won(N(price))}</td>`
+        + `<td class="num" style="font-weight:700;">${rl ? esc(rl.rate_value) + '%' : '—'}</td><td class="num">${esc(e.inputs.share_ratio)}%</td><td class="num" style="font-weight:800;">${won(N(e.result))}</td></tr>`;
+    }).join('');
+    H.push(`<div class="ptnr-sec-title"><span>${no++}. 교재 인세 정산 내역</span><small>당월 구매 확정 부수 기준${N((cs.DEDUCT || {}).return_deduct_2_1) ? ` · 반품 차감 ${won(-N(cs.DEDUCT.return_deduct_2_1))}` : ''}</small></div>`);
+    H.push(stmtTable([{ t: '교재(SKU)' }, { t: '확정 부수', num: 1 }, { t: '인세 기준가', num: 1 }, { t: '인세율', num: 1 }, { t: '저자 지분율', num: 1 }, { t: '당월 인세', num: 1 }], skuRows));
+  }
+  // 위탁 도서
+  if ((cs.ACCRUAL || {}).consignment) {
+    const k = cs.ACCRUAL.consignment;
+    H.push(`<div class="ptnr-sec-title"><span>${no++}. 위탁 도서 판매 정산 내역</span><small>위탁 판매대금 − 위탁 수수료 · 수수료 부가세</small></div>`);
+    H.push(stmtTable([{ t: '월 판매대금', num: 1 }, { t: '위탁 수수료(공급가액)', num: 1 }, { t: '수수료 차감 후 위탁 순액', num: 1 }, { t: '위탁 실정산액', num: 1 }],
+      `<tr><td class="num">${won(N(k.monthly_sales))}</td><td class="num">${won(N(k.fee_supply))}</td><td class="num">${won(N(k.net_before_fee_vat))}</td><td class="num" style="font-weight:800;">${won(f.cons)}</td></tr>`));
+  }
+  // 개발지원금 · 약정금
+  const sup = (Array.isArray(cs.SUPPORT_CAP) ? cs.SUPPORT_CAP : []).map(x => {
+    const agr = (inp.support_fund_agreements || []).find(a => a.agreement_id === x.agreement_id) || {};
+    const prev = (inp.support_fund_ledger_prev || []).find(a => a.agreement_id === x.agreement_id) || {};
+    return `<tr><td><strong>매출연동 개발지원금 · ${esc(x.agreement_id)}</strong></td><td class="num">${x.cap_type === 'UNLIMITED' ? '한도 없음' : won(N(agr.total_cap_amount))}</td>`
+      + `<td class="num">${won(N(prev.cap_consumed_amount))}</td><td class="num" style="font-weight:800; color:#1D4ED8;">${won(N(x.confirmed_amount))}</td>`
+      + `<td>약정 상태 ${esc(L.values[x.status_after] || x.status_after || '—')}${x.remaining_cap != null ? ` · 잔여 한도 ${won(N(x.remaining_cap))}` : ''}${N(x.expired_excess) ? ` · 한도 초과 ${won(N(x.expired_excess))} 소멸` : ''}</td></tr>`;
+  }).concat(((cs.LUMPSUM_ADD || {}).lines || []).map(x => `<tr><td><strong>${esc(L.values[x.item_kind] || x.item_kind)} · ${esc(x.milestone_id)}</strong></td><td class="num">—</td><td class="num">—</td>`
+    + `<td class="num" style="font-weight:800; color:#1D4ED8;">${won(N(x.amount))}</td><td>이번 달 지급 승인분</td></tr>`));
+  if (sup.length) {
+    H.push(`<div class="ptnr-sec-title"><span>${no++}. 개발지원금 · 약정금 내역</span></div>`);
+    H.push(stmtTable([{ t: '약정 항목' }, { t: '약정 한도', num: 1 }, { t: '전월까지 누적액', num: 1 }, { t: '당월 반영액', num: 1 }, { t: '안내' }], sup.join('')));
+  }
+  // 선급금
+  const po = cs.PREPAY_OFFSET || {};
+  if (po.applicable && f.pid === f.h.rights_holder_id) {
+    const ids = (inp.prepayments || []).filter(x => x.contract_id === cid).map(x => x.prepayment_id).join(', ');
+    H.push(`<div class="ptnr-sec-title"><span>${no++}. 선급금 차감 · 잔액</span></div>`);
+    H.push(stmtTable([{ t: '선급금 번호' }, { t: '전월 말 잔액', num: 1 }, { t: '당월 차감액', num: 1 }, { t: '당월 말 잔액', num: 1 }, { t: '상세' }],
+      `<tr><td><strong>${esc(ids || '—')}</strong></td><td class="num">${won(N(po.prepay_balance_before))}</td><td class="num" style="font-weight:800; color:#DC2626;">${won(N(po.offset_amount))}</td>`
+      + `<td class="num" style="font-weight:800; color:#B45309;">${won(N(po.prepay_balance_after))}</td><td>${esc(L.values[po.prepayment_tax_type] || po.prepayment_tax_type || '')}${po.prepayment_tax_type === 'LOAN' ? ' — 원천세 상당액을 남기고 회수' : ''}</td></tr>`));
+  }
+  // 세무 증빙
+  H.push(`<div class="ptnr-sec-title"><span>${no++}. 세무 증빙</span></div>`);
+  const vatCase = f.cases.find(x => ['TX-05', 'TX-06', 'TX-07', 'TX-08', 'TX-09'].includes(x));
+  if (vatCase) {
+    const supply = N(f.T.split_amount_total), vat = N(f.T.vat_total);
+    H.push(`<div class="ptnr-notice is-blue"><div><strong>${vat ? '세금계산서' : '계산서'}</strong> — 공급가액 ${won(supply)} · 세액 ${won(vat)} · 합계 ${won(supply + vat)}<br>홈택스에서 직접 발행한 뒤 승인번호 · 증빙 PDF를 제출해 주세요. 미제출이어도 지급은 보류되지 않습니다.</div></div>`);
+  } else if (f.cases.includes('TX-11')) {
+    H.push('<div class="ptnr-notice is-blue"><div><strong>계산서(면세)</strong> — 도서 위탁 공급은 재화 공급으로 원천징수하지 않고 계산서로 증빙합니다.</div></div>');
+  } else if (f.cases.includes('TX-01')) {
+    H.push('<div class="ptnr-notice is-gray"><div>자사 권리자로 별도 증빙과 대량이체 대상이 아닙니다.</div></div>');
+  } else if (f.wt || f.cases.some(x => ['TX-02', 'TX-03', 'TX-04'].includes(x))) {
+    const other = f.cases.some(x => x === 'TX-03' || x === 'TX-04');
+    H.push(`<div class="ptnr-notice is-gray"><div>${other ? '기타소득 원천징수(소득세 20% + 지방소득세 10%) 대상' : '사업소득 원천징수(3.3%) 대상'}으로 별도 증빙 제출이 없습니다. 원천징수영수증은 당사가 발급합니다.</div></div>`);
+  } else {
+    H.push('<div class="ptnr-notice is-gray"><div>세무 판정이 보류되어 증빙 안내를 확정하지 못했습니다(재무팀 확인 후 안내).</div></div>');
+  }
+  H.push('<div class="ptnr-notice is-gray" style="margin-top:14px;"><div>'
+    + '이 정산서는 권리자님의 계약 지분과 귀속 실적만 발췌한 것으로, 당사 내부 귀속분과 다른 권리자 정보는 포함되지 않습니다.<br>'
+    + '복합 패키지의 쿠폰 · 포인트 할인은 강좌 정산 기준금에서만 차감되며 교재 정가에는 반영되지 않습니다(도서정가제).<br>'
+    + '선급금 차감액은 이미 받은 선급금에서 빼는 금액이므로 세금계산서 · 계산서 · 원천징수 기준 금액에는 영향을 주지 않습니다.'
+    + '</div></div>');
+  $('stmt').innerHTML = H.join('');
+}
+
 $('f-q').addEventListener('input', renderTrace);
 $('f-all').addEventListener('change', renderTrace);
 
