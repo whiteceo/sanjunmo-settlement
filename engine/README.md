@@ -5,7 +5,7 @@
 정본에 없거나 서로 어긋나는 곳은 지어내지 않고 잠정 규칙으로 표시하며, `OPEN_ISSUES.md`에 모았다.
 
 - 엔진 1.0.0 · Python 3.10 이상 · 표준 라이브러리만(금액은 모두 `Decimal`, float 금지)
-- fixture 테스트: 04권 42건(변형 포함) 중 판정 대상 22건 — **PASS 20 · FAIL 2**(입력 부족 2, 엔진 오류 0) · 보류 20, 정본 결정 회귀(`tests/decisions/`) 12건 **PASS 12** → `OPEN_ISSUES.md`
+- fixture 테스트: 04권 42건(변형 포함) 중 판정 대상 22건 — **PASS 20 · FAIL 2**(입력 부족 2, 엔진 오류 0) · 보류 20, 정본 결정 회귀(`tests/decisions/`) 18건 **PASS 18** → `OPEN_ISSUES.md`
 
 ## 폴더
 
@@ -72,6 +72,7 @@ python engine/compare.py --input engine/samples/sample/input.json --dev engine/s
 | `rights_holders[].contracts[].payees[]` | 수취인 단위: `lines[]`(8 · 9단계 라인별 분할액 · 상계 · 세전 지급액 · 과세표준 · 케이스 · VAT · 원천세 · 실정산액) · `TAX` · `CLAIM` · `PAYOUT` |
 | `ledgers` | 마감 시 반영할 원장 예정 행(지원금 · MMG 보전금 · 이월 · 선급금) |
 | `continuity` | 이월 연속성 등식 3종(PRE_TAX · POST_TAX · 위탁 전용) |
+| `applied_adjustments` | 이번 정산에 반영한 전월 정산 조정(세금 계산 직전 — 세전 · 위탁은 8단계 뒤, 세후는 10단계) |
 | `internal_only` · `excluded_lines` · `pending_adjustments` | 자사 집계 전용(P2.3 · 매입 재판매) · 비인입 · 보류 조정 라인 |
 | `values` | (권리자, 계약, 수취인, 라인, 단계, 필드) → 값. 대조 · 테스트의 기준 |
 | `trace` | 계산 줄마다 `step` · `step_code` · `scope`(권리자 · 계약 · 수취인 · 라인 · 약정 · 원거래) · `inputs` · `formula`(정본 표기) · `formula_code`(SPEC 의사코드) · `before_rounding` · `rounding`(NONE / Q4 / FLOOR_WON / ALLOC_LAST_REMAINDER / ABS_FLOOR_SIGN) · `result` · `canon_ref` · `provisional` · `note`(SPEC 16절 질문 번호). `output = false`는 중간 계산 줄 |

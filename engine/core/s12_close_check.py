@@ -8,6 +8,7 @@ POST_TAX: 전월 말 + 당월 신규 − 당월 소멸(RESERVED · 회수 · 상
 
 from collections import defaultdict
 
+from . import adjust
 from .money import D
 
 STEP = "CLOSE_CHECK"
@@ -74,20 +75,20 @@ def run(ctx):
 
 
 def pending_adjustments(ctx):
-    """마감 후 조정 라인(V2 §10.2 L362): 인입 단계가 정본에 없다(SPEC Q-23) — 기본 hold는 계산에 넣지 않고 출력만."""
-    mode = ctx.input.get("adjustment_mode") or "hold"
-    if not ctx.input["adjustments"]:
+    """전월 정산 조정 라인 기록(V2 §10.2). 기본 apply = 8단계(세전 · 위탁) · 10단계(세후)에서 이미 계산에 넣었다
+    (2026-10-27 white 결정, SPEC Q-23 해소) → applied_adjustments. hold면 계산에 넣지 않고 pending_adjustments로만."""
+    mode = adjust.mode(ctx)
+    rows = adjust.month_adjustments(ctx)
+    if not rows:
         return
-    if mode != "hold":
-        ctx.issue("CANON_GAP", "adjustment_mode = provisional은 구현하지 않음 — hold로 처리", STEP, None,
-                  "V2 §10.1 L351 · §10.2 L362", "Q-23")
     th = ctx.p("manual_adj_approval_threshold")
     two_step = bool(ctx.p("adj_two_step_approval_yn"))  # 1차 오픈 false(D-SETT-01) — 2차 릴리스에서 금액 구간별 2단계 승인
-    for a in ctx.input["adjustments"]:
+    for a in rows:
         over = th is not None and abs(D(a["adj_amount"])) > D(th)
         row = dict(a, requires_second_approval=two_step and over,
-                   approval_mode="TWO_STEP" if two_step else "SINGLE_FINANCE_1ST")
-        ctx.pending_adjustments.append(row)
+                   approval_mode="TWO_STEP" if two_step else "SINGLE_FINANCE_1ST",
+                   applied_step={"POST_TAX": "CLAIM"}.get(adjust.account(a), "PAYEE_SPLIT") if mode == "apply" else None)
+        (ctx.applied_adjustments if mode == "apply" else ctx.pending_adjustments).append(row)
         ctx.trace.add(STEP, "requires_second_approval", row["requires_second_approval"], holder=None,
                       contract=a.get("contract_id"), payee=a.get("payee_id"), line=a.get("adj_id"), ref_id=a.get("adj_id"),
                       inputs={"adj_amount": a["adj_amount"], "manual_adj_approval_threshold": th,
@@ -95,9 +96,10 @@ def pending_adjustments(ctx):
                       formula="1차 오픈: 금액과 관계없이 재무 담당자 단독 확정 / 2차: 임계액 초과 시 재무 책임자 2차 승인",
                       code="requires_second_approval = adj_two_step_approval_yn and |adj_amount| > threshold",
                       ref="V2 §10.3 L370~371 · D-SETT-01(2026-10-27)")
-        ctx.trace.add(STEP, "pending_adjustment", D(a["adj_amount"]), holder=None, contract=a.get("contract_id"),
-                      payee=a.get("payee_id"), ref_id=a.get("adj_id"),
-                      inputs={"origin_month": a.get("origin_month"), "account_type": a.get("account_type"),
-                              "adj_reason_code": a.get("adj_reason_code")},
-                      formula="마감 후 조정 라인 — 1~11단계 인입 위치 정본 없음, 계산 제외 · 출력만(hold)",
-                      ref="V2 §10.2 L362 · SPEC 15.8", provisional=True, note="Q-23", output=False)
+        if mode != "apply":
+            ctx.trace.add(STEP, "pending_adjustment", D(a["adj_amount"]), holder=None, contract=a.get("contract_id"),
+                          payee=a.get("payee_id"), ref_id=a.get("adj_id"),
+                          inputs={"origin_month": a.get("origin_month"), "account_type": a.get("account_type"),
+                                  "adj_reason_code": a.get("adj_reason_code")},
+                          formula="adjustment_mode = hold — 전월 정산 조정 라인을 계산에 넣지 않고 출력만",
+                          ref="V2 §10.2 L362", output=False)

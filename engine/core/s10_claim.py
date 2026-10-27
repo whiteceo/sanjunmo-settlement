@@ -9,6 +9,7 @@
 
 from datetime import date
 
+from . import adjust
 from .money import D, floor_won
 
 STEP = "CLAIM"
@@ -70,10 +71,21 @@ def claim_payee(ctx, c, p, end, closed, limit):
             cb_other += amt
     o["clawback_amount"] = cb_consent + cb_other
     o["clawback_offset_consent_yn"] = bool(cb_consent)
-    after = ctx.emit(STEP, "net_after_return", net - cb_consent, c, **kw,
-                     inputs={"9단계 실정산액(위탁 음수 제외)": net, "동의 연결 전속계약금 반환": cb_consent},
-                     formula="동일 계약 · 동일 수취인 + 반환 상계 동의가 연결된 경우만 1회 차감",
-                     code="net_after_return = net_settle_amount − (clawback if consent else 0)", ref="V2 §8.3 10단계 1) L286")
+    post = [a for a in adjust.month_adjustments(ctx) if adjust.mode(ctx) == "apply" and a.get("contract_id") == c.id
+            and (a.get("payee_id") or c.holder_id) == pid and adjust.account(a) == "POST_TAX"]
+    post_pos = sum((D(a["adj_amount"]) for a in post if D(a["adj_amount"]) > 0), D(0))
+    post_neg = -sum((D(a["adj_amount"]) for a in post if D(a["adj_amount"]) < 0), D(0))
+    for a in post:
+        ctx.emit(STEP, "post_tax_adjustment", D(a["adj_amount"]), c, **kw, line=f"ADJ:{a.get('adj_id')}",
+                 ref_id=a.get("adj_id"), inputs={"origin_month": a.get("origin_month"), "adj_reason_code": a.get("adj_reason_code")},
+                 formula="전월 정산 조정(세후) — 양수는 당월 지급채무에 가산, 음수는 세후 반환채권(청구 음수 항, 자동 상계 없음)",
+                 ref="V2 §10.1 L353 · §10.2 · 2026-10-27 white 결정(SPEC Q-23 해소) · Q-19")
+    after = ctx.emit(STEP, "net_after_return", net - cb_consent + post_pos, c, **kw,
+                     inputs={"9단계 실정산액(위탁 음수 제외)": net, "동의 연결 전속계약금 반환": cb_consent,
+                             "세후 조정(+)": post_pos},
+                     formula="동일 계약 · 동일 수취인 + 반환 상계 동의가 연결된 경우만 1회 차감, 세후 전월 정산 조정(+) 가산",
+                     code="net_after_return = net_settle_amount − (clawback if consent else 0) + post_tax_adj(+)",
+                     ref="V2 §8.3 10단계 1) L286 · §10.2")
     unoffset = D(0)
     pp = c.prepay
     if pp and pid == pp["payee"] and end and (c.prepay_balance_after or 0) > 0 and not c.row.get("successor_transfer_yn"):
@@ -94,6 +106,7 @@ def claim_payee(ctx, c, p, end, closed, limit):
     o["unoffset_prepay_claim"] = unoffset
     returns = sum((r["post_tax_amount"] for r in c.return_claims if r["payee_id"] == pid), D(0))
     returns += -sum((r["carryover_amount"] for r in c.carry["post_neg"] if r["payee_id"] == pid), D(0))
+    returns += post_neg  # 세후 전월 정산 조정(−)
     if returns:
         ctx.issue("CANON_GAP", "기지급 소득 반환채권 · 전월 POST_TAX(−)의 10단계 차감 위치 정본 없음 — 청구 음수 항에 가산",
                   STEP, c.holder_id, "V2 L286~289", "Q-19")
@@ -130,7 +143,7 @@ def claim_payee(ctx, c, p, end, closed, limit):
     carry = []
     if cnn < 0 and not issued:
         neg_new = min(D(0), after)
-        lines = [ln for ln in p.lines if ln["origin"] == "NEW"]
+        lines = [ln for ln in p.lines if ln["origin"] in ("NEW", "ADJUSTMENT")]
         key_ln = min(lines, key=lambda x: x["pre_tax_payable"]) if lines else None
         if neg_new < 0:
             carry.append(carry_row(ctx, c, pid, "PRE_TAX", neg_new, key_ln, "청구 이월(원거래 지급 · 세무 경로 미확정)"))

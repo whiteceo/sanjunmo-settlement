@@ -189,7 +189,9 @@ class Context:
         self.contracts = OrderedDict((c["contract_id"], ContractState(c)) for c in self.input["contracts"])
         self.internal_only = []
         self.excluded_lines = []
-        self.pending_adjustments = []
+        self.pending_adjustments = []  # adjustment_mode = hold
+        self.applied_adjustments = []  # adjustment_mode = apply(기본) — 8 · 10단계에서 계산에 넣은 전월 정산 조정
+        self.auto_adjustments = []  # 마감된 달의 환불 보정 전표 → 전월 정산 조정(4단계에서 생성)
         self.continuity = []
         self.ledgers = {"support_fund_ledger": [], "mmg_subsidy_ledger": [], "carryover_ledger": [],
                         "prepayment_ledger": []}
@@ -282,6 +284,7 @@ def build_output(ctx, status, data):
         "internal_only": ctx.internal_only,
         "excluded_lines": ctx.excluded_lines,
         "pending_adjustments": ctx.pending_adjustments,
+        "applied_adjustments": ctx.applied_adjustments,
         "pass_refund_payouts": ctx.pass_refund_payouts,
         "issues": ctx.issues,
         "steps": [{"no": s.no, "code": s.code, "name": s.name, "ref": s.ref} for s in STEPS],

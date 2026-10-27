@@ -76,7 +76,21 @@
    "adj_explanation": "2026년 9월 위탁 판매 수수료율 30% 과다 차감분(계약 25%) 차액 200,000원을 10월 위탁 정산에 가산",
    "approver_id": "김정산",
    "origin_settlement_id": "STMT-202609-031"
+  },
+  {
+   "adj_id": "ADJ-202610-05-VAT",
+   "contract_id": "CT-2026-0801",
+   "origin_month": "2026-09",
+   "applied_month": "2026-10",
+   "adj_reason_code": "CONSIGN_FEE_ERR",
+   "adj_amount": 20000,
+   "adj_tax_type": "EXEMPT",
+   "payee_id": "RH-0051",
+   "account_type": "PRE_TAX",
+   "pipeline_id": "2.2",
+   "adj_explanation": "같은 정정의 위탁 수수료 부가세 과다 차감분 20,000원 환급(2026-10-27 white 결정, NET_DEDUCT)",
+   "approver_id": "김정산",
+   "origin_settlement_id": "STMT-202609-031"
   }
- ],
- "adjustment_mode": "hold"
+ ]
 }

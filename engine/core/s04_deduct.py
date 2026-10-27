@@ -37,6 +37,7 @@ def run(ctx):
             continue
         if rf.get("lecture_refund"):
             rf = dict(rf, refund_amount=lecture_refund_amount(ctx, rf))
+        rf = dict(rf, refund_amount=cash_basis(ctx, rf))
         for snap in rf.get("snapshot") or []:
             c = ctx.contract(snap.get("contract_id"))
             if not c:
@@ -97,15 +98,55 @@ def voucher_in_deduct(ctx, rf):
              ref="V2 §10.2 L365")
     if route == "DEDUCT":
         return True
-    amt = lecture_refund_amount(ctx, rf) if rf.get("lecture_refund") else D(rf.get("refund_amount"))
-    ctx.pending_adjustments.append({
-        "adj_id": rf["voucher_id"], "source": "REFUND_VOUCHER", "contract_id": snap.get("contract_id"),
-        "payee_id": snap.get("rights_holder_id"), "origin_month": origin, "applied_month": applied,
-        "adj_reason_code": "REFUND_OMIT", "refund_amount": amt, "snapshot": rf.get("snapshot"),
-        "note": "마감된 원 발생월의 보정 전표 — 진행 중인 달 수동 조정 라인으로 반영(인입 단계는 SPEC Q-23 보류)"})
-    ctx.issue("CANON_GAP", f"보정 전표 {rf['voucher_id']}: 원 발생월 {origin} 마감 — 수동 조정 라인(인입 단계 정본 없음, hold)",
-              STEP, c.holder_id if c else None, "V2 §10.2 L365", "Q-23")
+    # 마감된 원 발생월 → 진행 중인 달의 전월 정산 조정 라인: 원거래 스냅샷 대칭 R/S 공제액을 세전 음수 조정으로
+    refund = lecture_refund_amount(ctx, rf) if rf.get("lecture_refund") else D(rf.get("refund_amount"))
+    rf = dict(rf, refund_amount=refund)
+    base = cash_basis(ctx, rf)
+    for s in rf.get("snapshot") or []:
+        if (s.get("rate_type") or "BASIC") != "BASIC":
+            continue
+        raw = base * pct(s.get("share_ratio")) * pct(s.get("rate_value"))
+        amt = ctx.emit(STEP, "voucher_adjustment_amount", -floor_won(q4(raw)), c, ref_id=rf["voucher_id"],
+                       inputs={"환불 현금분": base, "snap.share_ratio": s.get("share_ratio"), "snap.rate_value": s.get("rate_value")},
+                       formula="마감된 달의 보정 전표 → 진행 중인 달 전월 정산 조정(세전): −내림(환불 현금분 × 원거래 지분 × 원거래 요율)",
+                       code="adj = −floor(q4(cash_basis × share × rate))", before=-raw, rounding="ABS_FLOOR_SIGN",
+                       ref="V2 §10.1 L353 · §10.2 L365 · S-10 · 2026-10-27 white 결정(조정 라인은 세금 계산 직전)")
+        ctx.auto_adjustments.append({
+            "adj_id": rf["voucher_id"], "source": "REFUND_VOUCHER", "contract_id": s.get("contract_id"),
+            "payee_id": s.get("rights_holder_id"), "snapshot_payee_splits": s.get("payee_splits") or [],
+            "origin_month": origin, "applied_month": applied, "adj_reason_code": "REFUND_OMIT",
+            "adj_amount": amt, "account_type": "PRE_TAX", "pipeline_id": str(s.get("pipeline_id") or "1.1"),
+            "refund_amount": refund})
     return False
+
+
+def restored_points(rf, refund):
+    """포인트를 쓴 강좌 라인: 복원 포인트 = 내림(라인 사용 포인트 × 환불액 ÷ 라인 결제액)(통합 설계서 RFD-002 L365)."""
+    lr = rf.get("lecture_refund") or {}
+    if lr.get("point_used"):
+        paid = D(lr["paid_amount"])
+        return floor_won(D(lr["point_used"]) * refund / paid) if paid else D(0)
+    return D(rf.get("refund_point_amount") or 0)
+
+
+def cash_basis(ctx, rf):
+    """권리자 R/S 공제 기준 = 환불액 중 현금분(포인트 복원분 제외) — R/S 모수가 포인트 할인을 뺀 실결제액이라 대칭
+    (V2 §8.3 1단계 Step 1 L133 · §8.1, 2026-10-27 white 결정)."""
+    if rf.get("refund_amount") is None:  # 수량 기준 반품(위탁 · 도서)은 금액 없이 들어온다
+        return None
+    refund = D(rf.get("refund_amount"))
+    pts = restored_points(rf, refund)
+    if not pts:
+        return refund
+    snap = (rf.get("snapshot") or [{}])[0]
+    c = ctx.contract(snap.get("contract_id"))
+    return ctx.emit(STEP, "refund_cash_basis", refund - pts, c, ref_id=rf.get("voucher_id") or rf.get("refund_id"),
+                    inputs={"환불액": refund, "복원 포인트": pts,
+                            "라인 사용 포인트": (rf.get("lecture_refund") or {}).get("point_used")},
+                    formula="권리자 R/S 공제 기준 = 환불액 − 복원 포인트(복원 포인트 = 내림(라인 사용 포인트 × 환불액 ÷ 라인 결제액)) — "
+                            "R/S 모수가 쿠폰 · 포인트 할인을 뺀 실결제액이므로 공제도 현금분만",
+                    code="cash_basis = refund − floor(point_used × refund / line_paid)", rounding="FLOOR_WON",
+                    ref="V2 §8.3 1단계 Step 1 L133 · 통합 설계서 RFD-002 L365 · white 결정(2026-10-27)")
 
 
 def lecture_refund_amount(ctx, rf):

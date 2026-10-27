@@ -164,6 +164,30 @@
      "net_payable": 367663
     }
    }
+  },
+  {
+   "code": "DEC-ORD-03-POINT",
+   "title": "포인트를 쓴 강좌 라인 — 권리자 R/S 공제는 환불액 중 현금분만(white 결정 2026-10-27)",
+   "input_delta": {
+    "refund_lines[0].lecture_refund.days_since_payment": 8,
+    "refund_lines[0].lecture_refund.learned_sessions": 1,
+    "refund_lines[0].lecture_refund.point_used": 50000
+   },
+   "canon_ref": "통합 설계서 RFD-002 L365(복원 포인트) · 02권 §8.3 1단계 Step 1 L133(R/S 모수 = 포인트 할인 뺀 실결제액) · white 결정(2026-10-27)",
+   "notes": "환불 239,583 → 복원 포인트 = 내림(50,000 × 239,583 ÷ 250,000 = 47,916.6) = 47,916 → 현금분 191,667 → 공제 = 내림(191,667 × 50% = 95,833.5) = 95,833 → 순액 404,167 → 소득세 내림(12,125.01) = 12,125 · 지방 1,212 → 390,830",
+   "expected": {
+    "DEDUCT": {
+     "lecture_refund_amount": 239583,
+     "refund_cash_basis": 191667,
+     "refund_deduct_1_1": 95833,
+     "1.1_net": 404167
+    },
+    "TAX": {
+     "income_tax": 12125,
+     "local_income_tax": 1212,
+     "net_payable": 390830
+    }
+   }
   }
  ]
 }

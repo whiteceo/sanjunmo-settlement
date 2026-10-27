@@ -8,6 +8,7 @@
 
 from collections import OrderedDict
 
+from . import adjust
 from .money import D, floor_won
 from .pipeline import month_last, valid_on
 
@@ -113,6 +114,46 @@ def split_contract(ctx, c):
         for pid, amt in pieces.items():
             add_line(ctx, c, ln, pid, amt, offset_payee, ptype)
     carry_lines(ctx, c)
+    adjustment_lines(ctx, c)
+
+
+def adjustment_lines(ctx, c):
+    """전월 정산 조정 라인(세전 · 위탁)을 세금 계산 직전에 비분할 라인으로 붙인다(V2 §10.1 L353 · §10.2,
+    2026-10-27 white 결정 — SPEC Q-23 해소). 수취인은 조정 레코드의 payee_id(원거래 분할이 있으면 그 비율)."""
+    if adjust.mode(ctx) != "apply":
+        return
+    for a in adjust.month_adjustments(ctx):
+        if a.get("contract_id") != c.id or adjust.account(a) == "POST_TAX":
+            continue
+        amt = D(a["adj_amount"])
+        splits = [{"payee_id": s["payee_id"], "split_ratio": D(s["split_ratio"])} for s in a.get("snapshot_payee_splits") or []]
+        parts = split_amount(amt, splits)[0] if splits else OrderedDict([(a.get("payee_id") or c.holder_id, amt)])
+        pl = str(a.get("pipeline_id") or "MIXED")
+        goods = adjust.account(a) == "CONSIGNMENT"
+        h = ctx.holder(a.get("payee_id") or c.holder_id)
+        for pid, part in parts.items():
+            p = c.payee(pid)
+            neg = part < 0
+            row = {"line_id": f"ADJ:{a.get('adj_id')}", "adj_id": a.get("adj_id"), "origin": "ADJUSTMENT",
+                   "line_key": {"contract_id": c.id, "pipeline_id": pl, "income_category": a.get("income_category"),
+                                "income_clause": a.get("income_clause"),
+                                "tax_threshold_unit_key": a.get("tax_threshold_unit_key")},
+                   "pipeline_id": pl, "supply_nature": adjust.PIPE_SUPPLY.get(pl, "NONRECURRING"),
+                   "income_category": None if goods else (a.get("income_category") or h.get("income_category") or "BUSINESS"),
+                   "income_clause": a.get("income_clause"), "tax_threshold_unit_key": a.get("tax_threshold_unit_key"),
+                   "split_amount": part, "offset_amount": D(0), "pre_tax_payable": part,
+                   "taxable_base": None if goods else (D(0) if neg else part),
+                   "pending_negative_base": part if (neg and not goods) else None, "protected_yn": False,
+                   "protected_amount": D(0), "origin_month": a.get("origin_month"), "adj_reason_code": a.get("adj_reason_code")}
+            p.lines.append(row)
+            ctx.emit(STEP, "adjustment_line", part, c, payee=pid, line=row["line_id"], ref_id=a.get("adj_id"),
+                     inputs={"adj_amount": amt, "account": adjust.account(a), "origin_month": a.get("origin_month"),
+                             "adj_reason_code": a.get("adj_reason_code"), "원거래 분할": [f"{s['payee_id']}:{s['split_ratio']}" for s in splits]},
+                     formula=("전월 정산 조정(위탁) — 위탁 정산액에 가산, 과세표준 미생성" if goods else
+                              "전월 정산 조정(세전) — 세금 계산 직전 비분할 라인으로 붙여 9단계에서 원천세 · VAT 계산"
+                              + (" · 음수는 과세표준 보류(pending_negative_base)" if neg else "")),
+                     code="payee_line(origin = ADJUSTMENT, pre_tax_payable = adj_amount)",
+                     ref="V2 §10.1 L353 · §10.2 L362~366 · 2026-10-27 white 결정(SPEC Q-23 해소)")
 
 
 def add_line(ctx, c, ln, pid, amt, offset_payee, ptype):

@@ -12,6 +12,7 @@ from .money import D, alloc_last_remainder, floor_won
 from .tax import classify, vat_of, withhold_business, withhold_other
 
 STEP = "TAX"
+PAYABLE = ("NEW", "ADJUSTMENT")  # 당월 신규 + 전월 정산 조정(세금 계산 직전 인입)
 
 
 def run(ctx):
@@ -64,14 +65,14 @@ def tax_payee(ctx, c, p):
         # 공급가액은 상계 전 금액(분할액) 기준: V2 L264 '공급가액 = 세전 지급액(상계 전 공급가액 기준)'(Q-17 해소 2026-10-26)
         pre = ln["pre_tax_payable"]
         base = ln["split_amount"]
-        if ln["origin"] == "NEW" and cl["vat"]:
+        if ln["origin"] in PAYABLE and cl["vat"]:
             supply, vat, _, raw = vat_of(cl["vat"], treat, base)
         else:
             supply, vat, raw = pre, D(0), None
         applied = pre if treat == "VAT_INCLUDED" or cl["vat"] != "TAXABLE_10" else pre + vat
         ln["supply_amount"], ln["vat_amount"], ln["vat_applied_amount"] = supply, vat, applied
         ln["vat_treatment"] = treat if cl["vat"] == "TAXABLE_10" else None
-        if ln["origin"] == "NEW":
+        if ln["origin"] in PAYABLE:
             ctx.emit(STEP, "vat_amount", vat, c, **kw, inputs={"vat rule": cl["vat"], "vat_treatment": treat,
                                                                "상계 전 공급가액(분할액)": base, "세전 지급액(상계 후)": pre},
                      formula=("VAT_EXCLUDED: 공급가액 = 세전 지급액(상계 전 공급가액 기준), 부가세 = 내림(공급가액 × 10%) / "
@@ -124,7 +125,7 @@ def tax_payee(ctx, c, p):
             set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
                             dict(w, income_tax=it, local_income_tax=lt), "OTHER")
     for ln in p.lines:
-        if ln["origin"] == "NEW":
+        if ln["origin"] in PAYABLE:
             wt = ln.get("withholding_total") or D(0)
             add_vat = ln["vat_amount"] if ln.get("vat_treatment") != "VAT_INCLUDED" else D(0)
             ln["net_settle_line"] = ln["pre_tax_payable"] - wt + add_vat
@@ -213,7 +214,7 @@ def consignment(ctx, c, p, ln, kw):
 def totals(ctx, c, p):
     if not p.lines:  # 세무 대상 라인 없음(예: 자사 집계 전용) — 합계를 내지 않는다
         return
-    new = [ln for ln in p.lines if ln["origin"] == "NEW"]
+    new = [ln for ln in p.lines if ln["origin"] in PAYABLE]
     cons = [ln for ln in p.lines if ln["origin"] == "CONSIGNMENT"]
     carry = [ln for ln in p.lines if ln["origin"] == "CARRY_PRE_TAX" and ln.get("after_tax_amount") is not None]
     t = p.out["TAX"]

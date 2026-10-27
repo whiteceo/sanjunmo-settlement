@@ -1,7 +1,7 @@
 """13 PASS_REFUND_PAYOUT — 합격환급금 수강생 지급(권리자 정산 1~11단계 밖, 통합 설계서 S6 합격환급 L438~446).
 
 환급 기준 모수 = 패키지 실결제액 − 포함 교재 실결제액(최대 10% 기본할인가) − 배송비(L444).
-기타소득 원천징수(S-02 · 2026-10-27): 필요경비 의제 없음 → 기타소득금액 = 환급금, 건별 5만 원 이하면 과세최저한 0원
+기타소득 사례금(소득세법 제21조 ① 17호, C17) 원천징수(S-02 · 2026-10-27): 필요경비 의제 없음 → 기타소득금액 = 환급금, 건별 5만 원 이하면 과세최저한 0원
 (소득세법 제84조), 소득세 = 내림(× 20%) → 지방소득세 = 내림(소득세 × 10%). 주민등록번호는 항상 받고(번호만 · 암호화),
 과세최저한 이하 건은 지급명세서 제출 면제(시행령 제214조 ① 3호 · 시행규칙 제97조).
 환급 판정 진도율은 결제 시점 주문 라인에 박제한 값(S-14 — 판매 후 기준 변경 소급 없음).
@@ -61,6 +61,11 @@ def one(ctx, r):
              before=lt_raw, rounding="FLOOR_WON" if lt_raw is not None else "NONE", ref=REF)
     net = ctx.emit(STEP, "net_payout", base - it - lt, **kw, inputs={"환급금": base, "원천세": it + lt},
                    formula="세후 실지급액 = 환급금 − 기타소득세(소득세 + 지방소득세)", ref=REF)
+    ctx.emit(STEP, "income_clause", "C17", **kw,
+             formula="합격환급금 = 기타소득 사례금(소득세법 제21조 제1항 제17호) — 필요경비 의제 없음, 소득세 20%",
+             ref="소득세법 제21조 ① 17호 · white 결정(2026-10-27) · tax_table.json C17")
+    ctx.emit(STEP, "statement_form", "기타소득 지급명세서(연 1회, 다음 해 2월 말일) — 간이지급명세서 대상 아님", **kw,
+             formula="C17은 간이지급명세서 대상 아님, 기타소득 지급명세서 연 1회", ref="TAX.md TX-04 C17 · L57")
     ctx.emit(STEP, "rrn_required", True, **kw, formula="주민등록번호는 신청 때 항상 받는다(번호만 · 암호화 보관)",
              ref="통합 설계서 L440 · S-02(2026-10-27)")
     stmt = ctx.emit(STEP, "payment_statement_required", not exempt, **kw,
@@ -72,6 +77,6 @@ def one(ctx, r):
              inputs={"주민번호 입력": r.get("rrn_entered"), "본인인증 대조": r.get("rrn_matched"), "진도율 충족": eligible},
              formula="주민등록번호 미입력 · 대조 불일치는 [보완 요청], 진도율 기준 미달은 [반려], 그 밖은 승인 가능",
              ref="통합 설계서 L440~441 · S-02 · S-03 · S-21")
-    return {"pass_refund_id": pid, "student_id": sid, "refund_base": base, "progress_eligible": eligible,
+    return {"pass_refund_id": pid, "student_id": sid, "income_clause": "C17", "refund_base": base, "progress_eligible": eligible,
             "threshold_exempt_yn": exempt, "income_tax": it, "local_income_tax": lt, "withholding_total": it + lt,
             "net_payout": net, "rrn_required": True, "payment_statement_required": stmt, "review_status": status}

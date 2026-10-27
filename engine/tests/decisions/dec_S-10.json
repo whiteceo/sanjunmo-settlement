@@ -110,13 +110,24 @@
     "refund_lines[0].approved_at": "2026-10-20T09:00:00",
     "refund_lines[0].refund_approved_date": "2026-10-20"
    },
-   "notes": "9월은 10-05 마감 → 반영 2026-10 · 수동 조정 경로 → 10월 4단계 공제 0, 순액 500,000(조정 라인은 SPEC Q-23 보류 목록)",
+   "notes": "9월은 10-05 마감 → 반영 2026-10 · 전월 정산 조정 경로 → 10월 4단계 공제 0, 순액 500,000. 조정 = −내림(100,000 × 50%) = −50,000을 세금 계산 직전 세전 라인으로(음수라 과세표준 보류) → 원천세 15,000 · 1,500(신규분만) → 실정산 500,000 − 16,500 − 50,000 = 433,500",
    "expected": {
     "DEDUCT": {
      "voucher_applied_month": "2026-10",
      "voucher_route": "MANUAL_ADJUSTMENT",
+     "voucher_adjustment_amount": -50000,
      "refund_deduct_1_1": 0,
      "1.1_net": 500000
+    },
+    "PAYEE_SPLIT": {
+     "H-A": {
+      "adjustment_line": -50000
+     }
+    },
+    "TAX": {
+     "income_tax": 15000,
+     "local_income_tax": 1500,
+     "net_payable": 433500
     }
    }
   },

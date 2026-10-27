@@ -99,7 +99,7 @@ def payout_payee(ctx, c, p, end, closed, limit):
             rows.append(dict(r, action="RESERVE", payout_reservation_status="RESERVED"))
     elif evaluated:
         for ln in p.lines:
-            if ln["origin"] == "NEW" and ln["pre_tax_payable"] > 0:
+            if ln["origin"] in ("NEW", "ADJUSTMENT") and ln["pre_tax_payable"] > 0:
                 key = ln["line_key"]
                 rows.append({"ledger_id": None, "action": "NEW", "rights_holder_id": c.holder_id, "payee_id": pid,
                              "contract_id": c.id, "origin_month": ctx.month, "account_type": "PRE_TAX",

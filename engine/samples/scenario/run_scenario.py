@@ -88,6 +88,9 @@ def sett002(c):
         "step11NetPayout": net,
         "payoutCategory": cat,
     }
+    adj = sum((n(ln["pre_tax_payable"]) for p in pays for ln in p["lines"] if ln["origin"] == "ADJUSTMENT"), D(0))
+    if adj:  # 전월 정산 조정(세전 · 위탁)은 세금 계산 직전에 들어가 step8 · step11에 이미 반영 — 금액만 따로 보인다
+        out["prevMonthAdjust"] = adj
     extra = {}
     cs = s.get("ACCRUAL", {}).get("consignment")
     if cs:  # 위탁(Pipeline 2.2): SETT-002 STMT-03 관례 — 판매대금 step2ConsignGross, 수수료 step4LectureDeduct, 수수료 부가세 step9VatAmount(음수)
@@ -192,6 +195,7 @@ def run_alternative(data, alt):
     data = json.loads(json.dumps(data))
     for k, v in (alt.get("set_holder") or {}).items():
         data["rights_holders"][0][k] = v
+    data.update(alt.get("set") or {})
     for k, rows in (alt.get("append") or {}).items():
         data.setdefault(k, []).extend(rows)
     return run_settlement(data)
@@ -246,6 +250,8 @@ def write_md(out, questions):
           "- `step11NetPayout`: PAYOUT_TARGET = 지급 확정액, CARRYOVER_HOLD = 판정 금액(지급하지 않고 이월), CLAIM_ISSUED = 청구 대상 음수.",
           "- 위탁(Case 10)은 SETT-002 STMT-03 관례: `step2ConsignGross` = 월 판매대금, `step4LectureDeduct` = −위탁 수수료 공급가액,"
           " `step9VatAmount` = −수수료 부가세. 엔진 원값은 json의 `consignment` 키.",
+          "- `prevMonthAdjust`(추가 키) = 전월 정산 조정(마감된 달 정정, 세전 · 위탁) 합계. 세금 계산 직전에 들어가 `step8` · `step11`에 "
+          "이미 반영된 금액이라 따로 더하지 않는다(2026-10-27 white 결정 — 차월 정산서, 세금 계산 직전). 세후 정정만 `step10PostTaxAdjust`.",
           "- 정산서 1건에 지급과 청구가 같이 있으면(이중도) 판정은 PAYOUT_TARGET, 청구액은 수취인 행 `claimAmount` · `unoffsetPrepayClaim`.",
           "- 세무 판정 보류(PENDING_REVIEW) 수취인은 원천세를 산출하지 않는다 — `step9WithholdingTax` 0은 '보류'라는 뜻(1절 '(보류)').", "",
           "## 3. 현재 SETT-002와 다른 값", "",
