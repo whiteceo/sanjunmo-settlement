@@ -30,11 +30,14 @@
 ## 적용 순서
 ### 1단계 — 공통 모양(한 번에, Blade 거의 안 고침)
 1. 이 폴더를 개발 저장소 `public/admin/assets/sjm-kit/` 로 복사한다(`img/` · `preview/` 포함).
-2. `resources/views/admin/layouts/header.blade.php` 의 CSS 로드 줄에서 `admin-custom.css` 와 `@stack('styles')` **뒤**에 두 줄을 추가한다. 순서가 중요하다(화면 CSS 보다 뒤).
+2. `resources/views/admin/layouts/header.blade.php` 의 CSS 로드 줄에서 `admin-custom.css` **바로 뒤**, `{$currentCss}` · `@stack('styles')`(화면 CSS) **앞**에 두 줄을 추가한다.
    ```blade
-   <link rel="stylesheet" href="{{ asset('admin/assets/sjm-kit/tokens.css') }}">
-   <link rel="stylesheet" href="{{ asset('admin/assets/sjm-kit/sjm-dev-skin.css') }}">
+   <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-custom.css') }}">
+   <link rel="stylesheet" href="{{ asset('admin/assets/sjm-kit/tokens.css') }}">      {{-- 추가 --}}
+   <link rel="stylesheet" href="{{ asset('admin/assets/sjm-kit/sjm-dev-skin.css') }}"> {{-- 추가 --}}
+   …(currentCss · @stack('styles') 는 그 뒤 그대로)
    ```
+   - 화면 CSS 를 키트 뒤에 두는 이유: 3단계에서 화면을 재배치할 때 화면 CSS 가 키트를 덮을 수 있어야 한다.
 3. `public/admin/assets/sjm-kit/preview/dev-markup-sample.html` 을 열어 적용 모습을 본다(`?skin=0` 과 비교).
 4. 로그인 · 대시보드 · 회원 목록 · 회원 상세 · 등록 폼 · 모달 하나씩 열어 확인한다. 확인할 것: SNB 그룹 열고 닫기, 모달 열기 · 닫기 · ESC, 탭 전환, 검색 · 페이지 이동, 엑셀 · 사유 모달.
 
@@ -47,8 +50,22 @@
 - 화면 전용 CSS(`settlement.css` 의 `st-*`, `admin-custom.css` 의 `fu-` · `promo-` · `dash-` 등)는 화면을 손볼 때 같이 `--sjm-*` 토큰 값으로 바꾼다.
 - 배치 · 항목 · 문구는 `dev_spec/<화면코드>.md` 7절(기능 차이)과 프로토타입 HTML 을 따른다.
 
+## 화면 CSS 쓰는 법(3단계)
+- 키트 선택자는 `body .클래스` 무게다. 화면 CSS 에서 키트가 이미 다루는 class(`.select` · `.btn*` · `.input__text` · `.table__list` · `.badge` · `.text--warning` 등)를 고칠 때는 **화면 wrapper class 를 붙여** 같은 무게 이상으로 쓴다.
+  ```css
+  /* 회원 목록 화면 — <section class="mbr-list"> 안에서만 */
+  body .mbr-list .select { width: 84px; min-width: 0; }
+  body .mbr-list .table__list td { white-space: normal; }
+  ```
+- 새 class(화면 접두어, 예: `mbr-kpi__card`)는 키트와 겹치지 않으므로 그냥 쓴다. 값은 `var(--sjm-*)` 토큰을 쓴다.
+- 개발 공통 CSS 의 예외 규칙도 확인한다(예: `admin-custom.css` 의 `.masked { font-family: 'Courier New' }` — 표 안에서 줄바꿈을 일으키면 화면 CSS 에서 `body .화면 .masked { font-family: inherit; }`).
+
 ## 개발 AI 에게 줄 지시 예
 > `design_kit/README.md` · `CLASS_MAP.md` · `COMPONENTS.md` 를 읽고 1단계를 적용해라. id · name · data-* · JS 가 쓰는 class(`CLASS_MAP.md` JS 의존 열)는 바꾸지 마라. SNB 접기 · 펼치기는 지금 동작을 유지한다. 적용 후 `preview/dev-markup-sample.html` 과 실제 화면 다섯 개를 열어 확인해라.
+
+## 고친 이력
+- 2026-10-27 v6.91 첫판.
+- 2026-10-27 보정(USER-001 Blade 시험에서 발견): ① `text--warning` · `txt--red` 는 색만 바꾸고 크기는 입력 아래 오류 문구에서만 11.5px(KPI 숫자 등이 작아지던 문제) ② `badge--soft` 앞 점 숨김(프로토타입 배지에 없음) ③ 로드 순서를 키트 → 화면 CSS 로 바꾸고 "화면 CSS 쓰는 법" 추가.
 
 ## 검증 기록(키트 작성 때)
 - 개발 `admin.css` · `admin-custom.css` · `custom.js`(dev `ee0d5abd`) 위에 키트를 얹어 `preview/dev-markup-sample.html` 을 Chromium 1600×1100 으로 렌더링했다. 콘솔 오류 0건.

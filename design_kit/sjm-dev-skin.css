@@ -2,7 +2,10 @@
    sjm-dev-skin.css — 개발 관리자 화면(class 이름 그대로)에 프로토타입 디자인을 입힌다
    ---------------------------------------------------------------------------
    불러오는 순서(layouts/header.blade.php):
-     admin.css → admin-custom.css → (화면 CSS) → design_kit/tokens.css → design_kit/sjm-dev-skin.css
+     admin.css → admin-custom.css → design_kit/tokens.css → design_kit/sjm-dev-skin.css → {currentCss} · @stack('styles')(화면 CSS)
+     화면 CSS 가 키트 뒤에 와야 화면 재배치용 CSS 가 키트를 덮을 수 있다. 다만 이 파일의 선택자는 body 접두라
+     화면 CSS 에서 키트가 다루는 class(.select · .btn · .table__list 등)를 고칠 때는 화면 wrapper class 를 붙여
+     같은 무게 이상으로 쓴다(예: body .mbr-list .select { width: 84px; }). README "화면 CSS 쓰는 법" 참고.
    지키는 것
      - 마크업 · id · name · data-* · JS 가 붙이고 떼는 상태 class 는 하나도 바꾸지 않는다.
        (SNB 아코디언 active/인라인 display·height, layer-pop--hidden / layer_pop--show,
@@ -399,7 +402,11 @@ body .text--required {
   padding: 0;
   font-weight: 700;
 }
-body .text--warning, body .txt--red { color: var(--sjm-danger); font-size: 11.5px; }
+body .text--warning, body .txt--red { color: var(--sjm-danger); }   /* 색만 — 크기는 쓰는 곳(KPI 숫자 · 표 금액 등)을 따른다 */
+body p.text--warning,
+body .search__table .text--warning,
+body .table__view .text--warning,
+body .layer-pop__content .text--warning { font-size: 11.5px; line-height: 1.5; margin-top: 4px; }   /* 입력 아래 오류 문구 */
 body .fm-help, body .fm__help, body .text--desc, body .text--small {
   font-size: 11.5px;
   color: var(--sjm-text-muted);
@@ -640,7 +647,7 @@ body .badge.badge--cancel {
 body .badge[class*="badge--"] { background: var(--b-bg); color: var(--b-fg); border-color: transparent; }
 body .badge.badge--outline { background: var(--sjm-surface); color: var(--b-fg); border-color: var(--b-bd); }
 body .badge.badge--solid { background: var(--b-solid); color: #fff; border-color: var(--b-solid); min-width: 0; width: auto; }
-body .badge.badge--soft::before { background: currentColor; }
+body .badge.badge--soft::before { display: none; }   /* 프로토타입 배지에는 앞 점이 없다 */
 
 /* ---------------------------------------------------------------------------
    11. 기타 공통 레이어(선택 레이어 · 강좌 불러오기 · 로딩) — 둥글기 · 그림자만 맞춤
