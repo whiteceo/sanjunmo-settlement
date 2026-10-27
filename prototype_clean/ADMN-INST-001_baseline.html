@@ -839,24 +839,6 @@ code, pre, kbd, samp,
             <span class="chip" id="suspendedApproval">미승인</span>
           </div>
 
-          <div class="row c3" style="margin-top:8px">
-            <div>
-              <label class="lbl" for="taxDecision">세무 판정 상태 · 시연</label>
-              <select class="fc" id="taxDecision" data-field="">
-                <option value="PENDING_REVIEW">검토 보류</option>
-                <option value="DECIDED" selected>판정 완료</option>
-              </select>
-            </div>
-            <div>
-              <label class="lbl" for="matrixCase">판정 케이스 식별자</label>
-              <input class="fc" id="matrixCase" value="TX-07 / TX-09" placeholder="예: 검토 완료한 케이스 ID" maxlength="40" data-field="">
-            </div>
-            <div>
-              <label class="lbl" for="taxDecisionReason">판정 근거 / 검토 메모</label>
-              <input class="fc" id="taxDecisionReason" value="세무 매트릭스 기준 판정 완료" placeholder="실무 검토 근거 입력" maxlength="300" data-field="">
-            </div>
-          </div>
-          <div class="note">위 판정 입력은 상태 표시를 시연하기 위한 항목이며 세율 자동 판정 기능이 아닙니다. 판정 보류 라인은 정산 마감 대상에서 제외하고, 보류가 남으면 마감을 차단합니다.</div>
         </section>
 
         <!-- 계약 기간 -->
@@ -2178,7 +2160,7 @@ function validation(){
         }
         if(ntsExpired(state.nts)) errors.push(`국세청 확인 후 ${NTS_VALID_DAYS}일이 지났습니다(${state.nts.checkedOn} 확인). 계약 원장을 수정하려면 국세청 진위 확인을 다시 실행하세요.`);
         const hold=ntsHold(state.nts);
-        if(hold&&val("taxDecision")!=="DECIDED") warnings.push(hold);
+        if(hold) warnings.push(hold);
       }
     }
     if(!hasEvidence("BUSINESS")) errors.push("사업자등록증 증빙이 필요합니다.");
@@ -2295,8 +2277,6 @@ function validation(){
   if(!termOn("Advance")&&advanceOpen()) warnings.push("선급금 적용 해제와 별개로 기존 원장의 잔액·대기 건을 후속 관리합니다.");
 
   if(val("resident")==="NO"||val("externalLabor")==="YES") warnings.push("비거주자 또는 업무 외 노무 건은 세무 검토가 필요합니다.");
-  if(val("taxDecision")==="PENDING_REVIEW") warnings.push("세무 판정 보류: 계약 조건은 저장할 수 있으나 정산 마감은 차단됩니다.");
-  if(val("taxDecision")==="DECIDED"&&(!val("matrixCase").trim()||!val("taxDecisionReason").trim())) errors.push("판정 완료는 케이스 식별자와 검토 근거가 필요합니다.");
 
   return {errors:[...new Set(errors)],warnings:[...new Set(warnings)]};
 }
@@ -2754,11 +2734,6 @@ function verifyModal(){
     state.ntsHistory.unshift(JSON.parse(JSON.stringify(result)));
     state.suspendedApproved=false;
     const hold=ntsHold(result);
-    if(hold){
-      $("taxDecision").value="PENDING_REVIEW";
-      if(!known||known.hold==="ALWAYS") $("matrixCase").value="";
-      else $("matrixCase").value="후보 TX-09(인세 · 매절) · TX-07(강의 R/S · 약정금 · 지원금)";
-    }
     changed("국세청 확인 · 모의",`${result.match?"일치":"불일치"} · ${statusLabel} · ${taxLabel}${hold?" · 판정 보류 격리":""}`);
     return true;
   },"모의 응답 반영");
@@ -3764,9 +3739,6 @@ function loadContractPreset(contractId){
   state.nts = null; state.suspendedApproved = false;
   $("contractStart").value = c.start;
   $("initialEnd").value = c.end;
-  $("taxDecision").value = c.taxDecision;
-  $("matrixCase").value = c.matrixCase || "";
-  $("taxDecisionReason").value = c.taxDecision === "DECIDED" ? "세무 매트릭스 기준 판정 완료" : "";
 
   /* 계약별 상세 조건(요율 · 저서 · 지원금 · 위탁 · 선급금) — 프리셋이 없으면 화면 최초 예시 조건 */
   applyContractDetail(c.id);
