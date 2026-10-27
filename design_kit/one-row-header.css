@@ -1,0 +1,30 @@
+/* =============================================================================
+   one-row-header.css — 머리 줄 한 줄로 (white 확정 2026-10-27)
+   ---------------------------------------------------------------------------
+   개발 화면은 맨 위에 로고 · 프로필만 있는 공통 머리 줄(.header)이 있고, 그 아래에 화면 제목 줄
+   (.content__header)이 따로 있다. 프로토타입은 제목 줄이 곧 맨 윗줄이다.
+   이 파일은 마크업 · JS 를 바꾸지 않고, 화면 제목 줄을 머리 줄 높이로 끌어올려 겹쳐 한 줄로 만든다.
+     [남색 로고 칸(SNB 폭)] [경로 · 화면 제목 · 배지 · 버튼 …] [프로필 아이콘]
+   - 프로필 메뉴(.user_profile__info.active, custom.js)는 그대로 동작한다(제목 줄의 빈 곳은 클릭이 통과).
+   - 스크롤해도 한 줄이 위에 고정된다(머리 줄 · 제목 줄 모두 sticky).
+   불러오는 순서: tokens.css → sjm-dev-skin.css → one-row-header.css → 화면 CSS
+   ============================================================================= */
+body .container .content { padding-top: 26px; }
+body .container .content > .content__header {
+  position: sticky;
+  top: 0;
+  z-index: 950;                                      /* 머리 줄(900) 위 */
+  margin: calc(-26px - var(--header-h)) -28px 22px;  /* 본문 윗여백 + 머리 줄 높이만큼 위로 */
+  height: var(--header-h);
+  min-height: var(--header-h);
+  padding: 0 calc(3rem + 44px) 0 28px;               /* 오른쪽은 프로필 아이콘 자리 */
+  display: flex;
+  align-items: center;
+  background: transparent;                            /* 흰 바탕 · 하단선은 머리 줄 것을 쓴다 */
+  border-bottom: 0;
+  pointer-events: none;                               /* 빈 곳 클릭은 아래 프로필로 */
+}
+body .container .content > .content__header > * { pointer-events: auto; }
+/* 제목 줄 오른쪽 버튼(화면마다 인라인 absolute 로 둔 것)도 프로필 아이콘 앞에 놓는다 */
+body .content__header > [style*="position:absolute"],
+body .content__header > [style*="position: absolute"] { right: calc(3rem + 44px) !important; }

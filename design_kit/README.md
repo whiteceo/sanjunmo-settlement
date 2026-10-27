@@ -20,6 +20,7 @@
 | :--- | :--- |
 | `tokens.css` | 디자인 토큰(CSS 변수 `--sjm-*`): 색 · 글꼴 · 글자 크기 · 컨트롤 높이 · 둥글기 · 그림자 · 골격 폭 |
 | `sjm-dev-skin.css` | 개발 class 이름 그대로 프로토타입 모양을 입히는 CSS(머리 · SNB · 본문 · 버튼 · 입력 · 검색 · 표 · 페이지 번호 · 탭 · 모달 · 배지) |
+| `one-row-header.css` | 머리 줄(로고 · 프로필)과 화면 제목 줄을 프로토타입처럼 한 줄로(CSS만) |
 | `CLASS_MAP.md` | 개발 class ↔ 프로토타입 기준 대응표 + JS 의존 표시 |
 | `COMPONENTS.md` | 화면 요소별 마크업 가이드 1장(새 화면 · 화면 개편 때 쓰는 마크업과 규칙) |
 | `img/sjm_logo-horizontal-white.png` | 남색 바탕용 흰 로고(머리 왼쪽 로고 칸) |
@@ -35,8 +36,10 @@
    <link rel="stylesheet" href="{{ asset('admin/assets/css/admin-custom.css') }}">
    <link rel="stylesheet" href="{{ asset('admin/assets/sjm-kit/tokens.css') }}">      {{-- 추가 --}}
    <link rel="stylesheet" href="{{ asset('admin/assets/sjm-kit/sjm-dev-skin.css') }}"> {{-- 추가 --}}
+   <link rel="stylesheet" href="{{ asset('admin/assets/sjm-kit/one-row-header.css') }}"> {{-- 추가: 머리 줄 한 줄 --}}
    …(currentCss · @stack('styles') 는 그 뒤 그대로)
    ```
+   - `one-row-header.css`: 로고 · 프로필 머리 줄과 화면 제목 줄을 한 줄로 겹친다(마크업 · JS 변경 없음, white 확정 2026-10-27). 모든 화면이 `.content > .content__header` 로 제목을 두는 전제다 — 제목 줄이 없는 화면(로그인 등)은 영향 없음.
    - 화면 CSS 를 키트 뒤에 두는 이유: 3단계에서 화면을 재배치할 때 화면 CSS 가 키트를 덮을 수 있어야 한다.
 3. `public/admin/assets/sjm-kit/preview/dev-markup-sample.html` 을 열어 적용 모습을 본다(`?skin=0` 과 비교).
 4. 로그인 · 대시보드 · 회원 목록 · 회원 상세 · 등록 폼 · 모달 하나씩 열어 확인한다. 확인할 것: SNB 그룹 열고 닫기, 모달 열기 · 닫기 · ESC, 탭 전환, 검색 · 페이지 이동, 엑셀 · 사유 모달.
@@ -66,6 +69,7 @@
 ## 고친 이력
 - 2026-10-27 v6.91 첫판.
 - 2026-10-27 보정(USER-001 Blade 시험에서 발견): ① `text--warning` · `txt--red` 는 색만 바꾸고 크기는 입력 아래 오류 문구에서만 11.5px(KPI 숫자 등이 작아지던 문제) ② `badge--soft` 앞 점 숨김(프로토타입 배지에 없음) ③ 로드 순서를 키트 → 화면 CSS 로 바꾸고 "화면 CSS 쓰는 법" 추가.
+- 2026-10-27 `one-row-header.css` 추가(white 확정): 머리 줄 한 줄. USER-001 Blade 수정본 FHD 비교에서 KPI 위치가 프로토타입과 같은 82px, 프로필 메뉴 · 스크롤 고정 동작 확인.
 
 ## 검증 기록(키트 작성 때)
 - 개발 `admin.css` · `admin-custom.css` · `custom.js`(dev `ee0d5abd`) 위에 키트를 얹어 `preview/dev-markup-sample.html` 을 Chromium 1600×1100 으로 렌더링했다. 콘솔 오류 0건.
