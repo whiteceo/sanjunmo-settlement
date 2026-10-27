@@ -2,7 +2,7 @@
 
     python engine/php/web/build_web.py
 
-template.html에 PHP 소스(engine/php/src) · tax_table.json · 예시 입력(샘플 · 시나리오 · 04권 Case · 부록 D · 정본 결정)과
+template.html에 PHP 소스(engine/php/src) · 한국어 업무 용어(labels.json) · 입력 스키마 · tax_table.json · 예시 입력(샘플 · 시나리오 · 04권 Case · 부록 D · 정본 결정)과
 같은 입력의 파이썬 판 계산 값(values, 페이지에서 PHP 결과와 대조)을 넣어 engine/out/web/index.html을 만든다.
 브라우저용 PHP 8.4(php-wasm 3.1.57) wasm은 gzip해서 index.html 옆에 둔다(내려받기는 처음 한 번, --wasm-dir로 재사용).
 """
@@ -87,7 +87,9 @@ def main():
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     ex = examples()
-    payload = {"phpwasm": PHPWASM, "groups": GROUPS, "examples": ex, "sources": php_sources()}
+    payload = {"phpwasm": PHPWASM, "groups": GROUPS, "examples": ex, "sources": php_sources(),
+               "labels": json.loads((HERE / "labels.json").read_text(encoding="utf-8")),
+               "schema": json.loads((ENGINE / "schema/input.schema.json").read_text(encoding="utf-8"))}
     blob = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
     page = (HERE / "template.html").read_text(encoding="utf-8").replace("/*__PAYLOAD__*/null", blob)
     (out / "index.html").write_text(page, encoding="utf-8")
