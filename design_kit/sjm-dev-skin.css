@@ -1,0 +1,649 @@
+/* =============================================================================
+   sjm-dev-skin.css — 개발 관리자 화면(class 이름 그대로)에 프로토타입 디자인을 입힌다
+   ---------------------------------------------------------------------------
+   불러오는 순서(layouts/header.blade.php):
+     admin.css → admin-custom.css → (화면 CSS) → design_kit/tokens.css → design_kit/sjm-dev-skin.css
+   지키는 것
+     - 마크업 · id · name · data-* · JS 가 붙이고 떼는 상태 class 는 하나도 바꾸지 않는다.
+       (SNB 아코디언 active/인라인 display·height, layer-pop--hidden / layer_pop--show,
+        tab__item--active, user_profile__info.active 등)
+     - 그래서 이 파일은 색 · 크기 · 여백 · 둥글기 · 글꼴만 바꾼다.
+       display · visibility · opacity · height(SNB 2depth) 처럼 JS 와 맞물린 속성은 건드리지 않는다.
+   선택자 앞의 body 는 admin.css 보다 한 단계 높은 우선순위를 주려는 것이다.
+   ============================================================================= */
+
+/* ---------------------------------------------------------------------------
+   0. 기본 글꼴 · 글자
+   --------------------------------------------------------------------------- */
+:root {
+  --snb-w: var(--sjm-snb-w);          /* 개발 골격 변수(11rem)를 프로토타입 폭(260px)으로 */
+  --header-h: var(--sjm-topbar-h);
+}
+html body {
+  font-family: var(--sjm-font);
+  font-size: var(--sjm-fs-body);
+  line-height: 1.5;
+  color: var(--sjm-text);
+  background: var(--sjm-bg);
+}
+body input, body select, body textarea, body button, body table { font-family: var(--sjm-font); }
+
+/* ---------------------------------------------------------------------------
+   1. 머리(header) — 로고 칸은 SNB 와 같은 남색으로 이어 보이게
+   --------------------------------------------------------------------------- */
+body .header {
+  background: var(--sjm-surface);
+  border-bottom: 1px solid var(--sjm-border);
+  color: var(--sjm-text-sub);
+  z-index: 900;
+}
+body .header .header__wrap .admin__logo {
+  display: flex;
+  align-items: center;
+  background: var(--sjm-navy-900);
+  border-right: 1px solid var(--sjm-navy-800);
+  padding: 0 18px;
+}
+body .header .admin__logo a {
+  display: block;
+  width: 100%;
+  height: 17px;
+  background: url("img/sjm_logo-horizontal-white.png") left center / auto 17px no-repeat;
+  color: transparent;          /* 글자 "산준모"는 남겨 두고(스크린리더) 그림으로 보인다 */
+  font-size: 0;
+}
+body .header .utility { font-size: 12.5px; color: var(--sjm-text-sub); }
+body .user_profile__info {
+  border: 1px solid var(--sjm-border);
+  border-radius: var(--sjm-radius);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+body .btn__user {
+  font-size: 12.5px;
+  border-radius: var(--sjm-radius-sm);
+}
+
+/* ---------------------------------------------------------------------------
+   2. SNB — 모양만. 아코디언(custom.js:722-806)이 쓰는 active · 인라인 display/height 는 그대로
+   --------------------------------------------------------------------------- */
+body .snb {
+  width: var(--snb-w);
+  min-width: var(--snb-w);
+  background: var(--sjm-navy-900);
+  border-right: 1px solid var(--sjm-navy-800);
+  font-family: var(--sjm-font);
+  min-height: calc(100vh - var(--header-h));
+}
+body .snb .snb__wrap { padding: 12px 10px 20px; }
+
+/* 홈페이지 바로가기 */
+body .snb .link__home {
+  background: transparent;
+  border-bottom: 1px solid var(--sjm-navy-800);
+  color: var(--sjm-slate-400);
+  font-size: 12px;
+  margin: 0 0 12px;
+}
+body .snb .link__home a { padding: 10px; color: var(--sjm-slate-400); border-radius: 7px; }
+body .snb .link__home a:hover { color: #fff; background: var(--sjm-navy-800); }
+body .snb .link__home a svg path, body .snb .link__home a:hover svg path { fill: currentColor; }
+
+/* 1depth — 하위 메뉴가 있으면 '그룹 제목', 없으면(대시보드 등) 일반 메뉴 항목 모양 */
+body .snb .snb__depth--1 { padding-bottom: 0; }
+body .snb .snb__depth--1 > li + li { margin-top: 2px; }
+body .snb .snb__depth--1 .snb__link {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--sjm-slate-300);
+  background: transparent;
+}
+body .snb .snb__depth--1 .snb__link svg path { fill: currentColor; }
+body .snb .snb__item:hover .snb__link { color: #fff; background: var(--sjm-navy-800); }
+
+/* 그룹(하위 메뉴 있는 1depth) */
+body .snb .snb__item:has(> .snb__depth--2) > .snb__link {
+  font-weight: 700;
+  color: var(--sjm-slate-400);
+}
+body .snb .snb__item:has(> .snb__depth--2) > .snb__link::after {   /* 펼침 표시 화살표 */
+  content: "";
+  margin-left: auto;
+  width: 6px; height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform .2s ease;
+}
+body .snb .snb__item.active:has(> .snb__depth--2) > .snb__link { color: #fff; background: transparent; }
+body .snb .snb__item.active:has(> .snb__depth--2) > .snb__link::after { transform: rotate(-135deg) translate(-2px, -2px); }
+
+/* 하위 메뉴 없는 1depth 의 현재 메뉴 = 프로토타입 활성 항목 */
+body .snb .snb__item.active:not(:has(> .snb__depth--2)) > .snb__link {
+  background: var(--sjm-primary);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+body .snb .snb__item.active:not(:has(> .snb__depth--2)) > .snb__link svg path { fill: #fff; }
+
+/* 2depth — 열림/닫힘(opacity · visibility · height · display)은 개발 CSS · JS 가 그대로 정한다 */
+body .snb .snb__depth--2 { background: transparent; }
+body .snb .snb__depth--2 li {
+  text-indent: 0;
+  border-bottom: 0;
+  font-size: 12.5px;
+  padding: 0;
+}
+body .snb .snb__item.active .snb__depth--2 li { padding: 1px 0; }
+body .snb .snb__depth--2 li a {
+  display: flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 10px 0 22px;
+  border-radius: 7px;
+  color: var(--sjm-slate-300);
+  font-weight: 500;
+}
+body .snb .snb__depth--2 li a:hover { background: var(--sjm-navy-800); color: #fff; }
+body .snb .snb__item.active .snb__depth--2 li.active { text-decoration: none; }
+body .snb .snb__item.active .snb__depth--2 li.active a {
+  background: var(--sjm-primary);
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+   3. 본문 · 페이지 제목
+   --------------------------------------------------------------------------- */
+body .container .content {
+  width: calc(100% - var(--snb-w) - var(--side-panel-w, 0rem));
+  background: var(--sjm-bg);
+  padding: var(--sjm-page-pad);
+}
+/* 페이지 제목 = 프로토타입 상단 바(흰 띠 · 하단선 · 16px/800) */
+body .container .content > .content__header,
+body .container .content > h2:first-child {
+  margin: -22px -28px 18px;
+  padding: 14px 28px;
+  min-height: 56px;
+  background: var(--sjm-surface);
+  border-bottom: 1px solid var(--sjm-border);
+}
+body .container .content h2 {
+  font-size: var(--sjm-fs-title);
+  font-weight: 800;
+  color: var(--sjm-text);
+  padding-bottom: 0;
+  line-height: 1.5;
+}
+body .container .content .content__header h2 { margin: 0; }
+body .content__header > [style*="position:absolute"],
+body .content__header > [style*="position: absolute"] { top: 50% !important; right: 28px !important; transform: translateY(-50%); }
+
+/* 카드 — 본문 안 구획 */
+body .content__wrap,
+body .search .search__wrap {
+  background: var(--sjm-surface);
+  border: 1px solid var(--sjm-border);
+  border-radius: var(--sjm-radius);
+  box-shadow: var(--sjm-shadow-card);
+}
+body .content__wrap { padding: 18px; }
+body .search .search__wrap { padding: 0; overflow: hidden; margin-bottom: 12px; }
+
+/* ---------------------------------------------------------------------------
+   4. 버튼
+   역할 대응: 개발 class → 프로토타입
+     .btn(단독 · 초기화 · 취소)            → 외곽선 버튼 btn-outline
+     .btn.button--search / .btn--save / .btn--add → 주 버튼 btn-primary
+     .btn__small(.btn--basic · --mail)      → 작은 외곽선 btn-sm btn-outline
+     .btn__small.btn--save                  → 작은 주 버튼
+     .btn__small.btn--excel                 → 작은 성공(초록) 외곽선
+     .btn__small.btn--line                  → 작은 위험(빨강) 연한 버튼
+     .btn__small.btn--secondary / 기본      → 작은 진한 버튼 btn-dark
+     .btn__system                           → 주 버튼(폼 하단 · 모달)
+     .btn__system.btn--basic                → 외곽선, --secondary/--modify → 진한, --success → 초록, --warning → 위험
+   --------------------------------------------------------------------------- */
+body .btn,
+body .btn__small,
+body .btn__system,
+body .btn__soft,
+body .btn__medium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-family: var(--sjm-font);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: background .15s, border-color .15s, color .15s;
+  cursor: pointer;
+}
+/* 기본 크기 */
+body .btn, body .btn__system, body .btn__medium {
+  height: var(--sjm-control-h);
+  min-width: 0;
+  padding: 0 14px;
+  font-size: 12.5px;
+  border-radius: var(--sjm-radius-sm);
+}
+body .btn__system { min-width: 88px; }
+/* 작은 크기 */
+body .btn__small, body .btn__soft {
+  height: var(--sjm-control-h-sm);
+  padding: 0 10px;
+  font-size: var(--sjm-fs-small);
+  border-radius: var(--sjm-radius-sm);
+}
+
+/* 외곽선(기본) */
+body .btn,
+body .btn__small.btn--basic,
+body .btn__small.btn--mail,
+body .btn__system.btn--basic,
+body .btn__soft.btn--basic {
+  background: var(--sjm-surface);
+  border-color: var(--sjm-border-strong);
+  color: var(--sjm-text);
+}
+body .btn:hover,
+body .btn__small.btn--basic:hover,
+body .btn__small.btn--mail:hover,
+body .btn__system.btn--basic:hover,
+body .btn__soft.btn--basic:hover { background: var(--sjm-bg); color: var(--sjm-text); }
+
+/* 주 버튼 */
+body .btn.button--search,
+body .btn.btn--save,
+body .btn.btn--add,
+body .btn__small.btn--save,
+body .btn__system {
+  background: var(--sjm-primary);
+  border-color: var(--sjm-primary);
+  color: #fff;
+}
+body .btn.button--search:hover,
+body .btn.btn--save:hover,
+body .btn.btn--add:hover,
+body .btn__small.btn--save:hover,
+body .btn__system:hover { background: var(--sjm-primary-hover); border-color: var(--sjm-primary-hover); color: #fff; }
+body .btn.button--search, body .btn.btn--add { width: auto; }
+
+/* 진한 버튼 */
+body .btn__small,
+body .btn__small.btn--secondary,
+body .btn__system.btn--secondary,
+body .btn__system.btn--modify {
+  background: var(--sjm-navy-900);
+  border-color: var(--sjm-navy-900);
+  color: #fff;
+}
+body .btn__small.btn--secondary:hover,
+body .btn__system.btn--secondary:hover,
+body .btn__system.btn--modify:hover { background: var(--sjm-navy-800); border-color: var(--sjm-navy-800); }
+
+/* 성공 · 위험 */
+body .btn__small.btn--excel,
+body .btn__system.btn--success {
+  background: var(--sjm-surface);
+  border-color: var(--sjm-success-border);
+  color: var(--sjm-success-text);
+}
+body .btn__small.btn--excel:hover,
+body .btn__system.btn--success:hover { background: var(--sjm-success-soft); }
+body .btn__small.btn--line,
+body .btn__system.btn--warning {
+  background: var(--sjm-danger-soft);
+  border-color: var(--sjm-danger-border);
+  color: var(--sjm-danger);
+}
+body .btn__small.btn--line:hover,
+body .btn__system.btn--warning:hover { background: #FEE2E2; color: var(--sjm-danger-text); }
+
+/* 비활성 */
+body .btn:disabled, body .btn__small:disabled, body .btn__system:disabled,
+body .btn[disabled], body .btn__small[disabled], body .btn__system[disabled] {
+  background: var(--sjm-slate-200);
+  border-color: var(--sjm-slate-300);
+  color: var(--sjm-text-disabled);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+body .btn__small.btn--h { height: var(--sjm-control-h); }
+
+/* 버튼 묶음 */
+body .btn__group { gap: 8px; }
+
+/* ---------------------------------------------------------------------------
+   5. 입력
+   --------------------------------------------------------------------------- */
+body input.input__text,
+body .input__text,
+body input[type="date"],
+body input[type="datetime-local"],
+body input[type="time"],
+body input[type="number"],
+body input[type="password"],
+body input[type="email"],
+body input[type="tel"],
+body .layer-pop__overlay .layer-pop__wrap .layer-pop__content .input__text {
+  height: var(--sjm-control-h);
+  padding: 0 10px;
+  font-size: var(--sjm-fs-table);
+  color: var(--sjm-text);
+  background-color: var(--sjm-surface);
+  border: 1px solid var(--sjm-border-strong);
+  border-radius: var(--sjm-radius-sm);
+}
+body select,
+body .select {
+  height: var(--sjm-control-h);
+  padding: 0 28px 0 10px;
+  font-size: var(--sjm-fs-table);
+  color: var(--sjm-text);
+  background-color: var(--sjm-surface);
+  border: 1px solid var(--sjm-border-strong);
+  border-radius: var(--sjm-radius-sm);
+  background-position: right 10px center;   /* 개발 화살표 그림(arrow_form_select.png)은 그대로 */
+}
+body textarea,
+body .input__textarea {
+  padding: 8px 10px;
+  font-size: var(--sjm-fs-table);
+  line-height: 1.5;
+  color: var(--sjm-text);
+  border: 1px solid var(--sjm-border-strong);
+  border-radius: var(--sjm-radius-sm);
+}
+body input.input__text:focus, body .input__text:focus, body select:focus, body textarea:focus,
+body input[type="date"]:focus, body input[type="number"]:focus, body input[type="password"]:focus {
+  outline: none;
+  border-color: var(--sjm-primary);
+  box-shadow: var(--sjm-focus-ring);
+}
+body input::placeholder, body textarea::placeholder { color: var(--sjm-text-disabled); }
+body input:disabled, body select:disabled, body textarea:disabled,
+body input[readonly].input__text { background-color: var(--sjm-slate-100); color: var(--sjm-text-muted); }
+
+/* 체크박스 · 라디오 — 개발의 그린 체크 표시(::before/::after)는 그대로 두고 색 · 크기만 */
+body input[type=checkbox] {
+  width: 16px; height: 16px;
+  border: 1px solid var(--sjm-border-strong);
+  border-radius: 4px;
+}
+body input[type=checkbox]:checked {
+  background: var(--sjm-primary);
+  border-color: var(--sjm-primary);
+  box-shadow: none;
+}
+body input[type=checkbox]:focus-visible { box-shadow: var(--sjm-focus-ring); }
+body input[type=radio] {
+  width: 16px; height: 16px; min-width: 16px; min-height: 16px;
+  border: 1px solid var(--sjm-border-strong);
+}
+body input[type=radio]:checked {
+  border: 5px solid var(--sjm-primary);
+  box-shadow: none;
+}
+
+/* 폼 문구 */
+body .text--required {
+  background: transparent;
+  color: var(--sjm-danger);
+  padding: 0;
+  font-weight: 700;
+}
+body .text--warning, body .txt--red { color: var(--sjm-danger); font-size: 11.5px; }
+body .fm-help, body .fm__help, body .text--desc, body .text--small {
+  font-size: 11.5px;
+  color: var(--sjm-text-muted);
+  line-height: 1.5;
+}
+body .fm__help--warn { color: var(--sjm-warning-text); }
+body .fm__help--ok { color: var(--sjm-success-text); }
+body .fld--err {
+  border-color: var(--sjm-danger) !important;
+  background-color: var(--sjm-danger-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   6. 검색 영역 · 표
+   --------------------------------------------------------------------------- */
+body .search { text-align: right; }      /* 개발 배치(버튼 오른쪽) 유지 */
+body .search__table,
+body .table__view {
+  width: 100%;
+  font-size: var(--sjm-fs-table);
+  border-collapse: collapse;
+  border-top: 0;
+}
+body .search__table th,
+body .table__view th {
+  width: auto;
+  padding: 10px 12px;
+  background: var(--sjm-bg);
+  color: var(--sjm-text-sub);
+  font-weight: 700;
+  font-size: 12px;
+  text-align: left;
+  border: 1px solid var(--sjm-border);
+  vertical-align: middle;
+}
+body .search__table td,
+body .table__view td {
+  padding: 8px 12px;
+  font-size: var(--sjm-fs-table);
+  background: var(--sjm-surface);
+  color: var(--sjm-text);
+  text-align: left;
+  border: 1px solid var(--sjm-border);
+  line-height: 1.5;
+  vertical-align: middle;
+}
+/* 카드 안 표는 바깥 테두리를 카드가 맡는다 */
+body .search .search__wrap .search__table tr:first-child > * { border-top: 0; }
+body .search .search__wrap .search__table tr:last-child > * { border-bottom: 0; }
+body .search .search__wrap .search__table tr > :first-child { border-left: 0; }
+body .search .search__wrap .search__table tr > :last-child { border-right: 0; }
+
+/* 목록 요약 줄 */
+body .list__detail { margin-bottom: 10px; }
+body .list__detail .list__detail__total { font-size: 12.5px; color: var(--sjm-text-sub); }
+body .list__detail .list__detail__total strong { color: var(--sjm-primary); font-weight: 800; }
+
+/* 목록 표 */
+body .table__list {
+  width: 100%;
+  font-size: var(--sjm-fs-table);
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--sjm-surface);
+  border: 1px solid var(--sjm-border);
+  border-radius: var(--sjm-radius);
+  overflow: hidden;
+}
+body .table__list thead th,
+body .table__list th {
+  padding: 10px 12px;
+  background: var(--sjm-bg);
+  color: var(--sjm-text-sub);
+  font-size: var(--sjm-fs-small);
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  border: 0;
+  border-bottom: 1px solid var(--sjm-border);
+  border-radius: 0;
+}
+body .table__list tbody td {
+  padding: 10px 12px;
+  color: var(--sjm-text);
+  font-size: var(--sjm-fs-table);
+  text-align: left;
+  border-bottom: 1px solid var(--sjm-border);
+}
+body .table__list tbody tr:last-child td { border-bottom: 0; }
+body .table__list tbody tr:hover td { background: var(--sjm-bg); }
+/* 체크박스 한 칸 · 정렬 class 는 개발 지정대로 */
+body .table__list th:has(> input[type=checkbox]:only-child),
+body .table__list td:has(> input[type=checkbox]:only-child),
+body .table__list td.align--center, body .table__list th.align--center { text-align: center; }
+body .table__list td.align--right, body .table__list th.align--right { text-align: right; }
+body .table__list td.align--right, body .table__view td.align--right, body .list__detail__total strong { font-variant-numeric: tabular-nums; }
+body .table__list tbody td a { color: var(--sjm-primary); text-decoration: none; }
+body .table__list tbody td a:hover { text-decoration: underline; }
+body .table__list tbody td .link--view { color: var(--sjm-primary); font-weight: 600; }
+body .table__list thead th a.link--view { color: inherit; }
+body .table__list .text--sub { color: var(--sjm-text-muted); font-size: 11.5px; }
+
+/* ---------------------------------------------------------------------------
+   7. 페이지 번호
+   --------------------------------------------------------------------------- */
+body .pagination { gap: 4px; margin-top: 16px; }
+body .pagination .pagination__item {
+  min-width: 30px; width: auto; height: 30px;
+  padding: 0 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sjm-text-sub);
+  background: var(--sjm-surface);
+  border: 1px solid var(--sjm-border);
+  border-radius: var(--sjm-radius-sm);
+}
+body .pagination .pagination__item:hover { background: var(--sjm-bg); }
+body .pagination .pagination__item.current {
+  background: var(--sjm-primary);
+  border-color: var(--sjm-primary);
+  color: #fff;
+}
+body .pagination [class*="pagination__btn--"] {
+  border: 1px solid var(--sjm-border);
+  border-radius: var(--sjm-radius-sm);
+  background-color: var(--sjm-surface);
+}
+
+/* ---------------------------------------------------------------------------
+   8. 탭 — 밑줄 탭. 켜짐 class 는 개발 것(tab__item--active / .active) 그대로
+   --------------------------------------------------------------------------- */
+body .tab__wrap .tab__menu,
+body .tab__list,
+body .content__tab {
+  display: flex;
+  gap: 4px;
+  border: 0;
+  border-bottom: 1px solid var(--sjm-border);
+  background: transparent;
+  margin-bottom: 16px;
+}
+body .tab__wrap .tab__menu .tab__item,
+body .tab__list .tab__item,
+body .tab__list.tab--style .tab__item,
+body .content__tab .tab__item {
+  padding: 10px 14px;
+  margin-bottom: -1px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sjm-text-sub);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+}
+body .tab__wrap .tab__menu .tab__item:hover,
+body .tab__list .tab__item:hover { color: var(--sjm-text); }
+body .tab__wrap .tab__menu .tab__item--active,
+body .tab__list .tab__item.active,
+body .tab__list .tab__item.tab__item--active,
+body .tab__list.tab--style .tab__item.active,
+body .content__tab .tab__item.active {
+  color: var(--sjm-primary);
+  font-weight: 800;
+  background: transparent;
+  border-bottom-color: var(--sjm-primary);
+}
+body .tab__list .tab__item .tab__badge {
+  background: var(--sjm-slate-100);
+  color: var(--sjm-text-sub);
+  border-radius: var(--sjm-radius-pill);
+  font-size: 11px;
+  padding: 0 7px;
+}
+body .tab__list .tab__item.active .tab__badge { background: var(--sjm-primary-soft); color: var(--sjm-primary); }
+
+/* ---------------------------------------------------------------------------
+   9. 모달(layer-pop) — 열기 · 닫기 class(layer-pop--hidden / layer_pop--show)와 JS 는 그대로
+   --------------------------------------------------------------------------- */
+body .layer-pop__overlay { background: rgba(15, 23, 42, 0.5); }
+/* 프로토타입처럼 SNB 를 가리지 않는다(SNB 가 있는 화면만) */
+body:has(.snb) .layer-pop__overlay { left: var(--snb-w); width: auto; right: 0; }
+body .layer-pop__overlay .layer-pop__wrap {
+  padding: 22px 24px;
+  border-radius: var(--sjm-radius-lg);
+  box-shadow: var(--sjm-shadow-modal);
+  background: var(--sjm-surface);
+}
+body .layer-pop__overlay .layer-pop__wrap .layer-pop__content .layer__title,
+body .layer-pop__overlay .layer-pop__wrap .layer-pop__header .layer-pop__title,
+body .layer-pop__overlay .service__title {
+  font-size: var(--sjm-fs-title);
+  font-weight: 800;
+  color: var(--sjm-text);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--sjm-border);
+}
+body .layer-pop__overlay .layer-pop__wrap .btn--close {
+  top: 20px; right: 20px;
+  width: 22px; height: 22px;
+  opacity: .6;
+}
+body .layer-pop__overlay .layer-pop__wrap .btn--close:hover { opacity: 1; }
+/* 모달 하단 버튼 = 프로토타입 모달 바닥(오른쪽 정렬) */
+body .layer-pop__overlay .btn__group { justify-content: flex-end; gap: 8px; margin-top: 18px; }
+body .layer-pop__overlay .btn__group.align--c { justify-content: center; }   /* 알림 · 확인 한 버튼은 가운데 */
+
+/* ---------------------------------------------------------------------------
+   10. 배지 · 상태 라벨 — 상태 class 는 개발 것(서버가 정함), 색만 프로토타입 팔레트로
+       초록 = active · complete / 파랑 = request · progress · setup · feedback
+       노랑 = waiting · pending / 빨강 = stop · suspend / 회색 = cancel
+   --------------------------------------------------------------------------- */
+body .badge {
+  padding: 2px 9px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.6;
+  border-radius: var(--sjm-radius-pill);
+  border: 1px solid transparent;
+}
+body .badge.badge--active, body .badge.badge--complete {
+  --b-bg: var(--sjm-success-soft); --b-fg: var(--sjm-success-text); --b-bd: var(--sjm-success-border); --b-solid: var(--sjm-success);
+}
+body .badge.badge--request, body .badge.badge--progress, body .badge.badge--setup, body .badge.badge--feedback {
+  --b-bg: var(--sjm-info-soft); --b-fg: var(--sjm-primary-hover); --b-bd: var(--sjm-primary-border); --b-solid: var(--sjm-primary);
+}
+body .badge.badge--waiting, body .badge.badge--pending {
+  --b-bg: #FEF3C7; --b-fg: var(--sjm-warning-text); --b-bd: var(--sjm-warning-border); --b-solid: var(--sjm-warning);
+}
+body .badge.badge--stop, body .badge.badge--suspend {
+  --b-bg: #FEE2E2; --b-fg: var(--sjm-danger-text); --b-bd: var(--sjm-danger-border); --b-solid: var(--sjm-danger);
+}
+body .badge.badge--cancel {
+  --b-bg: var(--sjm-slate-100); --b-fg: var(--sjm-slate-600); --b-bd: var(--sjm-slate-200); --b-solid: var(--sjm-slate-500);
+}
+body .badge[class*="badge--"] { background: var(--b-bg); color: var(--b-fg); border-color: transparent; }
+body .badge.badge--outline { background: var(--sjm-surface); color: var(--b-fg); border-color: var(--b-bd); }
+body .badge.badge--solid { background: var(--b-solid); color: #fff; border-color: var(--b-solid); min-width: 0; width: auto; }
+body .badge.badge--soft::before { background: currentColor; }
+
+/* ---------------------------------------------------------------------------
+   11. 기타 공통 레이어(선택 레이어 · 강좌 불러오기 · 로딩) — 둥글기 · 그림자만 맞춤
+   --------------------------------------------------------------------------- */
+body .sl-modal, body .cll-modal { border-radius: var(--sjm-radius-lg); box-shadow: var(--sjm-shadow-modal); }
+body .sl-dim, body .cll-dim { background: rgba(15, 23, 42, 0.5); }

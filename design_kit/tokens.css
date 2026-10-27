@@ -1,0 +1,84 @@
+/* =============================================================================
+   산준모 관리자 디자인 토큰 (프로토타입 prototype_clean 기준)
+   - 값의 출처: prototype_clean/common-v84.css :root + 화면 CSS 최빈값
+   - 개발 화면은 이 파일 → sjm-dev-skin.css 순서로 admin.css · admin-custom.css 뒤에 불러온다
+   ============================================================================= */
+:root {
+  /* 글꼴 — 개발에 이미 있는 'pretendard'(@font-face, _font.scss)를 그대로 쓴다 */
+  --sjm-font: "Pretendard Variable", Pretendard, pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+
+  /* 짙은 남색(SNB · 본문 글자) */
+  --sjm-navy-950: #0B1120;
+  --sjm-navy-900: #0F172A;
+  --sjm-navy-800: #1E293B;
+  --sjm-navy-700: #334155;
+
+  /* 회색(글자 · 선 · 배경) */
+  --sjm-slate-600: #475569;
+  --sjm-slate-500: #64748B;
+  --sjm-slate-400: #94A3B8;
+  --sjm-slate-300: #CBD5E1;
+  --sjm-slate-200: #E2E8F0;
+  --sjm-slate-100: #F1F5F9;
+  --sjm-slate-50:  #F8FAFC;
+  --sjm-white:     #FFFFFF;
+
+  /* 의미 색 */
+  --sjm-text:         #0F172A;  /* 본문 글자 */
+  --sjm-text-sub:     #475569;  /* 라벨 · 표 머리 */
+  --sjm-text-muted:   #64748B;  /* 보조 설명 */
+  --sjm-text-disabled:#94A3B8;
+  --sjm-border:       #E2E8F0;  /* 카드 · 표 경계 */
+  --sjm-border-strong:#CBD5E1;  /* 입력 · 외곽선 버튼 */
+  --sjm-bg:           #F8FAFC;  /* 본문 배경 · 표 머리 */
+  --sjm-surface:      #FFFFFF;  /* 카드 · 입력 */
+
+  --sjm-primary:        #2563EB;
+  --sjm-primary-hover:  #1D4ED8;
+  --sjm-primary-soft:   #EFF6FF;
+  --sjm-primary-border: #BFDBFE;
+
+  --sjm-success:        #16A34A;
+  --sjm-success-text:   #15803D;
+  --sjm-success-soft:   #DCFCE7;
+  --sjm-success-border: #BBF7D0;
+
+  --sjm-warning:        #D97706;
+  --sjm-warning-text:   #B45309;
+  --sjm-warning-soft:   #FFFBEB;
+  --sjm-warning-border: #FDE68A;
+
+  --sjm-danger:         #DC2626;
+  --sjm-danger-text:    #B91C1C;
+  --sjm-danger-soft:    #FEF2F2;
+  --sjm-danger-border:  #FECACA;
+
+  --sjm-info-soft:      #DBEAFE;  /* 파랑 배지 배경 */
+  --sjm-violet:         #6D28D9;
+  --sjm-violet-soft:    #EDE9FE;
+
+  /* 크기 */
+  --sjm-fs-body:   13px;    /* 본문 */
+  --sjm-fs-table:  12.5px;  /* 표 · 입력 · 버튼 */
+  --sjm-fs-small:  11.5px;  /* 표 머리 · 작은 버튼 · 보조 */
+  --sjm-fs-title:  16px;    /* 페이지 제목(800) */
+  --sjm-fs-card:   14px;    /* 카드 제목(800) */
+
+  --sjm-control-h:    32px; /* 입력 · 버튼 */
+  --sjm-control-h-sm: 28px; /* 작은 버튼 */
+
+  --sjm-radius-sm: 6px;     /* 입력 · 버튼 */
+  --sjm-radius:    10px;    /* 카드 */
+  --sjm-radius-lg: 12px;    /* 모달 */
+  --sjm-radius-pill: 999px; /* 배지 */
+
+  --sjm-shadow-card:  0 1px 3px rgba(15, 23, 42, 0.06);
+  --sjm-shadow-modal: 0 20px 50px rgba(15, 23, 42, 0.25);
+  --sjm-focus-ring:   0 0 0 3px rgba(37, 99, 235, 0.15);
+
+  /* 골격 */
+  --sjm-snb-w: 260px;
+  --sjm-topbar-h: 60px;
+  --sjm-page-pad: 22px 28px 96px 28px;
+}
