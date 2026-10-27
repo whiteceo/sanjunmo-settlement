@@ -831,11 +831,11 @@ code, pre, kbd, samp,
                 </select>
               </div>
               <div class="filter-field">
-                <label>재고 상태 필터</label>
+                <label>재고 상태 필터 (가용 재고 기준)</label>
                 <select id="filter-stock" class="form-select">
                   <option value="ALL">전체 재고</option>
-                  <option value="LOW">안전재고 미달 (20권 이하)</option>
-                  <option value="ZERO">품절 (0권)</option>
+                  <option value="LOW">안전재고 미달 (가용 20권 이하)</option>
+                  <option value="ZERO">품절 (가용 0권)</option>
                 </select>
               </div>
 
@@ -883,7 +883,7 @@ code, pre, kbd, samp,
                     <th class="text-right" style="width:95px;">정가(면세)</th>
                     <th class="text-right" style="width:120px;">공급원가(BOOK-001)</th>
                     <th class="text-center" style="width:215px;">3원장 연동 신호등 (계약·원가·매핑)</th>
-                    <th class="text-center" style="width:90px;">현재 재고</th>
+                    <th class="text-center" style="width:150px;">재고 (가용 / 실재고 · 예약)</th>
                     <th class="text-center" style="width:105px;">판매상태</th>
                     <th class="text-center" style="width:90px;">등록일</th>
                     <th class="text-center" style="width:140px;">관리</th>
@@ -974,11 +974,12 @@ code, pre, kbd, samp,
         <div class="card">
           <div class="card-header">
             <div class="card-title-group">
-              <h3 class="card-title">2. 최근 재고 수불(입고 · 주문차감 · 반품 · 조정) 이력</h3>
-              <span class="card-subtitle">재고 0권 도달 시 판매상태가 자동으로 [일시품절]로 전환됩니다.</span>
+              <h3 class="card-title">2. 재고 현황(실재고 · 예약 · 가용) · 수불(입고 · 결제 예약 · 출고 확정 · 반품 · 조정) 이력</h3>
+              <span class="card-subtitle">재고는 2단 차감(결제 완료 → 예약, 3PL 송장 업로드 → 실재고 확정)입니다. 안전재고 경고 · 자동 [일시품절]은 가용 재고(= 실재고 − 예약) 기준입니다.</span>
             </div>
             <button type="button" class="btn btn-soft btn-sm" onclick="openStockAdjustModal()">+ 재고 수동 입고/조정</button>
           </div>
+          <div id="d-stock-trio"></div>
           <div class="card-body" style="padding:0;">
             <table class="data-table">
               <thead>
@@ -986,7 +987,9 @@ code, pre, kbd, samp,
                   <th style="width:155px;">처리 일시</th>
                   <th style="width:120px;">수불 유형</th>
                   <th class="text-right" style="width:110px;">변동 수량</th>
-                  <th class="text-right" style="width:110px;">변동 후 잔여재고</th>
+                  <th class="text-right" style="width:90px;">변동 후 실재고</th>
+                  <th class="text-right" style="width:80px;">변동 후 예약</th>
+                  <th class="text-right" style="width:90px;">변동 후 가용</th>
                   <th>사유 및 참조 전표번호</th>
                   <th style="width:130px;">처리자</th>
                 </tr>
@@ -1270,19 +1273,20 @@ code, pre, kbd, samp,
                   </td>
                 </tr>
                 <tr>
-                  <th>현재 재고 수량 <span class="req-star">*</span></th>
+                  <th>실재고 수량 <span class="req-star">*</span></th>
                   <td>
                     <div style="display:flex; align-items:center; gap:8px;">
                       <input type="number" id="f-stock-qty" class="form-input text-right" style="width:120px; font-weight:700;" value="420" min="0" oninput="checkZeroStockHardLock()">
                       <span class="input-unit">권</span>
                       <button type="button" class="btn btn-outline btn-sm" onclick="setZeroStockDemo()">재고 0권 시뮬레이션</button>
                     </div>
+                    <div class="field-hint" id="f-stock-avail-hint">실재고 420권 · 예약(결제 완료 미출고) 18권 → 가용 402권 (판매 가능 수량 · 안전재고 · 품절 판정 기준)</div>
                   </td>
                   <th>안전재고 알림 기준</th>
                   <td>
                     <div class="input-with-unit" style="width:170px;">
                       <input type="number" id="f-safe-stock" class="form-input text-right" value="20" min="0">
-                      <span class="input-unit">권 이하 시 경고</span>
+                      <span class="input-unit">권 이하 시 경고 (가용)</span>
                     </div>
                   </td>
                 </tr>
@@ -1315,7 +1319,7 @@ code, pre, kbd, samp,
                         <span>판매종료 (구판 · 절판)</span>
                       </label>
                     </div>
-                    <div class="field-hint" id="stock-hardlock-msg">3원장 매핑이 완료되고 재고가 1권 이상일 때 [판매중] 설정이 가능합니다.</div>
+                    <div class="field-hint" id="stock-hardlock-msg">3원장 매핑이 완료되고 가용 재고(= 실재고 − 예약)가 1권 이상일 때 [판매중] 설정이 가능합니다.</div>
                     <div class="field-hint" id="pause-sale-msg" style="display:none;">[판매중지] 운영자가 판매를 멈춘 교재입니다. 목록 · 상세 전시는 유지되고 구매(결제) 버튼만 비활성화되어 신규 결제가 차단됩니다. [일시품절]과 달리 재고가 입고되거나 바뀌어도 자동으로 판매중이 되지 않으며, 운영자가 판매 상태를 [판매중]으로 직접 바꿔야 다시 판매됩니다. 판매중 전환은 3원장 매핑(권리자 지분 합계 100%) 완료와 재고 1권 이상 조건을 그대로 따릅니다.</div>
                     <div class="field-hint" id="end-of-sale-msg" style="display:none;">[판매종료] 개정판 출간 등으로 판매를 끝낸 교재입니다. 프론트 노출이 미노출로 고정되고, 재고가 바뀌어도 판매중으로 돌아가지 않습니다. 과거 주문의 환불 · 정산은 그대로 처리됩니다.</div>
                   </td>
@@ -1807,7 +1811,7 @@ code, pre, kbd, samp,
         step1Ok: false,
         step2Ok: true,
         step3Ok: true,
-        stock: 140,
+        stock: 32,
         safeStock: 20,
         isPreorder: false,
         releaseDate: "",
@@ -1844,10 +1848,21 @@ code, pre, kbd, samp,
       }
     ];
 
+    /* Q-3PL-1(white 2026-10-27) 재고 2단 차감
+       - stock = 실재고(창고 보유), reserved = 예약(결제 완료 · 미출고), 가용 = 실재고 − 예약
+       - 결제 완료: 가용에서 예약 차감(reserved +) → 판매 가능 수량이 바로 줄어 과판매 방지. 결제 취소 · 출고 전 환불이면 예약 해제(reserved −)
+       - 3PL 송장 업로드(출고): 예약 수량을 실재고에서 확정 차감(stock −, reserved −) → 가용은 변동 없음
+       - 안전재고 경고 · 자동 일시품절은 가용 기준. 3PL 재고 피드백(출고 불가 라인)은 실재고와 대조 */
+    const BOOK_RESERVED_SAMPLE = { "PROD-BK-1011": 18, "PROD-BK-1012": 7, "PROD-BK-3003": 0, "PROD-BK-2017": 0, "PROD-BK-1007": 5, "PROD-BK-1006": 12, "PROD-BK-1001": 3, "PROD-BK-1005": 22, "PROD-BK-2001": 14, "PROD-BK-1008": 0 };
+    booksData.forEach(b => { if (typeof b.reserved !== "number") b.reserved = BOOK_RESERVED_SAMPLE[b.sku] || 0; });
+    function bookAvail(b) { return Math.max(0, Number(b.stock || 0) - Number(b.reserved || 0)); }
+
     let stockHistoryLogs = [
-      { dt: "2026-10-14 16:40", type: "주문출고(-)", delta: -12, after: 420, reason: "일일 택배 출고 마감 (송장묶음 #DLV-261014)", actor: "시스템(OMS)" },
-      { dt: "2026-10-10 11:15", type: "반품입고(+)", delta: 2, after: 432, reason: "단순변심 미개봉 반품 검수 입고 (#RTN-261010-04)", actor: "물류담당(박물류)" },
-      { dt: "2026-10-01 09:30", type: "신규입고(+)", delta: 300, after: 430, reason: "산준모북스 2쇄 입고 (전표 #WH-20261001-02)", actor: "상품관리(김기획)" }
+      { dt: "2026-10-15 09:20", type: "결제 예약", target: "가용", delta: -4, after: 420, reservedAfter: 18, reason: "결제 완료 주문 4건 — 가용 재고에서 예약 차감 (실재고 변동 없음)", actor: "시스템(주문)" },
+      { dt: "2026-10-14 16:40", type: "출고 확정", target: "실재고", delta: -12, after: 420, reservedAfter: 14, reason: "3PL 송장 업로드 — 예약 12권 실재고 확정 차감 · 가용 변동 없음 (송장묶음 #DLV-261014)", actor: "시스템(OMS)" },
+      { dt: "2026-10-12 11:05", type: "예약 해제", target: "가용", delta: 1, after: 432, reservedAfter: 26, reason: "출고 전 주문 취소 — 예약 해제 · 가용 복원 (실재고 변동 없음, #RFD-261012-03)", actor: "시스템(환불)" },
+      { dt: "2026-10-10 11:15", type: "반품입고(+)", target: "실재고", delta: 2, after: 432, reservedAfter: 27, reason: "단순변심 미개봉 반품 검수 입고 (#RTN-261010-04)", actor: "물류담당(박물류)" },
+      { dt: "2026-10-01 09:30", type: "신규입고(+)", target: "실재고", delta: 300, after: 430, reservedAfter: 27, reason: "산준모북스 2쇄 입고 (전표 #WH-20261001-02)", actor: "상품관리(김기획)" }
     ];
 
     /* =========================================================================
@@ -1927,10 +1942,10 @@ code, pre, kbd, samp,
 
       if (b.status === "판매중") {
         s4.className = "step-light light-green";
-        s4.textContent = `🟢 판매중 (${b.stock}권)`;
+        s4.textContent = `🟢 판매중 (가용 ${bookAvail(b)}권)`;
       } else if (b.status === "일시품절") {
         s4.className = "step-light light-red";
-        s4.textContent = `🔴 일시품절 (0권)`;
+        s4.textContent = `🔴 일시품절 (가용 0권)`;
       } else if (b.status === "판매중지") {
         s4.className = "step-light light-yellow";
         s4.textContent = `⏸ 판매중지 (구매 차단)`;
@@ -2015,8 +2030,8 @@ code, pre, kbd, samp,
         if (cat !== "ALL" && b.cat !== cat) return false;
         if (origin !== "ALL" && b.originMode !== origin) return false;
         if (status !== "ALL" && b.status !== status) return false;
-        if (stockFilter === "LOW" && !(b.stock > 0 && b.stock <= b.safeStock)) return false;
-        if (stockFilter === "ZERO" && b.stock !== 0) return false;
+        if (stockFilter === "LOW" && !(bookAvail(b) > 0 && bookAvail(b) <= b.safeStock)) return false;
+        if (stockFilter === "ZERO" && bookAvail(b) !== 0) return false;
         if (disp !== "ALL" && b.displayYn !== disp) return false;
         if (kw && !(
           b.title.toLowerCase().includes(kw) ||
@@ -2032,9 +2047,11 @@ code, pre, kbd, samp,
       const tbody = document.getElementById("book-list-tbody");
 
       tbody.innerHTML = filtered.map((b, idx) => {
-        let stockHtml = `<strong>${formatNumber(b.stock)}권</strong>`;
-        if (b.stock === 0) stockHtml = `<span class="badge badge-out">0권 (품절)</span>`;
-        else if (b.stock <= b.safeStock) stockHtml = `<span class="badge badge-warn">${b.stock}권 (부족)</span>`;
+        const av = bookAvail(b);
+        let stockHtml = `<strong>가용 ${formatNumber(av)}권</strong>`;
+        if (av === 0) stockHtml = `<span class="badge badge-out">가용 0권 (품절)</span>`;
+        else if (av <= b.safeStock) stockHtml = `<span class="badge badge-warn">가용 ${av}권 (부족)</span>`;
+        stockHtml += `<div class="stock-trio-sub" style="font-size:10.5px; color:var(--slate-500); margin-top:2px;">실재고 ${formatNumber(b.stock)} · 예약 ${formatNumber(b.reserved || 0)}</div>`;
 
         const c1 = b.step1Ok ? `<span class="dot-chip dot-ok">계약🟢</span>` : `<span class="dot-chip dot-pend">계약➖</span>`;
         const c2 = b.step2Ok ? `<span class="dot-chip dot-ok">원가🟢</span>` : `<span class="dot-chip dot-miss">원가🔴</span>`;
@@ -2263,6 +2280,7 @@ code, pre, kbd, samp,
       document.getElementById("f-supply-ledger").value = b.supplyType;
       onSupplyLedgerChange(b.supplyVendor);
       document.getElementById("f-stock-qty").value = b.stock;
+      window.__formReserved = Number(b.reserved || 0);
       document.getElementById("f-safe-stock").value = b.safeStock;
       document.getElementById("f-is-preorder").checked = Boolean(b.isPreorder);
       const st = document.querySelector(`input[name="f-book-status"][value="${b.status}"]`);
@@ -2274,6 +2292,25 @@ code, pre, kbd, samp,
       syncEndOfSaleLock();
       syncBookSalePrice();
       applyBookEditLocks(b);
+    }
+
+    /* 상세: 실재고 · 예약 · 가용 3칸 (Q-3PL-1) */
+    function renderStockTrio(b) {
+      const box = document.getElementById("d-stock-trio");
+      if (!box) return;
+      const av = bookAvail(b), rs = Number(b.reserved || 0);
+      const judge = av === 0 ? `<span class="badge badge-out">품절 (가용 0권 · 결제 차단)</span>`
+        : (av <= b.safeStock ? `<span class="badge badge-warn">안전재고 미달 (가용 ${av}권 ≤ ${b.safeStock}권)</span>` : `<span class="badge badge-sale">정상 (안전재고 ${b.safeStock}권 초과)</span>`);
+      const short = b.stock < rs ? `<div style="font-size:11px; color:var(--rose); margin-top:4px;">⚠️ 실재고가 예약보다 ${rs - b.stock}권 적습니다 — 3PL 출고 불가 라인 회신과 대조하세요</div>` : "";
+      const cell = (id, label, val, hint, color) => `<div style="border:1px solid var(--slate-200); border-radius:8px; padding:10px 12px; background:var(--slate-50);">
+          <div style="font-size:11.5px; color:var(--slate-500); font-weight:700;">${label}</div>
+          <div id="${id}" style="font-size:20px; font-weight:800; color:${color}; margin:2px 0;">${formatNumber(val)}권</div>
+          <div style="font-size:11px; color:var(--slate-500); line-height:1.45;">${hint}</div></div>`;
+      box.innerHTML = `<div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; padding:12px 16px; border-bottom:1px solid var(--slate-200);">
+        ${cell("d-stock-real", "실재고 (창고 보유)", b.stock, "3PL 송장 업로드(출고) 때 예약 수량을 확정 차감 · 3PL 재고 피드백과 대조" + short, "var(--navy-900)")}
+        ${cell("d-stock-reserved", "예약 (결제 완료 · 미출고)", rs, "결제 완료 때 잡고, 결제 취소 · 출고 전 환불이면 해제", "var(--amber)")}
+        ${cell("d-stock-avail", "가용 (= 실재고 − 예약)", av, "판매 가능 수량 · 안전재고 경고 · 자동 품절 판정 기준<div style=\"margin-top:4px;\">" + judge + "</div>", "var(--primary)")}
+      </div>`;
     }
 
     function renderDetailView() {
@@ -2308,6 +2345,7 @@ code, pre, kbd, samp,
         ? `${formatNumber(b.supplyCost)}원 (${b.supplyRateLabel})`
         : `🔒 마스킹 (재무팀 전용)`;
 
+      renderStockTrio(b);
       const logTbody = document.getElementById("detail-stock-log-tbody");
       logTbody.innerHTML = stockHistoryLogs.map(log => {
         const isPlus = log.delta > 0;
@@ -2316,9 +2354,11 @@ code, pre, kbd, samp,
             <td>${log.dt}</td>
             <td><span class="badge ${isPlus ? 'badge-sale' : 'badge-warn'}">${log.type}</span></td>
             <td class="text-right" style="font-weight:700; color:${isPlus ? 'var(--emerald)' : 'var(--rose)'};">
-              ${isPlus ? '+' : ''}${formatNumber(log.delta)}권
+              ${log.target ? log.target + ' ' : ''}${isPlus ? '+' : ''}${formatNumber(log.delta)}권
             </td>
             <td class="text-right" style="font-weight:700;">${formatNumber(log.after)}권</td>
+            <td class="text-right">${formatNumber(log.reservedAfter || 0)}권</td>
+            <td class="text-right" style="font-weight:700; color:var(--primary);">${formatNumber(Math.max(0, log.after - (log.reservedAfter || 0)))}권</td>
             <td>${log.reason}</td>
             <td>${log.actor}</td>
           </tr>
@@ -2359,7 +2399,7 @@ code, pre, kbd, samp,
     function recordBookStatus(b) {
       try {
         const s = JSON.parse(localStorage.getItem(BOOKSTATUS_KEY) || "{}") || {};
-        s[b.sku] = { status: b.status, stock: Number(b.stock || 0), at: new Date().toISOString() };
+        s[b.sku] = { status: b.status, stock: Number(b.stock || 0), reserved: Number(b.reserved || 0), at: new Date().toISOString() };
         localStorage.setItem(BOOKSTATUS_KEY, JSON.stringify(s));
       } catch (e) {}
     }
@@ -2371,6 +2411,7 @@ code, pre, kbd, samp,
           if (!r) return;
           if (r.status) b.status = r.status;
           if (typeof r.stock === "number") b.stock = r.stock;
+          if (typeof r.reserved === "number") b.reserved = r.reserved;
         });
       } catch (e) {}
     }
@@ -2403,7 +2444,7 @@ code, pre, kbd, samp,
 
     function openStockAdjustModal() {
       const b = window.__currentBook || booksData[0];
-      document.getElementById("modal-stock-book-name").textContent = `[${b.sku}] ${b.title} (현재 ${b.stock}권)`;
+      document.getElementById("modal-stock-book-name").textContent = `[${b.sku}] ${b.title} (실재고 ${b.stock}권 · 예약 ${b.reserved || 0}권 · 가용 ${bookAvail(b)}권)`;
       document.getElementById("modal-stock-adjust").classList.add("open");
     }
     function closeStockAdjustModal() {
@@ -2419,14 +2460,16 @@ code, pre, kbd, samp,
       const delta = isPlus ? rawQty : -rawQty;
       b.stock = Math.max(0, b.stock + delta);
       if (b.status === "판매종료" || b.status === "판매중지") { /* 재고가 바뀌어도 판매종료 · 판매중지 유지 */ }
-      else if (b.stock === 0) b.status = "일시품절";
-      else if (b.status === "일시품절" && b.stock > 0) b.status = (b.step2Ok && b.step3Ok) ? "판매중" : "판매대기";
+      else if (bookAvail(b) === 0) b.status = "일시품절";
+      else if (b.status === "일시품절" && bookAvail(b) > 0) b.status = (b.step2Ok && b.step3Ok) ? "판매중" : "판매대기";
 
       stockHistoryLogs.unshift({
         dt: "2026-10-15 15:30",
         type,
+        target: "실재고",
         delta,
         after: b.stock,
+        reservedAfter: Number(b.reserved || 0),
         reason,
         actor: "관리자(white)"
       });
@@ -2435,7 +2478,9 @@ code, pre, kbd, samp,
       renderBookList();
       renderDetailView();
       recordBookStatus(b);
-      showToast(`[${b.sku}] 재고가 ${b.stock}권으로 반영되었습니다.`);
+      showToast(b.stock < Number(b.reserved || 0)
+        ? `[${b.sku}] 실재고 ${b.stock}권 · 가용 0권으로 반영했습니다. 실재고가 예약(${b.reserved}권)보다 적어 일부 결제 건은 출고할 수 없습니다 — 3PL 재고와 대조하세요.`
+        : `[${b.sku}] 실재고 ${b.stock}권 · 가용 ${bookAvail(b)}권으로 반영되었습니다.`);
     }
 
     // 도서 기본 할인율: 0~10% 정수(도서정가제 상한). 판매가 = 내림(정가 × (100 − 할인율) / 100)
@@ -2468,6 +2513,8 @@ code, pre, kbd, samp,
     }
     function applyBookEditLocks(b) {
       window.__editBook = b || null;
+      window.__formReserved = b ? Number(b.reserved || 0) : 0;
+      if (typeof syncStockAvailHint === "function") syncStockAvailHint();
       const isbn = document.getElementById("f-isbn");
       const sup = document.getElementById("f-supply-ledger");
       const vendor = document.getElementById("f-supply-vendor");
@@ -2530,14 +2577,24 @@ code, pre, kbd, samp,
       document.getElementById("end-of-sale-msg").style.display = document.getElementById("radio-book-end").checked ? "block" : "none";
     }
 
+    /* 폼의 실재고 입력값에서 예약을 빼 가용을 보여 주고 돌려준다 (Q-3PL-1) */
+    function syncStockAvailHint() {
+      const real = Number(document.getElementById("f-stock-qty").value || 0);
+      const rs = Number(window.__formReserved || 0);
+      const av = Math.max(0, real - rs);
+      const el = document.getElementById("f-stock-avail-hint");
+      if (el) el.textContent = `실재고 ${formatNumber(real)}권 · 예약(결제 완료 미출고) ${formatNumber(rs)}권 → 가용 ${formatNumber(av)}권 (판매 가능 수량 · 안전재고 · 품절 판정 기준)`;
+      return av;
+    }
+
     function checkZeroStockHardLock() {
       if (document.getElementById("radio-book-end").checked) return;
       if (document.getElementById("radio-book-pause").checked) {
         /* 판매중지는 재고로 상태를 바꾸지 않되, 판매중 복귀 잠금 규칙(재고 0 · 선등록)은 유지한다 */
-        document.getElementById("radio-book-sale").disabled = (Number(document.getElementById("f-stock-qty").value || 0) <= 0) || currentEntryMode === "PROD_DIRECT";
+        document.getElementById("radio-book-sale").disabled = (syncStockAvailHint() <= 0) || currentEntryMode === "PROD_DIRECT";
         return;
       }
-      const qty = Number(document.getElementById("f-stock-qty").value || 0);
+      const qty = syncStockAvailHint(); /* 가용 = 실재고 − 예약 */
       const radioSale = document.getElementById("radio-book-sale");
       const radioOut = document.getElementById("radio-book-out");
       const radioReady = document.getElementById("radio-book-ready");
@@ -2614,6 +2671,7 @@ code, pre, kbd, samp,
         step2Ok: !isDirect,
         step3Ok: !isDirect,
         stock,
+        reserved: prevBook ? Number(prevBook.reserved || 0) : 0,
         safeStock: Number(document.getElementById("f-safe-stock").value || 20),
         isPreorder: document.getElementById("f-is-preorder").checked,
         releaseDate: document.getElementById("f-release-date").value,

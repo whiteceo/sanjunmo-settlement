@@ -927,7 +927,7 @@ code, pre, kbd, samp,
                     <div>
                       <label style="display:block;font-weight:700;font-size:12px;margin-bottom:6px;">검수 결과 판정 (운영자 수동 판정 필수) <span style="color:var(--danger);">*</span></label>
                       <select class="form-select" id="inpInspectResult" onchange="onChangeInspectResult()" style="width:100%;">
-                        <option value="NORMAL">🟢 정상 (재판매 가능 ➔ ADMN-PROD-004 교재 재고 +1권 자동 재입고)</option>
+                        <option value="NORMAL">🟢 정상 (재판매 가능 ➔ ADMN-PROD-004 교재 실재고 · 가용 +1권 자동 재입고)</option>
                         <option value="DEFECTIVE">🟠 파본 · 불량 (회사 귀책 ➔ 재고 미입고 · 교재비 차감 없음 · 반품 배송비 0원)</option>
                         <option value="DAMAGED">🔴 고객 훼손 · 필기 흔적 (재판매 불가 ➔ 교재비(도서 실판매가)만 차감 · 고객 착불 반송 · 검수 사진 필수)</option>
                       </select>
@@ -1342,6 +1342,7 @@ code, pre, kbd, samp,
                       <td>
                         <span style="color:var(--text-muted);" id="dtRefundLink">진행 중인 환불 요청 없음</span>
                         <a href="ADMN-RFD-002_baseline.html" class="btn btn-sm btn-danger" style="margin-left:6px;text-decoration:none;">환불 심사 화면 이동 (ADMN-RFD-002)</a>
+                        <div id="dtStockReserveNote" style="font-size:11.5px;color:var(--text-muted);margin-top:6px;">📦 재고: 결제 취소 · 출고 전 환불은 결제 때 잡아 둔 교재 · 일반상품 예약을 해제해 가용 재고로 되돌립니다(실재고 변동 없음). 출고 뒤 반품은 검수 정상 판정 때 실재고 · 가용에 함께 재입고합니다.</div>
                       </td>
                     </tr>
                   </tbody>
@@ -1527,7 +1528,7 @@ code, pre, kbd, samp,
 
           <div class="notice-bar" id="p1StockLine" style="margin-bottom:12px;">
             <div>
-              📦 <b>재고 반영:</b> 교재 재고 실차감 141권 · 안전재고(20권 이하) 경고 3건 · 재고 0권 자동 일시품절 전환 1건 (상품 관리에서 확인)
+              📦 <b>재고 반영 (2단 차감):</b> 성공 141건의 예약 수량 141개(교재 · 일반상품)를 <b>실재고에서 확정 차감</b>했습니다. 결제 완료 때 가용 재고에서 이미 예약 차감했으므로 이번 출고로 <b>가용 재고는 바뀌지 않습니다</b>.<br>              · 실패 7건은 배송준비중이라 예약을 그대로 두고 실재고에서 차감하지 않았습니다 · 3PL 재고 피드백 대조: 실재고가 예약보다 적은 출고 불가 라인 0건 · 안전재고(가용 20개 이하) 경고 · 자동 일시품절(가용 0개)은 결제 · 취소 시점에 판정됩니다 (상품 관리에서 확인)
             </div>
           </div>
 
@@ -1598,7 +1599,7 @@ code, pre, kbd, samp,
               <b style="font-size:12.5px;">📌 처리 결과 요약 (부분 커밋 정책)</b>
               <p style="font-size:12px;color:var(--text-sub);margin:6px 0 0;line-height:1.55;">
                 • 성공 <b>141건</b>은 즉시 <b>배송중</b>으로 전환되었으며 구매자 마이페이지 실시간 배송 조회가 활성화되었습니다.<br>
-                • 실패 <b>7건</b>은 반영되지 않았으며 여전히 <b>출고 대기(배송준비중)</b> 탭에 남아 있습니다. 실패 목록 엑셀을 내려받아 수정 후 재업로드하세요.
+                • 실패 <b>7건</b>은 반영되지 않았으며 여전히 <b>출고 대기(배송준비중)</b> 탭에 남아 있습니다(예약 유지 · 실재고 미차감). 실패 목록 엑셀을 내려받아 수정 후 재업로드하세요.
               </p>
             </div>
             <div>
@@ -3500,7 +3501,7 @@ code, pre, kbd, samp,
           target.sCls = "b-red";
         }
       }
-      const stockMsg = res === "NORMAL" ? "정상 판정이라 교재 재고(ADMN-PROD-004)에 자동 재입고(+1권)했습니다."
+      const stockMsg = res === "NORMAL" ? "정상 판정이라 교재 실재고(ADMN-PROD-004)에 자동 재입고(+1권, 가용도 +1)했습니다."
         : (res === "DEFECTIVE" ? "파본 · 불량(회사 귀책)이라 재고에 넣지 않았고, 교재비 차감 · 반품 배송비는 없습니다." : "고객 훼손이라 재고에 넣지 않고 교재비만 차감하며, 교재는 고객에게 착불 반송합니다.");
       alert("✅ [검수 결과 저장 완료]\n• 판정 결과와 배송비 귀책이 환불 심사(ADMN-RFD-002)로 전달되었습니다.\n• " + stockMsg);
       renderShipTable();
