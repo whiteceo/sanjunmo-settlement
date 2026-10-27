@@ -1,0 +1,54 @@
+{
+ "case": "DEC-S-14",
+ "title": "환급 판정 진도율은 결제 시점 박제값 — 판매 후 상품 설정 변경은 소급하지 않음",
+ "canon_ref": "통합 설계서 L251 · L438 · white 결정 S-14(2026-10-27)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "rights_holders": [],
+  "contracts": [],
+  "pass_refund_payouts": [
+   {
+    "pass_refund_id": "PRF-5",
+    "student_id": "STU-5",
+    "order_id": "SJM20260605-0005",
+    "package_paid_amount": 450000,
+    "book_paid_amount": 40000,
+    "shipping_fee": 0,
+    "progress_rate": 85,
+    "target_progress_rate_snapshot": 80,
+    "current_target_progress_rate": 90,
+    "rrn_entered": true,
+    "rrn_matched": true,
+    "approved_date": "2026-10-15"
+   },
+   {
+    "pass_refund_id": "PRF-6",
+    "student_id": "STU-6",
+    "order_id": "SJM20260606-0006",
+    "package_paid_amount": 450000,
+    "book_paid_amount": 40000,
+    "shipping_fee": 0,
+    "progress_rate": 78,
+    "target_progress_rate_snapshot": 80,
+    "current_target_progress_rate": 70,
+    "rrn_entered": true,
+    "rrn_matched": true,
+    "approved_date": "2026-10-15"
+   }
+  ]
+ },
+ "notes": "STU-5 진도 85 ≥ 박제 80 → 충족(현재 설정 90이어도). STU-6 진도 78 < 박제 80 → 반려(현재 설정 70이어도)",
+ "expected": {
+  "PASS_REFUND_PAYOUT": {
+   "STU-5": {
+    "progress_eligible": true,
+    "review_status": "APPROVABLE"
+   },
+   "STU-6": {
+    "progress_eligible": false,
+    "review_status": "REJECT"
+   }
+  }
+ }
+}

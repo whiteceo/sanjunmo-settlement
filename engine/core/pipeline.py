@@ -30,11 +30,13 @@ DEFAULT_PARAMS = {
     "local_tax_small_exemption_apply_yn": False,
     "carryover_force_settle_month": 12,
     "carryover_max_months": 6,
-    "manual_adj_approval_threshold": None,
+    "manual_adj_approval_threshold": 1000000,
     "support_fund_mmg_include_yn": False,
+    "adj_two_step_approval_yn": False,  # 1차 오픈 재무 담당자 단독 확정(V2 §10.3 · D-SETT-01), 2차에 true
+    "month_closed_at": {},  # {귀속월: 마감 일시} — 보정 전표 반영 기준월 판정(V2 §10.2 · S-10)
 }
 
-LIST_KEYS = ["rights_holders", "contracts", "rate_lines", "lecture_instructors", "book_authors", "payee_splits",
+LIST_KEYS = ["pass_refund_payouts", "rights_holders", "contracts", "rate_lines", "lecture_instructors", "book_authors", "payee_splits",
              "support_fund_agreements", "support_fund_agreement_targets", "support_fund_ledger_prev",
              "prepayments", "order_items", "orders", "refund_lines", "pass_refund_deductions",
              "lumpsum_approvals", "clawbacks", "carryover_ledger", "carryover_prev_end_balances",
@@ -192,6 +194,7 @@ class Context:
         self.ledgers = {"support_fund_ledger": [], "mmg_subsidy_ledger": [], "carryover_ledger": [],
                         "prepayment_ledger": []}
         self.own_holder = OrderedDict()  # agreement_id → 자사 재원 검증
+        self.pass_refund_payouts = []  # 13 합격환급 수강생 지급
 
     # -- 조회
     def holder(self, hid):
@@ -279,6 +282,7 @@ def build_output(ctx, status, data):
         "internal_only": ctx.internal_only,
         "excluded_lines": ctx.excluded_lines,
         "pending_adjustments": ctx.pending_adjustments,
+        "pass_refund_payouts": ctx.pass_refund_payouts,
         "issues": ctx.issues,
         "steps": [{"no": s.no, "code": s.code, "name": s.name, "ref": s.ref} for s in STEPS],
         "values": ctx.trace.values(),

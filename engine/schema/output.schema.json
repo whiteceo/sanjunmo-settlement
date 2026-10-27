@@ -7,7 +7,7 @@
   "required": ["settlement_month", "engine_version", "rights_holders", "trace", "continuity"],
   "$defs": {
     "money": { "oneOf": [{ "type": "integer" }, { "type": "string", "pattern": "^-?[0-9]+(\\.[0-9]{1,8})?$" }] },
-    "step_code": { "type": "string", "enum": ["PIPELINE_IN", "CARRY_IN", "ACCRUAL", "MMG_ADJ", "DEDUCT", "SUPPORT_CAP", "PREPAY_OFFSET", "LUMPSUM_ADD", "PAYEE_SPLIT", "TAX", "CLAIM", "PAYOUT", "CLOSE_CHECK"] },
+    "step_code": { "type": "string", "enum": ["PIPELINE_IN", "CARRY_IN", "ACCRUAL", "MMG_ADJ", "DEDUCT", "SUPPORT_CAP", "PREPAY_OFFSET", "LUMPSUM_ADD", "PAYEE_SPLIT", "TAX", "CLAIM", "PAYOUT", "CLOSE_CHECK", "PASS_REFUND_PAYOUT"] },
     "line_key": {
       "description": "SPEC 1절 라인 키.",
       "type": "object",
@@ -313,7 +313,11 @@
     },
     "internal_only": { "description": "Pipeline 2.3 자사 집계(권리자 지급 비인입).", "type": "array", "items": { "type": "object" } },
     "excluded_lines": { "description": "비인입 라인(PURCHASED_RESALE · BUNDLED · 위약금 · 미매핑 등)과 사유.", "type": "array", "items": { "type": "object", "properties": { "ref_id": { "type": "string" }, "reason": { "type": "string" }, "canon_ref": { "type": "string" } } } },
-    "pending_adjustments": { "description": "adjustment_mode=hold일 때 미반영 조정 라인.", "type": "array", "items": { "type": "object" } },
+    "pending_adjustments": { "description": "adjustment_mode=hold일 때 미반영 조정 라인. [엔진 확장] 행마다 requires_second_approval(1차 오픈 항상 false, D-SETT-01) · approval_mode(SINGLE_FINANCE_1ST / TWO_STEP), 보정 전표는 source = REFUND_VOUCHER(S-10).", "type": "array", "items": { "type": "object" } },
+    "pass_refund_payouts": { "description": "[엔진 확장] 합격환급금 수강생 지급 결과(13 PASS_REFUND_PAYOUT): pass_refund_id · student_id · refund_base · progress_eligible · threshold_exempt_yn · income_tax · local_income_tax · withholding_total · net_payout · rrn_required · payment_statement_required · review_status(APPROVABLE / SUPPLEMENT_REQUEST / REJECT)", "type": "array", "items": { "type": "object" } },
+    "issues": { "description": "[엔진 확장] 이번 계산에서 쓴 잠정 규칙 · 입력 부족(SPEC 16절 질문 번호)", "type": "array" },
+    "steps": { "description": "[엔진 확장] 단계 목록(번호 · 코드 · 이름 · 정본 근거)", "type": "array" },
+    "values": { "description": "[엔진 확장] (권리자, 계약, 수취인, 라인, 단계, 필드) → 값. 대조 · 테스트 기준", "type": "array" },
     "trace": { "type": "array", "items": { "$ref": "#/$defs/trace_row" } }
   }
 }

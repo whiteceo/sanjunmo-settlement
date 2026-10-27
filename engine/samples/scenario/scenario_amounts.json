@@ -3452,7 +3452,8 @@
      "adj_explanation": "2026년 9월 위탁 판매 수수료율 30% 과다 차감분(계약 25%) 차액 200,000원을 10월 위탁 정산에 가산",
      "approver_id": "김정산",
      "origin_settlement_id": "STMT-202609-031",
-     "requires_second_approval": false
+     "requires_second_approval": false,
+     "approval_mode": "SINGLE_FINANCE_1ST"
     }
    ],
    "payees": [

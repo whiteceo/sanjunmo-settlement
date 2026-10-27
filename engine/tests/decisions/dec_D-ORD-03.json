@@ -1,0 +1,169 @@
+{
+ "case": "DEC-ORD-03",
+ "title": "인강 부분환불 = 강좌 실결제액 × (전체 − 학습 회차) ÷ 전체 회차(원 단위 절사) → 4단계 대칭 공제",
+ "canon_ref": "통합 설계서 v3.2.22 RFD-002 L364~365 · white 결정 D-ORD-03(2026-10-27) · 평생교육법 시행령 별표 3 비고 4 · 정산 02권 8.3 4단계",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-A",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1000000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-05T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 1000000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [
+   {
+    "refund_id": "RF-ORD03",
+    "order_item_id": "OI-OLD",
+    "refund_approved_date": "2026-10-20",
+    "lecture_refund": {
+     "paid_amount": 250000,
+     "total_sessions": 24,
+     "learned_sessions": 7,
+     "days_since_payment": 20,
+     "course_period_ended": false
+    },
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-OLD",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "payment_state": "UNPAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "환불 = 내림(250,000 × 17/24 = 177,083.33) = 177,083 → R/S 공제 = 내림(177,083 × 100% × 50% = 88,541.5) = 88,541 → P1.1 순액 = 500,000 − 88,541 = 411,459 → 소득세 내림(12,343.77) = 12,343 · 지방 1,234 → 실정산 397,882",
+ "expected": {
+  "DEDUCT": {
+   "lecture_refund_amount": 177083,
+   "refund_deduct_1_1": 88541,
+   "1.1_net": 411459
+  },
+  "TAX": {
+   "income_tax": 12343,
+   "local_income_tax": 1234,
+   "net_payable": 397882
+  }
+ },
+ "variants": [
+  {
+   "code": "DEC-ORD-03-FULL",
+   "title": "7일 이내 · 맛보기 제외 2강 이하 → 전액 환불",
+   "input_delta": {
+    "refund_lines[0].lecture_refund.days_since_payment": 5,
+    "refund_lines[0].lecture_refund.learned_sessions": 2
+   },
+   "notes": "환불 250,000 → 공제 125,000 → 순액 375,000 → 11,250 · 1,125 → 362,625",
+   "expected": {
+    "DEDUCT": {
+     "lecture_refund_amount": 250000,
+     "refund_deduct_1_1": 125000,
+     "1.1_net": 375000
+    },
+    "TAX": {
+     "income_tax": 11250,
+     "local_income_tax": 1125,
+     "net_payable": 362625
+    }
+   }
+  },
+  {
+   "code": "DEC-ORD-03-ENDED",
+   "title": "원 수강기간 종료 강좌 → 반환 없음",
+   "input_delta": {
+    "refund_lines[0].lecture_refund.course_period_ended": true
+   },
+   "notes": "환불 0 → 공제 0 → 순액 500,000 → 15,000 · 1,500 → 483,500",
+   "expected": {
+    "DEDUCT": {
+     "lecture_refund_amount": 0,
+     "refund_deduct_1_1": 0,
+     "1.1_net": 500000
+    },
+    "TAX": {
+     "net_payable": 483500
+    }
+   }
+  },
+  {
+   "code": "DEC-ORD-03-8DAYS",
+   "title": "8일째 · 1강만 학습 → 부분환불 산식(위약금 · 기간 차감 없음)",
+   "input_delta": {
+    "refund_lines[0].lecture_refund.days_since_payment": 8,
+    "refund_lines[0].lecture_refund.learned_sessions": 1
+   },
+   "notes": "환불 = 내림(250,000 × 23/24 = 239,583.33) = 239,583 → 공제 = 내림(119,791.5) = 119,791 → 순액 380,209 → 소득세 내림(11,406.27) = 11,406 · 지방 1,140 → 367,663",
+   "expected": {
+    "DEDUCT": {
+     "lecture_refund_amount": 239583,
+     "refund_deduct_1_1": 119791,
+     "1.1_net": 380209
+    },
+    "TAX": {
+     "income_tax": 11406,
+     "local_income_tax": 1140,
+     "net_payable": 367663
+    }
+   }
+  }
+ ]
+}

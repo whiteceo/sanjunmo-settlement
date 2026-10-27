@@ -1,0 +1,108 @@
+{
+ "case": "DEC-SETT-01",
+ "title": "정산 수동 조정 1차 오픈 — 금액과 관계없이 재무 담당자 단독 확정(임계액 초과도 2차 승인 없음)",
+ "canon_ref": "정산 02권 §10.3 L370~371 · white 결정 D-SETT-01(2026-10-27)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-A",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1000000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-05T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 1000000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [
+   {
+    "adj_id": "ADJ-SETT01",
+    "contract_id": "C-A",
+    "origin_month": "2026-09",
+    "applied_month": "2026-10",
+    "adj_reason_code": "RATE_ERR",
+    "adj_explanation": "9월 요율 적용 오류 정정(계약 원장 50% 대비 40% 적용분)",
+    "adj_amount": 1500000,
+    "adj_tax_type": "TAXABLE",
+    "payee_id": "H-A",
+    "account_type": "PRE_TAX",
+    "approver_id": "재무담당자",
+    "origin_settlement_id": "STMT-202609-001"
+   }
+  ]
+ },
+ "notes": "조정 1,500,000 > 임계액 1,000,000이지만 1차는 단독 확정 → requires_second_approval = false",
+ "expected": {
+  "CLOSE_CHECK": {
+   "H-A": {
+    "requires_second_approval": false
+   }
+  }
+ },
+ "variants": [
+  {
+   "code": "DEC-SETT-01-2ND",
+   "title": "2차 릴리스(adj_two_step_approval_yn = true) → 임계액 초과 2차 승인",
+   "input_delta": {
+    "params.adj_two_step_approval_yn": true
+   },
+   "expected": {
+    "CLOSE_CHECK": {
+     "H-A": {
+      "requires_second_approval": true
+     }
+    }
+   }
+  }
+ ]
+}

@@ -82,9 +82,19 @@ def pending_adjustments(ctx):
         ctx.issue("CANON_GAP", "adjustment_mode = provisional은 구현하지 않음 — hold로 처리", STEP, None,
                   "V2 §10.1 L351 · §10.2 L362", "Q-23")
     th = ctx.p("manual_adj_approval_threshold")
+    two_step = bool(ctx.p("adj_two_step_approval_yn"))  # 1차 오픈 false(D-SETT-01) — 2차 릴리스에서 금액 구간별 2단계 승인
     for a in ctx.input["adjustments"]:
-        row = dict(a, requires_second_approval=th is not None and abs(D(a["adj_amount"])) > D(th))
+        over = th is not None and abs(D(a["adj_amount"])) > D(th)
+        row = dict(a, requires_second_approval=two_step and over,
+                   approval_mode="TWO_STEP" if two_step else "SINGLE_FINANCE_1ST")
         ctx.pending_adjustments.append(row)
+        ctx.trace.add(STEP, "requires_second_approval", row["requires_second_approval"], holder=None,
+                      contract=a.get("contract_id"), payee=a.get("payee_id"), line=a.get("adj_id"), ref_id=a.get("adj_id"),
+                      inputs={"adj_amount": a["adj_amount"], "manual_adj_approval_threshold": th,
+                              "임계액 초과": over, "adj_two_step_approval_yn": two_step},
+                      formula="1차 오픈: 금액과 관계없이 재무 담당자 단독 확정 / 2차: 임계액 초과 시 재무 책임자 2차 승인",
+                      code="requires_second_approval = adj_two_step_approval_yn and |adj_amount| > threshold",
+                      ref="V2 §10.3 L370~371 · D-SETT-01(2026-10-27)")
         ctx.trace.add(STEP, "pending_adjustment", D(a["adj_amount"]), holder=None, contract=a.get("contract_id"),
                       payee=a.get("payee_id"), ref_id=a.get("adj_id"),
                       inputs={"origin_month": a.get("origin_month"), "account_type": a.get("account_type"),

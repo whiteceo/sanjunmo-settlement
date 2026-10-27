@@ -29,6 +29,8 @@ STEPS = [
     Step(10, "CLAIM", "반환 반영 · 청구 판정", "V2 §8.3 10단계 L177 · L284~298 · SPEC 13절", "s10_claim"),
     Step(11, "PAYOUT", "최소 지급 검증", "V2 §8.3 11단계 L178 · L299~308 · SPEC 14절", "s11_payout"),
     Step(12, "CLOSE_CHECK", "마감 검증(이월 연속성)", "V1 §7.4 L588~595 · SPEC 15.1", "s12_close_check"),
+    Step(13, "PASS_REFUND_PAYOUT", "합격환급 수강생 지급(권리자 정산 밖)", "통합 설계서 S6 L438~446 · S-02 · S-14",
+         "s13_pass_refund_payout"),
 ]
 
 BY_CODE = {s.code: s for s in STEPS}

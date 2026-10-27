@@ -30,8 +30,13 @@ def run(ctx):
     cons_ret = defaultdict(lambda: defaultdict(lambda: D(0)))
 
     for rf in ctx.input["refund_lines"]:
-        if rf.get("refund_approved_date") and month_of(rf["refund_approved_date"]) != ctx.month:
+        if rf.get("voucher_id"):  # 환불 사후 보정 전표(ADJ-*) — 반영 기준월 규칙(S-10)
+            if not voucher_in_deduct(ctx, rf):
+                continue
+        elif rf.get("refund_approved_date") and month_of(rf["refund_approved_date"]) != ctx.month:
             continue
+        if rf.get("lecture_refund"):
+            rf = dict(rf, refund_amount=lecture_refund_amount(ctx, rf))
         for snap in rf.get("snapshot") or []:
             c = ctx.contract(snap.get("contract_id"))
             if not c:
@@ -50,6 +55,85 @@ def run(ctx):
 
     for c in ctx.contracts.values():
         finish_contract(ctx, c, acc[c.id], comps, sup, cons_ret[c.id])
+
+
+def next_month(m):
+    y, mo = int(m[:4]), int(m[5:7])
+    return f"{y + (mo == 12)}-{(mo % 12) + 1:02d}"
+
+
+def voucher_applied_month(ctx, rf):
+    """보정 전표 반영 기준월 = 승인 시점에 마감되지 않은 가장 이른 귀속월(원 발생월부터, V2 §10.2 L365 · S-10).
+    마감 시각은 params.month_closed_at {월: 마감 일시}(없으면 미마감)."""
+    origin = str(rf.get("origin_month") or month_of(rf.get("approved_at") or rf.get("refund_approved_date")))[:7]
+    approved = str(rf.get("approved_at") or rf.get("refund_approved_date") or "")
+    closed = ctx.p("month_closed_at") or {}
+    m = origin
+    while m < approved[:7]:
+        at = closed.get(m)
+        if at and str(at) <= approved:
+            m = next_month(m)
+        else:
+            break
+    return origin, m
+
+
+def voucher_in_deduct(ctx, rf):
+    """원 발생월이 미마감이면 그 달 4단계에 합산, 마감됐으면 진행 중인 달의 수동 조정 라인(마감 월 재개 없음)."""
+    origin, applied = voucher_applied_month(ctx, rf)
+    snap = (rf.get("snapshot") or [{}])[0]
+    c = ctx.contract(snap.get("contract_id"))
+    route = "DEDUCT" if applied == origin else "MANUAL_ADJUSTMENT"
+    if applied != ctx.month:
+        return False
+    ctx.emit(STEP, "voucher_applied_month", applied, c, ref_id=rf["voucher_id"],
+             inputs={"origin_month": origin, "approved_at": rf.get("approved_at") or rf.get("refund_approved_date"),
+                     "month_closed_at": {k: v for k, v in (ctx.p("month_closed_at") or {}).items() if k >= origin}},
+             formula="보정 전표 반영 기준월 = 승인 시점에 마감되지 않은 가장 이른 귀속월(원 발생월 보존) — 원 발생월 미마감이면 "
+                     "그 달 4단계 DEDUCT, 마감됐으면 진행 중인 달의 정산 수동 조정 라인",
+             code="applied_month = first m ≥ origin_month with closed_at(m) is None or > approved_at",
+             ref="V2 §10.2 L365 · 통합 설계서 RFD-003-S2 L370 · S-10(2026-10-27)")
+    ctx.emit(STEP, "voucher_route", route, c, ref_id=rf["voucher_id"], formula="보정 전표 반영 경로",
+             ref="V2 §10.2 L365")
+    if route == "DEDUCT":
+        return True
+    amt = lecture_refund_amount(ctx, rf) if rf.get("lecture_refund") else D(rf.get("refund_amount"))
+    ctx.pending_adjustments.append({
+        "adj_id": rf["voucher_id"], "source": "REFUND_VOUCHER", "contract_id": snap.get("contract_id"),
+        "payee_id": snap.get("rights_holder_id"), "origin_month": origin, "applied_month": applied,
+        "adj_reason_code": "REFUND_OMIT", "refund_amount": amt, "snapshot": rf.get("snapshot"),
+        "note": "마감된 원 발생월의 보정 전표 — 진행 중인 달 수동 조정 라인으로 반영(인입 단계는 SPEC Q-23 보류)"})
+    ctx.issue("CANON_GAP", f"보정 전표 {rf['voucher_id']}: 원 발생월 {origin} 마감 — 수동 조정 라인(인입 단계 정본 없음, hold)",
+              STEP, c.holder_id if c else None, "V2 §10.2 L365", "Q-23")
+    return False
+
+
+def lecture_refund_amount(ctx, rf):
+    """인강 환불액(통합 설계서 RFD-002 L364~365, D-ORD-03 · 평생교육법 시행령 별표 3 비고 4).
+    7일 이내 + 2강 이하 수강(맛보기 제외) → 전액, 그 밖 → 내림(강좌 실결제액 × (전체 회차 − 학습 회차) ÷ 전체 회차),
+    원 수강기간이 끝난 강좌 → 0. 회차를 1초라도 재생하면 학습 회차(입력 learned_sessions가 이미 그 기준)."""
+    lr = rf["lecture_refund"]
+    paid = D(lr["paid_amount"])
+    total = D(lr["total_sessions"])
+    learned = D(lr["learned_sessions"])
+    days = lr.get("days_since_payment")
+    snap = (rf.get("snapshot") or [{}])[0]
+    c = ctx.contract(snap.get("contract_id"))
+    kw = dict(ref_id=rf.get("voucher_id") or rf.get("refund_id"),
+              inputs={"강좌 실결제액": paid, "전체 회차": total, "학습 회차": learned, "결제 후 경과일": days,
+                      "원 수강기간 종료": bool(lr.get("course_period_ended"))},
+              ref="통합 설계서 RFD-002 L364~365 · D-ORD-03(2026-10-27) · 평생교육법 시행령 별표 3 비고 4")
+    if lr.get("course_period_ended"):
+        return ctx.emit(STEP, "lecture_refund_amount", D(0), c, **kw, formula="원 수강기간이 끝난 강좌는 반환하지 않는다",
+                        code="refund = 0")
+    if days is not None and D(days) <= 7 and learned <= 2:
+        return ctx.emit(STEP, "lecture_refund_amount", paid, c, **kw,
+                        formula="결제일로부터 7일 이내이면서 맛보기 제외 2강 이하 수강 → 실결제액 100% 환불",
+                        code="refund = paid_amount")
+    raw = paid * (total - learned) / total if total else D(0)
+    return ctx.emit(STEP, "lecture_refund_amount", floor_won(raw), c, **kw,
+                    formula="환불액 = 강좌 실결제액 × (전체 회차 − 학습 회차) ÷ 전체 회차(원 단위 절사)",
+                    code="refund = floor(paid × (total − learned) / total)", before=raw, rounding="FLOOR_WON")
 
 
 def refund_snapshot(ctx, c, rf, snap, acc, comps, sup, cons_ret):

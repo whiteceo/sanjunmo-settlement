@@ -32,6 +32,7 @@ from core.money import D, eq, to_json  # noqa: E402
 from core.steps import BY_CODE, step_no  # noqa: E402
 
 FIXTURES = ENGINE / "tests" / "fixtures"
+DECISIONS = ENGINE / "tests" / "decisions"  # 정본 결정(2026-10-27~) 회귀 — 엔진 입력 형식, 기대값은 정본 공식 수기 계산
 JUDGMENTS = ENGINE / "tests" / "judgments.json"
 HOLD_STATUSES = {"HELD", "QUALITATIVE", "ILLUSTRATIVE", "PARTIAL"}
 
@@ -94,7 +95,10 @@ def evaluate(fx_case, judg):
             "file": fx_case["file"], "result": None, "diffs": [], "narrative": [], "matched": 0,
             "first_divergence": None, "adapter_notes": [], "issues": [], "engine_status": None}
     hold = status in HOLD_STATUSES
-    data, notes = build(fx_case["input"], code, fx_case.get("base"))
+    if fx_case.get("engine_input"):
+        data, notes = copy.deepcopy(fx_case["input"]), []
+    else:
+        data, notes = build(fx_case["input"], code, fx_case.get("base"))
     case["adapter_notes"] = notes
     want = expected_paths(fx_case["expected"])
     case["expected_count"] = len(want)
@@ -144,25 +148,29 @@ def evaluate(fx_case, judg):
 
 def load_cases(path):
     fx = json.loads(path.read_text(encoding="utf-8"))
+    engine_form = "engine_input" in fx  # tests/decisions: 엔진 입력 스키마 그대로(어댑터 없음)
+    key = "engine_input" if engine_form else "input"
     base = {"code": fx.get("case", path.stem), "title": fx.get("title"), "ref": fx.get("canon_ref"),
-            "status": fx.get("expected_status"), "input": fx["input"], "expected": fx.get("expected"),
-            "tol": fx.get("tolerance", 0), "file": path.name}
+            "status": fx.get("expected_status"), "input": fx[key], "expected": fx.get("expected"),
+            "tol": fx.get("tolerance", 0), "file": path.name, "engine_input": engine_form}
     yield base
     for v in fx.get("variants", []) or []:
         inp = copy.deepcopy(v["input"]) if "input" in v else apply_delta(base["input"], v.get("input_delta"))
         yield {"code": v.get("code"), "title": v.get("title"), "ref": base["ref"],
                "status": v.get("expected_status", base["status"]), "input": inp, "expected": v.get("expected"),
-               "tol": v.get("tolerance", base["tol"]), "file": path.name, "base": base["input"]}
+               "tol": v.get("tolerance", base["tol"]), "file": path.name, "base": base["input"],
+               "engine_input": engine_form}
     for r in fx.get("reference_examples", []) or []:
         yield {"code": r.get("code"), "title": r.get("title"), "ref": r.get("canon_ref", base["ref"]),
                "status": r.get("expected_status", "ILLUSTRATIVE"), "input": r.get("input"),
                "expected": r.get("expected"), "tol": 0, "file": path.name}
 
 
-def run_all(fixtures=FIXTURES, k=None, html_dir=None):
+def run_all(fixtures=None, k=None, html_dir=None):
     judg = load_judgments()
     cases = []
-    for f in sorted(Path(fixtures).glob("*.json")):
+    dirs = [Path(fixtures)] if fixtures else [FIXTURES, DECISIONS]
+    for f in [f for d in dirs for f in sorted(d.glob("*.json"))]:
         for c in load_cases(f):
             if k and k not in f.name and k not in str(c["code"]):
                 continue
@@ -192,7 +200,7 @@ def tally(cases):
 def main(argv=None):
     ap = argparse.ArgumentParser(description="fixture 회귀 테스트")
     ap.add_argument("-k", help="파일 이름 또는 케이스 코드에 이 문자열이 든 것만")
-    ap.add_argument("--fixtures", default=str(FIXTURES))
+    ap.add_argument("--fixtures", help="한 폴더만(기본: tests/fixtures + tests/decisions)")
     ap.add_argument("--json", help="결과 JSON 저장 경로")
     ap.add_argument("--html-dir", help="케이스별 단계표 HTML 저장 폴더")
     ap.add_argument("--verbose", "-v", action="store_true", help="차이 · 서술 기대값 전부 출력")
@@ -200,7 +208,7 @@ def main(argv=None):
 
     cases = run_all(args.fixtures, args.k, args.html_dir)
     if not cases:
-        print(f"fixture 없음: {args.fixtures}")
+        print(f"fixture 없음: {args.fixtures or FIXTURES}")
         return 2
     for case in cases:
         line = (f"[{case['result']:5}] {case['case_id']} ({case['expected_status']}) {case['title'] or ''}"

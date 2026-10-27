@@ -63,6 +63,7 @@
         "matrix_case_id": { "description": "[03-DD] 원거래 세무 케이스(정정 채널 분기용)", "type": ["string", "null"] },
         "fee_supply_alloc": { "$ref": "#/$defs/money", "description": "[신규 명명] P2.2 품목 배분 수수료 공급가액" },
         "fee_vat_alloc": { "$ref": "#/$defs/money", "description": "[신규 명명] P2.2 품목 배분 수수료 부가세" },
+        "confirmed_qty": { "type": ["integer", "null"], "description": "[엔진 확장] 원판매 확정 부수(위탁 반품 비율 역참조, OPEN_ISSUES S-05)" },
         "consignment_fee_type": { "description": "[03-DD]", "type": ["string", "null"], "enum": ["NET_DEDUCT", "GROSS_SETTLE", null] }
       }
     }
@@ -90,7 +91,9 @@
         "carryover_force_settle_month": { "type": "integer", "minimum": 1, "maximum": 12, "default": 12 },
         "carryover_max_months": { "type": "integer", "default": 6 },
         "manual_adj_approval_threshold": { "$ref": "#/$defs/money", "default": 1000000 },
-        "support_fund_mmg_include_yn": { "type": "boolean", "const": false, "default": false }
+        "support_fund_mmg_include_yn": { "type": "boolean", "const": false, "default": false },
+        "adj_two_step_approval_yn": { "type": "boolean", "default": false, "description": "[엔진 확장] 수동 조정 금액 구간별 2단계 승인. 1차 오픈 false = 재무 담당자 단독 확정(V2 §10.3 · D-SETT-01 2026-10-27)" },
+        "month_closed_at": { "type": "object", "additionalProperties": { "type": ["string", "null"] }, "default": {}, "description": "[엔진 확장] 귀속월 → 마감 일시(없거나 null = 미마감). 보정 전표 반영 기준월 판정(V2 §10.2 · S-10 2026-10-27)" }
       },
       "additionalProperties": true
     },
@@ -113,7 +116,10 @@
           "tax_invoice_eligible_yn": { "description": "[03-DD]", "type": ["boolean", "null"] },
           "business_status": { "description": "[03-DD] 계속 · 휴업 · 폐업", "type": ["string", "null"] },
           "business_closed_yn": { "description": "[신규 명명] 당월 국세청 폐업 확인(강제 청구 · 정산 트리거, V1 L565 L568)", "type": "boolean", "default": false },
-          "matrix_case_id_hint": { "description": "[신규 명명] 테스트용 세무 케이스 고정값(없으면 TAX가 판정)", "type": ["string", "null"] }
+          "matrix_case_id_hint": { "description": "[신규 명명] 테스트용 세무 케이스 고정값(없으면 TAX가 판정)", "type": ["string", "null"] },
+          "withholding_decision": { "description": "[엔진 확장] 원천징수 판정 기준 공백 케이스(TX-05 · 06 · 07 개인 · 08)의 자문 · 결정 결과. 없으면 PENDING_REVIEW(OPEN_ISSUES S-02)", "type": ["string", "null"], "enum": ["NONE", "APPLY", null] },
+          "corp_no": { "description": "[엔진 확장] 법인등록번호(법인 판정, TAX.md · OPEN_ISSUES S-03)", "type": ["string", "null"] },
+          "vat_treatment": { "description": "[엔진 확장] 수취인별 VAT 처리 — 계약값보다 우선(OPEN_ISSUES S-03)", "type": ["string", "null"], "enum": ["VAT_EXCLUDED", "VAT_INCLUDED", null] }
         }
       }
     },
@@ -154,6 +160,7 @@
           "agreement_id": { "description": "[03-DD] SUPPORT 필수, BASIC null", "type": ["string", "null"] },
           "rate_value": { "$ref": "#/$defs/ratio", "description": "[03-DD]" },
           "mmg_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] 월 보장액(MMG) 컬럼(V1 L208)" },
+          "pipeline_id": { "type": ["string", "null"], "description": "[엔진 확장] 한 계약에 파이프라인별 요율(1.1 · 2.1)이 따로 있을 때(OPEN_ISSUES S-01)" },
           "start_date": { "$ref": "#/$defs/date" },
           "end_basis": { "description": "[03-DD]", "type": "string", "enum": ["FIXED_DATE", "CONTRACT_LINKED"] },
           "end_date": { "description": "[03-DD] CONTRACT_LINKED이면 null", "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] }
@@ -299,6 +306,8 @@
           "confirmed_qty": { "type": "integer", "description": "[신규 명명] 확정 부수(D+7 경과)" },
           "royalty_base_price": { "$ref": "#/$defs/money", "description": "[신규 명명] 인세 기준가(판매 확정일 정가 버전 · sale_price)" },
           "consignment_price": { "$ref": "#/$defs/money", "description": "[신규 명명] 위탁 판매가(정산 기준가)" },
+          "sale_price_incl_vat": { "$ref": "#/$defs/money", "description": "[엔진 확장] P2.3 부가가치세 포함 판매가(OPEN_ISSUES S-04)" },
+          "purchase_unit_cost": { "$ref": "#/$defs/money", "description": "[엔진 확장] 매입 단가(매입 재판매 · 일반 상품 매입채무, OPEN_ISSUES S-04)" },
           "book_supply_type_snapshot": { "type": ["string", "null"], "enum": ["OWN_PUBLISHED", "CONSIGNMENT", "PURCHASED_RESALE", "BUNDLED", null], "description": "[03-DD]" },
           "goods_supply_type_snapshot": { "type": ["string", "null"], "enum": ["PURCHASED_RESALE", "DIRECT_SALE", null], "description": "[02-T]" },
           "lectures": {
@@ -340,6 +349,9 @@
           "refund_qty": { "type": ["integer", "null"], "description": "[신규 명명] 도서 반품 부수" },
           "refund_ratio": { "$ref": "#/$defs/ratio", "description": "[신규 명명] 해당 거래 환불 비율(%)" },
           "origin_month": { "$ref": "#/$defs/month", "description": "[03-DD]" },
+          "voucher_id": { "type": ["string", "null"], "description": "[엔진 확장] 환불 사후 보정 전표 번호(ADJ-YYYYMMDD-NNN, RFD-003-S2). 있으면 반영 기준월 = 승인 시점 미마감 가장 이른 귀속월(origin_month부터, S-10) — 원 발생월이면 4단계, 아니면 진행 중인 달 수동 조정 라인" },
+          "approved_at": { "$ref": "#/$defs/datetime", "description": "[엔진 확장] 보정 전표 승인 일시(params.month_closed_at과 비교)" },
+          "lecture_refund": { "description": "[엔진 확장] 인강 환불액 산출 입력 — 있으면 refund_amount 대신 계산(통합 설계서 RFD-002 · D-ORD-03): 7일 이내 · 2강 이하 전액, 그 밖 내림(실결제 × (전체 − 학습 회차) ÷ 전체), 원 수강기간 종료 0", "type": ["object", "null"], "required": ["paid_amount", "total_sessions", "learned_sessions"], "properties": { "paid_amount": { "$ref": "#/$defs/money" }, "total_sessions": { "type": "integer" }, "learned_sessions": { "type": "integer", "description": "1초라도 재생한 회차(맛보기 제외)" }, "days_since_payment": { "type": ["integer", "null"] }, "course_period_ended": { "type": "boolean" } } },
           "snapshot": { "type": "array", "items": { "$ref": "#/$defs/settlement_line_snapshot" }, "description": "rate_type별 스냅샷 행(BASIC · SUPPORT)" }
         }
       }
@@ -478,6 +490,20 @@
           "result": { "type": "string", "enum": ["SUCCESS", "FAILED"] },
           "payment_event_date": { "$ref": "#/$defs/date", "description": "[03-DD]" },
           "ledger_ids": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "pass_refund_payouts": {
+      "description": "[엔진 확장] 합격환급금 수강생 지급(권리자 정산 밖, 13 PASS_REFUND_PAYOUT) — 통합 설계서 S6 L438~446 · S-02 · S-14(2026-10-27).",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["pass_refund_id", "package_paid_amount"],
+        "properties": {
+          "pass_refund_id": { "type": "string" }, "student_id": { "type": "string", "description": "수강생 식별자(마스킹)" }, "order_id": { "type": "string" },
+          "package_paid_amount": { "$ref": "#/$defs/money" }, "book_paid_amount": { "$ref": "#/$defs/money", "description": "포함 교재 실결제액(최대 10% 기본할인가)" }, "shipping_fee": { "$ref": "#/$defs/money" },
+          "progress_rate": { "type": ["number", "null"] }, "target_progress_rate_snapshot": { "type": ["number", "null"], "description": "결제 시점 주문 라인에 박제한 목표 진도율(S-14)" }, "current_target_progress_rate": { "type": ["number", "null"], "description": "현재 상품 설정(참고, 판정에 쓰지 않음)" },
+          "rrn_entered": { "type": "boolean" }, "rrn_matched": { "type": "boolean" }, "approved_date": { "$ref": "#/$defs/date" }
         }
       }
     }

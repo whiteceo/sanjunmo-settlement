@@ -1,0 +1,146 @@
+{
+ "case": "DEC-SETT-03",
+ "title": "수취인 분할(8단계) 1차 — 신규분은 현재 분할 60:40, 과거 원거래 환불은 원 결제 시점 분할 70:30 유지",
+ "canon_ref": "정산 02권 §8.3 8단계 L248~249 · §13.2 · §13.3 L578 · 04권 부록 D-1 · white 결정 D-SETT-03(2026-10-27)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   },
+   {
+    "rights_holder_id": "H-B",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-A",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1000000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-05T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 1000000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [
+   {
+    "refund_id": "RF-SETT03",
+    "order_item_id": "OI-OLD",
+    "refund_approved_date": "2026-10-22",
+    "refund_amount": 200000,
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-OLD",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "payment_state": "UNPAID",
+      "payee_splits": [
+       {
+        "payee_id": "H-A",
+        "split_ratio": 70
+       },
+       {
+        "payee_id": "H-B",
+        "split_ratio": 30
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "payee_splits": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "split_ratio": 60,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-B",
+    "split_ratio": 40,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "adjustments": []
+ },
+ "notes": "신규 R/S 500,000 → H-A 내림(300,000) · H-B 200,000(역산). 환불 공제 100,000 → 원거래 분할 H-A −70,000 · H-B −30,000. H-A 230,000 → 6,900 · 690 → 222,410 / H-B 170,000 → 5,100 · 510 → 164,390",
+ "expected": {
+  "PAYEE_SPLIT": {
+   "payee_split_base": 400000,
+   "H-A": {
+    "split_amount": 230000,
+    "taxable_base": 230000
+   },
+   "H-B": {
+    "split_amount": 170000,
+    "taxable_base": 170000
+   }
+  },
+  "TAX": {
+   "H-A": {
+    "income_tax": 6900,
+    "local_income_tax": 690,
+    "net_payable": 222410
+   },
+   "H-B": {
+    "income_tax": 5100,
+    "local_income_tax": 510,
+    "net_payable": 164390
+   }
+  }
+ }
+}

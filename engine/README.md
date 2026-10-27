@@ -5,7 +5,7 @@
 정본에 없거나 서로 어긋나는 곳은 지어내지 않고 잠정 규칙으로 표시하며, `OPEN_ISSUES.md`에 모았다.
 
 - 엔진 1.0.0 · Python 3.10 이상 · 표준 라이브러리만(금액은 모두 `Decimal`, float 금지)
-- fixture 테스트: 42건(변형 포함) 중 판정 대상 22건 — **PASS 20 · FAIL 2**(입력 부족 2, 엔진 오류 0) · 보류 20 → `OPEN_ISSUES.md`
+- fixture 테스트: 04권 42건(변형 포함) 중 판정 대상 22건 — **PASS 20 · FAIL 2**(입력 부족 2, 엔진 오류 0) · 보류 20, 정본 결정 회귀(`tests/decisions/`) 12건 **PASS 12** → `OPEN_ISSUES.md`
 
 ## 폴더
 
@@ -16,6 +16,7 @@
 | `tests/fixtures/` · `tests/CASES.md` | 04권 Case 1~12 · 부록 D fixture | 1단계 검증 케이스 |
 | `core/` | 엔진. `pipeline.py`(실행기 · 상태) · `s00_pipeline_in.py` ~ `s12_close_check.py`(단계별) · `tax.py`(세무 판정 · 세액) · `money.py`(절사) · `trace.py` · `steps.py` · `csvio.py` | 2단계 |
 | `run.py` · `report.py` · `compare.py` | 실행 · HTML 단계표 · 개발 결과 대조 CLI | 2단계 |
+| `tests/decisions/` | 정본 결정(2026-10-27~) 회귀 — 엔진 입력 형식, 기대값은 정본 공식 손계산(`INDEX.md`) | 2단계 |
 | `tests/run_tests.py` · `adapter.py` · `aliases.py` · `judgments.json` | fixture 회귀 테스트 · 입력 변환 · 기대값 이름 연결 · 불일치 원인 판정 | 2단계 |
 | `samples/sample/` | 입력 예시(가상 값) · 개발 출력 예시 · 대조 매핑 예시 | 2단계 |
 | `samples/scenario/` | 샘플 데이터 시나리오(SCENARIO.md) 권리자별 입력 · `run_scenario.py` → `scenario_amounts.json`(ADMN-SETT-002 `sett002` 값) · `scenario_amounts.md`(요약 · 화면 차이 · 확인 필요) | 2단계 |
@@ -76,7 +77,7 @@ python engine/compare.py --input engine/samples/sample/input.json --dev engine/s
 | `trace` | 계산 줄마다 `step` · `step_code` · `scope`(권리자 · 계약 · 수취인 · 라인 · 약정 · 원거래) · `inputs` · `formula`(정본 표기) · `formula_code`(SPEC 의사코드) · `before_rounding` · `rounding`(NONE / Q4 / FLOOR_WON / ALLOC_LAST_REMAINDER / ABS_FLOOR_SIGN) · `result` · `canon_ref` · `provisional` · `note`(SPEC 16절 질문 번호). `output = false`는 중간 계산 줄 |
 | `issues` | 이번 계산에서 쓴 잠정 규칙 · 입력 부족(질문 번호 포함) |
 
-단계: 0 PIPELINE_IN(상위 인입) → 1 CARRY_IN → 2 ACCRUAL → 3 MMG_ADJ → 4 DEDUCT → 5 SUPPORT_CAP → 6 PREPAY_OFFSET → 7 LUMPSUM_ADD → 8 PAYEE_SPLIT → 9 TAX(끝에 6단계 현금 가용액 재검증) → 10 CLAIM → 11 PAYOUT → 12 CLOSE_CHECK(이월 연속성).
+단계: 0 PIPELINE_IN(상위 인입) → 1 CARRY_IN → 2 ACCRUAL → 3 MMG_ADJ → 4 DEDUCT → 5 SUPPORT_CAP → 6 PREPAY_OFFSET → 7 LUMPSUM_ADD → 8 PAYEE_SPLIT → 9 TAX(끝에 6단계 현금 가용액 재검증) → 10 CLAIM → 11 PAYOUT → 12 CLOSE_CHECK(이월 연속성). 13 PASS_REFUND_PAYOUT(합격환급금 수강생 지급 — 권리자 정산 밖, `pass_refund_payouts`).
 절사: `floor` = 원 단위 내림, 음수는 절대값 내림 후 부호 복원(0 방향). 중간값은 소수 4자리 보존.
 
 ## HTML 단계표
