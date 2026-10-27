@@ -644,7 +644,7 @@ code, pre, kbd, samp,
                     <span class="badge badge-primary" style="margin-top:3px;">[유형 1] 당사 위탁수수료 수정 세금계산서</span>
                   </td>
                   <td class="mono">위탁 정산: 2,800,000원<br>수수료 부가세: 120,000원</td>
-                  <td class="mono">위탁 정산: 3,000,000원 (<strong>+200,000원</strong>)<br>수수료 부가세: 100,000원 (<strong>-20,000원</strong>)<br>위탁자 환급 합계: <strong>+220,000원</strong> (10월 정산서 10단계)</td>
+                  <td class="mono">위탁 정산: 3,000,000원 (<strong>+200,000원</strong>)<br>수수료 부가세: 100,000원 (<strong>-20,000원</strong>)<br>위탁자 환급 합계: <strong>+220,000원</strong> (10월 정산서 세금 계산 직전 전월 조정)</td>
                   <td>공급가액 변동 (수취 계산서 재요청 + 당사 수수료 수정발행 병기)</td>
                   <td><span class="badge badge-success">재요청 발송 완료</span></td>
                 </tr>
@@ -1062,7 +1062,7 @@ code, pre, kbd, samp,
           "채널 4: 위탁자 발행 면세 계산서 수정 재요청 (재요청 중)",
           "채널 1: 당사 발행 위탁 수수료 수정 전자세금계산서 발행 (-200,000원, 부가세 -20,000원)"
         ],
-        explanation: "2026년 9월 위탁 판매 수수료율이 계약 원장 값(25%)이 아닌 30%로 과다 차감되어 정산된 차액 220,000원(수수료 200,000원: 위탁 매출 4,000,000원 기준 1,200,000원 → 1,000,000원 + 같이 과다 차감한 수수료 부가세 20,000원: 120,000원 → 100,000원)을 10월 위탁 정산에 가산(10단계 세후 조정)하고 채널 1·4 증빙을 동시 정정함.",
+        explanation: "2026년 9월 위탁 판매 수수료율이 계약 원장 값(25%)이 아닌 30%로 과다 차감되어 정산된 차액 220,000원(수수료 200,000원: 위탁 매출 4,000,000원 기준 1,200,000원 → 1,000,000원 + 같이 과다 차감한 수수료 부가세 20,000원: 120,000원 → 100,000원)을 10월 위탁 정산에 가산(세금 계산 직전 전월 정산 조정 — 수취인 분할 뒤 · 9단계 앞, 원천징수 비대상)하고 채널 1·4 증빙을 동시 정정함.",
         status: "APPROVED",
         statusLabel: "최종 승인 완료 (채널 1·4 연동됨)",
         firstApprover: "재무담당자 (김정산)",
@@ -1362,9 +1362,17 @@ code, pre, kbd, samp,
       channelText = "채널 4(위탁자 수정 계산서 수취 재요청) + 채널 1(당사 수수료 수정 세금계산서 발행) 병기";
     }
 
+    // 전월 정산 조정(마감된 달 정정)은 차월 정산서 세금 계산 직전에 반영(white 2026-10-27, 계산기 DEC-Q-23)
+    let placementText = "당월 정산서 (미마감 달 수동 조정)";
+    if (adjType === "PRIOR_CORRECTION") {
+      if (accType.includes("대체")) placementText = "차월 정산서 — 세전 → 세후 계정 대체 (금액 변동 없이 계정만 옮김)";
+      else if (accType.includes("세후")) placementText = "차월 정산서 10단계 세후 정정 — 양수는 가산, 음수는 반환채권 (자동 상계 없음)";
+      else placementText = "차월 정산서 세금 계산 직전 전월 정산 조정 — 수취인 분할(8단계) 뒤에 붙여 9단계에서 원천세 · VAT 계산 (음수면 과세표준 보류) · 위탁 정정도 같은 위치";
+    }
     document.getElementById("newModalPreviewBox").innerHTML = `
       <div style="font-size:12px;">• <strong>승인 경로 판정 (10.3절):</strong> ${approvalText}</div>
       <div style="font-size:12px; color:var(--primary);">• <strong>자동 연결 증빙 정정 채널 (10.4절):</strong> ${channelText}</div>
+      <div style="font-size:12px;">• <strong>정산서 반영 위치:</strong> ${placementText}</div>
     `;
   }
 
