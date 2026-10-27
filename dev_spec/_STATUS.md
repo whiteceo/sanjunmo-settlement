@@ -54,6 +54,7 @@
 - 알려진 도구 한계: 원본 줄 끝이 섞인 파일(PROD-004)은 prototype_dev에서 LF로 저장됨(새 파일이라 영향 없음).
 
 ## 결정 기록
+- 2026-10-27 SNB는 디자인만 프로토타입, 접기 · 펼치기는 개발 동작(white). `prototype_dev/dev-snb.js`(개발 custom.js 아코디언 재현: 그룹 제목 클릭 → 그 그룹만 펼침, 다시 누르면 접힘, 현재 화면 그룹만 펼친 채 시작, 0.2초 높이 애니메이션). 공통 CSS가 목록에 display:flex !important라 접힘은 클래스로. `apply_dev_map.py`가 dev-overlay.js 다음에 자동으로 붙인다.
 - 2026-10-27 prototype_dev 이름 입히는 방식: 프로토타입 JS가 기대는 것(라디오 name · value, 내부 코드값, JS가 id로 찾는 입력)은 동작을 지키려고 그대로 두고 `data-dev-name` · `data-dev-value`로 개발 이름을 단다. JS가 안 쓰는 입력에는 실제 `name=`을 개발 이름으로 넣고, 모달 id는 개발 레이어 id로 바꾼다(참조 전부). 동작 버튼에는 `data-dev-route` · `data-dev-method` · `data-dev-url` · `data-dev-perm`. 개발에만 있음 = `data-dev-flag="dev-only"`(정본 디자인으로 추가), 프로토타입에만 있음 = `data-dev-flag="proto-only"`. 오른쪽 아래 [개발 매핑] 버튼(`prototype_dev/dev-overlay.js`)으로 겹쳐 본다.
 - 2026-10-27 prototype_dev는 손으로 고치지 않는다. `dev_spec/_maps/<코드>.py`(찾을 문구 · 바꿀 문구 · 기대 건수) + `python dev_spec/_tools/apply_dev_map.py <코드>`로 만든다. prototype_clean이 바뀌면 다시 돌리고, 건수 불일치만 map을 고친다. 원본 상태는 `prototype_dev/_SOURCES.md`.
 - 2026-10-27 dev_spec 파일 단위 = 프로토타입 HTML 1개(하위 S · P 화면 포함). 개발 화면 코드별로 절을 나눈다.

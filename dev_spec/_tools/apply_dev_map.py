@@ -94,6 +94,13 @@ def build(code):
     text = raw.decode("utf-8").replace("\r\n", "\n")
     m = load_map(code)
     text, errors = apply_ops(text, m.OPS)
+    # SNB 동작은 개발 기준(접기 · 펼치기 아코디언) — 디자인은 clean 그대로(white 10-27). 개발 매핑 스크립트 바로 뒤에 붙인다
+    tag = '<script src="dev-overlay.js" defer></script>'
+    if not errors and "dev-snb.js" not in text:
+        if text.count(tag) == 1:
+            text = text.replace(tag, tag + '\n  <script src="dev-snb.js" defer></script>')
+        else:
+            errors.append(f"dev-snb.js 붙일 자리({tag}) {text.count(tag)}건 — 1건이어야 함")
     if errors:
         print(f"[{code}] 중단 — 기대 건수 불일치 {len(errors)}건, 파일을 쓰지 않음")
         for e in errors:
