@@ -126,3 +126,14 @@ fixture는 04권 서술을 옮긴 형식이라 엔진 입력과 다르다.
 | FAIL | 차이 있음 — 처음 갈라진 단계 · 경로 · 기대/계산 · 원인(엔진 오류 / 정본 모순 / 입력 부족, `tests/judgments.json`) |
 | ERROR | 실행 오류 |
 | HOLD | 보류 — 정본이 확정 보류(HELD) · 예시(ILLUSTRATIVE) · 일부만(PARTIAL) · 금액 없는 규칙(QUALITATIVE) 또는 계산 입력 없음. 비교는 하되 합격 집계에서 뺀다 |
+
+## PHP판(`engine/php`)
+
+개발 시스템과 같은 언어(PHP 8.4, bcmath)로 옮긴 같은 계산기. 프레임워크 · composer 없이 `require 'engine/php/engine.php'` 한 줄로 쓰고, 라라벨에서는 `app/Services` 등에 그대로 옮겨 `SettleCalc\Engine::run($input)`을 부르면 된다. 입력 · 출력 스키마는 파이썬판과 같다(`schema/`).
+
+- 금액은 `BcMath\Number`, 사칙연산은 `add · sub · mul · div`(`src/helpers.php`). 파이썬 `Decimal` 기본 문맥(유효숫자 28자리 · ROUND_HALF_EVEN)을 그대로 흉내 내서 절사 · 역산 결과가 끝자리까지 같다.
+- 파일: `src/Engine.php`(단계 목록 · trace · 상태 · 실행기 · 전월 정산 조정) · `src/Tax.php`(세무 판정 · 세액) · `src/steps/`(0~13단계, 파이썬 `core/s00~s13`과 1:1).
+- 실행: `php engine/php/run.php 입력.json 출력.json`
+- 대조: `python engine/php/tests/parity.py [--php php]` — fixture(+변형) · 정본 결정 회귀 · 샘플 · 시나리오 입력 전부를 두 판으로 계산해 출력 JSON 전체(values · trace 수식 · 수취인 · 원장 · 이월 연속성 · issues)를 비교한다. PHP가 없으면 php-wasm(node, `D:\Work\_tools\phpwasm`)으로 돈다. 2026-10-27 v6.96 기준 61건 모두 일치.
+- 웹 페이지: `python engine/php/web/build_web.py` → `engine/out/web/`(index.html + 브라우저용 PHP 8.4 wasm). 브라우저 안에서 PHP판을 돌리고 예시 입력은 파이썬판 값과 바로 대조해 보여 준다. 올린 곳: claude.ai 아티팩트 "정산 기준 계산기 PHP"(비공개, white).
+- 파이썬판 `core/`를 고치면 같은 변경을 `src/`에 옮기고 `parity.py`로 차이 0을 확인한 뒤 `build_web.py`로 페이지를 다시 만든다.

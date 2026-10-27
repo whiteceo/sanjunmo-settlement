@@ -100,6 +100,7 @@
 
 | 일자 | 작업 | 산출물 |
 | :--- | :--- | :--- |
+| 2026-10-27 | v6.97 정산 기준 계산기 PHP판 — 파이썬판(v6.96) 0~13단계 · 세무 · 전월 정산 조정을 PHP 8.4로 이식(Decimal 28자리 문맥 재현), fixture · 결정 회귀 · 샘플 · 시나리오 61건 출력 JSON 전체 일치, 브라우저에서 PHP를 돌리는 웹 페이지(php-wasm) | `engine/php/`(engine.php · run.php · src · tests/parity.py · web/build_web.py) · engine/README.md PHP판 절 |
 | 2026-10-20 | 역할 고정 메모리 생성, Skill 2(금지어·내부 암호 스캐너) 구축 및 최초 스캔 | `.antigravity/RULES.md`, `.antigravity/AGENT_PIPELINE_MEMORY.md`, `scripts/qa/skill_jargon_scan.py`, `.antigravity/reports/JARGON_SCAN_REPORT.md` |
 | 2026-10-20 | `patch_missing_3_features.py` 실행 — USER-004 진도율 보정 원장(카드 4·5번)·USER-006 태그 생성/그룹-태그 연결(카드 1·2번)·RFD-003-S2 별도 보정 거래, prototype/·prototype_clean/ 동기 적용 | `prototype*/ADMN-USER-001_baseline.html`, `prototype*/ADMN-RFD-002_baseline.html`, `.antigravity/reports/JARGON_SCAN_REPORT.md` |
 | 2026-10-20 | `hotfix_ssr_initial_rows.py` 실행 — USER-001 차시·보정이력·그룹 3개 테이블 SSR 초기 행 내장 및 Skill 4(Playwright E2E 검수기) 구축·38/38 PASS 검증 | `prototype*/ADMN-USER-001_baseline.html`, `scripts/qa/skill_playwright_e2e.py`, `.antigravity/reports/PLAYWRIGHT_FUNCTIONAL_AUDIT_REPORT.md` |

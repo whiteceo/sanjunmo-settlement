@@ -1,0 +1,333 @@
+<meta charset="utf-8">
+<title>정산 기준 계산기 PHP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* 레이아웃: 위에서 아래로 입력 → 요약 → 수취인 결과표 → 단계 계산 기록. 장부 느낌의 차분한 청회색 바탕, 강조는 원장 잉크 초록 하나. */
+:root {
+  --bg: #f4f6f7;
+  --panel: #ffffff;
+  --ink: #18222b;
+  --muted: #5b6874;
+  --line: #d8dee3;
+  --accent: #1d6b55;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3f0eb;
+  --ok: #1d6b3a; --ok-bg: #e3f3e8;
+  --bad: #b3261e; --bad-bg: #fbe9e7;
+  --warn: #8a5a00; --warn-bg: #fdf1d8;
+  --font-body: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, "D2Coding", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12181d; --panel: #19212a; --ink: #e4e9ee; --muted: #9aa7b3; --line: #2a3540;
+    --accent: #5fbf9c; --accent-ink: #0d1a15; --accent-soft: #1b3229;
+    --ok: #7fd49c; --ok-bg: #173022; --bad: #ff9a8f; --bad-bg: #3a1c19; --warn: #f2c66d; --warn-bg: #362b13;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12181d; --panel: #19212a; --ink: #e4e9ee; --muted: #9aa7b3; --line: #2a3540;
+  --accent: #5fbf9c; --accent-ink: #0d1a15; --accent-soft: #1b3229;
+  --ok: #7fd49c; --ok-bg: #173022; --bad: #ff9a8f; --bad-bg: #3a1c19; --warn: #f2c66d; --warn-bg: #362b13;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.55 var(--font-body); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 24px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 20px; }
+header { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: flex-end; justify-content: space-between; }
+h1 { font-size: 22px; font-weight: 600; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-size: 15px; font-weight: 600; margin: 0; }
+.sub { color: var(--muted); margin: 4px 0 0; max-width: 68ch; }
+.mono { font-family: var(--font-mono); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 2px 10px; font-size: 12px;
+  border: 1px solid var(--line); background: var(--panel); color: var(--muted); white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--ok); background: var(--ok-bg); border-color: transparent; }
+.pill.bad { color: var(--bad); background: var(--bad-bg); border-color: transparent; }
+.pill.warn { color: var(--warn); background: var(--warn-bg); border-color: transparent; }
+section.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.row > * { min-width: 0; }
+label.f { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+select, input[type="search"], textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 8px; max-width: 100%; }
+select { min-width: 0; width: min(420px, 100%); }
+textarea { width: 100%; min-height: 220px; font-family: var(--font-mono); font-size: 12px; line-height: 1.45; }
+button, .filebtn { font: inherit; border-radius: 6px; padding: 7px 14px; cursor: pointer; border: 1px solid var(--line);
+  background: var(--panel); color: var(--ink); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:disabled { opacity: .5; cursor: default; }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible, .filebtn:focus-within {
+  outline: 2px solid var(--accent); outline-offset: 2px; }
+.filebtn input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.filebtn { position: relative; display: inline-flex; }
+details > summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line);
+  border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.stat { background: var(--panel); padding: 10px 12px; display: grid; gap: 2px; }
+.stat .k { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+.stat .v { font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: .03em; background: var(--bg); position: sticky; top: 0; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td.f { min-width: 260px; max-width: 520px; }
+td.f code { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-top: 2px; word-break: break-all; }
+td.scope { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.stepno { display: inline-block; min-width: 24px; padding: 0 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent);
+  font-family: var(--font-mono); font-size: 12px; text-align: center; }
+.tag { font-size: 11px; border-radius: 4px; padding: 0 6px; background: var(--warn-bg); color: var(--warn); white-space: nowrap; }
+.yes { color: var(--ok); font-weight: 500; } .no { color: var(--muted); }
+.neg { color: var(--bad); }
+.note { color: var(--muted); font-size: 12px; }
+.err { color: var(--bad); background: var(--bad-bg); border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; font-family: var(--font-mono); font-size: 12px; }
+ul.issues { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+ul.issues li span { color: var(--muted); font-size: 12px; }
+.more { justify-self: start; }
+@media (prefers-reduced-motion: no-preference) { button { transition: filter .15s; } button:hover:not(:disabled) { filter: brightness(1.05); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>정산 기준 계산기 PHP</h1>
+      <p class="sub">정본 02권 8.3절 0~13단계를 개발 언어(PHP 8.4)로 옮긴 계산기입니다. 브라우저 안에서 PHP를 직접 돌리며, 입력은 이 기기를 떠나지 않습니다.</p>
+    </div>
+    <span id="engine" class="pill">PHP 엔진 준비 중</span>
+  </header>
+
+  <section class="panel" aria-labelledby="h-in">
+    <h2 id="h-in">입력</h2>
+    <div class="row">
+      <label class="f" for="example">예시 입력(가상 값)
+        <select id="example"></select>
+      </label>
+      <span class="filebtn"><input id="file" type="file" accept=".json,application/json">JSON 파일 열기</span>
+      <button id="run" class="primary" disabled>계산</button>
+      <button id="copy" disabled>출력 JSON 복사</button>
+    </div>
+    <details id="editor">
+      <summary>입력 JSON 보기 · 고치기 (engine/schema/input.schema.json 형식)</summary>
+      <textarea id="input" spellcheck="false" aria-label="입력 JSON"></textarea>
+    </details>
+    <div id="msg" class="note"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-sum">
+    <div class="row" style="justify-content: space-between">
+      <h2 id="h-sum">결과 요약</h2>
+      <span id="parity" class="pill">파이썬판 대조 전</span>
+    </div>
+    <div id="stats" class="stats"></div>
+    <div id="errors"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-pay">
+    <h2 id="h-pay">수취인별 정산</h2>
+    <div class="scroll"><table id="payees"></table></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-tr">
+    <h2 id="h-tr">단계별 계산 기록</h2>
+    <div class="row">
+      <label class="f" for="f-holder">권리자<select id="f-holder"></select></label>
+      <label class="f" for="f-step">단계<select id="f-step"></select></label>
+      <label class="f" for="f-q">찾기<input id="f-q" type="search" placeholder="필드 · 수식 · 근거"></label>
+      <label class="f" for="f-out">보기<select id="f-out"><option value="out">출력 값만</option><option value="all">중간 계산 포함</option></select></label>
+    </div>
+    <div class="scroll"><table id="trace"></table></div>
+    <button id="more" class="more" hidden>더 보기</button>
+  </section>
+
+  <section class="panel" aria-labelledby="h-is">
+    <h2 id="h-is">확인 필요 · 잠정 규칙</h2>
+    <ul id="issues" class="issues"></ul>
+  </section>
+</div>
+
+<script type="module">
+const P = /*__PAYLOAD__*/null;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const fmt = v => {
+  if (v === null || v === undefined) return '<span class="no">—</span>';
+  if (v === true) return '<span class="yes">예</span>';
+  if (v === false) return '<span class="no">아니오</span>';
+  if (typeof v === 'number' || (typeof v === 'string' && /^-?\d+(\.\d+)?$/.test(v))) {
+    const s = String(v); const [i, f] = s.split('.');
+    const out = Number(i).toLocaleString('ko-KR') + (f ? '.' + f : '');
+    return `<span class="${s.startsWith('-') ? 'neg' : ''}">${s.startsWith('-') && !out.startsWith('-') ? '-' + out : out}</span>`;
+  }
+  if (typeof v === 'object') return `<span class="mono">${esc(JSON.stringify(v))}</span>`;
+  return esc(v);
+};
+const STEP_NAME = {};
+let php = null, result = null, current = null, shown = 200;
+
+// ---------------------------------------------------------------- 예시
+const sel = $('example');
+for (const [g, label] of P.groups) {
+  const og = document.createElement('optgroup'); og.label = label;
+  P.examples.filter(e => e.group === g).forEach(e => og.append(new Option(e.label, e.key)));
+  sel.append(og);
+}
+function loadExample(key) {
+  current = P.examples.find(e => e.key === key);
+  $('input').value = JSON.stringify(current.input, null, 2);
+  $('msg').textContent = '';
+}
+sel.addEventListener('change', () => { loadExample(sel.value); run(); });
+$('input').addEventListener('input', () => { current = null; });
+$('file').addEventListener('change', async ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  $('input').value = await f.text(); current = null; $('editor').open = true;
+  $('msg').textContent = `${f.name}을(를) 불러왔습니다. 계산을 누르세요.`;
+});
+
+// ---------------------------------------------------------------- PHP 엔진
+async function boot() {
+  const v = P.phpwasm;
+  const kind = typeof WebAssembly.Suspending === 'function' ? 'jspi' : 'asyncify';
+  try {
+    const [web, uni, bin] = await Promise.all([
+      import(`https://cdn.jsdelivr.net/npm/@php-wasm/web@${v}/+esm`),
+      import(`https://cdn.jsdelivr.net/npm/@php-wasm/universal@${v}/+esm`),
+      fetch(`php_${kind}.gz.wasm`).then(r => { if (!r.ok) throw new Error(`PHP 엔진 파일을 받지 못했습니다(${r.status}).`);
+        return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).arrayBuffer(); }),
+    ]);
+    php = new uni.PHP(await web.loadWebRuntime('8.4', { emscriptenOptions: { wasmBinary: bin } }));
+    for (const [path, text] of Object.entries(P.sources)) {
+      const full = '/engine/' + path;
+      php.mkdir(full.slice(0, full.lastIndexOf('/')));
+      php.writeFile(full, text);
+    }
+    const r = await php.run({ code: '<?php echo PHP_VERSION;' });
+    $('engine').className = 'pill ok'; $('engine').textContent = `PHP ${r.text} 준비됨`;
+    $('run').disabled = false;
+    run();
+  } catch (e) {
+    $('engine').className = 'pill bad'; $('engine').textContent = 'PHP 엔진을 띄우지 못함';
+    $('errors').innerHTML = `<div class="err">${esc(e && (e.message || e))}\n새로 고침해 보세요. 계속 안 되면 PC의 크롬 최신판에서 열어 주세요.</div>`;
+  }
+}
+
+async function run() {
+  if (!php) return;
+  let data;
+  try { data = JSON.parse($('input').value); }
+  catch (e) { $('errors').innerHTML = `<div class="err">입력 JSON을 읽지 못했습니다: ${esc(e.message)}</div>`; return; }
+  $('run').disabled = true; $('msg').textContent = '계산 중…';
+  const t0 = performance.now();
+  try {
+    php.writeFile('/tmp/in.json', JSON.stringify(data));
+    const r = await php.run({ code: `<?php require '/engine/php/engine.php';
+      try { $d = json_decode(file_get_contents('/tmp/in.json'), true, 512, JSON_BIGINT_AS_STRING | JSON_THROW_ON_ERROR);
+        echo json_encode(['ok' => true, 'result' => SettleCalc\\Engine::run($d)], JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION);
+      } catch (Throwable $e) { echo json_encode(['ok' => false, 'error' => get_class($e) . ': ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')'], JSON_UNESCAPED_UNICODE); }` });
+    const out = JSON.parse(r.text);
+    if (!out.ok) throw new Error(out.error);
+    result = out.result;
+    $('msg').textContent = `${Math.round(performance.now() - t0).toLocaleString()}ms에 계산했습니다.`;
+    render();
+  } catch (e) {
+    result = null;
+    $('errors').innerHTML = `<div class="err">계산 중 오류: ${esc(e.message || e)}</div>`;
+    $('msg').textContent = '';
+  } finally { $('run').disabled = false; }
+}
+$('run').addEventListener('click', run);
+$('copy').addEventListener('click', async () => {
+  const text = JSON.stringify(result, null, 2);
+  try { await navigator.clipboard.writeText(text); $('msg').textContent = '출력 JSON을 복사했습니다.'; }
+  catch { $('input').value = text; $('editor').open = true; $('input').select(); current = null;
+    $('msg').textContent = '복사가 막혀 있어 입력 칸에 출력 JSON을 띄웠습니다. 직접 복사하세요(다시 계산하려면 예시를 고르세요).'; }
+});
+
+// ---------------------------------------------------------------- 그리기
+const norm = x => Array.isArray(x) ? (x.length ? x.map(norm) : null)
+  : (x && typeof x === 'object') ? (Object.keys(x).length ? Object.fromEntries(Object.keys(x).sort().map(k => [k, norm(x[k])])) : null) : x;
+
+function render() {
+  const r = result;
+  $('copy').disabled = false;
+  r.steps.forEach(s => STEP_NAME[s.code] = s);
+  const bad = r.continuity.filter(c => !c.ok).length;
+  const prov = r.trace.filter(e => e.provisional).length;
+  const st = r.status === 'OK' ? 'ok' : r.status.startsWith('BLOCKED') ? 'warn' : 'bad';
+  const STATUS = { OK: '마감 가능', BLOCKED_PENDING_REVIEW: '세무 판정 보류로 마감 차단', INPUT_ERROR: '입력 오류', LOCKED_MONTH: '마감된 정산월' };
+  $('stats').innerHTML = [
+    ['정산월', r.settlement_month], ['상태', `<span class="pill ${st}">${esc(STATUS[r.status] || r.status)}</span>`],
+    ['출력 값', r.values.length.toLocaleString() + '건'], ['계산 기록', `${r.trace.length.toLocaleString()}줄 · 잠정 ${prov}`],
+    ['이월 연속성', bad ? `<span class="neg">불일치 ${bad}건</span>` : `일치 ${r.continuity.length}건`],
+    ['확인 필요', r.issues.length + '건'],
+  ].map(([k, v]) => `<div class="stat"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+  $('errors').innerHTML = r.errors.map(e => `<div class="err">${esc(e.code)}: ${esc(e.message)} (${esc(e.canon_ref)})</div>`).join('');
+  // 파이썬판 대조 — 예시를 고치지 않고 돌렸을 때만
+  const pe = $('parity');
+  if (current) {
+    const a = current.py_values, b = r.values;
+    let diff = Math.abs(a.length - b.length);
+    for (let i = 0; i < Math.min(a.length, b.length); i++) if (JSON.stringify(norm(a[i])) !== JSON.stringify(norm(b[i]))) diff++;
+    pe.className = 'pill ' + (diff ? 'bad' : 'ok');
+    pe.textContent = diff ? `파이썬판과 ${diff}건 다름` : `파이썬판과 값 ${a.length.toLocaleString()}건 모두 일치`;
+  } else { pe.className = 'pill'; pe.textContent = '직접 넣은 입력(파이썬판 값 없음)'; }
+  renderPayees(r); fillFilters(r); shown = 200; renderTrace();
+  $('issues').innerHTML = r.issues.length ? r.issues.map(i => `<li>${esc(i.message)} <span>${esc([i.step_code, i.question, i.ref].filter(Boolean).join(' · '))}</span></li>`).join('')
+    : '<li class="note">없음</li>';
+}
+
+function renderPayees(r) {
+  const cols = [['TAX', 'pre_tax_payable_total', '세전 지급액'], ['TAX', 'vat_total', '부가세'], ['TAX', 'withholding_total', '원천세'],
+    ['TAX', 'net_settle_amount', '9단계 실정산액'], ['CLAIM', 'claim_amount', '청구액'], ['PAYOUT', 'payout_judgement_amount', '지급 판정 금액'],
+    ['PAYOUT', 'payout_confirmed_yn', '지급 확정'], ['PAYOUT', 'payout_amount', '지급액'], ['PAYOUT', 'carry_load', '이월 적재']];
+  let rows = '';
+  for (const h of r.rights_holders) for (const c of h.contracts) for (const p of c.payees) {
+    const cases = (p.TAX && p.TAX.matrix_case_ids || []).join(', ');
+    rows += `<tr><td class="scope"><b>${esc(h.rights_holder_id)}</b> · ${esc(c.contract_id)}<br>수취인 ${esc(p.payee_id)}${cases ? ' · ' + esc(cases) : ''}</td>`
+      + cols.map(([b, k]) => `<td class="num">${fmt(p[b] ? p[b][k] : null)}</td>`).join('') + '</tr>';
+  }
+  for (const x of r.pass_refund_payouts || [])
+    rows += `<tr><td class="scope"><b>합격환급</b> · ${esc(x.pass_refund_id)}<br>수강생 ${esc(x.student_id)}</td><td class="num">${fmt(x.refund_base)}</td><td class="num">${fmt(null)}</td>`
+      + `<td class="num">${fmt(x.withholding_total)}</td><td class="num">${fmt(x.net_payout)}</td><td class="num" colspan="5">${esc(x.review_status)}</td></tr>`;
+  $('payees').innerHTML = `<thead><tr><th>권리자 · 계약 · 수취인</th>${cols.map(c => `<th class="num">${c[2]}</th>`).join('')}</tr></thead><tbody>${rows || '<tr><td class="note" colspan="10">수취인 결과 없음</td></tr>'}</tbody>`;
+}
+
+function fillFilters(r) {
+  const hs = [...new Set(r.trace.map(e => e.scope.rights_holder_id).filter(Boolean))];
+  $('f-holder').innerHTML = '<option value="">전체</option>' + hs.map(h => `<option>${esc(h)}</option>`).join('');
+  $('f-step').innerHTML = '<option value="">전체</option>' + r.steps.map(s => `<option value="${s.code}">${s.no} ${esc(s.name)}</option>`).join('');
+}
+['f-holder', 'f-step', 'f-out'].forEach(id => $(id).addEventListener('change', () => { shown = 200; renderTrace(); }));
+$('f-q').addEventListener('input', () => { shown = 200; renderTrace(); });
+$('more').addEventListener('click', () => { shown += 400; renderTrace(); });
+
+function renderTrace() {
+  if (!result) return;
+  const h = $('f-holder').value, s = $('f-step').value, q = $('f-q').value.trim().toLowerCase(), all = $('f-out').value === 'all';
+  const rows = result.trace.filter(e => (all || e.output) && (!h || e.scope.rights_holder_id === h) && (!s || e.step_code === s)
+    && (!q || [e.field, e.formula, e.formula_code, e.canon_ref, e.note].join(' ').toLowerCase().includes(q)));
+  const body = rows.slice(0, shown).map(e => {
+    const sc = e.scope;
+    const scope = [sc.contract_id, sc.payee_id && sc.payee_id !== sc.rights_holder_id ? '수취인 ' + sc.payee_id : '', sc.line_id ? '라인 ' + sc.line_id : '', sc.ref_id ? '원거래 ' + sc.ref_id : '']
+      .filter(Boolean).map(esc).join('<br>');
+    const rnd = e.rounding && e.rounding !== 'NONE' ? `${fmt(e.before_rounding)}<br><span class="note">${esc(e.rounding)}</span>` : '';
+    return `<tr><td><span class="stepno" title="${esc(STEP_NAME[e.step_code]?.name)}">${e.step}</span></td><td class="scope">${esc(sc.rights_holder_id || '')}${scope ? '<br>' + scope : ''}</td>`
+      + `<td class="mono">${esc(e.field)}${e.provisional ? ` <span class="tag">잠정${e.note ? ' ' + esc(e.note) : ''}</span>` : ''}</td><td class="num">${fmt(e.result)}</td>`
+      + `<td class="f">${esc(e.formula)}${e.formula_code ? `<code>${esc(e.formula_code)}</code>` : ''}</td><td class="num">${rnd}</td><td class="note">${esc(e.canon_ref)}</td></tr>`;
+  }).join('');
+  $('trace').innerHTML = `<thead><tr><th>단계</th><th>범위</th><th>필드</th><th class="num">결과</th><th>수식</th><th class="num">절사 전 · 방식</th><th>정본 근거</th></tr></thead>`
+    + `<tbody>${body || '<tr><td class="note" colspan="7">조건에 맞는 줄이 없습니다.</td></tr>'}</tbody>`;
+  $('more').hidden = rows.length <= shown;
+  $('more').textContent = `더 보기 (${(rows.length - shown).toLocaleString()}줄 남음)`;
+}
+
+loadExample(P.examples[0].key);
+boot();
+</script>
