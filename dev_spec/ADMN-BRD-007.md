@@ -108,11 +108,11 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 자동 배정 화면 값: 화면코드 4종(ADMN-BRD-002 · 002-S1 · RFD-002-S1 · USER-003)만 허용. 프로토타입 이력 샘플의 "학습 Q&A"는 개발 목록에 없음(1:1 문의는 상품 · 학습 Q&A 로 이관 불가, Inquiry::CLOSED_BOARDS).
 - 소분류 명칭 최대 40자(대분류 50자).
 
-## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_BRD.md` 의 D-BRD 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 담당 부서 큐 복수 선택(프로토타입 · 설계서)과 개발 단일 저장의 차이 확인 필요 — 스키마에는 inquiry_category_roles(복수)가 있으나 요청 검증은 단일.
-- 분류 변경 이력을 화면에 보여 줄지 확인 필요.
+- 담당 부서 큐 복수 선택(프로토타입 · 설계서)과 개발 단일 저장의 차이 확인 필요 — 스키마에는 inquiry_category_roles(복수)가 있으나 요청 검증은 단일. **→ 정본대로(POLICY_D_BRD A, PROJECT_STATE 1절 2026-10-22)**: 담당 부서 큐는 복수 선택 · 선점 — 개발팀 전달(요청 검증을 복수로, `inquiry_category_roles` 사용)
+- 분류 변경 이력을 화면에 보여 줄지 확인 필요. **→ 정책 아님(POLICY_D_BRD B)**: 화면 · 이름 문제로 처리 — 분류 상세 하단에 변경 이력(일시 · 작업자 · 전후 값), 원천은 CONF-010 감사 로그
 
 ## 출처
 - routes/admin.php:821-830 (dev_spec/_index/routes.md)

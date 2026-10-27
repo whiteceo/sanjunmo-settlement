@@ -176,14 +176,14 @@
 | 패키지 내 안분 매출액 | `original_price_snapshot` + `discount_amount`(음수) |
 | 강좌코드 · 교재 SKU | `items[n][product_type]` + `product_id` |
 
-## 8. 정책 질문
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 
 | # | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-PROD005-1 | 패키지 안 교재 라인 금액: 정본은 '포함 교재 실결제액 = 정가 대비 최대 10% 기본할인가'(실판매가). 개발은 교재 **정가**(`books.original_price`)를 그대로 쓰고 할인 0 | 설계서 `:238`, 프로토 `recalcPackagePricing` L2020(`b.sale`) · 교재 표 '도서 정가 / 실판매가' L1034 | `app/Repositories/Admin/PackageRepository.php:282-285`, `app/Services/Product/PackagePricingService.php:84-88` |
-| Q-PROD005-2 | 강좌 할인 안분 기준: 정본은 '단과 기준가(판매가) 비율 안분' + 운영자 가중치 조정 허용. 개발은 강좌 **정가** 비율 자동 안분, 수정 불가. 입력도 정본은 강좌 할인액, 개발은 패키지 총액 | 설계서 `:224`, 프로토 L1889-1901(`baseSalePrice`) · L1917 · L2019 | `PackagePricingService.php:1-45`(배분 규칙 주석), `PackageRepository.php:272-275`, `PackageRequest.php:56` |
-| Q-PROD005-3 | 판매 상태: 정본 공통 4상태(판매대기 · 판매중 · 판매중지 · 판매종료, 판매종료는 미노출 고정) + 프론트 노출 Y/N. 개발은 `selling` · `hidden` · `stopped` 3값 1칸. 판매대기 · 판매종료를 추가하고 노출을 별도 칸으로 둘지 | 설계서 `:246`(2026-10-26 확정), 프로토 L1142-1168 | `app/Models/Concerns/HasDisplayStatus.php:19-30`, `PackageRequest.php:57` |
-| Q-PROD005-4 | 판매중 전환 게이트: 프로토는 포함 강좌 1계층 지분 합계 100% 미만이면 판매중 선택 잠금. 개발 저장 검증에 지분 확인 없음(구성품 판매 상태만 봄) | 프로토 L1121 · L2038-2058 | `PackageRequest.php:98-187`(지분 검증 없음) |
-| Q-PROD005-5 | 환급 분담 옵션(A · B · C) 단위: 프로토 PROD-005는 패키지마다 고름. 프로토 INST-001 · 개발은 권리자 계약 단위(`refund_promo_burden_type`). 정본끼리도 갈림 | 프로토 PROD-005 L1227, 프로토 INST-001 `#refundBurden` L875, 설계서 `:239` | `app/Http/Requests/Admin/RightsHolderContractRequest.php:89`, `packages` 테이블에 칸 없음(`_index/schema.md` packages) |
-| Q-PROD005-6 | 구성 교재가 판매중이 아닐 때: 정본은 주교재 판매중지 · 종료 → 패키지 자동 판매중지, 주교재 일시품절 → 구매만 일시 차단, **부교재는 경고만**. 개발은 구성품(강좌 · 교재 구분 없이) 하나라도 판매중이 아니면 패키지 저장 자체를 막고, 자동 판매중지 연동은 없음 | 설계서 `:248`(2026-10-26 확정), 프로토 `bkSyncPkgs` L1426 | `PackageRequest.php:150-187` |
-| Q-PROD005-7 | 합격 환급 조건 항목: 정본은 진도율 + 필수 출석일수(+ 신청 기한). 개발은 인정 진도율 1개만 | 설계서 `:407`, 프로토 L1189-1214 | `PackageRequest.php:58-60`, `packages.refund_min_progress` |
+| Q-PROD005-1 | 패키지 안 교재 라인 금액: 정본은 '포함 교재 실결제액 = 정가 대비 최대 10% 기본할인가'(실판매가). 개발은 교재 **정가**(`books.original_price`)를 그대로 쓰고 할인 0 | 설계서 `:238`, 프로토 `recalcPackagePricing` L2020(`b.sale`) · 교재 표 '도서 정가 / 실판매가' L1034 | `app/Repositories/Admin/PackageRepository.php:282-285`, `app/Services/Product/PackagePricingService.php:84-88` **→ 정본대로(POLICY_D_PROD A, 통합설계서 S2-05 · 02권)**: 패키지 교재 라인 = 실판매가(정가 대비 최대 10% 할인) — 개발팀 전달 |
+| Q-PROD005-2 | 강좌 할인 안분 기준: 정본은 '단과 기준가(판매가) 비율 안분' + 운영자 가중치 조정 허용. 개발은 강좌 **정가** 비율 자동 안분, 수정 불가. 입력도 정본은 강좌 할인액, 개발은 패키지 총액 | 설계서 `:224`, 프로토 L1889-1901(`baseSalePrice`) · L1917 · L2019 | `PackagePricingService.php:1-45`(배분 규칙 주석), `PackageRepository.php:272-275`, `PackageRequest.php:56` **→ 정본대로(D-PROD-04 A, 02권 8.3 · 00 INDEX §2)**: 정가 비율 자동 안분 · 수동 조정 없음 — 개발이 맞음, 설계서 문구 정정(v3.2.21) |
+| Q-PROD005-3 | 판매 상태: 정본 공통 4상태(판매대기 · 판매중 · 판매중지 · 판매종료, 판매종료는 미노출 고정) + 프론트 노출 Y/N. 개발은 `selling` · `hidden` · `stopped` 3값 1칸. 판매대기 · 판매종료를 추가하고 노출을 별도 칸으로 둘지 | 설계서 `:246`(2026-10-26 확정), 프로토 L1142-1168 | `app/Models/Concerns/HasDisplayStatus.php:19-30`, `PackageRequest.php:57` **→ 정본대로(POLICY_D_PROD A, 통합설계서 L248(2026-10-26 확정))**: 공통 4상태 + 노출 Y/N 별도 칸 — 개발에 `ready` · `ended` 추가 전달 |
+| Q-PROD005-4 | 판매중 전환 게이트: 프로토는 포함 강좌 1계층 지분 합계 100% 미만이면 판매중 선택 잠금. 개발 저장 검증에 지분 확인 없음(구성품 판매 상태만 봄) | 프로토 L1121 · L2038-2058 | `PackageRequest.php:98-187`(지분 검증 없음) **→ 정본대로(POLICY_D_PROD A, 통합설계서 S2-02 · 01권 4.2)**: 포함 강좌 1계층 지분 100% 전까지 판매중 불가 — 개발팀 전달 |
+| Q-PROD005-5 | 환급 분담 옵션(A · B · C) 단위: 프로토 PROD-005는 패키지마다 고름. 프로토 INST-001 · 개발은 권리자 계약 단위(`refund_promo_burden_type`). 정본끼리도 갈림 | 프로토 PROD-005 L1227, 프로토 INST-001 `#refundBurden` L875, 설계서 `:239` | `app/Http/Requests/Admin/RightsHolderContractRequest.php:89`, `packages` 테이블에 칸 없음(`_index/schema.md` packages) **→ 정본대로(POLICY_D_PROD A, 01권 15.3 · 설계서 Flow 2-1)**: 환급 부담 옵션은 계약 단위 — 개발이 맞음, 프로토 PROD-005는 계약 값 읽기 전용 표시 |
+| Q-PROD005-6 | 구성 교재가 판매중이 아닐 때: 정본은 주교재 판매중지 · 종료 → 패키지 자동 판매중지, 주교재 일시품절 → 구매만 일시 차단, **부교재는 경고만**. 개발은 구성품(강좌 · 교재 구분 없이) 하나라도 판매중이 아니면 패키지 저장 자체를 막고, 자동 판매중지 연동은 없음 | 설계서 `:248`(2026-10-26 확정), 프로토 `bkSyncPkgs` L1426 | `PackageRequest.php:150-187` **→ 정본대로(POLICY_D_PROD A, 통합설계서 L249(2026-10-26 확정))**: 주교재만 자동 판매중지, 부교재 · 일시품절은 패키지 저장 허용으로 완화 — 개발팀 전달 |
+| Q-PROD005-7 | 합격 환급 조건 항목: 정본은 진도율 + 필수 출석일수(+ 신청 기한). 개발은 인정 진도율 1개만 | 설계서 `:407`, 프로토 L1189-1214 | `PackageRequest.php:58-60`, `packages.refund_min_progress` **→ 정본대로(POLICY_D_PROD A, 통합설계서 L408)**: 필수 출석일수 칸 추가 — 개발팀 전달(신청 기한은 정본에 없어 문서 정정 제안으로) |

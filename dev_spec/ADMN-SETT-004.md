@@ -101,11 +101,11 @@
 | 소명/통제 상태 라벨 | approval_status UNRESOLVED · PENDING_APPROVAL · APPROVED · MATCHED |
 | 우측 상세 패널(selectRecord) | S1 별도 페이지 `…pg-reconciliations.show` |
 
-## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 확인 필요: "1,000원 이내 단수차액 자동 대체"가 개발에 없다 — 정본에서 1차 범위인지.
-- 확인 필요: 프로토타입의 "분류만 저장(승인 대기)" 단계를 둘지 — 개발 approval_status 에 PENDING_APPROVAL 값은 있으나 그 상태로 바꾸는 라우트는 없다.
+- 확인 필요: "1,000원 이내 단수차액 자동 대체"가 개발에 없다 — 정본에서 1차 범위인지. **→ 정본대로(POLICY_D_SETT A, 02권 §8.2 L109 · L110 · 03권 L169)**: 1차 범위(기준 이내 차액은 단수 차액 조정 계정으로 자동 대체 · 로그) — 개발팀 전달
+- 확인 필요: 프로토타입의 "분류만 저장(승인 대기)" 단계를 둘지 — 개발 approval_status 에 PENDING_APPROVAL 값은 있으나 그 상태로 바꾸는 라우트는 없다. **→ 정책 아님(POLICY_D_SETT B)**: 화면 · 이름 문제로 처리 — 프로토 버튼은 '임시 저장'으로, 상태는 개발 `PENDING_APPROVAL`에 연결(마감 차단 판정 영향 없음)
 
 ## 출처
 - routes/admin.php:605-610

@@ -186,12 +186,12 @@
 | `goods_stock_log` (문구) | 테이블 `goods_stock_logs` |
 | P2 구분 '주문 차감' · '취소·반품 복원' · '수기 조정' | `type` `outbound` 판매 출고 · `restore` 복구 · `adjust` 수기 조정 등 |
 
-## 8. 정책 질문
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 
 | # | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-PROD007-1 | 일반상품 판매 상태: 정본은 공통 4상태(판매대기 · 판매중 · 판매중지 · 판매종료) + 자동 `품절`. 개발은 `selling` · `stopped` 2값(품절은 재고 파생). 정본 확정 사항이라 개발에 `ready`(판매대기) · `ended`(판매종료) 추가 요청으로 보면 되는지 | 통합 설계서 3.2.2 3항 '상품 판매 상태 공통 기준(2026-10-26 확정)' (`docs/산준모닷컴 구축 통합 상세 설계서.md:246`), 프로토 `#fl-status` L413-419 · `#f-status` L533-537 | `app/Models/Goods.php:32-39,100-104`, `app/Services/Admin/GoodsService.php:58` |
-| Q-PROD007-2 | 부가세 분해 끝수: 프로토는 `FLOOR(판매가×100/110)`, 설계서는 `Round(결제액×10/11, 0)`, 개발은 반올림. 정본끼리 다르므로 어느 쪽으로 맞출지 | 프로토 L562 · L824-828(`Math.floor`), 설계서 `:263`(Round) | `app/Models/Goods.php:121-133`('미확정' 주석) |
+| Q-PROD007-1 | 일반상품 판매 상태: 정본은 공통 4상태(판매대기 · 판매중 · 판매중지 · 판매종료) + 자동 `품절`. 개발은 `selling` · `stopped` 2값(품절은 재고 파생). 정본 확정 사항이라 개발에 `ready`(판매대기) · `ended`(판매종료) 추가 요청으로 보면 되는지 | 통합 설계서 3.2.2 3항 '상품 판매 상태 공통 기준(2026-10-26 확정)' (`docs/산준모닷컴 구축 통합 상세 설계서.md:246`), 프로토 `#fl-status` L413-419 · `#f-status` L533-537 | `app/Models/Goods.php:32-39,100-104`, `app/Services/Admin/GoodsService.php:58` **→ 정본대로(POLICY_D_PROD A, 통합설계서 3.2.2 3항(2026-10-26 확정))**: 공통 4상태 + 자동 품절 — 개발에 `ready` · `ended` 추가 요청으로 보면 됨 |
+| Q-PROD007-2 | 부가세 분해 끝수: 프로토는 `FLOOR(판매가×100/110)`, 설계서는 `Round(결제액×10/11, 0)`, 개발은 반올림. 정본끼리 다르므로 어느 쪽으로 맞출지 | 프로토 L562 · L824-828(`Math.floor`), 설계서 `:263`(Round) | `app/Models/Goods.php:121-133`('미확정' 주석) **→ 정본대로(D-PROD-09 A, 02권 8.3 · 00 INDEX §2)**: 공급가액 내림(총액 역산)으로 통일, 설계서 문구 정정(v3.2.21) — 개발 반올림 정정 전달 |
 | Q-PROD007-3 | 현재 재고 직접 수정: 프로토는 수정 모드에서 현재고 덮어쓰기 불가(조정 레이어로만, 사유 이력 필수). 개발 수정 폼은 `stock`을 그대로 받아 이력 없이 덮어쓴다 | 프로토 L590-593 | `app/Http/Requests/Admin/GoodsRequest.php:51`, `app/Services/Admin/GoodsService.php:329`, `resources/views/admin/goods/form.blade.php:131` **→ 결정(v6.92 white, D-PROD-06)**: 수정 폼 덮어쓰기를 막고 사유 이력이 남는 조정(P1)으로만 바꾼다 — 개발 `GoodsRequest` `stock` 입력 제거 |
 | Q-PROD007-4 | 재고 조정 사유 목록과 메모 필수: 프로토 5종(신규 발주 입고 · 고객 반품 양품 입고 · 파손·불량 폐기 · 물류센터 재고 실사 조정 · 기타 — 기타는 메모 필수, 200자) vs 개발 5종(입고 · 복구 · 수기 조정 · 파손 · 분실, 메모 선택 255자). 어느 목록으로 확정할지 | 프로토 L679-690 · L1125-1128 | `app/Models/GoodsStockLog.php:62-68`, `app/Http/Requests/Admin/GoodsStockAdjustRequest.php:118-121` **→ 결정(v6.92 white, D-PROD-06)**: 사유 6종(입고 · 반품 입고 · 파손·불량 폐기 · 분실 · 실사 조정 · 기타) + '기타'는 사유 직접 입력 필수, 실사 조정은 메모 필수 |
-| Q-PROD007-5 | 재고 알림 임계치 필수 여부: 프로토 필수(*), 개발 nullable(비면 임박 판정 안 함) | 프로토 L595-597 | `GoodsRequest.php:52`, `app/Models/Goods.php:118` |
+| Q-PROD007-5 | 재고 알림 임계치 필수 여부: 프로토 필수(*), 개발 nullable(비면 임박 판정 안 함) | 프로토 L595-597 | `GoodsRequest.php:52`, `app/Models/Goods.php:118` **→ 정본대로(POLICY_D_PROD A, 통합설계서 S2-09 L280)**: 안전재고 경고 기준 20개 — 기본값 20, 비면 20 적용(개발팀 전달) |

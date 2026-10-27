@@ -182,9 +182,9 @@
 | 권리자코드(SSOT) | 연동 강사 ID = `rights_holders.code` |
 | 사진 480x600 PNG 권장 | 480×640 이상 3:4 · 2MB |
 
-## 8. 정책 질문
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 
 | # | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-PROD006-1 | 노출 순서 단위: 정본은 '카테고리 내 노출 순서'. 개발 `sort_order`는 카테고리와 무관한 전체 1개 값(강사가 여러 자격증 탭에 같은 순서로 나옴) | 설계서 3.2.2 4항 `:256`, 프로토 `#f-inst-order` L901 | `app/Http/Requests/Admin/InstructorProfileRequest.php:97`, `form.blade.php:300-306`, `_index/schema.md` instructor_profiles.sort_order |
-| Q-PROD006-2 | 담당 카테고리 개수: 프로토는 '대표 담당 카테고리' 1개(필수). 개발은 자격증 분류 복수 선택(그 탭마다 노출). 강사가 여러 자격증 탭에 나오는 것을 허용하는지 | 프로토 L869-874 · 목록 '대표 카테고리' L665 | `InstructorProfileRequest.php:62-74` |
+| Q-PROD006-1 | 노출 순서 단위: 정본은 '카테고리 내 노출 순서'. 개발 `sort_order`는 카테고리와 무관한 전체 1개 값(강사가 여러 자격증 탭에 같은 순서로 나옴) | 설계서 3.2.2 4항 `:256`, 프로토 `#f-inst-order` L901 | `app/Http/Requests/Admin/InstructorProfileRequest.php:97`, `form.blade.php:300-306`, `_index/schema.md` instructor_profiles.sort_order **→ 정본대로(POLICY_D_PROD A, 통합설계서 L257)**: 카테고리 내 노출 순서 — 개발팀 전달(강사 × 카테고리 연결 행에 순서 칸) |
+| Q-PROD006-2 | 담당 카테고리 개수: 프로토는 '대표 담당 카테고리' 1개(필수). 개발은 자격증 분류 복수 선택(그 탭마다 노출). 강사가 여러 자격증 탭에 나오는 것을 허용하는지 | 프로토 L869-874 · 목록 '대표 카테고리' L665 | `InstructorProfileRequest.php:62-74` **→ 정책 아님(POLICY_D_PROD B)**: 화면 · 이름 문제로 처리 — 개발(복수)을 따르고 프로토는 대표 카테고리 1개 + 노출 카테고리 복수 2칸 |

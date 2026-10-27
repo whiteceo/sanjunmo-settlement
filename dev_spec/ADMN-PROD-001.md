@@ -163,5 +163,5 @@
 | 연결 강좌 `display: true/false` | `courses.display_status === selling` → ON |
 | `saveTreeOrder()` | POST `admin.categories.sort.update` `items[n][id\|parent_id\|sort_order]` |
 
-## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
-없음. 위 차이는 모두 정본(화면설계서 05 PROD-001 절)이 개발 쪽과 같거나 표시 · UX 차이다. 1Depth 비활성 시 하위 값 동기화는 정책이 아니라 구현 방식이라 질문에 넣지 않았다(확인 필요로만 둠).
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
+없음. 위 차이는 모두 정본(화면설계서 05 PROD-001 절)이 개발 쪽과 같거나 표시 · UX 차이다. 1Depth 비활성 시 하위 값 동기화는 정책이 아니라 구현 방식이라 질문에 넣지 않았다(확인 필요로만 둠). **→ 개발팀 확인 사항(정책 아님)**: 1Depth 비활성 시 하위 2Depth 값 동기화 · 프론트 숨김 처리 방식

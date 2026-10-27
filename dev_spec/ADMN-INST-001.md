@@ -250,9 +250,9 @@
 | 계약번호 `CT-2026-0412` | `rights_holder_contracts.id` + `sequence_no`(표시 형식 확인 필요) |
 | 권리자 코드 `RH-0019` | `rights_holders.code` |
 
-## 8. 정책 질문
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 
 | # | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-INST001-1 | 환급 부담 방식 B · C: 정본 · 프로토는 계약마다 A · B · C 선택. 개발은 1차에 A만 저장(DECISIONS 113 ②, B · C 차감 연산 2차). 1차 범위를 A로 확정하는지 | 설계서 `:239`(옵션 A/B/C), 프로토 `#refundBurden` L948-953 | `app/Http/Requests/Admin/RightsHolderContractRequest.php:86-89`, `app/Models/RightsHolderContract.php:148-164` |
-| Q-INST001-2 | 위탁 조항(도서 위탁판매) 적용: 프로토는 위탁 카드 [적용] 선택 가능. 개발은 1차 저장 거부(화면설계서 v12 S2 ⑨ · DECISIONS 94). 도서 공급 원장의 위탁 저장 거부(BOOK-001 Q2)와 같은 결정인지 | 설계서 `:251`(CONSIGNMENT), 프로토 `#onConsignment` L1368 | `RightsHolderContractRequest.php:99-102` |
+| Q-INST001-1 | 환급 부담 방식 B · C: 정본 · 프로토는 계약마다 A · B · C 선택. 개발은 1차에 A만 저장(DECISIONS 113 ②, B · C 차감 연산 2차). 1차 범위를 A로 확정하는지 | 설계서 `:239`(옵션 A/B/C), 프로토 `#refundBurden` L948-953 | `app/Http/Requests/Admin/RightsHolderContractRequest.php:86-89`, `app/Models/RightsHolderContract.php:148-164` **→ 결정(white 10-27, D-SETT-02)**: B · C 부담 계약이 실제로 있음 → 1차에 B · C 저장 · 차감 연산 구현(개발 전달) |
+| Q-INST001-2 | 위탁 조항(도서 위탁판매) 적용: 프로토는 위탁 카드 [적용] 선택 가능. 개발은 1차 저장 거부(화면설계서 v12 S2 ⑨ · DECISIONS 94). 도서 공급 원장의 위탁 저장 거부(BOOK-001 Q2)와 같은 결정인지 | 설계서 `:251`(CONSIGNMENT), 프로토 `#onConsignment` L1368 | `RightsHolderContractRequest.php:99-102` **→ 결정(white 10-27, D-PROD-05)**: BOOK-001과 같은 결정 — 위탁 계약이 없어도 1차 개발, 위탁 조항도 1차 저장(개발 전달) |

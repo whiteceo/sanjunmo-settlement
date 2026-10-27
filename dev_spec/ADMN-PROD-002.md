@@ -168,7 +168,7 @@
 | 교안 50MB 이하 1개 | 20MB 이하 1개 (8절 Q-PROD002-1) |
 | 강의 id(샘플) | `lectures.id`, 코드 `LEC_00001` |
 
-## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
-- **Q-PROD002-1 교안 PDF 용량 상한** — 정본 프로토타입은 50MB(`prototype_clean/ADMN-PROD-002_baseline.html:536, 842`), 개발은 20MB(`app/Http/Requests/Admin/LectureRequest.php:137` `max:20480`, 근거로 화면설계서 05 PROD-002-S1 "PDF 1개(20MB 이하)"를 듦). 화면설계서와 프로토타입이 서로 다르다. 어느 값으로 맞출지.
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
+- **Q-PROD002-1 교안 PDF 용량 상한** — 정본 프로토타입은 50MB(`prototype_clean/ADMN-PROD-002_baseline.html:536, 842`), 개발은 20MB(`app/Http/Requests/Admin/LectureRequest.php:137` `max:20480`, 근거로 화면설계서 05 PROD-002-S1 "PDF 1개(20MB 이하)"를 듦). 화면설계서와 프로토타입이 서로 다르다. 어느 값으로 맞출지. **→ 정본대로(POLICY_D_PROD A, 통합설계서 L234 '최대 50MB')**: 50MB — 개발 `max:20480` → 51200 전달(20MB는 화면설계서 제안값)
 - **Q-PROD002-2 VOD 식별자로 무엇을 저장하나** — 정본: "StarPlayer+ 발급 VOD Key만 보관, 영상 원본 URL · 파일 경로는 DB에 저장하지 않는다"(프로토 :500, 화면설계서 05 PROD-002-S1 ③). 개발: 발급 Key가 없다는 벤더 회신(2026-09-14)을 근거로 `cdn_key`에 CDN 파일 경로(도메인 제외)를 저장하고 DRM 콘텐츠 ID를 별도 칸으로 둔다. YouTube URL(`source_url`)도 저장한다(`LectureRequest.php:12-26, 99-120`). 정본을 "CDN 경로 + DRM 콘텐츠 ID 2칸"으로 고칠지. **→ 결정(v6.92 white, D-PROD-01)**: 개발안으로 정본을 고침(CDN 경로 + DRM 콘텐츠 ID, 도메인 · 서명 URL 저장 안 함, YouTube는 맛보기 Y만) + 유료 강의는 DRM 콘텐츠 ID 필수(개발 `LectureRequest` nullable → 조건부 required)
-- **Q-PROD002-3 강의 단위 정산 매핑 미완 시 판매 차단** — 정본: "미매핑 시 편성된 강좌의 판매가 차단됩니다"(프로토 :571). 개발: 강의 · 강좌 저장과 전시 상태에 권리자 매핑 검사 없음(`CourseRequest.php` 전체, `CourseService.php:239-262`). PROD-003 Q-PROD003-3과 같은 질문이라 한 번에 답하면 된다.
+- **Q-PROD002-3 강의 단위 정산 매핑 미완 시 판매 차단** — 정본: "미매핑 시 편성된 강좌의 판매가 차단됩니다"(프로토 :571). 개발: 강의 · 강좌 저장과 전시 상태에 권리자 매핑 검사 없음(`CourseRequest.php` 전체, `CourseService.php:239-262`). PROD-003 Q-PROD003-3과 같은 질문이라 한 번에 답하면 된다. **→ 정본대로(POLICY_D_PROD A, 통합설계서 S2-02 · 01권 4.2)**: 1계층 지분 100.00% 전까지 판매중 불가 — 저장 시점 잠금 + 결제 시점 재확인, 개발팀 전달

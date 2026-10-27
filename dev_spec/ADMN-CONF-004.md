@@ -162,7 +162,7 @@
 - 세그먼트 select(`#send-target-seg` 고정 목록) → `target_type` + `saved_group_id` / `tags[]` / 회원 검색 조건.
 - 템플릿 등록 모달 → 별도 페이지 `create` · `show`.
 
-## 8. 정책 질문 (white 확인 필요)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
 - 즉시 발송 허용 여부(개발은 예약만) — 확인 필요. **→ 결정(v6.92 white, S-23 + D-CONF-02)**: 즉시 발송 허용 — 대상 수 · 비용 · 본문 재확인 모달 후 실행, 시작 후 취소 불가.

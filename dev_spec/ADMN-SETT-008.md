@@ -104,10 +104,10 @@
 | 탭 3 "네트워크 장애 재시도 큐 및 배치 스케줄 파라미터" | `tab=params` "호출 파라미터 · 재시도" |
 | `modal-tax-transition` | `#layerNtsReview` |
 
-## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 확인 필요: 프로토타입 트리거 "정산 마감 전 90일"은 개발 trigger_type 에 대응 값이 없다(가까운 값 PERIODIC · MILESTONE_APPROVAL). 반대로 PURCHASE_ORDER · CONSIGNMENT_REG 는 프로토타입에 없다.
+- 확인 필요: 프로토타입 트리거 "정산 마감 전 90일"은 개발 trigger_type 에 대응 값이 없다(가까운 값 PERIODIC · MILESTONE_APPROVAL). 반대로 PURCHASE_ORDER · CONSIGNMENT_REG 는 프로토타입에 없다. **→ 정본대로(POLICY_D_SETT A, 03권 §17.6 L437 · §17.5 L423)**: trigger_type은 정본 6종(개발과 같음)으로 프로토를 맞추고, '정산 마감 전 90일 경과'는 `AD_HOC`(수시)의 세부 사유로 둠
 - 확인 필요: 위탁자 · 매입처 전환 승인은 개발 1차 범위 밖(서비스 문구 "2차") — 프로토타입 표시 여부. **→ 결정(v6.92 white, D-SETT-04)**: 전환 승인은 권리자 + 위탁자까지 1차(개발 범위 넓힘 필요), 매입처는 1차 감지 · 수기 확인 기록만(원장 미변경, 승인 2차) · 매입처 감지 건은 SETT-002 마감 차단에서 뺌
 
 ## 출처

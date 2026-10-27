@@ -336,13 +336,13 @@
 | 주문 상세 배송지 인라인 편집 | 레이어 `layerAddress` + PUT `orders.address.update` |
 | 처리 이력 구분(배송지보정 · 출고지시회수 · 기한연장 · 관리자메모) | `OrderService::ACTION_LABELS` `address_update` 배송지 수정 · `dispatch_revoke` 출고지시 회수 · `tracking_register` 송장 단건 등록 · `tracking_correct` 운송장 정정 · `delivered` 배송완료 처리 + 메모 |
 
-## 8. 정책 질문 (white 확인 필요 — _STATUS.md에도 옮긴다)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 
 | 번호 | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
 | Q-ORD-1 | 가상계좌 입금 기한 연장을 제공하는가? 정본은 S1에서 새 기한 + 사유로 연장하고 알림톡(TPL_VBANK_DUE_EXTENDED)을 보낸다. 개발은 "토스에 발급 후 기한 변경 방법이 없어 두지 않는다"며 연장을 뺐고, 주석이 "관리자 연장 대상"이던 `payments.virtual_account_due_at`도 삭제됐다. 기한은 발급 응답 원문(`raw_response`)에만 남고, 운영자가 정하는 것은 새 발급분의 유효 시간(`site_settings.virtual_account_valid_hours`)뿐이다. 제공하지 않으면 프로토에서 연장 박스를 빼고 '재발급 안내'(또는 기본 유효 시간 안내)로 바꿀지 | 프로토 L1067-1077 `#vbankExtendBox`, `extendVbankDueDate()` L3596 | `app/Services/Admin/OrderService.php:490`, `app/Services/Order/OrderService.php:701`(depositInfo), `database/migrations/2026_09_08_000076_drop_payment_legacy_columns.php`, `2026_10_20_000226_add_virtual_account_valid_hours_to_site_settings_table.php` (10-27 스키마 재색인 반영)  **→ 결정(v6.92 white, D-ORD-01)**: 연장 없음 · 기본 입금 기한 72시간(`virtual_account_valid_hours` 기본값 24 → 72) · 같은 계좌 · 기한 재안내(`TPL_VBANK_ISSUED`)만 |
-| Q-ORD-2 | 주문 조회용 엑셀에 반출 사유를 받는가? 정본(ORD-001 ⑥)은 사유 없이 열람 로그만, 개발은 CONF-005 반출 정책을 따라 공용 사유(ReasonRequest)를 받는다(개발이 충돌 대장에 기록) | 프로토 `downloadOrderLookupExcel()` L3050 | `app/Http/Requests/Admin/OrderDownloadRequest.php:7` |
+| Q-ORD-2 | 주문 조회용 엑셀에 반출 사유를 받는가? 정본(ORD-001 ⑥)은 사유 없이 열람 로그만, 개발은 CONF-005 반출 정책을 따라 공용 사유(ReasonRequest)를 받는다(개발이 충돌 대장에 기록) | 프로토 `downloadOrderLookupExcel()` L3050 | `app/Http/Requests/Admin/OrderDownloadRequest.php:7` **→ 정본대로(POLICY_D_ORD A, 통합설계서 L128 · D-CONF-04 원칙)**: 주문 엑셀은 수령인 연락처 · 주소가 들어가 사유를 받음 — 개발이 맞음, 프로토에 사유 모달 추가 |
 | Q-ORD-3 | 반품 검수 사진 필수 범위 — 정본 배송 관리 화면은 '훼손 판정 시 필수', 개발은 훼손 **또는 정상 + 고객 귀책**에도 필수(두 화면 제안을 합친 임시안, 개발도 미확정 표시) | 프로토 L953 "창고 검수 증빙 사진 (훼손 판정 시 필수)" | `app/Http/Requests/Admin/ReturnInspectionRequest.php:32`, `app/Models/Refund.php:281`  **→ 결정(v6.92 white, D-ORD-02)**: 고객 훼손 판정 때만 필수(정상 + 고객 귀책 필수 제거). 함께 D-ORD-09 검수 3값 |
-| Q-ORD-4 | 외부 3PL 대행사 계정(ROLE_PARTNER_3PL)을 두는가? 정본은 배송 관리 전용 격리 세션(금액 · 결제수단 차단, 연락처 마스킹, 발주 · P1 · P2 · S3만)을 정의. 개발은 역할 없이 메뉴 권한(`admin.deliveries.index`)만 있고 발주 파일에 연락처 원문이 실림 | 프로토 L539-540, L794-803, `setSessionRole()` L1788 | `routes/admin.php:866-889`(메뉴 권한만), `app/Services/Admin/DeliveryService.php:53` DISPATCH_HEADERS(수령인연락처) |
+| Q-ORD-4 | 외부 3PL 대행사 계정(ROLE_PARTNER_3PL)을 두는가? 정본은 배송 관리 전용 격리 세션(금액 · 결제수단 차단, 연락처 마스킹, 발주 · P1 · P2 · S3만)을 정의. 개발은 역할 없이 메뉴 권한(`admin.deliveries.index`)만 있고 발주 파일에 연락처 원문이 실림 | 프로토 L539-540, L794-803, `setSessionRole()` L1788 | `routes/admin.php:866-889`(메뉴 권한만), `app/Services/Admin/DeliveryService.php:53` DISPATCH_HEADERS(수령인연락처) **→ 정본대로(POLICY_D_ORD A, 통합설계서 L365 · L380)**: `ROLE_PARTNER_3PL` 격리 계정 — 개발팀 전달, 3PL에 주는 연락처 범위는 D-PTNR2-03 결정(화면 가림 + 발주 엑셀 원문) |
 
 - 반품 배송비 귀책(편도 3,000 / 왕복 6,000) 질문은 계산 규칙이라 `ADMN-RFD-002.md` Q-RFD-7에 둔다(S3 `#inpInspectFault` 값도 그 결정을 따른다).

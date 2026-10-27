@@ -64,8 +64,8 @@
 | 종료일 연장(+N일) | POST | `/members/course/{userCourse}/extend` | `admin.members.course.extend.update` | 수정 | MemberCourseController@extend |
 | 일시정지 | POST | `/members/course/{userCourse}/pause` | `admin.members.course.pause.update` | 수정 | MemberCourseController@pause |
 | 일시정지 해제 | POST | `/members/course/{userCourse}/resume` | `admin.members.course.resume.update` | 수정 | MemberCourseController@resume |
-| 종료일 단축(−N일) | POST | `/members/course/{userCourse}/shorten` (규칙) | `admin.members.course.shorten.update` (규칙) | 수정 | 개발 미구현(정책 질문) |
-| 세션 강제 로그아웃 | POST | `/members/course/{userCourse}/session` (규칙) | `admin.members.course.session.destroy` (규칙) | 삭제 | 개발 미구현("SPK 콘솔에서", 정책 질문) |
+| 종료일 단축(−N일) | POST | `/members/course/{userCourse}/shorten` (규칙) | `admin.members.course.shorten.update` (규칙) | 수정 | 개발 미구현(정책 질문) **→ 결정(white 10-27, 회원 #4)**: 기간 단축 허용(설계서에 있음) |
+| 세션 강제 로그아웃 | POST | `/members/course/{userCourse}/session` (규칙) | `admin.members.course.session.destroy` (규칙) | 삭제 | 개발 미구현("SPK 콘솔에서", 정책 질문) **→ 결정(white 10-27, 회원 #7)**: 세션 강제 로그아웃은 백오피스 1차, 기기 해제는 StarPlayer+ 관리 콘솔 |
 | 기기 리셋 | POST | `/members/course/{userCourse}/device-reset` (규칙) | `admin.members.course.device-reset.update` (규칙) | 수정 | 개발 미구현 |
 
 ### USER-004 진도율 · 004-P1 보정
@@ -171,7 +171,7 @@
 | `days` | `^[1-9]\d{0,3}$` | 프리셋 `days_preset` 7 · 15 · 30 · 60 · 90 | `#ext-days-input`, `setExtendDays()` 버튼 |
 | `reason_code` | required | `cs_compensation` CS 보상(서비스 장애) · `device_issue` 기기 문제 · `long_absence` 군입대·장기부재 · `event` 이벤트 제공 · `correction` 오적용 정정 · `etc` 기타 | 프로토 없음(자유 사유만) |
 | `reason` | MemberReasonRequest | | `#ext-reason-input` |
-| `indefinite` | pause만 required `0\|1` (1 = 무기한) | | 프로토 없음(정책 질문) |
+| `indefinite` | pause만 required `0\|1` (1 = 무기한) | | 프로토 없음(정책 질문) **→ 결정(white 10-27, 회원 #5)**: 일시정지 상한 없음(기간 입력 기반) · 무기한 제거 |
 | (조정 구분) | 개발은 라우트로 나눔(extend · pause · resume) | | `adj_type` EXTEND · SHORTEN · PAUSE |
 | 검색 `type` · `keyword` · `include_ended` | GET | | `#crs-search-type` |
 
@@ -289,7 +289,7 @@
 ## 7. 기능 차이
 
 ### 개발에만 있음 (prototype_dev에 정본 디자인으로 추가)
-- 002-P1 포인트 만료일 직접 지정(`expire_preset=custom` + `expire_date`) — 정책 질문 Q-USER-23(정본은 30 · 90 · 180일만)
+- 002-P1 포인트 만료일 직접 지정(`expire_preset=custom` + `expire_date`) — 정책 질문 Q-USER-23(정본은 30 · 90 · 180일만) **→ 결정(white 10-27, 회원 #26)**: 수동 지급 만료일은 30 · 90 · 180일만(선택지는 CONF 화면에서 관리)
 - 002 쿠폰 회수(`admin.members.coupons.update`) — 상세 쿠폰 목록 행 버튼
 - 002 응시 예정(관심 자격) 수정 `exam_target_ids[]`
 - 003 사유 코드 `reason_code` 6종, 일시정지 무기한 `indefinite`, 일시정지 해제(resume) 별도 동작
@@ -327,7 +327,7 @@
 | `m3f-grp-op` AND · OR | `tag_join` and · or |
 | 계약번호(수강) | 주문번호 기준 `user_courses.id` |
 
-## 8. 정책 질문
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 회원관리 정책 판단 23건은 `scripts/qa/reports/review/findings/member/회원관리_개발검토_종합.md` 4절에 있다(#1 결정됨). 이 화면 작업에서 새로 생긴 질문은 없다. 정책 큐(`findings/POLICY_QUEUE.md`)로 옮길 때는 그 문서 번호를 그대로 쓴다.
 
 - 관리자 사유 입력 200자 상한(개발에만 있음)을 정본에 넣을지(정책 큐 M-04). **→ 결정(v6.92 white, M-04)**: 짧은 사유 10~200자 공통 규칙, 서술형 칸(CS 상담 내용 · 블랙리스트 상세 경위)은 1,000자.

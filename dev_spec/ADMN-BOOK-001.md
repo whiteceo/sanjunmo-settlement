@@ -174,10 +174,10 @@
 | `book_price_history` (문구) | `book_price_histories` |
 | 정가 이력 '적용 종료일 (effective_to)' | `effective_to` (서버가 이전 행을 닫음) |
 
-## 8. 정책 질문
+## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 
 | # | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-BOOK001-1 | 도서 SKU를 어디서 처음 만드는가. 정본은 도서 공급원장(BOOK-001)에서 정식 SKU · ISBN · 공급 유형 · 초기 재고를 등록하고 교재 관리(PROD-004)가 불러온다(경로 2), 3경로 출발 허용. 개발은 SKU를 교재 관리에서만 만들고 BOOK-001은 기존 교재에 공급 정보만 붙인다(신규 SKU 발급도 교재 등록 화면으로 보냄) | 설계서 `:244` · `:298`, 프로토 L1128-1142 · L1866-1900 | `app/Http/Requests/Admin/BookSupplyRequest.php:32`, `app/Http/Controllers/Admin/BookSupplyController.php:123-133`, `resources/views/admin/book-supply/form.blade.php:20-31` |
-| Q-BOOK001-2 | 위탁판매(CONSIGNMENT) 등록: 정본은 4대 공급 형태 모두 선택 가능. 개발은 '위탁은 2차(결정 2026-10-19)'로 저장 거부 · 조회만. 이 2차 결정이 정본에 반영된 결정인지 | 설계서 `:251`, 프로토 L1207 | `BookSupplyRequest.php:34-36,48`, `app/Services/Admin/BookSupplyService.php:42-50` |
-| Q-BOOK001-3 | 공급원가 입력 방식: 프로토는 공급률/제조원가율(%)을 넣고 단위 원가를 자동 산출. 개발은 원가 금액을 직접 입력(`cost_price`)하고 비율 칸이 없다. 위탁 수수료 · 공급률을 원장 값으로 남길지 | 프로토 L1252-1261 · `recalcSupplyNumbers` L1903, 설계서 `:223`('원가/인세율/위탁수수료') | `BookSupplyRequest.php:40`, `_index/schema.md` books(공급률 칸 없음) |
+| Q-BOOK001-1 | 도서 SKU를 어디서 처음 만드는가. 정본은 도서 공급원장(BOOK-001)에서 정식 SKU · ISBN · 공급 유형 · 초기 재고를 등록하고 교재 관리(PROD-004)가 불러온다(경로 2), 3경로 출발 허용. 개발은 SKU를 교재 관리에서만 만들고 BOOK-001은 기존 교재에 공급 정보만 붙인다(신규 SKU 발급도 교재 등록 화면으로 보냄) | 설계서 `:244` · `:298`, 프로토 L1128-1142 · L1866-1900 | `app/Http/Requests/Admin/BookSupplyRequest.php:32`, `app/Http/Controllers/Admin/BookSupplyController.php:123-133`, `resources/views/admin/book-supply/form.blade.php:20-31` **→ 정본대로(D-PROD-03 A, 설계서 L244-246 · PROJECT_STATE 1절 2026-10-23)**: 3경로 출발 허용, 공급 형태를 등록 시 필수로 받고 그 자리에서 `PROD-BK` 채번 — 개발팀 전달 + 프로토 채번 앞자리 수정 |
+| Q-BOOK001-2 | 위탁판매(CONSIGNMENT) 등록: 정본은 4대 공급 형태 모두 선택 가능. 개발은 '위탁은 2차(결정 2026-10-19)'로 저장 거부 · 조회만. 이 2차 결정이 정본에 반영된 결정인지 | 설계서 `:251`, 프로토 L1207 | `BookSupplyRequest.php:34-36,48`, `app/Services/Admin/BookSupplyService.php:42-50` **→ 결정(white 10-27, D-PROD-05)**: 위탁 계약이 없어도 1차 개발 — 위탁 판매 1차 구현(개발 '위탁 2차' 결정 철회 전달) |
+| Q-BOOK001-3 | 공급원가 입력 방식: 프로토는 공급률/제조원가율(%)을 넣고 단위 원가를 자동 산출. 개발은 원가 금액을 직접 입력(`cost_price`)하고 비율 칸이 없다. 위탁 수수료 · 공급률을 원장 값으로 남길지 | 프로토 L1252-1261 · `recalcSupplyNumbers` L1903, 설계서 `:223`('원가/인세율/위탁수수료') | `BookSupplyRequest.php:40`, `_index/schema.md` books(공급률 칸 없음) **→ 정책 아님(POLICY_D_PROD B)**: 화면 · 이름 문제로 처리 — 금액(`cost_price`)을 저장값으로, 프로토는 공급률 입력 시 금액 자동 계산 · 둘 다 표시 |
