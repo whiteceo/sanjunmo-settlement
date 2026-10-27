@@ -1707,6 +1707,10 @@ attributes:
 - const `DEFAULT_PERIOD_DAYS` = 7
 - const `PERIOD_PRESETS` = [ ['label' => '오늘', 'days' => 1], ['label' => '7일', 'days' => 7], ['label' => '30일', 'days' => 30], ['label' => '90일', 'days' => 90], ]
 - const `ACTION_TYPES` = [ 'personal_view' => '개인정보 열람', 'unmask' => '마스킹 해제', 'member_update' => '회원 정보 수정', 'excel_download' => '엑셀 다운로드', 'setting_change' => '설정 변경', 'role_change' => '권한 변경', ]
+- const `TAB_AUDIT` = 'audit'
+- const `TAB_AUDIT_MONTHLY` = 'audit-monthly'
+- const `TAB_ACCESS` = 'access'
+- const `TABS` = [ self::TAB_AUDIT => '1. 감사 이벤트 건별 상세 원장 (Before / After JSON 비교)', self::TAB_AUDIT_MONTHLY => '2. 정산월별 감사 통계 요약 및 월마감 스냅샷 아카이브', self::TAB_ACCESS => '3. 운영자 접근 · 권한 · 다운로드 로그 (계정 단위)', ]
 ```php
         return [
             'start_date' => ['nullable', 'date_format:Y-m-d'],
@@ -1727,6 +1731,16 @@ attributes:
             // 로그인 로그 전용
             'status' => ['nullable', 'in:success,fail'],
             'event' => ['nullable', 'string', 'max:30'],
+
+            // 정산 감사 로그 전용 (ADMN-CONF-010)
+            //
+            // 탭 · 감사 영역 · 발생 화면 · 귀속월은 `in:` · `regex:` 로 거절하지 않고
+            // prepareForValidation 에서 정의되지 않은 값을 **걷어낸다**.
+            // failedValidation 이 같은 주소로 되돌리므로(목록 화면이 GET 이라 그래야 한다)
+            // 거절 규칙을 걸면 조작된 값이 쿼리에 남아 리다이렉트가 되돌이표가 된다.
+            // 값의 출처는 우리 셀렉트뿐이고, 알 수 없는 값은 "전체" 로 떨어진다.
+            'audit_keyword' => ['nullable', 'string', 'max:100'],
+            'audit_page' => ['nullable', 'integer', 'min:1'],
         ];
 ```
 attributes:
@@ -2300,6 +2314,17 @@ attributes:
 attributes:
 ```php
         return ['month' => '대사 귀속월'];
+```
+
+## PiiDestructionApproveRequest (extends FormRequest)
+```php
+        return [
+            'reason' => ['required', 'string', 'min:'.PiiControlService::REASON_MIN, 'max:500'],
+        ];
+```
+attributes:
+```php
+        return ['reason' => '파기 승인 사유'];
 ```
 
 ## PlayerSettingRequest (extends FormRequest)

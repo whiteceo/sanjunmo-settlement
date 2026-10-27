@@ -1,7 +1,7 @@
 # ADMN-BOOK-001 도서 공급 원장 — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-BOOK-001_baseline.html` (원본 상태: d6723b0 v7.01)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 `suppliers.code` 주석 정정(e555839b)뿐
 - v7.01 정본 변경: 재고 2단 차감(white 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
 - 포함 화면: BOOK-001 공급 원장 목록 · BOOK-001-S1 SKU · 공급원가 등록/수정 · 정가 변경 이력 모달 · [경로 1] 가채번 도서 불러오기 모달 · [경로 3] 선등록 SKU 불러오기 모달
 - 개발 진행: 일부 구현. 목록 · 공급 정보 등록/수정 · 신규 SKU 발급 · 정가 변경 등록 · 매입처 등록 · 위탁 도서 탭 · 엑셀은 있음. **SKU(교재) 신규 채번은 개발에서 교재 관리(PROD-004) 몫**이고 이 화면은 기존 교재에 공급 정보를 붙인다. 가채번 · 선등록 불러오기 모달은 미구현. `_index/progress.md` BOOK-001 커밋 언급 10건(라우트 주석 없음)
@@ -132,7 +132,7 @@
 | `books.original_price` · `sale_price` | integer | 정가 · 판매가(정가 이력과 동기) | 목록 |
 | `books.published_at` | date | 재정가 가능일 계산 기준 | 정가 이력 |
 | `book_price_histories` (`price`, `effective_from`, `effective_to`, `price_owner`, `reason`, `admin_id`) | | 정가 이력 | 정가 이력 탭 · 프로토 모달 |
-| `suppliers` (`code` SUP-%05d, `name`, `business_no`, `business_status`, `account_no_enc` …) | | 매입처 | 매입처 탭 |
+| `suppliers` (`code` SUP-%04d — 주석 정정 a8016168 · 마이그레이션 000274, `name`, `business_no`, `business_status`, `account_no_enc` …) | | 매입처 | 매입처 탭 |
 | `book_royalty_contracts` (`temp_code`, `book_title`, `royalty_rate`, `royalty_basis`, `book_id`) | `book_id` bigint unsigned nullable — SKU 연결 전(가채번 단계)은 NULL, 연결 후 books.id(2026_10_16_000215) | 가채번 · 인세(계약 원장 소관) | 프로토 [경로 1] 모달 대응 데이터 |
 
 ## 6. 개발 JS · 마크업 이름

@@ -1,7 +1,7 @@
 # ADMN-PROD-007 상품 마스터(일반상품) — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-PROD-007_baseline.html` (원본 상태: d6723b0 v7.01)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 `suppliers.code` 주석 정정(e555839b)뿐
 - v7.01 정본 변경: 재고 2단 차감(white 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
 - 포함 화면: PROD-007 목록 · 007-S1 등록 · 수정 · 007-P1 재고 조정 · 007-P2 입출고 이력
 - 개발 진행: 구현(목록 · 등록 · 수정 · 판매중지 · 일괄 판매중지 · 재고 조정 · 입출고 이력 · 엑셀). `_index/progress.md` PROD-007 · 007-S1 라우트 주석 있음
@@ -138,7 +138,7 @@
 | `goods.maker` | string(100) null | 제조사(화면 없음) | — |
 | `category_products` (다형) | | 노출 카테고리 | S1 `#f-cat` |
 | `goods_stock_logs` (`goods_id`, `type`, `quantity`, `before_stock`, `after_stock`, `order_id`, `order_item_id`, `admin_id`, `memo`, `created_at`) | | 입출고 원장. `type`에 `outbound`(판매 출고) 추가 | P1 · P2 |
-| `suppliers` (`code` SUP-%05d, `name`, `business_status`, `cost_account_type` …) | | 매입처 | S1 |
+| `suppliers` (`code` SUP-%04d — 주석 정정 a8016168 · 마이그레이션 000274, `name`, `business_status`, `cost_account_type` …) | | 매입처 | S1 |
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |

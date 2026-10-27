@@ -1,7 +1,7 @@
 # ADMN-PROD-002 강의(영상) 관리 — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-PROD-002_baseline.html` (원본 상태: 18d66c1 v6.92. 본문 줄 번호 :NNN 은 v6.92 이전 기준이 남아 있을 수 있다 — id 이름으로 찾는다)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 목록 배열 쿼리 차단(e555839b)뿐
 - 포함 화면: PROD-002 강의 목록 · 002-S1 강의 등록/수정(프로토는 한 파일 안 view 2개 `#viewList` · `#viewForm`, 개발은 페이지 2개)
 - 개발 진행: 구현(002 · 002-S1 라우트 · 화면 있음, `_index/progress.md` 라우트 주석 있음)
 
@@ -49,7 +49,8 @@
 
 ## 3. 폼 필드 · 검증
 
-### 002 목록 검색 (GET, `LectureController.php:37-39`)
+### 002 목록 검색 (GET, `LectureController.php:37-46`)
+- 모든 키는 문자열만 받는다(`$request->stringQuery()`) — `?keyword[]=` 같은 배열은 빈 값으로 본다(전에는 500). 등록 폼으로 넘기는 목록 조건(`listQuery`)도 배열은 뺀다(`LectureController.php:117-121`). e555839b
 | 필드 name | 값 | 프로토타입 대응 |
 |---|---|---|
 | `root_category_id` | 1Depth `categories.id` (`#searchRoot`) | `#fCat1` |

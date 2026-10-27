@@ -1,6 +1,6 @@
 # ADMN-SETT-007 수취인 분할 지분 설정 — 개발 명세
 - 프로토타입 파일: prototype_clean/ADMN-SETT-007_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
-- 맞춘 개발 커밋: d562524a (2026-10-26)
+- 맞춘 개발 커밋: a8016168 (2026-10-27) — 이 화면 변경은 e555839b(합계 검증 표시)
 - 포함 화면: ADMN-SETT-007 · ADMN-SETT-007-S1(수취인 분할 편집)
 - 개발 진행: 구현 (담당 박성민, 라우트 주석 있음 · 커밋 언급 3건). S1 은 dev-progress 초기값 "2차"(DECISIONS 113 ① — 분할 "계산"이 2차)이나 편집 · 저장 · 시뮬레이터 화면은 d562524a 에 있다. 정산 엔진은 분할 계약 권리자를 PAYEE_SPLIT 으로 보류
 
@@ -41,7 +41,7 @@
 | `splits[i][note]` | nullable · ≤255 | 비율 근거 메모 | — |
 | `splits` | required · array 1~20 | | |
 
-- 서비스 차단 문구(app/Services/Admin/PayeeSplitService.php:209-284): 사유 10자 미만 · 수취인 0명 · 선급금 미종결 계약(5.3절) · 같은 수취인 중복 · 공동 서명/승계인이 아닌 수취인(4.1절) · 합계 ≠ 100.00 · 상속 승계 수취인인데 SUCCESSION 증빙 없음(16.1절).
+- 서비스 차단 문구(app/Services/Admin/PayeeSplitService.php:222-297): 사유 10자 미만 · 수취인 0명 · 선급금 미종결 계약(5.3절) · 같은 수취인 중복 · 공동 서명/승계인이 아닌 수취인(4.1절) · 합계 ≠ 100.00 · 상속 승계 수취인인데 SUCCESSION 증빙 없음(16.1절).
 
 ### 공동 서명 수취인 추가 (ContractCoSignerRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
@@ -67,6 +67,7 @@
 | `keyword` | `#keyword` | `listSearchInput` |
 
 - 목록 표(index.blade.php:100-105): 계약 식별자 / 계약명 · 1계층 원 권리자(저작자) · 현재 2계층 수취인 구성 및 비율 · 선급금 원장 상태(5.3절) · 합계 검증 · 관리 액션([편집] → S1).
+- 합계 검증 칸(`ratio_total`, e555839b): 분할 행 0건(단독 수취)이면 `100.00%`로 표시(전에는 0.00%). 표시만 바꿨고 저장 차단(합계 ≠ 100.00)은 입력 행으로 따로 센다 — app/Services/Admin/PayeeSplitService.php:81-94 · :259-264. 0건에 100% 행을 실제로 만들지 않는 이유는 마감 게이트가 전 계약을 분할 보류로 잡기 때문(같은 주석).
 - 계약 선택 페이지(create.blade.php:74-79): 계약번호 / 계약명 · 1계층 원 권리자 · 공동 서명 후보 풀 · 선급금 잔액(5.3절) · 현재 분할 상태 · 선택. 같은 `status` · `keyword` 필터.
 - S1 표: 공동 서명 풀(수취인 · 계약상 지위 · 사업자 구분 · 세무 케이스 · 저작자 본인 · 상속 승계 · 관리[풀에서 제외]), 분할 행(수취인 · 분할 비율 · 적용 시작일 · 적용 종료일 · 비율 근거 메모 · 삭제), 시뮬레이터 결과(수취인 · 분할 비율 · 배분액), 8단계 비분할 격리 규칙 표(정산 구성 항목 · payee_split_base 분할 여부 · 규칙 · 근거).
 
@@ -107,6 +108,8 @@
 - 비율 프리셋(applyPresetRatio) · 잔여 비율 마지막 행 채우기(fillRemainingToLast).
 - 탭 3 감사 로그 표(기록 시각 · 작업 유형 · Before/After) — 개발은 별도 표 없음(추정: admin_logs).
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
+- 단독 수취 표현 — 프로토 시드는 단독 수취를 '분할 행 1건 @ 100.00%'로 두고 합계를 행 합으로 그린다(프로토 :961). 개발은 분할 행 0건 = 원 권리자 100%이고 합계 칸만 100.00%로 맞춘다(e555839b, PayeeSplitService.php:81-94). prototype_dev는 0건 단독 수취를 합계 100.00%로 그리면 된다.
+
 | 프로토타입 | 개발 |
 |---|---|
 | `listFilterSelect` 5종 | `status` ALL · SPLIT · SINGLE · SUCCESSION · BLOCKED |
@@ -126,6 +129,6 @@
 - routes/admin.php:586-597
 - app/Http/Controllers/Admin/PayeeSplitController.php
 - app/Http/Requests/Admin/PayeeSplitRequest.php · ContractCoSignerRequest.php
-- app/Services/Admin/PayeeSplitService.php:28-50, 209-284, 342-373
+- app/Services/Admin/PayeeSplitService.php:28-50, 81-94, 222-297, 355-386
 - resources/views/admin/settlement/payee-splits/index.blade.php · create.blade.php · edit.blade.php · form.blade.php
 - config/dev-progress.php:85-86, 219

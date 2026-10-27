@@ -1,7 +1,7 @@
 # ADMN-BRD-002 1:1 문의 관리 — 개발 명세
 
 - 프로토타입 파일: prototype_clean/ADMN-BRD-002_baseline.html (원본 상태: 18d66c1 v6.92)
-- 맞춘 개발 커밋: d562524a (2026-10-26)
+- 맞춘 개발 커밋: a8016168 (2026-10-27) — d562524a 이후 이 화면 변경은 P1 최근 주문 배송 상태(4e0abf09)와 P1 누적 결제 · 환불 산식(0da01b5b · 2ae60df8, 산식은 ADMN-USER-001 4절)
 - 포함 화면: ADMN-BRD-002(목록), ADMN-BRD-002-S1(1:1 답변 등록 · 알림톡), ADMN-BRD-002-P1(회원 컨텍스트 모달)
 - 개발 진행: 구현. 담당 이응민(`config/dev-progress.php`), 커밋 언급 BRD-002 10 · S1 10 · P1 2(dev_spec/_index/progress.md)
 - 관련: 답변 영역 조각 `inquiries/partials/inquiry-panel.blade.php` 를 환불 관리 상세(ADMN-RFD-002-S1)가 그대로 쓴다. 결제 · 환불 분류로 바꾸면 RFD-002-S1 로 이관돼 이 목록에서 빠진다(Inquiry::ROUTED_BOARDS).
@@ -115,6 +115,8 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | attachments(attachable=inquiry) | | 회원 첨부 — `admin.attachments.download` 로 받음 | 첨부 |
 | notification_logs(target_type=inquiry) | | 답변 알림 발송 이력 · 실패 집계(`notify_fail`) | 발송 이력 · 스코어카드 |
 | admin_logs | | 선점 · 처리 · 잠금 해제 · 분류 변경 이력(edit_reason · 알림 미발송 사유 포함) | — |
+| deliveries.order_id · status | | P1 최근 주문 3건의 배송 상태 — 주문 하나에 교재 라인별 배송 행이 여럿일 수 있어 겹치지 않게 모아 `Delivery::STATUS_LABELS` 순서대로 ' · '로 잇는다(`InquiryRepository.php:57-77`, `InquiryService.php:65-77`, 4e0abf09) | P1 최근 주문 상태 칸(`주문 상태 · 배송 상태`, `partials/member-context.blade.php:39`) |
+| (계산값) 누적 결제 · 환불 | | `MemberCommerceSummary::forUsers` — 회원 목록과 같은 산식(PG 취소 + PG 밖 계좌 환불 · 보정 거래, ADMN-USER-001 4절) | P1 회원 요약 |
 
 - 상수: Inquiry::SLA_HOURS = 24, 알림 템플릿 `SJM_QNA_ANSWER_01`(알림톡/LMS) · `SJM_QNA_ANSWER_EMAIL_01`(메일), 변수 name · title(20자) · answered_at · answer_url.
 
@@ -141,7 +143,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 보류 재개 예정일 `hold_until`(**→ 결정(v6.92 white, S-19)**: 프로토도 보류 = 사유 + 재개 예정일 필수, 보류 중 SLA 정지 · 예정일 자동 '처리중' — 같아짐. 자동 복귀 배치는 개발에 없음), 내부 메모, 답변완료 건 수정 사유 `edit_reason`, 알림 끌 때 사유 `notify_skip_reason`.
 - 스코어카드 "알림톡 발송 실패" · 발송 이력 · 재발송.
 - 검색 필터: 첨부 있음 · SLA 초과 · 오늘 답변완료 · 회원 검색(이름 · 이메일 · 회원번호).
-- P1 회원 컨텍스트 모달(회원 · 최근 주문 · 수강 진도) + 임시 저장 후 회원 상세 이동.
+- P1 회원 컨텍스트 모달(회원 · 최근 주문 · 수강 진도) + 임시 저장 후 회원 상세 이동. 최근 주문 상태 칸에 배송 상태를 붙임(예: 결제완료 · 배송준비중 · 배송중, 4e0abf09) — 정본 ⑦ '파손 · 미배송 문의 즉시 대조'. 프로토는 배송 문의 분기 패널(`ship_ordered_at` 잠금, L948-959)에서 보여 주므로 prototype_dev는 회원 컨텍스트 카드의 주문 줄에 배송 상태를 덧붙인다.
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 문의 유형 5대 분기 워크스페이스(결제 · 환불 / 배송 · 3PL Lock / 수강 · 동시접속 세션 초기화 / 합격환급 · 포인트 / 학습질문 오인입)와 유형별 매크로 삽입(`insertMacro`).

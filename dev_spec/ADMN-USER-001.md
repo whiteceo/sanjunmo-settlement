@@ -1,7 +1,7 @@
 # ADMN-USER-001 회원관리 — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-USER-001_baseline.html` (원본 상태: `18d66c1` v6.92)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 누적 결제 · 환불 산식(0da01b5b · 2ae60df8)뿐. 민감 정보 열람 통제(ef3b5183)는 ADMN-USER-007 명세 소관
 - 포함 화면: USER-001 · 001-P1 · 002 · 002-P1 · 002-P2 · 002-P3 · 003 · 004 · 004-P1 · 005 · 006 · 006-S1 · 006-S2 · 006-S3(프로토타입 한 파일 안의 view 5개 + 모달)
 - 개발 진행: 구현(001~006 라우트 · 화면 있음). 002-P3(1:1 메시지) · 006-S3(처리 결과)는 미구현 → 규칙 기반 명명
 - 근거 상세: 회원관리 개발 검토(로컬 `scripts/qa/reports/review/findings/member/`, git 제외) — 아래 7절에 요지만 옮겼다
@@ -238,6 +238,8 @@
 | (없음) | | 산준모 카페 ID — 프로토에만 |
 | 휴대폰 | | 휴대폰 |
 | 누적 결제 · 누적 환불 | (정렬 없음) | 누적 결제 ▾ · 누적 환불 ▾ |
+
+- 누적 결제 · 환불 산식(목록 · 002 상세 · BRD-002-P1 회원 컨텍스트 공용, `app/Services/Admin/MemberCommerceSummary.php:7-15` · `:27-48`): 환불 = PG 취소액(`payments.cancelled_amount`) + PG 밖에서 나간 현금(① 계좌로 이체해 끝낸 환불 = `refunds.status=completed` · `pg_cancel_status` NULL · `refund_amount` > 0, ② 보정 거래 `refund_adjustments` `extra_refund` − `clawback` 중 `method` ≠ `pg_cancel`), 결제 = 승인액 − 환불. 포인트 보정 · 합격 환급(`refund_claims`)은 넣지 않는다 — `app/Repositories/Admin/MemberCommerceSummaryRepository.php:31-74`(0da01b5b · 2ae60df8). 전에는 PG 취소액만이었다.
 | 유상 P | `paid_point` | **적립 P** ▾ (용어 다름 — 정본은 '적립 P', 개발 '유상 P') |
 | 무상 P | `free_point` | 무상 P ▾ |
 | 상태 | | 상태 / 잠금 |
@@ -258,6 +260,7 @@
 | `users.total_points` | 포인트 잔액 캐시(무상+유상, 마이너스 가능) | 001 |
 | `users.last_login_at` · `admin_memo` · `birth_date` · `gender` | | 002 |
 | `points` (`type`, `amount`, `balance`, `source`, `expires_at`, `admin_id`, `memo`) | 포인트 적립 단위(유상/무상 구분 `type`) | 002 포인트 원장 |
+| `payments.cancelled_amount` · `refunds`(`status`, `pg_cancel_status`, `refund_amount`) · `refund_adjustments`(`adjustment_type`, `method`, `amount`) | 누적 결제 · 환불 계산 재료(4절 산식) | 001 · 002 |
 | `point_logs` (`action`, `amount`, `balance_after`, `order_id`, `refund_id`, `reason`) | 포인트 원장 | 002 포인트 원장 탭 |
 | `social_accounts` (`provider`, `provider_id`) | 소셜 연동 | 002-P2 |
 | `user_change_logs` (`field`, `before_value`, `after_value`, `admin_id`, `ip`) | 회원 정보 변경 이력 | 002 관리 이력 |
@@ -297,6 +300,7 @@
 - 005 정지 기간 권장값 자동 선택(누적 1회 7 · 2회 30 · 3회 이상 영구), 위반 유형 5종(`concurrent_session` 포함)
 - 006-S1 태그 축(`axis`) · 배지 색(`badge_color`) · 대상 미리보기(인원 + 마스킹 명단)
 - 006 엑셀 명단 매칭 후 미매칭 명단 다운로드
+- 001 · 002 누적 환불에 PG 밖 환불(계좌 이체로 끝낸 환불 · 보정 거래 추가 환불 − 고객 청구 회수) 반영 — `MemberCommerceSummary.php:27-48`(0da01b5b · 2ae60df8). 개발 주석 '미확정' 2건: ① 고객 청구 회수는 실제 입금 여부와 무관하게 보정 등록 시점에 뺀다(입금 기록 없음) ② 전액 취소 뒤 보상성 추가 환불이 있으면 누적 결제가 음수로 보일 수 있다 — 정본 '확정 금액'이 이 경우를 정하지 않음(`MemberCommerceSummary.php:13-14`). **white 확인 대상**(정본 · 8절에 해당 결정 없음)
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 001 · 002 회원번호 · 산준모 카페 ID 검색 · 표시 · 수정(DB `cafe_id`는 있음)

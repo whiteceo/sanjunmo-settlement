@@ -1,7 +1,7 @@
 # ADMN-PROD-006 강사 노출 정보 관리(강사 프로필 · 전시) — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-PROD-006_baseline.html` (원본 상태: `84c22e2`, 미커밋 변경 없음)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 목록 배열 쿼리 차단(e555839b)뿐
 - 포함 화면: PROD-006 목록 · 006-S2 프로필 상세(프로토에만) · 006-S1 등록 · 수정
 - 개발 진행: 구현(목록 · 등록 · 수정 · 삭제 · 권리자 검색 · 엑셀). 006-S2 읽기 전용 상세는 개발 미구현(수정 화면이 겸함). `_index/progress.md` PROD-006 라우트 주석 있음
 
@@ -52,7 +52,8 @@
 
 ## 3. 폼 필드 · 검증
 
-### 목록 검색 (GET, `InstructorProfileController.php:38`)
+### 목록 검색 (GET, `InstructorProfileController.php:37-46`)
+- 모든 키는 문자열만 받는다(`$request->stringQuery()`) — `?sort[]=` 같은 배열은 빈 값으로 본다(전에는 500). 참고용 `admin.instructors.index`(`InstructorController.php:32-39`)도 같게 바뀜. e555839b
 | 필드 name | 값 | 프로토타입 대응 |
 |---|---|---|
 | `keyword` | 강사명 | `#filter-keyword` (프로토: 강사명 / 권리자코드 / 슬로건) |

@@ -1,7 +1,7 @@
 # ADMN-PROD-003 단과 강좌 관리 — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-PROD-003_baseline.html` (원본 상태: `18d66c1` v6.92)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 목록 배열 쿼리 차단(e555839b)뿐
 - 포함 화면: PROD-003 강좌 목록 · 강좌 상세 · 강좌 등록/수정(커리큘럼 섹션 · 교재 매핑 포함) + 모달 2개(`modal-lecture-picker` · `modal-textbook-picker`)
 - 개발 진행: 구현(목록 · 등록/수정 · 커리큘럼 구성 라우트 · 화면 있음). 강좌 상세(읽기 전용 화면)는 개발 미구현
 
@@ -61,7 +61,8 @@
 
 ## 3. 폼 필드 · 검증
 
-### 003 목록 검색 (GET, `CourseController.php:37-40`)
+### 003 목록 검색 (GET, `CourseController.php:37-48`)
+- 모든 키는 문자열만 받는다(`$request->stringQuery()`) — `?keyword[]=` · `?sort[]=` 같은 배열은 빈 값으로 본다(전에는 500). 등록 폼으로 넘기는 목록 조건(`listQuery`)도 배열은 뺀다(`CourseController.php:77-81`). e555839b
 | 필드 name | 값 | 프로토타입 대응 |
 |---|---|---|
 | `root_category_id` · `category_id` | 1Depth · 2Depth `categories.id` (`#searchRoot` · `#searchChild`) | `#filter-cat1` · `#filter-cat2` |

@@ -1,7 +1,7 @@
 # ADMN-BRD-001 공지사항 · FAQ · Q&A · 당첨자 통합 관리 — 개발 명세
 
 - 프로토타입 파일: prototype_clean/ADMN-BRD-001_baseline.html (원본 상태: 18d66c1 v6.92)
-- 맞춘 개발 커밋: d562524a (2026-10-26)
+- 맞춘 개발 커밋: a8016168 (2026-10-27) — d562524a 이후 이 화면 변경은 상품 Q&A 상세 주문 연결 칸(d235b739)뿐
 - 포함 화면: ADMN-BRD-001 · 001-S1(공지), ADMN-BRD-006 · 006-S1(FAQ), ADMN-BRD-003 · 003-S1(상품 Q&A), ADMN-BRD-004 · 004-S1(학습 Q&A), ADMN-BRD-009 · 009-S1(당첨자 발표)
 - 개발 진행: 구현(다섯 화면 모두 개발 라우트 · 컨트롤러 · 뷰 있음). 담당 이응민(`config/dev-progress.php`). BRD-009 는 progress 표에 "완료 9ec6059 · 1a92439 · ed10474"
 - 구조 차이 요지: 프로토타입은 한 HTML 안 탭 5개(`switchTab('notice'|'faq'|'pqna'|'qna'|'winner')`) + 하위 화면 SJM_PAGE 페이지. 개발은 화면마다 별도 메뉴 · 별도 URL, 하위 화면(S1)도 별도 페이지(create/edit/show)다.
@@ -200,6 +200,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | faq_categories.name / sort_order / is_active | string(50) / int / tinyint | FAQ 카테고리(하위 FAQ 있으면 삭제 불가) | 카테고리 팝업 |
 | faqs.category_id / question(100) / answer / weight(0~999) / is_visible / admin_id / view_count / updated_at | | FAQ | FAQ 목록 · 폼 |
 | product_qnas.product_type / product_id / order_id / inquiry_type / title / content / assign_dept / assign_user_id / is_secret / status / answer_content / answered_by / answered_at / deleted_at | | 상품 Q&A. inquiry_type: composition 상품 구성 · price 가격·할인 · delivery 배송 · period 수강 기간 · etc 기타(패키지만), 옛 값 damage · erratum · stock · course | 상품 Q&A 목록 · 답변 |
+| (계산값) `purchase` | — | 003-S1 주문 연결 = `order_items` ⨝ `orders`(`paid_at` 있음) ⟕ `deliveries`(`order_item_id`) 중 그 회원 · 그 상품(`product_type` · `product_id`)의 가장 최근 결제 주문 → `order_id` · `order_no` · 라벨 `MM.DD 배송 상태`(교재: `deliveries.delivered_at` → `shipped_at`, 라벨 `Delivery::STATUS_LABELS`) 또는 `MM.DD 결제`(강좌 · 패키지). 문의에 `order_id`가 있으면 그 주문 안에서 먼저 찾고 없으면 전체 구매 이력에서 다시 찾는다. 없으면 '구매 전 문의' — `ProductQnaRepository.php:125-143`, `ProductQnaService.php:69-91`, `product-qnas/show.blade.php:30-39`(d235b739) | 003-S1 주문 연결 |
 | study_qnas.course_id / lecture_id / play_position_sec / instructor_id / assign_ta_id / title / content / status / answer_content / answered_by / answered_at / is_public_qna / is_secret / view_count | | 학습 Q&A. SLA 48h(StudyQna::SLA_HOURS) | 학습 Q&A 목록 · 상세 |
 | notification_logs.target_type | string(30) | 알림 대상(product_qna · study_qna 등) — 발송 이력 · 재발송 | 상세 하단 발송 이력 |
 
@@ -215,6 +216,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | `bulkForm` · `bulkVisible` · `bulkCategory` · `filter_category_id` · `filter_keyword` | FAQ 목록 일괄(노출 · 카테고리 이동) | 없음 |
 | `processForm` · `actionField` | 상품/학습 Q&A 처리 폼(action 값 교체 제출) | `pqna-answer` · `lqna-detail` 서브페이지 |
 | `bulkAssignForm` | 상품 Q&A 담당자 일괄 지정 | `bulkAssignPqna()` |
+| 주문 연결 칸 `a.link--view` → `admin.orders.show`(새 탭, `target="_blank"`) · '구매 전 문의' | 003-S1 주문 연결 | `#pqna-modal-order`(`주문 연결: 주문번호 · 배송 상태` / `구매 전 문의`, 프로토 L2536) |
 | `winnerForm` · `promotionSelect` · `titleInput` · `publishedAt` | 당첨자 발표 폼 | 서브페이지 `winner-form`(`winpost-*`) |
 | `hideForm` | 당첨자 발표 선택 숨김 | 없음 |
 | `admin.inc._notify-history` | 알림 발송 이력 · 재발송 공용 조각 | 없음 |
@@ -241,6 +243,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 공지 노출: 프로토타입 `notice-form-visible`(즉시 노출 on/off → 숨김) → 개발 `publish_mode`(immediate/scheduled/draft). 숨김은 목록 일괄 숨김으로만 된다.
 - 상품 Q&A 문의 유형: 프로토타입 파손/오배송 · 배송문의 · 오탈자 · 재고 · 강좌 수강 → 개발 현재 값 composition · price · delivery · period · etc(패키지만), 프로토타입 값은 개발에서 옛 값(LEGACY_INQUIRY_TYPES)이다.
 - 상품 Q&A 담당: 프로토타입은 SJM_MASTER 역할 그룹 → 개발 `assign_dept` logistics · ta · cs, 일괄 지정은 부서가 아니라 담당자(`assign_user_id`).
+- 상품 Q&A 003-S1 주문 연결: 프로토 `#pqna-modal-order`(주문번호 · 배송 상태, 구매 이력 없으면 '구매 전 문의', L2536)와 같은 내용으로 맞춤(a8016168에서 개발 구현, d235b739) — 전에는 개발이 `주문 #id` / '연결 없음'만 보였다. 개발은 주문번호를 주문 상세 새 탭 링크로 둔다.
 - 상태 코드: 상품 Q&A pending/answered/hidden, 학습 Q&A pending/answered/escalated (프로토타입 스크립트의 `WAITING` 등 대문자 코드 → 개발 소문자).
 - 당첨자 발표 발표 상태: 프로토타입 3택(즉시 · 예약 · 임시저장) → 개발 2택(immediate · scheduled), 목록 상태 published · scheduled · hidden.
 - 화면 단위: 프로토타입 탭 하나 화면 → 개발 메뉴 5개(`notices` · `faqs` · `product-qnas` · `study-qnas` · `winners`).

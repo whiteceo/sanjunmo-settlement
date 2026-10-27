@@ -1,6 +1,6 @@
 # ADMN-VEND-001 거래처 관리 — 개발 명세
 - 프로토타입 파일: prototype_clean/ADMN-VEND-001_baseline.html (원본 상태: 18d66c1 v6.92)
-- 맞춘 개발 커밋: d562524a (2026-10-26)
+- 맞춘 개발 커밋: a8016168 (2026-10-27) — 이 화면 변경은 e555839b(`suppliers.code` 주석 자릿수만, 마이그레이션 000274). 거래처 관리 화면은 여전히 개발 미구현
 - 포함 화면: ADMN-VEND-001 (모달 `modal-vendor` 거래처 등록 · `modal-type` 거래처 유형 관리)
 - 개발 진행: **독립 화면은 개발 미구현(d562524a 기준), 규칙 기반 명명.** config/dev-progress.php 에 ADMN-VEND 코드가 없다(tests/Feature/Admin/QaResultAdminTest.php 의 "ADMN-VEND-001 … 화면 없음"은 테스트용 더미 행). 가장 가까운 개발 구현은 도서 공급 원장(`admin.book-supply.index`) 의 **매입처 탭(`?tab=suppliers`) + 매입처 등록** 이다
 
@@ -63,7 +63,7 @@
 ## 5. DB 테이블 · 컬럼
 | 테이블.컬럼 | 타입 | 뜻 | 화면 표시 위치 |
 |---|---|---|---|
-| suppliers.code | string(50) unique | 매입처 코드 SUP-%04d (스키마 주석은 %05d, 서비스 실제 %04d) | 거래처 코드 |
+| suppliers.code | string(50) unique | 매입처 코드 SUP-%04d — 스키마 주석도 %04d로 정정(`database/migrations/2026_10_27_000274_fix_suppliers_code_comment.php:22`, 컬럼 정의 불변). 채번 `SupplierService::store()` | 거래처 코드 |
 | suppliers.name | string(100) | 상호 | 거래처명 |
 | suppliers.business_no | string(20) null | 사업자등록번호 | 사업자등록번호 |
 | suppliers.ceo_name · open_date | | 대표자 · 개업일자 | |

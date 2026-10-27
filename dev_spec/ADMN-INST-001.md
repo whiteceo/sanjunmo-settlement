@@ -1,7 +1,7 @@
 # ADMN-INST-001 권리자 계약 원장 — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-INST-001_baseline.html` (원본 상태: `84c22e2` + **미커밋 작업 트리**(3,909줄, 다른 세션 수정 중). 아래 프로토 줄 번호는 2026-10-27 작업 트리 기준 — 통합 커밋 후 다시 맞춘다)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — 이 화면 변경은 `e555839b`(선택지 라벨 5건을 프로토 문구로 · 목록 배열 쿼리 차단)
 - 포함 화면: INST-001 탭 1 권리자 계약 목록 · 탭 2 계약 상세 조건 편집(권리자 · 세무 정보 = INST-001-S1, 계약 조건 = INST-001-S2) · 탭 3 국세청 확인 이력 · 탭 4 변경 · 열람 이력 · INST-001-P1 요율 잠금 · 상태 동기화 안내 · INST-001-P2 검증 상세 · 조항별 입력 모달(요율 · 도서 · 매핑 · 회차 · 수당 · 선급 · 수취인 · 증빙 · 진위 확인 등)
 - 개발 진행: 구현(권리자 목록 · 등록 · 수정 · 국세청 진위 확인 · 계약 등록/수정/열람 · 메모 · 교재 인세 저서 원장 · 선급 원장 라인 · 상태 동기화 · 엑셀). 탭 4 변경 · 열람 이력 전용 화면은 미구현. 위탁 조항 · 환급 부담 B · C는 1차 저장 거부. `_index/progress.md` INST-001 커밋 29건 · 라우트 주석 있음
 
@@ -84,6 +84,8 @@
 | `contract_type` · `expiry_soon` · `alert` · `started_from` · `started_to` · `valid_on` | 계약 유형 · 만료 임박 · 조치 필요 · 시작일 범위 · 기준일 | 프로토 없음(`ALERT` 일부) |
 | `ids[]` | 선택 행(엑셀) | — |
 
+- 배열 쿼리(e555839b): 배열이 정상인 키는 `holder_types[]` · `contract_status[]` · `ids[]`뿐이고, 그 밖의 키에 배열이 오면 빈 값으로 본다(전에는 500) — `RightsHolderController.php:45-49` · `:340-350`.
+
 ### S1 권리자 · 세무 (RightsHolderRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
@@ -127,10 +129,10 @@
 | `origin_type` · `predecessor_contract_id` | required · 승계면 선행 required | `NEW` 신규 계약 · `SUCCESSION` 승계 계약 | `#originType` · `#predecessor` |
 | `refund_promo_burden_type` | required · **`A`만** | `A` 플랫폼 전액(기본) · (`B` 비율 공동 부담 · `C` 매출 취소 — 표시만) | `#refundBurden` A · B · C (8절 Q1) |
 | `term_course_yn` · `rate_lines[n][started_at\|ended_at\|rate\|rate_type\|rate_basis\|mmg_amount\|reason]` | 강좌 R/S 조항, 1행 이상 | `rate_type` `BASIC` 기본 R/S · `SUPPORT` 지원금 R/S / `rate_basis` 순매출(PG 차감) · 결제 총액 · 순매출(PG+쿠폰 차감) | `#onOnline` · `#basicRateTable` · `rateModal()` |
-| `mmg_enabled` · `vat_treatment` · `vat_exception_yn` · `vat_exception_reason` | | | `#mmgEnabled` · `#mmgAnnualCap` · `#vatTreatment` · `#vatException` · `#vatExceptionReason` |
+| `mmg_enabled` · `vat_treatment` · `vat_exception_yn` · `vat_exception_reason` | | `vat_treatment` `ADD` 공급가액 기준 · VAT 별도 가산 · `GROSS` 공급대가 총액 기준 · 해당 시 역산(라벨 = 프로토, `app/Models/RightsHolder.php:166-170`) | `#mmgEnabled` · `#mmgAnnualCap` · `#vatTreatment` · `#vatException` · `#vatExceptionReason` |
 | `term_book_yn` · `royalty_rate` · `royalty_basis` | 도서 인세 조항이면 required | `LIST_PRICE` 도서 정가 · `ACTUAL_PAID` 이용자 실구매가(배송비 제외) | `#onRoyalty` · `#royaltyDefaultRate` · `#royaltyDefaultBasis`, 목록 상단 radio `PAID_AMOUNT` · `LIST_PRICE`(L371) |
 | `term_cons_yn` | **0만 허용(1차 위탁 미개방)** | | `#onConsignment` (8절 Q2) |
-| `consignment_fee_type` · `consignment_fee_rate` · `consignment_promo_override_yn` · `consignment_return_*` | 위탁 켜졌을 때만(현재 제외) | | `#consignmentFeeType` · `#consignmentRate` · `#consignmentOverride` · `#returnTracking` · `#returnOwner` · `#returnDeadline` |
+| `consignment_fee_type` · `consignment_fee_rate` · `consignment_promo_override_yn` · `consignment_return_*` | 위탁 켜졌을 때만(현재 제외) | `consignment_fee_type` `NET_DEDUCT` 수수료 차감 후 지급 · `GROSS_SETTLE` 총액 지급 후 수수료 청구(라벨 = 프로토, `RightsHolder.php:173-177`) | `#consignmentFeeType` · `#consignmentRate` · `#consignmentOverride` · `#returnTracking` · `#returnOwner` · `#returnDeadline` |
 | `evidences[n][evidence_type\|file_name]` · `docs[]` · `deleted_*` | 증빙 50건 · 파일 10MB | ContractEvidence::TYPE_LABELS | `#evidenceTable` · `evidenceModal()` |
 
 ### S2 지급 조항 (paymentTermRules)
@@ -140,7 +142,7 @@
 | `exc_payment_method` | `LUMP_SUM` 일시 · `INSTALLMENT` 분할 | `#exclusiveStructure` 회차 분할 · 일시 지급 |
 | `exc_target_month` · `exc_rows[n][title\|target_month\|amount]` | 일시 귀속월 · 분할 회차 | 회차 추가(`milestoneModal`) |
 | `exc_clawback_policy` | `NONE` 반환 조항 없음 · `PRO_RATA` 잔여기간 일할 반환 · `FULL` 전액 반환 | `#exclusiveClawback` |
-| `exc_penalty_clause_yn` · `exc_penalty_calc_type` · `exc_penalty_multiple_rate` · `exc_penalty_fixed_amount` · `exc_penalty_base` · `exc_penalty_clawback_relation` · `exc_penalty_trigger_text` · `exc_penalty_offset_consent_yn` | 배율 · 정액 / 약정 총액 · 기 지급액 / 위약금에 포함 · 반환과 별도 병과 | `#penaltyEnabled` · `#penaltyMethod` · `#penaltyRate` · `#penaltyFixed` · `#penaltyBasis` · `#penaltyRelation` · `#penaltyTrigger` · `#penaltyConsent` |
+| `exc_penalty_clause_yn` · `exc_penalty_calc_type` · `exc_penalty_multiple_rate` · `exc_penalty_fixed_amount` · `exc_penalty_base` · `exc_penalty_clawback_relation` · `exc_penalty_trigger_text` · `exc_penalty_offset_consent_yn` | 배율 · 정액 / `exc_penalty_base` `TOTAL_AGREED` 약정 총액 · `PAID_GROSS` 기지급액 / `exc_penalty_clawback_relation` `INCLUSIVE` 위약금에 포함 · `CUMULATIVE` 병과 — 라벨은 a8016168에서 프로토 문구로(`app/Models/ExclusiveContractFee.php:53-67`) | `#penaltyEnabled` · `#penaltyMethod` · `#penaltyRate` · `#penaltyFixed` · `#penaltyBasis` · `#penaltyRelation` · `#penaltyTrigger` · `#penaltyConsent` |
 | `term_dev_yn` · `dev_payment_method` | `REVENUE_SHARE` 매출 쉐어 · `INSTALLMENT` 확정금액 분할 · `LUMP_SUM` 일시금 | `#onDevelopment` · `#supportMethod` |
 | `dev_offset_type` | `CONDITIONAL` 상계 허용(기본) · `NON_OFFSET` 비상계 | `#supportOffset` |
 | `dev_cap_type` · `dev_total_cap_amount` | `CAPPED` · `UNLIMITED` | `#supportCapType` · `#supportCap` |
@@ -152,7 +154,7 @@
 | (지원금 약정 식별자) | 자동 | `#supportAgreement` `SFA-2026-001` |
 | `term_buyout_yn` · `buyout_amount` · `buyout_target_month` · `buyout_exclusive_*` · `buyout_*_targets[]` · `buyout_rights_scope` · `buyout_income` | 매절 | `#onBuyout` · `#buyoutAmount` · `#buyoutUntil` · `#buyoutScope` · `#buyoutTargets` · `#buyoutIncome` |
 | `term_etc_yn` · `etc_amount_type` · `etc_unit_price` · `etc_rows[]` | `FIXED` 정액 · `PER_UNIT` 건당 | `#onAllowance` · `#allowanceType` · `#allowanceUnit` · `#allowanceTable` |
-| `term_adv_yn` · `adv_nature` · `adv_offset_target` · `adv_payee_type` · `adv_offset_payee_id` | 선급금 성격 · 상계 대상 · 수취 주체 | `#onAdvance` · `#advanceNature` · `#advanceTarget` · `#advanceTable` |
+| `term_adv_yn` · `adv_nature` · `adv_offset_target` · `adv_payee_type` · `adv_offset_payee_id` | 선급금 성격 · 상계 대상(`adv_offset_target` `RS_BOOK` 강의 R/S + 도서 인세 · `RS` 강의 R/S만 · `BOOK` 도서 인세만, 각 '(+ 상계 허용 지원금)' — 라벨 = 프로토, `app/Services/Admin/RightsHolderContractPrepaymentService.php:31-39`) · 수취 주체 | `#onAdvance` · `#advanceNature` · `#advanceTarget` · `#advanceTable` |
 
 ### 메모 · 저서 · 선급 라인
 | 폼 | Request | 프로토타입 대응 |
@@ -233,7 +235,7 @@
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
 |---|---|
-| `#contractStatus` `DRAFT` · `ACTIVE` · `EXPIRED` · `TERMINATED` | `status` `pending` · `active` · `expired` · `terminated` |
+| `#contractStatus` `DRAFT` · `ACTIVE` · `EXPIRED` · `TERMINATED` | `status` `pending` · `active` · `expired` · `terminated`  라벨은 개발이 바꾸지 않음(e555839b 메시지) — 프로토 안에서 '작성 중'(select L297)과 '작성 중(DRAFT)'(목록 칩 L3697)이 갈려 있어 프로토 쪽 한 가지로 맞출 것 |
 | 사업자 · 개인 radio `BUSINESS` · `PERSON` | `tax_type` `personal` / `simplified` · `general` · `exempt` |
 | `#bizType` 개인사업자 · 법인·단체 · 자사 귀속 | `business_subtype` `SOLE` · `CORP` + `is_internal` |
 | `#payeeAuthor` 본인 · 본인 아님 | `payee_is_author` 1 · 0 |
@@ -244,7 +246,11 @@
 | `#refundBurden` A · B · C | `refund_promo_burden_type` `A`(B · C 표시만) |
 | `#exclusiveStructure` 회차 분할 · 일시 지급 | `exc_payment_method` `INSTALLMENT` · `LUMP_SUM` |
 | `#exclusiveClawback` 잔여기간 일할 반환 · 전액 반환 · 반환 없음 | `exc_clawback_policy` `PRO_RATA` · `FULL` · `NONE` |
-| `#penaltyRelation` 위약금에 포함 · 병과 | `exc_penalty_clawback_relation` 위약금에 포함 · 반환과 별도 병과 |
+| `#penaltyBasis` `TOTAL` · `PAID` | `exc_penalty_base` `TOTAL_AGREED` · `PAID_GROSS` — 라벨(약정 총액 · 기지급액)은 같음(a8016168에서 개발 구현, 라벨만) |
+| `#penaltyRelation` `INCLUDED` · `ADDITIONAL` | `exc_penalty_clawback_relation` `INCLUSIVE` · `CUMULATIVE` — 라벨(위약금에 포함 · 병과)은 같음(a8016168에서 개발 구현, 라벨만) |
+| `#vatTreatment` `VAT_ADDED` · `VAT_INCLUDED` | `vat_treatment` `ADD` · `GROSS` — 라벨 같음(a8016168에서 개발 구현, 라벨만) |
+| `#advanceTarget` `BOTH` · `ONLINE` · `ROYALTY` | `adv_offset_target` `RS_BOOK` · `RS` · `BOOK` — 라벨 같음(a8016168에서 개발 구현, 라벨만) |
+| `#consignmentFeeType` `NET_DEDUCT` · `GROSS_SETTLE` | 값 · 라벨 모두 같음(a8016168에서 개발 구현) |
 | `#supportMethod` · `#supportOffset` · `#supportCapType` · `#supportEndBasis` | `dev_payment_method` · `dev_offset_type` · `dev_cap_type` · `dev_end_basis` |
 | 도서 인세 기준 `PAID_AMOUNT` | `royalty_basis` `ACTUAL_PAID` |
 | 계약번호 `CT-2026-0412` | `rights_holder_contracts.id` + `sequence_no`(표시 형식 확인 필요) |

@@ -756,6 +756,9 @@
 | `reason_ref` | string(50) | nullable | 사유 관련 참조번호. 문의번호(Q-2026-08812) 또는 주문번호. | 2026_09_08_000098 |
 | `admin_login_id` | string(50) | nullable | 행위 시점 관리자 아이디 스냅샷. 계정 삭제 후에도 행위자를 추적한다 | 2026_09_10_000106 |
 | `admin_role_code` | string(50) | nullable | 행위 시점 역할 code 스냅샷. admin_roles.code 기준이며 다중 부여 시 콤마로 잇는다. 역할명이 바뀌어도 과거 로그가 흔들리지 않도록 이름이 아닌 code 를 남긴다 | 2026_09_10_000106 |
+| `target_month` | char(7) | nullable | 귀속 정산월(YYYY-MM). 정산 감사 이벤트 중 발생월과 귀속월이 다를 수 있는 행만 채운다(조정 반영월·마일스톤 대상월·대사월·마감월). 그 밖의 행은 NULL 이고 조회는 발생월로 본다. 다른 도메인 로그는 항상 NULL. | 2026_10_27_000269 |
+| `block_hash` | char(64) | nullable | 이 행의 무결성 해시. 계산 방식은 App\Support\Audit\AuditBlockHash 한 곳에서만 정한다. 정산 감사 이벤트만 채우며 기존 행과 그 밖의 도메인 로그는 NULL(체인 밖)이다. | 2026_10_27_000269 |
+| `prev_block_hash` | char(64) | nullable | 직전 체인 행의 block_hash. 체인 첫 행은 시작점 표시값(AuditBlockHash::GENESIS)이 들어간다 — NULL(체인 밖)과 구별해야 "소급 적용하지 않은 과거 행" 과 "끊긴 구간" 을 가를 수 있다. | 2026_10_27_000269 |
 
 ## excel_download_logs
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -1327,6 +1330,11 @@
 | `settle_review_status` | string(20) | nullable | 정산 차감 검수 상태. PENDING=검수 대기 / CONFIRMED=차감 확정 / HOLD=마감 보류(B·C 산식 미정) | 2026_10_26_000267 |
 | `settle_reviewed_by` | unsignedBigInteger | nullable | 정산 차감 검수자 users.id | 2026_10_26_000267 |
 | `settle_reviewed_at` | timestamp | nullable | 정산 차감 검수 일시 | 2026_10_26_000267 |
+| `tier1_destroy_due_at` | date | nullable | 계층 1 파기 예정일(국세기본법 법정신고기한 + 5년). NULL = 미산정 | 2026_10_26_000268 |
+| `tier2_retain_until` | date | nullable | 계층 2 원장 보존 만료일(상법 제33조 장부 폐쇄일 + 10년). NULL = 미산정 | 2026_10_26_000268 |
+| `destruction_batch_status` | string(20) | nullable | 파기 배치 상태. PENDING=예정 / APPROVED=승인(배치 대기) / HELD=보류 격리 / DONE=파기 완료 | 2026_10_26_000268 |
+| `destruction_approved_by` | unsignedBigInteger | nullable | 파기 승인 재무 담당자 users.id. 무인 자동삭제 금지라 승인자가 반드시 남는다 | 2026_10_26_000268 |
+| `destruction_approved_at` | timestamp | nullable | 파기 승인 일시 | 2026_10_26_000268 |
 
 ## logistics_settlements
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2027,6 +2035,11 @@
 | `matrix_case_id` | string(10) | nullable | 세무 판정 케이스 식별자 TX-01~TX-13. 권리자 단위 수동 표시값. 정산 라인 판정은 9단계(TAX) 산출물 (합의서 11.1절) | 2026_10_15_000207 |
 | `tax_decision_reason` | text | nullable | 판정 근거 · 검토 메모 (합의서 미수록 · v16 taxDecisionReason 기준) | 2026_10_15_000207 |
 | `birth_date` | date | nullable | 개인 권리자 생년월일. 주민등록번호 앞 7자리에서 계산(App\Support\ResidentNo) · 화면 입력 칸 없음. | 2026_10_22_000246 |
+| `tier1_destroy_due_at` | date | nullable | 계층 1 파기 예정일(국세기본법 법정신고기한 + 5년). NULL = 미산정 | 2026_10_26_000268 |
+| `tier2_retain_until` | date | nullable | 계층 2 원장 보존 만료일(상법 제33조 장부 폐쇄일 + 10년). NULL = 미산정 | 2026_10_26_000268 |
+| `destruction_batch_status` | string(20) | nullable | 파기 배치 상태. PENDING=예정 / APPROVED=승인(배치 대기) / HELD=보류 격리 / DONE=파기 완료 | 2026_10_26_000268 |
+| `destruction_approved_by` | unsignedBigInteger | nullable | 파기 승인 재무 담당자 users.id. 무인 자동삭제 금지라 승인자가 반드시 남는다 | 2026_10_26_000268 |
+| `destruction_approved_at` | timestamp | nullable | 파기 승인 일시 | 2026_10_26_000268 |
 
 ## rights_holder_contracts
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
@@ -2103,7 +2116,7 @@
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_09_18_000126 |
-| `code` | string(50) | unique | 매입처 코드 SUP-%05d(id). 채번은 Set 4 | 2026_09_18_000126 |
+| `code` | string(50) | change | 매입처 코드 SUP-%05d(id). 채번은 Set 4 | 2026_10_27_000274 |
 | `name` | string(100) |  | 상호 | 2026_09_18_000126 |
 | `business_no` | string(20) | nullable | 사업자등록번호 | 2026_09_18_000126 |
 | `ceo_name` | string(50) | nullable | 대표자명 | 2026_09_18_000126 |
@@ -2857,6 +2870,22 @@
 | `succession_date` | date | nullable | 승계 확정일. 이 날짜 기준으로 payee_is_author 가 전환된다 | 2026_10_26_000265 |
 | `created_at` | timestamp |  |  | 2026_10_26_000265 |
 | `updated_at` | timestamp | nullable | 수정 일시 | 2026_10_26_000265 |
+
+## pii_destruction_field_map
+| 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |
+|---|---|---|---|---|
+| `id` | id |  | PK | 2026_10_26_000268 |
+| `target_table` | string(100) |  | 대상 테이블명 또는 저장소 경로. 예) rights_holders · s3://private-bucket/id_cards/* | 2026_10_26_000268 |
+| `target_column` | string(100) | nullable | 대상 컬럼명. 파일 경로면 NULL | 2026_10_26_000268 |
+| `label` | string(100) |  | 한글 필드 명칭. 예) 주민등록번호 (13자리 암호문) | 2026_10_26_000268 |
+| `retention_tier` | unsignedTinyInteger |  | 보존 계층. 1=개인식별정보(신고기한+5년) / 2=계약·회계 원장(장부폐쇄+10년) / 3=파기 보류 예외 | 2026_10_26_000268 |
+| `tier_label` | string(60) | nullable | 계층 표기 문구. 예) 계층 1 (신고기한 + 5년) · 비식별 표시명 전환 | 2026_10_26_000268 |
+| `expiry_action` | string(255) |  | 계층 1 만료 시 처리 방식. 예) 복구 불가능 영구 덮어쓰기(NULL 처리 + KMS 참조 해제) | 2026_10_26_000268 |
+| `ledger_impact` | string(255) | nullable | 정산 원장 금액·조인 영향도. 예) 영향 없음(rights_holder_id 조인 유지) | 2026_10_26_000268 |
+| `sort_order` | unsignedSmallInteger |  | 화면 표시 순서 | 2026_10_26_000268 |
+| `is_active` | boolean |  | 사용 여부. 끄면 화면·배치 대상에서 빠진다 | 2026_10_26_000268 |
+| `created_at` | timestamp |  |  | 2026_10_26_000268 |
+| `updated_at` | timestamp | nullable | 수정 일시 | 2026_10_26_000268 |
 
 ## pg_reconciliation_item_holders
 | 컬럼 | 타입 | 플래그 | 주석 | 마이그레이션 |

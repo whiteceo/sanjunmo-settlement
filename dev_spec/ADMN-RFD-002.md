@@ -1,7 +1,7 @@
 # ADMN-RFD-002 환불 요청 관리 (통합 목록 · 상세) — 개발 명세
 
 - 프로토타입 파일: `prototype_clean/ADMN-RFD-002_baseline.html` (원본 상태: 319e3d4 v6.98)
-- 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
+- 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경: 환불 감사 로그에 계산 스냅샷(0da01b5b · 2ae60df8), 원 주문 적립 회수 순서 '미확정' 주석(a8016168, 동작 불변)
 - v6.98 정본 변경(정본 v3.2.24 · v4.0.15): 포인트 혼합 결제 환불의 권리자 R/S 공제 = 현금분(환불액 − 복원 포인트) — 화면 계산 근거 칸 `#c-rs-basis` · `#c-rs-basis2` · `#row-rs-basis` 추가(개발 대응 필드 없음, 정산 연산 쪽 규칙)
 - 포함 화면: RFD-004 환불 요청 목록 · RFD-002 환불 처리 상세(부분 환불 계산기) · 002-S1 연관 1:1 결제 · 환불 문의 · 002-P1 마이너스 포인트 전환 확인 · 002-P2 포인트 사용 내역 · RFD-003 환불 완료 내역 · 003-S1 완료 상세 · 003-S2 보정 거래 등록
 - 제외: RFD-001 올패스 합격 환급 심사(`admin.pass-refunds.*`)는 프로토에서 ADMN-SETT-006으로 보낸다(L449 링크) → SETT-006 명세 소관. 단 계좌 환불(`pass-refunds.account-refunds.update`)은 이 화면 케이스 4와 이어져 2절에 적는다
@@ -29,7 +29,7 @@
 | `admin.pass-refunds.index` | 합격 환급 심사(추정) | (케이스 4 계좌 환불만) | 〃 |
 
 - 메뉴 권한 밖 추가 판정
-  - 환불 승인 · PG 취소 전송 · 1:1 PG 즉시 취소: 재무팀 · 최고 관리자만(`RefundAdminService::canSettleMoney`, `RefundController.php:292-295`). CS는 메뉴 수정 권한이 있어도 접수 · 검수 · 보류 · 거절까지.
+  - 환불 승인 · PG 취소 전송 · 1:1 PG 즉시 취소: 재무팀 · 최고 관리자만(`RefundAdminService::canSettleMoney`, `RefundController.php:294-297`). CS는 메뉴 수정 권한이 있어도 접수 · 검수 · 보류 · 거절까지.
   - 보정 거래 등록: 재무팀 · 최고 관리자 + `admin.refund-histories.index` 등록 권한(`RefundAdminService::canRegisterAdjustment`, `routes/admin.php:941` 주석).
   - 상세를 수정 권한자가 처음 열면 접수 → 환불진행 자동 전환(`RefundController.php:112-115`).
 - 재계산(`admin.refunds.recalculate`)은 README 접미사 예외대로 **수정** 권한(`_index/routes.md:340`). 라우트 주석은 "재계산은 다시 읽기라 조회 권한"이라 적혀 있어 주석과 실제가 다름(`routes/admin.php:892`) — 개발 확인 사항, 정책 아님.
@@ -254,6 +254,7 @@
 | `refunds.settlement_status` · `settlement_reflected_at` | 정산 반영 | 003 정산 차감 반영월 |
 | `payment_cancels` (`refund_id`, `cancel_type`, `cancel_amount`, `idempotency_key`, `status`, `cancel_tid`, `completed_at`) | PG 취소 거래. `cancel_tid` · `idempotency_key` · `result_code`는 string(255) nullable로 넓힘(2026_10_12_000203, idempotency_key unique 인덱스는 000169 그대로) | 003 토스 취소 TID |
 | `refund_adjustments` (`refund_id`, `adjustment_type`, `method`, `amount`, `bank_code`, `account_no`, `account_holder`, `reason`, `payment_cancel_id`, `point_log_id`, `idempotency_key`, `admin_id`, `created_at`=정산 반영 월 기준) | 보정 거래(원 거래 불변) | 003-S2 · `#m3f-rfd-adj-body` |
+| `admin_logs.after`(`calc_snapshot` 포함) | 환불 처리 감사 로그 — 입고(`refund_receipt`) · 검수(`refund_inspection` · `return_inspection`) · 재계산(`refund_recalculate`) · 승인(`refund_approve`) · 거절(`refund_reject`) · 보류(`refund_hold`) · 1:1 문의 환불 생성(`refund_from_inquiry`) · 계좌 환불 완료(`refund_account_complete`)마다 그 시점 `refunds.calc_snapshot`을 함께 남긴다 — `RefundController.php:158` · `:179` · `:218` · `:281` · `:329` · `:354` · `:371`, `RefundInquiryController.php:117` · `:142` · `:161` · `:193`, `PassRefundController.php:100`(0da01b5b · 2ae60df8) | 화면 표시 없음(감사 · 정산 감사 로그 원천) |
 | `point_logs` (`action` clawback 등, `amount`, `balance_after`, `order_id`, `refund_id`, `idempotency_key`) · `points` | 회수 · 마이너스 · 복원 원장 | P2 `#p2-tbody` |
 | `inquiries` (`category_id`, `sub_type` consult · partial · full, `assign_board`=`ADMN-RFD-002-S1`, `status` received · processing · answered · hold) | 결제 · 환불 문의 | S1 |
 | `attachments` (type `inspection_photo` · `member_photo` · `adjustment_evidence`, disk `secure`) | 사진 · 근거 | 002 · S2 |
@@ -287,11 +288,12 @@
 - 002 3PL 창고 입고 확인(수거 송장 · 입고 일시) 단계 분리 — `RefundController.php:147-161`
 - 002 검수 결과 라디오 전환 시 서버 재계산 미리보기(저장 없음) — `RefundController.php:97-110`
 - 002 [재계산] · 계산 명세 인쇄 · 회원 첨부 사진 열람 — `routes/admin.php:906-911`
-- 002 PG 응답 대기(`pg_pending`) 상태와 재전송 — `RefundController.php:330-332`
+- 002 PG 응답 대기(`pg_pending`) 상태와 재전송 — `RefundController.php:333-335`
 - 002 · S1 보류 사유 4종 + 메모 — `Refund.php:56-61` **→ 결정(v6.92 white, S-11)**: 프로토도 보류 모달(사유 4종 · 기타 메모 필수) · 거절 모달(사유 3종 + 고객 안내) 추가, 보류는 법정 · 처리 기한을 멈추지 않음. 거절 사유 코드 `reject_reason`은 개발에 없음
 - 004 요청 유형(취소 · 부분 · 반품) · 처리 기한 필터 — `RefundAdminService.php:55-62`
 - S1 하위 분류 판정 사유(`judge_reason`) · 답변 임시저장 · 보류 재개 예정일 · 알림 미발송 사유 — `RefundInquirySubTypeRequest.php`, `InquiryProcessRequest.php`
 - 003 탭 7개 · 상세 필터(PG 실패 · 복원 · 유예 · 마이너스 · 담당자) — `RefundAdminService.php:78-86,768-786`
+- 환불 처리 단계마다 감사 로그(`admin_logs`)에 그 시점 계산 스냅샷(`calc_snapshot`) 보존 — 5절 `admin_logs.after` 행(0da01b5b · 2ae60df8). 프로토 화면 변경 없음
 - 003-S2 보정 근거 파일 최대 3개 · 계좌 이체 계좌 입력 · 중복 등록 방지 · 회원 안내 알림(`TPL_RFD_ADJUST`) — `RefundAdjustmentService.php:37-43`
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
@@ -304,6 +306,8 @@
 - 003-S2 보정 전표 반영 기준월 — 개발은 등록일이 속한 월 **→ 결정(v6.92 white, S-10)**: 승인 시점 미마감 가장 이른 귀속월(원 발생월이 미마감이면 그 달), 원 발생월을 전표에 보존
 - 002 계산기 Step 7-1 강좌 사용 포인트 복원(v6.92 신설) **→ 결정(v6.92 white, S-12)**: 복원 P = ⌊라인 사용 포인트 × 인강 환불액 ÷ 라인 결제액⌋, 나머지 현금 — 개발 '유상만 미수강 비율 복원'과 비율 방식은 같음(무상 P 처리는 Q-RFD-6)
 - 002 케이스 4 마이페이지 직접 신청 건의 휴대폰 익월 계좌 폴백 — 개발은 1:1 문의 건만 계좌 환불 경로 → Q-RFD-8
+- 재계산 · 보류 처리자 기록 — 정본(설계서)은 환불 요청 원장에도 남기라 하지만 개발 `refunds`에 칸이 없어(`admin_id`는 승인자) 감사 로그에만 남긴다. 개발 주석 '미확정 · 칸이 생기면 옮긴다'(`RefundController.php:280`, 0da01b5b). 규칙 기반 이름: `refunds.recalculated_by` · `recalculated_at` (규칙), `held_by` (규칙)
+- **white 확인 대상 — Q-RFD-5 결정과 개발 어긋남**: 원 주문 적립 회수 순서를 white가 10-27 D-ORD-06으로 '정본대로 보유 무상 P → 적립 P 순'으로 결정했으나, 개발은 a8016168에서 정렬을 바꾸지 않고 '미확정: 설계서는 보유 합계와 회수액 비교만 정했다 · 근거 없음 · 정해지면 이 정렬만 바꾼다' 주석만 달았다(`app/Repositories/Point/PointLedgerRepository.php:88-95`, 호출 `PointLedgerService.php:468`). 현재 동작은 여전히 이 주문 적립 건 → 소멸 임박순. 결정(D-ORD-06)이 개발팀에 아직 전달되지 않았거나 정본 근거(통합 설계서 L371 ① "현재 가용 포인트(무상 P ➔ 적립 P)에서 우선 차감")를 개발이 못 찾은 것 — 전달 여부 확인 필요
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
@@ -333,5 +337,5 @@
 | Q-RFD-5 | 원 주문 적립 회수 순서 — 정본은 보유 가용 포인트에서 **무상 P → 적립 P** 순으로 먼저 차감. 개발은 **이 주문 적립 건부터, 그다음 소멸 임박순** | 프로토 L1213 · L1946, 설계서 L350 ① | `app/Services/Point/PointLedgerService.php:451` **→ 결정(white 10-27, D-ORD-06)**: 정본대로 — 보유 무상 P → 적립 P 순 회수, 개발 순서 정정 전달 |
 | Q-RFD-6 | 결제에 쓴 무상 P의 환불 처리 — 정본은 사용 포인트를 **적립 P → 무상 P 순으로 LIFO 복원**(만료분 복원일 + 7일 유예). 개발은 **유상만 미수강 비율로 복원, 무상은 소멸** | 프로토 L1212 · L1938 | `RefundCalculator.php:25`, `refund-histories/adjust.blade.php:61` **→ 정본대로(D-ORD-07 A, 통합설계서 L190 · L369)**: 사용 포인트는 적립 P → 무상 P 순 LIFO 복원(만료분 복원일 + 7일), 무상 P도 복원 — 개발팀 전달 |
 | Q-RFD-7 | 반품 배송비 고객 귀책 공제 — 정본은 단순변심 **편도 3,000원**(유료배송 주문) / 무료배송 혜택 취소 **왕복 6,000원**, 주문당 1회. 개발은 고객 귀책이면 **항상 왕복**(설정값, 비면 편도 × 2), 귀책 코드도 2종뿐 | 프로토 L834-838 `#sel-fault`, ORD-001 L939-943, 설계서 L348, `docs/screen_spec/07_환불관리_ADMN-RFD.md:1496` | `app/Services/Refund/RefundInputBuilder.php:74`, `RefundCalculator.php:110-117`, `app/Models/Refund.php:74-86` **→ 정본대로(D-ORD-08 A, 통합설계서 L349)**: 단순변심 편도 3,000원 / 무료배송 혜택 취소 왕복 6,000원, 주문당 1회 — 개발 `customer_oneway` 추가 전달 |
-| Q-RFD-8 | PG 직취소 불가(휴대폰 익월 등) 계좌 폴백 범위 — 정본 케이스 4는 **마이페이지 직접 신청** 건도 등록 환불계좌로 현금 폴백. 개발은 **1:1 문의 유입 건만** 계좌 환불 경로가 있고, 마이페이지 건은 "관리자 수기 환불에서 그때 계좌를 받는다"는 주석뿐(경로 확인 필요) | 프로토 L1307-1310 · L1459, `submitFinalRefund()` L1479 | `RefundController.php:298`, `app/Services/Admin/RefundInquiryService.php:239-242`, `app/Services/Front/MyRefundService.php:493` **→ 정본대로(POLICY_D_ORD A, 통합설계서 표 5.1-A · S3-06 L370-371)**: 유입 경로 구분 없이 마이페이지 직접 신청 건도 USER-007 계좌 폴백 — 개발팀 전달 |
+| Q-RFD-8 | PG 직취소 불가(휴대폰 익월 등) 계좌 폴백 범위 — 정본 케이스 4는 **마이페이지 직접 신청** 건도 등록 환불계좌로 현금 폴백. 개발은 **1:1 문의 유입 건만** 계좌 환불 경로가 있고, 마이페이지 건은 "관리자 수기 환불에서 그때 계좌를 받는다"는 주석뿐(경로 확인 필요) | 프로토 L1307-1310 · L1459, `submitFinalRefund()` L1479 | `RefundController.php:299-301`, `app/Services/Admin/RefundInquiryService.php:239-242`, `app/Services/Front/MyRefundService.php:493` **→ 정본대로(POLICY_D_ORD A, 통합설계서 표 5.1-A · S3-06 L370-371)**: 유입 경로 구분 없이 마이페이지 직접 신청 건도 USER-007 계좌 폴백 — 개발팀 전달 |
 | Q-RFD-9 | 파본 · 불량(회사 귀책) 반품 교재의 재고 — 정본은 '파본/불량 합격'을 **재고 미산입 · 폐기**로 따로 두고, 정상 합격만 재고 +1. 개발은 검수 2값(정상 · 훼손)이라 **정상 + 회사 귀책도 재입고** | 프로토 L825-829 `#sel-book-inspect` | `app/Services/Refund/RefundService.php:254` **→ 결정(v6.92 white, D-ORD-09)**: 검수 3값 정상 · 파본/불량(회사 귀책 고정 · 재고 미입고 · 교재비 차감 · 반품 배송비 없음) · 고객 훼손 — 개발 `inspection_result`에 `defective` 추가, 정상 + 회사 귀책 재입고와 분리 |
