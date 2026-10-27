@@ -516,15 +516,15 @@ code, pre, kbd, samp,
           <div class="k-num" id="kpiAll">5건</div>
           <div class="k-sub">전월 오류 정정 · 대체 · 이행률 정산</div>
         </div>
-        <div class="kpi-card" data-filter="NEED_2ND_APPROVAL" data-dev-flag="proto-only" data-dev-note="2차 승인 — 개발은 재무 담당 단독 확정(정책 확인)">
-          <div class="k-title">🟣 재무 책임자 2차 승인 대기</div>
-          <div class="k-num" id="kpiSecond" style="color:var(--purple);">2건</div>
-          <div class="k-sub">100만원 초과 / 계정대체 / 이행률정산</div>
-        </div>
         <div class="kpi-card" data-filter="NEED_1ST_APPROVAL" data-dev-name="status" data-dev-value="pending (등록 · 미확정)">
-          <div class="k-title">⏳ 재무 담당자 1차 승인 대기</div>
-          <div class="k-num" id="kpiFirst" style="color:var(--warn);">1건</div>
-          <div class="k-sub">1,000,000원 이하 일반 조정</div>
+          <div class="k-title">⏳ 재무 담당자 확정 대기</div>
+          <div class="k-num" id="kpiFirst" style="color:var(--warn);">3건</div>
+          <div class="k-sub">1차 오픈: 금액과 관계없이 담당자 단독 확정</div>
+        </div>
+        <div class="kpi-card" data-filter="PHASE2_SCOPE" data-dev-note="2차 승인 대상(2차 릴리스) — 1차는 재무 담당 단독 확정(v6.87 white 결정, 개발과 같음)">
+          <div class="k-title">🔒 2차 릴리스 2차 승인 대상 (1차 미적용)</div>
+          <div class="k-num" id="kpiSecond" style="color:var(--text-muted);">2건</div>
+          <div class="k-sub">100만원 초과 / 계정대체 / 지원금 한도·이행률정산 — 1차는 담당자 확정</div>
         </div>
         <div class="kpi-card" data-filter="TAX_CORRECTION">
           <div class="k-title">📄 세무증빙·원천세 정정 연동 (4대 유형)</div>
@@ -633,7 +633,7 @@ code, pre, kbd, samp,
                   <td class="mono">과세표준: 2,000,000원<br>원천세(3.3%): 66,000원</td>
                   <td class="mono">과세표준: 3,250,000원 (<strong>+1,250,000원</strong>)<br>원천세: 107,250원 (<strong>+41,250원</strong>)</td>
                   <td>계산서 착오정정 + 사업소득 지급명세서 수정 제출</td>
-                  <td><span class="badge badge-warn">2차 승인 후 발행 대기</span></td>
+                  <td><span class="badge badge-warn">조정 확정 후 발행 대기</span></td>
                 </tr>
                 <tr>
                   <td class="mono"><strong>ADJ-202610-03</strong><br>(원귀속: 2026-09)</td>
@@ -666,7 +666,7 @@ code, pre, kbd, samp,
       <section id="tabAudit" class="tab-panel hidden">
         <div class="card">
           <div class="card-header">
-            <div class="card-title">정산 수동 조정 · 계정 대체 · 2차 승인 감사 로그 (ADMN-CONF-010 연동)</div>
+            <div class="card-title">정산 수동 조정 · 계정 대체 · 확정 감사 로그 (ADMN-CONF-010 연동)</div>
           </div>
           <div class="table-wrap">
             <table>
@@ -726,9 +726,9 @@ code, pre, kbd, samp,
           <select id="newAdjType" name="adjust_type" data-dev-note="개발 값: CURRENT · PRIOR_FIX · ACCOUNT_TRANSFER · PRO_RATA · SUPPORT_CAP_MANUAL · ALLOWANCE(정액 · 건당 수당, 개발에만 — 정책 확인)" class="select" onchange="updateNewModalPreview()">
             <option value="CURRENT_MANUAL" data-dev-value="CURRENT">당월 수동 조정</option>
             <option value="PRIOR_CORRECTION" data-dev-value="PRIOR_FIX">전월 정정 (마감 후 전기오류수정 · 차월 반영)</option>
-            <option value="ACCOUNT_TRANSFER">세전 · 세후 계정 간 대체 (재무 책임자 승인)</option>
-            <option value="PRO_RATA">지원금 이행률 정산 PRO_RATA (재무 책임자 승인)</option>
-            <option value="SUPPORT_CAP_MANUAL">지원금 한도 수기 조정 (재무 책임자 승인)</option>
+            <option value="ACCOUNT_TRANSFER">세전 · 세후 계정 간 대체</option>
+            <option value="PRO_RATA">지원금 이행률 정산 PRO_RATA</option>
+            <option value="SUPPORT_CAP_MANUAL">지원금 한도 수기 조정</option>
           </select>
         </div>
         <div class="form-group">
@@ -927,7 +927,10 @@ code, pre, kbd, samp,
     ETC: "기타 (ETC)"
   };
 
-  // 조정 유형 (03권 16.1 L349 · 02권 10.3 L367) — 계정 간 대체 · 지원금 이행률 정산 · 지원금 한도 수기 조정은 금액과 무관하게 재무 책임자 승인
+  // 조정 유형 (03권 16.1 L349 · 02권 10.3 L367)
+  // 승인 통제(02권 10.3 · D-SETT-01): 1차 오픈은 금액과 관계없이 재무 담당자 단독 확정(등록 → 사유 · 증빙 검증 → 확정).
+  // 2차 릴리스: 임계액(manual_adj_approval_threshold, 기본 1,000,000원) 초과 · 아래 ADJ_TYPE_2ND 유형은 재무 책임자 2차 승인을 거친다.
+  // phase2SecondApproval = 2차 릴리스에서 2차 승인 대상이 될 건(1차에는 표시만, 흐름에 걸리지 않음).
   const ADJ_TYPE_MAP = {
     CURRENT_MANUAL: "당월 수동 조정",
     PRIOR_CORRECTION: "전월 정정 (마감 후 전기오류수정)",
@@ -935,7 +938,9 @@ code, pre, kbd, samp,
     PRO_RATA: "지원금 이행률 정산 (PRO_RATA)",
     SUPPORT_CAP_MANUAL: "지원금 한도 수기 조정"
   };
-  const ADJ_TYPE_2ND = ["ACCOUNT_TRANSFER", "PRO_RATA", "SUPPORT_CAP_MANUAL"];
+  const ADJ_TYPE_2ND = ["ACCOUNT_TRANSFER", "PRO_RATA", "SUPPORT_CAP_MANUAL"]; // 2차 릴리스 2차 승인 대상 유형
+  const MANUAL_ADJ_APPROVAL_THRESHOLD = 1000000; // 임계액 설정값(그대로 둠, 2차 릴리스에서 사용)
+  const PHASE2_NOTE = "2차 릴리스: 임계액(1,000,000원) 초과 · 계정 간 대체 · 지원금 한도 · 이행률 정산은 재무 책임자 2차 승인 적용 예정(1차 미적용)";
   const CLOSED_THROUGH_MONTH = "2026-09"; // 마감 확정(Locked) 월 — 반영 기준월은 2026-10 이후만
 
   const state = {
@@ -957,16 +962,16 @@ code, pre, kbd, samp,
         taxTypeLabel: "면세 (EXEMPT)",
         incomeCategoryLabel: "사업소득 (BUSINESS)",
         amount: 1250000,
-        requireSecondApproval: true,
-        requireReasonText: "조정 금액 절대값(1,250,000원) > 승인 임계액(1,000,000원) 초과로 재무 책임자 2차 승인 필수",
+        phase2SecondApproval: true,
+        requireReasonText: "1차 오픈: 재무 담당자 단독 확정 (2차 릴리스에서는 조정 금액 절대값 1,250,000원 > 임계액 1,000,000원이라 재무 책임자 2차 승인 대상)",
         channels: [
           "[유형 2] 면세 수정 전자계산서 발행 요청 (면세 공급가액 +1,250,000원 변동)",
           "채널 3-a: 원천세 수정신고 및 사업소득 지급명세서 수정 제출 (원천세 차액 +41,250원)"
         ],
         explanation: "2026년 8월 귀속 산업안전 실기 단과반 프로모션 특약 요율(50%)이 계약 원장에 40%로 오기재되어 마감된 건에 대해 차액(+1,250,000원)을 2026년 10월 반영 기준월로 소급 가산 조정함.",
-        status: "WAIT_2ND",
-        statusLabel: "재무 책임자 2차 승인 대기",
-        firstApprover: "재무담당자 (김정산)",
+        status: "WAIT_1ST",
+        statusLabel: "재무 담당자 확정 대기",
+        firstApprover: null,
         secondApprover: null
       },
       {
@@ -984,15 +989,15 @@ code, pre, kbd, samp,
         taxTypeLabel: "면세 (EXEMPT)",
         incomeCategoryLabel: "사업소득 (BUSINESS)",
         amount: 350000,
-        requireSecondApproval: true,
-        requireReasonText: "[7.3절 · 10.3절] 세전·세후 계정 간 대체 전표는 금액 크기와 무관하게 재무 책임자 2차 승인 필수",
+        phase2SecondApproval: true,
+        requireReasonText: "1차 오픈: 재무 담당자 단독 확정 (2차 릴리스에서는 [7.3절 · 10.3절] 세전·세후 계정 간 대체 전표라 금액과 무관하게 재무 책임자 2차 승인 대상)",
         channels: [
           "채널 3-a: 원천징수 성립 확정에 따른 원천세 신고 기장 일치 대체"
         ],
         explanation: "2026년 9월 법정 지급 의제 성립으로 원천징수 신고가 선행 완료된 미지급분(350,000원)을 세전 미지급 계정(PRE_TAX)에서 기세무처리 세후 지급대기 계정(POST_TAX)으로 대체 기장함.",
-        status: "WAIT_2ND",
-        statusLabel: "재무 책임자 2차 승인 대기",
-        firstApprover: "재무담당자 (김정산)",
+        status: "WAIT_1ST",
+        statusLabel: "재무 담당자 확정 대기",
+        firstApprover: null,
         secondApprover: null
       },
       {
@@ -1010,14 +1015,14 @@ code, pre, kbd, samp,
         taxTypeLabel: "면세 (EXEMPT)",
         incomeCategoryLabel: "사업소득 (BUSINESS)",
         amount: 450000,
-        requireSecondApproval: false,
-        requireReasonText: "조정 금액 절대값(450,000원) ≤ 1,000,000원 이하이므로 재무 담당자 1차 단독 승인 대상",
+        phase2SecondApproval: false,
+        requireReasonText: "1차 오픈: 재무 담당자 단독 확정 (2차 릴리스에서도 조정 금액 절대값 450,000원 ≤ 임계액 1,000,000원이라 단독 확정)",
         channels: [
           "[10.4절 도서 오등록 특칙] 전월에 인세가 지급·신고된 바 없으므로 원천세 수정신고(채널 3-a) 없이 2026-10 정상 과세·지급 라인으로 인입"
         ],
         explanation: "2026년 9월 신간 도서(PROD-BK-1002)가 사입(PURCHASED_RESALE)으로 오등록되어 누락된 9월 확정 판매분 인세(300부 × 1,500원 = 450,000원)를 10월 정산서에 반영함.",
         status: "WAIT_1ST",
-        statusLabel: "재무 담당자 1차 승인 대기",
+        statusLabel: "재무 담당자 확정 대기",
         firstApprover: null,
         secondApprover: null
       },
@@ -1036,8 +1041,8 @@ code, pre, kbd, samp,
         taxTypeLabel: "과세 (TAXABLE)",
         incomeCategoryLabel: "원천징수 비대상 (법인)",
         amount: 640000,
-        requireSecondApproval: true,
-        requireReasonText: "[5.2절 · 10.3절] 계약 해지 시 지원금 이행률 정산(PRO_RATA)은 금액과 무관하게 재무 책임자 승인 필수",
+        phase2SecondApproval: true,
+        requireReasonText: "1차 오픈: 재무 담당자 단독 확정 (2차 릴리스에서는 [5.2절 · 10.3절] 지원금 이행률 정산(PRO_RATA)이라 금액과 무관하게 재무 책임자 2차 승인 대상)",
         channels: [
           "반려 — 10월 정산서 · 세금계산서 공급가액에 넣지 않음 (정정 채널 생성 없음)"
         ],
@@ -1045,8 +1050,8 @@ code, pre, kbd, samp,
         status: "REJECTED",
         statusLabel: "반려 (중복 — 같은 약정 SFA-2026-001은 MS-2026-006으로 종료 정산)",
         rejectReason: "산준교육 지원금 약정은 SFA-2026-001 하나이고 종료 정책은 LUMP_SETTLE입니다. 같은 약정의 종료 정산이 ADMN-INST-002 MS-2026-006(미소진 한도 1,800,000원 일시정산 · 2026-10 정산서 7단계 반영)으로 이미 승인돼 있어, 이 PRO_RATA 조정은 같은 약정을 한 번 더 정산하는 중복입니다. 10월 정산에 넣지 않습니다.",
-        firstApprover: "재무담당자 (김정산)",
-        secondApprover: "재무책임자 (박정산) — 반려"
+        firstApprover: "재무담당자 (김정산) — 반려",
+        secondApprover: "-"
       },
       {
         id: "ADJ-202610-05",
@@ -1063,8 +1068,8 @@ code, pre, kbd, samp,
         taxTypeLabel: "도서 면세 / 수수료 과세",
         incomeCategoryLabel: "원천징수 비대상 (재화 공급)",
         amount: 220000,
-        requireSecondApproval: false,
-        requireReasonText: "조정 금액 절대값(220,000원) ≤ 1,000,000원 이하 (1차 단독 승인 완료)",
+        phase2SecondApproval: false,
+        requireReasonText: "1차 오픈: 재무 담당자 단독 확정 완료 (조정 금액 절대값 220,000원 ≤ 임계액 1,000,000원)",
         channels: [
           "채널 4: 위탁자 발행 면세 계산서 수정 재요청 (재요청 중)",
           "채널 1: 당사 발행 위탁 수수료 수정 전자세금계산서 발행 (-200,000원, 부가세 -20,000원)"
@@ -1079,10 +1084,10 @@ code, pre, kbd, samp,
     auditLogs: [
       {
         time: "2026-10-14 11:20:00",
-        actor: "재무책임자 (박정산)",
+        actor: "재무담당자 (김정산)",
         targetId: "ADJ-202610-04",
         summary: "지원금 한도 판정 오류 (SUPPORT_CAP_ERR) · 조정 유형 지원금 이행률 정산(PRO_RATA) / +640,000원",
-        action: "재무 책임자 2차 승인 단계 반려 — 같은 약정(SFA-2026-001) 종료 정산 중복 (MS-2026-006 LUMP_SETTLE 1,800,000원으로 정산)",
+        action: "재무 담당자 확정 단계 반려 — 같은 약정(SFA-2026-001) 종료 정산 중복 (MS-2026-006 LUMP_SETTLE 1,800,000원으로 정산)",
         explanation: "특강 과정 중도 종강 합의에 따라 on_termination_policy = PRO_RATA(이행률 64.0%) 기준으로 산출한 잔여 지원금 640,000원을 승인함."
       },
       {
@@ -1090,7 +1095,7 @@ code, pre, kbd, samp,
         actor: "재무담당자 (김정산)",
         targetId: "ADJ-202610-05",
         summary: "위탁 수수료율 오류 (CONSIGN_FEE_ERR) / +220,000원 (수수료 200,000 + 수수료 부가세 20,000)",
-        action: "1차 단독 승인 완료 및 채널 1·4 복수 정정 생성",
+        action: "재무 담당자 단독 확정 완료 및 채널 1·4 복수 정정 생성",
         explanation: "2026년 9월 위탁 판매 수수료율이 계약 원장 값(25%)이 아닌 30%로 과다 차감되어 정산된 차액 220,000원(수수료 200,000원 + 같이 과다 차감한 수수료 부가세 20,000원)을 10월 위탁 정산에 가산하고 채널 1·4 증빙을 동시 정정함."
       }
     ]
@@ -1107,19 +1112,19 @@ code, pre, kbd, samp,
 
   function updateKpis() {
     const all = state.items;
-    const wait2nd = all.filter(x => x.status === "WAIT_2ND");
     const wait1st = all.filter(x => x.status === "WAIT_1ST");
+    const phase2 = wait1st.filter(x => x.phase2SecondApproval);
     const approved = all.filter(x => x.status === "APPROVED");
     const rejected = all.filter(x => x.status === "REJECTED");
 
     document.getElementById("kpiAll").textContent = `${all.length}건`;
-    document.getElementById("kpiSecond").textContent = `${wait2nd.length}건`;
+    document.getElementById("kpiSecond").textContent = `${phase2.length}건`;
     document.getElementById("kpiFirst").textContent = `${wait1st.length}건`;
     document.getElementById("kpiApproved").textContent = `${approved.length}건`;
 
     const approvedSum = approved.reduce((a, c) => a + c.amount, 0);
     document.getElementById("footerSummaryText").innerHTML =
-      `최종 승인 완료 <strong>${approved.length}건 (합계 ${approvedSum >= 0 ? "+" : ""}${approvedSum.toLocaleString()}원)</strong> / 승인 대기 <strong>${wait1st.length + wait2nd.length}건</strong>${rejected.length ? ` / 반려 <strong>${rejected.length}건</strong> (정산서 미반영)` : ""}`;
+      `최종 승인 완료 <strong>${approved.length}건 (합계 ${approvedSum >= 0 ? "+" : ""}${approvedSum.toLocaleString()}원)</strong> / 확정 대기 <strong>${wait1st.length}건</strong>${rejected.length ? ` / 반려 <strong>${rejected.length}건</strong> (정산서 미반영)` : ""}`;
   }
 
   function renderTable() {
@@ -1128,7 +1133,7 @@ code, pre, kbd, samp,
     const rFilter = document.getElementById("reasonFilter").value;
 
     const filtered = state.items.filter(item => {
-      if (state.kpiFilter === "NEED_2ND_APPROVAL" && item.status !== "WAIT_2ND") return false;
+      if (state.kpiFilter === "PHASE2_SCOPE" && !(item.status === "WAIT_1ST" && item.phase2SecondApproval)) return false;
       if (state.kpiFilter === "NEED_1ST_APPROVAL" && item.status !== "WAIT_1ST") return false;
       if (state.kpiFilter === "TAX_CORRECTION" && item.id === "ADJ-202610-04") return false;
       if (state.kpiFilter === "APPROVED" && item.status !== "APPROVED") return false;
@@ -1145,13 +1150,11 @@ code, pre, kbd, samp,
       const isSel = item.id === state.selectedId ? "selected" : "";
       let statusBadge = "";
       if (item.status === "APPROVED") statusBadge = `<span class="badge badge-success">${item.statusLabel}</span>`;
-      if (item.status === "WAIT_2ND") statusBadge = `<span class="badge badge-purple">${item.statusLabel}</span>`;
       if (item.status === "WAIT_1ST") statusBadge = `<span class="badge badge-warn">${item.statusLabel}</span>`;
       if (item.status === "REJECTED") statusBadge = `<span class="badge badge-danger">${item.statusLabel}</span>`;
 
-      const stepBadge = item.requireSecondApproval
-        ? `<span class="badge badge-purple">2차 책임자 승인 대상</span>`
-        : `<span class="badge badge-neutral">1차 담당자 단독 승인</span>`;
+      const stepBadge = `<span class="badge badge-neutral">담당자 단독 확정</span>`
+        + (item.phase2SecondApproval ? `<div style="font-size:10.5px; color:var(--text-muted); margin-top:3px;" title="${PHASE2_NOTE}">🔒 2차 릴리스: 책임자 2차 승인 대상</div>` : "");
 
       return `
         <tr class="${isSel}" data-dev-route="admin.settlement.adjustments.show" data-dev-method="GET" data-dev-url="/sj-admin/settlement/adjustments/form?id=" data-dev-perm="조회" data-dev-note="개발 [수정] → admin.settlement.adjustments.show /form?id= , [확정] · [반려] → #layerAdjDecision 모달" onclick="openAdjPage('${item.id}')" style="cursor:pointer;">
@@ -1189,7 +1192,7 @@ code, pre, kbd, samp,
     if (!item) return;
 
     badge.textContent = item.statusLabel;
-    badge.className = item.status === "APPROVED" ? "badge badge-success" : (item.status === "REJECTED" ? "badge badge-danger" : (item.status === "WAIT_2ND" ? "badge badge-purple" : "badge badge-warn"));
+    badge.className = item.status === "APPROVED" ? "badge badge-success" : (item.status === "REJECTED" ? "badge badge-danger" : "badge badge-warn");
 
     const isApproved = item.status === "APPROVED" || item.status === "REJECTED";
 
@@ -1240,20 +1243,20 @@ code, pre, kbd, samp,
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-alt); padding:9px 12px; border-radius:7px; font-size:11.5px; border:1px solid var(--border);">
-        <span>1차 승인자(담당자): <strong>${item.firstApprover || "대기"}</strong></span>
-        <span>2차 승인자(책임자): <strong>${item.secondApprover || (item.requireSecondApproval ? "대기 (필수)" : "해당 없음")}</strong></span>
+        <span>확정자(재무 담당자): <strong>${item.firstApprover || "대기"}</strong></span>
+        <span style="color:var(--text-muted);">2차 승인자(재무 책임자): <strong>${item.phase2SecondApproval ? "2차 릴리스 적용 예정 (1차 미사용)" : "해당 없음"}</strong></span>
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:8px;">
         ${item.status === "APPROVED" ? "" : '<button class="btn" type="button" data-dev-flag="dev-only" data-dev-route="admin.settlement.adjustments.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/adjustments" data-dev-perm="수정" data-dev-name="reject_reason" data-dev-note="개발 #layerAdjDecision decision=reject — 반려 사유 2자 이상 필수" onclick="showToast(&quot;반려 — 개발: 반려 사유 입력 후 decision=reject&quot;)">반려</button>'}
-        ${item.status === "WAIT_1ST" ? `
-          <button class="btn btn-primary" data-dev-route="admin.settlement.adjustments.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/adjustments" data-dev-perm="수정" data-dev-note="개발 #layerAdjDecision: id · decision=confirm" onclick="approveAdjustment('${item.id}', 1)">
-            ✔ 재무 담당자 1차 단독 승인 확정
+        ${item.status === "WAIT_1ST" && item.phase2SecondApproval ? `
+          <button class="btn" disabled title="${PHASE2_NOTE}" style="opacity:.55; cursor:not-allowed;">
+            🔒 재무 책임자 2차 승인 (2차 릴리스)
           </button>
         ` : ""}
-        ${item.status === "WAIT_2ND" ? `
-          <button class="btn btn-purple" data-dev-flag="proto-only" data-dev-note="재무 책임자 2차 승인 — 개발은 단독 확정(정책 확인)" onclick="approveAdjustment('${item.id}', 2)">
-            👑 재무 책임자 2차 최종 승인 확정 (임계액 초과 / 특수 대체)
+        ${item.status === "WAIT_1ST" ? `
+          <button class="btn btn-primary" data-dev-route="admin.settlement.adjustments.update" data-dev-method="PUT" data-dev-url="/sj-admin/settlement/adjustments" data-dev-perm="수정" data-dev-note="개발 #layerAdjDecision: id · decision=confirm" onclick="approveAdjustment('${item.id}', 1)">
+            ✔ 재무 담당자 확정
           </button>
         ` : ""}
       </div>
@@ -1350,15 +1353,16 @@ code, pre, kbd, samp,
     document.getElementById("newTaxThresholdKey").value = isOther ? taxThresholdKeyFor(opt.value, incCat) : "";
 
     const isSpecial2nd =
-      Math.abs(amt) > 1000000 ||
+      Math.abs(amt) > MANUAL_ADJ_APPROVAL_THRESHOLD ||
       ADJ_TYPE_2ND.includes(adjType) ||
       reasonCode === "ACCOUNT_TRANSFER" ||
       reasonCode === "SUPPORT_CAP_ERR" ||
       accType.includes("대체");
 
-    const approvalText = isSpecial2nd
-      ? `👑 <strong>재무 책임자 2차 승인 필수</strong> (사유: 금액 100만원 초과 또는 계정 간 대체 / 지원금 한도·이행률 정산)`
-      : `✔ <strong>재무 담당자 1차 단독 승인 대상</strong> (일반 조정 · 절대값 1,000,000원 이하)`;
+    const approvalText = `✔ <strong>재무 담당자 단독 확정</strong> (1차 오픈 · 금액과 관계없이 한 단계)`
+      + (isSpecial2nd
+        ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔒 2차 릴리스: 금액 100만원 초과 또는 계정 간 대체 / 지원금 한도·이행률 정산이라 재무 책임자 2차 승인 대상 (1차 미적용)</div>`
+        : "");
 
     let channelText = "채널 1: 수정 전자세금계산서 발행 요청";
     if (matrix.includes("TX-08")) {
@@ -1428,7 +1432,7 @@ code, pre, kbd, samp,
     }
 
     const isSpecial2nd =
-      Math.abs(amt) > 1000000 ||
+      Math.abs(amt) > MANUAL_ADJ_APPROVAL_THRESHOLD ||
       ADJ_TYPE_2ND.includes(adjType) ||
       reasonCode === "ACCOUNT_TRANSFER" ||
       reasonCode === "SUPPORT_CAP_ERR" ||
@@ -1452,10 +1456,10 @@ code, pre, kbd, samp,
       taxThresholdUnitKey: incCat.includes("OTHER") ? taxThresholdKeyFor(originStmtId, incCat) : "",
       taxTypeEvidence: reasonCode === "TAX_TYPE_ERR" && evidenceFile ? evidenceFile.name : "",
       amount: amt,
-      requireSecondApproval: isSpecial2nd,
+      phase2SecondApproval: isSpecial2nd,
       requireReasonText: isSpecial2nd
-        ? "임계액(100만원) 초과 또는 특수 조정(계정대체/지원금한도/이행률)으로 재무 책임자 2차 승인 필수"
-        : "일반 조정(1,000,000원 이하)으로 재무 담당자 1차 단독 승인 대상",
+        ? "1차 오픈: 재무 담당자 단독 확정 (2차 릴리스에서는 임계액 1,000,000원 초과 또는 특수 조정(계정대체/지원금한도/이행률)이라 재무 책임자 2차 승인 대상)"
+        : "1차 오픈: 재무 담당자 단독 확정 (일반 조정 · 절대값 1,000,000원 이하)",
       channels: [
         matrix.includes("TX-08")
           ? "채널 2(수정 전자계산서 발행 요청) + 채널 3-a(원천세 수정신고) 동시 생성"
@@ -1464,9 +1468,9 @@ code, pre, kbd, samp,
               : "10.4절 기준 세무 매트릭스 정정 채널 자동 연결됨")
       ],
       explanation: exp,
-      status: isSpecial2nd ? "WAIT_2ND" : "WAIT_1ST",
-      statusLabel: isSpecial2nd ? "재무 책임자 2차 승인 대기" : "재무 담당자 1차 승인 대기",
-      firstApprover: isSpecial2nd ? "재무담당자 (white · 등록 및 1차확인)" : null,
+      status: "WAIT_1ST",
+      statusLabel: "재무 담당자 확정 대기",
+      firstApprover: null,
       secondApprover: null
     };
 
@@ -1502,10 +1506,11 @@ code, pre, kbd, samp,
 
     item.explanation = exp;
     item.status = "APPROVED";
+    // 1차 오픈: level 1(재무 담당자 단독 확정)만 쓴다. level 2(재무 책임자 2차 승인)는 2차 릴리스용으로 남김.
     if (level === 1) {
       item.firstApprover = "재무담당자 (white)";
       item.secondApprover = "-";
-      item.statusLabel = "최종 승인 완료 (1차 단독 승인)";
+      item.statusLabel = "최종 승인 완료 (재무 담당자 단독 확정)";
     } else {
       item.secondApprover = "재무책임자 (white)";
       item.statusLabel = "최종 승인 완료 (2차 책임자 승인)";

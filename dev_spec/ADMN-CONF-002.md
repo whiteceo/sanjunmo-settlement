@@ -1,6 +1,6 @@
 # ADMN-CONF-002 약관 및 개인정보처리방침 관리 — 개발 명세
 
-- 프로토타입 파일: prototype_clean/ADMN-CONF-002_baseline.html (원본 상태: 84c22e2 + 미커밋 작업 트리)
+- 프로토타입 파일: prototype_clean/ADMN-CONF-002_baseline.html (원본 상태: de0d93c v6.87)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-CONF-002 약관 목록 · 버전 이력 · 개정 등록/편집 · 버전 상세
 - 개발 진행: 구현(담당 이응민, `_index/progress.md` 107행)

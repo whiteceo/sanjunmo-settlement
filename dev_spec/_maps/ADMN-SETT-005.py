@@ -78,7 +78,7 @@ R('<button class="btn btn-primary" id="btnOpenNewAdjPage">',
 
 # ── KPI(개발: 당월 반영 · 미확정 · 확정 · 반려 · 전월 정정) ──────────
 R('<section class="kpi-grid">', '<section class="kpi-grid"' + attrs(note="개발 KPI: 당월 반영 조정 건수 · 미확정(등록) · 확정(정산서 반영) · 반려 · 전월 정정 라인") + '>')
-R('<div class="kpi-card" data-filter="NEED_2ND_APPROVAL">', '<div class="kpi-card" data-filter="NEED_2ND_APPROVAL" data-dev-flag="proto-only" data-dev-note="2차 승인 — 개발은 재무 담당 단독 확정(정책 확인)">')
+R('<div class="kpi-card" data-filter="PHASE2_SCOPE">', '<div class="kpi-card" data-filter="PHASE2_SCOPE" data-dev-note="2차 승인 대상(2차 릴리스) — 1차는 재무 담당 단독 확정(v6.87 white 결정, 개발과 같음)">')
 R('<div class="kpi-card" data-filter="NEED_1ST_APPROVAL">', '<div class="kpi-card" data-filter="NEED_1ST_APPROVAL" data-dev-name="status" data-dev-value="pending (등록 · 미확정)">')
 R('<div class="kpi-card" data-filter="APPROVED">', '<div class="kpi-card" data-filter="APPROVED" data-dev-name="status" data-dev-value="approved (확정)">')
 
@@ -140,12 +140,12 @@ ACT("submitNewAdjustment", route="admin.settlement.adjustments.store", method="P
 R('id="editExplanation"', 'id="editExplanation" name="explanation"')
 ACTX("approveAdjustment('${item.id}', 1", route="admin.settlement.adjustments.update", method="PUT", url=ADJ, perm="수정",
     note="개발 #layerAdjDecision: id · decision=confirm")
-ACTX("approveAdjustment('${item.id}', 2", flag="proto-only", note="재무 책임자 2차 승인 — 개발은 단독 확정(정책 확인)")
+# v6.87: 2차 승인 버튼은 원본에서 비활성 안내(2차 릴리스)로 바뀜 — 1차 단독 확정(개발과 같음)
 R('''      <div style="display:flex; justify-content:flex-end; gap:8px;">
-        ${item.status === "WAIT_1ST" ? `''',
+        ${item.status === "WAIT_1ST" && item.phase2SecondApproval ? `''',
   '''      <div style="display:flex; justify-content:flex-end; gap:8px;">
         ${item.status === "APPROVED" ? "" : '<button class="btn" type="button" data-dev-flag="dev-only" data-dev-route="admin.settlement.adjustments.update" data-dev-method="PUT" data-dev-url="''' + ADJ + '''" data-dev-perm="수정" data-dev-name="reject_reason" data-dev-note="개발 #layerAdjDecision decision=reject — 반려 사유 2자 이상 필수" onclick="showToast(&quot;반려 — 개발: 반려 사유 입력 후 decision=reject&quot;)">반려</button>'}
-        ${item.status === "WAIT_1ST" ? `''')
+        ${item.status === "WAIT_1ST" && item.phase2SecondApproval ? `''')
 
 # ── 검증 ───────────────────────────────────────────
 VERIFY = [
