@@ -676,7 +676,7 @@ code, pre, kbd, samp,
 
                     <input type="radio" name="edit_mode" value="DIRECT_FIX" onchange="onChangeEditMode()" />
 
-                    <span>[유형 2] 현행/공시예정 버전 본문 직접 수정 (단순 오탈자·문구 보정용 · 버전 번호 유지)</span>
+                    <span id="ed-mode-fix-label">[유형 2] 공시중(시행 전) 버전 오탈자 보정 (버전 번호 유지 · 보정 이력 기록) — 시행중 버전은 새 개정만</span>
 
                   </label>
 
@@ -859,6 +859,7 @@ code, pre, kbd, samp,
                 <tbody id="term-history-tbody"></tbody>
 
               </table>
+              <div id="term-correction-box"></div>
 
             </div>
 
@@ -1350,6 +1351,9 @@ code, pre, kbd, samp,
 
       document.getElementById('ed-body').value = t.body;
 
+      const fixRadio = document.querySelector('input[name="edit_mode"][value="DIRECT_FIX"]');
+      fixRadio.disabled = !termAnnounced(t);
+      if (fixRadio.disabled && fixRadio.checked) document.querySelector('input[name="edit_mode"][value="NEW_REV"]').checked = true;
       onChangeEditMode();
 
       renderTermHistoryTable();
@@ -1406,6 +1410,18 @@ code, pre, kbd, samp,
 
 
 
+    // D-CONF-01(white 결정): 시행중(ACTIVE) 버전은 새 개정만. 공시중(시행 전, ANNOUNCED) 버전만 오탈자 보정 허용 + 보정 이력(전 · 후 본문 · 사유 · 처리자)
+    function termAnnounced(t) { return (t.history || []).find(h => h.status === 'ANNOUNCED') || null; }
+    function renderTermCorrections(t) {
+      const box = document.getElementById('term-correction-box');
+      if (!box) return;
+      const list = t.corrections || [];
+      box.innerHTML = `<div style="font-weight:800; font-size:13px; margin:14px 0 6px;">공시중 버전 오탈자 보정 이력 (${list.length}건)</div>` + (list.length
+        ? `<table class="data-table"><thead><tr><th style="width:70px;">버전</th><th style="width:130px;">보정 일시</th><th>보정 전 본문</th><th>보정 후 본문</th><th style="width:160px;">사유</th><th style="width:150px;">처리자</th></tr></thead><tbody>` +
+          list.map(c => `<tr><td><strong>${c.ver}</strong></td><td>${c.at}</td><td style="white-space:pre-wrap; font-size:12px;">${escCorr(c.before)}</td><td style="white-space:pre-wrap; font-size:12px;">${escCorr(c.after)}</td><td>${escCorr(c.reason)}</td><td>${c.admin}</td></tr>`).join('') + '</tbody></table>'
+        : '<div style="font-size:12px; color:var(--text-muted);">보정 이력이 없습니다. 시행중 버전은 보정할 수 없고, 공시중 버전을 보정하면 전 · 후 본문과 사유가 여기에 남습니다.</div>');
+    }
+    function escCorr(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch])); }
     function onChangeEditMode() {
 
       const mode = document.querySelector('input[name="edit_mode"]:checked').value;
@@ -1420,7 +1436,9 @@ code, pre, kbd, samp,
 
         revBox.style.opacity = '0.55';
 
-        document.getElementById('ed-ver-num').value = t.currentVer + ' (버전 유지)';
+        const ann = termAnnounced(t);
+        document.getElementById('ed-ver-num').value = ann ? ann.ver + ' (공시중 · 버전 유지)' : '보정 대상 없음';
+        if (ann) document.getElementById('ed-body').value = ann.body;
 
         alertBox.style.background = '#EFF6FF';
 
@@ -1428,9 +1446,11 @@ code, pre, kbd, samp,
 
         alertBox.style.color = '#1E40AF';
 
-        alertBox.textContent = 'ℹ️ [현행/공시본 직접 수정 모드] 버전 번호 변경 없이 오탈자·문구만 즉시 보정합니다. (중요 권리·의무 변경 시에는 신규 개정 버전 등록을 사용해 주세요)';
+        alertBox.textContent = ann
+          ? `ℹ️ [공시중 버전 오탈자 보정] 아직 시행 전인 ${ann.ver}(${ann.effectiveDate} 시행 예정)의 오탈자 · 문구만 보정합니다. 버전 번호는 그대로이고 보정 전 · 후 본문 · 사유 · 처리자가 보정 이력에 남습니다. 시행중 버전(${t.currentVer})은 고칠 수 없으니 바꿀 내용이 있으면 신규 개정으로 등록하세요.`
+          : `ℹ️ 시행중 버전(${t.currentVer})은 직접 고칠 수 없습니다. 공시중(시행 전) 버전이 없어 보정할 대상이 없습니다 — 신규 개정으로 등록하세요.`;
 
-        document.getElementById('btn-save-term').disabled = false;
+        document.getElementById('btn-save-term').disabled = !ann;
 
       } else {
 
@@ -1586,6 +1606,10 @@ code, pre, kbd, samp,
     function openSaveConfirmModal() {
 
       if (!validateNoticePeriod()) return;
+      if (document.querySelector('input[name="edit_mode"]:checked').value === 'DIRECT_FIX' && !termAnnounced(TERMS_DATA[currentTermCode])) {
+        showToast('시행중 버전은 고칠 수 없습니다. 신규 개정으로 등록하세요.');
+        return;
+      }
 
       const reason = document.getElementById('ed-reason').value.trim();
 
@@ -1613,7 +1637,7 @@ code, pre, kbd, samp,
 
         • <strong>대상 약관:</strong> [${t.code}] ${t.name}<br/>
 
-        • <strong>처리 방식:</strong> ${mode === 'NEW_REV' ? '신규 개정 버전 등록 (기존 버전 이력 자동 보관)' : '현행 버전 본문 직접 수정'}<br/>
+        • <strong>처리 방식:</strong> ${mode === 'NEW_REV' ? '신규 개정 버전 등록 (기존 버전 이력 자동 보관)' : '공시중(시행 전) 버전 오탈자 보정 (버전 유지 · 보정 이력 기록)'}<br/>
 
         • <strong>적용 버전:</strong> <span class="badge badge-blue">${newVer}</span><br/>
 
@@ -1651,7 +1675,7 @@ code, pre, kbd, samp,
 
 
 
-      t.body = newBody;
+      if (mode === 'NEW_REV') t.body = newBody;
 
       if (mode === 'NEW_REV') {
 
@@ -1682,9 +1706,12 @@ code, pre, kbd, samp,
 
         if (t.history[0]) {
 
-          t.history[0].reason = reason + ' (본문 보정)';
+          const ann = termAnnounced(t);
+          if (!ann) { closeModal('modal-save-confirm'); showToast('시행중 버전은 고칠 수 없습니다. 신규 개정으로 등록하세요.'); return; }
+          (t.corrections = t.corrections || []).unshift({ ver: ann.ver, at: '2026-10-27 14:10', before: ann.body, after: newBody, reason: reason, admin: '최고 관리자 (admin_root)' });
+          ann.fixCount = (ann.fixCount || 0) + 1;
 
-          t.history[0].body = newBody;
+          ann.body = newBody;
 
         }
 
@@ -1707,6 +1734,7 @@ code, pre, kbd, samp,
       const t = TERMS_DATA[currentTermCode];
 
       const tbody = document.getElementById('term-history-tbody');
+      renderTermCorrections(t);
 
       tbody.innerHTML = t.history.map((h, idx) => {
 
@@ -1714,7 +1742,7 @@ code, pre, kbd, samp,
 
         if (h.status === 'ACTIVE') stBadge = '<span class="badge badge-green">현행 시행중 (ACTIVE)</span>';
 
-        else if (h.status === 'ANNOUNCED') stBadge = '<span class="badge badge-amber">사전 공고중 (시행 예정)</span>';
+        else if (h.status === 'ANNOUNCED') stBadge = '<span class="badge badge-amber">사전 공고중 (시행 예정)</span>' + (h.fixCount ? ` <span class="badge badge-blue">오탈자 보정 ${h.fixCount}회</span>` : '');
 
 
 

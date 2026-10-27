@@ -785,6 +785,36 @@
     }).join("") + '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>';
   }
 
+  // 정산금 지급일 (white 2026-10-27 S-04) — 매월 10일(휴일이면 다음 영업일), 최소 지급액 미달 이월 시 차월 합산. 휴일은 주말만 계산.
+  function ptnrPayoutDate(m, addMonths) {
+    var p = m.split("-");
+    var d = new Date(Number(p[0]), Number(p[1]) - 1 + addMonths, 10);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    var z = function (n) { return (n < 10 ? "0" : "") + n; };
+    return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + "(" + "일월화수목금토".charAt(d.getDay()) + ")";
+  }
+  function ptnrPayoutNote(st, m) {
+    var rule = "정산금은 매월 10일(휴일이면 다음 영업일)에 지급합니다.";
+    var pay = st.scores.finalPayout;
+    if (st.status === "PAID") return rule + " 이 정산서는 <strong>" + ptnrPayoutDate(m, 1) + "</strong>에 지급되었습니다.";
+    if (st.status === "CARRY") return rule + " 이번 달은 최소 지급액 미달로 이월되어 <strong>차월 합산 지급</strong> 예정입니다(다음 지급 예정일 <strong>" + ptnrPayoutDate(m, 2) + "</strong>).";
+    if (pay < 0) return rule + " 이번 달은 지급액이 없고 반환 청구서가 발행됩니다.";
+    if (pay === 0) return rule + " 이번 달은 지급액이 없습니다.";
+    return rule + " 지급 예정일 <strong>" + ptnrPayoutDate(m, 1) + "</strong>" + (st.status === "HOLD" ? " (확인이 끝나 정산이 마감된 뒤 지급)" : "") + ".";
+  }
+
+  // 정산서 이견 — 이번 지급 반영 기한 (white 2026-10-27 S-05) = 발행일 + 설정값(기본 7일, 근거 없는 운영 편의값).
+  // 기한 뒤 이견도 마감 후 정정으로 다음 정산에 반영 — 이견 불가 · 승인 간주 문구는 두지 않는다. ADMN-SETT-002-S2와 같은 문구.
+  var PTNR_DISPUTE_REFLECT_DAYS = 7;
+  function ptnrDisputeNote(m) {
+    var p = PTNR_MONTH_END[m].split("-");
+    var issue = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    var due = new Date(issue.getFullYear(), issue.getMonth(), issue.getDate() + PTNR_DISPUTE_REFLECT_DAYS);
+    var z = function (n) { return (n < 10 ? "0" : "") + n; };
+    var f = function (d) { return d.getFullYear() + "-" + z(d.getMonth() + 1) + "-" + z(d.getDate()) + "(" + "일월화수목금토".charAt(d.getDay()) + ")"; };
+    return "정산 내용에 이견이 있으면 <strong>" + f(due) + "</strong>(발행일로부터 " + PTNR_DISPUTE_REFLECT_DAYS + "일)까지 재무팀에 알려 주세요. 이번 지급 전에 확인해 바로잡습니다. 기한 뒤에 알려 주신 이견도 마감 후 정정으로 처리해 다음 정산에 반영합니다.";
+  }
+
   function renderStatement() {
     var sel = document.getElementById("stmtMonth");
     if (sel && sel.value) PTNR.month = sel.value;
@@ -823,6 +853,8 @@
       + '<td class="num" style="font-weight:900; font-size:14px; background:#F0FDF4; color:#15803D;" id="stmtFinalPayout">' + ptnrWon(sc.finalPayout) + '</td>'
       + '</tr></tbody></table></div>');
     html.push('<div class="ptnr-equation"><strong>산출 요약</strong> ' + ptnrEsc(st.diffEquation) + '</div>');
+    html.push('<div class="ptnr-equation" id="stmtPayoutDate"><strong>지급일</strong> ' + ptnrPayoutNote(st, m) + '</div>');
+    html.push('<div class="ptnr-equation" id="stmtDisputeDeadline"><strong>이번 지급 반영 기한</strong> ' + ptnrDisputeNote(m) + '</div>');
 
     var no = 2;
     if (st.carryoverRows.length) {

@@ -279,7 +279,7 @@ code, pre, kbd, samp,
       const t = M.vendors.type(v.type);
       const x = v.terms || {};
       if (!t) return '—';
-      if (t.form === 'PURCHASE') return `매입 공급률 ${x.rate || '—'}% · ${x.pay || '결제 조건 미정'}`;
+      if (t.form === 'PURCHASE') return `매입 공급률 ${x.rate || '—'}% · ${x.pay || '결제 조건 미정'} · 반품 ${x.ret || '파본 · 인쇄 불량만 반출'}`;
       if (t.form === 'LOGISTICS') return `출고 건당 ${won(x.outFee)}원 · 반품 회수 ${won(x.returnFee)}원 · 보관 월 ${won(x.storage)}원 · ${x.cycle || ''}`;
       return x.memo || '—';
     }
@@ -382,7 +382,7 @@ code, pre, kbd, samp,
       const x = terms || {};
       let html = '';
       if (t.form === 'PURCHASE') {
-        html = `<div style="display:flex; gap:8px; flex-wrap:wrap;"><input class="f-input" id="vt-rate" type="number" min="1" max="100" style="width:120px;" placeholder="공급률 %" value="${x.rate || ''}" /><input class="f-input" id="vt-pay" style="flex:1; min-width:220px;" placeholder="결제 조건 (예: 월말 마감 · 익월 10일)" value="${x.pay || ''}" /></div><div class="form-help">도서 매입 원가는 교재 관리의 사입 원가 · 도서 공급 원장 기준값과 함께 씁니다.</div>`;
+        html = `<div style="display:flex; gap:8px; flex-wrap:wrap;"><input class="f-input" id="vt-rate" type="number" min="1" max="100" style="width:120px;" placeholder="공급률 %" value="${x.rate || ''}" /><input class="f-input" id="vt-pay" style="flex:1; min-width:220px;" placeholder="결제 조건 (예: 월말 마감 · 익월 10일)" value="${x.pay || ''}" /></div><div class="form-help">도서 매입 원가는 교재 관리의 사입 원가 · 도서 공급 원장 기준값과 함께 씁니다.</div><input class="f-input" id="vt-ret-cond" style="width:100%; margin-top:8px;" placeholder="반품 조건(예: 파본 · 인쇄 불량만 반출, 일반 반품은 계약 시에만)" value="${x.ret || ''}" />`;
       } else if (t.form === 'LOGISTICS') {
         html = `<div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;"><input class="f-input" id="vt-out" type="number" placeholder="출고 건당 단가(원)" value="${x.outFee || ''}" /><input class="f-input" id="vt-ret" type="number" placeholder="반품 회수 단가(원)" value="${x.returnFee || ''}" /><input class="f-input" id="vt-sto" type="number" placeholder="월 보관료(원)" value="${x.storage || ''}" /><input class="f-input" id="vt-cycle" placeholder="정산 주기" value="${x.cycle || '월 1회 (익월 초 명세서)'}" /></div><div class="form-help">물류비 대사(ADMN-SETT-011)가 이 단가로 3PL 청구를 검수합니다.</div>`;
       } else {
@@ -394,7 +394,7 @@ code, pre, kbd, samp,
 
     function readTerms(form) {
       const g = id => (document.getElementById(id) || {}).value || '';
-      if (form === 'PURCHASE') return { rate: g('vt-rate'), pay: g('vt-pay') };
+      if (form === 'PURCHASE') return { rate: g('vt-rate'), pay: g('vt-pay'), ret: g('vt-ret-cond') };
       if (form === 'LOGISTICS') return { outFee: g('vt-out'), returnFee: g('vt-ret'), storage: g('vt-sto'), cycle: g('vt-cycle') };
       return { memo: g('vt-memo') };
     }

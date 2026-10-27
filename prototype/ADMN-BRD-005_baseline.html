@@ -9,7 +9,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>[ADMN-BRD-005] 수강후기·합격수기·무료특강(빈출문제) 관리 — 산준모 백오피스</title>
+  <title>[ADMN-BRD-005] 수강후기·합격수기·무료콘텐츠(빈출자료·매일 1문제) 관리 — 산준모 백오피스</title>
 
   <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
 
@@ -731,7 +731,7 @@ code, pre, kbd, samp,
       <span class="crumb-group">주문 · 환불 · CS · 프로모션</span>
       <span class="crumb-sep">›</span>
       <span class="crumb-code" id="current-screen-code">ADMN-BRD-005</span>
-      <h1 class="crumb-title" id="current-screen-title">수강후기·합격수기 분리 관리 및 무료특강(빈출문제)</h1>
+      <h1 class="crumb-title" id="current-screen-title">수강후기·합격수기 분리 관리 및 무료콘텐츠(빈출자료 · 매일 1문제)</h1>
     </div>
     <div class="top-bar-right">
       <a href="ADMN-BRD-001_baseline.html" class="btn btn-outline btn-sm">← 공지·FAQ·Q&amp;A·당첨자 발표 (ADMN-BRD-001)</a>
@@ -742,7 +742,7 @@ code, pre, kbd, samp,
 
     <section class="subview-panel active" data-subpage="list">
 
-    <p class="page-desc">수강후기(진도율/별점)와 합격수기(자격증 합격증빙 검수)를 분리 운영하고, 무료특강·빈출문제 등 무료 콘텐츠를 관리합니다.</p>
+    <p class="page-desc">수강후기(진도율/별점)와 합격수기(자격증 합격증빙 검수)를 분리 운영하고, 빈출자료 · 매일 1문제 무료콘텐츠를 관리합니다. 무료특강 영상은 강의 · 강좌 관리에서 등록합니다.</p>
 
     <div class="domain-switch-bar">
 
@@ -760,7 +760,7 @@ code, pre, kbd, samp,
 
       <button class="sub-tab-btn" onclick="switchTab('freeLecture')" id="tab-btn-freeLecture">
 
-        🎬 무료특강 및 빈출문제 (ADMN-BRD-010) <span class="cnt" id="cnt-freeLecture">5</span>
+        📝 무료콘텐츠 (빈출자료 · 매일 1문제) (ADMN-BRD-010) <span class="cnt" id="cnt-freeLecture">5</span>
 
       </button>
 
@@ -853,7 +853,7 @@ code, pre, kbd, samp,
 
       <div class="info-callout">
 
-        <strong>[ADMN-BRD-005-B] 합격수기(Pass Essay) 전용 검수 정책:</strong> 국가기술자격 정기검정 <strong>응시 종목·회차(예: 2026년 제2회 산업안전기사)</strong>, <strong>필기/실기 합격 구분</strong>, <strong>합격인증 증빙 파일(큐넷 자격증 사본/합격확인서)</strong>을 대조 심사합니다. 승인 시 합격수기 게시판 노출 및 합격 축하 포인트가 지급됩니다. 승인된 합격수기 중 우수 수기는 <code>[베스트 합격수기]</code>로 선정해 베스트 후기 보상 포인트를 추가 지급합니다.
+        <strong>[ADMN-BRD-005-B] 합격수기(Pass Essay) 전용 검수 정책:</strong> 국가기술자격 정기검정 <strong>응시 종목·회차(예: 2026년 제2회 산업안전기사)</strong>, <strong>필기/실기 합격 구분</strong>, <strong>합격인증 증빙 파일(큐넷 자격증 사본/합격확인서)</strong>을 대조 심사합니다. 승인(검증 완료)은 게시판 노출까지이고, 후기 보상 포인트는 승인 뒤 목록의 [후기 보상 지급]으로 1건 1회 따로 지급합니다. 승인된 합격수기 중 우수 수기는 <code>[베스트 합격수기]</code>로 선정해 베스트 후기 보상 포인트를 추가 지급합니다.
 
       </div>
 
@@ -909,7 +909,7 @@ code, pre, kbd, samp,
 
               <th style="width:120px;">검수 상태</th>
 
-              <th style="width:170px;">베스트 선정 / 포인트</th>
+              <th style="width:200px;">후기 보상 · 베스트</th>
 
               <th style="width:150px;">검수 액션</th>
 
@@ -927,17 +927,22 @@ code, pre, kbd, samp,
 
 
 
-    <!-- ==================== 3. 무료특강 및 빈출문제 (ADMN-BRD-010) ==================== -->
+    <!-- ==================== 3. 무료콘텐츠 — 빈출자료 · 매일 1문제 (ADMN-BRD-010) ==================== -->
 
     <section id="view-freeLecture" class="view-section">
 
       <div class="info-callout">
 
-        <strong>[ADMN-BRD-010] 무료특강 및 빈출문제 운영 정책:</strong> 사용자 웹 <code>USER-FREE-001 ~ 003</code>에 노출되는 무료 학습 콘텐츠입니다. 콘텐츠 구분은 프론트 무료특강 분류와 같은 <strong>[기본이론]</strong> · <strong>[합격전략]</strong> · <strong>[빈출문제]</strong> · <strong>[개정법령]</strong> 4가지로 운영하며, 빈출문제 PDF 시험지/해설지 다운로드 및 플레이어 VOD 연동을 지원합니다.
+        <strong>[ADMN-BRD-010] 무료콘텐츠 운영 정책:</strong> 사용자 웹 <code>USER-FREE-000 ~ 003</code>에 노출되는 무료 학습 자료입니다. 콘텐츠 구분은 <strong>[빈출자료]</strong> · <strong>[매일 1문제]</strong> 2가지(1차 모두 운영)이며 둘 다 PDF · 본문형입니다. 본문은 누구나 열람하고 PDF는 로그인 회원만 받습니다. 무료특강 영상(<code>USER-FREE-001</code>)은 이 화면에서 등록하지 않고 강의 관리(<code>ADMN-PROD-002</code> 맛보기) · 강좌 관리(<code>ADMN-PROD-003</code> 무료 강좌)에서 진열합니다(S-22 · D-BRD-01, 2026-10-27).
 
       </div>
 
 
+
+      <div class="ctx-note" id="fl-scope-note">
+        이 탭은 <strong>빈출자료 · 매일 1문제</strong>(PDF · 본문)만 등록합니다. 본문은 누구나 볼 수 있고 <strong>PDF는 로그인 회원만</strong> 받습니다.
+        무료특강 영상은 <a href="ADMN-PROD-002_baseline.html" target="_blank" rel="noopener">강의 관리</a>의 맛보기 재생 · <a href="ADMN-PROD-003_baseline.html" target="_blank" rel="noopener">강좌 관리</a>의 무료 강좌로 등록해 무료특강 메뉴에 진열합니다.
+      </div>
 
       <div class="card">
 
@@ -949,13 +954,9 @@ code, pre, kbd, samp,
 
               <option value="ALL">콘텐츠 구분 전체</option>
 
-              <option value="BASIC_THEORY">기본이론</option>
+              <option value="EXAM">빈출자료</option>
 
-              <option value="PASS_STRATEGY">합격전략</option>
-
-              <option value="FREQ_EXAM">빈출문제</option>
-
-              <option value="LAW_REVISION">개정법령</option>
+              <option value="DAILY">매일 1문제</option>
 
             </select>
 
@@ -975,7 +976,7 @@ code, pre, kbd, samp,
 
           <div class="filter-right">
 
-            <button class="btn btn-primary" onclick="openFreeLecturePage(null)">+ 무료특강 / 빈출문제 등록</button>
+            <button class="btn btn-primary" onclick="openFreeLecturePage(null)">+ 무료콘텐츠 등록</button>
 
           </div>
 
@@ -1001,9 +1002,9 @@ code, pre, kbd, samp,
 
               <th>제목</th>
 
-              <th style="width:150px;">연동 VOD / 러닝타임</th>
+              <th style="width:110px;">게시일</th>
 
-              <th style="width:170px;">빈출문제/교안 PDF 첨부</th>
+              <th style="width:200px;">PDF 첨부 (로그인 회원만)</th>
 
               <th style="width:95px;">조회수</th>
 
@@ -1033,9 +1034,9 @@ code, pre, kbd, samp,
     <!-- 무료콘텐츠 등록 · 수정 (ADMN-BRD-010-S1) -->
     <section class="subview-panel" data-subpage="free-lecture">
       <div class="subpage-head">
-        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 무료특강 · 빈출문제 목록</button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="backToList()">← 무료콘텐츠 목록</button>
         <span class="crumb-code">ADMN-BRD-010-S1</span>
-        <h2 class="subpage-title" id="fl-modal-title">[ADMN-BRD-010] 무료특강 및 빈출문제 등록</h2>
+        <h2 class="subpage-title" id="fl-modal-title">[ADMN-BRD-010] 무료콘텐츠 등록</h2>
       </div>
       <div class="card subpage-card" style="max-width:960px;">
         <input type="hidden" id="fl-edit-id" />
@@ -1043,11 +1044,10 @@ code, pre, kbd, samp,
           <div class="form-group">
             <label class="form-label">콘텐츠 구분 *</label>
             <select id="fl-form-type">
-              <option value="BASIC_THEORY">기본이론</option>
-              <option value="PASS_STRATEGY">합격전략</option>
-              <option value="FREQ_EXAM">빈출문제</option>
-              <option value="LAW_REVISION">개정법령</option>
+              <option value="EXAM">빈출자료</option>
+              <option value="DAILY">매일 1문제</option>
             </select>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">무료특강 영상은 여기서 등록하지 않습니다 — 강의 관리(맛보기) · 강좌 관리(무료 강좌)에서 등록합니다.</div>
           </div>
           <div class="form-group">
             <label class="form-label">대상 자격증 종목 / 대비 연도 *</label>
@@ -1062,19 +1062,24 @@ code, pre, kbd, samp,
           </div>
           <div class="form-group full">
             <label class="form-label">콘텐츠 제목 *</label>
-            <input type="text" id="fl-form-title" placeholder="예: [빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강" />
+            <input type="text" id="fl-form-title" placeholder="예: [빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설 / [매일 1문제] 10월 27일 — 안전보건관리책임자 선임 기준" />
             <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">'정답지' 콘텐츠는 제목에 '정답지'를 붙여 표기합니다. 저작권 보호를 위해 제목에는 '빈출문제'로 표기합니다.</div>
           </div>
           <div class="form-group">
-            <label class="form-label">연동 VOD 에셋 코드 / 러닝타임 *</label>
-            <input type="text" id="fl-form-vod" placeholder="예: VOD-FREE-2610 (48분)" />
+            <label class="form-label">게시일 *</label>
+            <input type="date" id="fl-form-date" value="2026-10-27" />
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">매일 1문제는 게시일 하루에 한 문제씩 올라갑니다.</div>
           </div>
           <div class="form-group">
-            <label class="form-label">빈출문제 시험지 / 교안 PDF 파일명</label>
+            <label class="form-label">PDF 파일명 (빈출자료 · 정답지)</label>
             <input type="text" id="fl-form-pdf" placeholder="예: 2026_산안기_빈출문제_50선.pdf" />
           </div>
           <div class="form-group full">
-            <label class="form-label">특강/빈출문제 안내 및 핵심 문항 요약 (웹 에디터)</label>
+            <label class="form-label">공개 범위</label>
+            <div id="fl-form-access" style="padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:12.5px;">본문: <strong>누구나 열람</strong> · PDF: <strong>🔒 로그인 회원만 다운로드</strong> (다운로드 기록을 남깁니다. 바꿀 수 없음)</div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">본문 — 문항 · 해설 요약 (웹 에디터, 누구나 열람)</label>
             <div class="rich-editor-shell">
               <div class="rich-toolbar">
                 <button type="button" onclick="execCmd('fl-form-body','bold')"><b>B</b></button>
@@ -1124,14 +1129,75 @@ code, pre, kbd, samp,
     <div class="modal-body">
       <div id="pe-modal-body"></div>
       <div class="ctx-note" id="pe-reward-note" style="margin-top:14px; margin-bottom:0;"></div>
+      <div id="pe-reject-box" style="margin-top:14px; padding:12px; border:1px solid #fecaca; border-radius:8px; background:#fff7f7;">
+        <div style="font-weight:800; font-size:13px; margin-bottom:8px;">반려할 때: 반려 사유 (회원 마이페이지 · 알림톡에 그대로 표시) <span style="color:var(--danger);">*</span></div>
+        <select id="pe-reject-chip" style="width:100%; margin-bottom:8px;">
+          <option value="">사유 유형 선택</option>
+          <option>합격증 미제출</option>
+          <option>증빙 식별 불가</option>
+          <option>타 회차 합격증</option>
+          <option>글자 수 미달</option>
+          <option>광고 · 비방 포함</option>
+          <option>수강 이력 없음</option>
+        </select>
+        <textarea id="pe-reject-text" rows="2" maxlength="255" placeholder="반려 사유를 적어 주세요(공백 제외 10자 이상, 255자 이하)." style="width:100%;"></textarea>
+        <div id="pe-refund-link-note" style="margin-top:8px; font-size:12px; color:#991b1b; line-height:1.6;"></div>
+        <div id="pe-reject-err" style="margin-top:6px; font-size:12px; color:var(--danger);"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger" onclick="decidePassEssay('REJECTED')">반려 처리 (증빙 불일치/식별불가)</button>
-      <button class="btn btn-success" id="pe-approve-btn" onclick="decidePassEssay('APPROVED')">✓ 합격인증 승인 및 후기 보상 포인트 지급</button>
+      <button class="btn btn-success" id="pe-approve-btn" onclick="decidePassEssay('APPROVED')">✓ 합격인증 승인(검증 완료)</button>
     </div>
   </div>
 </div>
 
+<!-- 후기 보상 지급 (D-BRD-02) — 검증 완료 건에만, 1건 1회, 금액은 포인트 정책값 기본 · 바꾸면 사유 필수 -->
+<div class="modal-backdrop" id="modal-review-reward">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-header">
+      <h3 id="rw-title">후기 보상 지급</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-review-reward')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="ctx-note" id="rw-target" style="margin-bottom:12px;"></div>
+      <label for="rw-amount" style="display:block; font-weight:700; font-size:12px; margin-bottom:6px;">지급 포인트 (무상 P · 유효기간 2년)</label>
+      <input type="number" id="rw-amount" min="1" step="1" style="width:100%;" oninput="rwSyncReason()" />
+      <div id="rw-default-note" style="font-size:12px; color:var(--text-sub); margin-top:4px;"></div>
+      <div id="rw-reason-wrap" style="margin-top:10px; display:none;">
+        <label for="rw-reason" style="display:block; font-weight:700; font-size:12px; margin-bottom:6px;">금액 변경 사유 <span style="color:var(--danger);">*</span></label>
+        <textarea id="rw-reason" rows="2" maxlength="200" placeholder="정책값과 다르게 지급하는 이유(공백 제외 10자 이상, 200자 이하)" style="width:100%;"></textarea>
+      </div>
+      <div id="rw-err" style="margin-top:6px; font-size:12px; color:var(--danger);"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-review-reward')">취소</button>
+      <button class="btn btn-primary" id="rw-confirm" onclick="confirmReviewReward()">지급</button>
+    </div>
+  </div>
+</div>
+<!-- 후기 보상 회수 (S-21) — 허위 · 표절 · 게시 후 기본 30일 안 자진 삭제만, 무상 P 잔액 한도 안(마이너스 없음) -->
+<div class="modal-backdrop" id="modal-review-revoke">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-header">
+      <h3 id="rv-title">후기 보상 회수</h3>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('modal-review-revoke')">닫기 ✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="ctx-note" id="rv-target" style="margin-bottom:12px;"></div>
+      <div style="font-weight:700; font-size:12px; margin-bottom:6px;">회수 사유 <span style="color:var(--danger);">*</span></div>
+      <label style="display:block; margin-bottom:4px;"><input type="radio" name="rv-reason" value="허위 사실" /> 허위 사실(합격 · 수강 사실과 다름)</label>
+      <label style="display:block; margin-bottom:4px;"><input type="radio" name="rv-reason" value="표절" /> 표절(다른 사람 글 · 다른 사이트 후기 복사)</label>
+      <label style="display:block; margin-bottom:4px;"><input type="radio" name="rv-reason" value="단기 자진 삭제" id="rv-selfdel" /> <span id="rv-selfdel-text">게시 후 30일 안 자진 삭제</span></label>
+      <div style="font-size:12px; color:var(--text-sub); margin-top:8px; line-height:1.6;">이 세 가지 말고는 회수하지 않습니다. 회수는 회원의 무상 포인트 잔액 안에서만 하고, 잔액이 모자라도 마이너스로 만들지 않습니다. 30일은 포인트 정책에서 바꿀 수 있는 기본값입니다.</div>
+      <div id="rv-err" style="margin-top:6px; font-size:12px; color:var(--danger);"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-review-revoke')">취소</button>
+      <button class="btn btn-danger" onclick="confirmReviewRevoke()">회수</button>
+    </div>
+  </div>
+</div>
 <div class="toast-box" id="toast-box"></div>
 
 
@@ -1169,24 +1235,120 @@ code, pre, kbd, samp,
   ];
 
   let currentAuditEssayId = null;
+  // 후기 보상 지급 · 회수 · 합격환급 연동 상태(D-BRD-02 · S-21) — 승인(검증 완료)과 보상 지급을 나눔. rewardPaidP > 0 이면 지급함(1건 1회)
+  const PE_EXTRA = {
+    'PE-312': { postedAt: '2026-10-20', refundApplied: true, rewardPaidP: 0, rewardAt: '', freeBal: 0 },
+    'PE-311': { postedAt: '2026-09-18', refundApplied: true, rewardPaidP: 1000, rewardAt: '2026-09-19', freeBal: 6000 },
+    'PE-310': { postedAt: '2026-10-21', refundApplied: false, rewardPaidP: 0, rewardAt: '', freeBal: 0 },
+    'PE-309': { postedAt: '2026-10-11', refundApplied: true, rewardPaidP: 0, rewardAt: '', freeBal: 0, rejectReason: '증빙 식별 불가 — 수험번호가 흐려 읽을 수 없습니다. 선명한 사본으로 다시 올려 주세요.' }
+  };
+  PASS_ESSAYS.forEach(p => Object.assign(p, { revoked: null, rejectReason: '' }, PE_EXTRA[p.id] || {}));
+  const PE_TODAY = '2026-10-27';
+  // S-21: 보상 후기는 사용자 화면 제목 앞에 '포인트 지급 후기' 표시(추천 · 보증 표시)
+  const REVIEW_PAID_BADGE = '<div style="margin-top:4px;"><span class="badge badge-blue" title="사용자 화면 후기 제목 앞에 포인트 지급 후기로 표시(추천 · 보증 표시)">포인트 지급 후기</span></div>';
+  // 단기 자진 삭제 회수 기간 — 근거 없는 운영 편의값, 포인트 정책(PROM-002) 설정 가능한 기본값 30일
+  function reviewRevokeDays() { const v = window.SJM_MASTER ? SJM_MASTER.settings.get('reviewRevokeDays') : undefined; return Number(v) > 0 ? Number(v) : 30; }
+  function peDaysSince(d) { return Math.round((new Date(PE_TODAY) - new Date(d)) / 86400000); }
+  function peReasonOk(t, max) { const s = (t || '').replace(/\s/g, ''); return s.length >= 10 && (t || '').length <= max && new Set(s).size >= 3; }
+  function peStatusExtra(p) {
+    let h = '';
+    if (p.status === 'REJECTED' && p.rejectReason) h += `<div style="font-size:11.5px; color:#991b1b; margin-top:4px;">사유: ${p.rejectReason}</div>`;
+    if (p.refundApplied) h += p.status === 'REJECTED'
+      ? '<div style="margin-top:4px;"><a href="ADMN-SETT-006_baseline.html" target="_blank" rel="noopener" class="badge badge-red" style="text-decoration:none;">합격환급 보완 요청 중</a></div>'
+      : '<div style="margin-top:4px;"><a href="ADMN-SETT-006_baseline.html" target="_blank" rel="noopener" class="badge badge-purple" style="text-decoration:none;">합격환급 신청 연동</a></div>';
+    return h;
+  }
+  function peRewardCell(p) {
+    if (p.status !== 'APPROVED') return '<span style="font-size:11.5px; color:var(--text-sub);">검증 완료 후 지급 · 선정 가능</span>';
+    let h = '';
+    if (p.revoked) h += `<span class="badge badge-red">보상 회수 −${p.revoked.amount.toLocaleString()}P (${p.revoked.reason})</span>`;
+    else if (p.rewardPaidP > 0) h += `<span class="badge badge-green">후기 보상 지급함 ${p.rewardPaidP.toLocaleString()}P · ${p.rewardAt}</span>${REVIEW_PAID_BADGE}<div style="margin-top:4px;"><button class="btn btn-outline btn-sm" onclick="openReviewRevokeModal('${p.id}')">보상 회수</button></div>`;
+    else h += `<button class="btn btn-primary btn-sm" onclick="openReviewRewardModal('${p.id}')">후기 보상 지급</button>`;
+    h += '<div style="margin-top:6px;">' + (p.best
+      ? `<span class="badge badge-amber">👑 베스트 합격수기 (+${rewardP(true).toLocaleString()}P)</span> <button class="btn btn-outline btn-sm" onclick="toggleBestPassEssay('${p.id}')">베스트 해제</button>`
+      : `<button class="btn btn-outline btn-sm" onclick="toggleBestPassEssay('${p.id}')">👑 베스트 선정</button>`) + '</div>';
+    return h;
+  }
+  let currentRewardEssayId = null;
+  function openRvModal(id) { const m = document.getElementById(id); m.style.removeProperty('display'); m.classList.add('open'); }
+  function openReviewRewardModal(id) {
+    const p = PASS_ESSAYS.find(x => x.id === id);
+    if (!p) return;
+    if (p.status !== 'APPROVED') { showToast(`${id}는 검증 완료 전이라 후기 보상을 지급할 수 없습니다.`); return; }
+    if (p.rewardPaidP > 0 || p.revoked) { showToast(`${id}는 이미 후기 보상을 지급했습니다(1건 1회).`); return; }
+    currentRewardEssayId = id;
+    document.getElementById('rw-title').textContent = `후기 보상 지급 — ${p.id}`;
+    document.getElementById('rw-target').innerHTML = `<strong>${p.user}</strong> · ${p.cert}<br/>검증 완료 건에만 1건 1회 지급합니다. 지급하면 사용자 화면 후기 제목 앞에 <strong>'포인트 지급 후기'</strong>가 붙습니다.`;
+    document.getElementById('rw-amount').value = rewardP(false);
+    document.getElementById('rw-default-note').textContent = `기본값 = 포인트 정책(PROM-002) 후기 보상 ${rewardP(false).toLocaleString()}P. 금액을 바꾸면 사유를 남깁니다.`;
+    document.getElementById('rw-reason').value = '';
+    document.getElementById('rw-err').textContent = '';
+    rwSyncReason();
+    openRvModal('modal-review-reward');
+  }
+  function rwSyncReason() {
+    const changed = Number(document.getElementById('rw-amount').value) !== rewardP(false);
+    document.getElementById('rw-reason-wrap').style.display = changed ? 'block' : 'none';
+  }
+  function confirmReviewReward() {
+    const p = PASS_ESSAYS.find(x => x.id === currentRewardEssayId);
+    if (!p) return;
+    const amt = Number(document.getElementById('rw-amount').value);
+    const err = document.getElementById('rw-err');
+    if (!Number.isInteger(amt) || amt < 1) { err.textContent = '지급 포인트는 1 이상의 정수로 입력하세요.'; return; }
+    const reason = document.getElementById('rw-reason').value;
+    if (amt !== rewardP(false) && !peReasonOk(reason, 200)) { err.textContent = '금액을 바꾸면 사유를 공백 제외 10자 이상 · 200자 이하로 적어야 합니다(같은 글자 반복 불가).'; return; }
+    if (p.rewardPaidP > 0) { err.textContent = '이미 지급한 건입니다(1건 1회).'; return; }
+    p.rewardPaidP = amt; p.rewardAt = PE_TODAY; p.freeBal = (p.freeBal || 0) + amt;
+    closeModal('modal-review-reward');
+    renderPassEssays();
+    showToast(`${p.id} 후기 보상 ${amt.toLocaleString()}P(무상 P · 유효기간 2년)를 지급했습니다.`);
+  }
+  function openReviewRevokeModal(id) {
+    const p = PASS_ESSAYS.find(x => x.id === id);
+    if (!p || !(p.rewardPaidP > 0) || p.revoked) return;
+    currentRewardEssayId = id;
+    const days = reviewRevokeDays(), since = peDaysSince(p.postedAt), can = since <= days;
+    document.getElementById('rv-title').textContent = `후기 보상 회수 — ${p.id}`;
+    document.getElementById('rv-target').innerHTML = `<strong>${p.user}</strong> · 지급 ${p.rewardPaidP.toLocaleString()}P · 게시일 ${p.postedAt}(${since}일 경과) · 무상 P 잔액 ${(p.freeBal || 0).toLocaleString()}P`;
+    document.querySelectorAll('input[name="rv-reason"]').forEach(r => { r.checked = false; });
+    document.getElementById('rv-selfdel').disabled = !can;
+    document.getElementById('rv-selfdel-text').textContent = `게시 후 ${days}일 안 자진 삭제` + (can ? '' : ` — 이 건은 게시 후 ${since}일이 지나 해당 없음`);
+    document.getElementById('rv-err').textContent = '';
+    openRvModal('modal-review-revoke');
+  }
+  function confirmReviewRevoke() {
+    const p = PASS_ESSAYS.find(x => x.id === currentRewardEssayId);
+    if (!p) return;
+    const sel = document.querySelector('input[name="rv-reason"]:checked');
+    if (!sel || sel.disabled) { document.getElementById('rv-err').textContent = '회수 사유(허위 사실 · 표절 · 단기 자진 삭제)를 고르세요.'; return; }
+    const amount = Math.min(p.rewardPaidP, Math.max(0, p.freeBal || 0));
+    p.freeBal = (p.freeBal || 0) - amount;
+    p.revoked = { reason: sel.value, amount };
+    closeModal('modal-review-revoke');
+    renderPassEssays();
+    showToast(`${p.id} 후기 보상 ${amount.toLocaleString()}P를 회수했습니다(사유: ${sel.value}, 무상 P 잔액 한도 안).`);
+  }
 
 
 
-  // 3. 무료특강 및 빈출문제 (ADMN-BRD-010) - '빈출문제'로 전수 일원화
-  // 콘텐츠 구분 = 프론트 무료특강(USER-FREE-001) 4분류(통합 설계서 Set 4 매핑표). 예전 FREE_LECTURE(무료특강 영상)는 4분류로 나눔, FREQ_EXAM 값은 유지
-  const FL_TYPES = { BASIC_THEORY: ['badge-blue', '📘 기본이론'], PASS_STRATEGY: ['badge-green', '🎯 합격전략'], FREQ_EXAM: ['badge-purple', '📝 빈출문제'], LAW_REVISION: ['badge-amber', '⚖️ 개정법령'] };
+  // 3. 무료콘텐츠 (ADMN-BRD-010) — 제목 표기는 저작권 보호로 '빈출문제'(기출문제 금지)
+  // 콘텐츠 구분(S-22 · D-BRD-01, 2026-10-27 white): 빈출자료(EXAM) · 매일 1문제(DAILY) 2종, 1차 모두 운영. 개발 FreeContent::TYPES와 같은 값.
+  // 바뀐 점(v6.84 C-12 → 이번 결정): 무료특강 4분류(기본이론 / 합격전략 / 빈출문제 / 개정법령)와 VOD 연동은 이 화면에서 뺐다 — 무료특강 영상은 강의 · 강좌 관리(PROD-002 맛보기 · PROD-003 무료 강좌)에서 등록하고, 4분류는 프론트 USER-FREE-001 진열 분류로 남는다.
+  // 공개 범위: 본문은 누구나, PDF는 로그인 회원만 다운로드(고정).
+  const FL_TYPES = { EXAM: ['badge-purple', '📝 빈출자료'], DAILY: ['badge-blue', '📅 매일 1문제'] };
 
   let FREE_LECTURES = [
 
-    { id: 'FL-2605', type: 'LAW_REVISION', cert: '산업안전기사', year: '2026 대비', title: '[개정법령] 2026 산업안전보건법령 개정사항 반영 특강', vod: 'VOD-FREE-105 (41분)', pdf: '개정법령요약.pdf', views: 704, visible: true, body: '2026년 시행 산업안전보건법령 개정사항과 시험 반영 범위를 정리한 특강입니다.', versions: [{ ver: 1, date: '2026-10-12', pdf: '개정법령요약.pdf', body: '2026년 시행 산업안전보건법령 개정사항과 시험 반영 범위를 정리한 특강입니다.', note: '최초 등록' }] },
+    { id: 'FL-2605', type: 'DAILY', cert: '산업안전기사', year: '2026 대비', postDate: '2026-10-27', title: '[매일 1문제] 10월 27일 — 안전보건관리책임자 선임 기준 (정답지 포함)', pdf: '매일1문제_20261027_정답지.pdf', views: 312, visible: true, body: '상시근로자 수에 따른 안전보건관리책임자 선임 기준을 묻는 한 문제와 해설입니다.', versions: [{ ver: 1, date: '2026-10-27', pdf: '매일1문제_20261027_정답지.pdf', body: '상시근로자 수에 따른 안전보건관리책임자 선임 기준을 묻는 한 문제와 해설입니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2604', type: 'FREQ_EXAM', cert: '산업안전기사', year: '2026 대비', title: '[빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설특강', vod: 'VOD-FREE-104 (52분)', pdf: '2026_산안기_빈출문제_50선.pdf', views: 2410, visible: true, body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', versions: [{ ver: 1, date: '2026-09-25', pdf: '2026_산안기_빈출문제_50선.pdf', body: '핵심 빈출문제 50선 풀이 특강입니다.', note: '최초 등록' }, { ver: 2, date: '2026-10-12', pdf: '2026_산안기_빈출문제_50선.pdf', body: '최근 출제 경향을 반영한 핵심 빈출문제 50선 풀이 특강입니다.', note: '본문 수정 (출제 경향 반영)' }] },
+    { id: 'FL-2604', type: 'EXAM', cert: '산업안전기사', year: '2026 대비', postDate: '2026-09-25', title: '[빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설', pdf: '2026_산안기_빈출문제_50선.pdf', views: 2410, visible: true, body: '최근 출제 경향을 반영한 핵심 빈출문제 50선과 해설입니다.', versions: [{ ver: 1, date: '2026-09-25', pdf: '2026_산안기_빈출문제_50선.pdf', body: '핵심 빈출문제 50선과 해설입니다.', note: '최초 등록' }, { ver: 2, date: '2026-10-12', pdf: '2026_산안기_빈출문제_50선.pdf', body: '최근 출제 경향을 반영한 핵심 빈출문제 50선과 해설입니다.', note: '본문 수정 (출제 경향 반영)' }] },
 
-    { id: 'FL-2603', type: 'BASIC_THEORY', cert: '산업안전기사', year: '2026 대비', title: '[무료특강] 비전공자를 위한 인간공학·시스템안전 계산공식 기초특강', vod: 'VOD-FREE-103 (38분)', pdf: '계산공식_핵심요약집.pdf', views: 1890, visible: true, body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', versions: [{ ver: 1, date: '2026-09-18', pdf: '계산공식_핵심요약집.pdf', body: '필기 과락 방지를 위한 필수 공식 정리 특강입니다.', note: '최초 등록' }] },
+    { id: 'FL-2603', type: 'DAILY', cert: '산업안전기사', year: '2026 대비', postDate: '2026-10-26', title: '[매일 1문제] 10월 26일 — 인간공학 휴먼에러 확률 계산 (정답지 포함)', pdf: '매일1문제_20261026_정답지.pdf', views: 486, visible: true, body: '직렬 · 병렬 작업의 휴먼에러 확률을 계산하는 한 문제와 풀이입니다.', versions: [{ ver: 1, date: '2026-10-26', pdf: '매일1문제_20261026_정답지.pdf', body: '직렬 · 병렬 작업의 휴먼에러 확률을 계산하는 한 문제와 풀이입니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2602', type: 'PASS_STRATEGY', cert: '건설안전기사', year: '2026 대비', title: '[합격전략] 건설안전기사 실기 필답형+작업형 답안 작성 전략과 시간 배분', vod: 'VOD-FREE-102 (64분)', pdf: '2026_건안기_실기_합격전략.pdf', views: 1520, visible: true, body: '건설안전기사 실기 필답형 · 작업형 답안 작성 순서와 시간 배분 전략 특강입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2026_건안기_실기_합격전략.pdf', body: '건설안전기사 실기 필답형 · 작업형 답안 작성 순서와 시간 배분 전략 특강입니다.', note: '최초 등록' }] },
+    { id: 'FL-2602', type: 'EXAM', cert: '건설안전기사', year: '2026 대비', postDate: '2026-09-05', title: '[빈출문제] 건설안전기사 실기 필답형 빈출문제 30선 정답지', pdf: '2026_건안기_실기_빈출30선_정답지.pdf', views: 1520, visible: true, body: '건설안전기사 실기 필답형에 자주 나오는 30문항과 모범 답안입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2026_건안기_실기_빈출30선_정답지.pdf', body: '건설안전기사 실기 필답형에 자주 나오는 30문항과 모범 답안입니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2601', type: 'FREQ_EXAM', cert: '위험물산업기사', year: '2026 대비', title: '[빈출문제] 제1류~제6류 위험물 성상 및 소화방법 빈출문제 총정리', vod: 'VOD-FREE-101 (45분)', pdf: '위험물_빈출문제_요약노트.pdf', views: 980, visible: true, body: '위험물 유별 핵심 빈출문제 해설입니다.', versions: [{ ver: 1, date: '2026-08-20', pdf: '위험물_빈출문제_요약노트.pdf', body: '위험물 유별 핵심 빈출문제 해설입니다.', note: '최초 등록' }] }
+    { id: 'FL-2601', type: 'EXAM', cert: '위험물산업기사', year: '2026 대비', postDate: '2026-08-20', title: '[빈출문제] 제1류~제6류 위험물 성상 및 소화방법 빈출문제 총정리', pdf: '위험물_빈출문제_요약노트.pdf', views: 980, visible: true, body: '위험물 유별 핵심 빈출문제 해설입니다.', versions: [{ ver: 1, date: '2026-08-20', pdf: '위험물_빈출문제_요약노트.pdf', body: '위험물 유별 핵심 빈출문제 해설입니다.', note: '최초 등록' }] }
 
   ];
 
@@ -1224,7 +1386,7 @@ code, pre, kbd, samp,
 
       passEssay: ['ADMN-BRD-005-B', '합격수기 검수 관리 (자격증 합격증빙 심사·축하 포인트)'],
 
-      freeLecture: ['ADMN-BRD-010', '무료특강 및 빈출문제 관리']
+      freeLecture: ['ADMN-BRD-010', '무료콘텐츠 관리 (빈출자료 · 매일 1문제)']
 
     };
 
@@ -1277,6 +1439,7 @@ code, pre, kbd, samp,
             ? `<span class="badge badge-amber">👑 베스트 후기 (+${rewardP(true).toLocaleString()}P)</span>`
 
             : `<span class="badge badge-slate">일반 후기 (+${rewardP(false).toLocaleString()}P)</span>`
+          }${r.pointPaid > 0 ? REVIEW_PAID_BADGE : ''}${''
 
           }
 
@@ -1388,16 +1551,11 @@ code, pre, kbd, samp,
 
         <td>${p.user}</td>
 
-        <td><span class="badge ${stBadge[p.status]}">${stLabel[p.status]}</span></td>
+        <td><span class="badge ${stBadge[p.status]}">${stLabel[p.status]}</span>${peStatusExtra(p)}</td>
 
         <td>
 
-          ${p.status !== 'APPROVED'
-            ? '<span style="font-size:11.5px; color:var(--text-sub);">승인 후 선정 가능</span>'
-            : p.best
-              ? `<span class="badge badge-amber">👑 베스트 합격수기 (+${rewardP(true).toLocaleString()}P)</span><div style="margin-top:4px;"><button class="btn btn-outline btn-sm" onclick="toggleBestPassEssay('${p.id}')">베스트 해제</button></div>`
-              : `<button class="btn btn-outline btn-sm" onclick="toggleBestPassEssay('${p.id}')">👑 베스트 선정</button>`
-          }
+          ${peRewardCell(p)}
 
         </td>
 
@@ -1471,8 +1629,15 @@ code, pre, kbd, samp,
     `;
 
     // 승인 보상 = 후기 보상(무상 P, 유효기간 2년). 금액은 포인트 정책(PROM-002) 운영 설정값 — 베스트 후기 보상과 구분(통합 설계서 포인트 운영 설정값)
-    document.getElementById('pe-reward-note').innerHTML = `<strong>승인 시 지급:</strong> 후기 보상 <strong>${rewardP(false).toLocaleString()}P</strong> — 무상 포인트(유효기간 2년)로 포인트 원장에 적립합니다. 금액은 포인트 정책의 운영 설정값(후기 보상)이며, 베스트 후기 보상(${rewardP(true).toLocaleString()}P)은 베스트로 선정할 때 따로 지급합니다.`;
-    document.getElementById('pe-approve-btn').textContent = `✓ 합격인증 승인 및 후기 보상 ${rewardP(false).toLocaleString()}P 지급`;
+    // D-BRD-02(white 결정): 승인(검증 완료)과 후기 보상 지급을 나눈다 — 지급은 승인 뒤 목록 [후기 보상 지급], 1건 1회, 금액은 정책값 기본
+    document.getElementById('pe-reward-note').innerHTML = `<strong>승인은 검증만 합니다.</strong> 후기 보상(정책값 <strong>${rewardP(false).toLocaleString()}P</strong>, 무상 포인트 · 유효기간 2년)은 승인 뒤 목록의 <strong>[후기 보상 지급]</strong>으로 1건에 1번 지급합니다. 베스트 후기 보상(${rewardP(true).toLocaleString()}P)은 베스트로 선정할 때 따로 지급합니다.`;
+    document.getElementById('pe-approve-btn').textContent = '✓ 합격인증 승인(검증 완료)';
+    document.getElementById('pe-reject-chip').value = '';
+    document.getElementById('pe-reject-text').value = '';
+    document.getElementById('pe-reject-err').textContent = '';
+    document.getElementById('pe-refund-link-note').innerHTML = p.refundApplied
+      ? "합격환급 신청 연동: 이 회원은 합격환급(SETT-006)을 신청했습니다. 반려하면 환급 심사는 <strong>'보완 요청'(합격수기 다시 작성)</strong>으로 바뀌고, 다시 올린 수기를 승인하면 환급 심사가 이어집니다(영구 차단 아님)."
+      : '이 회원은 합격환급 신청이 없습니다.';
     const modal = document.getElementById('modal-pass-audit');
     modal.style.removeProperty('display');
     modal.classList.add('open');
@@ -1487,6 +1652,12 @@ code, pre, kbd, samp,
 
     if (!p) return;
 
+    if (decision === 'REJECTED') {
+      const chip = document.getElementById('pe-reject-chip').value;
+      const txt = document.getElementById('pe-reject-text').value;
+      if (!chip || !peReasonOk(txt, 255)) { document.getElementById('pe-reject-err').textContent = '반려 사유 유형을 고르고, 사유를 공백 제외 10자 이상 · 255자 이하로 적어 주세요.'; return; }
+      p.rejectReason = `${chip} — ${txt.trim()}`;
+    }
     p.status = decision;
     if (decision !== 'APPROVED') p.best = false;
 
@@ -1496,9 +1667,9 @@ code, pre, kbd, samp,
 
     showToast(decision === 'APPROVED'
 
-      ? `${p.id} 합격수기 증빙이 승인되어 후기 보상 ${rewardP(false).toLocaleString()}P(무상 P)가 지급되었습니다.`
+      ? `${p.id} 합격수기를 검증 완료(승인)했습니다. 후기 보상은 목록의 [후기 보상 지급]으로 따로 지급합니다.`
 
-      : `${p.id} 합격수기가 증빙 미비로 반려 처리되었으며 재업로드 안내 알림톡이 발송되었습니다.`);
+      : `${p.id} 합격수기를 반려하고 재업로드 안내 알림톡을 보냈습니다.` + (p.refundApplied ? " 연결된 합격환급 신청은 '보완 요청'(합격수기 다시 작성)으로 바뀝니다." : ''));
 
   }
 
@@ -1515,7 +1686,7 @@ code, pre, kbd, samp,
 
 
 
-  // 3. 무료특강 및 빈출문제 (ADMN-BRD-010)
+  // 3. 무료콘텐츠 — 빈출자료 · 매일 1문제 (ADMN-BRD-010)
   function renderFreeLectures() {
 
     const tp = document.getElementById('fl-type-filter').value;
@@ -1552,9 +1723,9 @@ code, pre, kbd, samp,
 
         <td style="font-weight:700;">${item.title}</td>
 
-        <td><span class="badge badge-slate">▶ ${item.vod}</span></td>
+        <td style="font-size:12px;">${item.postDate || '-'}</td>
 
-        <td style="color:var(--primary); font-weight:600;">📥 ${item.pdf}</td>
+        <td style="color:var(--primary); font-weight:600;">📥 ${item.pdf}${item.pdf && item.pdf !== '-' ? '<br/><span class="badge badge-slate" style="margin-top:3px;">🔒 로그인 회원만</span>' : ''}</td>
 
         <td>${item.views.toLocaleString()}</td>
 
@@ -1590,9 +1761,9 @@ code, pre, kbd, samp,
 
     document.getElementById('fl-edit-id').value = item ? item.id : '';
 
-    document.getElementById('fl-modal-title').textContent = item ? `[ADMN-BRD-010] 무료특강 / 빈출문제 수정 (${item.id})` : '[ADMN-BRD-010] 무료특강 / 빈출문제 신규 등록';
+    document.getElementById('fl-modal-title').textContent = item ? `[ADMN-BRD-010] 무료콘텐츠 수정 (${item.id})` : '[ADMN-BRD-010] 무료콘텐츠 신규 등록';
 
-    document.getElementById('fl-form-type').value = item ? item.type : 'FREQ_EXAM';
+    document.getElementById('fl-form-type').value = item && FL_TYPES[item.type] ? item.type : 'EXAM';
 
     document.getElementById('fl-form-cert').value = item ? item.cert : '산업안전기사';
 
@@ -1600,11 +1771,11 @@ code, pre, kbd, samp,
 
     document.getElementById('fl-form-title').value = item ? item.title : '';
 
-    document.getElementById('fl-form-vod').value = item ? item.vod : 'VOD-FREE-2611 (50분)';
+    document.getElementById('fl-form-date').value = item && item.postDate ? item.postDate : '2026-10-27';
 
     document.getElementById('fl-form-pdf').value = item ? item.pdf : '2026_빈출문제_해설집.pdf';
 
-    document.getElementById('fl-form-body').innerHTML = item ? `<p>${item.body}</p>` : '<p>빈출문제 출제 경향 및 핵심 해설 안내를 입력하세요.</p>';
+    document.getElementById('fl-form-body').innerHTML = item ? `<p>${item.body}</p>` : '<p>문항과 해설을 입력하세요. 본문은 로그인하지 않아도 보입니다.</p>';
 
     renderFlVersions(item || null);
 
@@ -1624,7 +1795,7 @@ code, pre, kbd, samp,
 
     const title = document.getElementById('fl-form-title').value.trim();
 
-    const vod = document.getElementById('fl-form-vod').value.trim();
+    const postDate = document.getElementById('fl-form-date').value || '2026-10-27';
 
     const pdf = document.getElementById('fl-form-pdf').value.trim() || '-';
 
@@ -1647,7 +1818,7 @@ code, pre, kbd, samp,
         if (target.body !== body) changed.push('본문 수정');
         target.versions = target.versions || [];
         if (changed.length) target.versions.push({ ver: target.versions.length + 1, date: '2026-10-19', pdf, body, note: changed.join(' · ') });
-        Object.assign(target, { type, cert, year, title, vod, pdf, body });
+        Object.assign(target, { type, cert, year, postDate, title, pdf, body });
       }
 
     } else {
@@ -1656,7 +1827,7 @@ code, pre, kbd, samp,
 
         id: 'FL-' + (2606 + FREE_LECTURES.length),
 
-        type, cert, year, title, vod, pdf, views: 0, visible: true, body,
+        type, cert, year, postDate, title, pdf, views: 0, visible: true, body,
         versions: [{ ver: 1, date: '2026-10-19', pdf, body, note: '최초 등록' }]
 
       });
@@ -1667,7 +1838,7 @@ code, pre, kbd, samp,
 
     backToList();
 
-    showToast('무료특강 / 빈출문제 콘텐츠가 저장되었습니다.');
+    showToast('무료콘텐츠가 저장되었습니다. 본문은 누구나, PDF는 로그인 회원만 받을 수 있습니다.');
 
   }
 
@@ -1736,7 +1907,7 @@ code, pre, kbd, samp,
     SJM_PAGE.register('list', { onShow: () => switchTab(activeTab) });
     SJM_PAGE.register('free-lecture', {
       code: 'ADMN-BRD-010-S1',
-      title: p => (p.id && FREE_LECTURES.some(f => f.id === p.id) ? '무료특강 / 빈출문제 수정' : '무료특강 / 빈출문제 등록'),
+      title: p => (p.id && FREE_LECTURES.some(f => f.id === p.id) ? '무료콘텐츠 수정' : '무료콘텐츠 등록'),
       onShow: p => { setTabState('freeLecture'); fillFreeLectureForm(p.id && FREE_LECTURES.some(f => f.id === p.id) ? p.id : null); }
     });
     SJM_PAGE.start();

@@ -331,7 +331,7 @@ code, pre, kbd, samp,
       <span class="crumb-group">상품 · 강좌 · 교재 관리</span>
       <span class="crumb-sep">›</span>
       <span class="crumb-code" id="header-screen-code">ADMN-PROD-002</span>
-      <h1 class="crumb-title" id="header-screen-title">강의 관리 (영상 단품 · VOD Key · 재생시간)</h1>
+      <h1 class="crumb-title" id="header-screen-title">강의 관리 (영상 단품 · CDN 경로 · DRM ID · 재생시간)</h1>
     </div>
     <div class="top-bar-right" id="v4-topbar-right-slot">
       
@@ -399,7 +399,7 @@ code, pre, kbd, samp,
             <th>강의 제목</th>
             <td>
               <div style="display:flex; gap:8px; justify-content:flex-end; align-items:center;">
-                <input type="text" id="fKeyword" placeholder="제목 · VOD Key 검색" style="width:220px;" onkeyup="if(event.key==='Enter') applyFilter()">
+                <input type="text" id="fKeyword" placeholder="제목 · CDN 경로 · DRM ID 검색" style="width:220px;" onkeyup="if(event.key==='Enter') applyFilter()">
                 <button class="btn btn-dark" onclick="applyFilter()">조회</button>
                 <button class="btn" onclick="resetFilter()">초기화</button>
               </div>
@@ -428,7 +428,7 @@ code, pre, kbd, samp,
               <th style="width:95px;">분류</th>
               <th class="left">강의 제목</th>
               <th style="width:100px;">강사</th>
-              <th style="width:190px;">VOD Key</th>
+              <th style="width:230px;">영상 (CDN 경로 · DRM ID)</th>
               <th style="width:145px;">재생시간</th>
               <th style="width:75px;">교안</th>
               <th style="width:75px;">맛보기</th>
@@ -489,15 +489,34 @@ code, pre, kbd, samp,
           <div class="help-txt">플레이어 상단 · 커리큘럼 목록(USER-CRS-002) · 이어보기(USER-MY-003)에 그대로 노출 · 최대 80자</div>
         </div>
 
-        <!-- VOD 보안 식별자 -->
+        <!-- 영상 식별자: CDN 콘텐츠 경로 + DRM 콘텐츠 ID (white 2026-10-27 D-PROD-01 — 유료 강의는 DRM 콘텐츠 ID 필수) -->
         <div class="form-row">
-          <label>VOD 보안 식별자 <span class="req">*</span></label>
+          <label>영상 출처 <span class="req">*</span></label>
           <div style="display:flex; gap:10px; align-items:center;">
-            <input type="text" id="s1VodKey" style="flex:1; font-family:var(--mono); border-color:#15803d;" placeholder="예: SJM-V-20260712-0341">
-            <button type="button" class="btn" onclick="verifyVodKey()">유효성 검사</button>
-            <span class="badge b-ok" id="s1VodVerifiedBadge">검증 완료 08.18 16:20</span>
+            <select id="s1Source" style="width:260px;" onchange="onSourceChange()">
+              <option value="CDN">StarPlayer+ CDN (기본)</option>
+              <option value="YOUTUBE">YouTube 링크 (맛보기 Y 강의만)</option>
+            </select>
           </div>
-          <div class="help-txt">StarPlayer+ 발급 VOD Key. 이 값으로만 재생되며 원본 URL은 저장하지 않는다</div>
+        </div>
+        <div class="form-row" id="s1CdnGroup">
+          <label>CDN 콘텐츠 경로 <span class="req">*</span></label>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="s1CdnPath" style="flex:1; font-family:var(--mono); border-color:#15803d;" placeholder="예: lecture/2026/safety-pe/0341.mp4 (도메인 제외)">
+          </div>
+          <div class="help-txt">도메인은 설정값(StarPlayer+ CDN 주소)에서 붙인다. 도메인이 들어간 전체 URL · 만료 시각이 붙은 서명 URL은 저장하지 않는다</div>
+          <label style="margin-top:10px;">DRM 콘텐츠 ID <span class="req" id="s1DrmReq">* 유료 강의 필수</span></label>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <input type="text" id="s1DrmId" style="flex:1; font-family:var(--mono); border-color:#15803d;" placeholder="예: SJM-V-20260712-0341">
+            <button type="button" class="btn" onclick="verifyDrmId()">유효성 검사</button>
+            <span class="badge b-ok" id="s1DrmVerifiedBadge">검증 완료 08.18 16:20</span>
+          </div>
+          <div class="help-txt" id="s1DrmHelp">맛보기 N(수강권 보유자 전용) 강의는 DRM 콘텐츠 ID 없이 저장할 수 없다. DRM 콘텐츠 ID가 있으면 재생시간은 DRM 메타 값으로 맞춘다</div>
+        </div>
+        <div class="form-row" id="s1YtGroup" style="display:none;">
+          <label>YouTube 링크 <span class="req">*</span></label>
+          <input type="text" id="s1YtUrl" style="width:100%; font-family:var(--mono);" placeholder="예: https://www.youtube.com/watch?v=xxxxxxxxxxx">
+          <div class="help-txt">맛보기 · 강사 소개 · OT처럼 맛보기 Y(비로그인 포함 전체 공개)로 두는 강의에만 쓴다. 맛보기 N 강의는 StarPlayer+ CDN + DRM으로만 재생한다</div>
         </div>
 
         <!-- 재생 시간(초) -->
@@ -506,9 +525,10 @@ code, pre, kbd, samp,
           <div style="display:flex; gap:12px; align-items:center;">
             <input type="number" id="s1Duration" min="0" style="flex:1; border-color:#15803d;" oninput="updateDurationFormatted()" placeholder="초 단위 숫자 입력 (예: 2940)">
             <span id="s1DurationFormatted" style="font-weight:800; color:#334155; min-width:95px;">= 49분 00초</span>
-            <button type="button" class="btn" onclick="fetchFromVodMeta()">VOD 메타에서 가져오기</button>
+            <button type="button" class="btn" onclick="fetchFromVodMeta()">DRM 메타에서 가져오기</button>
           </div>
           <div class="help-warn">진도율 산정의 분모 및 다중 강사 정산 배분 가중치 모수. 실제 영상 길이와 다르면 진도율 전체가 틀어지고 환급 심사 판정까지 흔들린다. 재생시간이 0초인 자료형 차시는 정산 배분 가중치 계산 시 60초로 자동 적용된다</div>
+          <div id="s1RetroNote" style="margin-top:6px; font-size:12px; line-height:1.6; color:#1E3A8A; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:7px 10px;">판매 후 재생시간을 바꿔도 <strong>기존 수강생의 환급 판정에는 소급하지 않는다.</strong> 결제 시점의 환급 조건(인정 진도율 · 필수 출석일수 · 판정 대상 차시와 그 재생시간)은 주문 라인에 박제돼 있어, 바뀐 재생시간은 변경 이후 결제분부터 판정 분모에 쓴다.</div>
         </div>
 
         <!-- 맛보기(무료) 재생 -->
@@ -597,7 +617,7 @@ const LESSONS = [
   {
     no: 128, cat1: "산업안전기사", cat2: "실기",
     title: "[실기 필답] 01. 안전관리론 핵심정리",
-    instructor: "안창훈", vodKey: "SJM-V-20260712-0341", verifiedAt: "검증 완료 08.18 16:20",
+    instructor: "안창훈", source: "CDN", cdnPath: "lecture/2026/safety-pe/0341.mp4", drmId: "SJM-V-20260712-0341", ytUrl: "", verifiedAt: "검증 완료 08.18 16:20",
     durationSec: 2940, pdfFile: "실기필답_01_안전관리론.pdf · 4.2MB",
     sampleYn: "Y", useYn: true, refCourseCount: 1, mappedYn: true,
     links: [{ type: "COURSE", code: "CRS-2602", name: "2026 산업안전기사 실기 필답형 만점 답안 작성 전략반", pos: "커리큘럼 1강", status: "판매중" }, { type: "PACKAGE", code: "PKG-2601", name: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", pos: "구성 강좌 CRS-2602 경유", status: "판매중" }, { type: "PACKAGE", code: "PKG-2602", name: "2026 산업안전기사 필기+실기(필답+작업) 올인원 종합반", pos: "구성 강좌 CRS-2602 경유", status: "판매중" }]
@@ -605,7 +625,7 @@ const LESSONS = [
   {
     no: 127, cat1: "산업안전기사", cat2: "실기",
     title: "[실기 필답] 02. 산업심리 및 교육",
-    instructor: "안창훈", vodKey: "SJM-V-20260712-0342", verifiedAt: "검증 완료 08.18 16:25",
+    instructor: "안창훈", source: "CDN", cdnPath: "lecture/2026/safety-pe/0342.mp4", drmId: "SJM-V-20260712-0342", ytUrl: "", verifiedAt: "검증 완료 08.18 16:25",
     durationSec: 3120, pdfFile: "실기필답_02_산업심리.pdf · 3.8MB",
     sampleYn: "N", useYn: true, refCourseCount: 1, mappedYn: true,
     links: [{ type: "COURSE", code: "CRS-2602", name: "2026 산업안전기사 실기 필답형 만점 답안 작성 전략반", pos: "커리큘럼 2강", status: "판매중" }, { type: "PACKAGE", code: "PKG-2601", name: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", pos: "구성 강좌 CRS-2602 경유", status: "판매중" }, { type: "PACKAGE", code: "PKG-2602", name: "2026 산업안전기사 필기+실기(필답+작업) 올인원 종합반", pos: "구성 강좌 CRS-2602 경유", status: "판매중" }]
@@ -613,7 +633,7 @@ const LESSONS = [
   {
     no: 126, cat1: "산업안전기사", cat2: "필기",
     title: "[필기 이론] 01. 산업안전관리론 OT",
-    instructor: "정종대", vodKey: "SJM-V-20260620-0118", verifiedAt: "검증 완료 06.20 11:10",
+    instructor: "정종대", source: "CDN", cdnPath: "lecture/2026/safety-wr/0118.mp4", drmId: "SJM-V-20260620-0118", ytUrl: "", verifiedAt: "검증 완료 06.20 11:10",
     durationSec: 1680, pdfFile: "필기이론_01_OT교안.pdf · 2.1MB",
     sampleYn: "Y", useYn: true, refCourseCount: 1, mappedYn: true,
     links: [{ type: "COURSE", code: "CRS-2601", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", pos: "커리큘럼 1강 (OT)", status: "판매중" }, { type: "PACKAGE", code: "PKG-2601", name: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", pos: "구성 강좌 CRS-2601 경유", status: "판매중" }, { type: "PACKAGE", code: "PKG-2602", name: "2026 산업안전기사 필기+실기(필답+작업) 올인원 종합반", pos: "구성 강좌 CRS-2601 경유", status: "판매중" }]
@@ -621,7 +641,7 @@ const LESSONS = [
   {
     no: 125, cat1: "산업안전기사", cat2: "필기",
     title: "[필기 이론] 02. 안전보건관리 체제",
-    instructor: "정종대", vodKey: "SJM-V-20260620-0119", verifiedAt: "검증 완료 06.20 11:15",
+    instructor: "정종대", source: "CDN", cdnPath: "lecture/2026/safety-wr/0119.mp4", drmId: "SJM-V-20260620-0119", ytUrl: "", verifiedAt: "검증 완료 06.20 11:15",
     durationSec: 2760, pdfFile: "",
     sampleYn: "N", useYn: true, refCourseCount: 1, mappedYn: true,
     links: [{ type: "COURSE", code: "CRS-2601", name: "2026 산업안전기사 필기 한권완성 개념+빈출 단과", pos: "커리큘럼 2강", status: "판매중" }, { type: "PACKAGE", code: "PKG-2601", name: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", pos: "구성 강좌 CRS-2601 경유", status: "판매중" }, { type: "PACKAGE", code: "PKG-2602", name: "2026 산업안전기사 필기+실기(필답+작업) 올인원 종합반", pos: "구성 강좌 CRS-2601 경유", status: "판매중" }]
@@ -629,7 +649,7 @@ const LESSONS = [
   {
     no: 124, cat1: "산업안전기사", cat2: "빈출특강",
     title: "[빈출] 2025년 1회 필기 빈출문제 전체 해설",
-    instructor: "정종대", vodKey: "", verifiedAt: "미검증",
+    instructor: "정종대", source: "CDN", cdnPath: "", drmId: "", ytUrl: "", verifiedAt: "미검증",
     durationSec: null, pdfFile: "",
     sampleYn: "N", useYn: true, refCourseCount: 0, mappedYn: false,
     links: []
@@ -678,15 +698,18 @@ function renderListTable() {
     if (cat2 !== "ALL" && item.cat2 !== cat2) return false;
     if (inst !== "ALL" && item.instructor !== inst) return false;
     if (sample !== "ALL" && item.sampleYn !== sample) return false;
-    if (kw && !item.title.toLowerCase().includes(kw) && !(item.vodKey || "").toLowerCase().includes(kw)) return false;
+    if (kw && !item.title.toLowerCase().includes(kw) && !`${item.cdnPath || ""} ${item.drmId || ""} ${item.ytUrl || ""}`.toLowerCase().includes(kw)) return false;
     return true;
   });
 
   const tbody = document.getElementById("lessonTableBody");
   tbody.innerHTML = filtered.map(item => {
-    const vodCell = item.vodKey
-      ? `<span class="mono-pill">${item.vodKey}</span>`
-      : `<span class="badge b-bad">미등록</span>`;
+    // 영상 식별자: CDN 경로 + DRM ID (유료 = 맛보기 N 강의는 DRM ID 필수, D-PROD-01)
+    const vodCell = item.source === "YOUTUBE"
+      ? `<span class="badge b-gray">YouTube</span> <span style="font-size:11px; color:var(--sub);">맛보기 공개</span>`
+      : !item.cdnPath
+        ? `<span class="badge b-bad">미등록</span>`
+        : `<span class="mono-pill">${item.cdnPath}</span><div style="margin-top:3px;">${item.drmId ? `<span class="mono-pill">DRM ${item.drmId}</span>` : (item.sampleYn === "N" ? `<span class="badge b-bad">DRM ID 없음 (유료 필수)</span>` : `<span class="badge b-gray">DRM 없음</span>`)}</div>`;
 
     const durCell = item.durationSec
       ? `<span>${formatSecToColon(item.durationSec)}</span>`
@@ -727,7 +750,7 @@ function openFormView(no) {
   document.getElementById("viewForm").style.display = "flex";
 
   (document.getElementById("topBannerText") || {}).innerHTML = `
-    <span>ADMN-PROD-002-S1 · 강의(영상 Unit) 등록 · 수정 — VOD Key · 재생시간 · 맛보기 · 교안 PDF</span>
+    <span>ADMN-PROD-002-S1 · 강의(영상 Unit) 등록 · 수정 — CDN 경로 · DRM ID · 재생시간 · 맛보기 · 교안 PDF</span>
     <span style="font-size:11.5px; color:#94a3b8;">화면설계서 v11 확정본 + 정산 합의서 v4.0.0</span>
   `;
   (document.getElementById("pageMainHeading") || {}).innerHTML = `강의(영상 Unit) 등록 · 수정 <small>목록에서 [+ 강의 등록] 또는 [수정] 진입</small>`;
@@ -739,9 +762,12 @@ function openFormView(no) {
     document.getElementById("s1Cat2").value = item.cat2;
     document.getElementById("s1Inst").value = item.instructor;
     document.getElementById("s1Title").value = item.title;
-    document.getElementById("s1VodKey").value = item.vodKey;
-    document.getElementById("s1VodVerifiedBadge").textContent = item.vodKey ? item.verifiedAt : "미검증 (유효성 검사 필요)";
-    document.getElementById("s1VodVerifiedBadge").className = item.vodKey ? "badge b-ok" : "badge b-bad";
+    document.getElementById("s1Source").value = item.source || "CDN";
+    document.getElementById("s1CdnPath").value = item.cdnPath || "";
+    document.getElementById("s1DrmId").value = item.drmId || "";
+    document.getElementById("s1YtUrl").value = item.ytUrl || "";
+    document.getElementById("s1DrmVerifiedBadge").textContent = item.drmId ? item.verifiedAt : "미검증 (유효성 검사 필요)";
+    document.getElementById("s1DrmVerifiedBadge").className = item.drmId ? "badge b-ok" : "badge b-bad";
     document.getElementById("s1Duration").value = item.durationSec || "";
     currentSampleYn = item.sampleYn;
     currentUseYn = item.useYn;
@@ -755,9 +781,12 @@ function openFormView(no) {
     document.getElementById("s1Cat2").value = "실기";
     document.getElementById("s1Inst").value = "안창훈";
     document.getElementById("s1Title").value = "";
-    document.getElementById("s1VodKey").value = "";
-    document.getElementById("s1VodVerifiedBadge").textContent = "미검증";
-    document.getElementById("s1VodVerifiedBadge").className = "badge b-gray";
+    document.getElementById("s1Source").value = "CDN";
+    document.getElementById("s1CdnPath").value = "";
+    document.getElementById("s1DrmId").value = "";
+    document.getElementById("s1YtUrl").value = "";
+    document.getElementById("s1DrmVerifiedBadge").textContent = "미검증";
+    document.getElementById("s1DrmVerifiedBadge").className = "badge b-gray";
     document.getElementById("s1Duration").value = "";
     currentSampleYn = "N";
     currentUseYn = true;
@@ -769,6 +798,7 @@ function openFormView(no) {
   }
 
   updateDurationFormatted();
+  onSourceChange();
   setSampleYn(currentSampleYn);
   setUseYn(currentUseYn);
   renderPdfBox();
@@ -778,7 +808,7 @@ function backToList() {
   document.getElementById("viewForm").style.display = "none";
   document.getElementById("viewList").style.display = "flex";
   (document.getElementById("topBannerText") || {}).innerHTML = `
-    <span>ADMN-PROD-002 · 강의(영상) 관리 — 개별 영상 Unit 등록 · VOD Key · 재생시간</span>
+    <span>ADMN-PROD-002 · 강의(영상) 관리 — 개별 영상 Unit 등록 · CDN 경로 · DRM ID · 재생시간</span>
     <span style="font-size:11.5px; color:#94a3b8;">화면설계서 v11 확정본 + 정산 합의서 v4.0.0</span>
   `;
   (document.getElementById("pageMainHeading") || {}).innerHTML = `강의(영상 Unit) 관리`;
@@ -798,27 +828,42 @@ function updateDurationFormatted() {
   span.textContent = `= ${String(m).padStart(2, "0")}분 ${String(s).padStart(2, "0")}초`;
 }
 
-function verifyVodKey() {
-  const key = document.getElementById("s1VodKey").value.trim();
+// 영상 출처 전환 — CDN(경로 + DRM ID) / YouTube(맛보기 Y 강의만) (D-PROD-01)
+function onSourceChange() {
+  const yt = document.getElementById("s1Source").value === "YOUTUBE";
+  document.getElementById("s1CdnGroup").style.display = yt ? "none" : "";
+  document.getElementById("s1YtGroup").style.display = yt ? "" : "none";
+}
+
+function verifyDrmId() {
+  const key = document.getElementById("s1DrmId").value.trim();
   if (!key) {
-    alert("StarPlayer+ 발급 VOD Key를 먼저 입력해 주세요.");
+    alert("StarPlayer+ DRM 콘텐츠 ID를 먼저 입력해 주세요.");
     return;
   }
-  const badge = document.getElementById("s1VodVerifiedBadge");
+  const badge = document.getElementById("s1DrmVerifiedBadge");
   badge.textContent = "검증 완료 10.15 14:30";
   badge.className = "badge b-ok";
-  showToast(`VOD Key [${key}] 유효성 검증이 완료되었습니다.`);
+  showToast(`DRM 콘텐츠 ID [${key}] 유효성 검증이 완료되었습니다.`);
+}
+
+// CDN 경로 검사 — 도메인 포함 URL · 서명 URL(쿼리 문자열)은 저장하지 않는다
+function cdnPathError(path) {
+  if (!path) return "CDN 콘텐츠 경로를 입력해 주세요.";
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(path) || path.startsWith("//") || /^www\./i.test(path)) return "CDN 콘텐츠 경로에는 도메인을 넣지 않습니다. 도메인 뒤의 경로만 입력해 주세요(예: lecture/2026/safety-pe/0341.mp4).";
+  if (path.includes("?")) return "만료 시각 · 서명이 붙은 주소(? 뒤 문자열)는 저장하지 않습니다. 경로만 입력해 주세요.";
+  return "";
 }
 
 function fetchFromVodMeta() {
-  const key = document.getElementById("s1VodKey").value.trim();
-  if (!key) {
-    alert("VOD Key를 먼저 입력하거나 유효성 검사를 진행해 주세요.");
+  const key = document.getElementById("s1DrmId").value.trim();
+  if (document.getElementById("s1Source").value !== "CDN" || !key) {
+    alert("DRM 콘텐츠 ID를 먼저 입력하거나 유효성 검사를 진행해 주세요.");
     return;
   }
   document.getElementById("s1Duration").value = 2940;
   updateDurationFormatted();
-  showToast("StarPlayer+ VOD 메타데이터에서 실제 재생시간(2,940초 = 49분 00초)을 가져왔습니다.");
+  showToast("StarPlayer+ DRM 메타데이터에서 실제 재생시간(2,940초 = 49분 00초)을 가져왔습니다.");
 }
 
 function setSampleYn(yn) {
@@ -856,22 +901,52 @@ function removePdf() {
 
 function saveLesson() {
   const title = document.getElementById("s1Title").value.trim();
-  const vodKey = document.getElementById("s1VodKey").value.trim();
+  const source = document.getElementById("s1Source").value;
+  const cdnPath = source === "CDN" ? document.getElementById("s1CdnPath").value.trim() : "";
+  const drmId = source === "CDN" ? document.getElementById("s1DrmId").value.trim() : "";
+  const ytUrl = source === "YOUTUBE" ? document.getElementById("s1YtUrl").value.trim() : "";
   const dur = parseInt(document.getElementById("s1Duration").value, 10) || null;
 
   if (!title) {
     alert("강의 제목을 입력해 주세요.");
     return;
   }
+  // 영상 식별자 검사 (white 2026-10-27 D-PROD-01)
+  if (source === "CDN") {
+    const err = cdnPathError(cdnPath);
+    if (err) { alert(err); return; }
+    if (currentSampleYn === "N" && !drmId) {
+      alert("유료 강의(맛보기 N · 수강권 보유자 전용)는 DRM 콘텐츠 ID가 필수입니다.\nStarPlayer+에서 발급한 DRM 콘텐츠 ID를 입력해 주세요.");
+      return;
+    }
+  } else {
+    if (currentSampleYn !== "Y") {
+      alert("YouTube 링크는 맛보기 Y(전체 공개) 강의에만 쓸 수 있습니다.\n유료 강의는 StarPlayer+ CDN 경로와 DRM 콘텐츠 ID로 등록해 주세요.");
+      return;
+    }
+    if (!/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(ytUrl)) {
+      alert("YouTube 링크(https://www.youtube.com/... 또는 https://youtu.be/...)를 입력해 주세요.");
+      return;
+    }
+  }
 
   if (editingNo) {
     const item = LESSONS.find(x => x.no === editingNo);
+    // 판매 중 상품에 편성된 강의의 재생시간 변경 — 기존 수강생 소급 안 함(결제 시점 조건 유지) 확인 (white 2026-10-27 S-14)
+    const sold = item ? (item.links || []).filter(l => l.status === "판매중") : [];
+    if (item && sold.length && item.durationSec !== dur) {
+      const fmt = v => v ? `${v.toLocaleString()}초` : "0초";
+      if (!confirm(`재생시간 ${fmt(item.durationSec)} → ${fmt(dur)}\n이 강의가 편성된 판매 중 상품 ${sold.length}개(${sold.map(l => l.code).join(", ")})의 기존 수강생은 결제 시점의 환급 조건(인정 진도율 · 출석일수 · 판정 대상 차시와 재생시간)으로 판정하며 소급하지 않습니다.\n바뀐 재생시간은 변경 이후 결제분부터 적용됩니다. 저장할까요?`)) return;
+    }
     if (item) {
       item.cat1 = document.getElementById("s1Cat1").value;
       item.cat2 = document.getElementById("s1Cat2").value;
       item.instructor = document.getElementById("s1Inst").value;
       item.title = title;
-      item.vodKey = vodKey;
+      item.source = source;
+      item.cdnPath = cdnPath;
+      item.drmId = drmId;
+      item.ytUrl = ytUrl;
       item.durationSec = dur;
       item.sampleYn = currentSampleYn;
       item.useYn = currentUseYn;
@@ -885,8 +960,8 @@ function saveLesson() {
       cat2: document.getElementById("s1Cat2").value,
       title,
       instructor: document.getElementById("s1Inst").value,
-      vodKey,
-      verifiedAt: vodKey ? "검증 완료 10.15" : "미검증",
+      source, cdnPath, drmId, ytUrl,
+      verifiedAt: drmId ? "검증 완료 10.15" : "미검증",
       durationSec: dur,
       pdfFile: currentPdfFile,
       sampleYn: currentSampleYn,

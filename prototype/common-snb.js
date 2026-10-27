@@ -29,7 +29,7 @@
         { code: "BRD-002", label: "1:1 문의 관리 (문의 분기 허브)", href: "ADMN-BRD-002_baseline.html", screenCode: "ADMN-BRD-002" },
         { code: "BRD-007", label: "1:1 문의 분류 관리", href: "ADMN-BRD-007_baseline.html", screenCode: "ADMN-BRD-007" },
         { code: "BRD-001", label: "공지 · FAQ · Q&A · 당첨자 발표", href: "ADMN-BRD-001_baseline.html?view=notice", screenCode: "ADMN-BRD-001" },
-        { code: "BRD-005", label: "수강·합격수기 · 무료특강(빈출)", href: "ADMN-BRD-005_baseline.html?view=review", screenCode: "ADMN-BRD-005" },
+        { code: "BRD-005", label: "수강·합격수기 · 무료콘텐츠", href: "ADMN-BRD-005_baseline.html?view=review", screenCode: "ADMN-BRD-005" },
         { code: "PROM-001", label: "이벤트 · 기획전 관리 (Slug·특가)", href: "ADMN-PROM-001_baseline.html", screenCode: "ADMN-PROM-001" },
         { code: "PROM-002", label: "쿠폰 마스터 등록 · 발급 관리", href: "ADMN-PROM-002_baseline.html?view=list", screenCode: "ADMN-PROM-002" },
         { code: "PROM-003", label: "포인트 적립 정책 및 원장 관리", href: "ADMN-PROM-002_baseline.html?view=point", screenCode: "ADMN-PROM-003" }
@@ -377,4 +377,86 @@
   });
   function start() { mo.observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true, subtree: true }); }
   if (document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+
+/* ===== SNB-ACCORDION (2026-10-27 white: SNB는 디자인만 프로토타입, 동작은 개발 기준) =====
+ * 그룹 제목을 누르면 그 그룹만 펼치는 아코디언, 처음엔 현재 화면 그룹만 펼침, 높이 0.2초 애니메이션.
+ * prototype_dev/dev-snb.js와 같은 코드(개발 lcampus/sanjunmo public/admin/assets/js/custom.js '관리자메뉴(좌측)').
+ */
+(function () {
+  var DUR = 200;
+  var css = '' +
+    '#v4-master-snb .snb-group-title{cursor:pointer;position:relative;padding-right:22px;user-select:none;}' +
+    '#v4-master-snb .snb-group-title::after{content:"";position:absolute;right:8px;top:50%;width:6px;height:6px;margin-top:-4px;' +
+    'border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);opacity:.6;transition:transform .2s ease;}' +
+    '#v4-master-snb .snb-group.devsnb-closed .snb-group-title::after{transform:rotate(-45deg);margin-top:-3px;}' +
+    '#v4-master-snb .snb-group.devsnb-closed .snb-item-list{display:none !important;}';
+
+  // 공통 CSS가 목록에 display:flex !important를 걸어 두므로 접힘은 클래스(devsnb-closed)로 표시하고, 높이만 애니메이션한다
+  function animate(list, from, to, done) {
+    list.style.overflow = 'hidden';
+    list.style.height = from + 'px';
+    list.style.transition = 'height ' + DUR / 1000 + 's ease';
+    requestAnimationFrame(function () { requestAnimationFrame(function () { list.style.height = to + 'px'; }); });
+    setTimeout(function () { list.style.height = ''; list.style.overflow = ''; list.style.transition = ''; if (done) done(); }, DUR + 30);
+  }
+
+  function open(g) {
+    var list = g.querySelector('.snb-item-list');
+    g.classList.remove('devsnb-closed');
+    if (list) animate(list, 0, list.scrollHeight);
+  }
+
+  function close(g) {
+    var list = g.querySelector('.snb-item-list');
+    if (g.classList.contains('devsnb-closed')) return;
+    if (!list) { g.classList.add('devsnb-closed'); return; }
+    animate(list, list.scrollHeight, 0, function () { g.classList.add('devsnb-closed'); });
+    g.classList.add('devsnb-closing');
+    setTimeout(function () { g.classList.remove('devsnb-closing'); }, DUR + 30);
+  }
+
+  function setup(snb) {
+    var groups = snb.querySelectorAll('.snb-group');
+    if (!groups.length || groups[0].__devSnb) return;
+    if (!document.getElementById('devsnb-style')) {
+      var style = document.createElement('style');
+      style.id = 'devsnb-style';
+      style.textContent = css;
+      document.head.appendChild(style);
+    }
+    var anyActive = false;
+    groups.forEach(function (g) {
+      g.__devSnb = true;
+      var isOpen = !!g.querySelector('.snb-item.active');
+      anyActive = anyActive || isOpen;
+      g.classList.toggle('devsnb-closed', !isOpen);
+    });
+    // 현재 화면이 SNB에 없으면(안내 화면 등) 첫 그룹만 펼쳐 둔다
+    if (!anyActive) groups[0].classList.remove('devsnb-closed');
+    groups.forEach(function (g) {
+      var title = g.querySelector('.snb-group-title');
+      if (!title) return;
+      title.addEventListener('click', function () {
+        var wasOpen = !g.classList.contains('devsnb-closed');
+        groups.forEach(function (o) { if (o !== g || wasOpen) close(o); });
+        if (!wasOpen) open(g);
+      });
+    });
+  }
+
+  function tryStart() {
+    var snb = document.getElementById('v4-master-snb');
+    if (snb && snb.querySelector('.snb-group')) { setup(snb); return true; }
+    return false;
+  }
+
+  function start() {
+    tryStart();
+    // common-snb.js가 나중에 그리면 그때 붙인다
+    var mo = new MutationObserver(function () { tryStart(); });
+    mo.observe(document.body, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

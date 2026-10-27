@@ -280,7 +280,7 @@ code, pre, kbd, samp,
       <h1 class="crumb-title" id="header-screen-title">시스템 감사 로그 (정산 원장 변경 · 개인정보 열람 · 운영자 작업 불변 이력)</h1>
     </div>
     <div class="top-bar-right" id="v4-topbar-right-slot">
-      <button class="btn" onclick="verifyHashChain()">🛡️ 해시 체인 위변조 무결성 검증</button> <button class="btn btn-pri" onclick="exportAuditCsv()">⬇ 현재 조회 월·기간 감사 원장 추출 (CSV/JSON)</button>
+      <button class="btn" onclick="verifyHashChain()" title="2차 기능 — 1차는 Append-Only 저장 + 월별 감사 원장 추출">🛡️ 해시 체인 무결성 검증 (2차)</button> <button class="btn btn-pri" onclick="exportAuditCsv()">⬇ 현재 조회 월·기간 감사 원장 추출 (CSV/JSON)</button>
     </div></header><div id="v4-page-body">
   
   
@@ -356,7 +356,7 @@ code, pre, kbd, samp,
       <div>
         <div class="tabs">
           <button class="tab-btn active" id="tabBtn-logs" onclick="switchTab('logs')">1. 감사 이벤트 건별 상세 원장 (Before / After JSON 비교)</button>
-          <button class="tab-btn" id="tabBtn-monthly" onclick="switchTab('monthly')">2. 정산월별 감사 통계 요약 및 월마감 스냅샷 아카이브</button>
+          <button class="tab-btn" id="tabBtn-monthly" onclick="switchTab('monthly')">2. 정산월별 감사 통계 및 월별 감사 원장 추출</button>
           <button class="tab-btn" id="tabBtn-access" onclick="switchTab('access')">3. 운영자 접근 · 권한 · 다운로드 로그 (계정 단위)</button>
         </div>
 
@@ -461,7 +461,7 @@ code, pre, kbd, samp,
                   <th class="num">수동조정·계정대체·수기검수</th>
                   <th class="num">지원금·국세청·도서</th>
                   <th class="num">민감정보 열람·파기</th>
-                  <th>월별 마지막 블록 해시</th>
+                  <th>월별 블록 해시 (2차)</th>
                   <th>월별 원장 보기 / 추출</th>
                 </tr>
               </thead>
@@ -474,7 +474,7 @@ code, pre, kbd, samp,
                   <td class="num">3건</td>
                   <td class="num">2건</td>
                   <td class="num">2건</td>
-                  <td class="code">SHA256:9f84c2e1...09d2</td>
+                  <td style="color:var(--muted); font-size:12px;">2차</td>
                   <td>
                     <button class="btn btn-sm btn-pri" onclick="jumpToMonthLogs('2026-10')">이 달의 로그 보기</button>
                     <button class="btn btn-sm" onclick="exportMonthPackage('2026-10')">⬇ 월별 패키지</button>
@@ -488,7 +488,7 @@ code, pre, kbd, samp,
                   <td class="num">0건</td>
                   <td class="num">1건</td>
                   <td class="num">1건</td>
-                  <td class="code">SHA256:7b11a094...e831</td>
+                  <td style="color:var(--muted); font-size:12px;">2차</td>
                   <td>
                     <button class="btn btn-sm btn-pri" onclick="jumpToMonthLogs('2026-09')">이 달의 로그 보기</button>
                     <button class="btn btn-sm" onclick="exportMonthPackage('2026-09')">⬇ 월별 패키지</button>
@@ -502,7 +502,7 @@ code, pre, kbd, samp,
                   <td class="num">0건</td>
                   <td class="num">1건</td>
                   <td class="num">0건</td>
-                  <td class="code">SHA256:1d04f920...c712</td>
+                  <td style="color:var(--muted); font-size:12px;">2차</td>
                   <td>
                     <button class="btn btn-sm btn-pri" onclick="jumpToMonthLogs('2026-08')">이 달의 로그 보기</button>
                     <button class="btn btn-sm" onclick="exportMonthPackage('2026-08')">⬇ 월별 패키지</button>
@@ -524,7 +524,7 @@ code, pre, kbd, samp,
         </span>
       </div>
       <div style="font-family:var(--mono); font-size:12px; color:#93c5fd;">
-        최종 블록 해시: <code>SHA256:9f84c2e1...a47b09d2</code> (무결성 정상)
+        1차: Append-Only 저장 · 월별 감사 원장 추출 / 해시 체인 · 블록 해시 검증은 2차
       </div>
     </footer>
   </main>
@@ -1120,7 +1120,7 @@ code, pre, kbd, samp,
     `;
     document.getElementById("diffBeforeBox").textContent = JSON.stringify(ev.beforeJson, null, 2);
     document.getElementById("diffAfterBox").textContent = JSON.stringify(ev.afterJson, null, 2);
-    document.getElementById("diffHashText").textContent = `블록 무결성 해시: ${ev.hash}`;
+    document.getElementById("diffHashText").textContent = `행 해시(참고 · 해시 체인 검증은 2차): ${ev.hash}`;
     document.getElementById("btnJumpSourceScreen").onclick = () => goNav(ev.screenFile);
 
     document.getElementById("diffModal").classList.add("open");
@@ -1131,8 +1131,8 @@ code, pre, kbd, samp,
   }
 
   function verifyHashChain() {
-    const cnt = getPeriodFilteredEvents().length;
-    showToast(`✔ 현재 조회된 ${cnt}건의 감사 로그 SHA-256 해시 체인 검증 완료 — 위변조 및 누락 레코드 0건입니다.`);
+    // D-CONF-03(white 결정): 1차 = Append-Only 저장(수정 · 삭제 권한 없음) + 월별 감사 원장 추출. 해시 체인 검증 · 월별 블록 해시는 2차
+    showToast('해시 체인 무결성 검증은 2차 기능입니다. 1차는 감사 원장을 수정 · 삭제 권한 없는 Append-Only로 저장하고 월별 감사 원장을 추출해 보존합니다.');
   }
 
   function exportAuditCsv() {
