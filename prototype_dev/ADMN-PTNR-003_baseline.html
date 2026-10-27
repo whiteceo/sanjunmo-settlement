@@ -11,10 +11,13 @@
       정본에 직접 근거가 있는 부분: 소속 3종 · 본인 바인딩 2단 통제(README 1절, L43), 매입처 = 거래처 테이블 suppliers(02권 2.4절),
       매입 재판매 AP 결제 · 전자계산서 수취(01권 6.1절 L406 · L412 · L413), 수취 증빙 상태 분리 추적(01권 6.5절 L490),
       매입처는 사업자등록번호 · 계좌만 수집(03권 L295), 폐업 시 신규 증빙 요청 중단(03권 L427).
-      나머지(외부 계정 부여 · 발주 확인 · 반출 · 증빙 제출 · 변경 요청)는 추론 — 확인 항목은 dev_spec/_drafts/POLICY_D_PTNR-003.md.
+      나머지(외부 계정 부여 · 발주 확인 · 반출 · 증빙 제출 · 변경 요청)는 추론이며, 화면을 만들 때 둔 가정(D-PTNR3-01~08 · 10)은 확정(2026-10-27 white, D-PTNR3-NN 권고대로)이다.
+      근거 · 권고 원문은 scripts/qa/reports/review/findings/devspec/POLICY_D_PTNR3.md.
+      확정 반영: 1단계는 입고 전표 확인 · 이의만(발주 확인은 2단계, ?po_stage=2로 미리 보기)(05), 반출은 파본 · 인쇄 불량 기본 + 거래 조건 반품 가능 시 재고 반품(03),
+      폐업 · 휴업 · 거래 중지는 열람 전용 · 미지급 잔액 0이면 잠금(07), 계좌 변경은 요청 → 전화 확인 → 재무 책임자 승인 → 반영(08).
     - 대상: 거래처 소속 외부 계정 중 도서 · 상품 매입처(거래처 유형 양식 PURCHASE). 진입 ?vendor=SUP-NNNN&role=RG-09
       (거래처 코드는 SJM_MASTER.vendors의 SUP-NNNN을 따른다. 지시서의 VD-NNNN 대신 기존 코드 체계 사용)
-    - 역할 그룹 '도서 공급사'(RG-09)는 공통 기준정보(common-master.js)에 없다. 공통 파일을 고치지 않고 이 화면 안의 가정값(ROLE_PROPOSED)으로 둔다.
+    - 역할 그룹 '도서 공급사'(RG-09)는 추가가 확정(2026-10-27 white, D-PTNR3-01 권고대로)됐지만 공통 기준정보(common-master.js)에는 아직 없다. 공통 파일을 고치지 않고 이 화면 안의 최초값(ROLE_PROPOSED)으로 둔다.
       기준정보에 같은 id가 생기면 그쪽을 쓴다.
     - 운영자 SNB(common-snb.js)는 PTNR-001과 같이 로드하지 않는다: common-snb.js는 body 맨 앞에 운영자 SNB를 무조건 넣는다.
     - 숫자는 ADMN-SETT-011 S1 도서 매입 계산서 대조(2026년 9월분) · ADMN-PROD-004(PROD-BK-2001 재고 140권) · VEND-001 거래 조건과 같다.
@@ -24,7 +27,7 @@
   <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
   <script id="v4-common-master" src="common-master.js"></script>
   <link rel="stylesheet" href="dev-overlay.css" />
-  <script type="application/json" id="dev-map">{"code": "ADMN-PTNR-003", "devCommit": "d562524a", "progress": "추론 기반 신규, 정본 근거 없음 — 개발 미구현(전 화면 규칙 기반 명명, 주황 표시)", "menus": [{"route": "admin.partner.book-supply.index", "label": "공급 원장 (규칙)"}, {"route": "admin.partner.purchase-orders.index", "label": "발주 · 입고 확인 (규칙)"}, {"route": "admin.partner.purchase-statements.index", "label": "월 매입 정산서 (규칙)"}, {"route": "admin.partner.purchase-invoices.index", "label": "세금계산서 · 증빙 제출 (규칙)"}, {"route": "admin.partner.profile.index", "label": "내 정보 (규칙)"}]}</script>
+  <script type="application/json" id="dev-map">{"code": "ADMN-PTNR-003", "devCommit": "d562524a", "progress": "추론 기반 신규, 정본 근거 없음 — 화면 가정은 확정(2026-10-27 white, D-PTNR3-NN 권고대로). 개발 미구현(전 화면 규칙 기반 명명, 주황 표시)", "menus": [{"route": "admin.partner.book-supply.index", "label": "공급 원장 (규칙)"}, {"route": "admin.partner.purchase-orders.index", "label": "입고 · 반출 확인 — 1단계, 발주 확인은 2단계 (규칙, 확정 D-PTNR3-05)"}, {"route": "admin.partner.purchase-statements.index", "label": "월 매입 정산서 (규칙)"}, {"route": "admin.partner.purchase-invoices.index", "label": "세금계산서 · 증빙 제출 (규칙)"}, {"route": "admin.partner.profile.index", "label": "내 정보 (규칙)"}]}</script>
   <script src="dev-overlay.js" defer></script>
   <style>
     :root {
@@ -175,7 +178,7 @@
     <span class="ptnr-brand-sep"></span>
     <span class="ptnr-brand-title">공급사 파트너 센터</span>
     <span class="screen-id-badge">ADMN-PTNR-003</span>
-    <span class="infer-badge" data-dev-flag="proto-only" data-dev-note="추론 기반 신규, 정본 근거 없음 — 근거 목록은 dev_spec/ADMN-PTNR-003.md 맨 위">추론 기반 신규 · 정본 근거 없음</span>
+    <span class="infer-badge" data-dev-flag="proto-only" data-dev-note="추론 기반 신규, 정본 근거 없음 — 화면 가정은 확정(2026-10-27 white, D-PTNR3-NN 권고대로). 근거 목록은 dev_spec/ADMN-PTNR-003.md 맨 위">추론 기반 신규 · 정본 근거 없음</span>
   </div>
   <div class="ptnr-who">
     <span class="ptnr-who-name" id="ptnrWhoName">-</span>
@@ -258,10 +261,10 @@
 
     <!-- 발주 · 입고 확인 -->
     <section class="ptnr-section" id="tab-orders" data-dev-flag="proto-only">
-      <h2 class="ptnr-h2">발주 · 입고 확인</h2>
-      <p class="ptnr-sub">산준모닷컴 발주를 확인해 납품 예정일을 알려 주고, 물류센터 입고 수량과 매입처 반품(반출)을 확인합니다. 확인한 수량이 월 매입 정산서의 기준이 됩니다.</p>
+      <h2 class="ptnr-h2" id="ordersTitle">발주 · 입고 확인</h2>
+      <p class="ptnr-sub" id="ordersSub">산준모닷컴 발주를 확인해 납품 예정일을 알려 주고, 물류센터 입고 수량과 매입처 반품(반출)을 확인합니다. 확인한 수량이 월 매입 정산서의 기준이 됩니다.</p>
       <div class="ptnr-card">
-        <div class="ptnr-card-title"><span>발주 · 입고</span><span style="font-size:12px; color:#64748B; font-weight:600;" id="ordersCountText"></span></div>
+        <div class="ptnr-card-title"><span id="ordersCardTitle">발주 · 입고</span><span style="font-size:12px; color:#64748B; font-weight:600;" id="ordersCountText"></span></div>
         <div class="ptnr-filters">
           <select id="ordersStatusFilter" name="status" class="ptnr-select" onchange="renderOrders()">
             <option value="">상태 전체</option>
@@ -275,13 +278,13 @@
         </div>
         <div class="ptnr-table-wrap">
           <table class="ptnr-table">
-            <thead><tr><th>발주번호</th><th>발주일</th><th>도서 · 상품코드</th><th class="num">발주 수량</th><th>납품 예정일</th><th class="num">입고 수량</th><th>입고 전표</th><th>상태</th><th>처리</th></tr></thead>
+            <thead><tr><th id="ordersPoHead">발주번호</th><th>발주일</th><th>도서 · 상품코드</th><th class="num">발주 수량</th><th>납품 예정일</th><th class="num">입고 수량</th><th>입고 전표</th><th>상태</th><th>처리</th></tr></thead>
             <tbody id="ordersBody"></tbody>
           </table>
         </div>
       </div>
       <div class="ptnr-card">
-        <div class="ptnr-card-title"><span>매입처 반품 (반출)</span><span style="font-size:12px; color:#64748B; font-weight:600;">파본 · 인쇄 불량 등으로 공급사에 되돌려 보내는 수량 — 확인 후 매입 대금에서 차감</span></div>
+        <div class="ptnr-card-title"><span>매입처 반품 (반출)</span><span style="font-size:12px; color:#64748B; font-weight:600;" id="returnsCardNote">파본 · 인쇄 불량분(거래 조건에 반품 가능이 있으면 재고 반품 포함)을 공급사에 되돌려 보내는 수량 — 확인한 달의 매입 대금에서 차감</span></div>
         <div class="ptnr-table-wrap">
           <table class="ptnr-table">
             <thead><tr><th>반출번호</th><th>요청일</th><th>도서 · 상품코드</th><th class="num">수량</th><th>사유</th><th class="num">매입 대금 차감</th><th>상태</th><th>처리</th></tr></thead>
@@ -372,7 +375,7 @@
         </div>
         <dl class="ptnr-dl" id="meContactList"></dl>
         <div class="ptnr-notice is-gray" style="margin:14px 0 0;">
-          <div>정산 계좌 변경은 사업자 명의 통장 사본을 첨부해 요청해 주세요. 재무팀이 등록된 대표 연락처로 전화 확인한 뒤 반영하며, 반영 이후 지급분부터 적용됩니다. 메일로 계좌 변경을 안내받으면 따르지 말고 재무팀에 알려 주세요.</div>
+          <div id="meBankChangeGuide">정산 계좌 변경은 이 화면에서 요청만 받습니다. 처리 순서: 1. 사업자 명의 통장 사본을 첨부해 변경 요청 → 2. 재무팀이 이미 등록된 대표 연락처로 전화 확인 → 3. 재무 책임자 승인 → 4. 반영(변경 이력은 감사 로그에 남음). 반영 이후 지급분부터 적용됩니다. 메일 · 전화로 계좌 변경을 안내받으면 따르지 말고 재무팀에 알려 주세요.</div>
         </div>
       </div>
       <div class="ptnr-card">
@@ -398,7 +401,7 @@
 </div>
 
 <!-- 발주 확인 (납품 예정일 회신) -->
-<div class="modal-backdrop" id="layerPurchaseOrderConfirm" role="dialog" aria-modal="true" aria-labelledby="poConfirmTitle" aria-hidden="true" data-dev-flag="proto-only">
+<div class="modal-backdrop" id="layerPurchaseOrderConfirm" role="dialog" aria-modal="true" aria-labelledby="poConfirmTitle" aria-hidden="true" data-dev-flag="proto-only" data-dev-note="2단계(발주 시스템화) 기능 — 확정(2026-10-27 white, D-PTNR3-05 권고대로) 1단계에서는 열지 않는다. ?po_stage=2로 미리 보기">
   <div class="ptnr-modal">
     <div class="ptnr-modal-head">
       <strong id="poConfirmTitle">발주 확인</strong>
@@ -497,8 +500,16 @@
   var VD_MONTH_DEADLINE = { "2026-08": "2026-09-10", "2026-09": "2026-10-10", "2026-10": "2026-11-10" };
   var VD_CLOSED_MONTHS = ["2026-08", "2026-09"]; // 10월은 마감 전(잠정)
 
-  // 역할 그룹 '도서 공급사' — 공통 기준정보에 없어 이 화면의 가정값으로 둔다(POLICY_D_PTNR-003 D-PTNR3-01)
+  // 역할 그룹 '도서 공급사' — 추가 확정(2026-10-27 white, D-PTNR3-01 권고대로). 공통 기준정보에 아직 없어 이 화면의 최초값으로 둔다. 기준정보에 RG-09가 생기면 그쪽을 쓴다
   var ROLE_PROPOSED = { id: "RG-09", name: "도서 공급사", side: "EXTERNAL", aff: ["VENDOR"], on: true, perms: { supply: "RWX" }, proposed: true };
+
+  // 발주 시스템화 단계 — 확정(2026-10-27 white, D-PTNR3-05 권고대로): 1단계는 발주를 시스템으로 내지 않고(물류팀 기존 방식) 입고 전표 확인 · 이의만 연다.
+  // 2단계에 발주 + 공급사 확인(납품 예정일 회신)을 연다. 시연: ?po_stage=2로 2단계 화면을 미리 본다
+  var VD_PO_STAGE = new URLSearchParams(window.location.search).get("po_stage") === "2" ? 2 : 1;
+  // 매입처 반품(반출) 조건 — 확정(D-PTNR3-03 권고대로): 기본은 파본 · 인쇄 불량만, 거래 조건(VEND-001 '반품 조건' 칸, 추가 예정)에 반품 가능이면 재고 반품도.
+  // 기준정보 거래 조건에 칸이 아직 없어 화면 안 값으로 둔다
+  var VD_RETURN_TERMS = { "SUP-0004": "DEFECT_ONLY", "SUP-0005": "DEFECT_ONLY", "SUP-0006": "RETURNABLE", "SUP-0003": "DEFECT_ONLY", "SUP-0008": "DEFECT_ONLY" };
+  var VD_RETURN_TERMS_LABEL = { DEFECT_ONLY: "파본 · 인쇄 불량만 반출", RETURNABLE: "반품 가능 — 파본 · 인쇄 불량 + 재고 반품(거래 조건)" };
 
   // 공급 도서 — 매입 단가는 ADMN-SETT-011 S1 사입 원가 · ADMN-PROD-004(PROD-BK-2001 매입가 12,000원)와 같은 값
   var VD_BOOKS = {
@@ -641,10 +652,19 @@
     { vendor: "SUP-0004", date: "2026-07-02", type: "contact", text: "담당자 메일 변경 (se***@yemun.co.kr)", status: "DONE", result: "2026-07-03 반영" }
   ];
   var VD_REQ_TYPE = { bank_account: "정산 계좌", contact: "담당자 메일", business_info: "사업자 정보" };
+  // 변경 요청 상태 — 정산 계좌는 확정(2026-10-27 white, D-PTNR3-08 권고대로) 요청 → 전화 확인 → 재무 책임자 승인 → 반영 순서
   var VD_REQ_STATUS = {
     REQUESTED: '<span class="badge badge-amber">요청 접수 · 확인 대기</span>',
+    CALL_VERIFIED: '<span class="badge badge-blue">전화 확인 완료 · 승인 대기</span>',
+    APPROVED: '<span class="badge badge-blue">재무 책임자 승인 · 반영 대기</span>',
     DONE: '<span class="badge badge-green">반영 완료</span>'
   };
+  var VD_BANK_STEPS = ["요청 접수", "대표 연락처 전화 확인", "재무 책임자 승인", "반영(감사 로그)"];
+  var VD_BANK_STEP_INDEX = { REQUESTED: 0, CALL_VERIFIED: 1, APPROVED: 2, DONE: 3 };
+  function bankStepsHtml(status) {
+    var cur = VD_BANK_STEP_INDEX[status] || 0;
+    return '<div class="ptnr-small bank-steps">' + VD_BANK_STEPS.map(function (t, i) { return (i <= cur ? '<strong>' + t + '</strong>' : t); }).join(" → ") + '</div>';
+  }
 
   // ===== 공통 =====
   function vdWon(n) {
@@ -714,6 +734,11 @@
     VD.canDownload = perm.indexOf("X") !== -1;
     // 폐업 · 휴업 · 거래 중지 거래처는 열람만 (03권 L427: 폐업 감지 시 신규 증빙 요청 중단)
     VD.readOnly = v.on === false || v.status === "폐업" || v.status === "휴업";
+    // 확정(2026-10-27 white, D-PTNR3-07 권고대로): 열람 전용은 미지급 잔액이 남아 있는 동안만. 잔액이 0이 되면 계정을 잠근다
+    if (VD.readOnly) {
+      VD.balance = outstandingBalance();
+      if (VD.balance <= 0) return "거래 상태가 " + (v.on === false ? "거래 중지" : v.status) + "이고 미지급 매입 대금이 없어 계정이 잠겼습니다. 지난 정산 내역이 필요하면 재무팀에 요청해 주세요.";
+    }
     VD.canWrite = perm.indexOf("W") !== -1 && !VD.readOnly;
     VD.ok = true;
     return "";
@@ -723,9 +748,9 @@
     var v = VD.vendor;
     document.getElementById("ptnrWhoName").textContent = v.name;
     document.getElementById("ptnrWhoAff").textContent = "거래처 " + v.id + " · " + VD.vendorType.name;
-    document.getElementById("ptnrWhoRole").textContent = VD.role.name + (VD.role.proposed ? " (가정)" : "");
+    document.getElementById("ptnrWhoRole").textContent = VD.role.name;
     if (VD.readOnly) {
-      document.getElementById("readOnlyNotice").innerHTML = '<div class="ptnr-notice is-rose"><div><strong>열람 전용</strong> — 거래 상태가 ' + vdEsc(v.on === false ? "거래 중지" : v.status) + '(국세청 확인 ' + vdEsc(v.checkedAt || "-") + ')로 확인되어 발주 확인 · 증빙 제출 · 변경 요청을 할 수 없습니다. 남은 매입 대금은 재무팀이 따로 안내합니다.</div></div>';
+      document.getElementById("readOnlyNotice").innerHTML = '<div class="ptnr-notice is-rose"><div><strong>열람 전용</strong> — 거래 상태가 ' + vdEsc(v.on === false ? "거래 중지" : v.status) + '(국세청 확인 ' + vdEsc(v.checkedAt || "-") + ')로 확인되어 입고 확인 · 증빙 제출 · 변경 요청을 할 수 없습니다. 미지급 잔액 <strong id="readOnlyBalance">' + vdWon(VD.balance) + '</strong>은 재무팀이 따로 안내하며, 잔액이 0이 되면 이 계정은 잠깁니다.</div></div>';
     }
   }
 
@@ -733,6 +758,16 @@
     var hide = function (id) { var el = document.getElementById(id); if (el) el.style.display = "none"; };
     if (!VD.canDownload) { hide("btnLedgerDownload"); hide("btnStmtPdf"); }
     if (!VD.canWrite) { hide("btnOpenProfileChange"); hide("btnStmtGoTax"); }
+    if (VD_PO_STAGE !== 2) {
+      // 1단계 — 메뉴 · 제목을 입고 · 반출 확인으로, 발주 확인 대기 · 납품 예정 상태 필터를 뺀다
+      var nav = document.getElementById("navOrders");
+      nav.firstChild.nodeValue = "입고 · 반출 확인 ";
+      document.getElementById("ordersTitle").textContent = "입고 · 반출 확인";
+      document.getElementById("ordersSub").textContent = "물류센터 입고 전표의 수량과 매입처 반품(반출)을 확인하고, 다르면 이의를 제기합니다. 확인한 수량이 월 매입 정산서의 기준이 됩니다. 발주는 지금처럼 물류팀이 따로 보냅니다.";
+      document.getElementById("ordersCardTitle").textContent = "입고 전표";
+      document.getElementById("ordersPoHead").textContent = "관련 발주";
+      document.querySelectorAll('#ordersStatusFilter option[value="ORDERED"], #ordersStatusFilter option[value="ACCEPTED"]').forEach(function (o) { o.parentNode.removeChild(o); });
+    }
   }
 
   function switchPtnrTab(tab) {
@@ -748,13 +783,23 @@
     window.scrollTo(0, 0);
   }
 
-  // ===== 본인 데이터 (서버가 소속 거래처로 거른 값만 내려준다고 가정) =====
+  // ===== 본인 데이터 (서버가 소속 거래처로 거른 값만 내려준다는 전제) =====
   function myLedger(month) { return (VD_LEDGER[month] || []).filter(function (r) { return VD_BOOKS[r.sku] && VD_BOOKS[r.sku].vendor === VD.vendorId; }); }
   function myLogs(month) { return VD_STOCK_LOGS.filter(function (l) { return l.month === month && VD_BOOKS[l.sku] && VD_BOOKS[l.sku].vendor === VD.vendorId; }); }
-  function myOrders() { return VD_ORDERS.filter(function (o) { return o.vendor === VD.vendorId; }); }
+  function myOrders() {
+    return VD_ORDERS.filter(function (o) {
+      if (o.vendor !== VD.vendorId) return false;
+      // 1단계에서는 시스템 발주가 없으므로 발주 확인 대기 · 납품 예정 행이 생기지 않는다(입고 전표가 생긴 뒤부터 보인다)
+      return VD_PO_STAGE === 2 || (o.status !== "ORDERED" && o.status !== "ACCEPTED");
+    });
+  }
   function myReturns() { return VD_RETURNS.filter(function (r) { return r.vendor === VD.vendorId; }); }
   function myTaxDocs() { return VD_TAX_DOCS.filter(function (d) { return d.vendor === VD.vendorId; }); }
   function myPayment(month) { return (VD_PAYMENTS[VD.vendorId] || {})[month] || null; }
+  // 미지급 잔액 — 정산서가 있는 달의 순 매입액 − 지급액 합계(열람 전용 계정의 잠금 판정에 쓴다)
+  function outstandingBalance() {
+    return VD_MONTHS.reduce(function (a, m) { var pay = myPayment(m); return pay ? a + (monthPurchase(m).net - pay.paid) : a; }, 0);
+  }
   function myBooks() { return Object.keys(VD_BOOKS).filter(function (k) { return VD_BOOKS[k].vendor === VD.vendorId; }); }
   function closeQty(r) { return r.open + r.inQty - r.outQty + r.retIn - r.retOut + r.adj; }
   function purchaseOf(r) { var c = VD_BOOKS[r.sku].cost; return { gross: r.inQty * c, ret: r.retOut * c, net: (r.inQty - r.retOut) * c }; }
@@ -786,7 +831,7 @@
       kpi("10월 입고 기준 매입액 (잠정)", vdWon(cur.net), "입고 " + vdWon(cur.gross) + " − 반출 " + vdWon(cur.ret) + " · 10월 31일 마감")
       + kpi("9월 매입 대금", vdWon(prev.net), pay9 ? (pay9.paid ? "지급 " + vdWon(pay9.paid) + " (" + pay9.payDate + ")" : "지급 보류") : "입고 없음")
       + kpi("현재 재고 (공급 도서 합계)", vdNum(stock) + "권", myBooks().length + "종 · 물류센터 기준")
-      + kpi("처리할 일", (pendingOrderCount() + (VD.readOnly ? 0 : pendingTaxCount())) + "건", "발주 · 입고 · 반출 확인과 계산서 제출");
+      + kpi("처리할 일", (pendingOrderCount() + (VD.readOnly ? 0 : pendingTaxCount())) + "건", (VD_PO_STAGE === 2 ? "발주 · " : "") + "입고 · 반출 확인과 계산서 제출");
     var todo = [];
     myOrders().forEach(function (o) {
       if (o.status === "ORDERED") todo.push(todoRow("발주 확인", o.po + " · " + VD_BOOKS[o.sku].title + " " + vdNum(o.qty) + "권 — 납품 예정일을 알려 주세요", "orders"));
@@ -887,7 +932,7 @@
 
   function openPoConfirmModal(po) {
     var o = findOrder(po);
-    if (!o || !VD.canWrite) return;
+    if (!o || !VD.canWrite || VD_PO_STAGE !== 2) return;
     VD.poKey = po;
     document.getElementById("poConfirmTitle").textContent = "발주 확인 — " + po;
     document.getElementById("poConfirmInfo").innerHTML = '<div><strong>' + vdEsc(VD_BOOKS[o.sku].title) + '</strong> (' + o.sku + ') · 발주 ' + vdNum(o.qty) + '권 · 발주일 ' + o.date + '<br>매입 단가 ' + vdWon(VD_BOOKS[o.sku].cost) + ' · 납품처 산준모닷컴 파주 물류센터(CJ대한통운)</div>';
@@ -1120,6 +1165,7 @@
       + '<dt>사업자등록번호</dt><dd>' + vdEsc(v.bizNo) + ' · 대표자 ' + vdEsc(v.ceo) + '</dd>'
       + '<dt>과세유형 · 사업자 상태</dt><dd>' + vdEsc(v.taxType) + ' · ' + vdEsc(v.status) + ' (국세청 확인 ' + vdEsc(v.checkedAt || "-") + ')</dd>'
       + '<dt>거래 조건</dt><dd>공급률 ' + vdEsc(terms.rate || "-") + '% · ' + vdEsc(terms.pay || "-") + '</dd>'
+      + '<dt>반품(반출) 조건</dt><dd id="meReturnTerms">' + vdEsc(VD_RETURN_TERMS_LABEL[VD_RETURN_TERMS[v.id] || "DEFECT_ONLY"]) + ' · 반출 확인한 달의 매입 대금에서 차감</dd>'
       + '<dt>거래 시작일</dt><dd>' + vdEsc(v.since || "-") + '</dd>';
     document.getElementById("meContactList").innerHTML =
       '<dt>대표 연락처</dt><dd>' + vdEsc(v.contact || "-") + '</dd>'
@@ -1127,7 +1173,7 @@
       + '<dt>정산 계좌</dt><dd id="meBank">' + vdEsc(prof.bankMasked || "등록된 계좌 없음 — 변경 요청으로 등록해 주세요") + '</dd>';
     var reqs = VD_CHANGE_REQUESTS.filter(function (r) { return r.vendor === v.id; });
     document.getElementById("meRequestBody").innerHTML = reqs.map(function (r) {
-      return '<tr><td>' + r.date + '</td><td>' + VD_REQ_TYPE[r.type] + '</td><td>' + vdEsc(r.text) + '</td><td>' + VD_REQ_STATUS[r.status] + '</td><td>' + vdEsc(r.result || "-") + '</td></tr>';
+      return '<tr><td>' + r.date + '</td><td>' + VD_REQ_TYPE[r.type] + '</td><td>' + vdEsc(r.text) + '</td><td>' + VD_REQ_STATUS[r.status] + (r.type === "bank_account" ? bankStepsHtml(r.status) : '') + '</td><td>' + vdEsc(r.result || "-") + '</td></tr>';
     }).join("") || '<tr class="is-empty"><td colspan="5">변경 요청 내역이 없습니다.</td></tr>';
   }
   function renderProfileChangeFields() {
@@ -1167,10 +1213,10 @@
     if (reason.replace(/\s/g, "").length < 10) return fail("요청 사유를 공백 제외 10자 이상 적어 주세요.");
     if (reason.length > 200) return fail("요청 사유는 200자 이하로 적어 주세요.");
     if (t !== "contact" && !document.getElementById("pcFile").files.length) return fail("증빙 파일을 첨부해 주세요.");
-    VD_CHANGE_REQUESTS.unshift({ vendor: VD.vendorId, date: TODAY, type: t, text: text, status: "REQUESTED", result: "" });
+    VD_CHANGE_REQUESTS.unshift({ vendor: VD.vendorId, date: TODAY, type: t, text: text, status: "REQUESTED", result: t === "bank_account" ? "전화 확인 전 — 반영 전까지 기존 계좌로 지급" : "" });
     closeLayer("layerProfileChangeRequest");
     renderMe();
-    showPtnrToast(VD_REQ_TYPE[t] + " 변경 요청을 보냈습니다. " + (t === "bank_account" ? "재무팀이 대표 연락처로 전화 확인한 뒤 반영합니다." : "재무팀 확인 후 반영합니다."));
+    showPtnrToast(VD_REQ_TYPE[t] + " 변경 요청을 보냈습니다. " + (t === "bank_account" ? "재무팀이 등록된 대표 연락처로 전화 확인하고 재무 책임자 승인을 받은 뒤 반영합니다." : "재무팀 확인 후 반영합니다."));
   }
 
   // ===== 시작 =====

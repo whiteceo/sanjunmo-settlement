@@ -1,6 +1,6 @@
 # ADMN-PTNR-002 물류 파트너 센터 — 개발 명세
 
-> **추론 기반 신규, 정본 근거 없음.** 정본에는 거래처 소속 외부 계정의 소속 규칙과 3PL 계정의 업무 범위(출고지시 엑셀 · 송장 업로드, 금액 · 강좌내역 마스킹)만 있고, 이 화면(별도 파트너 센터) 자체의 근거는 없다. 아래 근거에서 화면 구성을 추론했다. 확인할 가정은 `dev_spec/_drafts/POLICY_D_PTNR-002.md`(9항목).
+> **추론 기반 신규, 정본 근거 없음.** 정본에는 거래처 소속 외부 계정의 소속 규칙과 3PL 계정의 업무 범위(출고지시 엑셀 · 송장 업로드, 금액 · 강좌내역 마스킹)만 있고, 이 화면(별도 파트너 센터) 자체의 근거는 없다. 아래 근거에서 화면 구성을 추론했다. 화면을 만들 때 둔 가정(C 7건: D-PTNR2-02 · 03 · 05 · 06 · 07 · 08 · 09)은 **확정(2026-10-27 white, D-PTNR2-NN 권고대로)** 이다. A · B 2건(D-PTNR2-04 정본 Flow 3-1, D-PTNR2-01 화면 구성)은 원래 정본 · 화면 판단. 근거 · 권고 원문은 `scripts/qa/reports/review/findings/devspec/POLICY_D_PTNR2.md`.
 
 ## 0. 추론 근거
 ### 정본 문서
@@ -11,7 +11,7 @@
 | [S3-03] 외부 물류 계정은 타 메뉴 접근 없이 본인 배정 출고 · 송장 업무만 | `docs/산준모닷컴 구축 통합 상세 설계서.md:363-364` | 탭 범위(출고 · 송장 · 배송), 다른 메뉴 없음 |
 | 3PL 계정도 출고지시 엑셀 다운로드 가능, 결제금액 · 강좌내역 마스킹 격리 | 같은 문서 `:379` | 발주 엑셀(출고지시) 버튼 · 금액 비표시 |
 | 운송장 엑셀 일괄 업로드 · 배송완료(D+3) · 월말 3PL 수수료 집계 | 같은 문서 `:381-384` | 송장 등록 탭, 배송 현황, 물류비 탭 |
-| 월간 정산 · 대사(SETT-011 포함)는 "내부 재무/정산 전용 — 외부 비노출" | 같은 문서 `:410` | **물류비 탭과 충돌** — 청구 쪽 결과만 보이게 줄이고 POLICY D-PTNR2-02로 확인 |
+| 월간 정산 · 대사(SETT-011 포함)는 "내부 재무/정산 전용 — 외부 비노출" | 같은 문서 `:410` | **물류비 탭과 충돌** — 청구 쪽 결과만 보이게 줄임. 확정(2026-10-27 white, D-PTNR2-02 권고대로): "내부 대사 화면은 외부 비노출, 3PL에는 청구 결과 요약만 제공" 예외, 별도 메뉴 키 `logibill` |
 | READ_AND_APPROVE_ONLY — 외부 계정은 3PL 송장 업로드만 허용 | 같은 문서 `:454` | 쓰기 동작을 송장 · 예외 · 소명 · 명세서 제출로 한정, 마스터 수정 없음 |
 | 거래처 데이터 범위: 3PL은 출고 · 반품 데이터, 결제금액 · 강좌내역 마스킹 | 같은 문서 `:461` · `:478` (OWN_SCOPE_ONLY) | 반품진행중 탭(조회만), 금액 비표시 |
 | 거래처 마스터 분리(suppliers · supplier_type), 3PL 물류 용역은 과세 → 전자세금계산서 | `docs/[산준모 정산시스템]_02_…명세서.md:64-69` | 내 정보(거래처 유형 · 증빙), 세금계산서 안내 |
@@ -57,13 +57,15 @@
 | 메뉴(admin_menus.route_name) | 메뉴명 | 확인 방법 |
 |---|---|---|
 | `admin.partner.deliveries.index` (규칙) | 출고 대상 · 송장 등록 · 배송 현황 | 개발 미구현. 프로토타입 메뉴 키 `shipout`(R 조회 · W 등록 · X 다운로드)에 대응 |
-| `admin.partner.logistics-bills.index` (규칙) | 물류비 청구 · 대사 결과 | 개발 미구현. 프로토타입은 별도 메뉴 키 없이 `shipout` R로 노출(가정 — POLICY D-PTNR2-02) |
+| `admin.partner.logistics-bills.index` (규칙) | 물류비 청구 · 대사 결과 | 개발 미구현. 별도 메뉴 키 `logibill`(가칭, R 조회 · W 명세서 제출 · 소명) — 확정(2026-10-27 white, D-PTNR2-02 권고대로). 공통 기준정보에 아직 없어 프로토타입은 화면 안 최초값 `RG-08: "RW"`(`PL_BILL_PERM_DEFAULT`)을 쓰고, 역할 그룹에 `logibill`이 생기면 그 값을 쓴다 |
 | (메뉴 아님) `admin.partner.profile.show` (규칙) | 내 정보 | 로그인 계정 공통 |
 
 - 진입: 로그인 후 역할 그룹 시작 화면(`startScreen`)으로 착지. 프로토타입 URL `ADMN-PTNR-002_baseline.html?vendor=SUP-NNNN&role=RG-08`. 개발은 `config/admin.php` landing에 거래처 소속 역할 코드(예 `vendor_logistics` (규칙))를 추가해 `admin.partner.deliveries.index`로 보낸다.
-- 진입 차단(프로토타입 `resolveContext()`): 거래처 없음 · 거래처 유형 양식이 LOGISTICS가 아님 · 거래 중지(`on=false`) · 역할 그룹이 EXTERNAL + aff VENDOR가 아님 · `shipout` R 없음.
-- 데이터 범위(본인 바인딩): 모든 조회 · 쓰기는 로그인 계정의 `supplier_id`(규칙)로 거른다. 이 거래처에 배정된 출고(`deliveries.supplier_id` (규칙) 또는 발주 배치의 거래처)만.
-- 현재 RG-08 최초값은 `shipout: "RW"` — X(다운로드)가 없어 발주 엑셀(출고지시) 버튼은 비활성 + 안내. 정본 `:379`는 3PL 계정의 출고지시를 허용 → POLICY D-PTNR2-04.
+- 진입 차단(프로토타입 `resolveContext()`): 거래처 없음 · 거래처 유형 양식이 LOGISTICS가 아님 · 거래 중지(`on=false`) · 국세청 사업자 상태 폐업 · 휴업(`business_status`) · 역할 그룹이 EXTERNAL + aff VENDOR가 아님 · `shipout` R 없음. 거래 중지 · 폐업 · 휴업은 그 거래처의 담당자 계정 전부 자동 차단 — 확정(2026-10-27 white, D-PTNR2-09 권고대로).
+- 계정 발급 단위: 담당자 1명당 1개(거래처 공용 계정 없음) — 확정(D-PTNR2-09). 발주 엑셀 다운로드 · 송장 업로드 · 예외 등록 · 명세서 제출의 처리자는 담당자 이름으로 남긴다(`delivery_batches.admin_id` 등).
+- `logibill` R이 없으면 물류비 탭 · 홈 물류비 KPI를 뺀다. W가 없으면 명세서 제출 · 소명 버튼을 뺀다.
+- 데이터 범위(본인 바인딩): 모든 조회 · 쓰기는 로그인 계정의 `supplier_id`(규칙)로 거른다. 이 거래처에 배정된 출고(`deliveries.supplier_id` (규칙))만. 확정(2026-10-27 white, D-PTNR2-08 권고대로): 1차는 3PL 1곳 전제지만 배정 컬럼 `deliveries.supplier_id`는 1차에 만들고 기본값은 유일한 3PL 거래처, 배정 규칙(여러 3PL 분배)은 2차.
+- 현재 공통 기준정보 RG-08 최초값은 `shipout: "RW"` — X(다운로드)가 없어 발주 엑셀(출고지시) 버튼은 비활성 + 권한 요청 안내. 정본 `:379`(Flow 3-1)는 3PL 계정의 출고지시를 허용하므로(D-PTNR2-04, A) RG-08 최초값에 X를 더하는 것은 공통 파일(`common-master.js`) 작업으로 남긴다(이 화면 작업 범위 밖). X가 있으면 버튼이 켜진다(검증함).
 
 ## 2. 화면별 라우트
 개발 미구현, 규칙 기반 명명. URL 접두사 `/{admin}/partner/…`. 동작은 기존 `admin.deliveries.*`와 같은 컨트롤러 메서드 모양을 따르되 데이터 범위만 거래처로 묶는다(재사용 대안은 7절).
@@ -86,8 +88,8 @@
 | 동작 | 메서드 | URL | 라우트 이름 | 권한 | 컨트롤러@메서드 |
 |---|---|---|---|---|---|
 | 월별 대사 결과(청구 쪽) | GET | `/{admin}/partner/logistics-bills?settlement_month=YYYY-MM` | `admin.partner.logistics-bills.index` (규칙) | can_view | (규칙) Partner\LogisticsBillController@index |
-| 월 수수료 명세서 제출 | POST | `/{admin}/partner/logistics-bills/statements` | `admin.partner.logistics-bills.statements.store` (규칙) | can_create | (규칙) — 내부 SETT-011 `…logistics-reconciliations.statements.store` (규칙)와 같은 저장소 |
-| 불일치 소명 제출(`layerBillObjection`) | POST | `/{admin}/partner/logistics-bills/items/{item}/objections` | `admin.partner.logistics-bills.items.objections.store` (규칙) | can_create | (규칙) |
+| 월 수수료 명세서 제출 · 새 버전 제출 | POST | `/{admin}/partner/logistics-bills/statements` | `admin.partner.logistics-bills.statements.store` (규칙) | can_create (`logibill` W) | (규칙) — 내부 SETT-011 `…logistics-reconciliations.statements.store` (규칙)와 같은 저장소 · 같은 버전 이력. 대사 실행 뒤에는 거부(재무팀 승인으로만 새 버전) |
+| 불일치 소명 제출(`layerBillObjection`) | POST | `/{admin}/partner/logistics-bills/items/{item}/objections` | `admin.partner.logistics-bills.items.objections.store` (규칙) | can_create (`logibill` W) | (규칙) |
 
 ### 내 정보 · 공통
 | 동작 | 메서드 | URL | 라우트 이름 | 권한 | 컨트롤러@메서드 |
@@ -145,17 +147,19 @@
 | `reason` (소명) | MemberReasonRequest 규칙 | | `#objectionReason` |
 | `attachment` (소명) | nullable | | `#objectionFile` |
 - 소명은 대사 결과가 `ONLY_3PL` · `DIFF`이고 대사 완료(Lock) 전인 행만.
+- 명세서는 대사 실행 전까지 3PL이 새 버전으로 다시 낼 수 있고(버전 번호 +1, 최신 버전이 대사 기준), 대사 실행 뒤 3PL 제출은 거부한다 — 확정(2026-10-27 white, D-PTNR2-07 권고대로).
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼
 | 탭 | 컬럼 | 비고 |
 |---|---|---|
-| 출고 대상 | 선택 · 주문번호 #라인 · 수령인(가림) · 연락처(가림) · 배송지 · 교재 · 상품(상품코드) · 수량 · 배송비 구분(`fee_type` 라벨만) · 출고지시(시각 · 배치) · 송장 | 결제금액 · 배송비 금액 · 강좌 라인 비표시. 출고지시 완료 라인은 선택 불가 |
+| 출고 대상 | 선택 · 주문번호 #라인 · 수령인(가운데 글자 가림) · 연락처(끝 4자리 가림) · 배송지 · 교재 · 상품(상품코드) · 수량 · 배송비 구분(`fee_type` 라벨만) · 출고지시(시각 · 배치) · 송장 | 결제금액 · 배송비 금액 · 강좌 라인 비표시. 출고지시 완료 라인은 선택 불가 |
 | 배송중 | 주문번호 · 수령인 · 연락처 · 배송지 · 교재 · 수량 · 출고일 · 택배사/운송장(정정 n · 예외 배지) · 관리(정정 · 예외 등록) | |
-| 배송완료 | 주문번호 · 수령인(가림) · 교재 · 수량 · 출고일 · 배송완료일 · 완료 근거 · 운송장 · 예외 등록 | **연락처 · 주소 비표시**(가정 — D-PTNR2-03) |
-| 반품진행중 | 주문번호 · 수령인(가림) · 반품 교재 · 수량 · 수거 운송장 · 창고 입고일 · 검수 상태 | 조회만(검수 입력은 운영자 — D-PTNR2-06) |
-| 예외 | 주문번호 · 구분 · 발생일 · 내용 · 등록 · 처리 상태 | |
+| 배송완료 | 주문번호 · 수령인(가림, 출고 30일 경과 시 비표시) · 교재 · 수량 · 출고일 · 배송완료일 · 완료 근거 · 운송장 · 예외 등록 | **연락처 · 주소 비표시**, 출고 후 30일(판단값, 설정 가능 기본값 — 반품 기한 D+7보다 길게) 지나면 수령인 이름도 비표시 — 확정(2026-10-27 white, D-PTNR2-03 권고대로) |
+| 반품진행중 | 주문번호 · 수령인(가림) · 반품 교재 · 수량 · 수거 운송장 · 창고 입고일 · 검수 상태 | 조회만, 검수 판정은 물류팀 입력 — 확정(2026-10-27 white, D-PTNR2-06 권고대로). 3PL이 입고 사실 · 사진만 올리는 칸은 2차 검토 |
+| 예외 | 주문번호 · 구분 · 발생일 · 내용 · 등록(담당자 이름) · 처리 상태 | 3PL은 등록만, 판정(재출고 · 환불 · 배상 청구 · 종결)은 물류팀 — 확정(2026-10-27 white, D-PTNR2-05 권고대로) |
 | 물류비 대사 | No · 출고일 · 송장번호 · 주문번호 · 수령인(가림) · 수량 · 산준모 기록 · 청구 · 단가 · 대사 결과 · 처리 결과 · 소명 | 불일치만 보기 토글. 고객 배송비 수납액 · 도서 매입 대조 탭은 비표시 |
 | 배송비 · 반품 청구 | 구분 · 청구 금액 · 산정 | 지급(청구) 쪽만 |
+| 명세서 버전 이력 | 버전 · 파일 · 제출 일시 · 제출자 | 3PL 제출 · 재무팀 업로드가 같은 이력(D-PTNR2-07) |
 - 정렬: 개발 `DeliveryService::TAB_SORTS` 그대로(탭별 기본값).
 
 ## 5. DB 테이블 · 컬럼
@@ -170,10 +174,11 @@
 | `logistics_settlements.*` (`settlement_month` · `billed_delivery_count/amount` · `billed_return_count/amount` · `our_delivery_count` · `status` · `is_locked`) | | 월 물류 정산 요약 | 물류비 KPI(`our_*`는 "산준모 출고 기록" 건수만) |
 | `suppliers.code` · `name` · `business_no` · `ceo_name` · `payee_tax_type` · `business_status` · `api_checked_at` · `bank_name` · `account_no_enc` · `account_holder` · `settlement_terms` · `contact_email` | | 거래처 원장 | 내 정보(계좌는 가린 값) |
 | `suppliers.supplier_type` (규칙) | string | 거래처 유형 — 정본 02권 2.4절에 있으나 개발 테이블에 없음 | 진입 판정(LOGISTICS) |
-| `users.supplier_id` (규칙) | unsignedBigInteger nullable | 계정 소속 거래처(본인 바인딩 키) | 진입 · 모든 조회 범위 |
-| `deliveries.supplier_id` (규칙) 또는 `delivery_batches.supplier_id` (규칙) | | 출고 배정 거래처(3PL이 여럿일 때) | 데이터 범위 |
+| `users.supplier_id` (규칙) | unsignedBigInteger nullable | 계정 소속 거래처(본인 바인딩 키). 담당자 1명당 1계정(D-PTNR2-09) | 진입 · 모든 조회 범위 · 감사 로그 처리자 |
+| `deliveries.supplier_id` (규칙) | unsignedBigInteger, 1차 기본값 = 유일한 3PL 거래처 | 출고 배정 거래처 — 1차에 컬럼만, 배정 규칙은 2차(D-PTNR2-08) | 데이터 범위 |
 | `delivery_exceptions` (규칙: `delivery_id` · `supplier_id` · `exception_type` · `occurred_at` · `reason` · `attachment_path` · `status` · `created_by` · `resolved_by` · `resolved_at`) | | 배송 예외 | 예외 탭 |
 | `logistics_statement_files` · `logistics_reconciliation_items` · `logistics_item_objections` (규칙) | | 명세서 원본 · 대사 행 · 소명 | 물류비 탭 — SETT-011 명세와 같은 저장소 |
+| `logistics_statement_files.version` · `uploaded_by` · `uploader_type`(supplier · finance) (규칙) | | 명세서 버전 이력 — 대사 실행 뒤 3PL 업로드 거부 | 명세서 버전 이력 표(D-PTNR2-07) |
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |
@@ -183,7 +188,9 @@
 | `layerTracking` · `trackingForm` · `trackingSubmit` | 송장 단건 | 같은 id 사용 |
 | `layerDeliveryException` · `deliveryExceptionForm` · `deliveryExceptionSubmit` (규칙) | 배송 예외 | 같은 id 사용 |
 | `layerBillObjection` · `billObjectionForm` · `billObjectionSubmit` (규칙) | 소명 제출 | 같은 id 사용 |
-| `billStatementForm` · `billStatementSubmit` (규칙) | 명세서 제출 | 같은 id 사용 |
+| `billStatementForm` · `billStatementSubmit` (규칙) | 명세서 제출 · 새 버전 제출 | 같은 id 사용 |
+| `billVersionTable` (규칙) | 명세서 버전 이력 | 같은 id 사용 |
+| `meAccountList` (규칙) | 내 정보 — 로그인 계정 · 개인정보 처리위탁 | 같은 id 사용 |
 - 화면 디자인 클래스는 PTNR-001(`ptnr-*`) 그대로. 개발 공통 레이어 마크업(`.layer-pop__overlay` 등)으로 옮길 때 id만 유지.
 - 모든 동작 버튼에 `data-dev-route` · `data-dev-method` · `data-dev-url` · `data-dev-perm`, 주요 영역에 `data-dev-flag="proto-only"`(화면 전체 개발 미구현).
 
@@ -197,20 +204,32 @@
 - 물류비 대사 결과 조회 · 명세서 제출 · 소명 — 내부 SETT-011도 개발 미구현(테이블만).
 - 화면 표시 마스킹(이름 · 연락처) — 개발 내부 배송 관리는 원문 표시.
 
-### 이름 · 값이 다름 / 설계 대안
-- 대안 A(권장 검토): 별도 `admin.partner.deliveries.*` 대신 기존 `admin.deliveries.*`를 그대로 쓰고, 거래처 소속 계정이면 서비스 계층에서 범위 · 마스킹 · 버튼을 줄인다. 라우트 수가 줄지만 메뉴 권한이 내부 물류팀과 한 행을 공유한다 → POLICY D-PTNR2-01.
-- 진입 파라미터: 요청서의 `?vendor=VD-NNNN` 대신 기존 거래처 코드 `SUP-NNNN`(공통 기준정보 · 개발 `suppliers.code`)을 썼다.
-- 마스킹 위치: 프로토타입 공통(ORD-001)은 이름 두 번째 글자 · 연락처 가운데 4자리. 개인정보위 운송장 권고(2025-09)는 이름 가운데 글자 · 연락처 끝 4자리 → D-PTNR2-03.
+### 10-27 확정 반영 (2026-10-27 white, D-PTNR2-NN 권고대로)
+- D-PTNR2-02 (10-27 확정 반영): 물류비 탭을 `shipout`이 아닌 별도 메뉴 키 `logibill`로 판정(R 없으면 탭 · 홈 KPI 제거, W 없으면 제출 · 소명 버튼 제거). 공개 열은 그대로(청구 쪽만, 고객 배송비 수납액 · 도서 매입 대조 · 내부 메모 비표시) — 열은 서버에서 고정. 정본 설계서 `:411` 문구 보완안("내부 대사 화면은 외부 비노출, 3PL에는 청구 결과 요약만 제공")은 정본 담당 작업.
+- D-PTNR2-03 (10-27 확정 반영): 화면 마스킹 위치를 운송장 권고(이름 가운데 글자 · 연락처 끝 4자리)로 바꿈. 출고 후 30일 지난 배송완료 라인은 수령인 이름도 비표시. 출고 대상 안내 · 발주 모달 · 내 정보에 처리위탁 계약 · 수탁자 공개 표시. **ADMN-ORD-001 3PL 격리 보기(현재 이름 두 번째 글자 · 연락처 가운데 4자리)도 같은 위치로 바꿔야 함 — 이 작업 범위 밖, 후속 필요.** 처리위탁 계약 · 개인정보처리방침 수탁자 공개는 오픈 전 필수 조치.
+- D-PTNR2-05 · 06: 화면이 이미 권고대로(예외는 등록만, 반품 검수는 조회만) — 예외 안내 문구만 판정 주체를 분명히 함. 정본 설계서 `:391` 문구("3PL 입고 사실 · 사진 → 물류팀 검수 판정") 보완은 정본 담당 작업.
+- D-PTNR2-07 (10-27 확정 반영): 명세서 버전 이력 표 추가, 대사 실행 전에는 3PL이 새 버전 제출 가능, 대사 실행 뒤 재제출 막음(정정은 재무팀 승인). 재무팀 업로드도 같은 이력.
+- D-PTNR2-08 (10-27 확정 반영, 명세만): 배정 컬럼 `deliveries.supplier_id`를 1차에 둠(기본값 유일 3PL), 배정 규칙은 2차.
+- D-PTNR2-09 (10-27 확정 반영): 담당자별 계정(상단 · 내 정보에 담당자 표시, 배치 · 예외 · 명세서 처리자를 담당자 이름으로), 폐업 · 휴업도 진입 자동 차단(기존은 거래 중지만).
 
-## 8. 정책 질문 (white 확인 필요 — 상세는 `_drafts/POLICY_D_PTNR-002.md`)
-| 번호 | 질문 | 긴급도 |
-|---|---|---|
-| D-PTNR2-01 | 3PL 업무를 별도 파트너 센터로 둘지, 정본대로 ORD-002 격리 보기로 둘지 | 상 |
-| D-PTNR2-02 | 물류비 대사 결과를 3PL에게 보여 줄지(정본 "외부 비노출"과 충돌) · 범위 | 상 |
-| D-PTNR2-03 | 3PL에게 주는 개인정보 범위 · 마스킹 방식 · 처리위탁 계약 | 상 |
-| D-PTNR2-04 | 3PL 계정의 출고지시(발주 엑셀) 실행 권한 | 중 |
-| D-PTNR2-05 | 배송 예외(반송 · 분실 · 파손) 등록 · 후속 처리 책임 | 중 |
-| D-PTNR2-06 | 반품 입고 검수 입력을 3PL에 열지 | 중 |
-| D-PTNR2-07 | 월 명세서를 3PL이 직접 제출 · 소명하는 경로 | 중 |
-| D-PTNR2-08 | 3PL이 여럿일 때 출고 배정 기준 | 하 |
-| D-PTNR2-09 | 거래처 계정 발급 · 담당자 단위 · 해지 시 회수 | 하 |
+### 이름 · 값이 다름 / 설계 대안
+- 라우트 재사용: D-PTNR2-01(B, 화면 구성)로 정리 — 화면은 별도 파트너 센터, 개발은 기존 `admin.deliveries.*` 라우트를 재사용하고 거래처 소속 계정이면 서비스 계층에서 범위 · 마스킹 · 버튼을 줄인다. 권한 행 분리가 꼭 필요하면 위 `admin.partner.*` 별도 라우트.
+- 진입 파라미터: 요청서의 `?vendor=VD-NNNN` 대신 기존 거래처 코드 `SUP-NNNN`(공통 기준정보 · 개발 `suppliers.code`)을 썼다.
+- 마스킹 위치: 이 화면은 개인정보위 운송장 권고(2025-09) 위치(이름 가운데 글자 · 연락처 끝 4자리)로 바꿈(10-27 확정 반영, D-PTNR2-03). 프로토타입 공통(ORD-001)은 아직 이름 두 번째 글자 · 연락처 가운데 4자리 — 같이 바꿔야 함(후속).
+
+## 8. 정책 확정 (2026-10-27 white — 각 항목 권고대로, 원문 `scripts/qa/reports/review/findings/devspec/POLICY_D_PTNR2.md`)
+| 번호 | 내용 | 확정 | 화면 반영 |
+|---|---|---|---|
+| D-PTNR2-01 | 3PL 업무 화면 형태 | B(화면 구성): 별도 파트너 센터 + 개발 `admin.deliveries.*` 재사용 | 변경 없음 |
+| D-PTNR2-02 | 물류비 대사 결과 공개 범위 | 확정(2026-10-27 white, D-PTNR2-02 권고대로): 청구 쪽 결과만 공개, 별도 메뉴 키 `logibill` | (10-27 확정 반영) 메뉴 키 판정 |
+| D-PTNR2-03 | 개인정보 범위 · 마스킹 · 처리위탁 | 확정(2026-10-27 white, D-PTNR2-03 권고대로): 화면 가림 + 발주 엑셀 원문 + 반품 기한 이후 비표시 + 처리위탁 계약 · 수탁자 공개, 마스킹 위치 운송장 권고로 통일 | (10-27 확정 반영) 마스킹 위치 · 30일 비표시 · 처리위탁 표시. ORD-001 후속 |
+| D-PTNR2-04 | 3PL 계정의 출고지시 실행 권한 | A(정본 Flow 3-1): 허용 | 화면은 X 권한이면 활성. RG-08 최초값 X 추가는 공통 파일 후속 |
+| D-PTNR2-05 | 배송 예외 등록 · 판정 | 확정(2026-10-27 white, D-PTNR2-05 권고대로): 3PL 등록만, 판정 · 재출고 · 배상은 물류팀 | 이미 권고대로(안내 문구만 보강) |
+| D-PTNR2-06 | 반품 입고 검수 입력 권한 | 확정(2026-10-27 white, D-PTNR2-06 권고대로): 1차 조회만, 판정은 물류팀 | 이미 권고대로 |
+| D-PTNR2-07 | 월 명세서 직접 제출 · 소명 | 확정(2026-10-27 white, D-PTNR2-07 권고대로): 3PL 제출 · 소명 허용 + 재무팀 업로드 유지, 대사 실행 후 재제출 막음 | (10-27 확정 반영) 버전 이력 · 재제출 규칙 |
+| D-PTNR2-08 | 3PL이 여럿일 때 배정 | 확정(2026-10-27 white, D-PTNR2-08 권고대로): 1곳 전제 + 배정 컬럼 먼저 | (10-27 확정 반영) 명세 1 · 5절만 |
+| D-PTNR2-09 | 계정 발급 단위 · 회수 | 확정(2026-10-27 white, D-PTNR2-09 권고대로): 담당자별 계정 + 거래 중지 · 폐업 자동 차단 | (10-27 확정 반영) 담당자 표시 · 폐업 · 휴업 차단 |
+
+## 검증 (2026-10-27, 확정 반영 후)
+- Python Playwright, `file://` 직접 열기, 새 브라우저 컨텍스트 2회. 스크립트는 저장소 밖 임시 폴더.
+- 94/94 PASS(47 × 2회), pageerror 0 · console error 0: 탭 6개 전환, 마스킹 위치(이름 가운데 · 연락처 끝 4자리), 배송완료 30일 경과 수령인 비표시, 송장 업로드(파일 없음 · .xlsx 아님 오류 → 사전 읽기 7행 · E05 2 · 정상 2 → 확정 · 처리자 담당자 이름), 운송장 정정 · 예외 등록 모달(취소 · 배경 · ✕ · Esc 닫기), 물류비 숫자 = SETT-011, 소명 제출, 10월 명세서 제출 → 새 버전 v2, 9월 버전 이력 · 재제출 없음, 내 정보 담당자 · 처리위탁, 출고지시 모달, `logibill` 끄면 물류비 탭 · KPI 제거, `shipout` X면 출고지시 활성, 폐업 거래처 자동 차단, 매입처 · 강사 역할 차단.
