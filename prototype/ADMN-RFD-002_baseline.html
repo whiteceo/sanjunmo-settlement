@@ -643,7 +643,7 @@ code, pre, kbd, samp,
                   <th>상품명</th>
                   <th class="num">정가</th>
                   <th class="num">실결제 안분액</th>
-                  <th>수강 진도율 / 배송·반품 상태</th>
+                  <th>학습 회차 / 배송·반품 상태</th>
                   <th>전액환불 요건 (7일 & 2강 이하)</th>
                 </tr>
               </thead>
@@ -660,8 +660,8 @@ code, pre, kbd, samp,
                   <td><strong id="lec-title">[강좌] 정종대 산업안전 실전 빈출특강</strong></td>
                   <td class="num" id="lec-list">150,000원</td>
                   <td class="num"><strong id="lec-paid">150,000원</strong><div id="lec-pt-share" style="font-size:11px; color:var(--text-muted); font-weight:400; margin-top:2px;">포인트 몫 0 P (결제 때 안분 스냅샷)</div></td>
-                  <td id="lec-usage">수강 4일 경과 / 진도율 20% (12/60강) · 인정진도율 20%</td>
-                  <td><span class="badge badge-amber">부분환불 (위약금 10% + 이용분 공제)</span></td>
+                  <td id="lec-usage">결제 후 4일 경과 / 학습 12회차 (전체 60회차)</td>
+                  <td><span class="badge badge-amber" id="lec-rule-badge">부분환불 (학습 회차분 공제)</span></td>
                 </tr>
                 <tr id="row-book">
                   <td>
@@ -879,13 +879,13 @@ code, pre, kbd, samp,
                     </tr>
                     <tr class="calc-step-row">
                       <td>Step 3~4</td>
-                      <td>인강 위약금(10%) + 실결제×MAX(경과일/전체일, 인정진도율) 공제 (인정진도율 50% 초과 또는 1/2 경과 시 법정 환불 불가)</td>
-                      <td class="num" style="color:var(--danger);" id="c-lec-deduct">−45,000원</td>
+                      <td id="c-lec-rule">인강 학습 회차분 공제 — 환불액 = 실결제 × (전체 회차 − 학습 회차) ÷ 전체 회차 (원 단위 절사 · 1초 이상 재생한 회차는 학습 · 원 수강기간 종료 강좌는 반환 없음)</td>
+                      <td class="num" style="color:var(--danger);" id="c-lec-deduct">−30,000원</td>
                     </tr>
                     <tr class="calc-step-row">
                       <td>Step 5~7</td>
-                      <td>인강 환불 산출액 (<span id="c-lec-net">105,000</span>원) + 교재 환불 산출액 (<span id="c-book-net">20,000</span>원) <span style="font-size:11px;color:var(--text-muted);">· 훼손 판정 시 교재 환불 산출액 0원(교재비만 차감)</span></td>
-                      <td class="num" id="c-sub-sum">125,000원</td>
+                      <td>인강 환불 산출액 (<span id="c-lec-net">120,000</span>원) + 교재 환불 산출액 (<span id="c-book-net">20,000</span>원) <span style="font-size:11px;color:var(--text-muted);">· 훼손 판정 시 교재 환불 산출액 0원(교재비만 차감)</span></td>
+                      <td class="num" id="c-sub-sum">140,000원</td>
                     </tr>
                     <tr class="calc-step-row">
                       <td>Step 8</td>
@@ -895,7 +895,7 @@ code, pre, kbd, samp,
                     <tr class="calc-step-row sub">
                       <td>Step 9</td>
                       <td>1차 환불 예정 합계액</td>
-                      <td class="num" id="c-step9">119,000원</td>
+                      <td class="num" id="c-step9">134,000원</td>
                     </tr>
                     <tr class="calc-step-row">
                       <td>Step 10</td>
@@ -1082,7 +1082,7 @@ code, pre, kbd, samp,
             <div class="m3f-type-row">
               <label class="m3f-type-card on" data-type="ADD">
                 <input type="radio" name="m3f-ra-type" value="ADD" checked onchange="m3fRaTypeChange()" />
-                <span><strong>추가 환불 지급 (+)</strong><small>이용일수·위약금 재산정에 따른 추가 환불금 지급</small></span>
+                <span><strong>추가 환불 지급 (+)</strong><small>학습 회차 재집계에 따른 추가 환불금 지급</small></span>
               </label>
               <label class="m3f-type-card" data-type="RECOVER">
                 <input type="radio" name="m3f-ra-type" value="RECOVER" onchange="m3fRaTypeChange()" />
@@ -1134,7 +1134,7 @@ code, pre, kbd, samp,
 
           <div class="m3f-sec" style="margin-bottom:0;">
             <div class="m3f-sec-title">5. 보정 거래 등록 사유 <span class="m3f-req">*</span> <span style="font-weight:500; color:#64748B;">(최소 10자 · 감사 로그 영구 기록)</span></div>
-            <textarea class="form-control" id="m3f-ra-reason" rows="2" style="width:100%; font-size:12px;" placeholder="예) 휴강 일수(3일) 일할 계산 누락분 사후 추가 환불 (재무 이정산)" oninput="m3fRaReasonCount()"></textarea>
+            <textarea class="form-control" id="m3f-ra-reason" rows="2" style="width:100%; font-size:12px;" placeholder="예) 재생 오류 회차(2회차) 학습 회차 제외 누락분 사후 추가 환불 (재무 이정산)" oninput="m3fRaReasonCount()"></textarea>
             <div class="m3f-hint" id="m3f-ra-reason-count">현재 0자 / 최소 10자</div>
           </div>
           <div class="subpage-foot">
@@ -1356,6 +1356,27 @@ code, pre, kbd, samp,
       }
     }
 
+    // 인강 환불 규칙(통합 설계서 3.3.2 · 평생교육법 시행령 별표 3 비고 4)
+    //  - 전액환불: 결제 후 7일 이내 AND 학습 2회차 이하 → 강좌 실결제액 전액
+    //  - 부분환불: 그 밖 → 실결제 × (전체 회차 − 학습 회차) ÷ 전체 회차, 원 단위 절사. 회차를 1초라도 재생하면 학습 회차
+    //  - 원 수강기간이 끝난 강좌는 반환하지 않음(0원). 위약금 · 기간 경과 차감 · '1/2 경과 시 환불 불가'는 적용하지 않는다
+    // days = 결제 후 경과일, totalLessons = 전체 회차, learnedLessons = 학습 회차(1초 이상 재생), periodEnded = 원 수강기간 종료
+    const LEC_SAMPLES = {
+      HONG: { paid: 150000, days: 4,  totalLessons: 60, learnedLessons: 12, periodEnded: false, ptA: 1500, ptB: 300 },
+      KIM:  { paid: 200000, days: 4,  totalLessons: 60, learnedLessons: 12, periodEnded: false, ptA: 2000, ptB: 2200 },
+      CHOI: { paid: 144000, days: 27, totalLessons: 60, learnedLessons: 30, periodEnded: false, ptA: 1440, ptB: 0 },
+      PARK: { paid: 125000, days: 20, totalLessons: 60, learnedLessons: 18, periodEnded: false, ptA: 1250, ptB: 2200 }
+    };
+    function lecRefundRule(L) {
+      if (L.periodEnded) return { kind: 'ENDED', refund: 0, badgeCls: 'badge-red', label: '반환 없음 (원 수강기간 종료)', stepText: '인강 반환 없음 — 원 수강기간이 끝난 강좌는 반환하지 않음 (환불액 0원)' };
+      if (L.days <= 7 && L.learnedLessons <= 2) return { kind: 'FULL', refund: L.paid, badgeCls: 'badge-green', label: '전액환불 (7일 이내 · 2강 이하)', stepText: '인강 전액환불 — 결제 후 7일 이내 · 학습 2회차 이하 (공제 0원)' };
+      const refund = Math.floor(L.paid * (L.totalLessons - L.learnedLessons) / L.totalLessons);
+      return { kind: 'PARTIAL', refund: refund, badgeCls: 'badge-amber', label: '부분환불 (학습 회차분 공제)', stepText: '인강 학습 회차분 공제 — 환불액 = 실결제 × (전체 ' + L.totalLessons + '회차 − 학습 ' + L.learnedLessons + '회차) ÷ 전체 ' + L.totalLessons + '회차 (원 단위 절사 · 1초 이상 재생한 회차는 학습)' };
+    }
+    function lecUsageText(L) {
+      return '결제 후 ' + L.days + '일 경과 / 학습 ' + L.learnedLessons + '회차 (전체 ' + L.totalLessons + '회차)' + (L.periodEnded ? ' · 원 수강기간 종료' : '');
+    }
+
     // 5. 실시간 환불 금액 재계산
     function recalcDetail() {
       const lecOn = document.getElementById('chk-lec').checked;
@@ -1367,28 +1388,22 @@ code, pre, kbd, samp,
       document.getElementById('row-lec').classList.toggle('row-disabled', !lecOn);
       document.getElementById('row-book').classList.toggle('row-disabled', !bookOn);
 
-      // 인강 공제 = 위약금(실결제x10%) + 실결제xMAX(경과일/전체일, 인정진도율). 인정진도율 50% 초과 또는 1/2 경과 시 법정 환불 불가
-      const LEC_SAMPLES = {
-        HONG: { paid: 150000, elapsed: 4 / 90, progress: 0.20, usage: '수강 4일 경과 / 진도율 20% (12/60강) · 인정진도율 20%', ptA: 1500, ptB: 300 },
-        KIM:  { paid: 200000, elapsed: 4 / 90, progress: 0.20, usage: '수강 4일 경과 / 진도율 20% (12/60강) · 인정진도율 20%', ptA: 2000, ptB: 2200 },
-        CHOI: { paid: 144000, elapsed: 40 / 90, progress: 0.50, usage: '수강 40일 경과 / 진도율 50% · 인정진도율 50%', ptA: 1440, ptB: 0 },
-        PARK: { paid: 125000, elapsed: 20 / 90, progress: 0.30, usage: '수강 20일 경과 / 진도율 30% · 인정진도율 30%', ptA: 1250, ptB: 2200 }
-      };
       const LEC = LEC_SAMPLES[currentMember] || LEC_SAMPLES.HONG;
       const PT_B = LEC.ptB;  // (A) = 강좌 실결제액 1%(원 단위 올림) 원 주문 적립 P, (B) = 현재 보유 가용(무상 P + 적립 P)
-      let lecBase = 0, lecDed = 0, lecNet = 0, lecBlocked = false;
+      const lecRule = lecRefundRule(LEC);
+      let lecBase = 0, lecDed = 0, lecNet = 0;
+      const lecBlocked = lecOn && lecRule.kind === 'ENDED';
       if (lecOn) {
         lecBase = LEC.paid;
-        lecBlocked = (LEC.progress > 0.5 || LEC.elapsed >= 0.5);
-        if (!lecBlocked) {
-          lecDed = Math.round(LEC.paid * 0.10) + Math.round(LEC.paid * Math.max(LEC.elapsed, LEC.progress));
-          lecNet = lecBase - lecDed;
-        } else {
-          lecDed = lecBase;
-        }
+        lecNet = lecRule.refund;
+        lecDed = lecBase - lecNet;
       }
       document.getElementById('lec-paid').textContent = LEC.paid.toLocaleString() + '원';
-      document.getElementById('lec-usage').textContent = LEC.usage;
+      document.getElementById('lec-usage').textContent = lecUsageText(LEC);
+      const ruleBadge = document.getElementById('lec-rule-badge');
+      if (ruleBadge) { ruleBadge.className = 'badge ' + lecRule.badgeCls; ruleBadge.textContent = lecRule.label; }
+      const ruleTxt = document.getElementById('c-lec-rule');
+      if (ruleTxt) ruleTxt.textContent = lecRule.stepText;
 
       let bookBase = 0, bookNet = 0, shipDed = 0;
       const BOOK_PAID = (CASE_ORDERS[currentMember] || CASE_ORDERS.HONG).bookList;
@@ -1450,7 +1465,7 @@ code, pre, kbd, samp,
       const lockNote = document.getElementById('rfd-lock-note');
       const bookWait = bookOn && inspect === 'WAIT';
       let lockMsg = '';
-      if (lecBlocked) lockMsg = '인정진도율 50% 초과 또는 수강기간 1/2 경과 건은 법정 환불 불가입니다. 인강 환불은 승인할 수 없으며, 환불 거절 안내 또는 인강 항목 체크 해제 후 진행합니다.';
+      if (lecBlocked) lockMsg = '원 수강기간이 끝난 강좌는 반환 대상이 아닙니다(인강 환불액 0원). 환불 거절 안내 또는 인강 항목 체크 해제 후 교재만 진행합니다.';
       else if (bookWait) lockMsg = '3PL 교재 입고 완료·정상 판정 전에는 [환불 승인 및 PG 취소]가 비활성화됩니다(하드락). 입고·검수 판정을 선택해 주세요.';
       lockNote.style.display = lockMsg ? 'block' : 'none';
       lockNote.textContent = lockMsg ? '🔒 ' + lockMsg : '';
@@ -1459,7 +1474,7 @@ code, pre, kbd, samp,
       btn.style.cursor = lockMsg ? 'not-allowed' : '';
       if (lockMsg) {
         btn.className = 'btn btn-lg btn-primary';
-        btn.textContent = lecBlocked ? '🔒 법정 환불 불가 (승인 비활성)' : '🔒 교재 입고·정상 판정 대기 중 (승인 비활성)';
+        btn.textContent = lecBlocked ? '🔒 수강기간 종료 — 반환 없음 (승인 비활성)' : '🔒 교재 입고·정상 판정 대기 중 (승인 비활성)';
       } else if (currentMember === 'PARK') {
         btn.className = 'btn btn-lg btn-warning';
         btn.textContent = `⚡ 휴대폰 익월 폴백 승인 · 현금 계좌 이체 실행 (${step13Final.toLocaleString()}원)`;
@@ -1711,7 +1726,7 @@ code, pre, kbd, samp,
   };
 
   var ledger = [
-    { id: 'ADJ-20260916-001', at: '2026-09-16 14:20', rfd: 'RFD-2026-001120', type: 'ADD', typeLabel: '추가 환불 지급 (+현금)', amountText: '+4,800원 (포인트 0P)', cumText: '100,800원 ➔ 105,600원', execText: 'PG 추가 부분취소 · 2026-09 정산 차감 반영 (마감)', reason: '휴강 일수(3일) 일할 계산 누락분 사후 추가 환불', operator: '재무 이정산' },
+    { id: 'ADJ-20260916-001', at: '2026-09-16 14:20', rfd: 'RFD-2026-001120', type: 'ADD', typeLabel: '추가 환불 지급 (+현금)', amountText: '+4,800원 (포인트 0P)', cumText: '100,800원 ➔ 105,600원', execText: 'PG 추가 부분취소 · 2026-09 정산 차감 반영 (마감)', reason: '재생 오류 회차(2회차)를 학습 회차로 잘못 집계한 분 사후 추가 환불 (144,000 × 2 ÷ 60)', operator: '재무 이정산' },
     { id: 'ADJ-20261011-001', at: '2026-10-11 11:02', rfd: 'RFD-2026-001098', type: 'POINT', typeLabel: '포인트 보정 (+유상P 복원)', amountText: '0원 (+1,000 P 추가 복원)', cumText: '0원 (변동없음)', execText: '포인트 원장 직권 보정 (D+7 만료유예 부여) · 정산 무관', reason: 'LIFO 복원 시 만료일 경계 차감 오차 +1,000P 사후 복원', operator: 'CS 김상담' }
   ];
   // 보정 전표 번호 ADJ-YYYYMMDD-NNN — 등록일별 일련번호
