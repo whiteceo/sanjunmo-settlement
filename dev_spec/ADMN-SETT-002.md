@@ -1,6 +1,7 @@
 # ADMN-SETT-002 월간 정산 및 집행 — 개발 명세
-- 프로토타입 파일: prototype_clean/ADMN-SETT-002_baseline.html (원본 상태: 18d66c1 v6.92)
+- 프로토타입 파일: prototype_clean/ADMN-SETT-002_baseline.html (원본 상태: 319e3d4 v6.98)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
+- v6.98 정본 변경(정본 v3.2.24 · v4.0.15): 마감된 달 정정 · 보정 전표는 차월 세금 계산 직전 반영(세전 · 위탁 9단계, 세후 10단계, 02권 10.2) — 안내 문구 변경, 새 입력 없음
 - 포함 화면: ADMN-SETT-002 · ADMN-SETT-002-S1 · ADMN-SETT-002-S2 · ADMN-SETT-002-P1(이월 발생 내역) · ADMN-SETT-002-P2(마감 게이트)
 - 개발 진행: 일부 구현 (담당 박성민, 라우트 주석 있음 · 커밋 언급 9건). 탭 중 "증빙 승인 현황"(evidence)은 enabled=false, 개발지원금 소진 원장 · 은행 결과 파일 대사는 없음
 

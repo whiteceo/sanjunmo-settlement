@@ -889,8 +889,9 @@ code, pre, kbd, samp,
           <div class="engine-group">
             <div class="engine-group-head"><span>그룹 D. 과세·집행 (9~11단계)</span><span>✔ 완료</span></div>
             <div class="engine-steps">
+              8단계 뒤 · 9단계 앞: 전월 정산 조정 반영 (마감된 달의 세전 · 위탁 정정과 마감월 환불 보정 전표 — 수취인 분할 뒤에 붙여 9단계에서 원천세 · VAT 계산, 음수면 과세표준 보류)<br>
               9단계: 세무 매트릭스 적용 (<code>TAX</code> · TX-01~13)<br>
-              10단계: 반환 차감·청구 판정 (<code>CLAIM</code>)<br>
+              10단계: 반환 차감·청구 판정 (<code>CLAIM</code> · 세후 정정: 양수 가산, 음수 반환채권 — 자동 상계 없음)<br>
               11단계: 최종 지급·이월 판정 (<code>PAYOUT</code>)
             </div>
           </div>
@@ -1609,7 +1610,7 @@ code, pre, kbd, samp,
         contractId: "CT-2026-0801",
         matrixCase: "도서 재화 공급 면세 계산서 수취 + 위탁수수료 과세 (TX-11)",
         pipelines: ["P2_2"],
-        pipelineText: "위탁 도서 판매대금 정산 (수수료 차감지급) + 9월 수수료 정정 환급(10단계)",
+        pipelineText: "위탁 도서 판매대금 정산 (수수료 차감지급) + 9월 수수료 정정 환급(세금 계산 직전 전월 조정)",
         step1PreTaxCarry: 0,
         step1PostTaxWait: 0,
         step2LectureRs: 0,
@@ -1624,16 +1625,17 @@ code, pre, kbd, samp,
         step6PrepayOffset: 0,
         step7LumpSumAdd: 0,
         step8TaxableBaseSum: 0,
+        prevMonthAdjust: 220000,
         step9VatAmount: -100000,
         step9WithholdingTax: 0,
-        step10PostTaxAdjust: 220000,
+        step10PostTaxAdjust: 0,
         step11NetPayout: 3120000,
         payoutCategory: "PAYOUT_TARGET",
         payoutStatusLabel: "실지급 확정 (위탁 정산)",
         bankInfo: "우리은행 1005-801-****** (예금주: 한국소방학회 일치)",
         bankTransferStatus: "지급 대기 (수취 계산서 확인 병행)",
         invoicePending: true,
-        diffReasonNote: "위탁 도서 판매대금은 원천징수 비대상이며, 수수료 차감 후 지급(NET_DEDUCT) 방식에 따라 당사 위탁 수수료 공급가액(1,000,000원)과 수수료 부가세(100,000원)를 차감한 10월분 실정산액 2,900,000원에, 9월 수수료율 과다 차감(30% → 계약 25%) 정정분 220,000원(수수료 200,000 + 수수료 부가세 20,000 · ADMN-SETT-005 ADJ-202610-05)을 10단계 세후 조정으로 더해 3,120,000원을 지급합니다."
+        diffReasonNote: "위탁 도서 판매대금은 원천징수 비대상이며, 수수료 차감 후 지급(NET_DEDUCT) 방식에 따라 당사 위탁 수수료 공급가액(1,000,000원)과 수수료 부가세(100,000원)를 차감한 10월분 실정산액 2,900,000원에, 9월 수수료율 과다 차감(30% → 계약 25%) 정정분 220,000원(수수료 200,000 + 수수료 부가세 20,000 · ADMN-SETT-005 ADJ-202610-05)을 세금 계산 직전 전월 정산 조정(수취인 분할 8단계 뒤 · 9단계 앞, 위탁 정정이라 원천징수 비대상)으로 더해 3,120,000원을 지급합니다. 10단계 세후 조정은 0원입니다."
       },
       {
         id: "STMT-04",
@@ -2691,11 +2693,12 @@ code, pre, kbd, samp,
         grossGenerated: 4000000,
         deductions: -1000000,
         taxBase: 3000000,
-        prepayAndPostCarry: 220000,
+        prevMonthAdjust: 220000,
+        prepayAndPostCarry: 0,
         taxAmount: -100000,
         finalPayout: 3120000
       },
-      diffEquation: "위탁 도서 총 판매대금 4,000,000원(확정 100부 × 정가 40,000원) − 당사 위탁수수료 공급가액 1,000,000원 = 위탁 정산 입력액 3,000,000원 − 수수료 부가세 100,000원 = 10월분 실정산 2,900,000원 + 9월 수수료 정정 환급 220,000원(수수료 200,000 + 부가세 20,000 · ADMN-SETT-005 ADJ-202610-05, 10단계 세후 조정) = 실지급액 3,120,000원 ([4]칸은 과세표준이 아니라 위탁 정산 입력액 · 원천징수 비대상)",
+      diffEquation: "위탁 도서 총 판매대금 4,000,000원(확정 100부 × 정가 40,000원) − 당사 위탁수수료 공급가액 1,000,000원 = 위탁 정산 입력액 3,000,000원 − 수수료 부가세 100,000원 = 10월분 실정산 2,900,000원 + 9월 수수료 정정 환급 220,000원(수수료 200,000 + 부가세 20,000 · ADMN-SETT-005 ADJ-202610-05, 세금 계산 직전 전월 정산 조정 · 10단계 세후 조정 아님) = 실지급액 3,120,000원 ([4]칸은 과세표준이 아니라 위탁 정산 입력액 · 원천징수 비대상)",
       carryoverRows: [],
       lectureRows: [],
       bookRows: [
@@ -2707,8 +2710,9 @@ code, pre, kbd, samp,
       waterfall: [
         { step: "2단계 (ACCRUAL)", title: "위탁 도서 판매대금 확정 (위탁도서 정산)", rule: "출고 105부 − 반품 5부 = 확정 100부 × 40,000원 = 4,000,000원", delta: 4000000, bal: 4000000 },
         { step: "4단계 (DEDUCT)", title: "당사 위탁수수료 공급가액 차감 (NET_DEDUCT)", rule: "판매대금 4,000,000원 × 25% = -1,000,000원", delta: -1000000, bal: 3000000 },
-        { step: "9단계 (TAX)", title: "재화 공급 면세 판정 · 수수료 부가세 차감 (TX-11/TX-12)", rule: "도서 재화 공급이므로 원천징수 0원 / 위탁수수료 부가세 -100,000원 차감 (당사 과세 세금계산서 정발행)", delta: -100000, bal: 2900000 },
-        { step: "10단계 (CLAIM)", title: "세후 조정 — 9월 위탁 수수료 정정 환급 (ADMN-SETT-005 ADJ-202610-05)", rule: "9월 수수료율 30% 과다 차감분(계약 25%) 200,000원 + 같이 과다 차감한 수수료 부가세 20,000원 = +220,000원 (원귀속 2026-09 · 반영 2026-10)", delta: 220000, bal: 3120000 },
+        { step: "8단계 뒤 (전월 조정)", title: "세금 계산 직전 전월 정산 조정 — 9월 위탁 수수료 정정 환급 (ADMN-SETT-005 ADJ-202610-05)", rule: "마감된 9월의 정정이라 차월(10월) 정산서에서 수취인 분할 뒤 · 9단계 앞에 반영: 9월 수수료율 30% 과다 차감분(계약 25%) 200,000원 + 같이 과다 차감한 수수료 부가세 20,000원 = +220,000원 (위탁 정정 · 원천징수 비대상 · 원귀속 2026-09 · 반영 2026-10)", delta: 220000, bal: 3220000 },
+        { step: "9단계 (TAX)", title: "재화 공급 면세 판정 · 수수료 부가세 차감 (TX-11/TX-12)", rule: "도서 재화 공급이므로 원천징수 0원 / 위탁수수료 부가세 -100,000원 차감 (당사 과세 세금계산서 정발행)", delta: -100000, bal: 3120000 },
+        { step: "10단계 (CLAIM)", title: "세후 조정 없음", rule: "세후 정정 · 반환 차감 0원 (9월 정정은 세금 계산 직전 전월 조정으로 반영)", delta: 0, bal: 3120000 },
         { step: "11단계 (PAYOUT)", title: "위탁 정산대금 최종 실지급액 확정", rule: "수수료 차감지급(NET_DEDUCT) 10월분 2,900,000원 + 9월 정정 220,000원 → 3,120,000원 지급", delta: 0, bal: 3120000 }
       ],
       evidenceInfo: "양방향 증빙(TX-11/TX-12): [1] 당사→한국소방학회 위탁수수료 과세 세금계산서(공급가 1,000,000 / 세액 100,000) 정발행 완료 | [2] 한국소방학회→당사 도서 면세 계산서(4,000,000원) 수취 대기",
@@ -3503,6 +3507,7 @@ code, pre, kbd, samp,
       <div class="s1-score-box highlight">
         <div class="s1-meta-label" style="color:#1e40af;">[4] 수취인 과세표준 (증빙 기준)</div>
         <div class="s1-meta-val" style="font-size:16px; color:#1d4ed8;">${fmt(sc.taxBase)}</div>
+        ${sc.prevMonthAdjust ? `<div style="font-size:11px; color:#1e40af; margin-top:3px;">+ 전월 정산 조정 ${fmt(sc.prevMonthAdjust)} (세금 계산 직전)</div>` : ""}
       </div>
       <div class="s1-score-box">
         <div class="s1-meta-label">[5] 선급금상계 · 세후이월 가감</div>
@@ -3979,7 +3984,7 @@ code, pre, kbd, samp,
             <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:700; color:${sc.carryInPre < 0 ? '#dc2626' : '#0f172a'};">${fmt(sc.carryInPre)}</td>
             <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(sc.grossGenerated)}</td>
             <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:700; color:#dc2626;">${fmt(sc.deductions)}</td>
-            <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:800; background:#eff6ff; color:#1d4ed8;">${fmt(sc.taxBase)}</td>
+            <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:800; background:#eff6ff; color:#1d4ed8;">${fmt(sc.taxBase)}${sc.prevMonthAdjust ? `<div style="font-size:11px; font-weight:600; margin-top:3px;">+ 전월 정산 조정 ${fmt(sc.prevMonthAdjust)} (세금 계산 직전)</div>` : ""}</td>
             <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:700; color:#b45309;">${fmt(sc.prepayAndPostCarry)}</td>
             <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:700;">${fmt(sc.taxAmount)}</td>
             <td style="padding:10px 12px; border:1px solid #cbd5e1; text-align:right; font-weight:900; font-size:14.5px; background:#f0fdf4; color:#15803d;">${fmt(sc.finalPayout)}</td>

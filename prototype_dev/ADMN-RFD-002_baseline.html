@@ -930,6 +930,11 @@ code, pre, kbd, samp,
                       <td id="c-pt-restore-rule">강좌 사용 포인트 복원 — 라인 현금 : 포인트 결제 비율대로 인강 환불액을 나눔 (복원 포인트 = 라인 사용 포인트 × 인강 환불액 ÷ 라인 결제액, 원 단위 내림 · 나머지는 현금 · 복원 순서 적립 P → 무상 P)</td>
                       <td class="num" id="c-pt-restore">0원 (+0 P)</td>
                     </tr>
+                    <tr class="calc-step-row" id="row-rs-basis">
+                      <td>Step 7-2</td>
+                      <td>권리자 R/S 공제 기준 (정산 연동 · 고객 환불액에는 더하거나 빼지 않음) — 인강 환불액 − 복원 포인트 = <strong>현금분만</strong> 원거래 지분 × 요율로 공제 (R/S 모수가 쿠폰 · 포인트 할인을 뺀 실결제액이라 대칭)</td>
+                      <td class="num" id="c-rs-basis" style="color:var(--text-muted);">120,000원</td>
+                    </tr>
                     <tr class="calc-step-row">
                       <td>Step 8</td>
                       <td>실물 교재 반품 배송비 공제 (주문당 1회)</td>
@@ -973,7 +978,7 @@ code, pre, kbd, samp,
               <!-- 정산 엔진 4단계(DEDUCT) 연동 요약 배지 + 최종 실행 버튼 -->
               <div class="card-body" style="background:#F8FAFC; border-top:1px solid var(--border-color);">
                 <div style="font-size:12px; color:#1E3A8A; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:8px 12px; margin-bottom:12px;">
-                  🔗 <strong>정산 자동 연동(환불 차감 반영):</strong> 원 결제월(<code>2026-08</code>) 스냅샷 역참조 ➔ 당월(<code>2026-10</code>) 정산에서 강사 R/S 대칭 공제 및 도서 확정 판매량(<code>-1권</code>) 차감 자동 반영
+                  🔗 <strong>정산 자동 연동(환불 차감 반영):</strong> 원 결제월(<code>2026-08</code>) 스냅샷 역참조 ➔ 당월(<code>2026-10</code>) 정산에서 강사 R/S 대칭 공제(공제 기준 = 인강 환불액 중 현금분 <strong id="c-rs-basis2">120,000원</strong> · 복원 포인트 몫 제외) 및 도서 확정 판매량(<code>-1권</code>) 차감 자동 반영
                 </div>
 
                 <div id="rfd-lock-note" style="display:none; font-size:12px; color:#991B1B; background:#FEF2F2; border:1px solid #FECACA; border-radius:6px; padding:8px 12px; margin-bottom:12px;"></div>
@@ -1570,6 +1575,10 @@ code, pre, kbd, samp,
       const ptRestore = lecOn ? lecPointRestore(LEC.paid, lecPtShare, lecNet) : 0;
       lastPtRestore = ptRestore;
       document.getElementById('c-pt-restore').textContent = ptRestore ? '−' + ptRestore.toLocaleString() + '원 (+' + ptRestore.toLocaleString() + ' P 복원)' : '0원 (+0 P · 라인 사용 포인트 없음)';
+      // 권리자 R/S 공제 기준(white 2026-10-27): 인강 환불액 중 현금분만 = 인강 환불액 − 복원 포인트. 공제액 = 내림(현금분 × 원거래 지분 × 요율)은 정산 4단계(엔진 DEC-ORD-03-POINT).
+      const rsBasis = Math.max(0, lecNet - ptRestore);
+      document.getElementById('c-rs-basis').textContent = rsBasis.toLocaleString() + '원' + (ptRestore ? ' (' + lecNet.toLocaleString() + ' − ' + ptRestore.toLocaleString() + ')' : '');
+      document.getElementById('c-rs-basis2').textContent = rsBasis.toLocaleString() + '원';
 
       // D-ORD-09: 파본/불량(DAMAGED)은 회사 귀책 고정, 고객 훼손(REJECT)은 반품 배송비 귀책 판정 없음
       const faultSel = document.getElementById('sel-fault');
@@ -1681,7 +1690,7 @@ code, pre, kbd, samp,
       } else {
         const amt = document.getElementById('c-step13').textContent;
         const ptLine = lastPtRestore ? `\n• 사용 포인트 복원: +${lastPtRestore.toLocaleString()} P (라인 현금 : 포인트 비율 · 적립 P → 무상 P)` : '';
-        alert(`[토스페이먼츠 결제 취소 완료]\n• 취소 금액: ${amt}${ptLine}\n• 정산 4단계(DEDUCT) 역참조 공제 대기열 반영 완료\n• 환불 완료 내역(ADMN-RFD-003)으로 이동합니다.`);
+        alert(`[토스페이먼츠 결제 취소 완료]\n• 취소 금액: ${amt}${ptLine}\n• 정산 4단계(DEDUCT) 역참조 공제 대기열 반영 완료 (권리자 R/S 공제 기준 = 현금분 ${document.getElementById('c-rs-basis2').textContent})\n• 환불 완료 내역(ADMN-RFD-003)으로 이동합니다.`);
         showMainView('done');
       }
     }
@@ -2039,8 +2048,8 @@ code, pre, kbd, samp,
       };
     }
     return {
-      full: '정산 연동: 반영 기준월 ' + applied + ' — 원 발생월(' + o.month + ')이 마감돼 승인 시점 미마감 가장 이른 귀속월에 정산 조정 라인(ADMN-SETT-005)으로 ' + verb + ' 반영 · 마감 월은 다시 열지 않음 · 원 발생월 ' + o.month + ' 전표에 보존',
-      short: '반영 기준월 ' + applied + ' (원 발생월 ' + o.month + ' 마감 · SETT-005 조정 라인)',
+      full: '정산 연동: 반영 기준월 ' + applied + ' — 원 발생월(' + o.month + ')이 마감돼 승인 시점 미마감 가장 이른 귀속월에 전월 정산 조정 라인(ADMN-SETT-005)으로 ' + verb + ' 반영 — 정산서 세금 계산 직전(수취인 분할 뒤 9단계 원천세 · VAT 계산, 음수면 과세표준 보류) · 마감 월은 다시 열지 않음 · 원 발생월 ' + o.month + ' 전표에 보존',
+      short: '반영 기준월 ' + applied + ' (원 발생월 ' + o.month + ' 마감 · SETT-005 전월 조정 · 세금 계산 직전)',
       origin: o.month, applied: applied
     };
   }
