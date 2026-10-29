@@ -153,9 +153,8 @@ NAME("incomeClause", "income_clause", value="C05 · C15 · C17 · C19 (OTHER면 
 R('id="externalLabor"', 'id="externalLabor" data-dev-flag="proto-only" data-dev-note="업무 외 노무 활용 — 개발 없음"')
 NAME("suspendedReason", "suspended_approval_reason", note="max 255")
 DA("approveSuspended", flag="proto-only", note="휴업자 저장 예외 승인 모의 — 개발은 suspended_approval_reason 입력만")
-NAME("taxDecision", "tax_decision_status", value="PENDING_REVIEW 검토 보류 · DECIDED 판정 완료")
-NAME("matrixCase", "matrix_case_id", note="DECIDED면 필수")
-NAME("taxDecisionReason", "tax_decision_reason", note="DECIDED면 필수")
+# v7.07(2ed5980) 원본에서 세무 판정 수동 입력칸(#taxDecision · #matrixCase · #taxDecisionReason) 삭제 — 세무 판정은 정산 라인 단위 시스템 판정.
+# 개발 tax_decision_status · matrix_case_id · tax_decision_reason 수동 입력은 제거 대상(DEV_TRANSFER 15절)
 
 # ── 탭 2 하단: 계약 공통 (INST-001-S2) ─────────────────────
 R('<b id="currentContractBannerTitle">', '<button class="btn sm" type="button" data-dev-flag="dev-only" data-dev-route="admin.rights-holders.contracts.show" data-dev-method="GET" data-dev-url="' + C + '" data-dev-perm="조회" '

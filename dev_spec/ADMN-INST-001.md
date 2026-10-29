@@ -1,6 +1,6 @@
 # ADMN-INST-001 권리자 계약 원장 — 개발 명세
 
-- 프로토타입 파일: `prototype_clean/ADMN-INST-001_baseline.html` (원본 상태: `84c22e2` + **미커밋 작업 트리**(3,909줄, 다른 세션 수정 중). 아래 프로토 줄 번호는 2026-10-27 작업 트리 기준 — 통합 커밋 후 다시 맞춘다)
+- 프로토타입 파일: `prototype_clean/ADMN-INST-001_baseline.html` (원본 상태: 2ed5980 v7.07). 아래 프로토 줄 번호는 2026-10-27 작업 트리 기준 — 통합 커밋 후 다시 맞춘다)
 - 맞춘 개발 커밋: `a8016168` (2026-10-27) — 이 화면 변경은 `e555839b`(선택지 라벨 5건을 프로토 문구로 · 목록 배열 쿼리 차단)
 - 포함 화면: INST-001 탭 1 권리자 계약 목록 · 탭 2 계약 상세 조건 편집(권리자 · 세무 정보 = INST-001-S1, 계약 조건 = INST-001-S2) · 탭 3 국세청 확인 이력 · 탭 4 변경 · 열람 이력 · INST-001-P1 요율 잠금 · 상태 동기화 안내 · INST-001-P2 검증 상세 · 조항별 입력 모달(요율 · 도서 · 매핑 · 회차 · 수당 · 선급 · 수취인 · 증빙 · 진위 확인 등)
 - 개발 진행: 구현(권리자 목록 · 등록 · 수정 · 국세청 진위 확인 · 계약 등록/수정/열람 · 메모 · 교재 인세 저서 원장 · 선급 원장 라인 · 상태 동기화 · 엑셀). 탭 4 변경 · 열람 이력 전용 화면은 미구현. 위탁 조항 · 환급 부담 B · C는 1차 저장 거부. `_index/progress.md` INST-001 커밋 29건 · 라우트 주석 있음
@@ -9,7 +9,7 @@
 | 프로토타입 view / 모달 | 개발 화면 | 개발 뷰 파일 |
 |---|---|---|
 | 탭 1 `page-list` 계약 목록(행 = 계약) | INST-001 권리자 목록(행 = 권리자, 계약 이력 레이어) | `resources/views/admin/rights-holders/index.blade.php` (`#layerContractHistory` · `#layerNewContract`) |
-| 탭 2 권리자 · 세무 영역(`bizType` ~ `taxDecisionReason`) | INST-001-S1 권리자 등록 · 수정 | `rights-holders/create.blade.php` · `edit.blade.php` + `form.blade.php` |
+| 탭 2 권리자 · 세무 영역(`bizType` ~ 세무 영역 — v7.07에서 판정 입력칸 삭제) | INST-001-S1 권리자 등록 · 수정 | `rights-holders/create.blade.php` · `edit.blade.php` + `form.blade.php` |
 | 탭 2 계약 조건 영역(`contractStart` ~ 조항 카드 · 증빙 · 메모) | INST-001-S2 계약 상세 | `rights-holders/contracts/create · edit.blade.php` + `form.blade.php` + `_term-*.blade.php` |
 | 탭 3 `page-nts` 국세청 확인 이력 | S1 수정 화면 `?tab=nts` | `rights-holders/_nts-history.blade.php` |
 | 탭 4 `page-audit` 변경 · 열람 이력 | 없음(공통 관리 로그) | — |
@@ -107,8 +107,8 @@
 | (업무 외 노무 활용) | 개발 없음 | | `#externalLabor` |
 | `address` · `address_detail` | 개인이면 required | | 프로토 없음 |
 | `suspended_approval_reason` | max 255 | | `#suspendedReason`(휴업자 저장 예외 승인) |
-| `tax_decision_status` | | `PENDING_REVIEW` 검토 보류 · `DECIDED` 판정 완료 | `#taxDecision` |
-| `matrix_case_id` · `tax_decision_reason` | DECIDED면 required | MATRIX_CASE_IDS | `#matrixCase` · `#taxDecisionReason` |
+| `tax_decision_status` | | `PENDING_REVIEW` 검토 보류 · `DECIDED` 판정 완료 | `#taxDecision` | **→ v7.07 원본에서 입력칸 삭제(white) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
+| `matrix_case_id` · `tax_decision_reason` | DECIDED면 required | MATRIX_CASE_IDS | `#matrixCase` · `#taxDecisionReason` | **→ v7.07 원본에서 입력칸 삭제(white) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
 | `bank_name` · `account_no_enc` · `account_holder` | 비자사면 required(계좌는 등록 시) | | `#payeeAccount` |
 | `partnership_started_at` · `email` · `phone` | | | 프로토 없음 |
 | `proofs[PERSON_ID\|BANKBOOK\|BIZ_LICENSE][]` | 각 1개 · jpg/png/pdf · 10MB | | 증빙 선택(L1383대) |
@@ -240,7 +240,7 @@
 | `#bizType` 개인사업자 · 법인·단체 · 자사 귀속 | `business_subtype` `SOLE` · `CORP` + `is_internal` |
 | `#payeeAuthor` 본인 · 본인 아님 | `payee_is_author` 1 · 0 |
 | `#resident` 거주자 · 비거주자 | `is_resident` 1 · 0 |
-| `#taxDecision` 검토 보류 · 판정 완료 | `tax_decision_status` `PENDING_REVIEW` · `DECIDED` |
+| `#taxDecision` 검토 보류 · 판정 완료 | `tax_decision_status` `PENDING_REVIEW` · `DECIDED` | **→ v7.07 원본에서 입력칸 삭제(white) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
 | `#renewalMode` 자동 갱신 · 수동 종료 / `#renewalMonths` 1 · 2 · 3년 | `auto_extend` / `renewal_unit_years` 1 · 2 · 3 |
 | `#originType` 신규 · 승계 | `origin_type` `NEW` · `SUCCESSION` |
 | `#refundBurden` A · B · C | `refund_promo_burden_type` `A`(B · C 표시만) |
