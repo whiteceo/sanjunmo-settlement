@@ -85,7 +85,7 @@
 | 수동 등재 폼 | GET | `/members/blacklist/create?member_id=` | `admin.members.blacklist.create` | 등록 | MemberBlacklistController@create |
 | 등재 | POST | `/members/blacklist` | `admin.members.blacklist.store` | 등록 | MemberBlacklistController@store |
 | 정지 해제 | PUT | `/members/blacklist/{sanction}` | `admin.members.blacklist.update` | 수정 | MemberBlacklistController@update |
-| 관리자 강제 탈퇴 | POST | `/members/{member}/withdrawal` (규칙) | `admin.members.withdrawal.store` (규칙) | 등록 | 개발 미구현(서비스 함수만) |
+| 관리자 강제 탈퇴(v3.2.28 강제 탈퇴 절차 반영) — 원장 부채 · 영구 정지 행 · 회원 상세 버튼 → 확인 레이어 `layerMemberWithdraw` | POST | `/members/{member}/withdrawal` (규칙) | `admin.members.withdrawal.store` (규칙) | 등록(블랙리스트 메뉴 · 최고 관리자 또는 블랙리스트 메뉴 권한자, 승인 단계 없음) | 개발 미구현(서비스 함수만). 입력 `reason`(10~200자). 진행 중 주문 · 배송 · 환불 · 합격환급 건이 있으면 거부(S1-03 기준) |
 
 ### USER-006 그룹 · 태그 · S1 태그 폼 · S2 조건 그룹 · S3 처리 결과
 | 동작 | 메서드 | URL | 라우트 이름 | 권한 | 컨트롤러@메서드 |
@@ -311,7 +311,8 @@
 - 002-P1 지급 알림톡 옵션 · 조작 후 예상 잔액 · 1회 30,000P · 무상 보유 상한(검토 #7)
 - 003 종료일 단축 · 일시정지 3회 · 통산 30일 상한 · 세션 강제 로그아웃 · 기기 리셋 · DRM 만료일 동기화
 - 004 보정 포함 배지 · 회원 단위 보정 원장
-- 005 마이너스 부채 자동 등재 · 관리자 강제 탈퇴 · 제재 범위 · 모니터링 경고 단계
+- 005 마이너스 부채 자동 등재 · 제재 범위 · 모니터링 경고 단계
+- 005 · 002 관리자 강제 탈퇴 — v3.2.28 강제 탈퇴 절차 반영(설계서 3.1.2, white 결정 2026-10-29). 대상은 적립 P 부채 회원 · 영구 정지 등재 회원뿐(기간 정지 행에는 버튼 없음), 진입은 블랙리스트 원장 행과 회원 상세(대상일 때만). 확인 레이어 `layerMemberWithdraw`: 진행 중 주문 · 배송 · 환불 · 합격환급 건(있으면 확정 막음, S1-03과 같은 기준) · 남은 수강권 미이용분 환불 예상액 · 소멸 포인트(무상 P · 적립 P 양수 잔액) · 적립 P 부채 · 환불 계산(미이용분 − 부채 상계 = 등록 환불 계좌 지급, 남는 부채는 제재 이력) · 사유 `reason` 10~200자. 확정 시 탈퇴 처리 · 탈퇴 알림톡 `void_points` · 관리 이력. 재가입 시 처리(S1-01 부채 복원 ↔ 영구 정지 가입 차단)는 정책 정리 중이라 화면에 '정책 정리 중(S1-01)'으로만 표시. 개발에 필요한 것: 경로 `admin.members.withdrawal.store` (규칙) · 진행 중 건 조회 · 미이용분 환불 계산(ADMN-RFD-002 기준) · 부채 상계 · 포인트 소멸 · `void_points` 발송
 - 006 태그 · 그룹 코드 컬럼 · 연동 액션(쿠폰 · 메시지) · 조건 항목 약 20종(개발 5종) · 조건 결과 전체 일괄 부여 · 1만 건 초과 백그라운드 · 시스템 태그 자동 전환
 - 006-S2 저장 그룹 수정 · 삭제 · 발송/쿠폰 연결
 - 006-S3 처리 결과 · 재처리 · 처리 단위 해제 · 결과 엑셀

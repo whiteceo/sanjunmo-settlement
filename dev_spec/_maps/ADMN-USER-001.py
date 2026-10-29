@@ -197,8 +197,9 @@ ACT("releaseBlacklistRow", count=2, perm="수정(블랙리스트 메뉴)")
 ACT("confirmBlacklistRelease", route="admin.members.blacklist.update", method="PUT", url=A + "/members/blacklist/{sanction}", perm="수정")
 NAME("blr-reason", "reason")
 ACT("releaseMemberSuspension", route="admin.members.blacklist.update", method="PUT", url=A + "/members/blacklist/{sanction}", perm="수정(블랙리스트 메뉴)")
-ACT("forceWithdrawRow", flag="proto-only", route="admin.members.withdrawal.store (규칙)", method="POST", url=A + "/members/{member}/withdrawal", perm="등록",
-    note="관리자 강제 탈퇴 — 개발은 서비스 함수만, 경로 없음")
+WD_NOTE = "관리자 강제 탈퇴(v3.2.28 강제 탈퇴 절차) — 개발은 서비스 함수만, 경로 없음. 대상: 적립 P 부채 · 영구 정지 등재 회원"
+ACT("forceWithdrawRow", flag="proto-only", route="admin.members.withdrawal.store (규칙)", method="POST", url=A + "/members/{member}/withdrawal", perm="등록(블랙리스트 메뉴)",
+    note=WD_NOTE)
 
 # ── 006 그룹 · 태그 ────────────────────────────────
 ACT("openTagFormPage", count=2, route="admin.members.group.tag.create", method="GET", url=A + "/members/group/tag/create?mode=manual|auto", perm="등록")
@@ -252,6 +253,192 @@ ACT("openTagResultPage", flag="proto-only", route="admin.members.group.batches.s
 ACT("m3fTrRetry", flag="proto-only", route="admin.members.group.batches.retry.store (규칙)", method="POST", url=A + "/members/group/batches/{batch}/retry", perm="등록")
 ACT("m3fTrRevert", flag="proto-only", route="admin.members.group.batches.destroy (규칙)", method="DELETE", url=A + "/members/group/batches/{batch}", perm="삭제")
 ACT("m3fTrExcelDownload", flag="proto-only", route="admin.members.group.batches.download (규칙)", method="GET", url=A + "/members/group/batches/{batch}/download", perm="다운로드")
+
+# ── 005 · 002 강제 탈퇴 절차(설계서 v3.2.28 · 3.1.2, white 결정 2026-10-29) — prototype_dev에만 ─────────
+# 대상: 적립 P 부채 회원 · 영구 정지 등재 회원(기간 정지 제외). 권한: 최고 관리자 또는 블랙리스트 메뉴 권한자, 승인 단계 없음.
+# 확인 모달 layerMemberWithdraw: 진행 중 건(S1-03 기준) 있으면 확정 막음 · 남은 수강권 미이용분 환불 − 부채 상계 · 소멸 포인트 · 사유 10~200자.
+# 재가입 처리(S1-01 부채 승계 ↔ 영구 정지 가입 차단)는 정책 정리 중 — 확정 문구 대신 '정책 정리 중(S1-01)'만 표시.
+# 샘플: 100215(부채 · 진행 중 건 없음 → 실행 가능), 100188(영구 정지 · 환불 심사 대기 1건 → 실행 막힘)
+WD_ATTRS = attrs(route="admin.members.withdrawal.store (규칙)", method="POST", url=A + "/members/{member}/withdrawal",
+                 perm="등록(블랙리스트 메뉴)", flag="proto-only", note=WD_NOTE)
+
+# 샘플: 100188 영구 정지 등재(상습 악성 환불 3회) — 원장 행 · 목록 상태 · 상세 위험 이력
+OPS.append(dict(kind="insert_before", anchor='<tr data-bltype="RECORD" data-member="100312"', html=(
+    '<tr data-bltype="REFUND" data-member="100188" data-state="BLOCK" data-susp="1" data-count="3" data-until="영구 (동일 DI 재가입 차단)" data-perm="1">\n'
+    '                  <td><strong>100188</strong></td>\n'
+    '                  <td>정*늘 (<code>han***@nate.com</code>)</td>\n'
+    '                  <td><span class="badge badge-red">상습 악성 환불 · 업무방해</span></td>\n'
+    '                  <td>수강 후 환불 요청 · 철회 반복 3회째(CS 확인) · 수동 등재<br /><span style="font-size:11px; color:#1d4ed8;">[제재: 전체 정지(로그인 · 수강) · 동일 DI 재가입 차단]</span></td>\n'
+    '                  <td><strong style="color:var(--danger);">3회</strong> <span class="badge badge-red">3회 이상</span></td>\n'
+    '                  <td>영구 (동일 DI 재가입 차단)</td>\n'
+    '                  <td>2026.10.16 17:40<br /><span style="font-size:11px; color:var(--text-muted);">운영1팀 이지훈 (admin_jh)</span></td>\n'
+    '                  <td class="bl-state"><span class="badge badge-red">정지 중</span></td>\n'
+    '                  <td class="bl-act">\n'
+    '                    <button type="button" class="btn btn-sm btn-outline" onclick="selectMember(\'100188\'); switchView(\'detail\');">회원 상세</button>\n'
+    '                    <button type="button" class="btn btn-sm btn-outline"' + attrs(perm="수정(블랙리스트 메뉴)") + ' onclick="releaseBlacklistRow(this, \'100188\')">해제</button>\n'
+    '                    <button type="button" class="btn btn-sm btn-outline" style="color:var(--danger);"' + WD_ATTRS + ' onclick="forceWithdrawRow(this, \'100188\')">강제 탈퇴</button>\n'
+    '                  </td>\n'
+    '                </tr>\n'
+    '                ')))
+R("pending: ['환불 요청 1건 (2026.10.16 접수 · 심사 대기)'], risk: '특이 이력 없음 (일반 수강생)'",
+  "pending: ['환불 요청 1건 (2026.10.16 접수 · 심사 대기)'], risk: '상습 악성 환불 3회 · 영구 정지 등재(2026.10.16, 동일 DI 재가입 차단)'")
+R('<tr data-member="100188" data-join="2026.05.28" data-last="2026.10.15 13:26" data-status="ACTIVE"',
+  '<tr data-member="100188" data-join="2026.05.28" data-last="2026.10.15 13:26" data-status="BLOCKED"')
+R("<td><span class=\"badge badge-green\">정상</span></td>\n                  <td><button type=\"button\" class=\"btn btn-sm btn-outline\" onclick=\"event.stopPropagation(); selectMember('100188'); switchView('detail');\">상세</button></td>",
+  "<td><span class=\"badge badge-green\">정상</span> <span class=\"badge badge-red\">정지 중</span></td>\n                  <td><button type=\"button\" class=\"btn btn-sm btn-outline\" onclick=\"event.stopPropagation(); selectMember('100188'); switchView('detail');\">상세</button></td>")
+
+# 회원 상세(002): 대상 회원일 때만 강제 탈퇴 버튼
+R('<span id="dt-susp-actions"></span>', '<span id="dt-susp-actions"></span>\n                    <span id="dt-withdraw-action"></span>')
+R("document.getElementById('dt-lock-badges').innerHTML = lockBadgesHtml(m.no);",
+  "document.getElementById('dt-lock-badges').innerHTML = lockBadgesHtml(m.no);\n      wdRenderDetail(m);")
+# 수동 등재로 생긴 영구 정지 행에도 버튼, 해제되면 버튼 제거
+R("onclick=\"releaseBlacklistRow(this, '${o.no}')\">해제</button>",
+  "onclick=\"releaseBlacklistRow(this, '${o.no}')\">해제</button>\n          ${o.period === 'PERM' ? wdRowButtonHtml(o.no) : ''}")
+R("      if (btn) btn.remove();\n      applyBlacklistFilters();\n    }\n    function blReleaseMemberRows",
+  "      if (btn) btn.remove();\n      wdDropRowButtons(tr);\n      applyBlacklistFilters();\n    }\n    function blReleaseMemberRows")
+
+# 확인 모달(기존 modal-bl-release와 같은 구조 · 클래스)
+OPS.append(dict(kind="insert_before", anchor="  <!-- 사유 입력 공용 팝업", html=(
+    '  <!-- ADMN-USER-005 · 002 강제 탈퇴 확인 (설계서 v3.2.28 강제 탈퇴 절차) — 개발 레이어 규칙 id -->\n'
+    '  <div class="modal-backdrop" id="layerMemberWithdraw" aria-hidden="true" data-dev-flag="proto-only" data-dev-note="개발 미구현 — 레이어 id는 개발 규칙(layerMember…)">\n'
+    '    <div class="modal-box" style="max-width:580px;">\n'
+    '      <div class="modal-head">\n'
+    '        <span>강제 탈퇴 처리</span>\n'
+    '        <button type="button" class="btn btn-sm btn-outline" onclick="closeModal(\'layerMemberWithdraw\')">✕</button>\n'
+    '      </div>\n'
+    '      <div class="modal-body">\n'
+    '        <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:12px;">\n'
+    '          대상: <strong id="mwd-target">—</strong><br /><span id="mwd-basis" style="color:var(--text-muted);"></span><br /><span id="mwd-perm" style="color:var(--text-muted);"></span>\n'
+    '        </div>\n'
+    '        <div style="font-size:12px; font-weight:700; margin-bottom:4px;">진행 중 건 (자진 탈퇴 하드락 S1-03과 같은 기준)</div>\n'
+    '        <table class="data-table" style="margin-bottom:8px;"><thead><tr><th style="width:90px;">구분</th><th>진행 중 건</th></tr></thead><tbody id="mwd-pending"></tbody></table>\n'
+    '        <div id="mwd-block" style="display:none; background:#FEF2F2; border:1px solid #FECACA; border-left:4px solid #DC2626; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:12px; color:#991B1B;"></div>\n'
+    '        <div style="font-size:12px; font-weight:700; margin:12px 0 4px;">남은 수강권 (미이용분 환불 예상액 · 법정 부분환불 기준)</div>\n'
+    '        <table class="data-table"><thead><tr><th>수강권</th><th>이용 현황</th><th class="tr-right">환불 예상액</th></tr></thead><tbody id="mwd-courses"></tbody></table>\n'
+    '        <div style="font-size:12px; font-weight:700; margin:12px 0 4px;">소멸 포인트 · 적립 P 부채</div>\n'
+    '        <table class="data-table"><tbody id="mwd-points"></tbody></table>\n'
+    '        <div style="font-size:12px; font-weight:700; margin:12px 0 4px;">환불 계산 (부채 먼저 상계 → 남는 금액은 등록 환불 계좌로 지급)</div>\n'
+    '        <table class="data-table"><tbody id="mwd-calc"></tbody></table>\n'
+    '        <div id="mwd-notes" style="font-size:11.5px; color:var(--text-muted); margin:8px 0 12px; line-height:1.6;"></div>\n'
+    '        <label for="mwd-reason" style="display:block; font-size:12px; font-weight:700; margin-bottom:4px;">강제 탈퇴 사유 (필수 · 공백 제외 10자 이상 · 200자 이하)</label>\n'
+    '        <textarea id="mwd-reason" name="reason" maxlength="200" class="f-textarea" rows="3" style="width:100%;" placeholder="예) 부채 상환 안내 3회 무응답 · 부정 환불 반복 확인으로 강제 탈퇴" oninput="showReasonCount(\'mwd-reason-count\', this.value)"></textarea>\n'
+    '        <div id="mwd-reason-count" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">공백 제외 0자 / 최소 10자</div>\n'
+    '      </div>\n'
+    '      <div class="modal-foot">\n'
+    '        <button type="button" class="btn btn-outline" onclick="closeModal(\'layerMemberWithdraw\')">취소</button>\n'
+    '        <button type="button" id="mwd-submit" class="btn btn-danger"' + WD_ATTRS + ' onclick="confirmMemberWithdraw()">강제 탈퇴 확정</button>\n'
+    '      </div>\n'
+    '    </div>\n'
+    '  </div>\n\n')))
+
+# 기존 공용 사유 팝업으로 열던 forceWithdrawRow(부채 승계 문구 포함)를 지우고 새 절차로 바꾼다
+RE(r"    // 결정 14: 마이너스 적립 P 부채 회원 강제 탈퇴[\s\S]*?\n    }\n(?=\n    let pendingBlRelease)", "", 1)
+OPS.append(dict(kind="insert_before", anchor="    let pendingBlRelease = null;", html=r'''    // 설계서 v3.2.28 강제 탈퇴 절차(3.1.2, white 결정 2026-10-29) — prototype_dev 전용
+    // 대상: 적립 P 부채 회원 · 영구 정지 등재 회원(기간 정지 제외). 권한: 최고 관리자 또는 블랙리스트 메뉴 권한자, 승인 단계 없음
+    // 진행 중 주문 · 배송 · 환불 · 합격환급 건(S1-03 기준)이 있으면 실행 막음 → 사유 → 미이용분 환불에서 부채 상계 → 포인트 소멸 · 탈퇴 알림(void_points)
+    var WD_KINDS = ['주문', '배송', '환불', '합격환급'];
+    var WD_INFO = {
+      '100215': { pending: [], courses: [] },
+      '100188': {
+        pending: [{ kind: '환불', text: '환불 요청 1건 (2026.10.16 접수 · 심사 대기) — 환불 관리 화면에서 완료 · 취소' }],
+        courses: [{ name: '전기기사 필기 올패스 (2026.05.28 ~ 2026.11.24)', usage: '잔여 39일 · 진도 42%', refund: 98000 }]
+      }
+    };
+    var WD_DEV_ATTRS = '__WD_ATTRS__';
+    var pendingWithdraw = null;
+    function wdPermRow(no) { return blRows(no).find(tr => tr.dataset.state === 'BLOCK' && tr.dataset.perm === '1'); }
+    function wdEligible(no) { const m = MEMBERS[no]; return !!m && !m.withdrawn && (isWithdrawLocked(m) || !!wdPermRow(no)); }
+    function wdWon(n) { return n.toLocaleString() + '원'; }
+    function wdRowButtonHtml(no) {
+      return `<button type="button" class="btn btn-sm btn-outline" style="color:var(--danger);"${WD_DEV_ATTRS} onclick="forceWithdrawRow(this, '${no}')">강제 탈퇴</button>`;
+    }
+    function wdDropRowButtons(tr) {
+      Array.from(tr.querySelectorAll('.bl-act button')).filter(b => /forceWithdrawRow|releaseBlacklistRow/.test(b.getAttribute('onclick') || '') && (tr.dataset.state !== 'BLOCK' || /forceWithdrawRow/.test(b.getAttribute('onclick') || ''))).forEach(b => b.remove());
+    }
+    function wdRenderDetail(m) {
+      const el = document.getElementById('dt-withdraw-action');
+      if (!el) return;
+      el.innerHTML = wdEligible(m.no)
+        ? `<button type="button" class="btn btn-sm btn-outline" style="color:var(--danger);"${WD_DEV_ATTRS} onclick="openMemberWithdraw('${m.no}')">강제 탈퇴</button>`
+        : '';
+    }
+    function forceWithdrawRow(btn, no) { openMemberWithdraw(no); }
+    function openMemberWithdraw(no) {
+      if (!canMenu('blacklist')) { denyToast('blacklist'); return; }
+      const m = MEMBERS[no];
+      if (!wdEligible(no)) { showToast('강제 탈퇴 대상이 아닙니다 — 적립 P 부채 회원 · 영구 정지 등재 회원만 실행할 수 있습니다(기간 정지 제외).'); return; }
+      const info = WD_INFO[no] || { pending: [], courses: [] };
+      const debt = m.paidP < 0 ? -m.paidP : 0;
+      const voidFree = Math.max(m.freeP, 0), voidPaid = Math.max(m.paidP, 0);
+      const refund = info.courses.reduce((s, c) => s + c.refund, 0);
+      const offset = Math.min(refund, debt);
+      const payout = refund - offset, unrecovered = debt - offset;
+      const basis = [isWithdrawLocked(m) ? `적립 P 부채 ${m.paidP.toLocaleString()}P` : '', wdPermRow(no) ? '영구 정지 등재' : ''].filter(Boolean).join(' · ');
+      const blocked = info.pending.length > 0;
+      pendingWithdraw = { no, basis, debt, voidFree, voidPaid, refund, offset, payout, unrecovered, blocked };
+      document.getElementById('mwd-target').textContent = `${m.maskedName} (${no})`;
+      document.getElementById('mwd-basis').textContent = `강제 탈퇴 대상 근거: ${basis}`;
+      document.getElementById('mwd-perm').textContent = `실행 권한: ${permText('blacklist')} · 별도 승인 단계 없음 (현재 역할: ${roleName(ADMIN_ROLE_ID)})`;
+      document.getElementById('mwd-pending').innerHTML = WD_KINDS.map(k => {
+        const list = info.pending.filter(p => p.kind === k);
+        return `<tr><td>${k}</td><td>${list.length ? list.map(p => `<span class="badge badge-red">진행 중</span> ${csEsc(p.text)}`).join('<br />') : '<span style="color:var(--text-muted);">없음</span>'}</td></tr>`;
+      }).join('');
+      const blk = document.getElementById('mwd-block');
+      blk.style.display = blocked ? '' : 'none';
+      blk.textContent = blocked ? `진행 중 건 ${info.pending.length}건이 있어 강제 탈퇴를 실행할 수 없습니다. 그 건을 완료 · 취소한 뒤 실행하세요(자진 탈퇴 하드락 S1-03과 같은 기준).` : '';
+      document.getElementById('mwd-courses').innerHTML = info.courses.length
+        ? info.courses.map(c => `<tr><td>${csEsc(c.name)}</td><td>${csEsc(c.usage)}</td><td class="tr-right">${wdWon(c.refund)}</td></tr>`).join('')
+        : '<tr><td colspan="3" style="color:var(--text-muted);">남은 수강권 없음 (환불 예상 0원)</td></tr>';
+      document.getElementById('mwd-points').innerHTML =
+        `<tr><th style="width:46%;">소멸 무상 P</th><td class="tr-right">${voidFree.toLocaleString()}P</td></tr>`
+        + `<tr><th>소멸 적립 P (양수 잔액)</th><td class="tr-right">${voidPaid.toLocaleString()}P</td></tr>`
+        + `<tr><th>적립 P 부채</th><td class="tr-right" style="${debt ? 'color:var(--danger); font-weight:700;' : ''}">${debt ? '-' + debt.toLocaleString() + 'P' : '없음'}</td></tr>`;
+      document.getElementById('mwd-calc').innerHTML =
+        `<tr><th style="width:46%;">미이용분 환불 예상액</th><td class="tr-right">${wdWon(refund)}</td></tr>`
+        + `<tr><th>− 부채 상계 (1P = 1원 환산)</th><td class="tr-right">${wdWon(offset)}</td></tr>`
+        + `<tr><th>= 등록 환불 계좌 지급</th><td class="tr-right" style="font-weight:700;">${wdWon(payout)}</td></tr>`
+        + (unrecovered ? `<tr><th>미회수 부채 (제재 이력에 남김)</th><td class="tr-right" style="color:var(--danger); font-weight:700;">-${unrecovered.toLocaleString()}P</td></tr>` : '');
+      document.getElementById('mwd-notes').innerHTML =
+        '확정하면 탈퇴 처리(S1-01) · 무상 P와 적립 P 양수 잔액 소멸 · 탈퇴 알림톡(<code>void_points</code>) 발송 · 관리 이력 기록이 함께 진행되며 되돌릴 수 없습니다.<br />'
+        + '강제 해지 시 환불 기준은 이용약관에 명시(법무 확인).<br />'
+        + '<span class="badge badge-amber">재가입 시 처리: 정책 정리 중(S1-01)</span>';
+      document.getElementById('mwd-reason').value = '';
+      showReasonCount('mwd-reason-count', '');
+      const sub = document.getElementById('mwd-submit');
+      sub.disabled = blocked;
+      sub.title = blocked ? '진행 중 건을 완료 · 취소한 뒤 실행할 수 있습니다' : '';
+      openModalById('layerMemberWithdraw');
+    }
+    function confirmMemberWithdraw() {
+      const p = pendingWithdraw;
+      if (!p) return;
+      if (p.blocked) { showToast('진행 중 건이 있어 실행할 수 없습니다 — 그 건을 완료 · 취소한 뒤 실행하세요.'); return; }
+      const reason = document.getElementById('mwd-reason').value.trim();
+      if (!reasonCheck(reason).ok) { showToast('사유를 공백 제외 10자 이상, 같은 글자 반복 없이 입력해 주세요.'); return; }
+      const m = MEMBERS[p.no];
+      const at = auditNow();
+      blRows(p.no).filter(tr => tr.dataset.state === 'LOCK' || (tr.dataset.state === 'BLOCK' && tr.dataset.perm === '1')).forEach(tr => {
+        tr.dataset.state = 'WITHDRAWN';
+        const st = tr.querySelector('.bl-state');
+        if (st) st.innerHTML = `${blStateHtml('WITHDRAWN')}<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${at} · ${csEsc(reason)}</div>`
+          + `<div style="font-size:11px; color:var(--text-muted);">제재 이력 유지 · 재가입 시 처리: 정책 정리 중(S1-01)</div>`;
+        wdDropRowButtons(tr);
+      });
+      m.withdrawn = true;
+      m.freeP = 0;
+      if (m.paidP > 0) m.paidP = 0;
+      syncListRow(p.no);
+      if (p.no === currentMemberId) renderMemberDetail();
+      appendAudit(p.no, '강제 탈퇴', `${p.basis} · 미이용분 환불 ${wdWon(p.refund)} − 부채 상계 ${wdWon(p.offset)} = 환불 계좌 지급 ${wdWon(p.payout)}`
+        + (p.unrecovered ? ` · 미회수 부채 -${p.unrecovered.toLocaleString()}P 제재 이력` : '')
+        + ` · 소멸 무상 P ${p.voidFree.toLocaleString()}P · 적립 P ${p.voidPaid.toLocaleString()}P · 탈퇴 알림톡 void_points 발송 · ${reason}`, 'badge-red');
+      applyBlacklistFilters();
+      pendingWithdraw = null;
+      closeModal('layerMemberWithdraw');
+      showToast(`회원번호 ${p.no}를 강제 탈퇴 처리했습니다. 탈퇴 알림톡 void_points 발송 · 관리 이력 기록`);
+    }
+
+'''.replace("'__WD_ATTRS__'", "'" + WD_ATTRS.replace("'", "\\'") + "'")))
 
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [
