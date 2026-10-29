@@ -257,7 +257,7 @@ ACT("m3fTrExcelDownload", flag="proto-only", route="admin.members.group.batches.
 # ── 005 · 002 강제 탈퇴 절차(설계서 v3.2.28 · 3.1.2, white 결정 2026-10-29) — prototype_dev에만 ─────────
 # 대상: 적립 P 부채 회원 · 영구 정지 등재 회원(기간 정지 제외). 권한: 최고 관리자 또는 블랙리스트 메뉴 권한자, 승인 단계 없음.
 # 확인 모달 layerMemberWithdraw: 진행 중 건(S1-03 기준) 있으면 확정 막음 · 남은 수강권 미이용분 환불 − 부채 상계 · 소멸 포인트 · 사유 10~200자.
-# 재가입 처리(S1-01 부채 승계 ↔ 영구 정지 가입 차단)는 정책 정리 중 — 확정 문구 대신 '정책 정리 중(S1-01)'만 표시.
+# 재가입 처리(S1-01, white 결정 2026-10-29): 영구 정지 = 같은 DI 5년 재가입 차단, 강제 탈퇴 · 부채만 = 가입 허용 + 상계 후 남은 적립 P 부채만 새 계정에 승계(무상 P 승계 없음), 상계 1P = 1원.
 # 샘플: 100215(부채 · 진행 중 건 없음 → 실행 가능), 100188(영구 정지 · 환불 심사 대기 1건 → 실행 막힘)
 WD_ATTRS = attrs(route="admin.members.withdrawal.store (규칙)", method="POST", url=A + "/members/{member}/withdrawal",
                  perm="등록(블랙리스트 메뉴)", flag="proto-only", note=WD_NOTE)
@@ -375,7 +375,11 @@ OPS.append(dict(kind="insert_before", anchor="    let pendingBlRelease = null;",
       const payout = refund - offset, unrecovered = debt - offset;
       const basis = [isWithdrawLocked(m) ? `적립 P 부채 ${m.paidP.toLocaleString()}P` : '', wdPermRow(no) ? '영구 정지 등재' : ''].filter(Boolean).join(' · ');
       const blocked = info.pending.length > 0;
-      pendingWithdraw = { no, basis, debt, voidFree, voidPaid, refund, offset, payout, unrecovered, blocked };
+      // 재가입 처리(S1-01, white 결정 2026-10-29): 영구 정지 = 같은 DI 5년 가입 차단 / 강제 탈퇴 · 부채만 = 가입 허용 + 남은 적립 P 부채만 승계(무상 P 승계 없음)
+      const rejoin = wdPermRow(no)
+        ? '재가입: 같은 DI로 5년간 가입 차단 (영구 정지 · S1-01)'
+        : (unrecovered ? `재가입: 가입 허용 · 미회수 적립 P 부채 -${unrecovered.toLocaleString()}P를 새 계정에 승계 (무상 P 승계 없음 · S1-01)` : '재가입: 가입 허용 · 승계할 부채 없음 (S1-01)');
+      pendingWithdraw = { no, basis, debt, voidFree, voidPaid, refund, offset, payout, unrecovered, blocked, rejoin };
       document.getElementById('mwd-target').textContent = `${m.maskedName} (${no})`;
       document.getElementById('mwd-basis').textContent = `강제 탈퇴 대상 근거: ${basis}`;
       document.getElementById('mwd-perm').textContent = `실행 권한: ${permText('blacklist')} · 별도 승인 단계 없음 (현재 역할: ${roleName(ADMIN_ROLE_ID)})`;
@@ -401,7 +405,7 @@ OPS.append(dict(kind="insert_before", anchor="    let pendingBlRelease = null;",
       document.getElementById('mwd-notes').innerHTML =
         '확정하면 탈퇴 처리(S1-01) · 무상 P와 적립 P 양수 잔액 소멸 · 탈퇴 알림톡(<code>void_points</code>) 발송 · 관리 이력 기록이 함께 진행되며 되돌릴 수 없습니다.<br />'
         + '강제 해지 시 환불 기준은 이용약관에 명시(법무 확인).<br />'
-        + '<span class="badge badge-amber">재가입 시 처리: 정책 정리 중(S1-01)</span>';
+        + `<span class="badge badge-amber">${csEsc(rejoin)}</span>`;
       document.getElementById('mwd-reason').value = '';
       showReasonCount('mwd-reason-count', '');
       const sub = document.getElementById('mwd-submit');
@@ -421,7 +425,7 @@ OPS.append(dict(kind="insert_before", anchor="    let pendingBlRelease = null;",
         tr.dataset.state = 'WITHDRAWN';
         const st = tr.querySelector('.bl-state');
         if (st) st.innerHTML = `${blStateHtml('WITHDRAWN')}<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${at} · ${csEsc(reason)}</div>`
-          + `<div style="font-size:11px; color:var(--text-muted);">제재 이력 유지 · 재가입 시 처리: 정책 정리 중(S1-01)</div>`;
+          + `<div style="font-size:11px; color:var(--text-muted);">제재 이력 유지 · ${csEsc(p.rejoin)}</div>`;
         wdDropRowButtons(tr);
       });
       m.withdrawn = true;
@@ -451,3 +455,8 @@ VERIFY = [
     ("태그 view", "switchView('tags')", "#view-tags"),
     ("블랙리스트 view", "switchView('blacklist')", "#view-blacklist"),
 ]
+
+# ── 재가입 처리 확정(S1-01, white 결정 2026-10-29) — 영구 정지는 같은 DI 5년 재가입 차단, 부채만이면 남은 적립 P 부채 승계 ──
+R("탈퇴 Lock 및 재가입 시 부채 승계)", "탈퇴 잠금 · 재가입 시 상계 후 남은 적립 P 부채만 승계, 무상 P 승계 없음 · S1-01)")
+RE(r"동일 DI 재가입 차단", "동일 DI 5년 재가입 차단", 9)
+RE(r"동일 DI 재가입도 막습니다", "동일 DI 5년 재가입도 막습니다", 1)

@@ -1953,13 +1953,13 @@ code, pre, kbd, samp,
                     <button type="button" class="btn btn-sm btn-outline" style="color:var(--danger);" data-dev-route="admin.members.withdrawal.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/members/{member}/withdrawal" data-dev-perm="등록(블랙리스트 메뉴)" data-dev-flag="proto-only" data-dev-note="관리자 강제 탈퇴(v3.2.28 강제 탈퇴 절차) — 개발은 서비스 함수만, 경로 없음. 대상: 적립 P 부채 · 영구 정지 등재 회원" onclick="forceWithdrawRow(this, '100215')">강제 탈퇴</button>
                   </td>
                 </tr>
-                <tr data-bltype="REFUND" data-member="100188" data-state="BLOCK" data-susp="1" data-count="3" data-until="영구 (동일 DI 재가입 차단)" data-perm="1">
+                <tr data-bltype="REFUND" data-member="100188" data-state="BLOCK" data-susp="1" data-count="3" data-until="영구 (동일 DI 5년 재가입 차단)" data-perm="1">
                   <td><strong>100188</strong></td>
                   <td>정*늘 (<code>han***@nate.com</code>)</td>
                   <td><span class="badge badge-red">상습 악성 환불 · 업무방해</span></td>
-                  <td>수강 후 환불 요청 · 철회 반복 3회째(CS 확인) · 수동 등재<br /><span style="font-size:11px; color:#1d4ed8;">[제재: 전체 정지(로그인 · 수강) · 동일 DI 재가입 차단]</span></td>
+                  <td>수강 후 환불 요청 · 철회 반복 3회째(CS 확인) · 수동 등재<br /><span style="font-size:11px; color:#1d4ed8;">[제재: 전체 정지(로그인 · 수강) · 동일 DI 5년 재가입 차단]</span></td>
                   <td><strong style="color:var(--danger);">3회</strong> <span class="badge badge-red">3회 이상</span></td>
-                  <td>영구 (동일 DI 재가입 차단)</td>
+                  <td>영구 (동일 DI 5년 재가입 차단)</td>
                   <td>2026.10.16 17:40<br /><span style="font-size:11px; color:var(--text-muted);">운영1팀 이지훈 (admin_jh)</span></td>
                   <td class="bl-state"><span class="badge badge-red">정지 중</span></td>
                   <td class="bl-act">
@@ -2526,7 +2526,7 @@ code, pre, kbd, samp,
         pending: [], risk: '환불 회수 마이너스 적립 P -2,400P 부채 · 자진 탈퇴 잠금(정지 아님)',
         lockHtml: '<span class="badge badge-gray">로그인 실패 0회 (is_locked=false)</span>',
         paidP: -2400, freeP: 0, paidAmt: '324,000 원', rfdAmt: '324,000 원',
-        diHtml: '<code>DI-9012-****-4412</code> <span class="badge badge-red">unpaid_points_blacklist 등재 (환불 회수 마이너스 적립 P -2,400P · 탈퇴 Lock 및 재가입 시 부채 승계)</span>'
+        diHtml: '<code>DI-9012-****-4412</code> <span class="badge badge-red">unpaid_points_blacklist 등재 (환불 회수 마이너스 적립 P -2,400P · 탈퇴 잠금 · 재가입 시 상계 후 남은 적립 P 부채만 승계, 무상 P 승계 없음 · S1-01)</span>'
       },
       '100188': {
         no: '100188', maskedName: '정*늘', realName: '정하늘',
@@ -2535,7 +2535,7 @@ code, pre, kbd, samp,
         maskedAddr: '(34141) 대전 유성구 대학*로 ***',
         realAddr: '(34141) 대전 유성구 대학로 99',
         cafeId: 'jung_sky20', joinDate: '2026.05.28', status: 'ACTIVE', lastLogin: '2026.10.15 13:26',
-        pending: ['환불 요청 1건 (2026.10.16 접수 · 심사 대기)'], risk: '상습 악성 환불 3회 · 영구 정지 등재(2026.10.16, 동일 DI 재가입 차단)',
+        pending: ['환불 요청 1건 (2026.10.16 접수 · 심사 대기)'], risk: '상습 악성 환불 3회 · 영구 정지 등재(2026.10.16, 동일 DI 5년 재가입 차단)',
         lockHtml: '<span class="badge badge-gray">로그인 실패 0회</span>',
         paidP: 780, freeP: 5000, paidAmt: '468,000 원', rfdAmt: '0 원',
         diHtml: '<code>DI-6610-****-8821</code> <span class="badge badge-green">최초 가입</span>'
@@ -3766,7 +3766,7 @@ code, pre, kbd, samp,
     function blRecommendPeriod(n) { return n >= 3 ? 'PERM' : (n === 2 ? '30' : '7'); }
     const BL_PERIOD_LABEL = { '7': '7일', '30': '30일', 'PERM': '영구' };
     function blUntilText(period) {
-      if (period === 'PERM') return '영구 (동일 DI 재가입 차단)';
+      if (period === 'PERM') return '영구 (동일 DI 5년 재가입 차단)';
       return `~${fmtYmd(addDays(new Date(2026, 9, 17), parseInt(period, 10)))}`;
     }
     function blAddLedgerRow(o) {
@@ -3782,7 +3782,7 @@ code, pre, kbd, samp,
         <td><strong>${csEsc(o.no)}</strong></td>
         <td>${m ? `${csEsc(m.maskedName)} (<code>${csEsc(m.maskedEmail)}</code>)` : '—'}</td>
         <td><span class="badge badge-red">${csEsc(o.typeLabel)}</span></td>
-        <td>${csEsc(o.detail)}<br /><span style="font-size:11px; color:#1d4ed8;">[제재: 전체 정지(로그인 · 수강)${o.period === 'PERM' ? ' · 동일 DI 재가입 차단' : ''}]</span></td>
+        <td>${csEsc(o.detail)}<br /><span style="font-size:11px; color:#1d4ed8;">[제재: 전체 정지(로그인 · 수강)${o.period === 'PERM' ? ' · 동일 DI 5년 재가입 차단' : ''}]</span></td>
         <td>${blCountHtml(n)}</td>
         <td>${BL_PERIOD_LABEL[o.period]} (${csEsc(blUntilText(o.period))})</td>
         <td>${auditNow()}<br /><span style="font-size:11px; color:var(--text-muted);">${csEsc(adminLabel())}</span></td>
@@ -3869,7 +3869,11 @@ code, pre, kbd, samp,
       const payout = refund - offset, unrecovered = debt - offset;
       const basis = [isWithdrawLocked(m) ? `적립 P 부채 ${m.paidP.toLocaleString()}P` : '', wdPermRow(no) ? '영구 정지 등재' : ''].filter(Boolean).join(' · ');
       const blocked = info.pending.length > 0;
-      pendingWithdraw = { no, basis, debt, voidFree, voidPaid, refund, offset, payout, unrecovered, blocked };
+      // 재가입 처리(S1-01, white 결정 2026-10-29): 영구 정지 = 같은 DI 5년 가입 차단 / 강제 탈퇴 · 부채만 = 가입 허용 + 남은 적립 P 부채만 승계(무상 P 승계 없음)
+      const rejoin = wdPermRow(no)
+        ? '재가입: 같은 DI로 5년간 가입 차단 (영구 정지 · S1-01)'
+        : (unrecovered ? `재가입: 가입 허용 · 미회수 적립 P 부채 -${unrecovered.toLocaleString()}P를 새 계정에 승계 (무상 P 승계 없음 · S1-01)` : '재가입: 가입 허용 · 승계할 부채 없음 (S1-01)');
+      pendingWithdraw = { no, basis, debt, voidFree, voidPaid, refund, offset, payout, unrecovered, blocked, rejoin };
       document.getElementById('mwd-target').textContent = `${m.maskedName} (${no})`;
       document.getElementById('mwd-basis').textContent = `강제 탈퇴 대상 근거: ${basis}`;
       document.getElementById('mwd-perm').textContent = `실행 권한: ${permText('blacklist')} · 별도 승인 단계 없음 (현재 역할: ${roleName(ADMIN_ROLE_ID)})`;
@@ -3895,7 +3899,7 @@ code, pre, kbd, samp,
       document.getElementById('mwd-notes').innerHTML =
         '확정하면 탈퇴 처리(S1-01) · 무상 P와 적립 P 양수 잔액 소멸 · 탈퇴 알림톡(<code>void_points</code>) 발송 · 관리 이력 기록이 함께 진행되며 되돌릴 수 없습니다.<br />'
         + '강제 해지 시 환불 기준은 이용약관에 명시(법무 확인).<br />'
-        + '<span class="badge badge-amber">재가입 시 처리: 정책 정리 중(S1-01)</span>';
+        + `<span class="badge badge-amber">${csEsc(rejoin)}</span>`;
       document.getElementById('mwd-reason').value = '';
       showReasonCount('mwd-reason-count', '');
       const sub = document.getElementById('mwd-submit');
@@ -3915,7 +3919,7 @@ code, pre, kbd, samp,
         tr.dataset.state = 'WITHDRAWN';
         const st = tr.querySelector('.bl-state');
         if (st) st.innerHTML = `${blStateHtml('WITHDRAWN')}<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${at} · ${csEsc(reason)}</div>`
-          + `<div style="font-size:11px; color:var(--text-muted);">제재 이력 유지 · 재가입 시 처리: 정책 정리 중(S1-01)</div>`;
+          + `<div style="font-size:11px; color:var(--text-muted);">제재 이력 유지 · ${csEsc(p.rejoin)}</div>`;
         wdDropRowButtons(tr);
       });
       m.withdrawn = true;
@@ -3945,7 +3949,7 @@ code, pre, kbd, samp,
       let effect;
       if (others) effect = `같은 회원의 다른 정지 등재 ${others}건이 남아 있어 정지는 유지됩니다.`;
       else effect = '해제하면 정지 표시가 사라지고 로그인 · 수강이 다시 가능해집니다.';
-      if (tr.dataset.perm === '1') effect += ' 영구 정지 해제 시 동일 DI 재가입 차단도 함께 풀립니다.';
+      if (tr.dataset.perm === '1') effect += ' 영구 정지 해제 시 동일 DI 5년 재가입 차단도 함께 풀립니다.';
       if (isWithdrawLocked(m)) effect += ' 적립 P 부채가 남아 있어 자진 탈퇴 잠금은 유지됩니다.';
       effect += ` (권한: ${permText('blacklist')})`;
       document.getElementById('blr-title').textContent = `블랙리스트 ${label}`;
@@ -4040,7 +4044,7 @@ code, pre, kbd, samp,
           <select id="bl-period" onchange="renderBlPeriodNote()" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:7px; font-size:13px;">
             <option value="7">7일</option>
             <option value="30">30일</option>
-            <option value="PERM">영구 (동일 DI 재가입 차단)</option>
+            <option value="PERM">영구 (동일 DI 5년 재가입 차단)</option>
             <option value="" disabled>커뮤니티만 제한 · 모니터링 경고 (2차)</option>
           </select>
           <div id="bl-period-note" style="font-size:11.5px; color:#64748b; margin-top:4px;"></div>
@@ -4054,7 +4058,7 @@ code, pre, kbd, samp,
         <div id="bl-detail-count" style="font-size:11.5px; color:#64748b; margin-top:4px;">공백 제외 0자 / 최소 10자</div>
       </div>
       <div style="margin-top:12px; padding:10px 12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; font-size:12px; color:#991b1b; line-height:1.6;">
-        <strong>등재 즉시 함께 적용됩니다(전체 정지):</strong> 로그인 차단 · 열린 세션 종료 · 자동 로그인 토큰 폐기 · 전 강좌 재생 차단 · 소셜 로그인 · 계정 찾기 우회 차단. 영구 정지는 동일 DI 재가입도 막습니다. 회원 상태값(정상 · 휴면)은 그대로이고 '정지 중'은 이 등재에서 파생해 표시합니다. 모바일 기기 해제는 StarPlayer+ 관리 콘솔에서 처리합니다.
+        <strong>등재 즉시 함께 적용됩니다(전체 정지):</strong> 로그인 차단 · 열린 세션 종료 · 자동 로그인 토큰 폐기 · 전 강좌 재생 차단 · 소셜 로그인 · 계정 찾기 우회 차단. 영구 정지는 동일 DI 5년 재가입도 막습니다. 회원 상태값(정상 · 휴면)은 그대로이고 '정지 중'은 이 등재에서 파생해 표시합니다. 모바일 기기 해제는 StarPlayer+ 관리 콘솔에서 처리합니다.
         <div id="bl-perm-note" style="margin-top:4px; color:#7f1d1d;"></div>
       </div>
       <div id="bl-pending" style="display:none; margin-top:10px; padding:10px 12px; background:#fffbeb; border:1px solid #fde68a; border-left:4px solid #d97706; border-radius:8px; font-size:12px; color:#92400e;"></div>
@@ -4108,7 +4112,7 @@ code, pre, kbd, samp,
     if (!selectedBlCandidate) { note.textContent = '권장 기간: 누적 1회 7일 · 2회 30일 · 3회 이상 영구 (회원을 고르면 자동 선택, 변경 가능)'; return; }
     const n = blPriorCount(selectedBlCandidate.uid) + 1;
     const rec = blRecommendPeriod(n);
-    note.innerHTML = `이번 등재 누적 <strong>${n}회</strong> → 권장 <strong>${BL_PERIOD_LABEL[rec]}</strong>${period !== rec ? ' · <span style="color:#b45309;">권장과 다른 기간 선택됨</span>' : ''}${period === 'PERM' ? ' · 동일 DI 재가입 차단' : ''}`;
+    note.innerHTML = `이번 등재 누적 <strong>${n}회</strong> → 권장 <strong>${BL_PERIOD_LABEL[rec]}</strong>${period !== rec ? ' · <span style="color:#b45309;">권장과 다른 기간 선택됨</span>' : ''}${period === 'PERM' ? ' · 동일 DI 5년 재가입 차단' : ''}`;
   }
 
   function closeManualBlacklistModal() {
