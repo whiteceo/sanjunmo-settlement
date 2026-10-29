@@ -572,7 +572,7 @@ code, pre, kbd, samp,
 
               <button type="button" class="btn btn-sm btn-outline" onclick="switchView('list')">← 약관 목록으로 (ADMN-CONF-002)</button>
 
-              <span id="dt-term-title" style="margin-left:6px; font-size:15px; font-weight:800;">[T04] 환불 · 청약철회 규정 (이용약관 제15조)</span>
+              <span id="dt-term-title" style="margin-left:6px; font-size:15px; font-weight:800;">[T04] 환불 · 청약철회 규정 (별도 약관)</span>
 
               <span id="dt-term-badge" class="badge badge-blue">필수 동의</span>
 
@@ -616,7 +616,7 @@ code, pre, kbd, samp,
 
                   <th>약관 코드 / 명칭</th>
 
-                  <td id="dt-meta-name"><code>T04</code> <strong>환불 · 청약철회 규정 (이용약관 제15조)</strong></td>
+                  <td id="dt-meta-name"><code>T04</code> <strong>환불 · 청약철회 규정 (별도 약관)</strong></td>
 
                   <th>수집 구분 / DB 매핑</th>
 
@@ -1143,7 +1143,7 @@ code, pre, kbd, samp,
 
         code: 'T04',
 
-        name: '환불 · 청약철회 규정 (이용약관 제15조)',
+        name: '환불 · 청약철회 규정 (별도 약관)',
 
         reqType: '필수 동의',
 
@@ -1159,17 +1159,17 @@ code, pre, kbd, samp,
 
         announcedVer: null,
 
-        body: `제15조 (강좌 및 교재의 청약철회 및 환불 기준)
+        body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준)
 1. 온라인 강좌(VOD) 전액 환불: 결제일로부터 7일 이내이며 맛보기 강의를 제외한 수강 이력이 2강 이하인 경우 100% 환불됩니다.
 2. 온라인 강좌 부분 환불: 제1호에 해당하지 않으면 평생교육법 시행령 [별표 3] 비고 4에 따라 [실결제금액 × (전체 회차 − 학습 회차) ÷ 전체 회차](원 단위 절사)를 환불합니다. 회차를 1초라도 재생하면 학습한 회차로 보며, 위약금 · 기간 경과 차감은 없습니다. 원 수강기간이 끝난 강좌는 환불하지 않습니다.
-3. 실물 교재(도서정가제 적용 대상): 래핑(비닐 포장) 개봉 또는 훼손 시 반품·환불이 불가하며, 단순 변심 반품 시 왕복 배송비(6,000원, 편도 3,000원)는 회원이 부담합니다.
+3. 실물 교재(도서정가제 적용 대상): 래핑(비닐 포장) 개봉 또는 훼손 시 반품·환불이 불가하며, 단순 변심 반품 시 반품 배송비 3,000원(편도)을 회원이 부담하며, 반품으로 무료배송 조건을 충족하지 못하면 왕복 6,000원을 부담합니다.
 4. 포인트 차감 및 복원: 결제 시 무상 포인트(무상 P) → 구매적립 포인트(적립 P) 순으로 차감하고, 환불 시에는 역순(LIFO)으로 적립 P → 무상 P 순으로 복원합니다(복원 시 유효기간이 지난 포인트는 7일 유예). 지급된 적립 P가 이미 사용된 경우 회수 부족액은 현금 환불액에서 먼저 차감하고, 초과분은 적립 P 마이너스 부채로 기록됩니다.`,
 
         history: [
 
-          { ver: 'v1.4', revType: '전면 개정', announceDate: '2026-01-25', effectiveDate: '2026-03-01', reason: '평생교육법 시행령 별표3 산식 및 교재 반품 배송비(편도 3,000원 / 왕복 6,000원) 기준 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제15조 (강좌 및 교재의 청약철회 및 환불 기준) v1.4 현행 조문` },
+          { ver: 'v1.4', revType: '전면 개정', announceDate: '2026-01-25', effectiveDate: '2026-03-01', reason: '평생교육법 시행령 별표3 산식 및 교재 반품 배송비(편도 3,000원 / 왕복 6,000원) 기준 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준) v1.4 현행 조문` },
 
-          { ver: 'v1.3', revType: '일반 개정', announceDate: '2025-08-10', effectiveDate: '2025-08-20', reason: '패키지 상품 내 실물 교재 포함 시 과·면세 분리 환불 안내 추가', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `제15조 (강좌 및 교재의 청약철회 및 환불 기준) v1.3 보관 조문` }
+          { ver: 'v1.3', revType: '일반 개정', announceDate: '2025-08-10', effectiveDate: '2025-08-20', reason: '패키지 상품 내 실물 교재 포함 시 과·면세 분리 환불 안내 추가', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준) v1.3 보관 조문` }
 
         ]
 
