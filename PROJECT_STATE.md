@@ -199,3 +199,4 @@
 | 2026-10-29 | v7.14 S1-01 부채 회원 재가입 white 결정 — 영구 정지 차단 · 부채만 있는 회원 허용 + 적립 P 잔액 승계, 개발 코드 차이 3건(무상 P 승계 · DI 파기 배치 없음 · 영구 정지 차단 없음) 전달 — 설계서 v3.2.30 | `docs/산준모닷컴 구축 통합 상세 설계서.md` · `dev_handoff/DEV_TRANSFER.md` 14절 |
 | 2026-10-29 | v7.16 CONF-002 약관 · 방침 체계 white 확정 반영 — T04 환불 규정 별도 약관 분리(프로토 두 폴더 이름 · 조번호 · 반품 배송비 문구), 합격환급 '100% 환급' 정의, 시행일 11-16, 통화 녹음 3년 — 설계서 v3.2.31. 약관 개정안 문서에 제22조(합격환급 · 불합격 연장) 조문안 추가. E2E 40/40 양쪽 · pair diff 0 | `docs/산준모닷컴 구축 통합 상세 설계서.md` · `prototype*/ADMN-CONF-002_baseline.html` |
 | 2026-10-29 | v7.18 DEV_TRANSFER 15절 — INST-001 세무 판정 수동 입력 제거(v7.07) 개발 전달 항목 추가 | `dev_handoff/DEV_TRANSFER.md` |
+| 2026-10-30 | v7.21 GitHub 복구 — 10·28 전달 문서(v7.20) · 첨부 3개(`dev_handoff/첨부/`) 커밋, whiteceo push 후 lcampus/sanjunmo-settlement를 같은 이력으로 덮어씀(force-with-lease). origin=lcampus, whiteceo는 별도 원격(드라이브 · Pages 때문에 당분간 둘 다 push) | `dev_handoff/첨부/` |
