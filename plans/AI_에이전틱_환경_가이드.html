@@ -535,16 +535,22 @@
             <text x="230" y="25" fill="#ecfdf5" font-size="14" font-weight="900" text-anchor="middle">3. 로컬 AI에 주입되는 핀셋 3종 패키지 (6%)</text>
 
             <rect x="0" y="54" width="460" height="64" rx="10" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" stroke-width="1.5"/>
-            <text x="20" y="80" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">① 00_domain_contracts.md (1장 요약)</text>
-            <text x="20" y="103" fill="#d1fae5" font-size="12.5">코드 채번(RH-* · CT-* · PROD-BK-*), 공통 상태값, 소속 3분류</text>
+            <rect x="18" y="65" width="32" height="22" rx="6" fill="#10b981"/>
+            <text x="34" y="80" fill="#022c22" font-size="12" font-weight="900" text-anchor="middle">01</text>
+            <text x="60" y="81" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">00_domain_contracts.md (1장 요약)</text>
+            <text x="20" y="105" fill="#d1fae5" font-size="12.5">코드 채번(RH-* · CT-* · PROD-BK-*), 공통 상태값, 소속 3분류</text>
 
             <rect x="0" y="128" width="460" height="64" rx="10" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" stroke-width="1.5"/>
-            <text x="20" y="154" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">② canon_index.md 발췌 구간 (±50줄)</text>
-            <text x="20" y="177" fill="#d1fae5" font-size="12.5">정본 전체 중 작업 화면(ADMN-SETT-005)에 해당하는 절만 발췌</text>
+            <rect x="18" y="139" width="32" height="22" rx="6" fill="#10b981"/>
+            <text x="34" y="154" fill="#022c22" font-size="12" font-weight="900" text-anchor="middle">02</text>
+            <text x="60" y="155" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">canon_index.md 발췌 구간 (±50줄)</text>
+            <text x="20" y="179" fill="#d1fae5" font-size="12.5">정본 전체 중 작업 화면(ADMN-SETT-005)에 해당하는 절만 발췌</text>
 
             <rect x="0" y="202" width="460" height="64" rx="10" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" stroke-width="1.5"/>
-            <text x="20" y="228" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">③ digest/ADMN-SETT-005_baseline.md</text>
-            <text x="20" y="251" fill="#d1fae5" font-size="12.5">입력 폼 ID · 옵션 · 표 헤더 · 상태 배지 · 모달 구조 요약본</text>
+            <rect x="18" y="213" width="32" height="22" rx="6" fill="#10b981"/>
+            <text x="34" y="228" fill="#022c22" font-size="12" font-weight="900" text-anchor="middle">03</text>
+            <text x="60" y="229" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">digest/ADMN-SETT-005_baseline.md</text>
+            <text x="20" y="253" fill="#d1fae5" font-size="12.5">입력 폼 ID · 옵션 · 표 헤더 · 상태 배지 · 모달 구조 요약본</text>
 
             <!-- Bar Chart -->
             <g transform="translate(0, 278)">
@@ -861,28 +867,28 @@
       <!-- 5 Skills Strip -->
       <div class="skill-strip">
         <div class="skill-badge-card sk-init">
-          <div class="sk-cmd">/doc-init</div>
-          <div class="sk-name" style="color:var(--cyan);">① 초기 정본 만들기</div>
+          <div class="sk-cmd"><span style="display:inline-block;background:var(--cyan);color:#082f49;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">01</span>/doc-init</div>
+          <div class="sk-name" style="color:var(--cyan);">초기 정본 만들기</div>
           <p class="sk-desc">레거시 코드·초안을 읽어 표준 3단 정본 <code>v1.0.0</code> + 색인 + 요약본 최초 생성 (1회성)</p>
         </div>
         <div class="skill-badge-card sk-init">
-          <div class="sk-cmd">/doc-rule</div>
-          <div class="sk-name" style="color:var(--cyan);">② 공통 규칙 뽑기</div>
+          <div class="sk-cmd"><span style="display:inline-block;background:var(--cyan);color:#082f49;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">02</span>/doc-rule</div>
+          <div class="sk-name" style="color:var(--cyan);">공통 규칙 뽑기</div>
           <p class="sk-desc">도메인 공유 코드 채번(<code>RH-*</code> 등)·상태값·소속 3분류를 <code>00_domain_contracts.md</code>로 추출</p>
         </div>
         <div class="skill-badge-card sk-po">
-          <div class="sk-cmd">/doc-update</div>
-          <div class="sk-name" style="color:var(--purple);">③ PO 정책 변경</div>
+          <div class="sk-cmd"><span style="display:inline-block;background:var(--purple);color:#1e1b4b;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">03</span>/doc-update</div>
+          <div class="sk-name" style="color:var(--purple);">PO 정책 변경</div>
           <p class="sk-desc">영향 화면 스캔 ➔ 정본·프로토·계산기 개정 ➔ 개정이력 기록 &amp; 개발팀 티켓 발행</p>
         </div>
         <div class="skill-badge-card sk-dev">
-          <div class="sk-cmd">/dev-screen</div>
-          <div class="sk-name" style="color:var(--emerald);">④ 개발자 화면 구현</div>
+          <div class="sk-cmd"><span style="display:inline-block;background:var(--emerald);color:#022c22;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">04</span>/dev-screen</div>
+          <div class="sk-name" style="color:var(--emerald);">개발자 화면 구현</div>
           <p class="sk-desc">화면코드 기준 6% 핀셋 로드 ➔ 미확정 정책 차단 &amp; 계층 구현 ➔ <code>check.sh</code> 실행</p>
         </div>
         <div class="skill-badge-card sk-check">
-          <div class="sk-cmd">/spec-check</div>
-          <div class="sk-name" style="color:var(--amber);">⑤ 정본 대조 검수</div>
+          <div class="sk-cmd"><span style="display:inline-block;background:var(--amber);color:#451a03;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">05</span>/spec-check</div>
+          <div class="sk-name" style="color:var(--amber);">정본 대조 검수</div>
           <p class="sk-desc">정본과 현재 코드를 1:1 대조해 <code>✅ 일치</code> / <code>❌ 위반·누락</code> / <code>⚠️ 임의 구현</code> 판정</p>
         </div>
       </div>
