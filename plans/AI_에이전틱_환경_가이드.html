@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" data-theme="dark">
-<!-- Internal build note: layout-rev-4.0 / public release version: v1.0.0 -->
+<!-- Internal build note: layout-rev-5.0 / public release version: v1.0.0 -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,10 +10,10 @@
     :root, [data-theme="dark"] {
       --bg-base: #070B14;
       --bg-surface: #0F1629;
-      --bg-card: rgba(19, 28, 49, 0.78);
+      --bg-card: rgba(19, 28, 49, 0.82);
       --bg-card-solid: #131C31;
       --bg-elevated: #1A2642;
-      --bg-glass: rgba(15, 22, 41, 0.82);
+      --bg-glass: rgba(10, 15, 29, 0.84);
       --text-primary: #F8FAFC;
       --text-secondary: #CBD5E1;
       --text-muted: #94A3B8;
@@ -32,25 +32,19 @@
       --svg-stroke: #2A3B5E;
       --svg-text: #F8FAFC;
       --svg-sub: #94A3B8;
-      --iso-top-bad: #2A1626;
-      --iso-left-bad: #1D0F1B;
-      --iso-right-bad: #140A13;
-      --iso-top-good: #13284C;
-      --iso-left-good: #0D1D38;
-      --iso-right-good: #091428;
     }
 
     [data-theme="light"] {
       --bg-base: #F1F5F9;
       --bg-surface: #FFFFFF;
-      --bg-card: rgba(255, 255, 255, 0.9);
+      --bg-card: rgba(255, 255, 255, 0.92);
       --bg-card-solid: #FFFFFF;
       --bg-elevated: #F8FAFC;
       --bg-glass: rgba(255, 255, 255, 0.88);
       --text-primary: #0F172A;
       --text-secondary: #334155;
       --text-muted: #64748B;
-      --border-subtle: rgba(15, 23, 42, 0.1);
+      --border-subtle: rgba(15, 23, 42, 0.12);
       --border-strong: rgba(79, 70, 229, 0.4);
       --accent-indigo: #4F46E5;
       --accent-cyan: #0891B2;
@@ -65,12 +59,6 @@
       --svg-stroke: #CBD5E1;
       --svg-text: #0F172A;
       --svg-sub: #475569;
-      --iso-top-bad: #FFE4E6;
-      --iso-left-bad: #FECDD3;
-      --iso-right-bad: #FDA4AF;
-      --iso-top-good: #E0E7FF;
-      --iso-left-good: #C7D2FE;
-      --iso-right-good: #A5B4FC;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,12 +72,34 @@
     }
     body {
       background:
-        radial-gradient(circle at 18% 12%, rgba(99, 102, 241, 0.14), transparent 36%),
-        radial-gradient(circle at 82% 18%, rgba(6, 182, 212, 0.12), transparent 36%),
+        radial-gradient(circle at 18% 12%, rgba(99, 102, 241, 0.12), transparent 36%),
+        radial-gradient(circle at 82% 18%, rgba(6, 182, 212, 0.1), transparent 36%),
         var(--bg-base);
       color: var(--text-primary);
       overflow-x: hidden;
       transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Flowing SVG Connector Animations */
+    @keyframes flowForward {
+      from { stroke-dashoffset: 28; }
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes flowReverse {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 28; }
+    }
+    .flow-line {
+      stroke-dasharray: 8 6;
+      animation: flowForward 1.15s linear infinite;
+    }
+    .flow-line-reverse {
+      stroke-dasharray: 8 6;
+      animation: flowReverse 1.15s linear infinite;
+    }
+    .flow-line-slow {
+      stroke-dasharray: 10 6;
+      animation: flowForward 1.8s linear infinite;
     }
 
     /* Sticky Top GNB */
@@ -110,7 +120,7 @@
     }
     .gnb-inner {
       width: 100%;
-      max-width: 1400px;
+      max-width: 1420px;
       margin: 0 auto;
       display: flex;
       align-items: center;
@@ -161,15 +171,15 @@
       padding: 3px;
       border-radius: 10px;
       border: 1px solid var(--border-subtle);
-      margin-right: 8px;
+      margin-right: 6px;
     }
     .page-tab-btn {
       border: none;
       background: transparent;
       color: var(--text-muted);
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
-      padding: 5px 12px;
+      padding: 5px 11px;
       border-radius: 7px;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -187,11 +197,11 @@
       gap: 2px;
     }
     .sec-nav-links a {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--text-muted);
       text-decoration: none;
-      padding: 5px 9px;
+      padding: 4px 6px;
       border-radius: 6px;
       white-space: nowrap;
       transition: all 0.18s ease;
@@ -241,13 +251,13 @@
     /* Right-side Floating Dot Indicator */
     .slide-dots {
       position: fixed;
-      right: 20px;
+      right: 18px;
       top: 50%;
       transform: translateY(-50%);
       z-index: 150;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
     }
     .slide-dot {
       width: 9px;
@@ -273,7 +283,7 @@
     /* One Screen Per Section (Full Viewport Slide) */
     .screen-slide {
       min-height: 100vh;
-      padding: 76px 28px 28px;
+      padding: 74px 28px 26px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -288,7 +298,106 @@
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
+    }
+
+    /* ================= HERO COVER (60% LEFT TEXT : 40% RIGHT ISOMETRIC BG) ================= */
+    .hero-slide {
+      background-color: #070B14;
+      background-image:
+        linear-gradient(90deg, #070B14 0%, #070B14 44%, rgba(7, 11, 20, 0.72) 58%, rgba(7, 11, 20, 0.12) 76%, rgba(7, 11, 20, 0.25) 100%),
+        url('./assets/hero-agentic-system.jpg');
+      background-size: cover;
+      background-position: right center;
+      background-repeat: no-repeat;
+      color: #F8FAFC;
+      overflow: hidden;
+    }
+    .hero-grid {
+      width: 100%;
+      max-width: 1320px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 60% 40%;
+      align-items: center;
+      min-height: calc(100vh - 120px);
+      position: relative;
+      z-index: 2;
+    }
+    .hero-copy-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 22px;
+      padding-right: 28px;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: rgba(6, 182, 212, 0.14);
+      border: 1px solid rgba(6, 182, 212, 0.4);
+      color: #22D3EE;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+    .hero-question {
+      font-size: clamp(32px, 3.8vw, 52px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 1.24;
+      color: #F8FAFC;
+      word-break: keep-all;
+    }
+    .hero-question .hl-tool {
+      color: #FB7185;
+      text-decoration: underline;
+      text-decoration-color: rgba(251, 113, 133, 0.5);
+      text-underline-offset: 8px;
+    }
+    .hero-question .hl-sys {
+      background: linear-gradient(95deg, #38BDF8 0%, #818CF8 52%, #34D399 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+      font-size: clamp(16px, 1.35vw, 19px);
+      color: #CBD5E1;
+      max-width: 640px;
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+    .hero-subtitle strong {
+      color: #FFFFFF;
+      font-weight: 800;
+    }
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+    .hero-btn-main {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #6366F1, #06B6D4);
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 10px 28px rgba(6, 182, 212, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hero-btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(6, 182, 212, 0.45);
     }
 
     /* Slide Header */
@@ -302,7 +411,7 @@
     .slide-title-group {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
     .slide-step {
       display: inline-flex;
@@ -315,80 +424,15 @@
       color: var(--accent-cyan);
     }
     .slide-title {
-      font-size: clamp(22px, 2.4vw, 30px);
+      font-size: clamp(21px, 2.2vw, 28px);
       font-weight: 800;
       letter-spacing: -0.025em;
       color: var(--text-primary);
     }
     .slide-sub {
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--text-secondary);
-      max-width: 680px;
-    }
-
-    /* Hero Slide Specific */
-    .hero-center {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 4px;
-    }
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 14px;
-      border-radius: 999px;
-      background: rgba(6, 182, 212, 0.12);
-      border: 1px solid rgba(6, 182, 212, 0.35);
-      color: var(--accent-cyan);
-      font-size: 11.5px;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-    }
-    .hero-question {
-      font-size: clamp(26px, 3.4vw, 44px);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      line-height: 1.22;
-      color: var(--text-primary);
-    }
-    .hero-question .hl-tool {
-      color: var(--accent-rose);
-      text-decoration: underline;
-      text-decoration-color: rgba(244, 63, 94, 0.45);
-      text-underline-offset: 6px;
-    }
-    .hero-question .hl-sys {
-      background: linear-gradient(95deg, #6366F1 0%, #06B6D4 55%, #10B981 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero-desc {
-      font-size: 15px;
-      color: var(--text-secondary);
-      max-width: 760px;
-    }
-    .scroll-cue {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin: 2px auto 0;
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-decoration: none;
-      padding: 5px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border-subtle);
-      background: var(--bg-card);
-      transition: all 0.2s ease;
-    }
-    .scroll-cue:hover {
-      color: var(--text-primary);
-      border-color: var(--accent-cyan);
+      max-width: 660px;
     }
 
     /* Diagram Frame */
@@ -403,35 +447,17 @@
     .diagram-svg {
       width: 100%;
       height: auto;
-      max-height: 54vh;
+      max-height: 55vh;
       display: block;
       margin: 0 auto;
     }
-    .hero-svg {
-      max-height: 60vh;
-    }
 
     /* Compact Cards Grid */
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    .grid-5 {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
     .compact-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -444,7 +470,7 @@
       border-color: var(--border-strong);
     }
     .compact-card h3 {
-      font-size: 14.5px;
+      font-size: 14px;
       font-weight: 800;
       margin-bottom: 5px;
       display: flex;
@@ -453,7 +479,7 @@
       color: var(--text-primary);
     }
     .compact-card p {
-      font-size: 12.8px;
+      font-size: 12.5px;
       color: var(--text-secondary);
       line-height: 1.5;
     }
@@ -480,7 +506,7 @@
       color: var(--accent-cyan);
     }
 
-    /* Callout Action Button (for Modal Trigger in Sec 6) */
+    /* Callout Action Bar */
     .modal-trigger-bar {
       display: flex;
       align-items: center;
@@ -513,7 +539,7 @@
       background: #4F46E5;
     }
 
-    /* Modal Backdrop & Dialog */
+    /* Modal Backdrop & Window */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -525,12 +551,10 @@
       justify-content: center;
       padding: 24px;
     }
-    .modal-backdrop.open {
-      display: flex;
-    }
+    .modal-backdrop.open { display: flex; }
     .modal-window {
       width: 100%;
-      max-width: 980px;
+      max-width: 1000px;
       max-height: 86vh;
       background: var(--bg-surface);
       border: 1px solid var(--border-strong);
@@ -618,18 +642,10 @@
       transform: translateY(0);
     }
 
-    /* Subtle pulse animation for Isometric Core */
-    @keyframes corePulse {
-      0%, 100% { filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.45)); }
-      50% { filter: drop-shadow(0 0 18px rgba(99, 102, 241, 0.85)); }
-    }
-    .iso-core-glow {
-      animation: corePulse 3.2s infinite ease-in-out;
-    }
-
     @media (max-width: 1024px) {
       html { scroll-snap-type: none; }
       .screen-slide { min-height: auto; padding: 84px 18px 40px; }
+      .hero-grid { grid-template-columns: 1fr; }
       .grid-3, .grid-4, .grid-5, .grid-2 { grid-template-columns: 1fr; }
       .sec-nav-links { display: none; }
       .slide-dots { display: none; }
@@ -637,6 +653,27 @@
   </style>
 </head>
 <body>
+
+  <!-- Global SVG Marker Definitions -->
+  <svg width="0" height="0" style="position:absolute;">
+    <defs>
+      <marker id="arrCyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 1 L 9 5 L 0 9 z" fill="#06B6D4" />
+      </marker>
+      <marker id="arrIndigo" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 1 L 9 5 L 0 9 z" fill="#6366F1" />
+      </marker>
+      <marker id="arrEmerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 1 L 9 5 L 0 9 z" fill="#10B981" />
+      </marker>
+      <marker id="arrAmber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 1 L 9 5 L 0 9 z" fill="#F59E0B" />
+      </marker>
+      <marker id="arrRose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 1 L 9 5 L 0 9 z" fill="#F43F5E" />
+      </marker>
+    </defs>
+  </svg>
 
   <!-- ================= TOP GNB ================= -->
   <header class="site-gnb">
@@ -655,12 +692,13 @@
 
         <nav class="sec-nav-links" id="mainSecNav">
           <a href="#sec-hero" class="active">표지</a>
-          <a href="#sec-01">01 조감도</a>
+          <a href="#sec-01a">01-A 조감도</a>
+          <a href="#sec-01b">01-B 역할변화</a>
           <a href="#sec-02">02 파이프라인</a>
           <a href="#sec-03">03 저장소분리</a>
           <a href="#sec-04">04 토큰최적화</a>
           <a href="#sec-05">05 2-Track UI</a>
-          <a href="#sec-06">06 지시·역질문</a>
+          <a href="#sec-06">06 명세·질의</a>
           <a href="#sec-07">07 5대 스킬</a>
         </nav>
       </div>
@@ -676,12 +714,13 @@
   <!-- Floating Slide Dots (Main Page) -->
   <aside class="slide-dots" id="slideDots" aria-label="섹션 이동">
     <button class="slide-dot active" onclick="scrollToSec('sec-hero')" title="표지"></button>
-    <button class="slide-dot" onclick="scrollToSec('sec-01')" title="01 전체 조감도"></button>
+    <button class="slide-dot" onclick="scrollToSec('sec-01a')" title="01-A 전체 조감도 (Lane 1~3)"></button>
+    <button class="slide-dot" onclick="scrollToSec('sec-01b')" title="01-B 직군별 역할 변화"></button>
     <button class="slide-dot" onclick="scrollToSec('sec-02')" title="02 4단계 파이프라인"></button>
     <button class="slide-dot" onclick="scrollToSec('sec-03')" title="03 저장소 분리"></button>
     <button class="slide-dot" onclick="scrollToSec('sec-04')" title="04 토큰 최적화"></button>
     <button class="slide-dot" onclick="scrollToSec('sec-05')" title="05 2-Track UI"></button>
-    <button class="slide-dot" onclick="scrollToSec('sec-06')" title="06 지시·역질문"></button>
+    <button class="slide-dot" onclick="scrollToSec('sec-06')" title="06 작업명세·정책질의"></button>
     <button class="slide-dot" onclick="scrollToSec('sec-07')" title="07 5대 스킬"></button>
   </aside>
 
@@ -690,398 +729,332 @@
   <!-- ===================================================================== -->
   <main class="page-view active" id="pageMain">
 
-    <!-- ================= SLIDE 00: COVER (HERO) ================= -->
-    <section class="screen-slide" id="sec-hero">
-      <div class="slide-inner">
-        <div class="hero-center reveal">
+    <!-- ================= SLIDE 00: COVER (HERO — 60% LEFT TEXT : 40% RIGHT ISOMETRIC BG) ================= -->
+    <section class="screen-slide hero-slide" id="sec-hero">
+      <div class="hero-grid">
+        <div class="hero-copy-col reveal">
           <span class="hero-eyebrow">AI AGENT VS AGENTIC SYSTEM</span>
           <h1 class="hero-question">
-            “우리는 AI를 <span class="hl-tool">‘도구’</span>로 쓰고 있나요, <span class="hl-sys">‘시스템’</span>으로 사용하고 있나요?”
+            “우리는 AI를 <span class="hl-tool">‘도구’</span>로 쓰고 있나요,<br>
+            <span class="hl-sys">‘시스템’</span>으로 사용하고 있나요?”
           </h1>
-          <p class="hero-desc">
-            파편화된 개인별 챗봇 활용(AI Agent)을 넘어, 기획·디자인·개발이 하나의 정본으로 맞물리는 <strong>AI 에이전틱 시스템(Agentic System)</strong>
+          <p class="hero-subtitle">
+            파편화된 개인별 AI 활용(<strong>AI Agent</strong>)을 넘어,<br>
+            기획·디자인·개발이 하나의 정본으로 맞물리는 <strong>AI 에이전틱 시스템(Agentic System)</strong>
           </p>
+          <div class="hero-cta-row">
+            <a href="#sec-01a" class="hero-btn-main">01. 전체 시스템 조감도 보기 ↓</a>
+          </div>
         </div>
-
-        <!-- ISOMETRIC COMPARISON DIAGRAM (AI AGENT vs AGENTIC SYSTEM) -->
-        <div class="diagram-frame reveal" style="--stagger:1;">
-          <svg class="diagram-svg hero-svg" viewBox="0 0 1200 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AI Agent 개별 도구 사용 대 Agentic System 유기적 시스템 비교 아이소메트릭 다이어그램">
-            <defs>
-              <linearGradient id="isoBaseBad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#2A1222" />
-                <stop offset="100%" stop-color="#140914" />
-              </linearGradient>
-              <linearGradient id="isoBaseGood" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#102347" />
-                <stop offset="100%" stop-color="#091326" />
-              </linearGradient>
-              <linearGradient id="coreCubeTop" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#38BDF8" />
-                <stop offset="100%" stop-color="#6366F1" />
-              </linearGradient>
-              <linearGradient id="coreCubeLeft" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#0284C7" />
-                <stop offset="100%" stop-color="#3730A3" />
-              </linearGradient>
-              <linearGradient id="coreCubeRight" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#4F46E5" />
-                <stop offset="100%" stop-color="#1E1B4B" />
-              </linearGradient>
-              <marker id="arrRed" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M 0 1 L 9 5 L 0 9 z" fill="#F43F5E" />
-              </marker>
-              <marker id="arrCyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-                <path d="M 0 1 L 9 5 L 0 9 z" fill="#06B6D4" />
-              </marker>
-            </defs>
-
-            <rect width="1200" height="540" rx="14" fill="var(--svg-bg)" />
-
-            <!-- Subtle Isometric Grid Lines in Background -->
-            <g stroke="var(--svg-stroke)" stroke-width="0.6" opacity="0.35">
-              <line x1="0" y1="140" x2="1200" y2="140" />
-              <line x1="0" y1="270" x2="1200" y2="270" />
-              <line x1="0" y1="400" x2="1200" y2="400" />
-              <line x1="300" y1="0" x2="300" y2="540" />
-              <line x1="600" y1="0" x2="600" y2="540" stroke-dasharray="6 6" opacity="0.8" />
-              <line x1="900" y1="0" x2="900" y2="540" />
-            </g>
-
-            <!-- ============================================================ -->
-            <!-- LEFT SIDE: AI AGENT (개별 도구로 각자 사용할 때)               -->
-            <!-- ============================================================ -->
-            <g transform="translate(30, 22)">
-              <!-- Header Pill -->
-              <rect x="20" y="6" width="500" height="50" rx="12" fill="rgba(244,63,94,0.1)" stroke="#F43F5E" stroke-width="1.5" />
-              <text x="42" y="28" fill="#F43F5E" font-size="12" font-weight="800" letter-spacing="0.06em">AI AS A TOOL · 개별 AI 도구 사용</text>
-              <text x="42" y="46" fill="var(--svg-text)" font-size="14" font-weight="800">사람이 중간에서 문서·캡처·프롬프트를 수동 배달</text>
-
-              <!-- Isometric Base Platform (Left) -->
-              <polygon points="270,115 510,235 270,355 30,235" fill="var(--iso-top-bad)" stroke="#F43F5E" stroke-width="1.5" opacity="0.9" />
-              <polygon points="30,235 270,355 270,375 30,255" fill="var(--iso-left-bad)" />
-              <polygon points="510,235 270,355 270,375 510,255" fill="var(--iso-right-bad)" />
-
-              <!-- Isolated Island 1: PO/PM + AI Bot (Top-Left on diamond) -->
-              <g transform="translate(175, 130)">
-                <!-- Isometric Pedestal -->
-                <polygon points="65,0 130,32 65,64 0,32" fill="#3B1A2E" stroke="#F43F5E" stroke-width="1.4" />
-                <polygon points="0,32 65,64 65,84 0,52" fill="#28111F" />
-                <polygon points="130,32 65,64 65,84 130,52" fill="#1C0B16" />
-                <!-- Node Label Card -->
-                <rect x="10" y="-22" width="110" height="44" rx="8" fill="var(--svg-panel)" stroke="#F43F5E" stroke-width="1.4" />
-                <text x="65" y="-4" text-anchor="middle" fill="#FDA4AF" font-size="11.5" font-weight="800">PO / PM + 개별 AI</text>
-                <text x="65" y="13" text-anchor="middle" fill="var(--svg-sub)" font-size="10">기획서 수동 작성</text>
-              </g>
-
-              <!-- Isolated Island 2: UIX + AI Bot (Bottom-Left on diamond) -->
-              <g transform="translate(55, 210)">
-                <polygon points="65,0 130,32 65,64 0,32" fill="#3B1A2E" stroke="#F43F5E" stroke-width="1.4" />
-                <polygon points="0,32 65,64 65,84 0,52" fill="#28111F" />
-                <polygon points="130,32 65,64 65,84 130,52" fill="#1C0B16" />
-                <rect x="8" y="-22" width="114" height="44" rx="8" fill="var(--svg-panel)" stroke="#F43F5E" stroke-width="1.4" />
-                <text x="65" y="-4" text-anchor="middle" fill="#FDA4AF" font-size="11.5" font-weight="800">UIX + 개별 AI</text>
-                <text x="65" y="13" text-anchor="middle" fill="var(--svg-sub)" font-size="10">시안 캡처·수동 공유</text>
-              </g>
-
-              <!-- Isolated Island 3: Dev + AI Bot (Bottom-Right on diamond) -->
-              <g transform="translate(305, 210)">
-                <polygon points="65,0 130,32 65,64 0,32" fill="#3B1A2E" stroke="#F43F5E" stroke-width="1.4" />
-                <polygon points="0,32 65,64 65,84 0,52" fill="#28111F" />
-                <polygon points="130,32 65,64 65,84 130,52" fill="#1C0B16" />
-                <rect x="8" y="-22" width="114" height="44" rx="8" fill="var(--svg-panel)" stroke="#F43F5E" stroke-width="1.4" />
-                <text x="65" y="-4" text-anchor="middle" fill="#FDA4AF" font-size="11.5" font-weight="800">개발자 + 개별 AI</text>
-                <text x="65" y="13" text-anchor="middle" fill="var(--svg-sub)" font-size="10">프롬프트 복붙 코딩</text>
-              </g>
-
-              <!-- Broken Manual Relay Lines -->
-              <path d="M 195 190 L 145 215" stroke="#F43F5E" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrRed)" />
-              <path d="M 285 190 L 340 215" stroke="#F43F5E" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrRed)" />
-              <path d="M 185 255 L 300 255" stroke="#F43F5E" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrRed)" />
-
-              <!-- Center Warning Tag on Left Platform -->
-              <rect x="195" y="292" width="150" height="32" rx="8" fill="#881337" stroke="#FB7185" stroke-width="1.2" />
-              <text x="270" y="313" text-anchor="middle" fill="#FFE4E6" font-size="11.5" font-weight="800">⚡ 수동 복붙 · 정합성 단절</text>
-
-              <!-- Bottom Summary Box (Left) -->
-              <rect x="20" y="405" width="500" height="84" rx="12" fill="var(--svg-panel)" stroke="var(--svg-stroke)" />
-              <text x="40" y="432" fill="#F43F5E" font-size="13" font-weight="800">한계점: 각자 AI와 1:1 대화할 뿐, 팀 전체의 맥락은 끊어짐</text>
-              <text x="40" y="454" fill="var(--svg-sub)" font-size="12">• 기획 변경 시 PO가 문서를 고치고 카톡·구두로 다시 설명</text>
-              <text x="40" y="473" fill="var(--svg-sub)" font-size="12">• 문서 ↔ 디자인 ↔ 실제 코드가 시간이 갈수록 따로 노는 현상 발생</text>
-            </g>
-
-            <!-- CENTER VS BADGE -->
-            <g transform="translate(600, 255)">
-              <circle cx="0" cy="0" r="26" fill="#1E293B" stroke="#6366F1" stroke-width="2.5" />
-              <text x="0" y="5" text-anchor="middle" fill="#F8FAFC" font-size="14" font-weight="900">VS</text>
-            </g>
-
-            <!-- ============================================================ -->
-            <!-- RIGHT SIDE: AGENTIC SYSTEM (유기적 시스템으로 사용할 때)        -->
-            <!-- ============================================================ -->
-            <g transform="translate(630, 22)">
-              <!-- Header Pill -->
-              <rect x="20" y="6" width="500" height="50" rx="12" fill="rgba(6,182,212,0.12)" stroke="#06B6D4" stroke-width="1.8" />
-              <text x="42" y="28" fill="#06B6D4" font-size="12" font-weight="800" letter-spacing="0.06em">AGENTIC SYSTEM · 유기적 시스템 사용</text>
-              <text x="42" y="46" fill="var(--svg-text)" font-size="14" font-weight="800">사람은 ‘안건’만 말하고, Git 정본 허브로 AI끼리 자동 동기화</text>
-
-              <!-- Isometric Base Motherboard Platform (Right) -->
-              <polygon points="270,110 520,235 270,360 20,235" fill="var(--iso-top-good)" stroke="#06B6D4" stroke-width="2" />
-              <polygon points="20,235 270,360 270,382 20,257" fill="var(--iso-left-good)" />
-              <polygon points="520,235 270,360 270,382 520,257" fill="var(--iso-right-good)" />
-
-              <!-- Inner Isometric Circuit Ring -->
-              <polygon points="270,155 430,235 270,315 110,235" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.7" />
-
-              <!-- Glowing Circuit Tracks from Center Hub to 4 Agent Nodes -->
-              <line x1="270" y1="225" x2="155" y2="165" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
-              <line x1="270" y1="225" x2="385" y2="165" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
-              <line x1="270" y1="225" x2="155" y2="295" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
-              <line x1="270" y1="225" x2="385" y2="295" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
-
-              <!-- CENTER ISOMETRIC 3D CORE CUBE (Git SSOT + LATEST_TASK.md) -->
-              <g class="iso-core-glow" transform="translate(205, 175)">
-                <polygon points="65,0 130,32 65,64 0,32" fill="url(#coreCubeTop)" stroke="#E0F2FE" stroke-width="1.5" />
-                <polygon points="0,32 65,64 65,112 0,80" fill="url(#coreCubeLeft)" />
-                <polygon points="130,32 65,64 65,112 130,80" fill="url(#coreCubeRight)" />
-                <text x="65" y="30" text-anchor="middle" fill="#FFFFFF" font-size="11.5" font-weight="900">Git 단일 정본</text>
-                <text x="65" y="45" text-anchor="middle" fill="#E0F2FE" font-size="9.5" font-weight="700">LATEST_TASK.md</text>
-              </g>
-
-              <!-- Satellite Node 1: PO AI (Top-Left) -->
-              <g transform="translate(45, 118)">
-                <rect x="0" y="0" width="138" height="48" rx="9" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="1.8" />
-                <text x="69" y="20" text-anchor="middle" fill="#818CF8" font-size="11.5" font-weight="800">1. PO AI (/doc-update)</text>
-                <text x="69" y="37" text-anchor="middle" fill="var(--svg-text)" font-size="10.5">안건 발화 → 정본·지시서 생성</text>
-              </g>
-
-              <!-- Satellite Node 2: UIX AI (Top-Right) -->
-              <g transform="translate(358, 118)">
-                <rect x="0" y="0" width="138" height="48" rx="9" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="1.8" />
-                <text x="69" y="20" text-anchor="middle" fill="#22D3EE" font-size="11.5" font-weight="800">2. UIX AI (/proto-gen)</text>
-                <text x="69" y="37" text-anchor="middle" fill="var(--svg-text)" font-size="10.5">Figma MCP · 표준 골격 연동</text>
-              </g>
-
-              <!-- Satellite Node 3: DEV AI (Bottom-Left) -->
-              <g transform="translate(45, 282)">
-                <rect x="0" y="0" width="138" height="48" rx="9" fill="var(--svg-panel)" stroke="#10B981" stroke-width="1.8" />
-                <text x="69" y="20" text-anchor="middle" fill="#34D399" font-size="11.5" font-weight="800">3. DEV AI (/code-gen)</text>
-                <text x="69" y="37" text-anchor="middle" fill="var(--svg-text)" font-size="10.5">Digest 핀셋 주입 · 구현</text>
-              </g>
-
-              <!-- Satellite Node 4: QA AI (Bottom-Right) -->
-              <g transform="translate(358, 282)">
-                <rect x="0" y="0" width="138" height="48" rx="9" fill="var(--svg-panel)" stroke="#F59E0B" stroke-width="1.8" />
-                <text x="69" y="20" text-anchor="middle" fill="#FBBF24" font-size="11.5" font-weight="800">4. QA AI (/spec-check)</text>
-                <text x="69" y="37" text-anchor="middle" fill="var(--svg-text)" font-size="10.5">정본↔코드 자동 대조 검수</text>
-              </g>
-
-              <!-- Bottom Summary Box (Right) -->
-              <rect x="20" y="405" width="500" height="84" rx="12" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="1.5" />
-              <text x="40" y="432" fill="#10B981" font-size="13" font-weight="800">핵심 변화: Git 정본과 지시서(LATEST_TASK.md)를 매개로 전 과정 자동 연결</text>
-              <text x="40" y="454" fill="var(--svg-text)" font-size="12">• PO/PM이 안건을 말하면 AI가 영향 화면을 찾아 정본 개정 + 파트별 지시서 발행</text>
-              <text x="40" y="473" fill="var(--svg-text)" font-size="12">• UIX·개발 AI는 git pull 즉시 지시서를 스스로 읽고 구현 후 정합성까지 자동 검증</text>
-            </g>
-          </svg>
-        </div>
-
-        <a href="#sec-01" class="scroll-cue">↓ 아래로 스크롤하여 01 전체 조감도부터 보기</a>
+        <!-- Right 40% is kept clear so the generated top-bottom 3D isometric background illustration shines -->
+        <div></div>
       </div>
     </section>
 
-    <!-- ================= SLIDE 01: MASTER CONCEPTUAL ARCHITECTURE ================= -->
-    <section class="screen-slide" id="sec-01">
+    <!-- ================= SLIDE 01-A: MASTER CONCEPTUAL ARCHITECTURE (LANE 1 ~ LANE 3) ================= -->
+    <section class="screen-slide" id="sec-01a">
       <div class="slide-inner">
         <div class="slide-header reveal">
           <div class="slide-title-group">
-            <span class="slide-step">SECTION 01 · CONCEPTUAL ARCHITECTURE</span>
-            <h2 class="slide-title">전체 시스템 조감도 — 안건 발화부터 자동 검수까지</h2>
+            <span class="slide-step">SECTION 01-A · CONCEPTUAL ARCHITECTURE (3-LANE SWIMLANE)</span>
+            <h2 class="slide-title">전체 시스템 조감도 — Lane 1 ~ Lane 3 유기적 순환 구조</h2>
           </div>
-          <p class="slide-sub">외부 툴 없이도 Git 내 <code>LATEST_TASK.md</code>와 <code>QUESTIONS.md</code>만으로 전 직군의 AI가 하나로 움직입니다.</p>
+          <p class="slide-sub">PO/PM의 요구사항 정의(하향)와 구현 중 발견된 미정의 정책 질의(상향)가 Git 정본 허브를 통해 순환합니다.</p>
         </div>
 
         <div class="diagram-frame reveal" style="--stagger:1;">
-          <svg class="diagram-svg" viewBox="0 0 1160 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="전체 아키텍처 4단계 흐름도">
-            <rect width="1160" height="360" rx="12" fill="var(--svg-bg)" />
+          <svg class="diagram-svg" viewBox="0 0 1180 450" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lane 1 PO/PM, Lane 2 Git 단일 정본 허브, Lane 3 UIX 및 개발자 3단 스윔레인 조감도">
+            <rect width="1180" height="450" rx="14" fill="var(--svg-bg)" />
 
-            <!-- Step 1 -->
-            <g transform="translate(24, 30)">
-              <rect width="250" height="300" rx="14" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
-              <rect x="16" y="16" width="90" height="24" rx="6" fill="rgba(99,102,241,0.2)" />
-              <text x="61" y="32" text-anchor="middle" fill="#818CF8" font-size="11" font-weight="800">STEP 01</text>
-              <text x="16" y="64" fill="var(--svg-text)" font-size="16" font-weight="800">PO/PM 안건 발화</text>
-              <text x="16" y="88" fill="var(--svg-sub)" font-size="12">화면번호 암기 없이 자연어 지시</text>
-              <rect x="16" y="108" width="218" height="72" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="28" y="132" fill="#A5B4FC" font-size="11.5" font-weight="700">💬 “2차 환불 기한을 7일에서</text>
-              <text x="28" y="150" fill="#A5B4FC" font-size="11.5" font-weight="700">14일로 늘리고 팝업에 반영해 줘”</text>
-              <text x="28" y="170" fill="var(--svg-sub)" font-size="10.5">→ /doc-update 실행</text>
-              <rect x="16" y="198" width="218" height="82" rx="10" fill="rgba(99,102,241,0.1)" />
-              <text x="28" y="222" fill="var(--svg-text)" font-size="12" font-weight="700">AI 자동 처리</text>
-              <text x="28" y="242" fill="var(--svg-sub)" font-size="11">• 연관 화면코드 자동 탐색·태깅</text>
-              <text x="28" y="260" fill="var(--svg-sub)" font-size="11">• 정책서·화면명세·Digest 동시 갱신</text>
+            <!-- ==================== LANE 1: PO / PM GROUP ==================== -->
+            <g transform="translate(24, 18)">
+              <rect width="1132" height="114" rx="14" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
+              <rect x="18" y="14" width="188" height="24" rx="6" fill="rgba(99,102,241,0.2)" />
+              <text x="112" y="30" text-anchor="middle" fill="#818CF8" font-size="11.5" font-weight="800">LANE 1 · PO / PM 그룹</text>
+              <text x="18" y="64" fill="var(--svg-text)" font-size="14" font-weight="800">요구사항 정의 &amp; 의사결정</text>
+              <text x="18" y="86" fill="var(--svg-sub)" font-size="11.5">화면코드 암기 없이 정책 정의</text>
+
+              <!-- Node 1A -->
+              <rect x="240" y="18" width="260" height="78" rx="10" fill="var(--svg-card)" stroke="#6366F1" stroke-width="1.5" />
+              <text x="370" y="46" text-anchor="middle" fill="#A5B4FC" font-size="13" font-weight="800">1. 비즈니스 요구사항 정의</text>
+              <text x="370" y="68" text-anchor="middle" fill="var(--svg-sub)" font-size="11.5">신규 기획 · 정책 변경사항 수립</text>
+
+              <!-- Node 1B -->
+              <rect x="546" y="18" width="276" height="78" rx="10" fill="var(--svg-card)" stroke="#6366F1" stroke-width="1.5" />
+              <text x="684" y="46" text-anchor="middle" fill="#818CF8" font-size="13" font-weight="800">2. /doc-update 정합성 검증·개정</text>
+              <text x="684" y="68" text-anchor="middle" fill="var(--svg-sub)" font-size="11.5">영향 화면코드 자동 태깅 · 개정이력 기록</text>
+
+              <!-- Node 1C (Reverse Feedback Decision) -->
+              <rect x="866" y="18" width="246" height="78" rx="10" fill="var(--svg-card)" stroke="#F59E0B" stroke-width="1.5" />
+              <text x="989" y="46" text-anchor="middle" fill="#FBBF24" font-size="13" font-weight="800">6. 미정의 정책 의사결정 환류</text>
+              <text x="989" y="68" text-anchor="middle" fill="var(--svg-sub)" font-size="11.5">질의(❓) 판정 후 정본 즉시 보완</text>
             </g>
 
-            <!-- Arrow 1->2 -->
-            <path d="M 278 180 L 308 180" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <!-- Forward Arrow inside Lane 1 -->
+            <path class="flow-line" d="M 524 75 L 566 75" stroke="#6366F1" stroke-width="2.5" marker-end="url(#arrIndigo)" />
 
-            <!-- Step 2 -->
-            <g transform="translate(312, 30)">
-              <rect width="250" height="300" rx="14" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="2" />
-              <rect x="16" y="16" width="90" height="24" rx="6" fill="rgba(6,182,212,0.2)" />
-              <text x="61" y="32" text-anchor="middle" fill="#22D3EE" font-size="11" font-weight="800">STEP 02</text>
-              <text x="16" y="64" fill="var(--svg-text)" font-size="16" font-weight="800">Git 정본 &amp; 지시서 발행</text>
-              <text x="16" y="88" fill="var(--svg-sub)" font-size="12">복붙 전달을 대체하는 핵심 파일</text>
-              <rect x="16" y="108" width="218" height="80" rx="10" fill="rgba(6,182,212,0.12)" stroke="#06B6D4" />
-              <text x="28" y="132" fill="#22D3EE" font-size="12.5" font-weight="800">📄 docs/changes/LATEST_TASK.md</text>
-              <text x="28" y="152" fill="var(--svg-text)" font-size="11">1. 이번 변경 안건 핵심 요약</text>
-              <text x="28" y="170" fill="var(--svg-text)" font-size="11">2. 영향 화면코드 &amp; 파트별 할 일</text>
-              <rect x="16" y="202" width="218" height="78" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="28" y="226" fill="#FBBF24" font-size="12" font-weight="800">❓ docs/changes/QUESTIONS.md</text>
-              <text x="28" y="246" fill="var(--svg-sub)" font-size="11">구현 중 발견된 미정의 케이스를</text>
-              <text x="28" y="264" fill="var(--svg-sub)" font-size="11">AI가 역질문으로 자동 기록</text>
+            <!-- ==================== LANE 2: GIT SSOT & TASK HUB ==================== -->
+            <g transform="translate(24, 164)">
+              <rect width="1132" height="118" rx="14" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="2" />
+              <rect x="18" y="14" width="188" height="24" rx="6" fill="rgba(6,182,212,0.2)" />
+              <text x="112" y="30" text-anchor="middle" fill="#22D3EE" font-size="11.5" font-weight="800">LANE 2 · Git 단일 정본 허브</text>
+              <text x="18" y="64" fill="var(--svg-text)" font-size="14" font-weight="800">spec-repo (외부 의존성 0)</text>
+              <text x="18" y="86" fill="var(--svg-sub)" font-size="11.5">정본 · 요약 명세 · 작업 명세서</text>
+
+              <!-- Node 2A -->
+              <rect x="240" y="20" width="260" height="78" rx="10" fill="var(--svg-card)" stroke="#06B6D4" stroke-width="1.5" />
+              <text x="370" y="48" text-anchor="middle" fill="#67E8F9" font-size="13" font-weight="800">단일 정본(docs/) &amp; 요약 명세(Digest)</text>
+              <text x="370" y="70" text-anchor="middle" fill="var(--svg-sub)" font-size="11.5">마스터 정책서 · 도메인 계약 · 화면별 1장 요약</text>
+
+              <!-- Node 2B -->
+              <rect x="546" y="20" width="276" height="78" rx="10" fill="rgba(6,182,212,0.14)" stroke="#06B6D4" stroke-width="2" />
+              <text x="684" y="48" text-anchor="middle" fill="#22D3EE" font-size="13" font-weight="800">📄 docs/changes/LATEST_TASK.md</text>
+              <text x="684" y="70" text-anchor="middle" fill="var(--svg-text)" font-size="11.5">3. 변경 작업 명세서 자동 배포 (UIX/개발 할 일)</text>
+
+              <!-- Node 2C -->
+              <rect x="866" y="20" width="246" height="78" rx="10" fill="rgba(245,158,11,0.12)" stroke="#F59E0B" stroke-width="1.8" />
+              <text x="989" y="48" text-anchor="middle" fill="#FBBF24" font-size="13" font-weight="800">❓ docs/changes/QUESTIONS.md</text>
+              <text x="989" y="70" text-anchor="middle" fill="var(--svg-text)" font-size="11.5">5. 미정의 예외 케이스 정책 질의 큐</text>
             </g>
 
-            <!-- Arrow 2->3 -->
-            <path d="M 566 180 L 596 180" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <!-- Forward Arrow inside Lane 2 -->
+            <path class="flow-line" d="M 524 223 L 566 223" stroke="#06B6D4" stroke-width="2.5" marker-end="url(#arrCyan)" />
 
-            <!-- Step 3 -->
-            <g transform="translate(600, 30)">
-              <rect width="250" height="300" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
-              <rect x="16" y="16" width="90" height="24" rx="6" fill="rgba(16,185,129,0.2)" />
-              <text x="61" y="32" text-anchor="middle" fill="#34D399" font-size="11" font-weight="800">STEP 03</text>
-              <text x="16" y="64" fill="var(--svg-text)" font-size="16" font-weight="800">UIX · 개발 AI 자동 구현</text>
-              <text x="16" y="88" fill="var(--svg-sub)" font-size="12">git pull 즉시 지시서 자동 파악</text>
-              <rect x="16" y="108" width="218" height="80" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="28" y="132" fill="#34D399" font-size="12" font-weight="800">🎨 UIX AI (/proto-gen)</text>
-              <text x="28" y="152" fill="var(--svg-sub)" font-size="11">• 고객 화면: Figma MCP 시안 직결</text>
-              <text x="28" y="170" fill="var(--svg-sub)" font-size="11">• 어드민: 4대 표준 골격 즉시 매핑</text>
-              <rect x="16" y="202" width="218" height="78" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="28" y="226" fill="#38BDF8" font-size="12" font-weight="800">💻 FE/BE AI (/code-gen)</text>
-              <text x="28" y="246" fill="var(--svg-sub)" font-size="11">• 해당 화면 Digest(1장 요약)만 로드</text>
-              <text x="28" y="264" fill="var(--svg-sub)" font-size="11">• 프로덕션 코드 &amp; 테스트 생성</text>
+            <!-- ==================== LANE 3: UIX & FE/BE DEV ==================== -->
+            <g transform="translate(24, 314)">
+              <rect width="1132" height="118" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
+              <rect x="18" y="14" width="188" height="24" rx="6" fill="rgba(16,185,129,0.2)" />
+              <text x="112" y="30" text-anchor="middle" fill="#34D399" font-size="11.5" font-weight="800">LANE 3 · UIX &amp; FE/BE 파트</text>
+              <text x="18" y="64" fill="var(--svg-text)" font-size="14" font-weight="800">service-repo &amp; Figma</text>
+              <text x="18" y="86" fill="var(--svg-sub)" font-size="11.5">명세 자동 수신 · 구현 · 대조 검수</text>
+
+              <!-- Node 3A -->
+              <rect x="240" y="20" width="260" height="78" rx="10" fill="var(--svg-card)" stroke="#10B981" stroke-width="1.5" />
+              <text x="370" y="48" text-anchor="middle" fill="#6EE7B7" font-size="13" font-weight="800">UIX 시안 확정 &amp; 표준 UI 템플릿</text>
+              <text x="370" y="70" text-anchor="middle" fill="var(--svg-sub)" font-size="11.5">Track B: Figma MCP / Track A: 4대 템플릿</text>
+
+              <!-- Node 3B -->
+              <rect x="546" y="20" width="276" height="78" rx="10" fill="var(--svg-card)" stroke="#10B981" stroke-width="1.8" />
+              <text x="684" y="48" text-anchor="middle" fill="#34D399" font-size="13" font-weight="800">4. /dev-screen 타겟 명세 로드 구현</text>
+              <text x="684" y="70" text-anchor="middle" fill="var(--svg-sub)" font-size="11.5">sync-spec.sh 직후 LATEST_TASK.md 자동 인식</text>
+
+              <!-- Node 3C -->
+              <rect x="866" y="20" width="246" height="78" rx="10" fill="var(--svg-card)" stroke="#10B981" stroke-width="1.8" />
+              <text x="989" y="48" text-anchor="middle" fill="#A7F3D0" font-size="13" font-weight="800">/spec-check 양방향 대조 검수</text>
+              <text x="989" y="70" text-anchor="middle" fill="var(--svg-sub)" font-size="11.5">정본·Figma 일치 통과 또는 ❓ 질의 분리</text>
             </g>
 
-            <!-- Arrow 3->4 -->
-            <path d="M 854 180 L 884 180" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <!-- Forward Arrows inside Lane 3 -->
+            <path class="flow-line" d="M 524 373 L 566 373" stroke="#10B981" stroke-width="2.5" marker-end="url(#arrEmerald)" />
+            <path class="flow-line" d="M 846 373 L 886 373" stroke="#10B981" stroke-width="2.5" marker-end="url(#arrEmerald)" />
 
-            <!-- Step 4 -->
-            <g transform="translate(888, 30)">
-              <rect width="248" height="300" rx="14" fill="var(--svg-panel)" stroke="#F59E0B" stroke-width="2" />
-              <rect x="16" y="16" width="90" height="24" rx="6" fill="rgba(245,158,11,0.2)" />
-              <text x="61" y="32" text-anchor="middle" fill="#FBBF24" font-size="11" font-weight="800">STEP 04</text>
-              <text x="16" y="64" fill="var(--svg-text)" font-size="16" font-weight="800">자동 정합성 검증 Gate</text>
-              <text x="16" y="88" fill="var(--svg-sub)" font-size="12">사람의 눈대중 검수 부하 -90%</text>
-              <rect x="16" y="108" width="216" height="80" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="28" y="132" fill="#FBBF24" font-size="12" font-weight="800">🔍 /spec-check &amp; Pre-commit</text>
-              <text x="28" y="152" fill="var(--svg-sub)" font-size="11">• 정본 수식·상수 ↔ 실제 코드 대조</text>
-              <text x="28" y="170" fill="var(--svg-sub)" font-size="11">• 불일치 시 커밋·PR 자동 차단</text>
-              <rect x="16" y="202" width="216" height="78" rx="10" fill="rgba(16,185,129,0.12)" stroke="#10B981" />
-              <text x="28" y="226" fill="#34D399" font-size="12" font-weight="800">✅ 사람(PO·UIX·개발)의 역할</text>
-              <text x="28" y="246" fill="var(--svg-text)" font-size="11">단순 대조 대신 비즈니스 의사결정과</text>
-              <text x="28" y="264" fill="var(--svg-text)" font-size="11">최종 승인에만 집중</text>
+            <!-- ==================== CROSS-LANE VERTICAL FLOWING LINES ==================== -->
+            <!-- Downward 1: Lane 1 (/doc-update) -> Lane 2 (LATEST_TASK.md) -->
+            <path class="flow-line" d="M 708 114 L 708 180" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <!-- Downward 2: Lane 2 (LATEST_TASK.md) -> Lane 3 (/dev-screen) -->
+            <path class="flow-line" d="M 708 262 L 708 330" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+
+            <!-- UPWARD REVERSE LOOP 1: Lane 3 (/spec-check & /dev-screen) -> Lane 2 (QUESTIONS.md) -->
+            <path class="flow-line" d="M 1013 334 L 1013 266" stroke="#F59E0B" stroke-width="3" marker-end="url(#arrAmber)" />
+            <!-- UPWARD REVERSE LOOP 2: Lane 2 (QUESTIONS.md) -> Lane 1 (PO/PM 의사결정) -->
+            <path class="flow-line" d="M 1013 184 L 1013 118" stroke="#F59E0B" stroke-width="3" marker-end="url(#arrAmber)" />
+            <!-- Feedback Return: Lane 1 (Node 1C 의사결정) -> Lane 1 (Node 1B /doc-update 정본 반영) -->
+            <path class="flow-line" d="M 890 42 L 848 42" stroke="#F59E0B" stroke-width="2.5" marker-end="url(#arrAmber)" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SLIDE 01-B: HUMAN ROLE PARADIGM SHIFT (SEPARATE SLIDE) ================= -->
+    <section class="screen-slide" id="sec-01b">
+      <div class="slide-inner">
+        <div class="slide-header reveal">
+          <div class="slide-title-group">
+            <span class="slide-step">SECTION 01-B · ROLE PARADIGM SHIFT</span>
+            <h2 class="slide-title">파이프라인 전(Before) vs 후(After) — 직군별 사람의 핵심 역할</h2>
+          </div>
+          <p class="slide-sub">수동 문서 중계와 기계적 대조는 시스템에 맡기고, 사람은 정의(Definition)와 승인(Approval)에 집중합니다.</p>
+        </div>
+
+        <div class="diagram-frame reveal" style="--stagger:1;">
+          <svg class="diagram-svg" viewBox="0 0 1160 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="파이프라인 전후 PO/PM, UIX, 개발자 역할 분담 매트릭스">
+            <rect width="1160" height="280" rx="12" fill="var(--svg-bg)" />
+
+            <!-- Column Headers -->
+            <rect x="24" y="18" width="352" height="36" rx="8" fill="rgba(99,102,241,0.18)" />
+            <text x="200" y="41" text-anchor="middle" fill="#818CF8" font-size="13" font-weight="800">1. 파이프라인 투입 전 (사람이 정의)</text>
+
+            <rect x="404" y="18" width="352" height="36" rx="8" fill="rgba(6,182,212,0.18)" />
+            <text x="580" y="41" text-anchor="middle" fill="#22D3EE" font-size="13" font-weight="800">2. AI 에이전틱 시스템 (자동 수행)</text>
+
+            <rect x="784" y="18" width="352" height="36" rx="8" fill="rgba(16,185,129,0.18)" />
+            <text x="960" y="41" text-anchor="middle" fill="#34D399" font-size="13" font-weight="800">3. 파이프라인 완료 후 (사람이 승인·환류)</text>
+
+            <!-- Row 1: PO/PM -->
+            <g transform="translate(24, 66)">
+              <rect x="0" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="var(--svg-stroke)" />
+              <text x="16" y="24" fill="#A5B4FC" font-size="12" font-weight="800">PO/PM · 비즈니스 요구사항 정의</text>
+              <text x="16" y="44" fill="var(--svg-sub)" font-size="11.5">/doc-update로 요구사항 입력 (화면코드 암기 불필요)</text>
+
+              <rect x="380" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="#06B6D4" />
+              <text x="396" y="24" fill="#67E8F9" font-size="12" font-weight="800">영향 화면코드 스캔 · 정본 개정 · 명세서 배포</text>
+              <text x="396" y="44" fill="var(--svg-sub)" font-size="11.5">정책서·Digest·LATEST_TASK.md 일괄 생성</text>
+
+              <rect x="760" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="#10B981" />
+              <text x="776" y="24" fill="#6EE7B7" font-size="12" font-weight="800">개정이력(diff) 승인 &amp; 미정의 정책 의사결정</text>
+              <text x="776" y="44" fill="var(--svg-sub)" font-size="11.5">QUESTIONS.md에 올라온 예외 케이스 최종 판정</text>
+            </g>
+
+            <!-- Row 2: UIX -->
+            <g transform="translate(24, 136)">
+              <rect x="0" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="var(--svg-stroke)" />
+              <text x="16" y="24" fill="#67E8F9" font-size="12" font-weight="800">UIX · Figma 시안 설계 &amp; 토큰 규격화</text>
+              <text x="16" y="44" fill="var(--svg-sub)" font-size="11.5">[화면코드] 프레임에 Auto Layout · 변수 적용</text>
+
+              <rect x="380" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="#06B6D4" />
+              <text x="396" y="24" fill="#67E8F9" font-size="12" font-weight="800">Figma MCP 노드 공급 &amp; 표준 템플릿 매핑</text>
+              <text x="396" y="44" fill="var(--svg-sub)" font-size="11.5">시안 구조·토큰을 개발 AI에 무손실 전달</text>
+
+              <rect x="760" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="#10B981" />
+              <text x="776" y="24" fill="#6EE7B7" font-size="12" font-weight="800">Ready for Dev 확정 &amp; 시각 검수 리포트 확인</text>
+              <text x="776" y="44" fill="var(--svg-sub)" font-size="11.5">시안 누락 항목은 /spec-check 리포트로 즉시 확인</text>
+            </g>
+
+            <!-- Row 3: FE/BE Dev -->
+            <g transform="translate(24, 206)">
+              <rect x="0" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="var(--svg-stroke)" />
+              <text x="16" y="24" fill="#6EE7B7" font-size="12" font-weight="800">개발자 · sync-spec.sh &amp; /dev-screen 실행</text>
+              <text x="16" y="44" fill="var(--svg-sub)" font-size="11.5">최신 변경 작업 명세서(LATEST_TASK.md) 동기화</text>
+
+              <rect x="380" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="#06B6D4" />
+              <text x="396" y="24" fill="#67E8F9" font-size="12" font-weight="800">Digest(6%) 타겟 로드 구현 &amp; 자동 대조 검수</text>
+              <text x="396" y="44" fill="var(--svg-sub)" font-size="11.5">프로덕션 코딩 · 단위 테스트 · /spec-check 실행</text>
+
+              <rect x="760" y="0" width="352" height="58" rx="10" fill="var(--svg-panel)" stroke="#10B981" />
+              <text x="776" y="24" fill="#6EE7B7" font-size="12" font-weight="800">미정의 정책 질의(❓) 등록 &amp; 아키텍처 코드 리뷰</text>
+              <text x="776" y="44" fill="var(--svg-sub)" font-size="11.5">임의 추론 코딩을 금지하고 위반 0건 확인 후 PR 병합</text>
             </g>
           </svg>
         </div>
 
         <div class="grid-3 reveal" style="--stagger:2;">
           <div class="compact-card">
-            <h3><span class="tag tag-indigo">PO / PM 그룹</span> 안건 발화 &amp; 역질문 결정</h3>
-            <p>화면코드를 외울 필요 없이 비즈니스 안건만 말하면 AI가 연관 문서를 고치고 <code>LATEST_TASK.md</code>를 발행합니다.</p>
+            <h3><span class="tag tag-indigo">PO / PM 그룹</span> 수동 중계 0%</h3>
+            <p>변경할 정책을 정의하면 AI가 연관 화면코드를 모두 찾아 정본과 <code>LATEST_TASK.md</code>를 동시에 갱신합니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-cyan">UIX 디자이너</span> 디자인 토큰 &amp; 핵심 UX 집중</h3>
-            <p>Figma Auto Layout·변수만 유지하면 AI가 MCP로 시안 수치를 직접 읽어 화면 골격으로 변환합니다.</p>
+            <h3><span class="tag tag-cyan">UIX 디자이너</span> 시안 임의 변형 차단</h3>
+            <p><code>Ready for Dev</code> 상태의 Figma 프레임만 MCP로 직결되어 개발 단계에서 디자인이 틀어지지 않습니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-emerald">FE / BE 개발자</span> 아키텍처 &amp; 엣지케이스 승인</h3>
-            <p>기획서를 뒤지는 대신 로컬 AI가 브리핑하는 <code>LATEST_TASK.md</code> 요약을 보고 구현을 지휘합니다.</p>
+            <h3><span class="tag tag-emerald">FE / BE 개발자</span> API Mock 병렬 개발</h3>
+            <p>백엔드 완성 전에도 <code>00_domain_contracts.md</code>의 표준 API Mock 스키마를 바인딩해 즉시 개발합니다.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= SLIDE 02: 4-STAGE PIPELINE ================= -->
+    <!-- ================= SLIDE 02: 4-STAGE PIPELINE (+ REVERSE FEEDBACK ARCS) ================= -->
     <section class="screen-slide" id="sec-02">
       <div class="slide-inner">
         <div class="slide-header reveal">
           <div class="slide-title-group">
-            <span class="slide-step">SECTION 02 · 4-STAGE WORKFLOW</span>
-            <h2 class="slide-title">4단계 에이전틱 파이프라인</h2>
+            <span class="slide-step">SECTION 02 · 4-STAGE WORKFLOW &amp; FEEDBACK LOOP</span>
+            <h2 class="slide-title">4단계 에이전틱 파이프라인 &amp; 역방향 환류 루프</h2>
           </div>
-          <p class="slide-sub">각 단계의 산출물이 다음 단계 AI의 입력으로 직결되어 재작업과 오해를 원천 차단합니다.</p>
+          <p class="slide-sub">정방향(01→04) 자동 실행과 함께, 검수 단계(04)에서 발견된 위반·질의가 앞 단계로 즉시 환류됩니다.</p>
         </div>
 
         <div class="diagram-frame reveal" style="--stagger:1;">
-          <svg class="diagram-svg" viewBox="0 0 1160 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="4단계 파이프라인 다이어그램">
-            <rect width="1160" height="290" rx="12" fill="var(--svg-bg)" />
+          <svg class="diagram-svg" viewBox="0 0 1160 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="4단계 파이프라인 및 역방향 피드백 루프 다이어그램">
+            <rect width="1160" height="340" rx="12" fill="var(--svg-bg)" />
 
-            <g transform="translate(24, 28)">
-              <rect width="252" height="234" rx="14" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
-              <text x="20" y="34" fill="#818CF8" font-size="12" font-weight="800">STAGE 01 · PO/PM</text>
-              <text x="20" y="60" fill="var(--svg-text)" font-size="16" font-weight="800">단일 정본(SSOT) 자산화</text>
-              <text x="20" y="92" fill="var(--svg-sub)" font-size="12">• 마스터 정책서 + 화면 명세서</text>
-              <text x="20" y="114" fill="var(--svg-sub)" font-size="12">• 화면별 1장 요약본(Digest) 생성</text>
-              <text x="20" y="136" fill="var(--svg-sub)" font-size="12">• LATEST_TASK.md 지시서 갱신</text>
-              <rect x="20" y="172" width="212" height="42" rx="8" fill="rgba(99,102,241,0.15)" />
-              <text x="126" y="198" text-anchor="middle" fill="#A5B4FC" font-size="12" font-weight="800">산출물: docs/ + digests/</text>
+            <!-- Stage 01 -->
+            <g transform="translate(24, 24)">
+              <rect width="244" height="218" rx="14" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
+              <text x="20" y="32" fill="#818CF8" font-size="12" font-weight="800">STAGE 01 · PO/PM</text>
+              <text x="20" y="58" fill="var(--svg-text)" font-size="15.5" font-weight="800">요구사항 정의 &amp; 정본화</text>
+              <text x="20" y="88" fill="var(--svg-sub)" font-size="11.5">• 마스터 정책서 · 도메인 계약</text>
+              <text x="20" y="110" fill="var(--svg-sub)" font-size="11.5">• 화면별 요약 명세(Digest) 갱신</text>
+              <text x="20" y="132" fill="var(--svg-sub)" font-size="11.5">• LATEST_TASK.md 명세 배포</text>
+              <rect x="20" y="160" width="204" height="38" rx="8" fill="rgba(99,102,241,0.16)" />
+              <text x="122" y="184" text-anchor="middle" fill="#A5B4FC" font-size="11.5" font-weight="800">/doc-init · /doc-update</text>
             </g>
 
-            <path d="M 280 145 L 308 145" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <!-- Forward 1->2 -->
+            <path class="flow-line" d="M 272 133 L 308 133" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
 
-            <g transform="translate(312, 28)">
-              <rect width="252" height="234" rx="14" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="2" />
-              <text x="20" y="34" fill="#22D3EE" font-size="12" font-weight="800">STAGE 02 · UIX</text>
-              <text x="20" y="60" fill="var(--svg-text)" font-size="16" font-weight="800">디자인 연동 &amp; 프로토타입</text>
-              <text x="20" y="92" fill="var(--svg-sub)" font-size="12">• 고객 화면: Figma MCP 토큰 추출</text>
-              <text x="20" y="114" fill="var(--svg-sub)" font-size="12">• 어드민: 4대 표준 골격 즉시 매핑</text>
-              <text x="20" y="136" fill="var(--svg-sub)" font-size="12">• 모달·상태 분기 시각 검증</text>
-              <rect x="20" y="172" width="212" height="42" rx="8" fill="rgba(6,182,212,0.15)" />
-              <text x="126" y="198" text-anchor="middle" fill="#67E8F9" font-size="12" font-weight="800">산출물: 검증된 UI 골격</text>
+            <!-- Stage 02 -->
+            <g transform="translate(314, 24)">
+              <rect width="244" height="218" rx="14" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="2" />
+              <text x="20" y="32" fill="#22D3EE" font-size="12" font-weight="800">STAGE 02 · UIX / 템플릿</text>
+              <text x="20" y="58" fill="var(--svg-text)" font-size="15.5" font-weight="800">2-Track 시각 기준 연결</text>
+              <text x="20" y="88" fill="var(--svg-sub)" font-size="11.5">• Track A: 4대 표준 UI 템플릿</text>
+              <text x="20" y="110" fill="var(--svg-sub)" font-size="11.5">• Track B: Figma MCP 노드 직결</text>
+              <text x="20" y="132" fill="var(--svg-sub)" font-size="11.5">• Ready for Dev 상태 게이트</text>
+              <rect x="20" y="160" width="204" height="38" rx="8" fill="rgba(6,182,212,0.16)" />
+              <text x="122" y="184" text-anchor="middle" fill="#67E8F9" font-size="11.5" font-weight="800">/doc-rule · Figma MCP</text>
             </g>
 
-            <path d="M 568 145 L 596 145" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <!-- Forward 2->3 -->
+            <path class="flow-line" d="M 562 133 L 598 133" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
 
-            <g transform="translate(600, 28)">
-              <rect width="252" height="234" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
-              <text x="20" y="34" fill="#34D399" font-size="12" font-weight="800">STAGE 03 · FE/BE</text>
-              <text x="20" y="60" fill="var(--svg-text)" font-size="16" font-weight="800">핀셋 컨텍스트 코드 생성</text>
-              <text x="20" y="92" fill="var(--svg-sub)" font-size="12">• 전체 문서 대신 해당 Digest만 로드</text>
-              <text x="20" y="114" fill="var(--svg-sub)" font-size="12">• 컴포넌트·API·단위테스트 구현</text>
-              <text x="20" y="136" fill="var(--svg-sub)" font-size="12">• 모호한 정책은 QUESTIONS.md 기록</text>
-              <rect x="20" y="172" width="212" height="42" rx="8" fill="rgba(16,185,129,0.15)" />
-              <text x="126" y="198" text-anchor="middle" fill="#6EE7B7" font-size="12" font-weight="800">산출물: 프로덕션 코드</text>
+            <!-- Stage 03 -->
+            <g transform="translate(604, 24)">
+              <rect width="244" height="218" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
+              <text x="20" y="32" fill="#34D399" font-size="12" font-weight="800">STAGE 03 · FE/BE</text>
+              <text x="20" y="58" fill="var(--svg-text)" font-size="15.5" font-weight="800">타겟 명세 로드 &amp; 구현</text>
+              <text x="20" y="88" fill="var(--svg-sub)" font-size="11.5">• 해당 화면 Digest(6%)만 로드</text>
+              <text x="20" y="110" fill="var(--svg-sub)" font-size="11.5">• 비즈니스 로직 · 테스트 구현</text>
+              <text x="20" y="132" fill="var(--svg-sub)" font-size="11.5">• 미정의 정책은 ❓ 질의로 분리</text>
+              <rect x="20" y="160" width="204" height="38" rx="8" fill="rgba(16,185,129,0.16)" />
+              <text x="122" y="184" text-anchor="middle" fill="#6EE7B7" font-size="11.5" font-weight="800">/dev-screen</text>
             </g>
 
-            <path d="M 856 145 L 884 145" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <!-- Forward 3->4 -->
+            <path class="flow-line" d="M 852 133 L 888 133" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
 
-            <g transform="translate(888, 28)">
-              <rect width="248" height="234" rx="14" fill="var(--svg-panel)" stroke="#F59E0B" stroke-width="2" />
-              <text x="20" y="34" fill="#FBBF24" font-size="12" font-weight="800">STAGE 04 · QA GATE</text>
-              <text x="20" y="60" fill="var(--svg-text)" font-size="16" font-weight="800">정본 ↔ 코드 자동 대조</text>
-              <text x="20" y="92" fill="var(--svg-sub)" font-size="12">• 금지어·필수 컬럼·수식 스크립트 검증</text>
-              <text x="20" y="114" fill="var(--svg-sub)" font-size="12">• Playwright E2E 렌더링 체크</text>
-              <text x="20" y="136" fill="var(--svg-sub)" font-size="12">• 통과 시에만 PR 머지 허용</text>
-              <rect x="20" y="172" width="208" height="42" rx="8" fill="rgba(245,158,11,0.15)" />
-              <text x="124" y="198" text-anchor="middle" fill="#FDE68A" font-size="12" font-weight="800">산출물: 정합성 100% 릴리즈</text>
+            <!-- Stage 04 -->
+            <g transform="translate(894, 24)">
+              <rect width="242" height="218" rx="14" fill="var(--svg-panel)" stroke="#F59E0B" stroke-width="2" />
+              <text x="20" y="32" fill="#FBBF24" font-size="12" font-weight="800">STAGE 04 · QA GATE</text>
+              <text x="20" y="58" fill="var(--svg-text)" font-size="15.5" font-weight="800">정본 ↔ 코드 자동 대조</text>
+              <text x="20" y="88" fill="var(--svg-sub)" font-size="11.5">• 정본 수식·필드·Figma 대조</text>
+              <text x="20" y="110" fill="var(--svg-sub)" font-size="11.5">• check.sh 병렬 테스트 실행</text>
+              <text x="20" y="132" fill="var(--svg-sub)" font-size="11.5">• ✅ 일치 시에만 PR 병합 허용</text>
+              <rect x="20" y="160" width="202" height="38" rx="8" fill="rgba(245,158,11,0.16)" />
+              <text x="121" y="184" text-anchor="middle" fill="#FDE68A" font-size="11.5" font-weight="800">/spec-check · CI Gate</text>
             </g>
+
+            <!-- REVERSE FEEDBACK ARCS AT BOTTOM -->
+            <!-- Reverse 1: Stage 04 -> Stage 03 (Code Fix Loop) -->
+            <path class="flow-line" d="M 960 242 L 960 276 L 726 276 L 726 246" fill="none" stroke="#F43F5E" stroke-width="2.5" marker-end="url(#arrRose)" />
+            <rect x="760" y="262" width="176" height="24" rx="6" fill="var(--svg-panel)" stroke="#F43F5E" />
+            <text x="848" y="278" text-anchor="middle" fill="#FDA4AF" font-size="10.5" font-weight="800">❌ 위반·누락 시 코드 즉시 보완</text>
+
+            <!-- Reverse 2: Stage 04/03 -> Stage 01 (Policy Question & Hotfix Sync Loop) -->
+            <path class="flow-line" d="M 1050 242 L 1050 314 L 146 314 L 146 246" fill="none" stroke="#F59E0B" stroke-width="2.5" marker-end="url(#arrAmber)" />
+            <rect x="370" y="300" width="420" height="26" rx="6" fill="var(--svg-panel)" stroke="#F59E0B" />
+            <text x="580" y="317" text-anchor="middle" fill="#FBBF24" font-size="11" font-weight="800">❓ 미정의 정책 질의(QUESTIONS.md) 환류 &amp; L3 긴급패치 정본 역동기화</text>
           </svg>
         </div>
 
         <div class="grid-4 reveal" style="--stagger:2;">
           <div class="compact-card">
-            <h3><span class="tag tag-indigo">01 정본화</span> 구두 합의 제로</h3>
-            <p>정본에 적히지 않은 요구사항은 존재하지 않는 것으로 간주하여 기준을 단일화합니다.</p>
+            <h3><span class="tag tag-indigo">01 정본화</span> 구두 합의 배제</h3>
+            <p>정본에 정의되지 않은 요구사항은 구현 대상에서 제외하여 단일 기준을 유지합니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-cyan">02 시각화</span> 코드 작성 전 검증</h3>
-            <p>프로토타입 또는 Figma 시안에서 화면 흐름을 먼저 확정한 뒤 본 개발에 진입합니다.</p>
+            <h3><span class="tag tag-cyan">02 UI 직결</span> 프로토타입 유지보수 생략</h3>
+            <p>수십 개 정적 HTML을 수작업 관리하는 대신 표준 UI 템플릿과 Figma MCP를 직결합니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-emerald">03 구현</span> 할루시네이션 차단</h3>
-            <p>작업 화면에 해당하는 1장 요약본(Digest)만 주입해 AI가 다른 화면 규칙과 혼동하지 않습니다.</p>
+            <h3><span class="tag tag-emerald">03 타겟 구현</span> 컨텍스트 혼선 차단</h3>
+            <p>작업 화면에 해당하는 6% 요약 명세만 적재해 타 도메인 규칙과의 혼동을 막습니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-amber">04 검수</span> 기계적 대조 자동화</h3>
-            <p>수수료율·기한·상태코드 등 정본 수치와 실제 코드의 일치 여부를 스크립트가 1초 만에 검사합니다.</p>
+            <h3><span class="tag tag-amber">04 양방향 환류</span> 자동 대조 &amp; 역동기화</h3>
+            <p>코드 위반은 커밋 전 차단하고, 미정의 정책은 질의 큐를 통해 정본으로 환류시킵니다.</p>
           </div>
         </div>
       </div>
@@ -1093,63 +1066,74 @@
         <div class="slide-header reveal">
           <div class="slide-title-group">
             <span class="slide-step">SECTION 03 · 2-REPO ARCHITECTURE</span>
-            <h2 class="slide-title">저장소 물리적 분리 — 기획 정본 Repo vs 서비스 코드 Repo</h2>
+            <h2 class="slide-title">저장소 물리적 분리 — 정본 저장소(spec-repo) vs 개발 저장소(app-repo)</h2>
           </div>
-          <p class="slide-sub">기획·디자인 자산과 실제 구동 코드를 분리해 권한 충돌과 AI 컨텍스트 오염을 막습니다.</p>
+          <p class="slide-sub">기획·디자인 정본 자산과 애플리케이션 소스코드를 분리하고 스크립트로 동기화합니다.</p>
         </div>
 
         <div class="diagram-frame reveal" style="--stagger:1;">
-          <svg class="diagram-svg" viewBox="0 0 1160 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="기획 정본 저장소와 서비스 코드 저장소 분리 구조">
+          <svg class="diagram-svg" viewBox="0 0 1160 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="기획 정본 저장소와 서비스 코드 저장소 분리 및 양방향 채널 구조">
             <rect width="1160" height="300" rx="12" fill="var(--svg-bg)" />
 
             <!-- Left Repo: spec-repo -->
-            <g transform="translate(36, 26)">
-              <rect width="460" height="248" rx="16" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
-              <text x="24" y="38" fill="#818CF8" font-size="13" font-weight="800">REPO A · 기획/디자인 정본 저장소</text>
-              <text x="24" y="64" fill="var(--svg-text)" font-size="18" font-weight="800">project-spec-repo (SSOT)</text>
-              <rect x="24" y="84" width="412" height="140" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="40" y="112" fill="#A5B4FC" font-size="12.5" font-weight="700">📁 docs/specs/ · 마스터 정책서 &amp; 화면 명세</text>
-              <text x="40" y="138" fill="#67E8F9" font-size="12.5" font-weight="700">📁 docs/digests/ · 화면코드별 1장 요약본 (AI 핀셋 주입용)</text>
-              <text x="40" y="164" fill="#34D399" font-size="12.5" font-weight="700">📁 docs/changes/ · LATEST_TASK.md &amp; QUESTIONS.md</text>
-              <text x="40" y="190" fill="#FBBF24" font-size="12.5" font-weight="700">📁 prototypes/ · 검증용 프로토타입 &amp; 디자인 토큰</text>
+            <g transform="translate(28, 24)">
+              <rect width="450" height="252" rx="16" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
+              <text x="24" y="36" fill="#818CF8" font-size="12.5" font-weight="800">REPO A · 기획/디자인 정본 저장소</text>
+              <text x="24" y="62" fill="var(--svg-text)" font-size="18" font-weight="800">spec-repo (SSOT · PO/PM 오너십)</text>
+              <rect x="24" y="82" width="402" height="148" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
+              <text x="40" y="110" fill="#A5B4FC" font-size="12" font-weight="700">📁 docs/specs/ · 도메인별 마스터 정책서 &amp; 화면 명세</text>
+              <text x="40" y="136" fill="#67E8F9" font-size="12" font-weight="700">📁 docs/contracts/ · 공통 도메인·API Mock &amp; 표준 UI 계약</text>
+              <text x="40" y="162" fill="#34D399" font-size="12" font-weight="700">📁 docs/digest/ · 화면코드별 요약 명세 &amp; canon_index.md</text>
+              <text x="40" y="188" fill="#FBBF24" font-size="12" font-weight="700">📁 docs/changes/ · LATEST_TASK.md &amp; QUESTIONS.md</text>
+              <text x="40" y="212" fill="#FDA4AF" font-size="12" font-weight="700">📁 engine/ · 도메인 기준 계산기 &amp; 정답 시나리오 JSON</text>
             </g>
 
-            <!-- Center Sync Bridge -->
-            <g transform="translate(516, 105)">
-              <rect width="128" height="90" rx="12" fill="rgba(6,182,212,0.14)" stroke="#06B6D4" stroke-width="1.8" />
-              <text x="64" y="34" text-anchor="middle" fill="#22D3EE" font-size="12" font-weight="800">sync-spec.sh</text>
-              <text x="64" y="54" text-anchor="middle" fill="var(--svg-text)" font-size="11">단방향 읽기 전용</text>
-              <text x="64" y="72" text-anchor="middle" fill="var(--svg-sub)" font-size="10.5">.spec-cache/ 동기화</text>
+            <!-- Center Sync Channels (Forward Sync + Reverse Question) -->
+            <g transform="translate(506, 66)">
+              <rect width="148" height="72" rx="10" fill="rgba(6,182,212,0.14)" stroke="#06B6D4" stroke-width="1.8" />
+              <text x="74" y="28" text-anchor="middle" fill="#22D3EE" font-size="12" font-weight="800">sync-spec.sh</text>
+              <text x="74" y="48" text-anchor="middle" fill="var(--svg-text)" font-size="10.5">정본·작업명세 하향 동기화</text>
+              <text x="74" y="63" text-anchor="middle" fill="var(--svg-sub)" font-size="10">(읽기 전용 로컬 캐시)</text>
             </g>
-            <path d="M 496 150 L 514 150" stroke="#06B6D4" stroke-width="3" />
-            <path d="M 644 150 L 662 150" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
+            <path class="flow-line" d="M 478 102 L 504 102" stroke="#06B6D4" stroke-width="3" />
+            <path class="flow-line" d="M 654 102 L 680 102" stroke="#06B6D4" stroke-width="3" marker-end="url(#arrCyan)" />
 
-            <!-- Right Repo: service-repo -->
-            <g transform="translate(664, 26)">
-              <rect width="460" height="248" rx="16" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
-              <text x="24" y="38" fill="#34D399" font-size="13" font-weight="800">REPO B · 실제 프로덕션 코드 저장소</text>
-              <text x="24" y="64" fill="var(--svg-text)" font-size="18" font-weight="800">project-service-repo (Code)</text>
-              <rect x="24" y="84" width="412" height="140" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="40" y="112" fill="#6EE7B7" font-size="12.5" font-weight="700">📁 src/ · 프론트엔드 / 백엔드 프로덕션 소스코드</text>
-              <text x="40" y="138" fill="#93C5FD" font-size="12.5" font-weight="700">📁 tests/ · 단위 테스트 &amp; Playwright E2E 검증</text>
-              <text x="40" y="164" fill="#FDE68A" font-size="12.5" font-weight="700">📁 .spec-cache/ · 동기화된 정본·Digest (수정 금지)</text>
-              <text x="40" y="190" fill="#FDA4AF" font-size="12.5" font-weight="700">📁 .claude/skills/ · /code-gen, /spec-check 실행 스킬</text>
+            <g transform="translate(506, 166)">
+              <rect width="148" height="72" rx="10" fill="rgba(245,158,11,0.14)" stroke="#F59E0B" stroke-width="1.8" />
+              <text x="74" y="28" text-anchor="middle" fill="#FBBF24" font-size="12" font-weight="800">정책 질의 · 역동기화</text>
+              <text x="74" y="48" text-anchor="middle" fill="var(--svg-text)" font-size="10.5">QUESTIONS.md 상향 등록</text>
+              <text x="74" y="63" text-anchor="middle" fill="var(--svg-sub)" font-size="10">L3 패치 후 정본 역반영</text>
+            </g>
+            <path class="flow-line" d="M 682 202 L 656 202" stroke="#F59E0B" stroke-width="3" />
+            <path class="flow-line" d="M 506 202 L 480 202" stroke="#F59E0B" stroke-width="3" marker-end="url(#arrAmber)" />
+
+            <!-- Right Repo: app-repo -->
+            <g transform="translate(682, 24)">
+              <rect width="450" height="252" rx="16" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
+              <text x="24" y="36" fill="#34D399" font-size="12.5" font-weight="800">REPO B · 애플리케이션 개발 저장소</text>
+              <text x="24" y="62" fill="var(--svg-text)" font-size="18" font-weight="800">app-repo (Code · FE/BE 오너십)</text>
+              <rect x="24" y="82" width="402" height="148" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
+              <text x="40" y="110" fill="#6EE7B7" font-size="12" font-weight="700">📁 src/ · 프론트엔드 / 백엔드 프로덕션 소스코드</text>
+              <text x="40" y="136" fill="#93C5FD" font-size="12" font-weight="700">📁 tests/ · 단위/기능 테스트 &amp; 계산기 시나리오 검증</text>
+              <text x="40" y="162" fill="#FDE68A" font-size="12" font-weight="700">📁 docs/ (.gitignore) · sync-spec.sh로 동기화된 정본 캐시</text>
+              <text x="40" y="188" fill="#67E8F9" font-size="12" font-weight="700">📁 scripts/ · sync-spec.sh &amp; check.sh 자동 검사 스크립트</text>
+              <text x="40" y="212" fill="#FDA4AF" font-size="12" font-weight="700">📁 .claude/skills/ · /dev-screen, /spec-check 로컬 스킬</text>
             </g>
           </svg>
         </div>
 
         <div class="grid-3 reveal" style="--stagger:2;">
           <div class="compact-card">
-            <h3><span class="tag tag-indigo">이유 1</span> AI 컨텍스트 오염 원천 방지</h3>
-            <p>프로토타입 HTML과 실제 React/Spring 코드가 한 폴더에 섞여 AI가 레거시 시안을 복사하는 사고를 차단합니다.</p>
+            <h3><span class="tag tag-indigo">원칙 1</span> 컨텍스트 오염 원천 차단</h3>
+            <p>기획 문서·초안과 실제 프로덕션 코드가 섞여 AI가 구버전 예시를 참조하는 오류를 방지합니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-cyan">이유 2</span> 직군별 승인 권한 명확화</h3>
-            <p><code>spec-repo</code>의 최종 머지 권한은 PO/PM에게, <code>service-repo</code>는 개발팀에 두어 기준 문서를 보호합니다.</p>
+            <h3><span class="tag tag-cyan">원칙 2</span> 직군별 변경 권한 분리</h3>
+            <p>정본 저장소(<code>spec-repo</code>)는 PO/PM이, 개발 저장소(<code>app-repo</code>)는 개발팀이 승인 권한을 갖습니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-emerald">이유 3</span> 단방향 캐시 동기화</h3>
-            <p>개발 환경에서는 <code>sync-spec.sh</code> 명령 한 줄로 최신 정본과 <code>LATEST_TASK.md</code>를 즉시 가져옵니다.</p>
+            <h3><span class="tag tag-emerald">원칙 3</span> 로컬 스킬 + 중앙 CI 결합</h3>
+            <p>유료 외부 서버 없이도 각자 로컬 스킬로 정합성을 맞추고, 중앙 CI는 <code>check.sh</code>로 코드만 검증합니다.</p>
           </div>
         </div>
       </div>
@@ -1161,52 +1145,52 @@
         <div class="slide-header reveal">
           <div class="slide-title-group">
             <span class="slide-step">SECTION 04 · TOKEN &amp; CONTEXT EFFICIENCY</span>
-            <h2 class="slide-title">토큰 94% 절감 — 화면별 핀셋 요약본(Digest) 주입</h2>
+            <h2 class="slide-title">토큰 94% 절감 — 화면별 요약 명세(Digest) 타겟 로드</h2>
           </div>
-          <p class="slide-sub">수천 줄짜리 전체 기획서를 매번 읽히는 대신, 작업할 화면 1개에 필요한 1장 요약본만 AI에 주입합니다.</p>
+          <p class="slide-sub">전체 정본을 통째로 읽히는 대신, 작업 대상 화면 1개에 필요한 6% 핵심 명세만 선별 적재합니다.</p>
         </div>
 
         <div class="diagram-frame reveal" style="--stagger:1;">
-          <svg class="diagram-svg" viewBox="0 0 1160 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="전체 정본 투입 대비 화면별 Digest 핀셋 투입 토큰 절감 비교">
-            <rect width="1160" height="280" rx="12" fill="var(--svg-bg)" />
+          <svg class="diagram-svg" viewBox="0 0 1160 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="전체 정본 로드 대 화면별 요약 명세 타겟 로드 토큰 소모 비교">
+            <rect width="1160" height="270" rx="12" fill="var(--svg-bg)" />
 
             <!-- Bad Case -->
-            <g transform="translate(36, 32)">
-              <rect width="510" height="216" rx="14" fill="var(--svg-panel)" stroke="#F43F5E" stroke-width="1.8" />
-              <text x="24" y="36" fill="#FB7185" font-size="12.5" font-weight="800">기존 방식 · 전체 정본 통째로 주입</text>
-              <text x="24" y="64" fill="var(--svg-text)" font-size="20" font-weight="900">1회 작업당 약 48,000 토큰 소모 (100%)</text>
-              <rect x="24" y="88" width="462" height="28" rx="6" fill="#F43F5E" />
-              <text x="255" y="107" text-anchor="middle" fill="#FFFFFF" font-size="12" font-weight="800">전체 마스터 정책서 + 50개 화면 명세 전체 로드 (불필요 정보 94%)</text>
-              <text x="24" y="148" fill="var(--svg-sub)" font-size="12.5">• 몇 번만 대화해도 AI 사용 한도(Rate Limit) 즉시 고갈</text>
-              <text x="24" y="172" fill="var(--svg-sub)" font-size="12.5">• 다른 화면의 정책과 섞여 엉뚱한 코드를 짜는 할루시네이션 급증</text>
+            <g transform="translate(32, 26)">
+              <rect width="516" height="218" rx="14" fill="var(--svg-panel)" stroke="#F43F5E" stroke-width="1.8" />
+              <text x="24" y="36" fill="#FB7185" font-size="12.5" font-weight="800">비효율 방식 · 전체 정본 마크다운 일괄 로드</text>
+              <text x="24" y="64" fill="var(--svg-text)" font-size="19" font-weight="900">1회 작업당 약 48,000 토큰 소모 (100%)</text>
+              <rect x="24" y="86" width="468" height="28" rx="6" fill="#F43F5E" />
+              <text x="258" y="105" text-anchor="middle" fill="#FFFFFF" font-size="11.5" font-weight="800">전 도메인 정책서 + 전체 화면 명세 로드 (불필요 컨텍스트 94%)</text>
+              <text x="24" y="146" fill="var(--svg-sub)" font-size="12">• 수 회 작업만으로 팀 내 AI 사용 한도(Rate Limit) 조기 소진</text>
+              <text x="24" y="170" fill="var(--svg-sub)" font-size="12">• 타 도메인 규칙과 혼동하여 잘못된 비즈니스 로직을 생성</text>
             </g>
 
             <!-- Good Case -->
-            <g transform="translate(614, 32)">
-              <rect width="510" height="216" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
-              <text x="24" y="36" fill="#34D399" font-size="12.5" font-weight="800">개선 방식 · 화면별 Digest 핀셋 주입</text>
-              <text x="24" y="64" fill="var(--svg-text)" font-size="20" font-weight="900">1회 작업당 약 3,000 토큰 소모 (6%)</text>
-              <rect x="24" y="88" width="462" height="28" rx="6" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <rect x="24" y="88" width="46" height="28" rx="6" fill="#10B981" />
-              <text x="84" y="107" fill="#6EE7B7" font-size="12" font-weight="800">6% 핀셋 로드 (-94% 절감 · 동일 한도로 15배 작업 수행)</text>
-              <text x="24" y="148" fill="var(--svg-text)" font-size="12.5">• <code>digests/{화면코드}.md</code> + <code>CORE_RULES.md</code> 딱 2개만 로드</text>
-              <text x="24" y="172" fill="var(--svg-text)" font-size="12.5">• 단순 텍스트·수식 검사는 LLM 대신 로컬 파이썬 스크립트가 0토큰 처리</text>
+            <g transform="translate(612, 26)">
+              <rect width="516" height="218" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
+              <text x="24" y="36" fill="#34D399" font-size="12.5" font-weight="800">표준 방식 · 화면별 요약 명세(Digest) 타겟 로드</text>
+              <text x="24" y="64" fill="var(--svg-text)" font-size="19" font-weight="900">1회 작업당 약 3,000 토큰 소모 (6%)</text>
+              <rect x="24" y="86" width="468" height="28" rx="6" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
+              <rect x="24" y="86" width="46" height="28" rx="6" fill="#10B981" />
+              <text x="84" y="105" fill="#6EE7B7" font-size="11.5" font-weight="800">6% 타겟 로드 (-94% 절감 · 동일 한도로 15배 이상 작업 처리)</text>
+              <text x="24" y="146" fill="var(--svg-text)" font-size="12">• LATEST_TASK.md + 공통 계약서 + 대상 화면 Digest 1장만 로드</text>
+              <text x="24" y="170" fill="var(--svg-text)" font-size="12">• 정적 규칙·계산기 정답 대조는 로컬 스크립트(check.sh)가 0토큰 수행</text>
             </g>
           </svg>
         </div>
 
         <div class="grid-3 reveal" style="--stagger:2;">
           <div class="compact-card">
-            <h3><span class="tag tag-emerald">원칙 1</span> 화면별 1장 요약본 (Digest)</h3>
-            <p>PO가 정본을 수정할 때 각 화면 코드에 필요한 필드·수식·모달만 뽑은 1장짜리 요약 카드가 자동 갱신됩니다.</p>
+            <h3><span class="tag tag-emerald">전략 1</span> 색인(canon_index) &amp; Digest</h3>
+            <p>화면코드별 줄 번호 색인과 1장 요약 명세를 통해 필요한 구간만 정확히 발췌하여 읽습니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-cyan">원칙 2</span> 스크립트 우선 (0 토큰 검수)</h3>
-            <p>금지어 스캔·정규식 대조 등 단순 반복 검수는 AI 토큰을 쓰지 않고 로컬 스크립트가 즉시 처리합니다.</p>
+            <h3><span class="tag tag-cyan">전략 2</span> 결정론적 검사의 스크립트 위임</h3>
+            <p>코드 스타일, 임시 DB 테스트, 도메인 계산기 대조는 AI 토큰 대신 <code>check.sh</code>가 수행합니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-indigo">원칙 3</span> 1화면 완료 시 세션 리셋</h3>
-            <p>대화 기록이 길어질수록 토큰이 기하급수적으로 늘어나므로, 화면 1개 완료마다 <code>/clear</code>로 초기화합니다.</p>
+            <h3><span class="tag tag-indigo">전략 3</span> 화면 단위 컨텍스트 리셋</h3>
+            <p>화면 1개 구현·검수가 끝나면 세션을 초기화(<code>/clear</code>)하여 누적 토큰 비용을 차단합니다.</p>
           </div>
         </div>
       </div>
@@ -1218,107 +1202,120 @@
         <div class="slide-header reveal">
           <div class="slide-title-group">
             <span class="slide-step">SECTION 05 · 2-TRACK UI STRATEGY</span>
-            <h2 class="slide-title">화면 성격에 따른 2-Track UI 전략</h2>
+            <h2 class="slide-title">프로토타입 관리 부담을 없애는 2-Track 화면 설계</h2>
           </div>
-          <p class="slide-sub">브랜드 경험이 중요한 고객 화면과, 빠른 CRUD 생산성이 중요한 어드민 화면의 제작 경로를 분리합니다.</p>
+          <p class="slide-sub">백오피스(Track A)와 유저 프론트(Track B)의 시각 정본을 분리해 정적 HTML 유지보수 비용을 제거합니다.</p>
         </div>
 
         <div class="diagram-frame reveal" style="--stagger:1;">
-          <svg class="diagram-svg" viewBox="0 0 1160 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Track A 고객용 서비스 Figma MCP 연동 대 Track B 어드민 4대 표준 골격 비교">
-            <rect width="1160" height="290" rx="12" fill="var(--svg-bg)" />
+          <svg class="diagram-svg" viewBox="0 0 1160 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Track A 백오피스 표준 UI 템플릿 대 Track B 유저 프론트 Figma MCP 협업 구조">
+            <rect width="1160" height="280" rx="12" fill="var(--svg-bg)" />
 
             <!-- Track A -->
-            <g transform="translate(36, 26)">
-              <rect width="520" height="238" rx="16" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="2" />
-              <rect x="24" y="20" width="140" height="26" rx="6" fill="rgba(6,182,212,0.18)" />
-              <text x="94" y="37" text-anchor="middle" fill="#22D3EE" font-size="11.5" font-weight="800">TRACK A · 고객용 화면</text>
-              <text x="24" y="72" fill="var(--svg-text)" font-size="18" font-weight="800">Figma MCP 직결 파이프라인</text>
-              <text x="24" y="100" fill="var(--svg-sub)" font-size="12.5">UIX 디자이너의 정밀 시안(Auto Layout · 디자인 토큰)을</text>
-              <text x="24" y="120" fill="var(--svg-sub)" font-size="12.5">AI가 MCP로 직접 읽어 픽셀 오차 없이 컴포넌트로 변환</text>
-              <rect x="24" y="144" width="472" height="70" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="42" y="170" fill="#67E8F9" font-size="12" font-weight="800">흐름: 정본 명세 → Figma 디자인 시안 → Figma MCP → 프로덕션 UI</text>
-              <text x="42" y="194" fill="var(--svg-sub)" font-size="11.5">적용 대상: 대고객 웹/앱 스토어, 랜딩 페이지, 브랜드 핵심 화면</text>
+            <g transform="translate(32, 24)">
+              <rect width="520" height="232" rx="16" fill="var(--svg-panel)" stroke="#A855F7" stroke-width="2" />
+              <rect x="24" y="18" width="210" height="26" rx="6" fill="rgba(168,85,247,0.18)" />
+              <text x="129" y="35" text-anchor="middle" fill="#C084FC" font-size="11.5" font-weight="800">TRACK A · 백오피스 / 어드민 (ADMN-*)</text>
+              <text x="24" y="68" fill="var(--svg-text)" font-size="17.5" font-weight="800">4대 표준 UI 템플릿(Archetype) 즉시 구현</text>
+              <text x="24" y="96" fill="var(--svg-sub)" font-size="12">별도 디자인 시안이나 HTML 프로토타입 없이 00_ui_system.md에</text>
+              <text x="24" y="116" fill="var(--svg-sub)" font-size="12">정의된 4종 표준 템플릿에 필터·컬럼·모달 명세를 즉시 결합</text>
+              <rect x="24" y="138" width="472" height="70" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
+              <text x="42" y="164" fill="#D8B4FE" font-size="12" font-weight="800">4종 템플릿: List-Modal · Detail-Form · Stats-Dashboard · Tabs-Complex</text>
+              <text x="42" y="188" fill="var(--svg-sub)" font-size="11.5">시각 확인 필요 시 1회성 프리뷰만 생성 후 폐기 (프로토타입 관리 0%)</text>
             </g>
 
             <!-- Track B -->
-            <g transform="translate(604, 26)">
-              <rect width="520" height="238" rx="16" fill="var(--svg-panel)" stroke="#A855F7" stroke-width="2" />
-              <rect x="24" y="20" width="150" height="26" rx="6" fill="rgba(168,85,247,0.18)" />
-              <text x="99" y="37" text-anchor="middle" fill="#C084FC" font-size="11.5" font-weight="800">TRACK B · 백오피스 어드민</text>
-              <text x="24" y="72" fill="var(--svg-text)" font-size="18" font-weight="800">4대 표준 화면 골격 (Archetype) 자동 생성</text>
-              <text x="24" y="100" fill="var(--svg-sub)" font-size="12.5">별도 디자인 시안 없이も 4가지 표준 레이아웃 틀과</text>
-              <text x="24" y="120" fill="var(--svg-sub)" font-size="12.5">디자인 시스템 컴포넌트만으로 AI가 즉시 화면 구현</text>
-              <rect x="24" y="144" width="472" height="70" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="42" y="170" fill="#D8B4FE" font-size="12" font-weight="800">4대 골격: 1. List-Modal · 2. Detail-Form · 3. Stats-Dash · 4. Tabs</text>
-              <text x="42" y="194" fill="var(--svg-sub)" font-size="11.5">적용 대상: 정산·통계·회원관리 등 내부 운영자용 백오피스 전체</text>
+            <g transform="translate(608, 24)">
+              <rect width="520" height="232" rx="16" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="2" />
+              <rect x="24" y="18" width="220" height="26" rx="6" fill="rgba(6,182,212,0.18)" />
+              <text x="134" y="35" text-anchor="middle" fill="#22D3EE" font-size="11.5" font-weight="800">TRACK B · 유저 프론트 / 브랜드 (USER-*)</text>
+              <text x="24" y="68" fill="var(--svg-text)" font-size="17.5" font-weight="800">UIX 디자이너 Figma MCP 직결 구현</text>
+              <text x="24" y="96" fill="var(--svg-sub)" font-size="12">Figma 프레임([화면코드]) 자체가 시각적 정본 역할 수행</text>
+              <text x="24" y="116" fill="var(--svg-sub)" font-size="12">Figma MCP로 Auto Layout·디자인 변수를 읽어 비즈니스 로직만 결합</text>
+              <rect x="24" y="138" width="472" height="70" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
+              <text x="42" y="164" fill="#67E8F9" font-size="12" font-weight="800">핵심 규칙: Ready for Dev 확정 시안만 로드 · AI 임의 UI 변형 금지</text>
+              <text x="42" y="188" fill="var(--svg-sub)" font-size="11.5">/spec-check 시 Figma 컴포넌트 누락 여부와 정본 로직을 동시 대조</text>
             </g>
           </svg>
         </div>
 
         <div class="grid-2 reveal" style="--stagger:2;">
           <div class="compact-card">
-            <h3><span class="tag tag-cyan">Track A 핵심</span> 시안 캡처 대신 Figma 노드 데이터 직결</h3>
-            <p>이미지를 눈대중으로 베끼는 것이 아니라, Figma에 정의된 여백·컬러 변수·반응형 규칙을 코드로 그대로 가져옵니다.</p>
+            <h3><span class="tag tag-indigo">Track A 효과</span> 어드민 화면 통일성 100% 보장</h3>
+            <p>여러 개발자가 병렬로 작업해도 동일한 4종 표준 UI 템플릿을 사용하므로 레이아웃 파편화가 발생하지 않습니다.</p>
           </div>
           <div class="compact-card">
-            <h3><span class="tag tag-indigo">Track B 핵심</span> 어드민 화면 일관성 100% 유지</h3>
-            <p>수십 개의 어드민 화면을 만들어도 4가지 표준 골격(Archetype) 안에서 생성되므로 UI가 흔들리지 않습니다.</p>
+            <h3><span class="tag tag-cyan">Track B 효과</span> 디자이너 의도 무손실 반영</h3>
+            <p>개발자 AI가 DOM이나 스타일을 임의로 바꾸지 못하고 Figma 시안 위에 데이터 바인딩과 API 로직만 연결합니다.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================= SLIDE 06: REVERSE QUESTION & FAST-TRACK (+ MODAL BUTTON) ================= -->
+    <!-- ================= SLIDE 06: TASK SPEC & POLICY QUESTION LOOP (+ MODAL BUTTON) ================= -->
     <section class="screen-slide" id="sec-06">
       <div class="slide-inner">
         <div class="slide-header reveal">
           <div class="slide-title-group">
-            <span class="slide-step">SECTION 06 · FEEDBACK LOOP &amp; FAST-TRACK</span>
-            <h2 class="slide-title">지시 전달 · 역질문 수렴 &amp; 변경 패스트트랙</h2>
+            <span class="slide-step">SECTION 06 · TASK SPEC, POLICY INQUIRY &amp; FAST-TRACK</span>
+            <h2 class="slide-title">변경 작업 명세 배포 · 미정의 정책 질의 &amp; 3단계 패스트트랙</h2>
           </div>
-          <p class="slide-sub">기본은 외부 툴 없이 Git 내 마크다운 파일 2개(<code>LATEST_TASK.md</code> · <code>QUESTIONS.md</code>)로 완결됩니다.</p>
+          <p class="slide-sub">외부 툴 없이 Git 내 <code>LATEST_TASK.md</code>와 <code>QUESTIONS.md</code> 양방향 루프로 소통이 완결됩니다.</p>
         </div>
 
         <div class="diagram-frame reveal" style="--stagger:1;">
-          <svg class="diagram-svg" viewBox="0 0 1160 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Git 기반 작업 지시서와 역질문 루프 및 변경 패스트트랙 3단계">
-            <rect width="1160" height="250" rx="12" fill="var(--svg-bg)" />
+          <svg class="diagram-svg" viewBox="0 0 1160 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Git 내장 변경 작업 명세와 정책 질의 양방향 루프 및 변경 패스트트랙 3단계">
+            <rect width="1160" height="260" rx="12" fill="var(--svg-bg)" />
 
-            <!-- Left: Git Core Loop -->
-            <g transform="translate(28, 22)">
-              <rect width="530" height="206" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
-              <text x="22" y="34" fill="#34D399" font-size="12" font-weight="800">CORE · 외부 툴 의존성 0 (Git-Native 기본 구조)</text>
-              <rect x="22" y="50" width="232" height="134" rx="10" fill="var(--svg-card)" stroke="#06B6D4" />
-              <text x="36" y="76" fill="#22D3EE" font-size="13" font-weight="800">1. LATEST_TASK.md (하향 지시)</text>
-              <text x="36" y="100" fill="var(--svg-sub)" font-size="11.5">• PO가 안건 반영 시 자동 생성</text>
-              <text x="36" y="120" fill="var(--svg-sub)" font-size="11.5">• 이번 변경 요약 + 영향 화면코드</text>
-              <text x="36" y="140" fill="var(--svg-sub)" font-size="11.5">• 로컬 AI가 git pull 즉시 자동 파악</text>
+            <!-- Left: Bidirectional Git-Native Loop -->
+            <g transform="translate(24, 20)">
+              <rect width="540" height="220" rx="14" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
+              <text x="20" y="32" fill="#34D399" font-size="12" font-weight="800">CORE · Git-Native 양방향 명세·질의 루프 (외부 의존성 0)</text>
 
-              <rect x="274" y="50" width="232" height="134" rx="10" fill="var(--svg-card)" stroke="#F59E0B" />
-              <text x="288" y="76" fill="#FBBF24" font-size="13" font-weight="800">2. QUESTIONS.md (상향 역질문)</text>
-              <text x="288" y="100" fill="var(--svg-sub)" font-size="11.5">• 구현 중 미정의 예외 케이스 발견 시</text>
-              <text x="288" y="120" fill="var(--svg-sub)" font-size="11.5">• AI가 임의 추측 대신 ❓ 역질문 기록</text>
-              <text x="288" y="140" fill="var(--svg-sub)" font-size="11.5">• PO가 결정하면 정본으로 즉시 흡수</text>
+              <rect x="20" y="50" width="224" height="146" rx="10" fill="var(--svg-card)" stroke="#06B6D4" stroke-width="1.5" />
+              <text x="34" y="76" fill="#22D3EE" font-size="12.5" font-weight="800">📄 LATEST_TASK.md</text>
+              <text x="34" y="96" fill="var(--svg-text)" font-size="11.5" font-weight="700">[하향] 변경 작업 명세서 배포</text>
+              <text x="34" y="118" fill="var(--svg-sub)" font-size="11">• 변경 요구사항 요약·등급(L1~3)</text>
+              <text x="34" y="138" fill="var(--svg-sub)" font-size="11">• 자동 추출된 영향 화면코드</text>
+              <text x="34" y="158" fill="var(--svg-sub)" font-size="11">• UIX / FE·BE 파트별 작업 명세</text>
+
+              <!-- Bidirectional Arrows between LATEST_TASK and QUESTIONS -->
+              <path class="flow-line" d="M 248 104 L 290 104" stroke="#06B6D4" stroke-width="2.5" marker-end="url(#arrCyan)" />
+              <path class="flow-line" d="M 292 144 L 250 144" stroke="#F59E0B" stroke-width="2.5" marker-end="url(#arrAmber)" />
+
+              <rect x="296" y="50" width="224" height="146" rx="10" fill="var(--svg-card)" stroke="#F59E0B" stroke-width="1.5" />
+              <text x="310" y="76" fill="#FBBF24" font-size="12.5" font-weight="800">❓ QUESTIONS.md</text>
+              <text x="310" y="96" fill="var(--svg-text)" font-size="11.5" font-weight="700">[상향] 미정의 정책 질의·환류</text>
+              <text x="310" y="118" fill="var(--svg-sub)" font-size="11">• 구현 중 미정의 예외 케이스 발견</text>
+              <text x="310" y="138" fill="var(--svg-sub)" font-size="11">• AI 임의 추론 차단 및 질의 등록</text>
+              <text x="310" y="158" fill="var(--svg-sub)" font-size="11">• PO/PM 판정 후 정본으로 환류</text>
             </g>
 
             <!-- Right: Fast-Track L1~L3 -->
-            <g transform="translate(586, 22)">
-              <rect width="546" height="206" rx="14" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
-              <text x="22" y="34" fill="#818CF8" font-size="12" font-weight="800">FAST-TRACK · 변경 규모별 3단계 경량 경로</text>
+            <g transform="translate(588, 20)">
+              <rect width="548" height="220" rx="14" fill="var(--svg-panel)" stroke="#6366F1" stroke-width="2" />
+              <text x="20" y="32" fill="#818CF8" font-size="12" font-weight="800">FAST-TRACK · 변경 등급별 3단계 라우팅 경로</text>
 
-              <rect x="22" y="50" width="160" height="134" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="34" y="76" fill="#F43F5E" font-size="12.5" font-weight="800">Level 1 · 신규/대규모</text>
-              <text x="34" y="100" fill="var(--svg-sub)" font-size="11">정본 → UIX → 코드 → 검수</text>
-              <text x="34" y="120" fill="var(--svg-sub)" font-size="11">4단계 정석 파이프라인</text>
+              <rect x="20" y="50" width="162" height="146" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
+              <text x="32" y="76" fill="#F43F5E" font-size="12" font-weight="800">Level 1 · Full Track</text>
+              <text x="32" y="98" fill="var(--svg-text)" font-size="11" font-weight="700">신규 화면 · UI+로직 변경</text>
+              <text x="32" y="120" fill="var(--svg-sub)" font-size="10.5">PO 정의 → UIX·개발 명세</text>
+              <text x="32" y="138" fill="var(--svg-sub)" font-size="10.5">동시 배포 → 시안 확정 →</text>
+              <text x="32" y="156" fill="var(--svg-sub)" font-size="10.5">구현 → 양방향 검수</text>
 
-              <rect x="194" y="50" width="160" height="134" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="206" y="76" fill="#22D3EE" font-size="12.5" font-weight="800">Level 2 · 정책/로직 변경</text>
-              <text x="206" y="100" fill="var(--svg-sub)" font-size="11">UIX 단계 생략</text>
-              <text x="206" y="120" fill="var(--svg-sub)" font-size="11">정본 수정 → 즉시 코드 반영</text>
+              <rect x="193" y="50" width="162" height="146" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
+              <text x="205" y="76" fill="#22D3EE" font-size="12" font-weight="800">Level 2 · Logic Track</text>
+              <text x="205" y="98" fill="var(--svg-text)" font-size="11" font-weight="700">수식·비즈니스 규칙만 변경</text>
+              <text x="205" y="120" fill="var(--svg-sub)" font-size="10.5">UIX 단계 생략</text>
+              <text x="205" y="138" fill="var(--svg-sub)" font-size="10.5">PO 정본 개정 → 개발 작업</text>
+              <text x="205" y="156" fill="var(--svg-sub)" font-size="10.5">명세 직행 → 정본 검수</text>
 
-              <rect x="366" y="50" width="158" height="134" rx="10" fill="var(--svg-card)" stroke="var(--svg-stroke)" />
-              <text x="378" y="76" fill="#34D399" font-size="12.5" font-weight="800">Level 3 · 문구/긴급패치</text>
-              <text x="378" y="100" fill="var(--svg-sub)" font-size="11">코드 선조치 허용 후</text>
-              <text x="378" y="120" fill="var(--svg-sub)" font-size="11">/spec-check 역동기화</text>
+              <rect x="366" y="50" width="162" height="146" rx="10" fill="var(--svg-card)" stroke="#10B981" />
+              <text x="378" y="76" fill="#34D399" font-size="12" font-weight="800">Level 3 · Hotfix</text>
+              <text x="378" y="98" fill="var(--svg-text)" font-size="11" font-weight="700">단순 문구 · 긴급 장애 패치</text>
+              <text x="378" y="120" fill="var(--svg-sub)" font-size="10.5">코드 선(先) 조치 허용 후</text>
+              <text x="378" y="138" fill="#6EE7B7" font-size="10.5" font-weight="700">/doc-update --sync</text>
+              <text x="378" y="156" fill="var(--svg-sub)" font-size="10.5">정본·개정이력 사후 역동기화</text>
             </g>
           </svg>
         </div>
@@ -1328,7 +1325,7 @@
           <div>
             <strong style="font-size:14.5px; color:var(--text-primary);">💡 사내 업무플랫폼(자체 구축 게시판)이나 외부 협업 툴과 연동하려면?</strong>
             <p style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;">
-              Git 기본 구조 위에 사내 업무플랫폼 경량 API 3종(다중 프로젝트·담당자 자동 매핑) 또는 Google Workspace를 얹는 확장 제안서입니다.
+              Git 기본 코어 위에 사내 업무플랫폼 경량 API 3종(<code>project-meta.json</code> 다중 프로젝트·부서별 담당자 자동 매핑) 또는 Google Workspace를 연결하는 확장 제안입니다.
             </p>
           </div>
           <button type="button" class="modal-trigger-btn" onclick="openModal('feedbackModal')">
@@ -1344,44 +1341,44 @@
         <div class="slide-header reveal">
           <div class="slide-title-group">
             <span class="slide-step">SECTION 07 · 5 CORE AI SKILLS</span>
-            <h2 class="slide-title">직군별 5대 AI 슬래시(/) 스킬 요약</h2>
+            <h2 class="slide-title">직군별 5대 핵심 AI 스킬(/) 체계</h2>
           </div>
-          <p class="slide-sub">각 직군은 복잡한 프롬프트 대신 표준화된 슬래시 명령어 5개로 시스템을 구동합니다.</p>
+          <p class="slide-sub">AI 실행 명세서(<code>AI_에이전틱_환경_구축.md</code>)에 정의된 5개 표준 명령어로 전 과정을 구동합니다.</p>
         </div>
 
         <div class="grid-5 reveal" style="--stagger:1;">
           <div class="compact-card">
-            <span class="tag tag-indigo">PO / PM</span>
+            <span class="tag tag-rose">01 · 초기/역공학</span>
+            <h3 style="margin-top:8px;"><code>/doc-init</code></h3>
+            <p>신규 기획 초안이나 레거시 코드를 분석해 표준 3단 정본(<code>v1.0.0</code>), 색인, 요약 명세(Digest)를 최초 생성합니다.</p>
+          </div>
+          <div class="compact-card">
+            <span class="tag tag-cyan">02 · 공통 계약</span>
+            <h3 style="margin-top:8px;"><code>/doc-rule</code></h3>
+            <p>도메인 공통 계약(API Mock JSON 포함 <code>00_domain_contracts.md</code>)과 2-Track 표준 UI 계약을 추출·갱신합니다.</p>
+          </div>
+          <div class="compact-card">
+            <span class="tag tag-indigo">03 · PO / PM 상시</span>
             <h3 style="margin-top:8px;"><code>/doc-update</code></h3>
-            <p>자연어 안건을 받아 연관 화면코드를 자동 탐색하고 정본·Digest·<code>LATEST_TASK.md</code>를 동시 갱신합니다.</p>
+            <p>요구사항 정의 시 변경 등급(L1~3)과 영향 화면코드를 스캔해 정본·계산기·<code>LATEST_TASK.md</code>를 일괄 개정합니다.</p>
           </div>
           <div class="compact-card">
-            <span class="tag tag-cyan">UIX 디자이너</span>
-            <h3 style="margin-top:8px;"><code>/proto-gen</code></h3>
-            <p>Figma MCP 디자인 시안 또는 4대 표준 어드민 골격을 기반으로 검증용 프로토타입을 생성합니다.</p>
+            <span class="tag tag-emerald">04 · FE / BE 상시</span>
+            <h3 style="margin-top:8px;"><code>/dev-screen</code></h3>
+            <p><code>LATEST_TASK.md</code>와 6% 타겟 명세 및 Track A/B UI 소스를 결합해 구현하고 미정의 정책은 질의로 분리합니다.</p>
           </div>
           <div class="compact-card">
-            <span class="tag tag-emerald">FE / BE 개발자</span>
-            <h3 style="margin-top:8px;"><code>/code-gen</code></h3>
-            <p><code>LATEST_TASK.md</code>와 해당 화면 Digest 1장만 핀셋 로드하여 프로덕션 코드와 테스트를 작성합니다.</p>
-          </div>
-          <div class="compact-card">
-            <span class="tag tag-amber">공통 · CI</span>
+            <span class="tag tag-amber">05 · 양방향 검수</span>
             <h3 style="margin-top:8px;"><code>/spec-check</code></h3>
-            <p>정본 수식·필드·금지어와 실제 구현 코드를 대조하여 정합성 리포트를 출력하고 미비점을 잡아냅니다.</p>
-          </div>
-          <div class="compact-card">
-            <span class="tag tag-rose">리뉴얼 · 레거시</span>
-            <h3 style="margin-top:8px;"><code>/reverse-spec</code></h3>
-            <p>문서가 없는 기존 레거시 소스코드를 역분석하여 화면 명세서 초안과 미정의 질문 목록을 추출합니다.</p>
+            <p>정본 명세·계산기 정답셋·Figma 시안과 실제 코드를 대조해 일치(<code>✅</code>)·위반(<code>❌</code>)·임의구현(<code>⚠️</code>)·질의(<code>❓</code>)를 판정합니다.</p>
           </div>
         </div>
 
         <div class="modal-trigger-bar reveal" style="--stagger:2; margin-top:8px;">
           <div>
-            <strong style="font-size:15px; color:var(--text-primary);">🚀 우리 프로젝트 유형에 맞는 도입 순서와 AI 주입용 실행 명세서(.md)</strong>
+            <strong style="font-size:15px; color:var(--text-primary);">🚀 프로젝트 유형별 도입 로드맵 &amp; AI 주입용 실행 명세서(.md)</strong>
             <p style="font-size:12.5px; color:var(--text-secondary); margin-top:2px;">
-              신규 구축 / 리뉴얼 / 운영 고도화별 도입 로드맵을 확인하거나, AI 에이전트에게 바로 읽힐 마크다운 정본을 다운로드하세요.
+              신규 구축 / 전면 리뉴얼 / 운영 고도화별 도입 순서를 확인하거나, AI 에이전트에게 바로 읽힐 실행 명세서 정본을 다운로드하세요.
             </p>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -1423,11 +1420,11 @@
               <rect x="20" y="18" width="130" height="24" rx="6" fill="rgba(99,102,241,0.2)" />
               <text x="85" y="34" text-anchor="middle" fill="#818CF8" font-size="11" font-weight="800">TYPE A · 신규 구축</text>
               <text x="20" y="66" fill="var(--svg-text)" font-size="17" font-weight="800">Greenfield (정본 선행 구축형)</text>
-              <text x="20" y="96" fill="var(--svg-sub)" font-size="12">1. 2-Repo 분리 생성 및 템플릿 세팅</text>
-              <text x="20" y="118" fill="var(--svg-sub)" font-size="12">2. PO가 마스터 정책서 + 화면코드 부여</text>
-              <text x="20" y="140" fill="var(--svg-sub)" font-size="12">3. UIX 시안/골격 검증 후 /code-gen 착수</text>
+              <text x="20" y="96" fill="var(--svg-sub)" font-size="12">1. 2-Repo 분리 생성 및 /doc-init 초안 구조화</text>
+              <text x="20" y="118" fill="var(--svg-sub)" font-size="12">2. /doc-rule로 도메인·API Mock·표준 UI 계약 수립</text>
+              <text x="20" y="140" fill="var(--svg-sub)" font-size="12">3. Track A/B 기준 확정 후 /dev-screen 착수</text>
               <rect x="20" y="160" width="312" height="36" rx="8" fill="rgba(99,102,241,0.12)" />
-              <text x="176" y="183" text-anchor="middle" fill="#A5B4FC" font-size="11.5" font-weight="800">핵심: 첫 줄부터 정본 100% 일치 상태로 출발</text>
+              <text x="176" y="183" text-anchor="middle" fill="#A5B4FC" font-size="11.5" font-weight="800">핵심: 첫 코드부터 정본 100% 일치 상태로 출발</text>
             </g>
 
             <!-- Type B -->
@@ -1436,11 +1433,11 @@
               <rect x="20" y="18" width="130" height="24" rx="6" fill="rgba(6,182,212,0.2)" />
               <text x="85" y="34" text-anchor="middle" fill="#22D3EE" font-size="11" font-weight="800">TYPE B · 전면 리뉴얼</text>
               <text x="20" y="66" fill="var(--svg-text)" font-size="17" font-weight="800">Renewal (역공학 추출 후 전환형)</text>
-              <text x="20" y="96" fill="var(--svg-sub)" font-size="12">1. /reverse-spec으로 구버전 코드 역분석</text>
-              <text x="20" y="118" fill="var(--svg-sub)" font-size="12">2. 현행 숨은 비즈니스 규칙·수식 문서화</text>
-              <text x="20" y="140" fill="var(--svg-sub)" font-size="12">3. PO가 리뉴얼 변경점만 정본에 덮어쓰기</text>
+              <text x="20" y="96" fill="var(--svg-sub)" font-size="12">1. /doc-init으로 구버전 코드 역분석·명세 추출</text>
+              <text x="20" y="118" fill="var(--svg-sub)" font-size="12">2. 의심 로직은 legacy_questions.md로 분리 판정</text>
+              <text x="20" y="140" fill="var(--svg-sub)" font-size="12">3. 확정된 정본 위에 /doc-update로 리뉴얼 요건 반영</text>
               <rect x="20" y="160" width="312" height="36" rx="8" fill="rgba(6,182,212,0.12)" />
-              <text x="176" y="183" text-anchor="middle" fill="#67E8F9" font-size="11.5" font-weight="800">핵심: 레거시 기능 누락 사고 원천 차단</text>
+              <text x="176" y="183" text-anchor="middle" fill="#67E8F9" font-size="11.5" font-weight="800">핵심: 레거시 숨은 정책 누락 사고 원천 차단</text>
             </g>
 
             <!-- Type C -->
@@ -1449,11 +1446,11 @@
               <rect x="20" y="18" width="150" height="24" rx="6" fill="rgba(16,185,129,0.2)" />
               <text x="95" y="34" text-anchor="middle" fill="#34D399" font-size="11" font-weight="800">TYPE C · 운영 / 고도화</text>
               <text x="20" y="66" fill="var(--svg-text)" font-size="17" font-weight="800">Brownfield (핫스팟 점진 적용형)</text>
-              <text x="20" y="96" fill="var(--svg-sub)" font-size="12">1. 전체 코드 일괄 문서화 금지 (비효율 방지)</text>
-              <text x="20" y="118" fill="var(--svg-sub)" font-size="12">2. 이번 스프린트 수정 대상 화면만 역공학</text>
-              <text x="20" y="140" fill="var(--svg-sub)" font-size="12">3. 건드리는 도메인부터 Digest·검수 게이트 적용</text>
+              <text x="20" y="96" fill="var(--svg-sub)" font-size="12">1. 전체 레거시 일괄 문서화 지양 (비효율 방지)</text>
+              <text x="20" y="118" fill="var(--svg-sub)" font-size="12">2. 이번 스프린트 수정 대상 도메인만 /doc-init 추출</text>
+              <text x="20" y="140" fill="var(--svg-sub)" font-size="12">3. 작업 도메인부터 Digest·/spec-check 게이트 적용</text>
               <rect x="20" y="160" width="312" height="36" rx="8" fill="rgba(16,185,129,0.12)" />
-              <text x="176" y="183" text-anchor="middle" fill="#6EE7B7" font-size="11.5" font-weight="800">핵심: 운영 중단 없이 핵심 도메인부터 정본화</text>
+              <text x="176" y="183" text-anchor="middle" fill="#6EE7B7" font-size="11.5" font-weight="800">핵심: 운영 중단 없이 변경 빈도 높은 곳부터 정본화</text>
             </g>
           </svg>
         </div>
@@ -1463,27 +1460,27 @@
           <div class="compact-card">
             <span class="tag tag-indigo">STEP 1</span>
             <h3 style="margin-top:6px;">저장소 · 스킬 세팅</h3>
-            <p>AI에게 <code>AI_에이전틱_환경_구축.md</code>를 읽혀 폴더 구조와 5대 스킬을 자동 생성합니다.</p>
+            <p>AI에게 <code>AI_에이전틱_환경_구축.md</code>를 읽혀 2-Repo 구조와 5대 스킬을 자동 생성합니다.</p>
           </div>
           <div class="compact-card">
             <span class="tag tag-cyan">STEP 2</span>
-            <h3 style="margin-top:6px;">화면코드 체계 부여</h3>
-            <p>핵심 도메인별 화면 고유 코드와 <code>CORE_RULES.md</code>(절대 수식·용어)를 먼저 정의합니다.</p>
+            <h3 style="margin-top:6px;">공통 계약 수립</h3>
+            <p><code>/doc-rule</code>로 <code>00_domain_contracts.md</code>(API Mock)와 <code>00_ui_system.md</code>를 먼저 고정합니다.</p>
           </div>
           <div class="compact-card">
             <span class="tag tag-emerald">STEP 3</span>
-            <h3 style="margin-top:6px;">Digest 자동화 가동</h3>
-            <p>정본 수정 시 화면별 1장 요약본과 <code>LATEST_TASK.md</code>가 생성되는지 확인합니다.</p>
+            <h3 style="margin-top:6px;">색인 · Digest 가동</h3>
+            <p>정본 개정 시 <code>canon_index.md</code>, 화면별 요약 명세, <code>LATEST_TASK.md</code> 자동 생성을 확인합니다.</p>
           </div>
           <div class="compact-card">
             <span class="tag tag-amber">STEP 4</span>
-            <h3 style="margin-top:6px;">시범 도메인 1개 운영</h3>
-            <p>안건 1건을 골라 PO 발화 → UIX/개발 AI 반영 → <code>/spec-check</code>까지 1사이클을 돌립니다.</p>
+            <h3 style="margin-top:6px;">시범 도메인 1사이클</h3>
+            <p>요구사항 1건을 골라 <code>/doc-update</code> → <code>/dev-screen</code> → <code>/spec-check</code> 전 과정을 검증합니다.</p>
           </div>
           <div class="compact-card">
             <span class="tag tag-rose">STEP 5</span>
-            <h3 style="margin-top:6px;">Pre-commit 게이트</h3>
-            <p>검수 스크립트를 Git Hook 및 PR 체크에 연결하여 정합성 유지를 시스템으로 고정합니다.</p>
+            <h3 style="margin-top:6px;">CI 게이트 고정</h3>
+            <p><code>check.sh</code>를 PR 필수 체크에 연결해 정본과 어긋난 코드의 병합을 시스템으로 차단합니다.</p>
           </div>
         </div>
       </div>
@@ -1503,46 +1500,51 @@
         <table class="glossary-table">
           <thead>
             <tr>
-              <th style="width:22%;">용어 (약어)</th>
-              <th style="width:23%;">한글 명칭</th>
+              <th style="width:24%;">용어 (약어)</th>
+              <th style="width:24%;">한글 비즈니스 명칭</th>
               <th>실무 역할 및 쉬운 풀이</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td><strong>SSOT</strong><br><span style="font-size:11px;color:var(--text-muted);">Single Source of Truth</span></td>
-              <td><strong>단일 정본</strong></td>
-              <td>기획서·정책서가 여러 곳에 흩어지지 않고 오직 <code>spec-repo/docs/</code>의 문서만 절대 기준으로 삼는 원칙.</td>
+              <td><strong>단일 정본 (유일 기준 원본)</strong></td>
+              <td>기획서·정책서·화면 명세가 여러 곳에 흩어지지 않고 오직 <code>spec-repo/docs/</code>의 문서만 절대 기준으로 삼는 원칙.</td>
             </tr>
             <tr>
               <td><strong>LATEST_TASK.md</strong></td>
-              <td><strong>최신 안건 작업 지시서</strong></td>
-              <td>PO가 안건을 반영할 때 Git에 자동 생성되는 지시서. 개발자·UIX의 로컬 AI가 <code>git pull</code> 직후 스스로 읽고 이번 할 일을 파악함.</td>
+              <td><strong>변경 작업 명세서</strong></td>
+              <td>PO/PM이 요구사항을 정의할 때 Git에 자동 생성·배포되는 파일. UIX·개발의 로컬 AI가 <code>sync-spec.sh</code> 직후 스스로 읽고 이번 작업 범위를 파악함.</td>
+            </tr>
+            <tr>
+              <td><strong>QUESTIONS.md</strong></td>
+              <td><strong>미정의 정책 질의서</strong></td>
+              <td>구현·검수 중 정본에 정의되지 않은 예외 케이스 발견 시 AI가 임의 추론 대신 질의(<code>❓</code>)를 등록해 PO/PM 의사결정으로 환류시키는 큐.</td>
             </tr>
             <tr>
               <td><strong>Digest</strong><br><span style="font-size:11px;color:var(--text-muted);">Screen Digest</span></td>
-              <td><strong>화면별 1장 요약본</strong></td>
-              <td>전체 정본 중 특정 화면 1개 구현에 필요한 필드·상태·모달·수식만 1장으로 자동 추출한 AI 핀셋 주입용 카드.</td>
+              <td><strong>화면별 요약 명세 (1장 요약본)</strong></td>
+              <td>전체 정본 중 특정 화면 코드 1개 구현에 필요한 필드·상태·모달·수식만 1~2장으로 자동 추출한 AI 타겟 로드용 명세(토큰 94% 절감).</td>
             </tr>
             <tr>
               <td><strong>MCP</strong><br><span style="font-size:11px;color:var(--text-muted);">Model Context Protocol</span></td>
-              <td><strong>외부 도구 직결 통로</strong></td>
-              <td>AI가 로컬 파일뿐 아니라 Figma 디자인 시안, 사내 업무플랫폼 API 등 외부 데이터를 실시간으로 읽어오는 표준 규격.</td>
+              <td><strong>외부 도구 직결 프로토콜</strong></td>
+              <td>AI가 로컬 파일뿐 아니라 Figma 디자인 시안, 사내 업무플랫폼 API 등 외부 데이터를 실시간으로 읽어오는 표준 연결 규격.</td>
             </tr>
             <tr>
-              <td><strong>Archetype</strong></td>
-              <td><strong>표준 화면 골격 (4종)</strong></td>
-              <td>디자인 시안 없이도 백오피스 어드민의 통일성을 유지하는 4대 레이아웃 틀 (<code>List-Modal</code>, <code>Detail-Form</code>, <code>Stats-Dashboard</code>, <code>Tabs-Complex</code>).</td>
+              <td><strong>Archetype</strong><br><span style="font-size:11px;color:var(--text-muted);">UI Archetype</span></td>
+              <td><strong>표준 UI 템플릿 (4종)</strong></td>
+              <td>별도 디자인 시안 없이도 백오피스 화면의 통일성을 유지하는 4대 레이아웃 템플릿 (<code>List-Modal</code>, <code>Detail-Form</code>, <code>Stats-Dashboard</code>, <code>Tabs-Complex</code>).</td>
             </tr>
             <tr>
               <td><strong>Fast-Track (L1~L3)</strong></td>
               <td><strong>변경 등급별 경량 경로</strong></td>
-              <td>신규/대규모(L1) · 로직 변경(L2, UIX 생략) · 단순 문구/긴급 패치(L3, 선조치 후동기화)로 나누어 속도를 높이는 규칙.</td>
+              <td>신규/대규모(L1) · 로직만 변경(L2, UIX 생략) · 단순 문구/긴급 패치(L3, 선조치 후 역동기화)로 나누어 처리 속도를 높이는 규칙.</td>
             </tr>
             <tr>
               <td><strong>Greenfield / Brownfield</strong></td>
-              <td><strong>신규 구축 / 레거시 운영</strong></td>
-              <td>백지상태에서 새로 만드는 프로젝트(Greenfield)와 기존 레거시 코드 위에서 고도화하는 프로젝트(Brownfield).</td>
+              <td><strong>신규 구축 / 레거시 유지보수</strong></td>
+              <td>백지상태에서 새로 구축하는 프로젝트(Greenfield)와 기존 레거시 코드 위에서 기능을 고도화하는 프로젝트(Brownfield).</td>
             </tr>
           </tbody>
         </table>
@@ -1556,7 +1558,7 @@
   <div class="modal-backdrop" id="feedbackModal" onclick="if(event.target===this)closeModal('feedbackModal')">
     <div class="modal-window" role="dialog" aria-modal="true" aria-labelledby="feedbackTitle">
       <div class="modal-head">
-        <h2 id="feedbackTitle">🔌 자사 피드백 전달 방식 — Git 코어 &amp; 사내 업무플랫폼 확장 연동 제안</h2>
+        <h2 id="feedbackTitle">🔌 자사 피드백 전달 방식 — Git 기본 코어 &amp; 사내 업무플랫폼 확장 연동 제안</h2>
         <button type="button" class="modal-close" onclick="closeModal('feedbackModal')" aria-label="닫기">✕</button>
       </div>
       <div class="modal-body">
@@ -1567,13 +1569,13 @@
             <!-- Core Box -->
             <g transform="translate(20, 18)">
               <rect width="420" height="194" rx="12" fill="var(--svg-panel)" stroke="#10B981" stroke-width="2" />
-              <text x="18" y="30" fill="#34D399" font-size="12" font-weight="800">필수 코어 (즉시 작동 · 외부 연동 불필요)</text>
-              <text x="18" y="54" fill="var(--svg-text)" font-size="15" font-weight="800">Git 지시서 (LATEST_TASK.md) 기반 자동 공유</text>
-              <text x="18" y="82" fill="var(--svg-sub)" font-size="11.5">1. PO가 안건 반영 시 Git에 LATEST_TASK.md 자동 커밋</text>
-              <text x="18" y="104" fill="var(--svg-sub)" font-size="11.5">2. PO는 팀에 “정본 올렸습니다” 한 줄만 전달</text>
-              <text x="18" y="126" fill="var(--svg-sub)" font-size="11.5">3. 개발/UIX AI가 git pull 즉시 지시서를 읽고 작업 수행</text>
+              <text x="18" y="30" fill="#34D399" font-size="12" font-weight="800">필수 기본 코어 (즉시 작동 · 외부 연동 불필요)</text>
+              <text x="18" y="54" fill="var(--svg-text)" font-size="13.5" font-weight="800">Git 작업 명세(LATEST_TASK.md) &amp; 질의(QUESTIONS.md)</text>
+              <text x="18" y="82" fill="var(--svg-sub)" font-size="11.5">1. PO/PM이 요구사항 정의 시 LATEST_TASK.md 자동 커밋</text>
+              <text x="18" y="104" fill="var(--svg-sub)" font-size="11.5">2. PO/PM은 팀에 “정본 반영됨” 한 줄만 공유</text>
+              <text x="18" y="126" fill="var(--svg-sub)" font-size="11.5">3. 개발/UIX AI가 sync-spec.sh 직후 명세서를 읽고 작업 착수</text>
               <rect x="18" y="144" width="384" height="34" rx="7" fill="rgba(16,185,129,0.14)" />
-              <text x="210" y="166" text-anchor="middle" fill="#6EE7B7" font-size="11.5" font-weight="800">장점: 사내 플랫폼 API 개발 전에도 복붙 0% 달성</text>
+              <text x="210" y="166" text-anchor="middle" fill="#6EE7B7" font-size="11" font-weight="800">핵심: 사내 플랫폼 API 개발 전에도 수동 중계 0% 달성</text>
             </g>
 
             <!-- Plus Sign -->
@@ -1583,10 +1585,10 @@
             <g transform="translate(480, 18)">
               <rect width="420" height="194" rx="12" fill="var(--svg-panel)" stroke="#06B6D4" stroke-width="2" stroke-dasharray="6 4" />
               <text x="18" y="30" fill="#22D3EE" font-size="12" font-weight="800">확장 제안 (협의 후 연결 · Optional Add-on)</text>
-              <text x="18" y="54" fill="var(--svg-text)" font-size="15" font-weight="800">사내 업무플랫폼 경량 API 3종 연동</text>
-              <text x="18" y="82" fill="var(--svg-sub)" font-size="11.5">• POST /api/agent/tasks : 안건·담당자 자동 게시</text>
-              <text x="18" y="104" fill="var(--svg-sub)" font-size="11.5">• GET /api/agent/tasks?status=open : 미처리 피드백 수집</text>
-              <text x="18" y="126" fill="var(--svg-sub)" font-size="11.5">• PATCH /api/agent/tasks/{id} : 반영 완료 상태 변경</text>
+              <text x="18" y="54" fill="var(--svg-text)" font-size="14.5" font-weight="800">사내 업무플랫폼 경량 API 3종 직결</text>
+              <text x="18" y="82" fill="var(--svg-sub)" font-size="11.5">• POST /api/agent/tasks : 변경 작업 명세·담당자 자동 게시</text>
+              <text x="18" y="104" fill="var(--svg-sub)" font-size="11.5">• GET /api/agent/tasks?status=open : 미처리 질의·피드백 수집</text>
+              <text x="18" y="126" fill="var(--svg-sub)" font-size="11.5">• PATCH /api/agent/tasks/{id} : 정본 반영 완료 상태 변경</text>
               <rect x="18" y="144" width="384" height="34" rx="7" fill="rgba(6,182,212,0.14)" />
               <text x="210" y="166" text-anchor="middle" fill="#67E8F9" font-size="11.5" font-weight="800">project-meta.json으로 다중 프로젝트·부서별 담당자 자동 매핑</text>
             </g>
@@ -1596,11 +1598,11 @@
         <div class="grid-2">
           <div class="compact-card">
             <h3><span class="tag tag-cyan">Option A (권장 확장)</span> 사내 업무플랫폼 경량 API</h3>
-            <p>사내 플랫폼은 자체 구축 시스템이므로 AI로 경량 API 3종만 추가하면 됩니다. 다중 프로젝트 ID와 부서별 담당자 지정은 초기 1회 동기화한 <code>project-meta.json</code>을 통해 AI가 안건 도메인에 맞춰 자동 배정합니다.</p>
+            <p>자체 구축된 사내 업무플랫폼에 경량 API 3종만 개방하면 됩니다. 다중 프로젝트 ID와 부서별 담당자 지정은 초기 1회 동기화한 <code>project-meta.json</code>을 참조해 AI가 도메인에 맞춰 자동 배정합니다.</p>
           </div>
           <div class="compact-card">
             <h3><span class="tag tag-indigo">Option B (대안 확장)</span> Google Workspace 연동</h3>
-            <p>사내 플랫폼 API 협의 전이라도 Google Docs/Sheets 플러그인이 기본 내장되어 있어, 공유 시트 링크 하나로 역질문·피드백 표를 양방향 동기화할 수 있습니다.</p>
+            <p>사내 플랫폼 API 개방 전 과도기나 외부 협업 시에는 기본 내장된 Google Sheets / Chat 플러그인을 통해 작업 상태판과 정책 질의 스레드를 자동 동기화할 수 있습니다.</p>
           </div>
         </div>
       </div>
@@ -1675,7 +1677,7 @@
     }, { threshold: 0.12 });
     revealEls.forEach(el => revealObs.observe(el));
 
-    const slides = ['sec-hero', 'sec-01', 'sec-02', 'sec-03', 'sec-04', 'sec-05', 'sec-06', 'sec-07'];
+    const slides = ['sec-hero', 'sec-01a', 'sec-01b', 'sec-02', 'sec-03', 'sec-04', 'sec-05', 'sec-06', 'sec-07'];
     const navLinks = document.querySelectorAll('#mainSecNav a');
     const dotBtns = document.querySelectorAll('#slideDots .slide-dot');
 
