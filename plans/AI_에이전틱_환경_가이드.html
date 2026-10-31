@@ -102,37 +102,37 @@
       animation: flowForward 1.8s linear infinite;
     }
 
-    /* Sticky Top GNB */
-    .site-gnb {
+    /* Floating Minimal Topbar (Replaces heavy GNB) */
+    .floating-topbar {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 18px;
+      left: 24px;
+      right: 24px;
       z-index: 200;
-      height: 60px;
-      background: var(--bg-glass);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border-subtle);
-      display: flex;
-      align-items: center;
-      padding: 0 24px;
-    }
-    .gnb-inner {
-      width: 100%;
-      max-width: 1420px;
-      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      pointer-events: none;
     }
-    .gnb-brand {
-      display: flex;
+    .topbar-pill {
+      pointer-events: auto;
+      display: inline-flex;
       align-items: center;
       gap: 10px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    }
+    .gnb-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--text-primary);
       text-decoration: none;
       letter-spacing: -0.02em;
@@ -140,112 +140,204 @@
       cursor: pointer;
     }
     .gnb-brand-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
       box-shadow: 0 0 12px var(--accent-cyan);
     }
     .ver-pill {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       padding: 2px 7px;
       border-radius: 999px;
-      background: rgba(99, 102, 241, 0.14);
+      background: rgba(99, 102, 241, 0.16);
       color: var(--accent-indigo);
-      border: 1px solid rgba(99, 102, 241, 0.3);
+      border: 1px solid rgba(99, 102, 241, 0.32);
     }
-
-    /* Page Tabs & Section Links */
-    .gnb-center {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .gnb-center::-webkit-scrollbar { display: none; }
-    .page-switch-group {
+    .topbar-actions {
+      pointer-events: auto;
       display: inline-flex;
-      background: var(--bg-elevated);
-      padding: 3px;
-      border-radius: 10px;
-      border: 1px solid var(--border-subtle);
-      margin-right: 6px;
-    }
-    .page-tab-btn {
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 12px;
-      font-weight: 700;
-      padding: 5px 11px;
-      border-radius: 7px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-family: inherit;
-      white-space: nowrap;
-    }
-    .page-tab-btn.active {
-      background: var(--accent-indigo);
-      color: #FFFFFF;
-      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
-    }
-    .sec-nav-links {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-    .sec-nav-links a {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-decoration: none;
-      padding: 4px 6px;
-      border-radius: 6px;
-      white-space: nowrap;
-      transition: all 0.18s ease;
-    }
-    .sec-nav-links a:hover,
-    .sec-nav-links a.active {
-      color: var(--text-primary);
-      background: rgba(99, 102, 241, 0.14);
-    }
-
-    /* Right Utility Buttons */
-    .gnb-actions {
-      display: flex;
       align-items: center;
       gap: 8px;
-      white-space: nowrap;
     }
     .gnb-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12.5px;
       font-weight: 700;
       cursor: pointer;
       border: 1px solid var(--border-subtle);
-      background: var(--bg-elevated);
+      background: var(--bg-glass);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       color: var(--text-primary);
       text-decoration: none;
       font-family: inherit;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
       transition: all 0.2s ease;
     }
     .gnb-btn:hover {
-      border-color: var(--accent-indigo);
+      border-color: var(--accent-cyan);
       transform: translateY(-1px);
     }
     .gnb-btn-primary {
       background: linear-gradient(135deg, var(--accent-indigo), #4F46E5);
       color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.2);
     }
     .gnb-btn-primary:hover {
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45);
+    }
+    .drawer-trigger-btn {
+      background: var(--bg-elevated);
+      border-color: var(--border-strong);
+      padding: 8px 16px;
+    }
+
+    /* Glass Side Drawer (Off-canvas Navigation & Tools) */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      background: rgba(3, 7, 18, 0.62);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .side-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 380px;
+      max-width: 90vw;
+      z-index: 450;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-strong);
+      box-shadow: -20px 0 60px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(104%);
+      transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .side-drawer.open {
+      transform: translateX(0);
+    }
+    .drawer-head {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-elevated);
+    }
+    .drawer-head-title {
+      font-size: 15px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+    .drawer-body {
+      padding: 18px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+    .drawer-group-label {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .drawer-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .drawer-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      transition: all 0.18s ease;
+      cursor: pointer;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+    .drawer-nav-item:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--border-subtle);
+    }
+    .drawer-nav-item.active {
+      background: rgba(99, 102, 241, 0.16);
+      color: var(--text-primary);
+      border-color: rgba(99, 102, 241, 0.45);
+      font-weight: 800;
+    }
+    .drawer-num {
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 36px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      text-align: center;
+      background: var(--bg-elevated);
+      color: var(--accent-cyan);
+    }
+    .drawer-nav-item.active .drawer-num {
+      background: var(--accent-indigo);
+      color: #FFFFFF;
+    }
+    .drawer-tool-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .drawer-tool-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      text-decoration: none;
+      font-family: inherit;
+      transition: all 0.18s ease;
+    }
+    .drawer-tool-btn:hover {
+      border-color: var(--accent-indigo);
+      background: rgba(99, 102, 241, 0.12);
     }
 
     /* Right-side Floating Dot Indicator */
@@ -283,7 +375,7 @@
     /* One Screen Per Section (Full Viewport Slide) */
     .screen-slide {
       min-height: 100vh;
-      padding: 74px 28px 26px;
+      padding: 56px 28px 32px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -675,41 +767,97 @@
     </defs>
   </svg>
 
-  <!-- ================= TOP GNB ================= -->
-  <header class="site-gnb">
-    <div class="gnb-inner">
+  <!-- ================= FLOATING MINIMAL HEADER ================= -->
+  <header class="floating-topbar">
+    <div class="topbar-pill">
       <a class="gnb-brand" onclick="switchPage('main'); window.scrollTo({top:0,behavior:'smooth'});">
         <span class="gnb-brand-dot"></span>
         <span>AI AGENTIC SYSTEM</span>
         <span class="ver-pill">v1.0.0</span>
       </a>
+    </div>
 
-      <div class="gnb-center">
-        <div class="page-switch-group">
-          <button type="button" class="page-tab-btn active" id="tabBtnMain" onclick="switchPage('main')">메인 아키텍처</button>
-          <button type="button" class="page-tab-btn" id="tabBtnRoadmap" onclick="switchPage('roadmap')">🗺️ 유형별 도입 로드맵</button>
-        </div>
+    <div class="topbar-actions">
+      <a class="gnb-btn gnb-btn-primary" href="./AI_에이전틱_환경_구축.md" download="AI_에이전틱_환경_구축.md">📥 AI용 MD 다운로드</a>
+      <button type="button" class="gnb-btn drawer-trigger-btn" onclick="openDrawer()" aria-label="목차 및 도구 열기">
+        <span>☰ 목차 · 도구</span>
+      </button>
+    </div>
+  </header>
 
-        <nav class="sec-nav-links" id="mainSecNav">
-          <a href="#sec-hero" class="active">표지</a>
-          <a href="#sec-01a">01-A 조감도</a>
-          <a href="#sec-01b">01-B 역할변화</a>
-          <a href="#sec-02">02 파이프라인</a>
-          <a href="#sec-03">03 저장소분리</a>
-          <a href="#sec-04">04 토큰최적화</a>
-          <a href="#sec-05">05 2-Track UI</a>
-          <a href="#sec-06">06 명세·질의</a>
-          <a href="#sec-07">07 5대 스킬</a>
+  <!-- ================= GLASS SIDE DRAWER ================= -->
+  <div class="drawer-backdrop" id="drawerBackdrop" onclick="closeDrawer()"></div>
+  <aside class="side-drawer" id="sideDrawer" aria-label="전체 목차 및 도구 메뉴">
+    <div class="drawer-head">
+      <span class="drawer-head-title">
+        <span class="gnb-brand-dot"></span>
+        목차 및 시스템 도구
+      </span>
+      <button type="button" class="modal-close" onclick="closeDrawer()" aria-label="드로어 닫기">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div>
+        <span class="drawer-group-label">MAIN ARCHITECTURE · 메인 슬라이드</span>
+        <nav class="drawer-nav-list" id="drawerSecNav">
+          <button type="button" class="drawer-nav-item active" onclick="navFromDrawer('sec-hero')">
+            <span class="drawer-num">표지</span>
+            <span>AI를 도구로 쓰나요, 시스템으로 쓰나요?</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-01a')">
+            <span class="drawer-num">01-A</span>
+            <span>전체 시스템 조감도 (Lane 1 ~ Lane 3)</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-01b')">
+            <span class="drawer-num">01-B</span>
+            <span>직군별 역할 패러다임 변화 (Before / After)</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-02')">
+            <span class="drawer-num">02</span>
+            <span>4단계 파이프라인 &amp; 역방향 환류 루프</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-03')">
+            <span class="drawer-num">03</span>
+            <span>저장소 물리적 분리 (spec-repo vs app-repo)</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-04')">
+            <span class="drawer-num">04</span>
+            <span>토큰 94% 절감 — 요약 명세(Digest) 타겟 로드</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-05')">
+            <span class="drawer-num">05</span>
+            <span>2-Track 화면 설계 (표준 템플릿 vs Figma MCP)</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-06')">
+            <span class="drawer-num">06</span>
+            <span>변경 작업 명세 배포 · 정책 질의 &amp; 패스트트랙</span>
+          </button>
+          <button type="button" class="drawer-nav-item" onclick="navFromDrawer('sec-07')">
+            <span class="drawer-num">07</span>
+            <span>직군별 5대 핵심 AI 스킬 (/) 체계</span>
+          </button>
         </nav>
       </div>
 
-      <div class="gnb-actions">
-        <button type="button" class="gnb-btn" onclick="openModal('glossaryModal')">📖 핵심 용어 사전</button>
-        <a class="gnb-btn gnb-btn-primary" href="./AI_에이전틱_환경_구축.md" download="AI_에이전틱_환경_구축.md">📥 AI용 MD 다운로드</a>
-        <button type="button" class="gnb-btn" id="themeToggleBtn" aria-label="테마 전환">☀️ Light</button>
+      <div>
+        <span class="drawer-group-label">SEPARATE PAGE · 별도 페이지</span>
+        <button type="button" class="drawer-nav-item" id="drawerBtnRoadmap" onclick="switchPage('roadmap'); closeDrawer();" style="border-color:var(--border-subtle); background:var(--bg-elevated);">
+          <span class="drawer-num" style="background:rgba(6,182,212,0.2); color:var(--accent-cyan);">MAP</span>
+          <span>🗺️ 프로젝트 유형별 도입 로드맵 보기</span>
+        </button>
+      </div>
+
+      <div>
+        <span class="drawer-group-label">REFERENCE &amp; TOOLS · 사전 · 확장 제안 · 설정</span>
+        <div class="drawer-tool-grid">
+          <button type="button" class="drawer-tool-btn" onclick="closeDrawer(); openModal('glossaryModal');">📖 핵심 용어 사전</button>
+          <button type="button" class="drawer-tool-btn" onclick="closeDrawer(); openModal('feedbackModal');">🔌 확장 연동 제안</button>
+          <a class="drawer-tool-btn" href="./AI_에이전틱_환경_구축.md" download="AI_에이전틱_환경_구축.md">📥 AI용 MD 다운로드</a>
+          <button type="button" class="drawer-tool-btn" id="themeToggleBtn">☀️ Light 모드</button>
+        </div>
       </div>
     </div>
-  </header>
+  </aside>
 
   <!-- Floating Slide Dots (Main Page) -->
   <aside class="slide-dots" id="slideDots" aria-label="섹션 이동">
@@ -1616,44 +1764,54 @@
     themeBtn.addEventListener('click', () => {
       const next = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       htmlEl.setAttribute('data-theme', next);
-      themeBtn.textContent = next === 'dark' ? '☀️ Light' : '🌙 Dark';
+      themeBtn.textContent = next === 'dark' ? '☀️ Light 모드' : '🌙 Dark 모드';
     });
 
-    // 2. Page Switcher (Main Architecture vs Onboarding Roadmap)
+    // 2. Side Drawer Open / Close
+    const drawer = document.getElementById('sideDrawer');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    function openDrawer() {
+      drawer.classList.add('open');
+      drawerBackdrop.classList.add('open');
+    }
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      drawerBackdrop.classList.remove('open');
+    }
+    function navFromDrawer(secId) {
+      closeDrawer();
+      scrollToSec(secId);
+    }
+
+    // 3. Page Switcher (Main Architecture vs Onboarding Roadmap)
     function switchPage(page) {
       const mainView = document.getElementById('pageMain');
       const roadmapView = document.getElementById('pageRoadmap');
-      const btnMain = document.getElementById('tabBtnMain');
-      const btnRoadmap = document.getElementById('tabBtnRoadmap');
-      const secNav = document.getElementById('mainSecNav');
+      const btnRoadmap = document.getElementById('drawerBtnRoadmap');
       const dots = document.getElementById('slideDots');
 
       if (page === 'roadmap') {
         mainView.classList.remove('active');
         roadmapView.classList.add('active');
-        btnMain.classList.remove('active');
-        btnRoadmap.classList.add('active');
-        secNav.style.display = 'none';
+        if (btnRoadmap) btnRoadmap.classList.add('active');
         dots.style.display = 'none';
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         roadmapView.classList.remove('active');
         mainView.classList.add('active');
-        btnRoadmap.classList.remove('active');
-        btnMain.classList.add('active');
-        secNav.style.display = '';
+        if (btnRoadmap) btnRoadmap.classList.remove('active');
         dots.style.display = '';
       }
     }
 
-    // 3. Smooth Scroll to Section
+    // 4. Smooth Scroll to Section
     function scrollToSec(id) {
       switchPage('main');
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 4. Modal Open / Close + ESC key
+    // 5. Modal Open / Close + ESC key
     function openModal(id) {
       const m = document.getElementById(id);
       if (m) m.classList.add('open');
@@ -1664,11 +1822,12 @@
     }
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        closeDrawer();
         document.querySelectorAll('.modal-backdrop.open').forEach(m => m.classList.remove('open'));
       }
     });
 
-    // 5. Scroll Reveal & Active Dot / GNB Link Highlighting
+    // 6. Scroll Reveal & Active Dot / Drawer Link Highlighting
     const revealEls = document.querySelectorAll('.reveal');
     const revealObs = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -1678,7 +1837,7 @@
     revealEls.forEach(el => revealObs.observe(el));
 
     const slides = ['sec-hero', 'sec-01a', 'sec-01b', 'sec-02', 'sec-03', 'sec-04', 'sec-05', 'sec-06', 'sec-07'];
-    const navLinks = document.querySelectorAll('#mainSecNav a');
+    const drawerLinks = document.querySelectorAll('#drawerSecNav .drawer-nav-item');
     const dotBtns = document.querySelectorAll('#slideDots .slide-dot');
 
     const slideObs = new IntersectionObserver((entries) => {
@@ -1686,7 +1845,7 @@
         if (entry.isIntersecting) {
           const idx = slides.indexOf(entry.target.id);
           if (idx !== -1) {
-            navLinks.forEach((a, i) => a.classList.toggle('active', i === idx));
+            drawerLinks.forEach((a, i) => a.classList.toggle('active', i === idx));
             dotBtns.forEach((d, i) => d.classList.toggle('active', i === idx));
           }
         }
