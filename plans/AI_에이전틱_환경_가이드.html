@@ -28,6 +28,7 @@
       background: radial-gradient(circle at 20% 0%, #1e1b4b 0%, #0b0f19 55%);
       color: var(--text);
       line-height: 1.6;
+      word-break: keep-all;
     }
 
     .container {
@@ -44,8 +45,6 @@
       padding: 32px 36px;
       margin-bottom: 32px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      position: relative;
-      overflow: hidden;
     }
     .hero-badge {
       display: inline-flex;
@@ -69,15 +68,15 @@
     }
     .hero h1 {
       margin: 0 0 10px;
-      font-size: clamp(24px, 3.8vw, 34px);
+      font-size: clamp(22px, 3.6vw, 32px);
       font-weight: 800;
       letter-spacing: -0.02em;
     }
     .hero p {
       margin: 0;
       color: #cbd5e1;
-      font-size: 15.5px;
-      max-width: 900px;
+      font-size: 15px;
+      max-width: 880px;
     }
 
     /* Section Card */
@@ -90,18 +89,13 @@
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
     }
     .section-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
       margin-bottom: 20px;
-      padding-bottom: 16px;
+      padding-bottom: 14px;
       border-bottom: 1px solid rgba(148, 163, 184, 0.15);
     }
     .section-title {
       margin: 0;
-      font-size: clamp(18px, 2.5vw, 22px);
+      font-size: clamp(18px, 2.4vw, 21px);
       font-weight: 800;
       display: flex;
       align-items: center;
@@ -111,19 +105,19 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 10px;
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
       background: linear-gradient(135deg, #0284c7, #38bdf8);
       color: #0b0f19;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       flex-shrink: 0;
     }
     .section-sub {
       color: var(--muted);
       font-size: 14px;
-      margin: 4px 0 0 44px;
+      margin: 6px 0 0 42px;
     }
 
     /* SVG Container */
@@ -139,33 +133,28 @@
       display: block;
       width: 100%;
       height: auto;
+      font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
     }
 
-    /* Animated SVG flow paths */
     @keyframes dashFlow {
-      to {
-        stroke-dashoffset: -40;
-      }
+      to { stroke-dashoffset: -36; }
     }
     .flow-anim {
       animation: dashFlow 2.2s linear infinite;
-    }
-    .flow-anim-slow {
-      animation: dashFlow 3.5s linear infinite;
     }
 
     /* Skill Pills Bar */
     .skill-strip {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(215px, 1fr));
       gap: 14px;
-      margin-top: 20px;
+      margin-top: 22px;
     }
     .skill-badge-card {
       background: rgba(30, 41, 59, 0.65);
       border: 1px solid #334155;
       border-radius: 14px;
-      padding: 16px;
+      padding: 16px 18px;
       position: relative;
       overflow: hidden;
     }
@@ -184,22 +173,23 @@
 
     .sk-cmd {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 17px;
+      font-size: 16.5px;
       font-weight: 800;
       color: #fff;
     }
     .sk-name {
       font-size: 13.5px;
       font-weight: 700;
-      margin: 2px 0 6px;
+      margin: 3px 0 6px;
     }
     .sk-desc {
       font-size: 12.5px;
       color: var(--muted);
       margin: 0;
+      line-height: 1.5;
     }
 
-    /* Responsive Table (Modern Web Guidance compliant) */
+    /* Responsive Table */
     .table-wrapper {
       overflow: auto;
       max-inline-size: 100%;
@@ -207,7 +197,7 @@
       container-type: inline-size;
       border: 1px solid var(--border);
       border-radius: 14px;
-      margin-top: 20px;
+      margin-top: 22px;
     }
     table {
       width: 100%;
@@ -243,6 +233,7 @@
       background: #0f172a;
       font-weight: 700;
       color: var(--cyan);
+      white-space: nowrap;
     }
     @container (width < 600px) {
       table, thead, tbody, tr, th, td {
@@ -280,56 +271,42 @@
     <header class="hero">
       <div class="hero-badge">
         <span class="pulse-dot"></span>
-        <span>AI AGENTIC SDLC VISUAL BLUEPRINT v2.0</span>
+        <span>AI AGENTIC SDLC VISUAL BLUEPRINT v2.1</span>
       </div>
-      <h1>AI 에이전틱 개발 · 정합성 검증 아키텍처 (비주얼 도식)</h1>
+      <h1>AI 에이전틱 개발 · 정합성 검증 아키텍처</h1>
       <p>
         다수의 개발자가 각자 로컬에서 Claude Code로 코딩할 때 발생하는 <strong>기획 정본 이탈(Drift)</strong>과 <strong>도메인 간 충돌</strong>을 차단하고,
-        <strong>PO(white)의 수동 검수 병목을 0으로 만드는</strong> 전체 작동 구조를 4개의 벡터 인포그래픽으로 시각화했습니다.
+        <strong>PO(white)의 수동 검수 병목을 없애는</strong> 전체 작동 구조를 4개의 벡터 도식으로 정리했습니다.
       </p>
     </header>
 
     <!-- ======================================================================================== -->
-    <!-- VISUAL 1: BEFORE vs AFTER NETWORK TOPOLOGY (SVG GRAPH) -->
+    <!-- VISUAL 1: BEFORE vs AFTER NETWORK TOPOLOGY -->
     <!-- ======================================================================================== -->
     <section class="section">
       <div class="section-header">
-        <div>
-          <h2 class="section-title"><span class="section-num">1</span> 토폴로지 비교: 왜 ‘단일 정본(SSOT) + 로컬 스킬’ 구조인가?</h2>
-          <p class="section-sub">왼쪽(기존 각자도생 AI의 충돌과 PO 검수 병목)과 오른쪽(단일 정본 허브 + 로컬 스킬 게이트웨이)의 네트워크 흐름 차이입니다.</p>
-        </div>
+        <h2 class="section-title"><span class="section-num">1</span> 토폴로지 비교: 왜 ‘단일 정본(SSOT) + 로컬 스킬’ 구조인가?</h2>
+        <p class="section-sub">왼쪽(각자도생 AI의 충돌과 PO 검수 병목)과 오른쪽(단일 정본 허브 + 로컬 스킬 게이트웨이)의 구조 비교입니다.</p>
       </div>
 
       <div class="svg-frame">
         <svg viewBox="0 0 1280 540" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="bgLeft" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#2a0a18" stop-opacity="0.55"/>
-              <stop offset="100%" stop-color="#0b0f19" stop-opacity="0.9"/>
+              <stop offset="0%" stop-color="#2a0a18" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#0b0f19" stop-opacity="0.95"/>
             </linearGradient>
             <linearGradient id="bgRight" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#052e2b" stop-opacity="0.55"/>
-              <stop offset="100%" stop-color="#0b0f19" stop-opacity="0.9"/>
+              <stop offset="0%" stop-color="#052e2b" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#0b0f19" stop-opacity="0.95"/>
             </linearGradient>
-            <filter id="glowRed" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="6" result="blur"/>
-              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-            </filter>
-            <filter id="glowGreen" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="6" result="blur"/>
-              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-            </filter>
-            <filter id="glowPurple" x="-25%" y="-25%" width="150%" height="150%">
-              <feGaussianBlur stdDeviation="6" result="blur"/>
-              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-            </filter>
-            <marker id="arrRed" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="arrRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#fb7185"/>
             </marker>
-            <marker id="arrPurple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="arrPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc"/>
             </marker>
-            <marker id="arrGreen" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/>
             </marker>
           </defs>
@@ -340,140 +317,130 @@
             <path d="M160 0 V540 M320 0 V540 M480 0 V540 M640 0 V540 M800 0 V540 M960 0 V540 M1120 0 V540"/>
           </g>
 
-          <!-- ==================== LEFT: BEFORE (CHAOS & BOTTLENECK) ==================== -->
+          <!-- ==================== LEFT: BEFORE ==================== -->
           <g transform="translate(25, 25)">
             <rect width="595" height="490" rx="16" fill="url(#bgLeft)" stroke="#f43f5e" stroke-opacity="0.45" stroke-width="1.5"/>
-            <rect x="20" y="18" width="240" height="30" rx="15" fill="#881337" stroke="#fb7185"/>
-            <text x="140" y="38" fill="#ffe4e6" font-size="13" font-weight="800" text-anchor="middle">❌ BEFORE: 각자도생 로컬 AI (병목 구조)</text>
+            <rect x="24" y="20" width="270" height="32" rx="16" fill="#881337" stroke="#fb7185"/>
+            <text x="159" y="41" fill="#ffe4e6" font-size="13" font-weight="800" text-anchor="middle">❌ BEFORE: 각자도생 로컬 AI (병목)</text>
 
             <!-- 3 Disconnected Dev Nodes -->
-            <g transform="translate(30, 75)">
-              <rect width="160" height="70" rx="10" fill="#1e293b" stroke="#64748b"/>
-              <circle cx="24" cy="26" r="10" fill="#fb7185" fill-opacity="0.25"/>
-              <text x="24" y="30" fill="#fb7185" font-size="11" font-weight="800" text-anchor="middle">A</text>
-              <text x="42" y="29" fill="#f8fafc" font-size="13" font-weight="700">개발자 A 로컬 AI</text>
-              <text x="16" y="52" fill="#fda4af" font-size="11">• 구버전 기획서 기억 의존</text>
+            <g transform="translate(30, 78)">
+              <rect width="165" height="72" rx="10" fill="#1e293b" stroke="#64748b"/>
+              <text x="82.5" y="30" fill="#f8fafc" font-size="13" font-weight="800" text-anchor="middle">개발자 A 로컬 AI</text>
+              <text x="82.5" y="52" fill="#fda4af" font-size="11.5" text-anchor="middle">구버전 기억 의존 코딩</text>
             </g>
 
-            <g transform="translate(218, 75)">
-              <rect width="160" height="70" rx="10" fill="#1e293b" stroke="#64748b"/>
-              <circle cx="24" cy="26" r="10" fill="#fb7185" fill-opacity="0.25"/>
-              <text x="24" y="30" fill="#fb7185" font-size="11" font-weight="800" text-anchor="middle">B</text>
-              <text x="42" y="29" fill="#f8fafc" font-size="13" font-weight="700">개발자 B 로컬 AI</text>
-              <text x="16" y="52" fill="#fda4af" font-size="11">• 빈틈을 AI가 임의 추론</text>
+            <g transform="translate(215, 78)">
+              <rect width="165" height="72" rx="10" fill="#1e293b" stroke="#64748b"/>
+              <text x="82.5" y="30" fill="#f8fafc" font-size="13" font-weight="800" text-anchor="middle">개발자 B 로컬 AI</text>
+              <text x="82.5" y="52" fill="#fda4af" font-size="11.5" text-anchor="middle">빈틈을 AI가 임의 추론</text>
             </g>
 
-            <g transform="translate(405, 75)">
-              <rect width="160" height="70" rx="10" fill="#1e293b" stroke="#64748b"/>
-              <circle cx="24" cy="26" r="10" fill="#fb7185" fill-opacity="0.25"/>
-              <text x="24" y="30" fill="#fb7185" font-size="11" font-weight="800" text-anchor="middle">C</text>
-              <text x="42" y="29" fill="#f8fafc" font-size="13" font-weight="700">개발자 C 로컬 AI</text>
-              <text x="16" y="52" fill="#fda4af" font-size="11">• 타 도메인 테이블 침범</text>
+            <g transform="translate(400, 78)">
+              <rect width="165" height="72" rx="10" fill="#1e293b" stroke="#64748b"/>
+              <text x="82.5" y="30" fill="#f8fafc" font-size="13" font-weight="800" text-anchor="middle">개발자 C 로컬 AI</text>
+              <text x="82.5" y="52" fill="#fda4af" font-size="11.5" text-anchor="middle">타 도메인 테이블 침범</text>
             </g>
 
-            <!-- Tangled Collision Paths -->
-            <path d="M 110 145 C 110 195, 298 185, 298 225" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrRed)"/>
-            <path d="M 298 145 L 298 225" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrRed)"/>
-            <path d="M 485 145 C 485 195, 298 185, 298 225" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrRed)"/>
-            <!-- Cross Domain Conflict Line -->
-            <path d="M 190 110 C 205 90, 205 130, 218 110" stroke="#fbbf24" stroke-width="2"/>
-            <path d="M 378 110 C 390 90, 390 130, 405 110" stroke="#fbbf24" stroke-width="2"/>
+            <!-- Paths to Collision Zone -->
+            <path d="M 112 150 C 112 195, 250 190, 275 224" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrRed)"/>
+            <path d="M 297.5 150 L 297.5 224" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrRed)"/>
+            <path d="M 482 150 C 482 195, 345 190, 320 224" stroke="#fb7185" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrRed)"/>
 
             <!-- Collision Zone -->
-            <g transform="translate(85, 232)">
-              <rect width="425" height="78" rx="12" fill="#4c0519" stroke="#f43f5e" stroke-width="2" filter="url(#glowRed)"/>
-              <text x="212" y="28" fill="#fecdd3" font-size="14" font-weight="800" text-anchor="middle">💥 dev 브랜치 무검증 병합 &amp; 비즈니스 로직 충돌</text>
-              <text x="212" y="50" fill="#fda4af" font-size="12" text-anchor="middle">정본 정책 누락 · 상태값 불일치 · 정산/환불 계산 오차 발생</text>
-              <text x="212" y="67" fill="#fbbf24" font-size="11" font-weight="700" text-anchor="middle">⚠ 중앙에서 정합성을 잡아주는 게이트 없음</text>
+            <g transform="translate(65, 232)">
+              <rect width="465" height="82" rx="12" fill="#4c0519" stroke="#f43f5e" stroke-width="2"/>
+              <text x="232.5" y="32" fill="#fecdd3" font-size="14" font-weight="800" text-anchor="middle">💥 dev 브랜치 무검증 병합 &amp; 로직 충돌</text>
+              <text x="232.5" y="56" fill="#fda4af" font-size="12" text-anchor="middle">정본 정책 누락 · 상태값 불일치 · 정산/환불 오차 발생</text>
             </g>
 
-            <path d="M 298 310 L 298 355" stroke="#fb7185" stroke-width="3" marker-end="url(#arrRed)"/>
+            <path d="M 297.5 314 L 297.5 356" stroke="#fb7185" stroke-width="2.5" marker-end="url(#arrRed)"/>
 
             <!-- PO Bottleneck Node -->
-            <g transform="translate(65, 362)">
-              <rect width="465" height="102" rx="14" fill="#1e293b" stroke="#fb7185" stroke-width="2"/>
-              <circle cx="48" cy="51" r="26" fill="#881337" stroke="#fb7185" stroke-width="2"/>
+            <g transform="translate(45, 364)">
+              <rect width="505" height="100" rx="14" fill="#1e293b" stroke="#fb7185" stroke-width="2"/>
+              <circle cx="48" cy="50" r="26" fill="#881337" stroke="#fb7185" stroke-width="2"/>
               <text x="48" y="47" fill="#ffe4e6" font-size="12" font-weight="800" text-anchor="middle">PO</text>
-              <text x="48" y="62" fill="#fda4af" font-size="10" text-anchor="middle">(white)</text>
+              <text x="48" y="62" fill="#fda4af" font-size="10.5" text-anchor="middle">white</text>
 
-              <text x="90" y="34" fill="#f8fafc" font-size="14" font-weight="800">🚨 사람(PO)이 모든 코드와 화면을 눈으로 전수 대조</text>
-              <text x="90" y="55" fill="#cbd5e1" font-size="12">개발자 4명의 결과물을 일일이 기획서와 비교해야만 결함 발견</text>
+              <text x="92" y="34" fill="#f8fafc" font-size="14" font-weight="800">🚨 PO가 모든 코드·화면을 수동 전수 대조</text>
+              <text x="92" y="55" fill="#cbd5e1" font-size="12">사람이 일일이 기획서와 비교해야만 결함 발견</text>
 
               <!-- Bottleneck Meter Bar -->
-              <text x="90" y="80" fill="#fda4af" font-size="11" font-weight="700">PO 검수 부하도</text>
-              <rect x="175" y="69" width="210" height="14" rx="7" fill="#0f172a" stroke="#475569"/>
-              <rect x="175" y="69" width="198" height="14" rx="7" fill="#f43f5e"/>
-              <text x="395" y="80" fill="#fb7185" font-size="12" font-weight="800">95% (한계)</text>
+              <text x="92" y="81" fill="#fda4af" font-size="11.5" font-weight="700">PO 검수 부하</text>
+              <rect x="175" y="69" width="220" height="14" rx="7" fill="#0f172a" stroke="#475569"/>
+              <rect x="175" y="69" width="208" height="14" rx="7" fill="#f43f5e"/>
+              <text x="408" y="81" fill="#fb7185" font-size="12" font-weight="800">95% (병목)</text>
             </g>
           </g>
 
-          <!-- ==================== RIGHT: AFTER (HUB & SPOKE GOVERNED) ==================== -->
+          <!-- ==================== RIGHT: AFTER ==================== -->
           <g transform="translate(660, 25)">
             <rect width="595" height="490" rx="16" fill="url(#bgRight)" stroke="#10b981" stroke-opacity="0.5" stroke-width="1.5"/>
-            <rect x="20" y="18" width="285" height="30" rx="15" fill="#064e3b" stroke="#34d399"/>
-            <text x="162" y="38" fill="#d1fae5" font-size="13" font-weight="800" text-anchor="middle">✅ AFTER: 단일 정본(SSOT) + 로컬 스킬 자동 통제</text>
+            <rect x="24" y="20" width="300" height="32" rx="16" fill="#064e3b" stroke="#34d399"/>
+            <text x="174" y="41" fill="#d1fae5" font-size="13" font-weight="800" text-anchor="middle">✅ AFTER: 단일 정본(SSOT) + 로컬 스킬 통제</text>
 
             <!-- Top Hub: Single Source of Truth -->
-            <g transform="translate(95, 62)">
-              <rect width="405" height="74" rx="12" fill="#2e1065" stroke="#c084fc" stroke-width="2" filter="url(#glowPurple)"/>
-              <text x="202" y="26" fill="#f3e8ff" font-size="14" font-weight="800" text-anchor="middle">🏛️ 단일 정본 허브 (sanjunmo-settlement)</text>
-              <text x="202" y="46" fill="#d8b4fe" font-size="11.5" text-anchor="middle">PO가 /doc-update 로 개정 ➔ 색인(canon_index) · 요약본(digest) · 공통계약(00_domain)</text>
-              <text x="202" y="63" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">⇄ Spec Bridge (sync-spec.sh) 동일 기준 자동 주입</text>
+            <g transform="translate(65, 66)">
+              <rect width="465" height="74" rx="12" fill="#2e1065" stroke="#c084fc" stroke-width="2"/>
+              <text x="232.5" y="28" fill="#f3e8ff" font-size="14" font-weight="800" text-anchor="middle">🏛️ 단일 정본 허브 (sanjunmo-settlement)</text>
+              <text x="232.5" y="50" fill="#d8b4fe" font-size="12" text-anchor="middle">색인(canon_index) · 요약본(digest) · 공통계약(00_domain)</text>
+              <text x="232.5" y="66" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">⇄ sync-spec.sh 로 전 개발자 로컬에 동일 기준 주입</text>
             </g>
 
             <!-- Radiating Clean Spokes -->
-            <path d="M 210 136 C 140 165, 110 175, 110 205" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrPurple)"/>
-            <path d="M 298 136 L 298 205" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrPurple)"/>
-            <path d="M 385 136 C 455 165, 485 175, 485 205" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrPurple)"/>
+            <path d="M 190 140 C 130 165, 112 175, 112 204" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrPurple)"/>
+            <path d="M 297.5 140 L 297.5 204" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrPurple)"/>
+            <path d="M 405 140 C 465 165, 482 175, 482 204" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#arrPurple)"/>
 
-            <!-- 3 Governed Dev Nodes with Skill Shields -->
-            <g transform="translate(30, 210)">
-              <rect width="160" height="92" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
-              <text x="80" y="24" fill="#f8fafc" font-size="12.5" font-weight="800" text-anchor="middle">박성민 로컬 AI</text>
-              <rect x="14" y="34" width="132" height="22" rx="5" fill="#1e293b"/>
-              <text x="80" y="49" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/dev-screen 핀셋로드</text>
-              <rect x="14" y="61" width="132" height="22" rx="5" fill="#064e3b"/>
-              <text x="80" y="76" fill="#6ee7b7" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">🛡️ /spec-check 통과</text>
+            <!-- 3 Governed Dev Nodes -->
+            <g transform="translate(30, 212)">
+              <rect width="165" height="94" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+              <text x="82.5" y="25" fill="#f8fafc" font-size="13" font-weight="800" text-anchor="middle">박성민 로컬 AI</text>
+              <rect x="16" y="35" width="133" height="22" rx="5" fill="#1e293b"/>
+              <text x="82.5" y="50" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/dev-screen 로드</text>
+              <rect x="16" y="63" width="133" height="22" rx="5" fill="#064e3b"/>
+              <text x="82.5" y="78" fill="#6ee7b7" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/spec-check 통과</text>
             </g>
 
-            <g transform="translate(218, 210)">
-              <rect width="160" height="92" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
-              <text x="80" y="24" fill="#f8fafc" font-size="12.5" font-weight="800" text-anchor="middle">노승원 로컬 AI</text>
-              <rect x="14" y="34" width="132" height="22" rx="5" fill="#1e293b"/>
-              <text x="80" y="49" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/dev-screen 핀셋로드</text>
-              <rect x="14" y="61" width="132" height="22" rx="5" fill="#064e3b"/>
-              <text x="80" y="76" fill="#6ee7b7" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">🛡️ /spec-check 통과</text>
+            <g transform="translate(215, 212)">
+              <rect width="165" height="94" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+              <text x="82.5" y="25" fill="#f8fafc" font-size="13" font-weight="800" text-anchor="middle">노승원 로컬 AI</text>
+              <rect x="16" y="35" width="133" height="22" rx="5" fill="#1e293b"/>
+              <text x="82.5" y="50" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/dev-screen 로드</text>
+              <rect x="16" y="63" width="133" height="22" rx="5" fill="#064e3b"/>
+              <text x="82.5" y="78" fill="#6ee7b7" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/spec-check 통과</text>
             </g>
 
-            <g transform="translate(405, 210)">
-              <rect width="160" height="92" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
-              <text x="80" y="24" fill="#f8fafc" font-size="12.5" font-weight="800" text-anchor="middle">이응민 로컬 AI</text>
-              <rect x="14" y="34" width="132" height="22" rx="5" fill="#1e293b"/>
-              <text x="80" y="49" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/dev-screen 핀셋로드</text>
-              <rect x="14" y="61" width="132" height="22" rx="5" fill="#064e3b"/>
-              <text x="80" y="76" fill="#6ee7b7" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">🛡️ /spec-check 통과</text>
+            <g transform="translate(400, 212)">
+              <rect width="165" height="94" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+              <text x="82.5" y="25" fill="#f8fafc" font-size="13" font-weight="800" text-anchor="middle">이응민 로컬 AI</text>
+              <rect x="16" y="35" width="133" height="22" rx="5" fill="#1e293b"/>
+              <text x="82.5" y="50" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/dev-screen 로드</text>
+              <rect x="16" y="63" width="133" height="22" rx="5" fill="#064e3b"/>
+              <text x="82.5" y="78" fill="#6ee7b7" font-size="11" font-family="monospace" font-weight="700" text-anchor="middle">/spec-check 통과</text>
             </g>
 
             <!-- Converging Verified Paths -->
-            <path d="M 110 302 C 110 335, 240 335, 270 355" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrGreen)"/>
-            <path d="M 298 302 L 298 355" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrGreen)"/>
-            <path d="M 485 302 C 485 335, 355 335, 325 355" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrGreen)"/>
+            <path d="M 112 306 C 112 338, 240 338, 270 358" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrGreen)"/>
+            <path d="M 297.5 306 L 297.5 358" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrGreen)"/>
+            <path d="M 482 306 C 482 338, 355 338, 325 358" stroke="#34d399" stroke-width="2" fill="none" marker-end="url(#arrGreen)"/>
 
             <!-- Verified Merge & Low PO Load -->
-            <g transform="translate(65, 362)">
-              <rect width="465" height="102" rx="14" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" stroke-width="2" filter="url(#glowGreen)"/>
-              <circle cx="48" cy="51" r="26" fill="#047857" stroke="#6ee7b7" stroke-width="2"/>
-              <text x="48" y="48" fill="#ecfdf5" font-size="13" font-weight="900" text-anchor="middle">PASS</text>
-              <text x="48" y="63" fill="#a7f3d0" font-size="10" text-anchor="middle">100%</text>
+            <g transform="translate(45, 364)">
+              <rect width="505" height="100" rx="14" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" stroke-width="2"/>
+              <circle cx="48" cy="50" r="26" fill="#047857" stroke="#6ee7b7" stroke-width="2"/>
+              <text x="48" y="47" fill="#ecfdf5" font-size="12.5" font-weight="900" text-anchor="middle">PASS</text>
+              <text x="48" y="62" fill="#a7f3d0" font-size="10.5" text-anchor="middle">100%</text>
 
-              <text x="90" y="34" fill="#ecfdf5" font-size="14" font-weight="800">🎯 정본 일치 + check.sh(61건 계산기) 통과 코드만 병합</text>
-              <text x="90" y="55" fill="#a7f3d0" font-size="12">PO는 평상시 검수 불필요 — 미확정 정책 질문 건만 의사결정</text>
+              <text x="92" y="34" fill="#ecfdf5" font-size="14" font-weight="800">🎯 정본 일치 + check.sh 통과 코드만 반영</text>
+              <text x="92" y="55" fill="#a7f3d0" font-size="12">PO는 평상시 검수 불필요 — 미확정 정책만 의사결정</text>
 
               <!-- Low Load Meter Bar -->
-              <text x="90" y="80" fill="#6ee7b7" font-size="11" font-weight="700">PO 수동 검수량</text>
-              <rect x="175" y="69" width="210" height="14" rx="7" fill="#0f172a" stroke="#475569"/>
+              <text x="92" y="81" fill="#6ee7b7" font-size="11.5" font-weight="700">PO 검수 부하</text>
+              <rect x="175" y="69" width="220" height="14" rx="7" fill="#0f172a" stroke="#475569"/>
               <rect x="175" y="69" width="24" height="14" rx="7" fill="#34d399"/>
-              <text x="395" y="80" fill="#34d399" font-size="12" font-weight="800">90% 이상 감소</text>
+              <text x="408" y="81" fill="#34d399" font-size="12" font-weight="800">10% 이하</text>
             </g>
           </g>
         </svg>
@@ -481,102 +448,97 @@
     </section>
 
     <!-- ======================================================================================== -->
-    <!-- VISUAL 2: CONTEXT FUNNEL & TOKEN REDUCTION INFOGRAPHIC (SVG CONE & CHART) -->
+    <!-- VISUAL 2: CONTEXT FUNNEL & TOKEN REDUCTION INFOGRAPHIC -->
     <!-- ======================================================================================== -->
     <section class="section">
       <div class="section-header">
-        <div>
-          <h2 class="section-title"><span class="section-num">2</span> 컨텍스트 깔때기(Funnel) 도식: 수천 줄 기획서를 어떻게 6%로 줄이는가?</h2>
-          <p class="section-sub">대형 기획서를 통째로 넣으면 AI가 앞뒤를 잊어버립니다. 화면 코드를 열쇠로 삼아 필요한 6%만 레이저처럼 추출하는 원리입니다.</p>
-        </div>
+        <h2 class="section-title"><span class="section-num">2</span> 컨텍스트 깔때기(Funnel) 도식: 수천 줄 기획서를 어떻게 6%로 줄이는가?</h2>
+        <p class="section-sub">대형 기획서를 통째로 넣지 않고, 화면 코드를 열쇠로 삼아 필요한 6%만 핀셋 추출하는 구조입니다.</p>
       </div>
 
       <div class="svg-frame">
         <svg viewBox="0 0 1280 420" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="funnelCone" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#4c1d95" stop-opacity="0.85"/>
-              <stop offset="55%" stop-color="#1d4ed8" stop-opacity="0.85"/>
+              <stop offset="0%" stop-color="#4c1d95" stop-opacity="0.9"/>
+              <stop offset="55%" stop-color="#1d4ed8" stop-opacity="0.9"/>
               <stop offset="100%" stop-color="#059669" stop-opacity="0.95"/>
             </linearGradient>
-            <marker id="arrCyan2" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-              <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
-            </marker>
           </defs>
 
           <!-- Grid -->
           <g stroke="#ffffff" stroke-opacity="0.03" stroke-width="1">
-            <path d="M0 80 H1280 M0 160 H1280 M0 240 H1280 M0 320 H1280"/>
-            <path d="M200 0 V420 M400 0 V420 M600 0 V420 M800 0 V420 M1000 0 V420"/>
+            <path d="M0 84 H1280 M0 168 H1280 M0 252 H1280 M0 336 H1280"/>
+            <path d="M210 0 V420 M420 0 V420 M630 0 V420 M840 0 V420 M1050 0 V420"/>
           </g>
 
-          <!-- STEP 1: Heavy Raw SSOT (Left Wide Mouth) -->
-          <g transform="translate(35, 35)">
-            <text x="150" y="20" fill="#c084fc" font-size="13" font-weight="800" text-anchor="middle">1. 원본 정본 저장소 (100% 전체 분량)</text>
-            <rect x="0" y="34" width="300" height="78" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
-            <text x="18" y="60" fill="#f8fafc" font-size="13" font-weight="700">📘 통합설계서 + 정산 00~04권</text>
-            <text x="18" y="82" fill="#a5b4fc" font-size="11.5">수천 줄 마크다운 (통째 로드 시 컨텍스트 오염)</text>
-            <text x="18" y="99" fill="#fb7185" font-size="11" font-weight="700">⚠ 불필요한 타 도메인 내용 94% 포함</text>
+          <!-- STEP 1: Left Raw SSOT -->
+          <g transform="translate(35, 30)">
+            <text x="160" y="22" fill="#c084fc" font-size="13.5" font-weight="800" text-anchor="middle">1. 원본 정본 저장소 (100% 전체 분량)</text>
 
-            <rect x="0" y="124" width="300" height="78" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
-            <text x="18" y="150" fill="#f8fafc" font-size="13" font-weight="700">🖥️ 백오피스 프로토타입 40개 화면</text>
-            <text x="18" y="172" fill="#a5b4fc" font-size="11.5">각 HTML 1,000~3,000줄 (CSS·인라인 코드 혼재)</text>
-            <text x="18" y="189" fill="#fb7185" font-size="11" font-weight="700">⚠ 원본 HTML 직접 파싱 시 토큰 과다 소모</text>
+            <rect x="0" y="38" width="320" height="92" rx="12" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+            <text x="20" y="66" fill="#f8fafc" font-size="13.5" font-weight="800">📘 통합설계서 + 정산 00~04권</text>
+            <text x="20" y="88" fill="#a5b4fc" font-size="12">수천 줄 마크다운 (타 도메인 94% 포함)</text>
+            <text x="20" y="110" fill="#fda4af" font-size="11.5" font-weight="700">⚠ 통째로 읽으면 핵심 제약조건 누락</text>
 
-            <rect x="0" y="214" width="300" height="68" rx="10" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
-            <text x="18" y="240" fill="#f8fafc" font-size="13" font-weight="700">🧮 정산 기준 계산기 &amp; 기준정보</text>
-            <text x="18" y="262" fill="#a5b4fc" font-size="11.5">PHP 8.4 엔진 + common-master.js + 61건 정답셋</text>
+            <rect x="0" y="144" width="320" height="92" rx="12" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+            <text x="20" y="172" fill="#f8fafc" font-size="13.5" font-weight="800">🖥️ 백오피스 프로토타입 40개 화면</text>
+            <text x="20" y="194" fill="#a5b4fc" font-size="12">화면당 1,000~3,000줄 대형 HTML</text>
+            <text x="20" y="216" fill="#fda4af" font-size="11.5" font-weight="700">⚠ 원본 HTML 직접 파싱 시 토큰 낭비</text>
+
+            <rect x="0" y="250" width="320" height="92" rx="12" fill="#1e1b4b" stroke="#818cf8" stroke-width="1.5"/>
+            <text x="20" y="278" fill="#f8fafc" font-size="13.5" font-weight="800">🧮 정산 계산기 &amp; 공통 기준정보</text>
+            <text x="20" y="300" fill="#a5b4fc" font-size="12">PHP 8.4 엔진 + common-master.js</text>
+            <text x="20" y="322" fill="#c4b5fd" font-size="11.5" font-weight="700">• 61건 시나리오 입출력 정답 JSON</text>
           </g>
 
-          <!-- STEP 2: Geometric 3D Funnel Cone (Center) -->
-          <g transform="translate(365, 35)">
-            <text x="200" y="20" fill="#38bdf8" font-size="13" font-weight="800" text-anchor="middle">2. Spec Bridge 깔때기 필터링 (/dev-screen 화면코드)</text>
+          <!-- STEP 2: Center Funnel (All elements strictly inside trapezoid!) -->
+          <g transform="translate(385, 30)">
+            <text x="185" y="22" fill="#38bdf8" font-size="13.5" font-weight="800" text-anchor="middle">2. Spec Bridge 깔때기 필터링</text>
 
-            <!-- Funnel Polygon Shape -->
-            <polygon points="0,35 400,105 400,215 0,285" fill="url(#funnelCone)" stroke="#38bdf8" stroke-width="2"/>
-            <!-- Inner Funnel Rings -->
-            <ellipse cx="130" cy="160" rx="14" ry="98" fill="none" stroke="#93c5fd" stroke-opacity="0.35" stroke-dasharray="4 4"/>
-            <ellipse cx="270" cy="160" rx="12" ry="72" fill="none" stroke="#6ee7b7" stroke-opacity="0.45" stroke-dasharray="4 4"/>
+            <!-- Trapezoid: Left height 304 (y=38..342), Right height 156 (y=112..268) -->
+            <polygon points="0,38 370,112 370,268 0,342" fill="url(#funnelCone)" stroke="#38bdf8" stroke-width="2"/>
+            <ellipse cx="120" cy="190" rx="12" ry="118" fill="none" stroke="#93c5fd" stroke-opacity="0.35" stroke-dasharray="4 4"/>
+            <ellipse cx="255" cy="190" rx="10" ry="90" fill="none" stroke="#6ee7b7" stroke-opacity="0.4" stroke-dasharray="4 4"/>
 
-            <!-- Key Input Badge -->
-            <rect x="85" y="75" width="230" height="34" rx="17" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
-            <text x="200" y="97" fill="#38bdf8" font-size="12.5" font-family="monospace" font-weight="800" text-anchor="middle">🔑 Key: ADMN-SETT-005</text>
+            <!-- Centered inside safe zone (y=130..250) -->
+            <rect x="75" y="132" width="220" height="32" rx="16" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+            <text x="185" y="153" fill="#38bdf8" font-size="12.5" font-family="monospace" font-weight="800" text-anchor="middle">🔑 Key: ADMN-SETT-005</text>
 
-            <text x="200" y="145" fill="#ffffff" font-size="14" font-weight="800" text-anchor="middle">불필요한 타 화면 39개 제거</text>
-            <text x="200" y="168" fill="#bae6fd" font-size="12" text-anchor="middle">HTML 디자인/CSS 걷어내고 필드·규칙만 압축</text>
+            <text x="185" y="192" fill="#ffffff" font-size="13.5" font-weight="800" text-anchor="middle">타 화면 39개 &amp; CSS 제거</text>
 
-            <rect x="115" y="190" width="170" height="32" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
-            <text x="200" y="211" fill="#ecfdf5" font-size="13" font-weight="800" text-anchor="middle">⚡ 용량 100% ➔ 6%</text>
+            <rect x="100" y="210" width="170" height="32" rx="8" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+            <text x="185" y="231" fill="#ecfdf5" font-size="13" font-weight="800" text-anchor="middle">⚡ 100% ➔ 6% 압축</text>
           </g>
 
-          <!-- STEP 3: Pinpoint 3 Outputs + Visual Comparison Chart (Right) -->
-          <g transform="translate(800, 35)">
-            <text x="220" y="20" fill="#34d399" font-size="13" font-weight="800" text-anchor="middle">3. 개발자 로컬 AI에 주입되는 핀셋 3종 패키지</text>
+          <!-- STEP 3: Right Outputs + Bar Chart -->
+          <g transform="translate(785, 30)">
+            <text x="230" y="22" fill="#34d399" font-size="13.5" font-weight="800" text-anchor="middle">3. 로컬 AI에 주입되는 핀셋 3종 패키지 (6%)</text>
 
-            <rect x="0" y="38" width="440" height="54" rx="10" fill="#064e3b" fill-opacity="0.5" stroke="#34d399" stroke-width="1.5"/>
-            <text x="18" y="61" fill="#6ee7b7" font-size="12.5" font-family="monospace" font-weight="800">① 00_domain_contracts.md (1장)</text>
-            <text x="18" y="80" fill="#d1fae5" font-size="11.5">코드 채번(RH-* · CT-* · PROD-BK-*), 공통 상태값, 소속 3분류</text>
+            <rect x="0" y="38" width="460" height="60" rx="10" fill="#064e3b" fill-opacity="0.5" stroke="#34d399" stroke-width="1.5"/>
+            <text x="20" y="63" fill="#6ee7b7" font-size="13" font-family="monospace" font-weight="800">① 00_domain_contracts.md (1장 요약)</text>
+            <text x="20" y="84" fill="#d1fae5" font-size="12">코드 채번(RH-* · CT-* · PROD-BK-*), 공통 상태값, 소속 3분류</text>
 
-            <rect x="0" y="102" width="440" height="54" rx="10" fill="#064e3b" fill-opacity="0.5" stroke="#34d399" stroke-width="1.5"/>
-            <text x="18" y="125" fill="#6ee7b7" font-size="12.5" font-family="monospace" font-weight="800">② canon_index.md 발췌 구간 (±50줄)</text>
-            <text x="18" y="144" fill="#d1fae5" font-size="11.5">정본 문서 전체 중 ADMN-SETT-005 에 해당하는 절만 발췌</text>
+            <rect x="0" y="108" width="460" height="60" rx="10" fill="#064e3b" fill-opacity="0.5" stroke="#34d399" stroke-width="1.5"/>
+            <text x="20" y="133" fill="#6ee7b7" font-size="13" font-family="monospace" font-weight="800">② canon_index.md 발췌 구간 (±50줄)</text>
+            <text x="20" y="154" fill="#d1fae5" font-size="12">정본 전체 중 작업 화면(ADMN-SETT-005)에 해당하는 절만 발췌</text>
 
-            <rect x="0" y="166" width="440" height="54" rx="10" fill="#064e3b" fill-opacity="0.5" stroke="#34d399" stroke-width="1.5"/>
-            <text x="18" y="189" fill="#6ee7b7" font-size="12.5" font-family="monospace" font-weight="800">③ digest/ADMN-SETT-005_baseline.md</text>
-            <text x="18" y="208" fill="#d1fae5" font-size="11.5">입력 폼 ID · 옵션 · 표 헤더 · 상태 배지 · 모달 트리거 요약본</text>
+            <rect x="0" y="178" width="460" height="60" rx="10" fill="#064e3b" fill-opacity="0.5" stroke="#34d399" stroke-width="1.5"/>
+            <text x="20" y="203" fill="#6ee7b7" font-size="13" font-family="monospace" font-weight="800">③ digest/ADMN-SETT-005_baseline.md</text>
+            <text x="20" y="224" fill="#d1fae5" font-size="12">입력 폼 ID · 옵션 · 표 헤더 · 상태 배지 · 모달 구조 요약본</text>
 
-            <!-- Visual Bar Chart Comparison -->
-            <g transform="translate(0, 234)">
-              <rect width="440" height="86" rx="10" fill="#0f172a" stroke="#334155"/>
-              <text x="16" y="24" fill="#94a3b8" font-size="11.5" font-weight="700">AI 토큰 소모량 및 정확도 비교 그래프</text>
+            <!-- Bar Chart -->
+            <g transform="translate(0, 250)">
+              <rect width="460" height="92" rx="10" fill="#0f172a" stroke="#334155"/>
+              <text x="20" y="25" fill="#94a3b8" font-size="12" font-weight="700">AI 토큰 소모량 비교 그래프</text>
 
-              <text x="16" y="48" fill="#fda4af" font-size="11" font-weight="700">통째 읽기</text>
-              <rect x="82" y="37" width="260" height="13" rx="6" fill="#f43f5e"/>
-              <text x="352" y="48" fill="#fb7185" font-size="11" font-weight="800">100% (환각 위험)</text>
+              <text x="20" y="51" fill="#fda4af" font-size="11.5" font-weight="700">원본 통째 로드</text>
+              <rect x="108" y="39" width="230" height="14" rx="7" fill="#f43f5e"/>
+              <text x="348" y="51" fill="#fb7185" font-size="11.5" font-weight="800">100% (환각 위험)</text>
 
-              <text x="16" y="71" fill="#6ee7b7" font-size="11" font-weight="700">깔때기 3종</text>
-              <rect x="82" y="60" width="22" height="13" rx="6" fill="#34d399"/>
-              <text x="114" y="71" fill="#34d399" font-size="11.5" font-weight="800">6% (토큰 94% 절약 · 정확도 극대화)</text>
+              <text x="20" y="76" fill="#6ee7b7" font-size="11.5" font-weight="700">깔때기 3종</text>
+              <rect x="108" y="64" width="20" height="14" rx="7" fill="#34d399"/>
+              <text x="138" y="76" fill="#34d399" font-size="12" font-weight="800">6% (토큰 94% 절감 · 정확도 극대화)</text>
             </g>
           </g>
         </svg>
@@ -584,175 +546,183 @@
     </section>
 
     <!-- ======================================================================================== -->
-    <!-- VISUAL 3: END-TO-END SWIMLANE & DECISION DIAMOND BLUEPRINT (SVG) -->
+    <!-- VISUAL 3: END-TO-END S-CURVE SWIMLANE & DECISION DIAMOND (ZERO LINE OVERLAP!) -->
     <!-- ======================================================================================== -->
     <section class="section">
       <div class="section-header">
-        <div>
-          <h2 class="section-title"><span class="section-num">3</span> 전체 작동 회로도 (Blueprint): PO 정책 변경 ➔ 개발자 구현 ➔ 분기 ➔ 검수</h2>
-          <p class="section-sub">PO의 <code>/doc-update</code>가 어떻게 개발자의 <code>/dev-screen</code>으로 이어지고, 미확정 정책 발견 시 왜 PO에게 자동 회귀하는지 보여주는 회로도입니다.</p>
-        </div>
+        <h2 class="section-title"><span class="section-num">3</span> 전체 작동 회로도: PO 정책 변경 ➔ 개발자 구현 ➔ 분기 ➔ 검수</h2>
+        <p class="section-sub">선이 글자를 가로지르지 않도록 S자 순환 구조로 배치한 회로도입니다. 미확정 정책 발견 시 다이아몬드 게이트에서 즉시 PO에게 회귀합니다.</p>
       </div>
 
       <div class="svg-frame">
-        <svg viewBox="0 0 1280 620" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 1280 680" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <marker id="bpPurple" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="bpPurple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc"/>
             </marker>
-            <marker id="bpCyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="bpCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
             </marker>
-            <marker id="bpGreen" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="bpGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/>
             </marker>
-            <marker id="bpAmber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="bpAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24"/>
             </marker>
           </defs>
 
           <!-- Background Grid -->
           <g stroke="#ffffff" stroke-opacity="0.03" stroke-width="1">
-            <path d="M0 100 H1280 M0 200 H1280 M0 300 H1280 M0 400 H1280 M0 500 H1280"/>
-            <path d="M200 0 V620 M400 0 V620 M600 0 V620 M800 0 V620 M1000 0 V620"/>
+            <path d="M0 110 H1280 M0 220 H1280 M0 330 H1280 M0 440 H1280 M0 550 H1280"/>
+            <path d="M210 0 V680 M420 0 V680 M630 0 V680 M840 0 V680 M1050 0 V680"/>
           </g>
 
-          <!-- ==================== SWIMLANE 1: PO (WHITE) ==================== -->
+          <!-- ==================== LANE 1: PO (Left ➔ Right) ==================== -->
           <g transform="translate(25, 20)">
             <rect width="1230" height="165" rx="14" fill="#1e1b4b" fill-opacity="0.45" stroke="#818cf8" stroke-width="1.5"/>
-            <rect x="16" y="14" width="210" height="26" rx="6" fill="#4c1d95" stroke="#c084fc"/>
-            <text x="121" y="32" fill="#f3e8ff" font-size="12" font-weight="800" text-anchor="middle">LANE 1 · PO (white) 로컬 AI</text>
+            <rect x="20" y="14" width="230" height="28" rx="7" fill="#4c1d95" stroke="#c084fc"/>
+            <text x="135" y="33" fill="#f3e8ff" font-size="12" font-weight="800" text-anchor="middle">LANE 1 · PO (white) 로컬 AI</text>
 
-            <!-- Node P1 -->
-            <g transform="translate(30, 56)">
-              <rect width="220" height="86" rx="10" fill="#0f172a" stroke="#c084fc" stroke-width="1.5"/>
-              <text x="16" y="25" fill="#c084fc" font-size="11.5" font-family="monospace" font-weight="800">STEP A1 · /doc-update</text>
-              <text x="16" y="46" fill="#f8fafc" font-size="13.5" font-weight="800">정책 변경 지시 (예: 환불)</text>
-              <text x="16" y="68" fill="#94a3b8" font-size="11.5">파일 직접 편집 없이 AI에 지시</text>
+            <!-- P1 (x=25..275) -->
+            <g transform="translate(25, 56)">
+              <rect width="250" height="88" rx="10" fill="#0f172a" stroke="#c084fc" stroke-width="1.5"/>
+              <text x="18" y="26" fill="#c084fc" font-size="11.5" font-family="monospace" font-weight="800">STEP A1 · /doc-update</text>
+              <text x="18" y="49" fill="#f8fafc" font-size="13.5" font-weight="800">정책 변경 지시 (예: 환불)</text>
+              <text x="18" y="71" fill="#94a3b8" font-size="11.5">파일 직접 편집 없이 AI에 지시</text>
             </g>
 
-            <path d="M 250 99 L 305 99" stroke="#c084fc" stroke-width="2" marker-end="url(#bpPurple)"/>
+            <path d="M 275 100 L 325 100" stroke="#c084fc" stroke-width="2" marker-end="url(#bpPurple)"/>
 
-            <!-- Node P2 -->
-            <g transform="translate(310, 56)">
-              <rect width="260" height="86" rx="10" fill="#0f172a" stroke="#c084fc" stroke-width="1.5"/>
-              <text x="16" y="25" fill="#c084fc" font-size="11.5" font-family="monospace" font-weight="800">STEP A2 · Impact Scan</text>
-              <text x="16" y="46" fill="#f8fafc" font-size="13.5" font-weight="800">영향받는 문서 절·화면코드 스캔</text>
-              <text x="16" y="68" fill="#94a3b8" font-size="11.5">ADMN-RFD-002 · USER-MY-011 추출</text>
+            <!-- P2 (x=330..600) -->
+            <g transform="translate(330, 56)">
+              <rect width="270" height="88" rx="10" fill="#0f172a" stroke="#c084fc" stroke-width="1.5"/>
+              <text x="18" y="26" fill="#c084fc" font-size="11.5" font-family="monospace" font-weight="800">STEP A2 · 영향도 자동 스캔</text>
+              <text x="18" y="49" fill="#f8fafc" font-size="13.5" font-weight="800">영향받는 문서 절·화면코드 추출</text>
+              <text x="18" y="71" fill="#94a3b8" font-size="11.5">ADMN-RFD-002 · USER-MY-011 보고</text>
             </g>
 
-            <path d="M 570 99 L 625 99" stroke="#c084fc" stroke-width="2" marker-end="url(#bpPurple)"/>
+            <path d="M 600 100 L 650 100" stroke="#c084fc" stroke-width="2" marker-end="url(#bpPurple)"/>
 
-            <!-- Node P3 -->
-            <g transform="translate(630, 56)">
-              <rect width="275" height="86" rx="10" fill="#0f172a" stroke="#c084fc" stroke-width="1.5"/>
-              <text x="16" y="25" fill="#c084fc" font-size="11.5" font-family="monospace" font-weight="800">STEP A3 · 일괄 개정 &amp; 이력 박제</text>
-              <text x="16" y="46" fill="#f8fafc" font-size="13.5" font-weight="800">정본·프로토·계산기 + [개정이력]</text>
-              <text x="16" y="68" fill="#d8b4fe" font-size="11.5">v3.2.xx 개정이력 행에 화면코드 기록</text>
+            <!-- P3 (x=655..925) -->
+            <g transform="translate(655, 56)">
+              <rect width="270" height="88" rx="10" fill="#0f172a" stroke="#c084fc" stroke-width="1.5"/>
+              <text x="18" y="26" fill="#c084fc" font-size="11.5" font-family="monospace" font-weight="800">STEP A3 · 일괄 개정 &amp; 이력</text>
+              <text x="18" y="49" fill="#f8fafc" font-size="13.5" font-weight="800">정본·프로토·계산기 동시 수정</text>
+              <text x="18" y="71" fill="#d8b4fe" font-size="11.5">[문서 개정이력] 표에 화면코드 기록</text>
             </g>
 
-            <path d="M 905 99 L 955 99" stroke="#c084fc" stroke-width="2" marker-end="url(#bpPurple)"/>
+            <path d="M 925 100 L 970 100" stroke="#c084fc" stroke-width="2" marker-end="url(#bpPurple)"/>
 
-            <!-- Node P4 -->
-            <g transform="translate(960, 56)">
-              <rect width="245" height="86" rx="10" fill="#2e1065" stroke="#c084fc" stroke-width="2"/>
-              <text x="16" y="25" fill="#e9d5ff" font-size="11.5" font-family="monospace" font-weight="800">STEP A4 · Change Order</text>
-              <text x="16" y="46" fill="#ffffff" font-size="13.5" font-weight="800">담당 개발자별 티켓 자동 발행</text>
-              <text x="16" y="68" fill="#c4b5fd" font-size="11.5">dev-progress 담당자 매핑 알림</text>
+            <!-- P4 (x=975..1205) -->
+            <g transform="translate(975, 56)">
+              <rect width="230" height="88" rx="10" fill="#2e1065" stroke="#c084fc" stroke-width="2"/>
+              <text x="18" y="26" fill="#e9d5ff" font-size="11.5" font-family="monospace" font-weight="800">STEP A4 · 변경 전파</text>
+              <text x="18" y="49" fill="#ffffff" font-size="13.5" font-weight="800">담당 개발자별 티켓 발행</text>
+              <text x="18" y="71" fill="#c4b5fd" font-size="11.5">박성민 · 노승원 · 이응민 매핑</text>
             </g>
           </g>
 
-          <!-- ==================== SWIMLANE 2: DEVELOPERS (4명) ==================== -->
-          <g transform="translate(25, 215)">
-            <rect width="1230" height="215" rx="14" fill="#042f2e" fill-opacity="0.4" stroke="#38bdf8" stroke-width="1.5"/>
-            <rect x="16" y="14" width="275" height="26" rx="6" fill="#0369a1" stroke="#38bdf8"/>
-            <text x="153" y="32" fill="#e0f2fe" font-size="12" font-weight="800" text-anchor="middle">LANE 2 · 개발자 4명 로컬 AI (sanjunmo)</text>
+          <!-- ==================== DEDICATED CORRIDOR 1➔2 (Clean routing, zero overlap) ==================== -->
+          <!-- Vertical drop from P4 (x=1115, y=164) down into corridor (y=208), left to D1 (x=490, y=208), down into D1 (y=292) -->
+          <path d="M 1115 164 L 1115 208 L 490 208 L 490 292" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="7 4" fill="none" class="flow-anim" marker-end="url(#bpCyan)"/>
+          <rect x="690" y="176" width="270" height="24" rx="12" fill="#2e1065" stroke="#c084fc"/>
+          <text x="825" y="192" fill="#e9d5ff" font-size="11.5" font-weight="700" text-anchor="middle">⬇ 개정된 화면코드 기준으로 개발 착수</text>
 
-            <!-- Node D1 -->
-            <g transform="translate(30, 62)">
-              <rect width="225" height="90" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
-              <text x="16" y="26" fill="#38bdf8" font-size="11.5" font-family="monospace" font-weight="800">STEP B1 · /dev-screen</text>
-              <text x="16" y="48" fill="#f8fafc" font-size="13.5" font-weight="800">화면코드로 타겟 명세 로드</text>
-              <text x="16" y="70" fill="#94a3b8" font-size="11.5">sync-spec.sh + 6% 핀셋 컨텍스트</text>
+          <!-- ==================== LANE 2: DEVELOPERS (4명) ==================== -->
+          <g transform="translate(25, 232)">
+            <rect width="1230" height="225" rx="14" fill="#042f2e" fill-opacity="0.4" stroke="#38bdf8" stroke-width="1.5"/>
+            <rect x="20" y="14" width="280" height="28" rx="7" fill="#0369a1" stroke="#38bdf8"/>
+            <text x="160" y="33" fill="#e0f2fe" font-size="12" font-weight="800" text-anchor="middle">LANE 2 · 개발자 4명 로컬 AI (sanjunmo)</text>
+
+            <!-- Decision Diamond on the LEFT (x=35..265, center x=150) so NO goes straight UP to P1 (x=150) without crossing anything! -->
+            <g transform="translate(35, 58)">
+              <polygon points="115,0 230,52 115,104 0,52" fill="#1e293b" stroke="#fbbf24" stroke-width="2"/>
+              <text x="115" y="47" fill="#fde68a" font-size="12.5" font-weight="800" text-anchor="middle">정본에 정책이</text>
+              <text x="115" y="66" fill="#fde68a" font-size="12.5" font-weight="800" text-anchor="middle">명확히 있는가?</text>
             </g>
 
-            <path d="M 255 107 L 315 107" stroke="#38bdf8" stroke-width="2" marker-end="url(#bpCyan)"/>
-
-            <!-- DECISION DIAMOND: 확정 정책인가? -->
-            <g transform="translate(320, 47)">
-              <polygon points="105,0 210,60 105,120 0,60" fill="#1e293b" stroke="#fbbf24" stroke-width="2"/>
-              <text x="105" y="54" fill="#fde68a" font-size="12.5" font-weight="800" text-anchor="middle">정본에 정책이</text>
-              <text x="105" y="72" fill="#fde68a" font-size="12.5" font-weight="800" text-anchor="middle">명확히 있는가?</text>
+            <!-- D1: /dev-screen (x=345..585, center x=465) -->
+            <g transform="translate(345, 64)">
+              <rect width="240" height="92" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="18" y="26" fill="#38bdf8" font-size="11.5" font-family="monospace" font-weight="800">STEP B1 · /dev-screen</text>
+              <text x="18" y="50" fill="#f8fafc" font-size="13.5" font-weight="800">화면코드로 6% 명세 로드</text>
+              <text x="18" y="72" fill="#94a3b8" font-size="11.5">색인 구간 + 요약본 + 공통계약</text>
             </g>
 
-            <!-- Branch YES (Right) -->
-            <path d="M 530 107 L 615 107" stroke="#34d399" stroke-width="2.5" marker-end="url(#bpGreen)"/>
-            <rect x="545" y="84" width="52" height="20" rx="4" fill="#064e3b"/>
-            <text x="571" y="98" fill="#6ee7b7" font-size="11" font-weight="800" text-anchor="middle">YES</text>
+            <!-- Arrow from D1 left to Diamond for policy check -->
+            <path d="M 345 110 L 273 110" stroke="#38bdf8" stroke-width="2" marker-end="url(#bpAmber)"/>
 
-            <!-- Node D2: Implementation -->
-            <g transform="translate(620, 62)">
-              <rect width="265" height="90" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
-              <text x="16" y="26" fill="#34d399" font-size="11.5" font-family="monospace" font-weight="800">STEP B2 · 계층 규격 코딩</text>
-              <text x="16" y="48" fill="#f8fafc" font-size="13.5" font-weight="800">Controller ➔ Service ➔ Repo</text>
-              <text x="16" y="70" fill="#94a3b8" font-size="11.5">수정 파일만 Pint + 회귀 테스트 작성</text>
+            <!-- Arrow YES from Diamond bottom around to D2 (or D1 -> D2 when clear) -->
+            <path d="M 585 110 L 650 110" stroke="#34d399" stroke-width="2.5" marker-end="url(#bpGreen)"/>
+            <rect x="596" y="86" width="44" height="19" rx="4" fill="#064e3b"/>
+            <text x="618" y="99" fill="#6ee7b7" font-size="10.5" font-weight="800" text-anchor="middle">확정</text>
+
+            <!-- D2: Implementation (x=655..915) -->
+            <g transform="translate(655, 64)">
+              <rect width="260" height="92" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+              <text x="18" y="26" fill="#34d399" font-size="11.5" font-family="monospace" font-weight="800">STEP B2 · 계층 규격 코딩</text>
+              <text x="18" y="50" fill="#f8fafc" font-size="13.5" font-weight="800">Controller ➔ Service ➔ Repo</text>
+              <text x="18" y="72" fill="#94a3b8" font-size="11.5">수정 파일만 Pint + 테스트 작성</text>
             </g>
 
-            <path d="M 885 107 L 950 107" stroke="#34d399" stroke-width="2" marker-end="url(#bpGreen)"/>
+            <path d="M 915 110 L 965 110" stroke="#34d399" stroke-width="2" marker-end="url(#bpGreen)"/>
 
-            <!-- Node D3: /spec-check -->
-            <g transform="translate(955, 62)">
-              <rect width="250" height="90" rx="10" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
-              <text x="16" y="26" fill="#6ee7b7" font-size="11.5" font-family="monospace" font-weight="800">STEP B3 · /spec-check</text>
-              <text x="16" y="48" fill="#ffffff" font-size="13.5" font-weight="800">커밋 직전 정본 1:1 셀프 대조</text>
-              <text x="16" y="70" fill="#a7f3d0" font-size="11.5">✅ 일치 판정 &amp; check.sh 통과</text>
+            <!-- D3: /spec-check (x=970..1205) -->
+            <g transform="translate(970, 64)">
+              <rect width="235" height="92" rx="10" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+              <text x="18" y="26" fill="#6ee7b7" font-size="11.5" font-family="monospace" font-weight="800">STEP B3 · /spec-check</text>
+              <text x="18" y="50" fill="#ffffff" font-size="13.5" font-weight="800">커밋 전 정본 1:1 셀프 대조</text>
+              <text x="18" y="72" fill="#a7f3d0" font-size="11.5">✅ 일치 확인 &amp; check.sh 통과</text>
             </g>
 
-            <!-- Branch NO Label & Suspend Notice -->
-            <rect x="335" y="176" width="520" height="28" rx="6" fill="#451a03" stroke="#f59e0b"/>
-            <text x="595" y="195" fill="#fde68a" font-size="11.5" font-weight="700" text-anchor="middle">
-              🟠 NO (미확정 정책 발견 시): 임의 코딩 즉시 중단! markTestIncomplete 표기 후 PO에게 역질문 ⬆
+            <!-- Bottom Rule Callout inside Lane 2 -->
+            <rect x="35" y="176" width="880" height="32" rx="8" fill="#451a03" stroke="#f59e0b"/>
+            <text x="475" y="197" fill="#fde68a" font-size="12" font-weight="700" text-anchor="middle">
+              🟠 미확정·모호한 정책 발견 시: 로컬 AI 임의 구현 즉시 중단! markTestIncomplete 표기 후 위쪽 PO(STEP A1)로 회귀
             </text>
           </g>
 
-          <!-- ==================== SWIMLANE 3: GITHUB CI & AUDIT ==================== -->
-          <g transform="translate(25, 460)">
-            <rect width="1230" height="140" rx="14" fill="#064e3b" fill-opacity="0.3" stroke="#10b981" stroke-width="1.5"/>
-            <rect x="16" y="14" width="295" height="26" rx="6" fill="#047857" stroke="#34d399"/>
-            <text x="163" y="32" fill="#ecfdf5" font-size="12" font-weight="800" text-anchor="middle">LANE 3 · GitHub 자동 검증 &amp; PO 총괄 감사</text>
+          <!-- ==================== CLEAN VERTICAL ESCALATION ARROW (Diamond top x=175 straight up to P1 x=175!) ==================== -->
+          <path d="M 175 290 L 175 168" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#bpAmber)"/>
+          <rect x="190" y="196" width="235" height="24" rx="12" fill="#451a03" stroke="#fbbf24"/>
+          <text x="307.5" y="212" fill="#fde68a" font-size="11.5" font-weight="800" text-anchor="middle">⬆ NO (미확정 정책) ➔ PO 질문·선반영</text>
 
-            <g transform="translate(30, 52)">
-              <rect width="350" height="70" rx="10" fill="#0f172a" stroke="#10b981"/>
-              <text x="18" y="28" fill="#34d399" font-size="13" font-weight="800">1. 결정론적 테스트 &amp; 정산 61건 Parity 검증</text>
-              <text x="18" y="50" fill="#94a3b8" font-size="11.5">전체 도메인 DB 테스트 + PHP 8.4 정산 계산기 1원 오차 검증</text>
+          <!-- ==================== DEDICATED CORRIDOR 2➔3 (Clean vertical drop on right!) ==================== -->
+          <path d="M 1112 388 L 1112 548" stroke="#34d399" stroke-width="2.5" stroke-dasharray="7 4" fill="none" class="flow-anim" marker-end="url(#bpGreen)"/>
+          <rect x="855" y="468" width="242" height="24" rx="12" fill="#064e3b" stroke="#34d399"/>
+          <text x="976" y="484" fill="#a7f3d0" font-size="11.5" font-weight="800" text-anchor="middle">⬇ 검증 통과 코드만 Git Push</text>
+
+          <!-- ==================== LANE 3: GITHUB CI & AUDIT (Right ➔ Left flow!) ==================== -->
+          <g transform="translate(25, 502)">
+            <rect width="1230" height="150" rx="14" fill="#064e3b" fill-opacity="0.3" stroke="#10b981" stroke-width="1.5"/>
+            <rect x="20" y="14" width="300" height="28" rx="7" fill="#047857" stroke="#34d399"/>
+            <text x="170" y="33" fill="#ecfdf5" font-size="12" font-weight="800" text-anchor="middle">LANE 3 · GitHub 자동 검증 &amp; PO 총괄 감사</text>
+
+            <!-- C3 on Left (x=25..385) -->
+            <g transform="translate(25, 56)">
+              <rect width="360" height="74" rx="10" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
+              <text x="20" y="30" fill="#fbbf24" font-size="13" font-weight="800">STEP C3 · PO 로컬 수시 총괄 감사 (/spec-check)</text>
+              <text x="20" y="54" fill="#fde68a" font-size="11.5">Settlement ↔ sanjunmo 양쪽 폴더 대조 리포트 확인</text>
             </g>
 
-            <path d="M 380 87 L 435 87" stroke="#34d399" stroke-width="2" marker-end="url(#bpGreen)"/>
+            <path d="M 445 93 L 393 93" stroke="#34d399" stroke-width="2" marker-end="url(#bpGreen)"/>
 
-            <g transform="translate(440, 52)">
-              <rect width="350" height="70" rx="10" fill="#0f172a" stroke="#10b981"/>
-              <text x="18" y="28" fill="#34d399" font-size="13" font-weight="800">2. dev 서버 자동 배포 &amp; 진행률 대시보드 집계</text>
-              <text x="18" y="50" fill="#94a3b8" font-size="11.5">커밋 메시지의 (ADMN-* · DECISIONS NNN) 자동 파싱</text>
+            <!-- C2 in Middle (x=445..805) -->
+            <g transform="translate(445, 56)">
+              <rect width="360" height="74" rx="10" fill="#0f172a" stroke="#10b981"/>
+              <text x="20" y="30" fill="#34d399" font-size="13" font-weight="800">STEP C2 · dev 서버 자동 배포 &amp; 진행률 집계</text>
+              <text x="20" y="54" fill="#94a3b8" font-size="11.5">커밋 메시지의 (ADMN-* · DECISIONS NNN) 자동 파싱</text>
             </g>
 
-            <path d="M 790 87 L 845 87" stroke="#34d399" stroke-width="2" marker-end="url(#bpGreen)"/>
+            <path d="M 865 93 L 813 93" stroke="#34d399" stroke-width="2" marker-end="url(#bpGreen)"/>
 
-            <g transform="translate(850, 52)">
-              <rect width="355" height="70" rx="10" fill="#0f172a" stroke="#fbbf24" stroke-width="1.5"/>
-              <text x="18" y="28" fill="#fbbf24" font-size="13" font-weight="800">3. PO 로컬 수시 총괄 감사 (/spec-check)</text>
-              <text x="18" y="50" fill="#fde68a" font-size="11.5">Settlement ↔ sanjunmo 두 폴더 대조해 위반/임의구현 리포트</text>
+            <!-- C1 on Right (x=865..1205) receiving vertical drop from D3! -->
+            <g transform="translate(865, 56)">
+              <rect width="340" height="74" rx="10" fill="#0f172a" stroke="#34d399" stroke-width="2"/>
+              <text x="20" y="30" fill="#6ee7b7" font-size="13" font-weight="800">STEP C1 · 전체 테스트 &amp; 정산 61건 Parity</text>
+              <text x="20" y="54" fill="#d1fae5" font-size="11.5">PHP 8.4 기준 계산기 정답셋과 1원 단위 일치 검증</text>
             </g>
           </g>
-
-          <!-- ==================== CROSS-LANE CONNECTORS ==================== -->
-          <!-- P4 (Change Order) down to D1 (/dev-screen) -->
-          <path d="M 1082 162 C 1082 200, 142 190, 142 272" stroke="#c084fc" stroke-width="2.5" stroke-dasharray="7 4" fill="none" class="flow-anim" marker-end="url(#bpCyan)"/>
-
-          <!-- Diamond NO (Policy Escalation) up to P1 (/doc-update) -->
-          <path d="M 425 262 C 425 200, 140 205, 140 166" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#bpAmber)"/>
-
-          <!-- D3 (/spec-check pass) down to C1 (GitHub Merge) -->
-          <path d="M 1080 367 C 1080 435, 205 435, 205 508" stroke="#34d399" stroke-width="2.5" stroke-dasharray="7 4" fill="none" class="flow-anim" marker-end="url(#bpGreen)"/>
         </svg>
       </div>
     </section>
@@ -762,63 +732,61 @@
     <!-- ======================================================================================== -->
     <section class="section">
       <div class="section-header">
-        <div>
-          <h2 class="section-title"><span class="section-num">4</span> 레거시 역공학 분리기 도식 &amp; 5대 스킬 요약</h2>
-          <p class="section-sub">정본이 없는 유지보수 서비스에서 <code>/doc-init</code> 스킬이 ‘정상 정책’과 ‘레거시 버그/하드코딩’을 분리해 정본화하는 원리입니다.</p>
-        </div>
+        <h2 class="section-title"><span class="section-num">4</span> 레거시 역공학 분리기 도식 &amp; 5대 스킬 요약</h2>
+        <p class="section-sub">정본이 없는 유지보수 서비스에서 <code>/doc-init</code> 스킬이 ‘정상 정책’과 ‘의심 하드코딩’을 분리해 정본화하는 원리입니다.</p>
       </div>
 
       <div class="svg-frame">
-        <svg viewBox="0 0 1280 270" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 1280 280" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <marker id="lgCyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="lgCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
             </marker>
-            <marker id="lgGreen" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="lgGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/>
             </marker>
-            <marker id="lgAmber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <marker id="lgAmber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24"/>
             </marker>
           </defs>
 
           <!-- Legacy Input -->
           <g transform="translate(30, 82)">
-            <rect width="235" height="105" rx="12" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
-            <text x="18" y="30" fill="#f8fafc" font-size="14" font-weight="800">📦 정본 없는 레거시 코드</text>
-            <text x="18" y="54" fill="#94a3b8" font-size="11.5">• 라우트 · 컨트롤러 · 블레이드 뷰</text>
-            <text x="18" y="74" fill="#94a3b8" font-size="11.5">• 정상 정책과 과거 땜질 코드가 혼재</text>
-            <text x="18" y="92" fill="#fda4af" font-size="11" font-weight="700">• 비교 기준 문서(SSOT) 없음</text>
+            <rect width="245" height="115" rx="12" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+            <text x="20" y="34" fill="#f8fafc" font-size="14" font-weight="800">📦 정본 없는 레거시 코드</text>
+            <text x="20" y="60" fill="#cbd5e1" font-size="12">• 라우트 · 컨트롤러 · 뷰 · DB</text>
+            <text x="20" y="82" fill="#cbd5e1" font-size="12">• 정상 정책과 과거 버그가 혼재</text>
+            <text x="20" y="102" fill="#fda4af" font-size="11.5" font-weight="700">• 비교 기준 문서(SSOT) 없음</text>
           </g>
 
-          <path d="M 265 135 L 330 135" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#lgCyan)"/>
+          <path d="M 275 140 L 340 140" stroke="#38bdf8" stroke-width="2.5" marker-end="url(#lgCyan)"/>
 
           <!-- Prism / Separator (/doc-init) -->
-          <g transform="translate(335, 62)">
-            <rect width="265" height="145" rx="14" fill="#0c4a6e" stroke="#38bdf8" stroke-width="2"/>
-            <text x="132" y="34" fill="#38bdf8" font-size="15" font-family="monospace" font-weight="900" text-anchor="middle">🔬 /doc-init + /doc-rule</text>
-            <text x="132" y="58" fill="#f8fafc" font-size="13.5" font-weight="800" text-anchor="middle">역공학 정본 분리기</text>
-            <text x="132" y="84" fill="#bae6fd" font-size="11.5" text-anchor="middle">1. 화면 코드(ADMN-*, USER-*) 채번</text>
-            <text x="132" y="104" fill="#bae6fd" font-size="11.5" text-anchor="middle">2. 표준 3단 템플릿([A]·[B]·[C]) 포매팅</text>
-            <text x="132" y="124" fill="#bae6fd" font-size="11.5" text-anchor="middle">3. 정상 규칙 vs 의심 하드코딩 분리</text>
+          <g transform="translate(348, 65)">
+            <rect width="270" height="150" rx="14" fill="#0c4a6e" stroke="#38bdf8" stroke-width="2"/>
+            <text x="135" y="36" fill="#38bdf8" font-size="15" font-family="monospace" font-weight="900" text-anchor="middle">🔬 /doc-init + /doc-rule</text>
+            <text x="135" y="62" fill="#f8fafc" font-size="13.5" font-weight="800" text-anchor="middle">역공학 정본 분리기</text>
+            <text x="135" y="90" fill="#bae6fd" font-size="12" text-anchor="middle">1. 화면 코드 자동 채번</text>
+            <text x="135" y="112" fill="#bae6fd" font-size="12" text-anchor="middle">2. 표준 3단 템플릿([A]·[B]·[C])</text>
+            <text x="135" y="134" fill="#bae6fd" font-size="12" text-anchor="middle">3. 정상 규칙 vs 의심 로직 분리</text>
           </g>
 
           <!-- Upper Stream: Clean Policy -->
-          <path d="M 600 105 C 645 105, 645 65, 690 65" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#lgGreen)"/>
-          <g transform="translate(695, 22)">
-            <rect width="550" height="86" rx="12" fill="#064e3b" fill-opacity="0.6" stroke="#34d399" stroke-width="1.5"/>
-            <text x="20" y="30" fill="#6ee7b7" font-size="13.5" font-weight="800">🟢 [분리 1] 명확한 비즈니스 로직 ➔ 초기 정본 v1.0.0 즉시 확정</text>
-            <text x="20" y="52" fill="#d1fae5" font-size="12">• docs/specs/*.md + 00_domain_contracts.md + canon_index.md + digest/*.md 생성</text>
-            <text x="20" y="72" fill="#a7f3d0" font-size="11.5">• 이 순간부터 신규 프로젝트와 동일하게 /dev-screen · /spec-check 가동 가능</text>
+          <path d="M 618 110 C 660 110, 660 70, 705 70" stroke="#34d399" stroke-width="2.5" fill="none" marker-end="url(#lgGreen)"/>
+          <g transform="translate(715, 25)">
+            <rect width="530" height="90" rx="12" fill="#064e3b" fill-opacity="0.6" stroke="#34d399" stroke-width="1.5"/>
+            <text x="22" y="32" fill="#6ee7b7" font-size="13.5" font-weight="800">🟢 [분리 1] 명확한 비즈니스 로직 ➔ 초기 정본 v1.0.0 확정</text>
+            <text x="22" y="56" fill="#d1fae5" font-size="12">• 정본 마크다운 + 00_domain_contracts.md + canon_index + digest 생성</text>
+            <text x="22" y="76" fill="#a7f3d0" font-size="11.5">• 이 순간부터 신규 프로젝트와 동일하게 /dev-screen · /spec-check 가동</text>
           </g>
 
           <!-- Lower Stream: Suspicious Legacy Logic -->
-          <path d="M 600 165 C 645 165, 645 205, 690 205" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#lgAmber)"/>
-          <g transform="translate(695, 160)">
-            <rect width="550" height="86" rx="12" fill="#451a03" fill-opacity="0.6" stroke="#fbbf24" stroke-width="1.5"/>
-            <text x="20" y="30" fill="#fde68a" font-size="13.5" font-weight="800">🟠 [분리 2] 의심 로직(하드코딩·모순·버그 추정) ➔ PO 판정 질문지 분리</text>
-            <text x="20" y="52" fill="#fef3c7" font-size="12">• 과거 버그를 마음대로 ‘정본 정책’으로 박제하지 않고 legacy_questions.md 로 추출</text>
-            <text x="20" y="72" fill="#fcd34d" font-size="11.5">• PO(white)가 “현행 유지” 또는 “결함 수정 대상”으로 판정한 뒤 정본에 합류</text>
+          <path d="M 618 170 C 660 170, 660 210, 705 210" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="6 4" fill="none" class="flow-anim" marker-end="url(#lgAmber)"/>
+          <g transform="translate(715, 165)">
+            <rect width="530" height="90" rx="12" fill="#451a03" fill-opacity="0.6" stroke="#fbbf24" stroke-width="1.5"/>
+            <text x="22" y="32" fill="#fde68a" font-size="13.5" font-weight="800">🟠 [분리 2] 의심 로직(하드코딩·버그 추정) ➔ PO 질문지 분리</text>
+            <text x="22" y="56" fill="#fef3c7" font-size="12">• 과거 버그를 ‘정본 정책’으로 박제하지 않고 legacy_questions.md 추출</text>
+            <text x="22" y="76" fill="#fcd34d" font-size="11.5">• PO(white)가 “현행 유지” 또는 “수정 대상” 판정 후 정본에 합류</text>
           </g>
         </svg>
       </div>
@@ -833,12 +801,12 @@
         <div class="skill-badge-card sk-init">
           <div class="sk-cmd">/doc-rule</div>
           <div class="sk-name" style="color:var(--cyan);">② 공통 규칙 뽑기</div>
-          <p class="sk-desc">도메인 간 공유 코드 채번(<code>RH-*</code> 등)·상태값·소속 3분류를 <code>00_domain_contracts.md</code>로 추출</p>
+          <p class="sk-desc">도메인 공유 코드 채번(<code>RH-*</code> 등)·상태값·소속 3분류를 <code>00_domain_contracts.md</code>로 추출</p>
         </div>
         <div class="skill-badge-card sk-po">
           <div class="sk-cmd">/doc-update</div>
           <div class="sk-name" style="color:var(--purple);">③ PO 정책 변경</div>
-          <p class="sk-desc">영향 화면 전수 스캔 ➔ 정본·프로토·계산기 개정 ➔ 개정이력 기록 &amp; 개발팀 티켓 발행</p>
+          <p class="sk-desc">영향 화면 스캔 ➔ 정본·프로토·계산기 개정 ➔ 개정이력 기록 &amp; 개발팀 티켓 발행</p>
         </div>
         <div class="skill-badge-card sk-dev">
           <div class="sk-cmd">/dev-screen</div>
