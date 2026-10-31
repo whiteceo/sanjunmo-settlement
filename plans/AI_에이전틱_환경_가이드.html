@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 에이전틱 개발 · 정합성 검증 환경 가이드</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-alt: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --primary: #2563eb;
+      --primary-soft: #eff6ff;
+      --primary-border: #bfdbfe;
+      --po: #7c3aed;
+      --po-soft: #f5f3ff;
+      --po-border: #ddd6fe;
+      --dev: #059669;
+      --dev-soft: #ecfdf5;
+      --dev-border: #a7f3d0;
+      --guard: #ea580c;
+      --guard-soft: #fff7ed;
+      --guard-border: #fed7aa;
+      --radius: 14px;
+      --shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* Header */
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 18px;
+      padding: 36px 40px;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(59, 130, 246, 0.25);
+      border: 1px solid rgba(147, 197, 253, 0.4);
+      color: #93c5fd;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 15.5px;
+      max-width: 880px;
+    }
+    .hero-goals {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .goal-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .goal-card strong {
+      display: block;
+      color: #f8fafc;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .goal-card span {
+      color: #cbd5e1;
+      font-size: 13.5px;
+    }
+
+    /* Section */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 30px 32px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--surface-alt);
+    }
+    .section-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .section-sub {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* Architecture Diagram */
+    .arch-diagram {
+      display: grid;
+      grid-template-columns: 1fr 90px 1fr;
+      align-items: stretch;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) {
+      .arch-diagram {
+        grid-template-columns: 1fr;
+      }
+    }
+    .repo-box {
+      border-radius: 14px;
+      padding: 22px;
+      border: 2px solid;
+    }
+    .repo-ssot {
+      background: var(--po-soft);
+      border-color: var(--po-border);
+    }
+    .repo-dev {
+      background: var(--dev-soft);
+      border-color: var(--dev-border);
+    }
+    .repo-badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .repo-ssot .repo-badge { background: var(--po); color: #fff; }
+    .repo-dev .repo-badge { background: var(--dev); color: #fff; }
+    .repo-box h3 {
+      margin: 0 0 6px;
+      font-size: 18px;
+    }
+    .repo-box p {
+      margin: 0 0 14px;
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+    .asset-list {
+      display: grid;
+      gap: 8px;
+    }
+    .asset-item {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 13.5px;
+    }
+    .asset-item code {
+      font-weight: 700;
+      color: #1e293b;
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+    }
+    .bridge-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: var(--primary-soft);
+      border: 1px dashed var(--primary);
+      border-radius: 12px;
+      padding: 12px 8px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .bridge-arrow {
+      font-size: 24px;
+      line-height: 1;
+      margin: 6px 0;
+    }
+
+    /* Workflow Sequence Diagram */
+    .flow-lanes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 12px;
+    }
+    @media (max-width: 900px) {
+      .flow-lanes { grid-template-columns: 1fr; }
+    }
+    .lane {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      padding: 18px;
+      position: relative;
+    }
+    .lane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(15, 23, 42, 0.08);
+    }
+    .lane-title {
+      font-weight: 800;
+      font-size: 16px;
+    }
+    .lane-tag {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .lane-po { background: #faf5ff; border-color: var(--po-border); }
+    .lane-po .lane-tag { background: var(--po); color: #fff; }
+    .lane-dev { background: #f0fdf4; border-color: var(--dev-border); }
+    .lane-dev .lane-tag { background: var(--dev); color: #fff; }
+    .lane-ci { background: #fff7ed; border-color: var(--guard-border); }
+    .lane-ci .lane-tag { background: var(--guard); color: #fff; }
+
+    .step-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      font-size: 13.5px;
+    }
+    .step-card:last-child { margin-bottom: 0; }
+    .step-num {
+      display: inline-block;
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: #e2e8f0;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .cmd-pill {
+      display: inline-block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #0f172a;
+      color: #38bdf8;
+    }
+
+    /* 5 Skills Grid */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .skill-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .skill-card.po-skill { border-top: 4px solid var(--po); }
+    .skill-card.dev-skill { border-top: 4px solid var(--dev); }
+    .skill-card.check-skill { border-top: 4px solid var(--guard); }
+    .skill-card.init-skill { border-top: 4px solid var(--primary); }
+
+    .skill-cmd {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 17px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+    .skill-kr {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+    .skill-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .skill-who {
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface-alt);
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: #334155;
+    }
+
+    /* Two Pillars: Part A vs Part B */
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .pillars-grid { grid-template-columns: 1fr; }
+    }
+    .pillar-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      background: var(--surface-alt);
+    }
+    .pillar-box h3 {
+      margin: 0 0 14px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+    .rule-item {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      font-size: 13.5px;
+    }
+    .rule-item:last-child { margin-bottom: 0; }
+    .rule-item strong {
+      display: block;
+      color: #0f172a;
+      margin-bottom: 3px;
+    }
+
+    /* Responsive Table (Modern Web Guidance compliant) */
+    .table-wrapper {
+      overflow: auto;
+      max-inline-size: 100%;
+      max-block-size: min(520px, 80vh);
+      container-type: inline-size;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 14px;
+      background: #fff;
+    }
+    caption {
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 700;
+      background: var(--surface-alt);
+      border-bottom: 1px solid var(--border);
+    }
+    thead {
+      position: sticky;
+      inset-block-start: 0;
+      z-index: 1;
+      background: #f1f5f9;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody th {
+      position: sticky;
+      inset-inline-start: 0;
+      background: #ffffff;
+      font-weight: 700;
+    }
+    @container (width < 600px) {
+      table, thead, tbody, tr, th, td {
+        display: block;
+      }
+      thead {
+        display: none;
+      }
+      tr {
+        margin-block-end: 1rem;
+        border: 1px solid var(--border);
+      }
+      tbody th {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 2;
+        background: #f1f5f9;
+      }
+      table {
+        --label-1: "구분";
+        --label-2: "산준모 프로젝트 (현재)";
+        --label-3: "신규 구축 프로젝트 (Greenfield)";
+        --label-4: "유지보수 레거시 서비스 (Brownfield)";
+      }
+      td:nth-child(2)::before { content: var(--label-2) ": "; font-weight: 700; }
+      td:nth-child(3)::before { content: var(--label-3) ": "; font-weight: 700; }
+      td:nth-child(4)::before { content: var(--label-4) ": "; font-weight: 700; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- HERO -->
+    <header class="hero">
+      <div class="hero-badge">AI Agentic SDLC Playbook v1.0</div>
+      <h1>AI 에이전틱 개발 · 정합성 검증 환경 가이드</h1>
+      <p>
+        다수의 개발자가 각자 로컬에서 Claude Code로 개발하더라도, <strong>단일 기획 정본(SSOT)</strong>에서 벗어나지 않고
+        도메인 간 비즈니스 로직 충돌을 자동으로 감시·차단하는 표준 작업 체계입니다.
+      </p>
+      <div class="hero-goals">
+        <div class="goal-card">
+          <strong>1. 로컬 AI의 ‘각자도생’ 차단</strong>
+          <span>누가 로컬에서 AI를 돌리든 동일한 정본 색인·요약본·공통 계약만 참조해 임의 추론을 원천 방지</span>
+        </div>
+        <div class="goal-card">
+          <strong>2. 도메인 간 로직 충돌 예방</strong>
+          <span>회원·정산 ↔ 주문·환불 ↔ 게시판·권한 경계의 공통 코드·상태값 규칙을 도메인 계약서로 강제</span>
+        </div>
+        <div class="goal-card">
+          <strong>3. PO의 수동 검수 병목 제거</strong>
+          <span>각자 로컬에서 전용 스킬(<code>/doc-update</code> · <code>/dev-screen</code> · <code>/spec-check</code>)을 거쳐 정합성 자동 검증</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION 1: 2-REPO ARCHITECTURE -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-num">1</span> 전체 저장소 구조 (정본과 코드의 결합 방식)</h2>
+        <p class="section-sub">정본 저장소와 개발 저장소를 분리하되, 로컬 동기화 브릿지(Spec Bridge)로 모든 AI가 같은 정본을 참조합니다.</p>
+      </div>
+
+      <div class="arch-diagram">
+        <div class="repo-box repo-ssot">
+          <span class="repo-badge">정본 저장소 (Single Source of Truth)</span>
+          <h3>lcampus/sanjunmo-settlement</h3>
+          <p>PO(white)가 관리하는 유일한 기준선 — 구글 드라이브와 양방향 동기화</p>
+          <div class="asset-list">
+            <div class="asset-item"><code>docs/</code> 통합 상세 설계서 · 정산 00~04권 (상단 문서 개정이력 표 포함)</div>
+            <div class="asset-item"><code>prototype_clean/</code> 백오피스 40개 화면 HTML 프로토타입 + 기준정보(common-master.js)</div>
+            <div class="asset-item"><code>engine/php/</code> 정산 0~13단계 기준 계산기 (PHP 8.4) + 61건 시나리오 정답셋</div>
+            <div class="asset-item"><code>canon_index.md</code> &amp; <code>digest/*.md</code> 화면 코드별 정본 줄 번호 색인 + 화면 요약본(원본의 6%)</div>
+          </div>
+        </div>
+
+        <div class="bridge-col">
+          <span>Spec Bridge</span>
+          <div class="bridge-arrow">⇄</div>
+          <code>sync-spec.sh</code>
+          <span style="font-weight:400; font-size:11.5px; margin-top:6px; color:#475569;">경량 색인·요약본만 로컬 마운트</span>
+        </div>
+
+        <div class="repo-box repo-dev">
+          <span class="repo-badge">개발 저장소 (Application Code)</span>
+          <h3>lcampus/sanjunmo</h3>
+          <p>개발자 4명이 로컬 Claude Code로 작업하는 Laravel 13 + PHP 8.4 저장소</p>
+          <div class="asset-list">
+            <div class="asset-item"><code>CLAUDE.md</code> + <code>.claude/skills/</code> 전 개발자 AI 공통 제어 지침 및 5대 스킬</div>
+            <div class="asset-item"><code>docs/</code> (.gitignore 유지) <code>canon_index.md</code> · <code>digest/</code> · <code>00_domain_contracts.md</code> 로컬 참조</div>
+            <div class="asset-item"><code>app/</code> Controller → Service → Repository → Model 계층 구조</div>
+            <div class="asset-item"><code>scripts/check.sh</code> 변경 파일 Pint + 임시 MySQL 8.4 4병렬 테스트 + 통과 표식</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: 5 CORE SKILLS -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-num">2</span> 각자 로컬에서 실행하는 ‘5대 핵심 스킬’</h2>
+        <p class="section-sub">별도 외부 서버 과금 없이, PO와 개발자가 각자 로컬 Claude Code에서 직관적인 명령어로 실행합니다.</p>
+      </div>
+
+      <div class="skills-grid">
+        <div class="skill-card init-skill">
+          <div>
+            <div class="skill-cmd">/doc-init</div>
+            <div class="skill-kr">① 초기 정본 만들기</div>
+            <div class="skill-desc">
+              정본이 없는 레거시 코드나 초안 문서를 스캔해 화면 코드를 부여하고, 표준 3단 템플릿(<code>[A]·[B]·[C]</code>) 정본 <code>v1.0.0</code>과 색인·요약본을 최초 생성합니다.
+            </div>
+          </div>
+          <div class="skill-who">🕒 사용 시점: 신규/레거시 프로젝트 최초 온보딩 시 (1회)</div>
+        </div>
+
+        <div class="skill-card init-skill">
+          <div>
+            <div class="skill-cmd">/doc-rule</div>
+            <div class="skill-kr">② 공통 규칙 뽑기</div>
+            <div class="skill-desc">
+              수천 줄의 기획서에서 여러 개발자 도메인이 공유하는 코드 채번(<code>RH-*</code>, <code>CT-*</code>, <code>PROD-BK-*</code>), 공통 상태값, 소속 3분류만 뽑아 1장짜리 계약서로 만듭니다.
+            </div>
+          </div>
+          <div class="skill-who">🕒 사용 시점: 초기 세팅 &amp; 공통 스키마·코드 변경 시</div>
+        </div>
+
+        <div class="skill-card po-skill">
+          <div>
+            <div class="skill-cmd">/doc-update</div>
+            <div class="skill-kr">③ PO 정책 변경</div>
+            <div class="skill-desc">
+              정책 수정 시 <strong>영향받는 모든 문서 절과 화면 코드를 먼저 스캔해 보고</strong>하고, 승인 시 문서·프로토타입·계산기 일괄 수정 + <code>문서 개정 이력</code> 기록 + 개발팀 티켓을 생성합니다.
+            </div>
+          </div>
+          <div class="skill-who">👤 사용 주체: PO (white) — 정책·화면 규칙 개정 시 상시</div>
+        </div>
+
+        <div class="skill-card dev-skill">
+          <div>
+            <div class="skill-cmd">/dev-screen</div>
+            <div class="skill-kr">④ 개발자 화면 구현</div>
+            <div class="skill-desc">
+              <code>/dev-screen ADMN-SETT-005</code>처럼 화면 코드만 치면, 기획서 전체 대신 <strong>해당 화면의 정본 구간 + 요약본 + 공통 규칙만 핀셋 로드</strong>해 코딩하고 <code>check.sh</code>까지 돌립니다.
+            </div>
+          </div>
+          <div class="skill-who">👩‍💻 사용 주체: 개발자 4명 — 담당 화면 코딩 시 상시</div>
+        </div>
+
+        <div class="skill-card check-skill">
+          <div>
+            <div class="skill-cmd">/spec-check</div>
+            <div class="skill-kr">⑤ 정본 대조 검수</div>
+            <div class="skill-desc">
+              정본 명세와 현재 코드를 1:1 대조하여 <strong><code>✅ 일치</code> / <code>❌ 정본 위반·누락</code> / <code>⚠️ 정본에 없는 임의 구현</code></strong> 3가지로만 판정 리포트를 출력합니다.
+            </div>
+          </div>
+          <div class="skill-who">🔍 사용 주체: 개발자(커밋 직전) &amp; PO(수시 총괄 감사)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: END-TO-END WORKFLOW DIAGRAM -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-num">3</span> 일일 작업 순환 흐름도 (PO 개정 → 개발자 구현 → 검수·배포)</h2>
+        <p class="section-sub">PO가 정책을 바꿀 때와 개발자가 커밋할 때 어떻게 정합성이 체크되는지 보여주는 3단계 흐름입니다.</p>
+      </div>
+
+      <div class="flow-lanes">
+        <!-- Lane 1: PO -->
+        <div class="lane lane-po">
+          <div class="lane-header">
+            <span class="lane-title">STEP A. PO 정책 개정</span>
+            <span class="lane-tag">PO 로컬 AI</span>
+          </div>
+          <div class="step-card">
+            <span class="step-num">A-1</span> <strong>정책 변경 지시</strong><br>
+            PO가 로컬 AI에게 <span class="cmd-pill">/doc-update</span>로 변경할 정책(예: 환불 규정 수정)을 지시합니다.
+          </div>
+          <div class="step-card">
+            <span class="step-num">A-2</span> <strong>영향 화면 전수 스캔 &amp; 일괄 개정</strong><br>
+            AI가 영향받는 문서 절과 화면 코드(<code>ADMN-RFD-002</code>, <code>USER-MY-011</code> 등)를 찾아 보고하고, 승인 시 정본·프로토타입·계산기를 동시 수정합니다.
+          </div>
+          <div class="step-card">
+            <span class="step-num">A-3</span> <strong>문서 개정이력 기록 &amp; 개발팀 전달</strong><br>
+            상단 <code>문서 개정 이력</code> 표에 새 버전(<code>v3.2.xx</code>)과 영향 화면 코드를 남기면, 개발 레포의 담당자(박성민·노승원·이응민)별 수정 요청이 생성됩니다.
+          </div>
+        </div>
+
+        <!-- Lane 2: Developer -->
+        <div class="lane lane-dev">
+          <div class="lane-header">
+            <span class="lane-title">STEP B. 개발자 화면 구현</span>
+            <span class="lane-tag">개발자 로컬 AI</span>
+          </div>
+          <div class="step-card">
+            <span class="step-num">B-1</span> <strong>화면 코드로 작업 시작</strong><br>
+            개발자가 자기 PC에서 <span class="cmd-pill">/dev-screen 화면코드</span>를 실행하면 최신 정본 동기화 후 해당 화면 명세만 가볍게 읽어옵니다.
+          </div>
+          <div class="step-card">
+            <span class="step-num">B-2</span> <strong>미확정 정책 차단 &amp; 계층 구현</strong><br>
+            정본에 없는 규칙은 임의로 짜지 않고 즉시 질문으로 빼며, 확정된 규칙만 <code>Controller → Service → Repository</code> 구조로 구현합니다.
+          </div>
+          <div class="step-card">
+            <span class="step-num">B-3</span> <strong>커밋 직전 셀프 대조 &amp; 체크</strong><br>
+            커밋 전 <span class="cmd-pill">/spec-check</span>로 정본 누락이 없는지 확인하고, <code>bash scripts/check.sh</code>(Pint + 임시 MySQL 테스트)를 통과한 뒤 커밋합니다.
+          </div>
+        </div>
+
+        <!-- Lane 3: Central CI & Audit -->
+        <div class="lane lane-ci">
+          <div class="lane-header">
+            <span class="lane-title">STEP C. 병합 · 총괄 감사</span>
+            <span class="lane-tag">GitHub + PO</span>
+          </div>
+          <div class="step-card">
+            <span class="step-num">C-1</span> <strong>결정론적 자동 테스트 (GitHub)</strong><br>
+            <code>dev</code> 병합 시 전체 도메인 테스트와 정산 기준 계산기(61건 시나리오) 일치 여부를 기계적으로 검증합니다.
+          </div>
+          <div class="step-card">
+            <span class="step-num">C-2</span> <strong>개발 진행률 자동 갱신</strong><br>
+            커밋 메시지에 적힌 화면 코드(<code>ADMN-*</code>, <code>USER-*</code>)와 <code>DECISIONS</code> 번호를 읽어 진행률 대시보드를 자동 갱신합니다.
+          </div>
+          <div class="step-card">
+            <span class="step-num">C-3</span> <strong>PO 수시 총괄 감사</strong><br>
+            PO가 필요할 때 로컬에서 <span class="cmd-pill">/spec-check</span>를 돌려 양쪽 폴더(정본 ↔ 개발 코드)의 위반·임의 구현 여부를 한눈에 리포트로 확인합니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: PART A VS PART B -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-num">4</span> 환경 셋팅(기계)과 운영 규약(사람)의 역할 분담</h2>
+        <p class="section-sub">기계가 자동으로 해주는 영역과, 사람이 반드시 지켜줘야 하는 5가지 최소 약속입니다.</p>
+      </div>
+
+      <div class="pillars-grid">
+        <div class="pillar-box">
+          <h3>⚙️ Part A. 시스템 환경 셋팅 (기계가 강제하는 영역)</h3>
+          <div class="rule-item">
+            <strong>1. 정본 브릿지 (<code>scripts/sync-spec.sh</code>)</strong>
+            정본 레포의 위치 색인(<code>canon_index.md</code>), 화면 요약본(<code>digest/</code>), 공통 계약(<code>00_domain_contracts.md</code>), 정산 61건 정답셋을 개발 레포의 <code>docs/</code>로 자동 연결합니다.
+          </div>
+          <div class="rule-item">
+            <strong>2. 로컬 AI 제어 지침 (<code>sanjunmo/CLAUDE.md</code>)</strong>
+            모든 개발자의 Claude Code가 켜질 때 자동으로 읽는 최상위 규칙으로, 대형 문서를 통째로 읽지 않고 색인·요약본 기반으로만 코딩하도록 강제합니다.
+          </div>
+          <div class="rule-item">
+            <strong>3. 커밋 프리체크 가드 (<code>scripts/check.sh</code>)</strong>
+            내가 수정한 파일의 Pint 문법 검사와 격리된 임시 MySQL 8.4 컨테이너 4병렬 테스트를 통과해야만 <code>.claude/check-pass</code> 표식이 생성됩니다.
+          </div>
+          <div class="rule-item">
+            <strong>4. 정산 엔진 61건 Parity 테스트</strong>
+            정본에서 이미 검증된 PHP 8.4 기준 계산기의 61건 입출력 JSON을 개발 레포 테스트에 그대로 연결해 1원 단위 오차도 허용하지 않습니다.
+          </div>
+        </div>
+
+        <div class="pillar-box">
+          <h3>🤝 Part B. 사람들이 지켜야 할 5대 규약 (팀 프로토콜)</h3>
+          <div class="rule-item">
+            <strong>규약 1. 모든 작업과 커밋에는 ‘화면 코드’를 반드시 적는다</strong>
+            브랜치·AI 지시·커밋 메시지에 <code>(ADMN-SETT-005 · DECISIONS 208)</code>처럼 화면 코드를 적어야 스킬이 정본을 찾고 진행률이 집계됩니다.
+          </div>
+          <div class="rule-item">
+            <strong>규약 2. [PO] 구두·메신저 지시 대신 <code>/doc-update</code>로 정본을 먼저 고친다</strong>
+            구두로만 바꾸라고 하면 개발자 코드가 <code>/spec-check</code>에서 ‘정본 위반’으로 잡힙니다. 항상 정본과 <code>문서 개정 이력</code>을 먼저 갱신합니다.
+          </div>
+          <div class="rule-item">
+            <strong>규약 3. [개발자] 코딩 시작은 <code>/dev-screen</code>, 커밋 전엔 <code>/spec-check</code></strong>
+            작업 시작 전 정본을 최신화하고, 커밋 직전 셀프 대조(<code>/spec-check</code>)와 <code>check.sh</code>를 통과한 코드만 올립니다.
+          </div>
+          <div class="rule-item">
+            <strong>규약 4. [개발자] 정본에 없는 정책은 임의로 짜지 않고 질문한다</strong>
+            애매한 예외 케이스를 AI가 추론해 짜지 못하게 막고, PO에게 알려 정본(<code>DECISIONS</code>)에 먼저 확정한 뒤 구현합니다.
+          </div>
+          <div class="rule-item">
+            <strong>규약 5. [개발자] 타 담당자의 도메인 테이블을 직접 수정하지 않는다</strong>
+            남의 도메인 모델/테이블을 직접 건드리지 않고 <code>00_domain_contracts.md</code>에 정의된 Service/Event만 호출합니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: SCALING TO NEW & LEGACY PROJECTS -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-num">5</span> 전사 확장: 신규 프로젝트 및 유지보수(레거시) 서비스 적용 비교</h2>
+        <p class="section-sub">이 체계는 산준모뿐 아니라 신규 프로젝트와 정본이 없는 유지보수 서비스 모두에 동일하게 적용됩니다.</p>
+      </div>
+
+      <div tabindex="0" role="region" aria-labelledby="project-type-caption" class="table-wrapper">
+        <table>
+          <caption id="project-type-caption">프로젝트 유형별 AI 에이전틱 환경 도입 방식 비교</caption>
+          <thead>
+            <tr>
+              <th>구분</th>
+              <th>산준모 프로젝트 (현재 진행 중)</th>
+              <th>신규 구축 프로젝트 (Greenfield)</th>
+              <th>유지보수 레거시 서비스 (Brownfield)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>초기 정본 상태</th>
+              <td>정본·프로토타입·계산기·색인·Digest 이미 완비됨</td>
+              <td>코드 0 상태에서 정본부터 작성 시작</td>
+              <td>정본이 없거나 옛날 문서만 있고 <strong>레거시 코드만 돌아가는 상태</strong></td>
+            </tr>
+            <tr>
+              <th>첫 단계 (Day 1)</th>
+              <td><code>/doc-rule</code>로 <code>00_domain_contracts.md</code> 생성 후 바로 <code>/spec-check</code>로 현행 코드 대조</td>
+              <td>보일러플레이트(<code>CLAUDE.md</code> + 5대 스킬 + <code>check.sh</code>) 복제 후 <code>/doc-init</code>으로 시작</td>
+              <td><strong><code>/doc-init</code> (초기 정본 만들기 스킬)</strong>을 돌려 레거시 코드에서 역으로 정본 <code>v1.0.0</code> + 색인 + Digest 자동 추출 (의심 로직은 PO 질문지로 분리)</td>
+            </tr>
+            <tr>
+              <th>기존 기술부채 처리</th>
+              <td><code>check.sh</code>가 기존 위반 파일은 경고만, 신규/수정 파일만 엄격 검사</td>
+              <td>첫 커밋부터 기술부채 0건 유지</td>
+              <td>레거시 전체 리팩토링 없이, <strong>이번에 유지보수로 건드리는 화면부터 점진적 정본화 (Touch-and-Lock)</strong></td>
+            </tr>
+            <tr>
+              <th>일상 운영 루프</th>
+              <td colspan="3" style="text-align:center; font-weight:700; background:#f8fafc;">
+                PO 정책 개정(<code>/doc-update</code> + 문서 개정이력) ➔ 개발자 화면 구현(<code>/dev-screen</code>) ➔ 커밋 전 대조 검수(<code>/spec-check</code> + <code>check.sh</code>) 100% 동일
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
