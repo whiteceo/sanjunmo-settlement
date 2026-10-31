@@ -791,11 +791,11 @@
     </section>
 
     <!-- ======================================================================================== -->
-    <!-- VISUAL 4: LEGACY REVERSE-SPEC SEPARATOR & 5 SKILLS CHEATSHEET -->
+    <!-- VISUAL 4: LEGACY REVERSE-SPEC SEPARATOR -->
     <!-- ======================================================================================== -->
     <section class="section">
       <div class="section-header">
-        <h2 class="section-title"><span class="section-num">4</span> 레거시 역공학 분리기 도식 &amp; 5대 스킬 요약</h2>
+        <h2 class="section-title"><span class="section-num">4</span> 레거시 역공학 분리기 도식: 정본 없는 유지보수 프로젝트 온보딩</h2>
         <p class="section-sub">정본이 없는 유지보수 서비스에서 <code>/doc-init</code> 스킬이 ‘정상 정책’과 ‘의심 하드코딩’을 분리해 정본화하는 원리입니다.</p>
       </div>
 
@@ -863,6 +863,140 @@
           </g>
         </svg>
       </div>
+    </section>
+
+    <!-- ======================================================================================== -->
+    <!-- VISUAL 5: UI 2-TRACK ARCHITECTURE (TRACK A BACKOFFICE vs TRACK B UIX FIGMA MCP) -->
+    <!-- ======================================================================================== -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title"><span class="section-num">5</span> 화면·프론트엔드 2-Track 도식: 프로토타입 없이 UI 통일성 &amp; UIX(Figma) 직결하기</h2>
+        <p class="section-sub">무거운 HTML 프로토타입 파일을 수작업으로 관리하지 않고, 화면 성격에 따라 <strong>Track A(백오피스 표준 골격)</strong>와 <strong>Track B(UIX팀 Figma MCP 직결)</strong>로 이원화합니다.</p>
+      </div>
+
+      <div class="svg-frame">
+        <svg viewBox="0 0 1280 510" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="trkHdrA" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#0369a1"/>
+              <stop offset="100%" stop-color="#0c4a6e"/>
+            </linearGradient>
+            <linearGradient id="trkHdrB" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#6d28d9"/>
+              <stop offset="100%" stop-color="#3b0764"/>
+            </linearGradient>
+            <marker id="tkCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+            </marker>
+            <marker id="tkPurp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#c084fc"/>
+            </marker>
+            <marker id="tkGrn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399"/>
+            </marker>
+          </defs>
+
+          <!-- Background Grid -->
+          <g stroke="#ffffff" stroke-opacity="0.03" stroke-width="1">
+            <path d="M0 100 H1280 M0 200 H1280 M0 300 H1280 M0 400 H1280"/>
+            <path d="M210 0 V510 M420 0 V510 M630 0 V510 M840 0 V510 M1050 0 V510"/>
+          </g>
+
+          <!-- ==================== TRACK A: AI FULL-STACK (Top Lane, y=20..235) ==================== -->
+          <g transform="translate(25, 20)">
+            <rect width="1230" height="215" rx="16" fill="#082f49" fill-opacity="0.4" stroke="#38bdf8" stroke-width="2"/>
+            <!-- Full-width Level-1 Header -->
+            <rect x="0" y="0" width="1230" height="52" rx="16" fill="url(#trkHdrA)" stroke="#38bdf8" stroke-width="1.5"/>
+            <rect x="20" y="11" width="110" height="30" rx="8" fill="#38bdf8"/>
+            <text x="75" y="31" fill="#082f49" font-size="14" font-weight="900" text-anchor="middle">TRACK A</text>
+            <text x="148" y="32" fill="#ffffff" font-size="16.5" font-weight="900">AI 프론트 자체 구현 트랙 (백오피스 · 어드민) — 표준 화면 골격 4종으로 통일</text>
+
+            <!-- A1: UI System Spec -->
+            <g transform="translate(25, 72)">
+              <rect width="340" height="118" rx="12" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+              <rect x="18" y="16" width="32" height="22" rx="6" fill="#38bdf8"/>
+              <text x="34" y="31" fill="#082f49" font-size="12" font-weight="900" text-anchor="middle">01</text>
+              <text x="58" y="32" fill="#38bdf8" font-size="13.5" font-family="monospace" font-weight="800">00_ui_system.md (표준 골격 4종)</text>
+              <text x="20" y="60" fill="#f8fafc" font-size="13.5" font-weight="800">HTML 프로토타입 개별 제작·관리 생략</text>
+              <text x="20" y="84" fill="#cbd5e1" font-size="12">• 목록+모달형 / 등록폼형 / 집계형 / 탭복합형</text>
+              <text x="20" y="104" fill="#7dd3fc" font-size="12">• PO 설계 시엔 4종 골격으로 1회성 프리뷰만 확인</text>
+            </g>
+
+            <path d="M 365 131 L 425 131" stroke="#38bdf8" stroke-width="3" marker-end="url(#tkCyan)"/>
+
+            <!-- A2: /dev-screen -->
+            <g transform="translate(435, 72)">
+              <rect width="360" height="118" rx="12" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+              <rect x="18" y="16" width="32" height="22" rx="6" fill="#38bdf8"/>
+              <text x="34" y="31" fill="#082f49" font-size="12" font-weight="900" text-anchor="middle">02</text>
+              <text x="58" y="32" fill="#38bdf8" font-size="13.5" font-family="monospace" font-weight="800">/dev-screen ADMN-* 실행</text>
+              <text x="20" y="60" fill="#f8fafc" font-size="13.5" font-weight="800">표준 골격 컴포넌트 + 정본 [B] 명세 결합</text>
+              <text x="20" y="84" fill="#cbd5e1" font-size="12">• 정본에 적힌 검색필터·표 컬럼·모달만 배치</text>
+              <text x="20" y="104" fill="#fda4af" font-size="12" font-weight="700">• 개발자마다 레이아웃이 달라지는 현상 원천 차단</text>
+            </g>
+
+            <path d="M 795 131 L 855 131" stroke="#34d399" stroke-width="3" marker-end="url(#tkGrn)"/>
+
+            <!-- A3: Result -->
+            <g transform="translate(865, 72)">
+              <rect width="340" height="118" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+              <rect x="18" y="16" width="32" height="22" rx="6" fill="#34d399"/>
+              <text x="34" y="31" fill="#022c22" font-size="12" font-weight="900" text-anchor="middle">03</text>
+              <text x="58" y="32" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">/spec-check 전 화면 일관성 달성</text>
+              <text x="20" y="60" fill="#ffffff" font-size="13.5" font-weight="800">40개 백오피스 화면 100% 동일 조작성</text>
+              <text x="20" y="84" fill="#d1fae5" font-size="12">• 배지 색상·버튼 위치·모달 규격 완벽 통일</text>
+              <text x="20" y="104" fill="#a7f3d0" font-size="12">• 정본 대비 누락 컬럼·필터 자동 적발</text>
+            </g>
+          </g>
+
+          <!-- ==================== TRACK B: UIX FIGMA MCP COLLABORATION (Bottom Lane, y=265..490) ==================== -->
+          <g transform="translate(25, 265)">
+            <rect width="1230" height="225" rx="16" fill="#2e1065" fill-opacity="0.35" stroke="#c084fc" stroke-width="2"/>
+            <!-- Full-width Level-1 Header -->
+            <rect x="0" y="0" width="1230" height="52" rx="16" fill="url(#trkHdrB)" stroke="#c084fc" stroke-width="1.5"/>
+            <rect x="20" y="11" width="110" height="30" rx="8" fill="#c084fc"/>
+            <text x="75" y="31" fill="#1e1b4b" font-size="14" font-weight="900" text-anchor="middle">TRACK B</text>
+            <text x="148" y="32" fill="#ffffff" font-size="16.5" font-weight="900">UIX팀 협업 트랙 (유저 프론트 · 브랜드 화면) — Figma MCP 서버 직결 파이프라인</text>
+
+            <!-- B1: Dual Source (Figma + MD) -->
+            <g transform="translate(25, 74)">
+              <rect width="340" height="126" rx="12" fill="#0f172a" stroke="#c084fc" stroke-width="2"/>
+              <rect x="18" y="16" width="32" height="22" rx="6" fill="#c084fc"/>
+              <text x="34" y="31" fill="#1e1b4b" font-size="12" font-weight="900" text-anchor="middle">01</text>
+              <text x="58" y="32" fill="#e9d5ff" font-size="13.5" font-weight="800">UIX팀 Figma 시안 + PO 정본 정책</text>
+              <text x="20" y="58" fill="#f8fafc" font-size="13" font-weight="800">🎨 Figma 프레임명: [USER-MY-011] 환불내역</text>
+              <text x="20" y="80" fill="#d8b4fe" font-size="12">• Ready for Dev 확정 시안 (시각·레이아웃 정본)</text>
+              <text x="20" y="102" fill="#38bdf8" font-size="12">📘 정본 마크다운: Figma URL + 데이터·비즈니스 규칙</text>
+            </g>
+
+            <path d="M 365 137 L 425 137" stroke="#c084fc" stroke-width="3" stroke-dasharray="7 4" fill="none" class="flow-anim" marker-end="url(#tkPurp)"/>
+
+            <!-- B2: Figma MCP + /dev-screen -->
+            <g transform="translate(435, 74)">
+              <rect width="360" height="126" rx="12" fill="#1e1b4b" stroke="#c084fc" stroke-width="2"/>
+              <rect x="18" y="16" width="32" height="22" rx="6" fill="#c084fc"/>
+              <text x="34" y="31" fill="#1e1b4b" font-size="12" font-weight="900" text-anchor="middle">02</text>
+              <text x="58" y="32" fill="#e9d5ff" font-size="13.5" font-family="monospace" font-weight="800">🔌 Figma MCP ➔ /dev-screen 결합</text>
+              <text x="20" y="58" fill="#ffffff" font-size="13" font-weight="800">시안 구조 자동 추출 + 비즈니스 로직 바인딩</text>
+              <text x="20" y="80" fill="#e9d5ff" font-size="12">• Figma Auto Layout · 디자인 토큰 · 컴포넌트 직결</text>
+              <text x="20" y="102" fill="#fda4af" font-size="12" font-weight="700">• AI의 임의 UI/CSS 변형 금지 (로직·데이터만 주입)</text>
+            </g>
+
+            <path d="M 795 137 L 855 137" stroke="#34d399" stroke-width="3" marker-end="url(#tkGrn)"/>
+
+            <!-- B3: Dual Check (/spec-check) -->
+            <g transform="translate(865, 74)">
+              <rect width="340" height="126" rx="12" fill="#064e3b" stroke="#34d399" stroke-width="2"/>
+              <rect x="18" y="16" width="32" height="22" rx="6" fill="#34d399"/>
+              <text x="34" y="31" fill="#022c22" font-size="12" font-weight="900" text-anchor="middle">03</text>
+              <text x="58" y="32" fill="#6ee7b7" font-size="13.5" font-family="monospace" font-weight="800">/spec-check 양방향 동시 대조</text>
+              <text x="20" y="58" fill="#ffffff" font-size="13" font-weight="800">Figma 시안 일치 + 정본 비즈니스 로직 일치</text>
+              <text x="20" y="80" fill="#d1fae5" font-size="12">• Figma 컴포넌트·입력폼·문구 누락 자동 검출</text>
+              <text x="20" y="102" fill="#a7f3d0" font-size="12">• 정책 변경 시 /doc-update가 UIX 수정요청서도 발행</text>
+            </g>
+          </g>
+        </svg>
+      </div>
 
       <!-- 5 Skills Strip -->
       <div class="skill-strip">
@@ -874,22 +1008,22 @@
         <div class="skill-badge-card sk-init">
           <div class="sk-cmd"><span style="display:inline-block;background:var(--cyan);color:#082f49;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">02</span>/doc-rule</div>
           <div class="sk-name" style="color:var(--cyan);">공통 규칙 뽑기</div>
-          <p class="sk-desc">도메인 공유 코드 채번(<code>RH-*</code> 등)·상태값·소속 3분류를 <code>00_domain_contracts.md</code>로 추출</p>
+          <p class="sk-desc">도메인 공통 계약(<code>00_domain_contracts</code>) 및 표준 UI 골격(<code>00_ui_system</code>) 추출</p>
         </div>
         <div class="skill-badge-card sk-po">
           <div class="sk-cmd"><span style="display:inline-block;background:var(--purple);color:#1e1b4b;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">03</span>/doc-update</div>
           <div class="sk-name" style="color:var(--purple);">PO 정책 변경</div>
-          <p class="sk-desc">영향 화면 스캔 ➔ 정본·프로토·계산기 개정 ➔ 개정이력 기록 &amp; 개발팀 티켓 발행</p>
+          <p class="sk-desc">영향 화면 스캔 ➔ 정본·계산기 개정 ➔ 개정이력 기록 &amp; 개발팀/UIX팀 티켓 발행</p>
         </div>
         <div class="skill-badge-card sk-dev">
           <div class="sk-cmd"><span style="display:inline-block;background:var(--emerald);color:#022c22;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">04</span>/dev-screen</div>
           <div class="sk-name" style="color:var(--emerald);">개발자 화면 구현</div>
-          <p class="sk-desc">화면코드 기준 6% 핀셋 로드 ➔ 미확정 정책 차단 &amp; 계층 구현 ➔ <code>check.sh</code> 실행</p>
+          <p class="sk-desc">6% 핀셋 명세 + Track A(표준 골격) / Track B(Figma MCP 직결) 결합 구현 &amp; <code>check.sh</code></p>
         </div>
         <div class="skill-badge-card sk-check">
           <div class="sk-cmd"><span style="display:inline-block;background:var(--amber);color:#451a03;padding:1px 6px;border-radius:4px;margin-right:6px;font-weight:900;">05</span>/spec-check</div>
           <div class="sk-name" style="color:var(--amber);">정본 대조 검수</div>
-          <p class="sk-desc">정본과 현재 코드를 1:1 대조해 <code>✅ 일치</code> / <code>❌ 위반·누락</code> / <code>⚠️ 임의 구현</code> 판정</p>
+          <p class="sk-desc">정본(+ Track B Figma 시안)과 코드를 1:1 대조해 <code>✅ 일치</code> / <code>❌ 위반</code> / <code>⚠️ 임의구현</code> 판정</p>
         </div>
       </div>
 
@@ -913,8 +1047,14 @@
               <td>정본이 없거나 옛날 문서만 있고 <strong>레거시 코드만 돌아가는 상태</strong></td>
             </tr>
             <tr>
+              <th>화면·UI 정본 방식 (2-Track)</th>
+              <td>현행 HTML 프로토타입 참조 + 신규/개편 시 Track A/B 병행</td>
+              <td><strong>Track A(백오피스)</strong>: <code>00_ui_system.md</code> 4대 표준 골격 적용<br><strong>Track B(유저화면)</strong>: UIX팀 <strong>Figma MCP</strong> 직결</td>
+              <td><strong>Track A(백오피스)</strong>: 기존 어드민 컴포넌트에서 표준 골격 역추출<br><strong>Track B(유저화면)</strong>: UIX팀 리뉴얼 Figma 시안 MCP 직결</td>
+            </tr>
+            <tr>
               <th>첫 단계 (Day 1)</th>
-              <td><code>/doc-rule</code>로 <code>00_domain_contracts.md</code> 생성 후 바로 <code>/spec-check</code>로 현행 코드 대조</td>
+              <td><code>/doc-rule</code>로 <code>00_domain_contracts.md</code>·<code>00_ui_system.md</code> 생성 후 바로 <code>/spec-check</code></td>
               <td>보일러플레이트(<code>CLAUDE.md</code> + 5대 스킬 + <code>check.sh</code>) 복제 후 <code>/doc-init</code>으로 시작</td>
               <td><strong><code>/doc-init</code> (초기 정본 만들기)</strong> 실행 → 레거시 코드에서 정본 <code>v1.0.0</code> + 색인 + Digest 역추출</td>
             </tr>
