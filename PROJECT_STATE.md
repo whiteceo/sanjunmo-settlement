@@ -201,3 +201,4 @@
 | 2026-10-29 | v7.18 DEV_TRANSFER 15절 — INST-001 세무 판정 수동 입력 제거(v7.07) 개발 전달 항목 추가 | `dev_handoff/DEV_TRANSFER.md` |
 | 2026-10-30 | v7.21 GitHub 복구 — 10·28 전달 문서(v7.20) · 첨부 3개(`dev_handoff/첨부/`) 커밋, whiteceo push 후 lcampus/sanjunmo-settlement를 같은 이력으로 덮어씀(force-with-lease). origin=lcampus, whiteceo는 별도 원격(드라이브 · Pages 때문에 당분간 둘 다 push) | `dev_handoff/첨부/` |
 | 2026-10-31 (안티그래비티) | v7.22 AI 에이전틱 개발 · 정합성 검증 환경 구축 방법론 정리 — AI용 실행 명세서(5대 스킬 `/doc-init` · `/doc-rule` · `/doc-update` · `/dev-screen` · `/spec-check` 원문 포함) 및 팀 설명용 도식화 HTML 가이드 작성, GitHub Pages 배포 | `plans/AI_에이전틱_환경_구축.md`, `plans/AI_에이전틱_환경_가이드.html` |
+| 2026-11-01 | v7.23 AI 에이전틱 가이드 v1.0.0 개편 — 질문형 표지(3D 아이소메트릭 배경) · 1화면 1섹션 · 사이드 드로어 · 용어사전/확장연동 모달 · 로드맵 페이지 분리 · Lane 1~3 조감도 복원 · 역방향 흐름선 복원 · 어색한 용어 정리(환류·핀셋·역질문·명세 배포 등 → 반영·선별·질문·지시서 생성) | `plans/AI_에이전틱_환경_가이드.html`, `plans/AI_에이전틱_환경_구축.md`, `plans/assets/hero-agentic-system.jpg` |
