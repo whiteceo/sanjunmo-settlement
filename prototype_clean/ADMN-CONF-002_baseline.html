@@ -452,9 +452,9 @@ code, pre, kbd, samp,
 
             <div class="k-title"><span>사전 공고 중 (시행 예정 버전)</span><span class="badge badge-amber">ANNOUNCED</span></div>
 
-            <div class="k-num" id="kpi-announced-cnt">1 건</div>
+            <div class="k-num" id="kpi-announced-cnt">0 건</div>
 
-            <div class="k-sub">개인정보처리방침(T03) v3.0 · 2026.11.16 시행 예정</div>
+            <div class="k-sub">공시중 버전 없음 · 6종 v1.0 오픈일(2026.11.16) 시행</div>
 
           </div>
 
@@ -584,15 +584,15 @@ code, pre, kbd, samp,
 
               <select id="dt-term-switcher" class="f-select" style="width:280px;" onchange="openTermDetail(this.value, currentDetailTab)">
 
-                <option value="T01">[T01] 서비스 이용약관 (현행 v2.1)</option>
+                <option value="T01">[T01] 서비스 이용약관 (현행 v1.0)</option>
 
-                <option value="T02">[T02] 개인정보 수집 · 이용 동의 (현행 v1.8)</option>
+                <option value="T02">[T02] 개인정보 수집 · 이용 동의 (현행 v1.0)</option>
 
-                <option value="T03">[T03] 개인정보처리방침 (현행 v2.9 / 공시 v3.0)</option>
+                <option value="T03">[T03] 개인정보처리방침 (현행 v1.0)</option>
 
-                <option value="T04">[T04] 환불 · 청약철회 규정 (현행 v1.4)</option>
+                <option value="T04">[T04] 환불 · 청약철회 규정 (현행 v1.0)</option>
 
-                <option value="T05">[T05] 마케팅 정보 수신 동의 (현행 v1.1)</option>
+                <option value="T05">[T05] 마케팅 정보 수신 동의 (현행 v1.0)</option>
 
                 <option value="T06">[T06] 만 14세 이상 확인 (현행 v1.0)</option>
 
@@ -634,7 +634,7 @@ code, pre, kbd, samp,
 
                   <th>현행 시행 버전 / 시행일</th>
 
-                  <td id="dt-meta-ver"><span class="badge badge-green">v1.4 시행중</span> (시행일: 2026-03-01)</td>
+                  <td id="dt-meta-ver"><span class="badge badge-green">v1.0 시행중</span> (시행일: 2026-11-16)</td>
 
                 </tr>
 
@@ -722,7 +722,7 @@ code, pre, kbd, samp,
 
                   <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">적용될 버전 번호 (자동 채번)</label>
 
-                  <input type="text" id="ed-ver-num" class="f-input" style="width:100%; background:#F1F5F9; font-weight:800;" value="v1.5" readonly />
+                  <input type="text" id="ed-ver-num" class="f-input" style="width:100%; background:#F1F5F9; font-weight:800;" value="v1.1" readonly />
 
                 </div>
 
@@ -730,7 +730,7 @@ code, pre, kbd, samp,
 
                   <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">공고일자 (사전 공시 시작일) *</label>
 
-                  <input type="date" id="ed-announce-date" class="f-input" style="width:100%;" value="2026-11-06" onchange="validateNoticePeriod()" />
+                  <input type="date" id="ed-announce-date" class="f-input" style="width:100%;" value="2026-12-01" onchange="validateNoticePeriod()" />
 
                 </div>
 
@@ -738,7 +738,7 @@ code, pre, kbd, samp,
 
                   <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">시행일자 (효력 발생일) *</label>
 
-                  <input type="date" id="ed-effective-date" class="f-input" style="width:100%;" value="2026-11-16" onchange="validateNoticePeriod()" />
+                  <input type="date" id="ed-effective-date" class="f-input" style="width:100%;" value="2026-12-11" onchange="validateNoticePeriod()" />
 
                 </div>
 
@@ -750,7 +750,7 @@ code, pre, kbd, samp,
 
               <div id="notice-period-alert" style="border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:12px; font-weight:700; background:#F0FDF4; border:1px solid #BBF7D0; color:#166534;">
 
-                ✅ [법정 사전 공고 기간 충족] 공고일(2026-11-06) ~ 시행일(2026-11-16): 총 10일 확보 (불리한 변경 아님 · 최소 7일 이상 충족)
+                ✅ [법정 사전 공고 기간 충족] 공고일(2026-12-01) ~ 시행일(2026-12-11): 총 10일 확보 (불리한 변경 아님 · 최소 7일 이상 충족)
 
               </div>
 
@@ -1031,9 +1031,9 @@ code, pre, kbd, samp,
 
         location: '회원가입(USER-JOIN-002) 필수 체크 + 하단 푸터(USER-INFO-001)',
 
-        currentVer: 'v2.1',
+        currentVer: 'v1.0',
 
-        effectiveDate: '2026-05-01',
+        effectiveDate: '2026-11-16',
 
         announcedVer: null,
 
@@ -1046,15 +1046,14 @@ code, pre, kbd, samp,
 
         history: [
 
-          { ver: 'v2.1', revType: '일반 개정', announceDate: '2026-04-20', effectiveDate: '2026-05-01', reason: '동시접속 1세션 제어 및 부정수강 제재 기준 명확화', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 (목적)
+
+          { ver: 'v1.0', revType: '제정', announceDate: '2026-11-16', effectiveDate: '2026-11-16', reason: '서비스 오픈 최초 제정(설계서 3.4.2 5항, 오픈일 시행)', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 (목적)
 본 약관은 산준모닷컴(이하 "회사")이 제공하는 온라인 산업안전기사·건설안전기사 수험 강좌(VOD), 합격환급반 및 수험 교재 판매 서비스의 이용 조건과 절차를 규정함을 목적으로 합니다.
 
 제2조 (수강 아이디 및 동시접속 제한)
 1. 회원의 아이디(이메일) 및 비밀번호 관리 책임은 회원 본인에게 있습니다.
-2. 회사는 저작권 보호 및 부정 수강 방지를 위하여 동일 계정의 동시 접속을 1개 세션(IP 기준)으로 제한하며, 중복 접속 감지 시 기존 세션을 강제 로그아웃 처리할 수 있습니다.` },
+2. 회사는 저작권 보호 및 부정 수강 방지를 위하여 동일 계정의 동시 접속을 1개 세션(IP 기준)으로 제한하며, 중복 접속 감지 시 기존 세션을 강제 로그아웃 처리할 수 있습니다.` }
 
-          { ver: 'v2.0', revType: '전면 개정', announceDate: '2025-11-25', effectiveDate: '2026-01-01', reason: '합격환급반 운영 조항 및 유·무상 포인트 차감 순서 신설', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `제1조 (목적)
-산준모닷컴 온라인 강의 및 교재 서비스 이용약관 (v2.0 보관본)` }
 
         ]
 
@@ -1074,27 +1073,19 @@ code, pre, kbd, samp,
 
         location: '회원가입(USER-JOIN-002) 필수 체크',
 
-        currentVer: 'v1.8',
+        currentVer: 'v1.0',
 
-        effectiveDate: '2026-04-01',
+        effectiveDate: '2026-11-16',
 
         announcedVer: null,
 
-        body: `1. 수집하는 개인정보 항목
-- 필수항목: 이름, 이메일 주소(ID), 비밀번호(암호화), 휴대전화번호(SMS 본인인증 및 DI 중복가입 확인), 배송지 주소(교재 주문 시)
-- 선택항목: 산준모 네이버 카페 아이디(ID)
-
-2. 수집 및 이용 목적
-- 회원 식별, 중복 가입 및 웰컴 혜택(5,000P·10% 쿠폰) 중복 수령 방지(DI 해시 검증), 강좌 수강 및 3PL 교재 배송, 합격환급반 본인 확인 및 원천징수 신고
-
-3. 보유 및 이용 기간
-- 회원 탈퇴 시 즉시 파기 (단, 재가입 부정수급 방지용 DI 해시는 탈퇴 후 30일 보관, 전자상거래법에 따른 계약·결제·환불 기록은 5년 보관)`,
+        body: `1. 수집하는 개인정보 항목 및 이용 목적 (v1.0 시행본)`,
 
         history: [
 
-          { ver: 'v1.8', revType: '일반 개정', announceDate: '2026-03-20', effectiveDate: '2026-04-01', reason: '탈퇴 후 30일 DI 해시 보관(웰컴 혜택 중복 수령 방지) 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `1. 수집하는 개인정보 항목 및 이용 목적 (v1.8 현행본)` },
 
-          { ver: 'v1.7', revType: '일반 개정', announceDate: '2025-10-10', effectiveDate: '2025-10-20', reason: '네이버 카페 ID 선택 입력 항목 추가', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `1. 수집하는 개인정보 항목 및 이용 목적 (v1.7 보관본)` }
+          { ver: 'v1.0', revType: '제정', announceDate: '2026-11-16', effectiveDate: '2026-11-16', reason: '서비스 오픈 최초 제정(설계서 3.4.2 5항, 오픈일 시행)', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `1. 수집하는 개인정보 항목 및 이용 목적 (v1.0 시행본)` }
+
 
         ]
 
@@ -1114,28 +1105,19 @@ code, pre, kbd, samp,
 
         location: '사이트 하단 푸터(USER-INFO-001) 볼드체 상시 노출',
 
-        currentVer: 'v2.9',
+        currentVer: 'v1.0',
 
-        effectiveDate: '2026-03-15',
+        effectiveDate: '2026-11-16',
 
-        announcedVer: 'v3.0 (2026-11-16 시행 예정)',
+        announcedVer: null,
 
-        body: `제1조 (개인정보의 처리 목적)
-산준모닷컴은 다음의 목적을 위하여 개인정보를 처리합니다.
-
-제4조 (개인정보 처리업무의 위탁)
-1. 결제 처리(PG): 토스페이먼츠(주)
-2. 실물 교재 출고 및 배송(3PL): (주)산준모 지정 물류센터 및 CJ대한통운
-3. 알림톡 · 문자(SMS/LMS) · 이메일 발송: 네이버클라우드(주) SENS
-
-제7조 (개인정보의 파기 절차 및 민감정보 보호)
-합격환급반 및 현금환불 처리를 위해 수집된 주민등록번호·계좌번호(AES-256 암호화)는 국세청 원천징수 신고 및 정산 보존 기한 경과 후 보안 파기 배치(ADMN-USER-007)를 통해 영구 파기합니다.`,
+        body: `제4조 (개인정보 처리업무의 위탁) 토스페이먼츠 및 네이버클라우드 SENS, 3PL 물류 위탁 반영 (v1.0 시행본)`,
 
         history: [
 
-          { ver: 'v3.0', revType: '일반 개정', announceDate: '2026-10-15', effectiveDate: '2026-11-16', reason: '주 PG사(토스페이먼츠) 및 3PL 물류 수탁사 현황 현행화', admin: '최고 관리자 (admin_root)', status: 'ANNOUNCED', body: `제4조 (개인정보 처리업무의 위탁) 토스페이먼츠 및 네이버클라우드 SENS, 3PL 물류 위탁 반영 (v3.0 사전 공고본)` },
 
-          { ver: 'v2.9', revType: '일반 개정', announceDate: '2026-03-05', effectiveDate: '2026-03-15', reason: '민감정보(주민번호·계좌) 암호화 및 파기 절차 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 ~ 제7조 개인정보처리방침 (v2.9 현행 시행본)` }
+          { ver: 'v1.0', revType: '제정', announceDate: '2026-11-16', effectiveDate: '2026-11-16', reason: '서비스 오픈 최초 제정(설계서 3.4.2 5항, 오픈일 시행)', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제4조 (개인정보 처리업무의 위탁) 토스페이먼츠 및 네이버클라우드 SENS, 3PL 물류 위탁 반영 (v1.0 시행본)` }
+
 
         ]
 
@@ -1155,23 +1137,19 @@ code, pre, kbd, samp,
 
         location: '주문/결제(USER-PAY-001) 필수 체크 + 하단 푸터(USER-INFO-001)',
 
-        currentVer: 'v1.4',
+        currentVer: 'v1.0',
 
-        effectiveDate: '2026-03-01',
+        effectiveDate: '2026-11-16',
 
         announcedVer: null,
 
-        body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준)
-1. 온라인 강좌(VOD) 전액 환불: 결제일로부터 7일 이내이며 맛보기 강의를 제외한 수강 이력이 2강 이하인 경우 100% 환불됩니다.
-2. 온라인 강좌 부분 환불: 제1호에 해당하지 않으면 평생교육법 시행령 [별표 3] 비고 4에 따라 [실결제금액 × (전체 회차 − 학습 회차) ÷ 전체 회차](원 단위 절사)를 환불합니다. 회차를 1초라도 재생하면 학습한 회차로 보며, 위약금 · 기간 경과 차감은 없습니다. 원 수강기간이 끝난 강좌는 환불하지 않습니다.
-3. 실물 교재(도서정가제 적용 대상): 래핑(비닐 포장) 개봉 또는 훼손 시 반품·환불이 불가하며, 단순 변심 반품 시 반품 배송비 3,000원(편도)을 회원이 부담하며, 반품으로 무료배송 조건을 충족하지 못하면 왕복 6,000원을 부담합니다.
-4. 포인트 차감 및 복원: 결제 시 무상 포인트(무상 P) → 구매적립 포인트(적립 P) 순으로 차감하고, 환불 시에는 역순(LIFO)으로 적립 P → 무상 P 순으로 복원합니다(복원 시 유효기간이 지난 포인트는 7일 유예). 지급된 적립 P가 이미 사용된 경우 회수 부족액은 현금 환불액에서 먼저 차감하고, 초과분은 적립 P 마이너스 부채로 기록됩니다.`,
+        body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준) v1.0 시행본`,
 
         history: [
 
-          { ver: 'v1.4', revType: '전면 개정', announceDate: '2026-01-25', effectiveDate: '2026-03-01', reason: '평생교육법 시행령 별표3 산식 및 교재 반품 배송비(편도 3,000원 / 왕복 6,000원) 기준 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준) v1.4 현행 조문` },
 
-          { ver: 'v1.3', revType: '일반 개정', announceDate: '2025-08-10', effectiveDate: '2025-08-20', reason: '패키지 상품 내 실물 교재 포함 시 과·면세 분리 환불 안내 추가', admin: '최고 관리자 (admin_root)', status: 'ARCHIVED', body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준) v1.3 보관 조문` }
+          { ver: 'v1.0', revType: '제정', announceDate: '2026-11-16', effectiveDate: '2026-11-16', reason: '서비스 오픈 최초 제정(설계서 3.4.2 5항, 오픈일 시행)', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `제1조 (강좌 및 교재의 청약철회 및 환불 기준) v1.0 시행본` }
+
 
         ]
 
@@ -1191,23 +1169,19 @@ code, pre, kbd, samp,
 
         location: '회원가입(USER-JOIN-002) 선택 체크 + 마이페이지(USER-MY-009) 토글',
 
-        currentVer: 'v1.1',
+        currentVer: 'v1.0',
 
-        effectiveDate: '2026-02-01',
+        effectiveDate: '2026-11-16',
 
         announcedVer: null,
 
-        body: `1. 마케팅 정보 수신 동의 안내 (선택)
-산준모닷컴이 제공하는 시험 일정 알림, 신규 특강 오픈, 할인 쿠폰 및 이벤트 혜택 정보를 카카오톡 알림톡, 문자(SMS/LMS), 이메일로 수신하는 것에 동의합니다.
-
-2. 통합 동의 및 철회 방법
-- 본 동의는 선택 사항이며, 동의하지 않아도 회원가입 및 유료 강좌·교재 구매에는 아무런 제한이 없습니다.
-- 회원님은 언제든지 [내 강의실 > 회원정보 수정] 또는 메시지 하단 080 무료수신거부를 통해 수신 동의를 철회(users.is_marketing_agreed = false)할 수 있습니다.
-- 정보통신망법 제50조에 따라 야간(21:00 ~ 익일 08:00)에는 광고성 메시지가 발송되지 않습니다.`,
+        body: `1. 마케팅 정보 수신 동의 안내 (v1.0 시행본)`,
 
         history: [
 
-          { ver: 'v1.1', revType: '일반 개정', announceDate: '2026-01-20', effectiveDate: '2026-02-01', reason: '알림톡·SMS·이메일 채널을 users.is_marketing_agreed 단일 동의 필드로 통합 명시', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `1. 마케팅 정보 수신 동의 안내 (v1.1 현행 조문)` }
+
+          { ver: 'v1.0', revType: '제정', announceDate: '2026-11-16', effectiveDate: '2026-11-16', reason: '서비스 오픈 최초 제정(설계서 3.4.2 5항, 오픈일 시행)', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `1. 마케팅 정보 수신 동의 안내 (v1.0 시행본)` }
+
 
         ]
 
@@ -1229,18 +1203,17 @@ code, pre, kbd, samp,
 
         currentVer: 'v1.0',
 
-        effectiveDate: '2026-01-01',
+        effectiveDate: '2026-11-16',
 
         announcedVer: null,
 
-        body: `만 14세 이상 확인 (필수)
-본인은 만 14세 이상입니다.
-
-산준모닷컴은 만 14세 이상인 분만 회원으로 가입할 수 있습니다. 이 항목에 동의하지 않으면 회원가입을 진행할 수 없습니다.`,
+        body: `만 14세 이상 확인 (v1.0 시행본)`,
 
         history: [
 
-          { ver: 'v1.0', revType: '제정', announceDate: '2025-11-25', effectiveDate: '2026-01-01', reason: '회원가입 만 14세 이상 확인 필수 체크 제정', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `만 14세 이상 확인 (v1.0 현행 조문)` }
+
+          { ver: 'v1.0', revType: '제정', announceDate: '2026-11-16', effectiveDate: '2026-11-16', reason: '회원가입 만 14세 이상 확인 필수 체크 제정', admin: '최고 관리자 (admin_root)', status: 'ACTIVE', body: `만 14세 이상 확인 (v1.0 시행본)` }
+
 
         ]
 
