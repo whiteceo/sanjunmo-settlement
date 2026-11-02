@@ -1,5 +1,6 @@
 # ADMN-CONF-004 메시지 템플릿 · 타겟 발송 · 발송 이력 — 개발 명세
 
+- **v3.2.32 정본 변경(설계서 b017da2 2.2 알림 표 새 행, 2026-11-02 white, prototype_dev만 반영 · clean 미반영):** 알림 종류 '강의 업데이트(신규 차시 공개)' — 발송 분류 `course_update`(정보성), 알림톡 템플릿 1건(`TPL-ALIM-008`) · 메일 1건(`TPL-MAIL-009`)을 목록에 추가. 치환 변수 `name` · `course_name` · `lecture_title` · `lecture_count` · `url`(설계서 원문). 강의 공개 저장 확인 모달 → 발송 대상 그룹(정적) → 이 화면 단체 발송(정보성). 개발 미구현(아래 2 · 3 · 5 · 7절 `(규칙)`)
 - 프로토타입 파일: prototype_clean/ADMN-CONF-004_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-CONF-004 메시지 템플릿 관리 · ADMN-CONF-004-S1 타겟 단체 알림톡/LMS 예약 발송 · 프로토타입 3번째 탭 "통합 발송 이력 및 실패 재발송 (ADMN-CONF-004-S2, v6.92 전 표기 ADMN-CONF-007)" · 개발 ADMN-CONF-007 알림톡 SENS 템플릿 관리
@@ -25,6 +26,8 @@
 | 상세 = 수정 화면 | GET | `/{admin}/message-templates/{messageTemplate}` | `admin.message-templates.show` | can_view | MessageTemplateController@show |
 | 수정 | PUT | `/{admin}/message-templates/{messageTemplate}` | `admin.message-templates.update` | can_update | MessageTemplateController@update |
 | 테스트 발송(횟수 제한) | POST | `/{admin}/message-templates/{messageTemplate}/test-sends` | `admin.message-templates.test-sends.store` | can_create | MessageTemplateController@testSend |
+
+v3.2.32: 이 화면 라우트 추가 없음 — 강의 업데이트 템플릿은 `TemplateCatalog` 코드 추가(등록은 기존 `create?code=`)로 생긴다. 발송은 S1 단체 발송(`campaigns.store`)을 쓰되, 강의 공개 저장 화면(PROD-002-S1 · PROD-003-S1)의 확인 모달이 대상 그룹을 만들어 넘긴다(그쪽 라우트는 해당 화면 명세).
 
 ### ADMN-CONF-004-S1 타겟 단체 예약 발송
 | 동작 | 메서드 | URL | 라우트 이름 | 권한 | 컨트롤러@메서드 |
@@ -69,6 +72,7 @@
 | `content` | required · 채널별 길이(알림톡 1000자 · LMS 2000바이트 · 메일 10000자) | 치환 변수 포함 | `#tpl-form-body` |
 | `fallback_content` | nullable · LMS 바이트 규칙 | LMS 대체 본문(버튼 링크를 URL 로 풀어 씀) | (없음) |
 | `is_active` | required · boolean | 사용 여부 | (없음) |
+| `code` (v3.2.32, 규칙) | TemplateCatalog 코드 추가 — 예 `CourseUpdateService::TPL_UPDATE`(알림톡) · `TPL_UPDATE_EMAIL`(메일), group `course_update` · 발송 시점 '강의 공개 저장 확인 모달 [알림 보내기]' · 변수 name · course_name · lecture_title · lecture_count · url. 개발 미구현 | 강의 업데이트(신규 차시 공개) | 목록 `TPL-ALIM-008` · `TPL-MAIL-009`, `#tpl-form-domain` 옵션 '강의 업데이트 (ADMN-PROD)'(proto-only, `data-dev-value=course_update`), 변수 칩 4개(proto-only) |
 
 ### 예약 발송 `#campaignStoreForm` (MessageCampaignRequest — store 라우트에서만 rules 적용)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
@@ -109,7 +113,7 @@
 | 테이블.컬럼 | 타입 | 뜻 | 화면 표시 위치 |
 |---|---|---|---|
 | notification_templates.code · name · channel | string | 이벤트 코드 · 템플릿명 · `alimtalk`/`sms`/`email` | 코드 · 명 · 채널 |
-| notification_templates.trigger_group · send_timing | string | 발송 조건 분류(위 group 값) · 발송 시점 설명 | 발송 조건 |
+| notification_templates.trigger_group · send_timing | string | 발송 조건 분류(위 group 값) · 발송 시점 설명. v3.2.32: `course_update`(강의 업데이트, 규칙) 값 추가 — 컬럼 변경 없음(string(30)) | 발송 조건 |
 | notification_templates.is_advertising | tinyint | 1 광고성(마케팅 동의자만) / 0 거래성 | 수신 동의 |
 | notification_templates.subject · content · variables · buttons | — | 제목 · 본문 · 치환 변수 · 카카오 버튼(SENS 동기화본) | 편집 |
 | notification_templates.use_fallback · fallback_channel(`lms`/`sms`) · fallback_content | — | 대체 발송 | 대체문자 |
@@ -154,6 +158,7 @@
 - 템플릿 모달의 SENS 상태 직접 선택(`#tpl-form-status`) · 반려 사유 입력 — 개발은 SENS 동기화 결과로만 바뀜.
 - 메시지 성격 필터(`#tpl-type-filter` 정보성/광고성), 알림톡 버튼명 입력(`#tpl-form-btn-name`) — 개발은 SENS 동기화본 `buttons`.
 - 저장 후 SENS 상태 동기화 버튼.
+- **v3.2.32 (개발 미구현):** 강의 업데이트 알림 템플릿 2건(알림톡 · 메일, 정보성) · 발송 분류 `course_update` · 변수 `course_name` · `lecture_title` · `lecture_count` · `url`. 개발 단체 발송은 `MessageCampaignService::CODES`가 `TPL_NOTICE_TERMS` 하나뿐이고 회원별 값은 `name`만 넘겨(:34 · :396) 강좌별 변수를 채울 수 없음 — 대상 그룹 행마다 강좌 · 추가 강의 값을 넘기는 경로가 필요. 대상: 그 강좌 유효 수강권 보유자(수강중 · 일시정지 · 사전판매 시작 전, 단과 · 패키지 경유), 제외 수강 만료 · 환불/취소 완료 · 탈퇴, 단과 · 패키지 중복은 1건. 알림톡 본문에 다른 상품 홍보 · 구매 링크 금지(정보성 검수).
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 화면 코드: 프로토타입 탭 3 "ADMN-CONF-007 = 통합 발송 이력", 개발 ADMN-CONF-007 = 알림톡 SENS 템플릿 관리 — 코드 의미가 다름. **→ 해결(v6.92)**: 프로토타입 탭 3 코드를 `ADMN-CONF-004-S2` 로 고침(`?view=ADMN-CONF-007` 은 옛 링크 호환으로만 남음). CONF-007 = SENS 템플릿 관리로 일치.
@@ -161,6 +166,7 @@
 - SENS 상태: 프로토타입 APPROVED · INSPECTING · REJECTED · 초안 → `approved` · `pending` · `rejected` · `none`.
 - 세그먼트 select(`#send-target-seg` 고정 목록) → `target_type` + `saved_group_id` / `tags[]` / 회원 검색 조건.
 - 템플릿 등록 모달 → 별도 페이지 `create` · `show`.
+- v3.2.32 치환 변수 이름: 설계서 `course_name` ↔ 개발 `TemplateCatalog::VARIABLES`의 강좌명 키 `course`(:69). 개발이 `course`를 쓰면 설계서 · 템플릿 본문을 `#{course}`로 맞추거나, 개발에 `course_name`을 더한다(개발 판단). `lecture_title` · `lecture_count` · `url`은 개발에 없음(답변 주소용 `answer_url`만 있음).
 
 ## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.

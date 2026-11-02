@@ -4,6 +4,7 @@
 - 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 목록 배열 쿼리 차단(e555839b)뿐
 - 포함 화면: PROD-002 강의 목록 · 002-S1 강의 등록/수정(프로토는 한 파일 안 view 2개 `#viewList` · `#viewForm`, 개발은 페이지 2개)
 - 개발 진행: 구현(002 · 002-S1 라우트 · 화면 있음, `_index/progress.md` 라우트 주석 있음)
+- **v3.2.32 정본 변경 (2026-11-02 white 결정, 설계서 S2-10 · PROD-002-S1 · 2.2 알림 표)**: 강의 상태 `업데이트 예정 → 공개` 추가(예정일 필수, 영상 · DRM ID · 재생시간 비워 저장 허용), `공개` 전환 저장 때 구매자 알림 확인 모달(대상 인원 · 기본 '보냄') → 발송 대상 그룹(정적) → 단체 발송(`ADMN-CONF-004`, 정보성), 목록 상태 필터 · 배지 · 예정일 경과 경고. 개발 미구현 — prototype_dev에 `data-dev-flag="proto-only"` + (규칙) 이름으로 추가
 
 프로토타입 view ↔ 개발 화면
 | 프로토타입 view(id) | 개발 화면 | 개발 뷰 파일 |
@@ -46,6 +47,8 @@
 | 재생시간 변경 영향(저장 전, JSON) | GET | `/lectures/duration-impact?lecture_id=&duration_sec=` | `admin.lectures.duration-impact.index` | 조회 | LectureController@durationImpact |
 | 권리자 지분 매핑 이동 | → | SETT-001 | `admin.settlement…`(SETT-001 명세 참조) | | 개발 폼에 링크 없음 |
 | 연결 강좌 · 패키지 목록 | GET | `/lectures/{lecture}/products` (규칙) | `admin.lectures.products.index` (규칙) | 조회 | 개발 미구현, 규칙 기반 명명(개발은 편성 강좌 수 `courseCount`만) |
+| (v3.2.32) 공개 전환 알림 대상 인원 미리 보기(JSON) — `#layerLectureNotify` | GET | `/lectures/{lecture}/notify-targets` (규칙) | `admin.lectures.notify-targets.index` (규칙) | 조회 | 개발 미구현, 규칙 기반 명명 |
+| (v3.2.32) 공개 저장 + 알림 보냄 — `#lnSubmit` | PUT | `/lectures/{lecture}` | `admin.lectures.update` (기존) + `publish_status=published` · `notify_buyers=1` | 수정 | 개발 미구현: 서버가 정적 저장 그룹 생성 후 `admin.message-templates.campaigns.index?target_type=group&saved_group_id={id}`로 이동(라우트는 기존, `routes/admin.php:1129-1148`) |
 
 ## 3. 폼 필드 · 검증
 
@@ -60,6 +63,7 @@
 | `keyword` | 제목 또는 `cdn_key` 부분 일치(`LectureRepository.php:102-108`) | `#fKeyword` "제목 · CDN 경로 · DRM ID 검색"(v6.92 — DRM ID 검색은 개발에 없음) |
 | `year` · `type` | 연도 · 강의 구분(`Lecture::TYPE_LABELS`) | 프로토 없음(개발에만) |
 | `page` | 페이지 | `.pagination` |
+| `publish_status` (규칙) | `''` 전체 · `published` 공개 · `upcoming` 업데이트 예정 · 예정일 경과는 `overdue=1` (규칙) | `#fPubStatus` ALL · PUBLIC · UPCOMING · OVERDUE (v3.2.32, 개발 미구현) |
 | (최근 작업 카테고리) | 질의 없이 들어오면 세션 `admin.lectures.recent_category` 값으로 채움 | 없음 |
 
 ### 002-S1 저장 (LectureRequest)
@@ -82,6 +86,10 @@
 | `source_url` | nullable · max 500 · http/https만 | youtube일 때 | `#s1YtUrl`(v6.92, youtube.com · youtu.be만) |
 | `list[*]` | 목록 복귀 질의(화이트리스트) | | `backToList()` |
 | (강의 코드) | 서버 채번 `LEC_00001` | | 프로토 없음 |
+| `publish_status` (규칙) | required · in:upcoming,published. `published` → `upcoming` 되돌리기 거부(프로토 동작, 정본 미정 — 8절) | `upcoming` 업데이트 예정 · `published` 공개 (`Lecture::PUBLISH_STATUS_LABELS` (규칙)) | `setPubStatus('UPCOMING'/'PUBLIC')` `#pillPubUpcoming` · `#pillPubPublic` (v3.2.32, 개발 미구현) |
+| `planned_at` (규칙) | `publish_status=upcoming`이면 required · date | 공개 예정일 | `#s1PlannedAt` · 프론트 표시 미리보기 `#s1PlannedPreview` |
+| `cdn_key` · `drm_content_id` · `duration_sec` (기존) | `upcoming`이면 비워도 통과(현재 `duration_sec`은 `required_without:drm_content_id`, `LectureRequest.php:125`) · `published`로 바꿀 때는 기존 규칙 + 유료 DRM ID 필수 | | `pubSaveUpcoming()` · `pubCheckPublishable()` |
+| `notify_buyers` (규칙) | `upcoming` → `published` 전환 저장 때만 · boolean · 기본 1 | `1` 보냄 · `0` 안 보냄 | `#layerLectureNotify` `input[name=lnSend]` |
 
 ### vod-info 응답 · duration-impact 응답
 | 요청 | 응답 | 프로토타입 대응 |
@@ -102,6 +110,7 @@
 | 교안 O/X | 교안 |
 | 맛보기 Y/N | 맛보기 |
 | (없음) | 정산 매핑 (SETT-001) — 프로토에만 |
+| (없음) | 강의 상태(공개 · 업데이트 예정 + 예정일 · 예정일 지남 · 미공개 배지) — v3.2.32 프로토에만. 업데이트 예정 강의의 빈 영상 · 재생시간은 '공개 전환 때 등록 · 입력'으로 표시 |
 | 관리 [수정] (행 클릭도 수정 폼) | 관리 |
 
 툴바: 전체 N건 · 맛보기 N건(`previewCount`). 정렬은 `id desc` 고정.
@@ -124,6 +133,11 @@
 | `lectures.deleted_at` | timestamp nullable | 소프트 삭제 | — |
 | `attachments` (lecture 첨부, private 디스크) | | 교안 PDF | 교안 |
 | `course_lectures` (`course_id`, `lecture_id`, `sort_order`) | | 편성 | 사용 여부 옆 "현재 N개 강좌의 커리큘럼에 편성됨" · 삭제 판정 |
+| `lectures.publish_status` (규칙) | string(20) default `published` | v3.2.32 강의 상태 `upcoming` · `published`. 강의 구분 `type`과 별개 | 목록 '강의 상태' · S1 강의 상태 |
+| `lectures.planned_at` (규칙) | date nullable | 공개 예정일 — 프론트 'YYYY년 MM월 DD일 업데이트 예정', 지나도 `upcoming`이면 경고 | 목록 배지 · `#pubOverdueAlert` |
+| `lectures.published_at` (규칙) | timestamp nullable | `upcoming` → `published` 전환 시각(알림 · 진도율 분모 편입 기준) | (화면 없음) |
+| `lectures.duration_sec` (기존) | uint default 0 NOT NULL | `upcoming`은 0으로 저장 — 진도율 분모(`Lecture::scopePlayable` `duration_sec > 0`)에서 이미 빠짐 | |
+| `user_groups` (`kind=saved_group` · `group_type=static`) · `user_group_members` (기존) | | 알림 보냄 때 만드는 발송 대상 그룹(정적 명단) | `#pubNotifyResult` |
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |
@@ -157,6 +171,9 @@
 - 목록 '정산 매핑 (SETT-001)' 컬럼 · S1 정산 매핑 배지(`#s1MappingBadge`, 프로토 :435 · :462) · SETT-001 이동 버튼(:573)
 - S1 연결 강좌 · 패키지 표(`#s1LinkTable`, :559) — 개발은 편성 강좌 수만. 패키지 편성 여부 없음
 - 삭제 차단 문구에 패키지 수 포함(`deleteLesson()`) — 개발은 강좌 편성 수만(`LectureService.php:365-368`)
+- (v3.2.32, S2-10) 강의 상태 `업데이트 예정 → 공개`: 목록 상태 열 · 필터 `#fPubStatus` · 예정일 경과 경고 `#pubOverdueAlert`, S1 상태 선택 · 예정일 `#s1PlannedAt`, 업데이트 예정 저장 시 영상 · DRM ID · 재생시간 생략 허용(`pubSaveUpcoming()`), 공개 전환 시 영상 · DRM ID 채움 검사(`pubCheckPublishable()`)
+- (v3.2.32) 공개 전환 구매자 알림 확인 모달 `#layerLectureNotify`: 편성된 판매 중 상품별 유효 수강권 보유자 수 · 단과 · 패키지 중복 제거 · 기본 '보냄' → 정적 발송 대상 그룹 생성 결과 `#pubNotifyResult`와 단체 발송 링크. 판매 중 편성 상품이 없으면 모달 없이 공개 저장
+- (v3.2.32) 업데이트 예정 → 공개 저장은 재생시간 '첫 입력'이라 재생시간 변경 소급 확인 창(S-14)을 띄우지 않음
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
@@ -173,3 +190,4 @@
 - **Q-PROD002-1 교안 PDF 용량 상한** — 정본 프로토타입은 50MB(`prototype_clean/ADMN-PROD-002_baseline.html:536, 842`), 개발은 20MB(`app/Http/Requests/Admin/LectureRequest.php:137` `max:20480`, 근거로 화면설계서 05 PROD-002-S1 "PDF 1개(20MB 이하)"를 듦). 화면설계서와 프로토타입이 서로 다르다. 어느 값으로 맞출지. **→ 정본대로(POLICY_D_PROD A, 통합설계서 L234 '최대 50MB')**: 50MB — 개발 `max:20480` → 51200 전달(20MB는 화면설계서 제안값)
 - **Q-PROD002-2 VOD 식별자로 무엇을 저장하나** — 정본: "StarPlayer+ 발급 VOD Key만 보관, 영상 원본 URL · 파일 경로는 DB에 저장하지 않는다"(프로토 :500, 화면설계서 05 PROD-002-S1 ③). 개발: 발급 Key가 없다는 벤더 회신(2026-09-14)을 근거로 `cdn_key`에 CDN 파일 경로(도메인 제외)를 저장하고 DRM 콘텐츠 ID를 별도 칸으로 둔다. YouTube URL(`source_url`)도 저장한다(`LectureRequest.php:12-26, 99-120`). 정본을 "CDN 경로 + DRM 콘텐츠 ID 2칸"으로 고칠지. **→ 결정(v6.92 white, D-PROD-01)**: 개발안으로 정본을 고침(CDN 경로 + DRM 콘텐츠 ID, 도메인 · 서명 URL 저장 안 함, YouTube는 맛보기 Y만) + 유료 강의는 DRM 콘텐츠 ID 필수(개발 `LectureRequest` nullable → 조건부 required)
 - **Q-PROD002-3 강의 단위 정산 매핑 미완 시 판매 차단** — 정본: "미매핑 시 편성된 강좌의 판매가 차단됩니다"(프로토 :571). 개발: 강의 · 강좌 저장과 전시 상태에 권리자 매핑 검사 없음(`CourseRequest.php` 전체, `CourseService.php:239-262`). PROD-003 Q-PROD003-3과 같은 질문이라 한 번에 답하면 된다. **→ 정본대로(POLICY_D_PROD A, 통합설계서 S2-02 · 01권 4.2)**: 1계층 지분 100.00% 전까지 판매중 불가 — 저장 시점 잠금 + 결제 시점 재확인, 개발팀 전달
+- **Q-PROD002-4 (v3.2.32) 공개 → 업데이트 예정 되돌리기** — 정본(설계서 PROD-002-S1 · S2-10)은 `업데이트 예정 → 공개` 한 방향만 적고 되돌리기는 정하지 않았다. 프로토(prototype_dev)는 수강생 재생 · 진도 기록이 끊기므로 막았다(`setPubStatus()` 경고). 허용할지 확인 필요(white)

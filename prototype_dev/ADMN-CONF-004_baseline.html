@@ -377,7 +377,7 @@ code, pre, kbd, samp,
 
   </style>
   <link rel="stylesheet" href="dev-overlay.css" />
-  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-004", "devCommit": "d562524a", "progress": "구현(CONF-004 템플릿 · S1 예약 발송 · 개발 CONF-007 SENS 템플릿). 통합 발송 이력 · 실패 재발송(프로토 CONF-004-S2, 예전 표기 CONF-007 — v6.92) · 즉시 발송(재확인 모달)은 개발 미구현 — 주황 표시", "menus": [{"route": "admin.message-templates.index", "label": "메시지 템플릿 관리 (S1 campaigns · S2 발송 이력(규칙) 포함)"}, {"route": "admin.sens-templates.index", "label": "알림톡 SENS 템플릿 관리 (개발 CONF-007)"}]}</script>
+  <script type="application/json" id="dev-map">{"code": "ADMN-CONF-004", "devCommit": "d562524a", "progress": "구현(CONF-004 템플릿 · S1 예약 발송 · 개발 CONF-007 SENS 템플릿). 통합 발송 이력 · 실패 재발송(프로토 CONF-004-S2, 예전 표기 CONF-007 — v6.92) · 즉시 발송(재확인 모달)은 개발 미구현 — 주황 표시. v3.2.32(2026-11-02) 강의 업데이트(course_update, 정보성) 알림톡 · 메일 템플릿은 개발 TemplateCatalog에 없음", "menus": [{"route": "admin.message-templates.index", "label": "메시지 템플릿 관리 (S1 campaigns · S2 발송 이력(규칙) 포함)"}, {"route": "admin.sens-templates.index", "label": "알림톡 SENS 템플릿 관리 (개발 CONF-007)"}]}</script>
   <script src="dev-overlay.js" defer></script>
 </head>
 <body>
@@ -453,7 +453,7 @@ code, pre, kbd, samp,
 
         <div class="filter-grid">
           <div class="filter-left">
-            <select name="group" data-dev-flag="dev-only" data-dev-note="개발 발송 조건 분류 필터(TemplateCatalog)"><option value="">발송 조건 전체</option><option value="join">회원가입</option><option value="member">회원</option><option value="payment">결제</option><option value="delivery">배송</option><option value="point">포인트</option><option value="inquiry">문의</option><option value="refund">환불</option><option value="notice">단체 공지</option></select>
+            <select name="group" data-dev-flag="dev-only" data-dev-note="개발 발송 조건 분류 필터(TemplateCatalog)"><option value="">발송 조건 전체</option><option value="join">회원가입</option><option value="member">회원</option><option value="payment">결제</option><option value="delivery">배송</option><option value="point">포인트</option><option value="inquiry">문의</option><option value="refund">환불</option><option value="notice">단체 공지</option><option value="course_update" data-dev-flag="proto-only" data-dev-note="v3.2.32 (규칙) TemplateCatalog::GROUPS에 course_update 추가 필요">강의 업데이트</option></select>
             <select id="tpl-channel-filter" name="channel" data-dev-value="'' · alimtalk · sms · email (프로토 값 ALL · ALIMTALK · SMS_LMS · EMAIL)" onchange="renderTemplates()">
               <option value="ALL">발송 채널 전체</option>
               <option value="ALIMTALK">카카오 알림톡 (ALIMTALK)</option>
@@ -688,6 +688,7 @@ code, pre, kbd, samp,
             <option value="환불/환급 (ADMN-RFD)">환불/합격환급 승인 완료 시</option>
             <option value="게시판/CS (ADMN-BRD)">1:1 문의 답변 / 당첨자 발표 시</option>
             <option value="마케팅/수동 (ADMN-PROM)">마케팅 타겟 수동/예약 발송 전용</option>
+            <option value="강의 업데이트 (ADMN-PROD)" data-dev-flag="proto-only" data-dev-value="course_update" data-dev-note="v3.2.32 (규칙) trigger_group course_update — 강의 공개 저장 시 확인 모달 → 대상 그룹 → 단체 발송(정보성)">강의 공개(업데이트) 저장 시 구매자 알림 (정보성)</option>
           </select>
         </div>
         <div class="form-group full">
@@ -719,13 +720,17 @@ code, pre, kbd, samp,
         <div class="form-group full">
           <label class="form-label">치환 변수 클릭 삽입 (클릭 시 본문 커서 위치에 추가)</label>
           <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩" onclick="insertTplVar('#{회원명}')">#{회원명}</span>
-            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩" onclick="insertTplVar('#{주문번호}')">#{주문번호}</span>
-            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩" onclick="insertTplVar('#{강좌명}')">#{강좌명}</span>
-            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩" onclick="insertTplVar('#{결제금액}')">#{결제금액}</span>
-            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩" onclick="insertTplVar('#{송장번호}')">#{송장번호}</span>
-            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩" onclick="insertTplVar('#{환불금액}')">#{환불금액}</span>
-            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩" onclick="insertTplVar('#{경품명}')">#{경품명}</span>
+            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{회원명}')">#{회원명}</span>
+            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{주문번호}')">#{주문번호}</span>
+            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{강좌명}')">#{강좌명}</span>
+            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{결제금액}')">#{결제금액}</span>
+            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{송장번호}')">#{송장번호}</span>
+            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{환불금액}')">#{환불금액}</span>
+            <span class="var-chip" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{경품명}')">#{경품명}</span>
+            <span class="var-chip" data-dev-flag="proto-only" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{course_name}')">#{course_name}</span>
+            <span class="var-chip" data-dev-flag="proto-only" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{lecture_title}')">#{lecture_title}</span>
+            <span class="var-chip" data-dev-flag="proto-only" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{lecture_count}')">#{lecture_count}</span>
+            <span class="var-chip" data-dev-flag="proto-only" data-dev-note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)" onclick="insertTplVar('#{url}')">#{url}</span>
           </div>
         </div>
 
@@ -845,6 +850,32 @@ code, pre, kbd, samp,
       rejectReason: '카카오 정책 반려: 정보성 알림톡 내에 할인 쿠폰/프로모션 유도 문구 포함 불가 (친구톡 또는 SMS/LMS 광고성으로 전환 필요)',
       fallback: true,
       btnName: '할인쿠폰 확인'
+    },
+    // v3.2.32 강의 업데이트(신규 차시 공개) — ADMN-PROD-002-S1 '업데이트 예정 → 공개' 저장 · 판매 중 강좌 커리큘럼(PROD-003-S1)에 공개 강의 추가 저장 시
+    // 확인 모달 [알림 보내기] → 발송 대상 그룹(정적) → 이 템플릿으로 단체 발송(정보성). 개발 TemplateCatalog 미등록 — trigger_group course_update(규칙)
+    {
+      code: 'TPL-ALIM-008',
+      channel: 'ALIMTALK',
+      type: 'INFO',
+      domain: '강의 업데이트 (ADMN-PROD)',
+      title: '[산준모닷컴] 수강 중인 강좌 새 강의 추가 안내',
+      body: '[산준모닷컴] #{name}님, 수강 중인 #{course_name} 강좌에 새 강의 #{lecture_count}개가 추가되었습니다.\n• 추가 강의: #{lecture_title}\n내 강의실에서 바로 수강하실 수 있습니다.',
+      status: 'DRAFT',
+      rejectReason: '',
+      fallback: true,
+      btnName: '내 강의실 바로가기'
+    },
+    {
+      code: 'TPL-MAIL-009',
+      channel: 'EMAIL',
+      type: 'INFO',
+      domain: '강의 업데이트 (ADMN-PROD)',
+      title: '[산준모닷컴] 수강 중인 강좌에 새 강의가 추가되었습니다',
+      body: '[산준모닷컴] #{name}님, 수강 중인 #{course_name} 강좌에 새 강의 #{lecture_count}개가 추가되었습니다.\n• 추가 강의: #{lecture_title}\n내 강의실에서 바로 수강하실 수 있습니다: #{url}\n(같은 내용의 안내 메일 · 다른 상품 홍보 · 구매 링크 없음)',
+      status: 'APPROVED',
+      rejectReason: '',
+      fallback: false,
+      btnName: '-'
     },
     {
       code: 'TPL-SMS-007',

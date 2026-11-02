@@ -4,6 +4,7 @@
 - 맞춘 개발 커밋: `a8016168` (2026-10-27) — d562524a 이후 이 화면 변경은 목록 배열 쿼리 차단(e555839b)뿐
 - 포함 화면: PROD-003 강좌 목록 · 강좌 상세 · 강좌 등록/수정(커리큘럼 섹션 · 교재 매핑 포함) + 모달 2개(`modal-lecture-picker` · `modal-textbook-picker`)
 - 개발 진행: 구현(목록 · 등록/수정 · 커리큘럼 구성 라우트 · 화면 있음). 강좌 상세(읽기 전용 화면)는 개발 미구현
+- **v3.2.32 정본 변경 (2026-11-02 white 결정, 설계서 S2-10 · PROD-003-S1 · 2.2 알림 표)**: '업데이트 예정' 강의(PROD-002)를 커리큘럼에 편성 · 표에 '업데이트 예정 (예정일)' 배지, 판매 중 강좌에 공개 강의를 새로 넣어 저장할 때 구매자 알림 확인 모달 → 발송 대상 그룹(정적) → 단체 발송(`ADMN-CONF-004`), 판매 중(판매 이력) 강좌에 현재 1계층 권리자(`ADMN-SETT-001`) 밖 권리자의 강의 추가는 경고 모달 + 저장 차단. 개발 미구현 — prototype_dev에 `proto-only` + (규칙) 이름
 
 하위 화면 코드가 프로토타입과 개발에서 다르다(개발 = 화면설계서 v12 기준).
 | 프로토타입 view(digest) | 프로토 코드 | 개발 코드 · 화면 | 개발 뷰 파일 |
@@ -58,6 +59,8 @@
 |---|---|---|---|---|---|
 | 구성 화면(후보 필터 `category_id` · `instructor_id` · `keyword`, `all=1` 필터 해제) | GET | `/courses/{course}/curriculum` | `admin.courses.curriculum.index` | 조회 | CourseController@curriculum |
 | 저장 | PUT | `/courses/{course}/curriculum` | `admin.courses.curriculum.update` | 수정 | CourseController@curriculumUpdate |
+| (v3.2.32) 알림 대상 인원 미리 보기(JSON) — `#layerCourseNotify` | GET | `/courses/{course}/notify-targets?lecture_ids[]=` (규칙) | `admin.courses.notify-targets.index` (규칙) | 조회 | 개발 미구현, 규칙 기반 명명 |
+| (v3.2.32) 저장 + 알림 보냄 — `#cnSubmit` | PUT | `/courses/{course}/curriculum` | `admin.courses.curriculum.update` (기존) + `notify_buyers=1` (규칙) | 수정 | 개발 미구현: 정적 저장 그룹 생성 후 `admin.message-templates.campaigns.index?target_type=group&saved_group_id={id}` |
 
 ## 3. 폼 필드 · 검증
 
@@ -110,6 +113,9 @@
 | `lectures[]` | required · min 1 · distinct · 편성 가능 강의만. 판매 이력이 있으면 기존 강의 제외 불가(추가만, `CourseService.php:714-724`) | `confirmAddLecturesToSection()` · `removeLectureFromSection()` · `moveLecture()` (v6.92 프로토도 판매 이력 강좌는 기존 차시 · 섹션 제외 차단, 추가 차시 '기존 수강생 판정 제외' 배지 · 저장 확인) |
 | (결제 시점 환급 조건 박제) | `order_items.refund_terms_snapshot` (규칙) JSON — 판정 대상 `lecture_ids` · 차시별 재생시간 · 인정 진도율 · 필수 출석일수. 개발 없음(S-14) | `#form-retro-note` |
 | 후보 검색 `category_id` · `instructor_id` · `keyword` · `all` | GET | `#modal-lec-keyword` · `renderLectureModalRows()` |
+| (v3.2.32) 업데이트 예정 강의 편성 | `lectures[]`에 `publish_status=upcoming` 강의 허용 — 현재 개발은 편성 후보 · 저장 검증이 `Lecture::scopePlayable`(`cdn_key` 있음 · `duration_sec > 0`, `Lecture.php:58-71`)이라 영상 없는 강의를 못 넣음. 강좌에 공개 강의 1강 이상 조건(`CourseRequest.php:349-362`)은 유지 가능 | 재생시간 칸 `pubDurCell()` 배지 · 요약 `#form-curriculum-summary` '업데이트 예정 N강(진도율 분모 제외)' |
+| (v3.2.32) 신규 권리자 강의 차단 (규칙) | 판매 이력 강좌(`order_items` 있음)에 추가하는 강의의 `lecture_instructors.rights_holder_id`가 강좌의 현재(유효 기간 내) 1계층 권리자 집합 밖이면 422, 오류 키 `lectures` | `#layerHolderBlock` · `crsRemoveForeign()` |
+| (v3.2.32) `notify_buyers` (규칙) | 판매 중 강좌에 공개 강의를 추가한 저장에서만 · boolean · 기본 1. 순서 변경 · 제목 수정만이면 없음 | `#layerCourseNotify` `input[name=cnSend]` |
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼 (003)
 | 개발 컬럼(정렬 키) | 프로토타입 컬럼 |
@@ -155,6 +161,9 @@
 | `product_badges` (`badge_slot`, `badge_type`) | | 강조 배지 | 기타 |
 | `admin_logs` (target `App\Models\Course`, subAction `stop_selling` · `curriculum`) | | 변경 이력 | (프로토 상세 '판매 상태 변경 이력') |
 | `order_items.refund_terms_snapshot` (규칙) | json | 결제 시점 환급 판정 조건 박제(S-14, v6.92) — 개발 없음 | 편성 변경 안내 `#form-retro-note` |
+| `lectures.publish_status` · `planned_at` (규칙) | | v3.2.32 강의 상태 · 공개 예정일(PROD-002 명세 5절) | 커리큘럼 재생시간 칸 배지 |
+| `lecture_instructors.rights_holder_id` · `start_date` · `end_date` (기존, SETT-001) | | 강좌의 현재 1계층 권리자 = 편성 강의들의 유효 매핑 권리자 합집합 | `#hbHolders` |
+| `user_groups` (`kind=saved_group` · `group_type=static`) · `user_group_members` (기존) | | 알림 보냄 때 만드는 발송 대상 그룹 | `#crsNotifyResult` |
 
 삭제 거부 참조(`CourseRepository.php:180-202`): `user_courses` · `order_item_allocations` · `instructor_settlement_items` · `lecture_progresses` · `order_items` · `package_items` · `cart_items` → "… 삭제할 수 없습니다. 비전시 또는 판매중지 전환을 이용하세요."
 
@@ -200,6 +209,9 @@
 - 할인 설정(정률 % / 정액 원)으로 판매가 자동 계산
 - 커리큘럼 섹션(대단원) 구분 · 섹션별 맛보기 토글(`togglePreview()`)
 - 한줄 요약 · 검색 태그 · 수강배수/기기제한 표시(:864) · 등록일 기간 검색 · 강사명 검색 · 목록 강좌코드 · 정가 · 총 강의수 컬럼
+- (v3.2.32, S2-10) 업데이트 예정 강의 편성 · 커리큘럼 · 상세 · 강의 불러오기 표의 '업데이트 예정 (예정일)' 배지(예정일 지나면 '예정일 지남 · 미공개'), 커리큘럼 안내 문구
+- (v3.2.32) 판매 중 강좌에 공개 강의를 새로 넣은 저장 → 구매자 알림 확인 모달 `#layerCourseNotify`(단과 · 패키지 경유 보유자 수 · 중복 제거 · 기본 '보냄') → 정적 발송 대상 그룹 결과 `#crsNotifyResult` + 단체 발송 링크. 업데이트 예정 강의만 넣은 저장은 알림 없음(공개 때 PROD-002에서 알림)
+- (v3.2.32) 판매 중(판매 이력, 판매대기 외) 강좌에 현재 1계층 권리자 밖 권리자의 강의 추가 → 경고 모달 `#layerHolderBlock` + 저장 차단, [해당 강의 빼기]. 샘플은 강의 담당 강사 = 권리자로 단순화
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |

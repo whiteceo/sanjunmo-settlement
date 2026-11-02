@@ -160,6 +160,104 @@ R('id="f-refund-attendance"', 'id="f-refund-attendance" data-dev-flag="proto-onl
 R('id="f-refund-deadline"', 'id="f-refund-deadline" data-dev-flag="proto-only" data-dev-note="환급 신청 기한 — 개발 없음"')
 R('id="f-refund-burden-opt"', 'id="f-refund-burden-opt" data-dev-flag="proto-only" data-dev-note="환급 분담 옵션 — 개발은 권리자 계약 단위 refund_promo_burden_type(정책 질문 Q-PROD005-5)"')
 
+# ── v3.2.32 (2026-11-02 white 결정, S2-10) ─────────────────────────────────────
+# 판매 중(판매 이력) 패키지에 현재 1계층 권리자 밖 권리자의 강좌 추가 → 경고 모달 + 저장 차단,
+# '업데이트 예정 강의만 든 강좌'를 미리 넣는 안내. 개발에 없음 → proto-only
+V3232_NOTE = "v3.2.32 정본 변경(S2-10) — 개발 미구현"
+BOX_ROSE = "margin:0 0 10px; padding:10px 12px; border:1px solid #EF4444; background:#FEF2F2; color:#991B1B; border-radius:8px; font-size:13px; font-weight:600;"
+OPS.append(dict(kind="insert_after", anchor="선행 강좌는 원 미만 내림, 잔여 차액은 정가 내림차순 마지막 강좌에 배정합니다.</span>", html=(
+    '\n              <span class="card-subtitle" style="color:var(--primary);"' + attrs(flag="proto-only", note="(규칙) 강좌 커리큘럼이 모두 lectures.publish_status=upcoming 인 강좌도 패키지 구성 후보 — " + V3232_NOTE) + '>'
+    '나중에 들어올 내용은 \'업데이트 예정 강의만 든 강좌\'를 판매 시작 때부터 미리 넣어 두세요(결제 시점 안분에 포함되고, 포함 강좌에 강의가 공개되면 패키지 구매자도 수강 · 알림). '
+    '판매 중(판매 이력 있는) 패키지에는 현재 1계층 권리자에 없는 권리자의 강좌를 넣을 수 없습니다.</span>')))
+
+OPS.append(dict(kind="insert_before", anchor="  <div class=\"modal-backdrop\" id=\"modal-book-picker\"", html=(
+    '  <!-- ==================== [모달] v3.2.32 S2-10 판매 중 패키지 신규 권리자 강좌 추가 차단 ==================== -->\n'
+    '  <div class="modal-backdrop" id="layerPkgHolderBlock"' + attrs(flag="proto-only", note="저장 차단(서버 검증): 판매 이력 패키지의 현재 1계층 권리자(포함 강좌 강의의 lecture_instructors.rights_holder_id) 밖 권리자의 강좌 추가 — (규칙) PackageRequest 오류 키 items. " + V3232_NOTE) + '>\n'
+    '    <div class="modal-window" style="max-width:680px;">\n'
+    '      <div class="modal-header">\n'
+    '        <div class="modal-title">새 권리자의 강좌는 이 패키지에 넣을 수 없습니다</div>\n'
+    '        <button type="button" class="btn btn-outline btn-sm modal-close">닫기 ✕</button>\n'
+    '      </div>\n'
+    '      <div class="modal-body">\n'
+    '        <div style="' + BOX_ROSE + '">판매 중이거나 판매 이력이 있는 패키지에는 현재 1계층 권리자 목록에 없는 권리자의 강좌를 넣을 수 없습니다. 저장하지 않았습니다.</div>\n'
+    '        <div style="font-size:13px; margin-bottom:8px;">이 패키지의 현재 1계층 권리자: <strong id="phHolders"></strong></div>\n'
+    '        <table class="data-table">\n'
+    '          <thead><tr><th style="width:105px;">강좌코드</th><th>단과 강좌명</th><th style="width:120px;">권리자</th></tr></thead>\n'
+    '          <tbody id="phRows"></tbody>\n'
+    '        </table>\n'
+    '        <div class="field-hint">사유: 결제 시점 안분이라 새 권리자는 기존 주문 몫이 0원이 됩니다. 새 권리자의 콘텐츠는 별도 상품(새 패키지 또는 단과 강좌)으로 판매해 주세요.</div>\n'
+    '      </div>\n'
+    '      <div class="modal-footer">\n'
+    '        <button type="button" class="btn btn-outline">닫기</button>\n'
+    '        <button type="button" class="btn btn-danger-outline" onclick="pkgRemoveForeign()">해당 강좌 빼기</button>\n'
+    '      </div>\n'
+    '    </div>\n'
+    '  </div>\n\n')))
+
+OPS.append(dict(kind="insert_before", anchor="</script><script>\n/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */", html=r'''
+    /* =========================================================================
+       v3.2.32 (2026-11-02 white 결정, S2-10) — 개발 미구현(proto-only)
+       - 판매 중(판매 이력) 패키지에 현재 1계층 권리자 밖 권리자의 강좌 추가: 경고 모달 + 저장 차단
+       - '업데이트 예정 강의만 든 강좌' 표시(미리 넣기)
+       ========================================================================= */
+    COURSE_POOL.push({ code: "CRS-2607", title: "2026 산업안전기사 실기 작업형 2차 업데이트분", instructor: "김안전", listPrice: 60000, baseSalePrice: 60000, upcomingOnly: true, plannedAt: "2027-01-20" });
+    function pkgUpcomingBadges(tbodyId) {
+      const tb = document.getElementById(tbodyId);
+      if (!tb) return;
+      tb.querySelectorAll("tr").forEach(tr => {
+        const pill = tr.querySelector(".code-pill");
+        const c = pill ? COURSE_POOL.find(x => x.code === pill.textContent.trim()) : null;
+        const cell = pill ? pill.closest("td").nextElementSibling : null;
+        if (c && c.upcomingOnly && cell && !cell.querySelector(".pkg-upcoming")) {
+          cell.insertAdjacentHTML("beforeend", ` <span class="badge badge-ready pkg-upcoming">업데이트 예정 강의만 (${c.plannedAt}~)</span>`);
+        }
+      });
+    }
+    const _s210RenderFormCourses = renderFormCourses;
+    renderFormCourses = function () { _s210RenderFormCourses(); pkgUpcomingBadges("form-pkg-courses-tbody"); };
+    const _s210OpenCoursePicker = openCoursePickerModal;
+    openCoursePickerModal = function () { _s210OpenCoursePicker(); pkgUpcomingBadges("modal-course-picker-tbody"); };
+
+    // 편집 시작 때 현재 1계층 권리자 스냅샷 — 샘플은 포함 강좌 담당 강사 = 권리자로 본다
+    let pkgHolderBase = null;
+    let pkgCourseBase = null;
+    let pkgForeign = [];
+    const _s210Populate = populatePkgForm;
+    populatePkgForm = function (p) {
+      _s210Populate(p);
+      const sold = p.status !== "판매대기";
+      pkgCourseBase = sold ? new Set(mappedPkgCourses.map(c => c.code)) : null;
+      pkgHolderBase = sold ? new Set(mappedPkgCourses.map(c => c.instructor)) : null;
+    };
+    const _s210OpenNew = openNewPkgForm;
+    openNewPkgForm = function () { _s210OpenNew(); pkgHolderBase = null; pkgCourseBase = null; };
+    function pkgRemoveForeign() {
+      mappedPkgCourses = mappedPkgCourses.filter(c => !pkgForeign.includes(c.code));
+      showToast(`새 권리자 강좌 ${pkgForeign.length}개(${pkgForeign.join(", ")})를 패키지 구성에서 뺐습니다.`);
+      pkgForeign = [];
+      const el = document.getElementById("layerPkgHolderBlock");
+      el.classList.remove("open");
+      el.style.setProperty("display", "none", "important");
+      autoDistributeCourseWeights();
+    }
+    const _s210Save = savePkgForm;
+    savePkgForm = function () {
+      if (pkgHolderBase && pkgCourseBase) {
+        const foreign = mappedPkgCourses.filter(c => !pkgCourseBase.has(c.code) && !pkgHolderBase.has(c.instructor));
+        if (foreign.length) {
+          pkgForeign = foreign.map(c => c.code);
+          document.getElementById("phHolders").textContent = [...pkgHolderBase].join(" · ");
+          document.getElementById("phRows").innerHTML = foreign.map(c => `<tr><td><span class="code-pill">${c.code}</span></td><td style="font-weight:600;">${c.title}</td><td><span class="badge badge-stop">${c.instructor}</span></td></tr>`).join("");
+          const el = document.getElementById("layerPkgHolderBlock");
+          el.style.removeProperty("display");
+          el.classList.add("open");
+          return;
+        }
+      }
+      _s210Save();
+    };
+''' + "\n"))
+
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [
     ("목록 view", "switchSubview('list')", "#subview-list"),

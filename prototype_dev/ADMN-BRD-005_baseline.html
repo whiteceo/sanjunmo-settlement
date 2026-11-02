@@ -9,7 +9,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>수강후기·합격수기·무료콘텐츠(빈출자료·매일 1문제) 관리 — 산준모 백오피스</title>
+  <title>수강후기·합격수기·무료콘텐츠(기출문제·매일 1문제·출퇴근 1분 산안기) 관리 — 산준모 백오피스</title>
 
   <link id="v4-common-css" rel="stylesheet" href="common-v84.css" />
 
@@ -721,8 +721,11 @@ code, pre, kbd, samp,
   </style>
 
   <link rel="stylesheet" href="dev-overlay.css" />
-  <script type="application/json" id="dev-map">{"code": "ADMN-BRD-005", "devCommit": "d562524a", "progress": "구현(BRD-005 · 005-S1 · BRD-010 · 010-S1). 수강후기/합격수기 분리 탭 · 진도율 · 별점 · 후기 보상 회수 · 버전 이력은 개발 없음 — 주황 표시", "menus": [{"route": "admin.reviews.index", "label": "수기 / 합격 후기 관리"}, {"route": "admin.free-contents.index", "label": "무료콘텐츠 관리"}]}</script>
+  <script type="application/json" id="dev-map">{"code": "ADMN-BRD-005", "devCommit": "d562524a", "progress": "구현(BRD-005 · 005-S1 · BRD-010 · 010-S1). 수강후기/합격수기 분리 탭 · 진도율 · 별점 · 후기 보상 회수 · 버전 이력은 개발 없음 — 주황 표시. v3.2.32(2026-11-02) 무료콘텐츠 SHORTS 구분 · 매일 1문제 머리말(head_code) · 유튜브 영상 ID(video_id) · 기출문제 명칭은 개발 미구현", "menus": [{"route": "admin.reviews.index", "label": "수기 / 합격 후기 관리"}, {"route": "admin.free-contents.index", "label": "무료콘텐츠 관리"}]}</script>
   <script src="dev-overlay.js" defer></script>
+  <style>/* v3.2.32 SHORTS 썸네일 자리 — 프로토는 네트워크 없이 자리만, 개발은 i.ytimg.com/vi/{video_id}/mqdefault.jpg */
+    .fl-yt-thumb { width:36px; height:64px; flex:none; border-radius:6px; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; }
+  </style>
 </head>
 
 <body>
@@ -734,7 +737,7 @@ code, pre, kbd, samp,
       <span class="crumb-group">주문 · 환불 · CS · 프로모션</span>
       <span class="crumb-sep">›</span>
       <span class="crumb-code" id="current-screen-code">ADMN-BRD-005</span>
-      <h1 class="crumb-title" id="current-screen-title">수강후기·합격수기 분리 관리 및 무료콘텐츠(빈출자료 · 매일 1문제)</h1>
+      <h1 class="crumb-title" id="current-screen-title">수강후기·합격수기 분리 관리 및 무료콘텐츠(기출문제 · 매일 1문제 · 출퇴근 1분 산안기)</h1>
     </div>
     <div class="top-bar-right">
       <a href="ADMN-BRD-001_baseline.html" class="btn btn-outline btn-sm">← 공지·FAQ·Q&amp;A·당첨자 발표 (ADMN-BRD-001)</a>
@@ -745,7 +748,7 @@ code, pre, kbd, samp,
 
     <section class="subview-panel active" data-subpage="list">
 
-    <p class="page-desc">수강후기(진도율/별점)와 합격수기(자격증 합격증빙 검수)를 분리 운영하고, 빈출자료 · 매일 1문제 무료콘텐츠를 관리합니다. 무료특강 영상은 강의 · 강좌 관리에서 등록합니다.</p>
+    <p class="page-desc">수강후기(진도율/별점)와 합격수기(자격증 합격증빙 검수)를 분리 운영하고, 기출문제 · 정조교의 매일 1문제 · 나나조교의 출퇴근 1분 산안기 무료콘텐츠를 관리합니다. 무료강의(맛보기 강의) 영상은 강의 관리에서 등록하며 프론트 메뉴는 1차에서 가립니다.</p>
 
     <div class="domain-switch-bar">
 
@@ -763,7 +766,7 @@ code, pre, kbd, samp,
 
       <button class="sub-tab-btn" data-dev-route="admin.free-contents.index" data-dev-method="GET" data-dev-url="/sj-admin/free-contents" data-dev-perm="조회" data-dev-note="개발 BRD-010 무료콘텐츠 관리(별도 메뉴)" onclick="switchTab('freeLecture')" id="tab-btn-freeLecture">
 
-        📝 무료콘텐츠 (빈출자료 · 매일 1문제) (ADMN-BRD-010) <span class="cnt" id="cnt-freeLecture">5</span>
+        📝 무료콘텐츠 (기출문제 · 매일 1문제 · 출퇴근 1분 산안기) (ADMN-BRD-010) <span class="cnt" id="cnt-freeLecture">5</span>
 
       </button>
 
@@ -930,21 +933,21 @@ code, pre, kbd, samp,
 
 
 
-    <!-- ==================== 3. 무료콘텐츠 — 빈출자료 · 매일 1문제 (ADMN-BRD-010) ==================== -->
+    <!-- ==================== 3. 무료콘텐츠 — 기출문제 · 매일 1문제 · 출퇴근 1분 산안기 (ADMN-BRD-010, v3.2.32) ==================== -->
 
     <section id="view-freeLecture" class="view-section">
 
       <div class="info-callout">
 
-        <strong>[ADMN-BRD-010] 무료콘텐츠 운영 정책:</strong> 사용자 웹 <code>USER-FREE-000 ~ 003</code>에 노출되는 무료 학습 자료입니다. 콘텐츠 구분은 <strong>[빈출자료]</strong> · <strong>[매일 1문제]</strong> 2가지(1차 모두 운영)이며 둘 다 PDF · 본문형입니다. 본문은 누구나 열람하고 PDF는 로그인 회원만 받습니다. 무료특강 영상(<code>USER-FREE-001</code>)은 이 화면에서 등록하지 않고 강의 관리(<code>ADMN-PROD-002</code> 맛보기) · 강좌 관리(<code>ADMN-PROD-003</code> 무료 강좌)에서 진열합니다(S-22 · D-BRD-01, 2026-10-27).
+        <strong>[ADMN-BRD-010] 무료콘텐츠 운영 정책:</strong> 사용자 웹 <code>USER-FREE-000 ~ 004</code>에 노출되는 무료 학습 자료입니다. 콘텐츠 구분은 <strong>[기출문제]</strong>(EXAM, 구 빈출자료 — 연도 · 회차 · PDF · 본문) · <strong>[정조교의 매일 1문제]</strong>(DAILY, 머리말 5종) · <strong>[나나조교의 출퇴근 1분 산안기]</strong>(SHORTS, 가제 — 유튜브 쇼츠 게시글) 3가지입니다(2026-11-02 white 결정, 설계서 v3.2.32). 본문은 누구나 열람하고 PDF는 로그인 회원만 받습니다. 무료강의(맛보기 강의, <code>USER-FREE-001</code>)는 이 화면에서 등록하지 않고 강의 관리(<code>ADMN-PROD-002</code> 맛보기)에서 유지하며, 프론트 메뉴는 1차에서 가립니다.
 
       </div>
 
 
 
       <div class="ctx-note" id="fl-scope-note">
-        이 탭은 <strong>빈출자료 · 매일 1문제</strong>(PDF · 본문)만 등록합니다. 본문은 누구나 볼 수 있고 <strong>PDF는 로그인 회원만</strong> 받습니다.
-        무료특강 영상은 <a href="ADMN-PROD-002_baseline.html" target="_blank" rel="noopener">강의 관리</a>의 맛보기 재생 · <a href="ADMN-PROD-003_baseline.html" target="_blank" rel="noopener">강좌 관리</a>의 무료 강좌로 등록해 무료특강 메뉴에 진열합니다.
+        이 탭은 <strong>기출문제</strong>(연도 · 회차별 PDF · 본문) · <strong>정조교의 매일 1문제</strong>(머리말 5종) · <strong>나나조교의 출퇴근 1분 산안기</strong>(유튜브 쇼츠 게시글, 가제)를 등록합니다. 본문은 누구나 볼 수 있고 <strong>PDF는 로그인 회원만</strong> 받습니다.
+        <br/><span class="badge badge-slate" id="fl-free-lecture-hidden" data-dev-flag="proto-only" data-dev-note="무료강의(USER-FREE-001)는 1차 프론트 메뉴 가림 — 개발 프론트 /free/lectures 메뉴 숨김 필요. 관리 화면에는 무료강의 구분 없음(맛보기 is_preview)">무료강의 1차 가림</span> 무료강의(맛보기 강의)는 이 탭의 구분이 아닙니다. 영상은 <a href="ADMN-PROD-002_baseline.html" target="_blank" rel="noopener">강의 관리</a>의 맛보기 설정으로 유지하고, 프론트 무료콘텐츠 메뉴에서는 1차에 가립니다(무료강의 기획 때 별도 페이지로 오픈).
       </div>
 
       <div class="card">
@@ -953,14 +956,25 @@ code, pre, kbd, samp,
 
           <div class="filter-left">
 
-            <select id="fl-type-filter" name="type" data-dev-value="EXAM 빈출자료 · DAILY 매일 1문제" onchange="renderFreeLectures()">
+            <select id="fl-type-filter" name="type" data-dev-value="EXAM 기출문제(구 빈출자료) · DAILY 정조교의 매일 1문제 · SHORTS 나나조교의 출퇴근 1분 산안기(규칙, 개발 TYPES에 없음)" onchange="renderFreeLectures()">
 
               <option value="ALL">콘텐츠 구분 전체</option>
 
-              <option value="EXAM"> data-dev-name="content_type" data-dev-value="EXAM"빈출자료</option>
+              <option value="EXAM"> data-dev-name="content_type" data-dev-value="EXAM"기출문제</option>
 
-              <option value="DAILY"> data-dev-name="content_type" data-dev-value="DAILY"매일 1문제</option>
+              <option value="DAILY"> data-dev-name="content_type" data-dev-value="DAILY"정조교의 매일 1문제</option>
 
+              <option value="SHORTS" data-dev-flag="proto-only" data-dev-name="content_type" data-dev-value="SHORTS" data-dev-note="(규칙) FreeContent::TYPES에 SHORTS 추가 필요 — 개발 미구현">나나조교의 출퇴근 1분 산안기</option>
+
+            </select>
+
+            <select id="fl-head-filter" name="head_code" onchange="renderFreeLectures()" data-dev-flag="proto-only" data-dev-note="(규칙) 머리말 필터 head_code — 개발 FreeContentIndexRequest에 없음">
+              <option value="ALL">머리말 전체 (매일 1문제)</option>
+              <option value="electric">전기 1문제</option>
+              <option value="chemistry">화학 1문제</option>
+              <option value="ergonomics">인간공학 1문제</option>
+              <option value="written">필답형 빈출</option>
+              <option value="practical">작업형 빈출</option>
             </select>
 
             <select id="fl-cert-filter" name="cert" data-dev-note="값 = categories.id (1Depth 자격증)" onchange="renderFreeLectures()">
@@ -1002,13 +1016,13 @@ code, pre, kbd, samp,
 
               <th style="width:150px;">콘텐츠 구분</th>
 
-              <th style="width:160px;">자격증 종목 / 대비연도</th>
+              <th style="width:170px;">자격증 종목 / 연도 · 회차</th>
 
               <th>제목</th>
 
               <th style="width:110px;">게시일</th>
 
-              <th style="width:200px;">PDF 첨부 (로그인 회원만)</th>
+              <th style="width:200px;">PDF 첨부 (로그인 회원만) · 영상</th>
 
               <th style="width:95px;">조회수</th>
 
@@ -1047,44 +1061,61 @@ code, pre, kbd, samp,
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">콘텐츠 구분 *</label>
-            <select id="fl-form-type" name="content_type" data-dev-note="개발 FreeContent::TYPES와 같음(v6.92 S-22 · D-BRD-01)" data-dev-value="EXAM 빈출자료 · DAILY 매일 1문제">
-              <option value="EXAM"> data-dev-name="content_type" data-dev-value="EXAM"빈출자료</option>
-              <option value="DAILY"> data-dev-name="content_type" data-dev-value="DAILY"매일 1문제</option>
+            <select id="fl-form-type" name="content_type" data-dev-note="개발 FreeContent::TYPES = EXAM 빈출자료 · DAILY 매일 1문제 — v3.2.32: EXAM 라벨 기출문제로, SHORTS 추가 필요(규칙)" data-dev-value="EXAM 기출문제 · DAILY 정조교의 매일 1문제 · SHORTS 나나조교의 출퇴근 1분 산안기(가제)" onchange="toggleFlTypeFields()">
+              <option value="EXAM"> data-dev-name="content_type" data-dev-value="EXAM"기출문제</option>
+              <option value="DAILY"> data-dev-name="content_type" data-dev-value="DAILY"정조교의 매일 1문제</option>
+              <option value="SHORTS" data-dev-flag="proto-only" data-dev-name="content_type" data-dev-value="SHORTS" data-dev-note="(규칙) FreeContent::TYPES에 SHORTS 추가 필요 — 개발 미구현">나나조교의 출퇴근 1분 산안기 (가제)</option>
             </select>
-            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">무료특강 영상은 여기서 등록하지 않습니다 — 강의 관리(맛보기) · 강좌 관리(무료 강좌)에서 등록합니다.</div>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">무료강의(맛보기 강의) 영상은 여기서 등록하지 않습니다 — 강의 관리(맛보기)에서 등록하며, 프론트 무료강의 메뉴는 1차에서 가립니다. 쇼츠 게시판 이름은 가제입니다(설정값, 바뀔 수 있음).</div>
+          </div>
+          <div class="form-group" id="fl-head-group">
+            <label class="form-label">머리말 * (매일 1문제)</label>
+            <select id="fl-form-head" name="head_code" data-dev-flag="proto-only" data-dev-note="(규칙) posts.head_code string(20) · FreeContent::HEADS — DAILY면 required, 그 밖 구분은 서비스가 비움. 개발 미구현">
+              <option value="">머리말 선택</option>
+              <option value="electric">전기 1문제</option>
+              <option value="chemistry">화학 1문제</option>
+              <option value="ergonomics">인간공학 1문제</option>
+              <option value="written">필답형 빈출</option>
+              <option value="practical">작업형 빈출</option>
+            </select>
+          </div>
+          <div class="form-group full" id="fl-video-group">
+            <label class="form-label">유튜브 영상 주소 * (쇼츠)</label>
+            <input type="text" id="fl-form-video" name="video_url" placeholder="예: https://youtube.com/shorts/aB3dE5fG7hJ" oninput="renderFlVideoPreview()" data-dev-flag="proto-only" data-dev-note="(규칙) 입력 video_url(SHORTS면 required, 유튜브 주소 형식) → 서비스가 영상 ID 11자만 posts.video_id string(20)에 저장. 개발 미구현" />
+            <div id="fl-video-preview" style="font-size:11.5px; color:var(--text-muted); margin-top:4px;"></div>
           </div>
           <div class="form-group">
-            <label class="form-label">대상 자격증 종목 / 대비 연도 *</label>
+            <label class="form-label" id="fl-cert-label">대상 자격증 종목 / 대비 연도 *</label>
             <div style="display:flex; gap:8px;">
               <select id="fl-form-cert" name="cert_category_id" data-dev-note="값 = categories.id (1Depth)" style="flex:1;">
                 <option value="산업안전기사">산업안전기사</option>
                 <option value="건설안전기사">건설안전기사</option>
                 <option value="위험물산업기사">위험물산업기사</option>
               </select>
-              <input type="text" id="fl-form-year" name="year" data-dev-note="정수 2000~2100 (프로토타입 '2026 대비' 문구)" value="2026 대비" style="width:120px;" />
-              <input type="number" name="round_no" min="1" max="999" placeholder="회차" style="width:80px;" data-dev-flag="dev-only" data-dev-note="roundNo — EXAM이면 필수 · 1~999, DAILY는 비움" />
+              <input type="text" id="fl-form-year" name="year" data-dev-note="정수 2000~2100 (프로토타입 '2026 대비' 문구). v3.2.32: SHORTS는 연도 없음 — 개발 required를 required_unless:content_type,SHORTS로 바꿔야 함" value="2026 대비" style="width:120px;" />
+              <span id="fl-round-wrap" style="display:inline-flex; align-items:center; gap:4px;"><input type="number" id="fl-form-round" name="round_no" min="1" max="999" placeholder="회차" style="width:80px;" data-dev-note="roundNo — EXAM이면 필수 · 1~999, DAILY · SHORTS는 비움(v3.2.32 기출문제 연도 · 회차별 자료게시판 — 프로토에도 입력 칸)" /> 회</span>
             </div>
           </div>
           <div class="form-group full">
             <label class="form-label">콘텐츠 제목 *</label>
-            <input type="text" id="fl-form-title" name="title" data-dev-note="max:100" placeholder="예: [빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설 / [매일 1문제] 10월 27일 — 안전보건관리책임자 선임 기준" />
-            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">'정답지' 콘텐츠는 제목에 '정답지'를 붙여 표기합니다. 저작권 보호를 위해 제목에는 '빈출문제'로 표기합니다.</div>
+            <input type="text" id="fl-form-title" name="title" data-dev-note="max:100" placeholder="예: [기출문제] 2025년 산업안전기사 필기 제3회 해설 / [매일 1문제] 11월 2일 — 안전보건관리책임자 선임 기준" />
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">'정답지' 콘텐츠는 제목에 '정답지'를 붙여 표기합니다(기출문제 · 매일 1문제). 연도 · 회차별 자료는 '기출문제'로 표기합니다(S2-08, 2026-11-02 개정).</div>
           </div>
           <div class="form-group">
             <label class="form-label">게시일 *</label>
             <input type="date" id="fl-form-date" name="started_at" data-dev-note="개발 전시 시작일 nullable Y-m-d — 프로토 게시일(필수)" value="2026-10-27" />
             <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">매일 1문제는 게시일 하루에 한 문제씩 올라갑니다.</div>
           </div>
-          <div class="form-group">
-            <label class="form-label">PDF 파일명 (빈출자료 · 정답지)</label>
-            <input type="text" id="fl-form-pdf" name="attachments[]" data-dev-note="PDF만 · 최대 5개 · 개당 10MB (프로토타입은 파일명 텍스트). 삭제는 delete_attachments[]" placeholder="예: 2026_산안기_빈출문제_50선.pdf" />
+          <div class="form-group" id="fl-pdf-group">
+            <label class="form-label">PDF 파일명 (기출문제 · 정답지)</label>
+            <input type="text" id="fl-form-pdf" name="attachments[]" data-dev-note="PDF만 · 최대 5개 · 개당 10MB (프로토타입은 파일명 텍스트). 삭제는 delete_attachments[]. v3.2.32: SHORTS는 PDF 없음(prohibited_if)" placeholder="예: 2025_산안기_필기_3회_기출문제.pdf" />
           </div>
           <div class="form-group full">
             <label class="form-label">공개 범위</label>
             <div id="fl-form-access" style="padding:8px 10px; border:1px solid var(--border); border-radius:6px; font-size:12.5px;">본문: <strong>누구나 열람</strong> · PDF: <strong>🔒 로그인 회원만 다운로드</strong> (다운로드 기록을 남깁니다. 바꿀 수 없음)</div>
           </div>
           <div class="form-group full">
-            <label class="form-label">본문 — 문항 · 해설 요약 (웹 에디터, 누구나 열람)</label>
+            <label class="form-label" id="fl-body-label">본문 — 문항 · 해설 요약 (웹 에디터, 누구나 열람)</label>
             <div class="rich-editor-shell">
               <div class="rich-toolbar">
                 <button type="button" onclick="execCmd('fl-form-body','bold')"><b>B</b></button>
@@ -1231,7 +1262,7 @@ code, pre, kbd, samp,
 
     { id: 'PE-312', cert: '산업안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '직장 병행 3개월 만에 산업안전기사 동차 최종합격 수기입니다!', proofFile: '큐넷_국가기술자격증_사본_박준형.jpg', user: '박준형 (jhpark90)', status: 'PENDING', best: false, scoreInfo: '필기 평균 78점 / 실기 81점' },
 
-    { id: 'PE-311', cert: '건설안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '산준모 빈출문제 특강과 필답형 키워드 암기법 덕에 한 번에 붙었습니다.', proofFile: '큐넷_합격확인서_최예린.pdf', user: '최예린 (yerin_c)', status: 'APPROVED', best: true, scoreInfo: '필기 평균 74점 / 실기 76점' },
+    { id: 'PE-311', cert: '건설안전기사 / 2026년 정기 기사 제2회', passType: '최종합격 (필기+실기)', title: '산준모 기출문제 특강과 필답형 키워드 암기법 덕에 한 번에 붙었습니다.', proofFile: '큐넷_합격확인서_최예린.pdf', user: '최예린 (yerin_c)', status: 'APPROVED', best: true, scoreInfo: '필기 평균 74점 / 실기 76점' },
 
     { id: 'PE-310', cert: '산업안전기사 / 2026년 정기 기사 제1회', passType: '필기합격', title: '기계·전기·화공 비전공자 필기 4주 단기 합격 공부 루틴 공유', proofFile: '큐넷_필기합격캡처_강동원.png', user: '강동원 (dwkang)', status: 'APPROVED', best: false, scoreInfo: '필기 평균 82점' },
 
@@ -1337,23 +1368,34 @@ code, pre, kbd, samp,
 
 
 
-  // 3. 무료콘텐츠 (ADMN-BRD-010) — 제목 표기는 저작권 보호로 '빈출문제'(기출문제 금지)
-  // 콘텐츠 구분(S-22 · D-BRD-01, 2026-10-27 white): 빈출자료(EXAM) · 매일 1문제(DAILY) 2종, 1차 모두 운영. 개발 FreeContent::TYPES와 같은 값.
+  // 3. 무료콘텐츠 (ADMN-BRD-010) — v3.2.32(2026-11-02 white): '기출문제' 표기 허용(S2-08 기출문제 표기 금지 폐지, 구 빈출자료)
+  // 콘텐츠 구분 3종: 기출문제(EXAM, 연도 · 회차 · PDF · 본문) · 정조교의 매일 1문제(DAILY, 머리말 5종) · 나나조교의 출퇴근 1분 산안기(SHORTS, 가제 — 유튜브 URL 필수 · 영상 ID만 저장). 개발 FreeContent::TYPES는 EXAM · DAILY뿐(SHORTS 추가 필요).
   // 바뀐 점(v6.84 C-12 → 이번 결정): 무료특강 4분류(기본이론 / 합격전략 / 빈출문제 / 개정법령)와 VOD 연동은 이 화면에서 뺐다 — 무료특강 영상은 강의 · 강좌 관리(PROD-002 맛보기 · PROD-003 무료 강좌)에서 등록하고, 4분류는 프론트 USER-FREE-001 진열 분류로 남는다.
   // 공개 범위: 본문은 누구나, PDF는 로그인 회원만 다운로드(고정).
-  const FL_TYPES = { EXAM: ['badge-purple', '📝 빈출자료'], DAILY: ['badge-blue', '📅 매일 1문제'] };
+  const FL_TYPES = { EXAM: ['badge-purple', '📝 기출문제'], DAILY: ['badge-blue', '📅 정조교의 매일 1문제'], SHORTS: ['badge-amber', '▶ 나나조교의 출퇴근 1분 산안기'] };
+  // 매일 1문제 머리말 5종 — 코드는 개발 명명 규칙(소문자 snake, 규칙). 개발 FreeContent::HEADS(규칙)
+  const FL_HEADS = { electric: '전기 1문제', chemistry: '화학 1문제', ergonomics: '인간공학 1문제', written: '필답형 빈출', practical: '작업형 빈출' };
+  // 유튜브 주소에서 영상 ID(11자)만 뽑는다 — shorts/ · watch?v= · youtu.be/ · embed/ · live/. 못 뽑으면 ''
+  function flYoutubeId(url) {
+    const m = String(url || '').trim().match(/^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:shorts\/|watch\?(?:[^#]*&)?v=|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&#\/].*)?$/);
+    return m ? m[1] : '';
+  }
 
   let FREE_LECTURES = [
 
-    { id: 'FL-2605', type: 'DAILY', cert: '산업안전기사', year: '2026 대비', postDate: '2026-10-27', title: '[매일 1문제] 10월 27일 — 안전보건관리책임자 선임 기준 (정답지 포함)', pdf: '매일1문제_20261027_정답지.pdf', views: 312, visible: true, body: '상시근로자 수에 따른 안전보건관리책임자 선임 기준을 묻는 한 문제와 해설입니다.', versions: [{ ver: 1, date: '2026-10-27', pdf: '매일1문제_20261027_정답지.pdf', body: '상시근로자 수에 따른 안전보건관리책임자 선임 기준을 묻는 한 문제와 해설입니다.', note: '최초 등록' }] },
+    { id: 'FL-2607', type: 'SHORTS', cert: '산업안전기사', year: '', round: '', head: '', videoId: 'aB3dE5fG7hJ', postDate: '2026-11-02', title: '[출퇴근 1분] 안전인증 대상 기계 8종 한 번에 외우기', pdf: '-', views: 1204, visible: true, body: '', versions: [{ ver: 1, date: '2026-11-02', pdf: '-', body: '영상 aB3dE5fG7hJ', note: '최초 등록' }] },
 
-    { id: 'FL-2604', type: 'EXAM', cert: '산업안전기사', year: '2026 대비', postDate: '2026-09-25', title: '[빈출문제] 2026 산업안전기사 필기 최빈출 핵심 50선 해설', pdf: '2026_산안기_빈출문제_50선.pdf', views: 2410, visible: true, body: '최근 출제 경향을 반영한 핵심 빈출문제 50선과 해설입니다.', versions: [{ ver: 1, date: '2026-09-25', pdf: '2026_산안기_빈출문제_50선.pdf', body: '핵심 빈출문제 50선과 해설입니다.', note: '최초 등록' }, { ver: 2, date: '2026-10-12', pdf: '2026_산안기_빈출문제_50선.pdf', body: '최근 출제 경향을 반영한 핵심 빈출문제 50선과 해설입니다.', note: '본문 수정 (출제 경향 반영)' }] },
+    { id: 'FL-2606', type: 'SHORTS', cert: '건설안전기사', year: '', round: '', head: '', videoId: 'Qw9_Er8-Ty7', postDate: '2026-10-31', title: '[출퇴근 1분] 비계 벽이음 간격 30초 정리', pdf: '-', views: 865, visible: true, body: '수직 5m · 수평 5m — 강관비계 벽이음 간격을 짧게 정리했습니다.', versions: [{ ver: 1, date: '2026-10-31', pdf: '-', body: '수직 5m · 수평 5m — 강관비계 벽이음 간격을 짧게 정리했습니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2603', type: 'DAILY', cert: '산업안전기사', year: '2026 대비', postDate: '2026-10-26', title: '[매일 1문제] 10월 26일 — 인간공학 휴먼에러 확률 계산 (정답지 포함)', pdf: '매일1문제_20261026_정답지.pdf', views: 486, visible: true, body: '직렬 · 병렬 작업의 휴먼에러 확률을 계산하는 한 문제와 풀이입니다.', versions: [{ ver: 1, date: '2026-10-26', pdf: '매일1문제_20261026_정답지.pdf', body: '직렬 · 병렬 작업의 휴먼에러 확률을 계산하는 한 문제와 풀이입니다.', note: '최초 등록' }] },
+    { id: 'FL-2605', type: 'DAILY', head: 'written', cert: '산업안전기사', year: '2026 대비', postDate: '2026-10-27', title: '[매일 1문제] 10월 27일 — 안전보건관리책임자 선임 기준 (정답지 포함)', pdf: '매일1문제_20261027_정답지.pdf', views: 312, visible: true, body: '상시근로자 수에 따른 안전보건관리책임자 선임 기준을 묻는 한 문제와 해설입니다.', versions: [{ ver: 1, date: '2026-10-27', pdf: '매일1문제_20261027_정답지.pdf', body: '상시근로자 수에 따른 안전보건관리책임자 선임 기준을 묻는 한 문제와 해설입니다.', note: '최초 등록' }] },
 
-    { id: 'FL-2602', type: 'EXAM', cert: '건설안전기사', year: '2026 대비', postDate: '2026-09-05', title: '[빈출문제] 건설안전기사 실기 필답형 빈출문제 30선 정답지', pdf: '2026_건안기_실기_빈출30선_정답지.pdf', views: 1520, visible: true, body: '건설안전기사 실기 필답형에 자주 나오는 30문항과 모범 답안입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2026_건안기_실기_빈출30선_정답지.pdf', body: '건설안전기사 실기 필답형에 자주 나오는 30문항과 모범 답안입니다.', note: '최초 등록' }] },
+    { id: 'FL-2604', type: 'EXAM', round: 3, cert: '산업안전기사', year: '2025', postDate: '2026-09-25', title: '[기출문제] 2025년 산업안전기사 필기 제3회 기출문제 해설', pdf: '2025_산안기_필기_3회_기출문제.pdf', views: 2410, visible: true, body: '2025년 제3회 산업안전기사 필기 기출문제와 해설입니다.', versions: [{ ver: 1, date: '2026-09-25', pdf: '2025_산안기_필기_3회_기출문제.pdf', body: '2025년 제3회 필기 기출문제와 해설입니다.', note: '최초 등록' }, { ver: 2, date: '2026-10-12', pdf: '2025_산안기_필기_3회_기출문제.pdf', body: '2025년 제3회 산업안전기사 필기 기출문제와 해설입니다.', note: '본문 수정' }] },
 
-    { id: 'FL-2601', type: 'EXAM', cert: '위험물산업기사', year: '2026 대비', postDate: '2026-08-20', title: '[빈출문제] 제1류~제6류 위험물 성상 및 소화방법 빈출문제 총정리', pdf: '위험물_빈출문제_요약노트.pdf', views: 980, visible: true, body: '위험물 유별 핵심 빈출문제 해설입니다.', versions: [{ ver: 1, date: '2026-08-20', pdf: '위험물_빈출문제_요약노트.pdf', body: '위험물 유별 핵심 빈출문제 해설입니다.', note: '최초 등록' }] }
+    { id: 'FL-2603', type: 'DAILY', head: 'ergonomics', cert: '산업안전기사', year: '2026 대비', postDate: '2026-10-26', title: '[매일 1문제] 10월 26일 — 인간공학 휴먼에러 확률 계산 (정답지 포함)', pdf: '매일1문제_20261026_정답지.pdf', views: 486, visible: true, body: '직렬 · 병렬 작업의 휴먼에러 확률을 계산하는 한 문제와 풀이입니다.', versions: [{ ver: 1, date: '2026-10-26', pdf: '매일1문제_20261026_정답지.pdf', body: '직렬 · 병렬 작업의 휴먼에러 확률을 계산하는 한 문제와 풀이입니다.', note: '최초 등록' }] },
+
+    { id: 'FL-2602', type: 'EXAM', round: 2, cert: '건설안전기사', year: '2025', postDate: '2026-09-05', title: '[기출문제] 2025년 건설안전기사 실기 필답형 제2회 기출문제 정답지', pdf: '2025_건안기_실기_2회_기출문제_정답지.pdf', views: 1520, visible: true, body: '2025년 제2회 건설안전기사 실기 필답형 기출문항과 모범 답안입니다.', versions: [{ ver: 1, date: '2026-09-05', pdf: '2025_건안기_실기_2회_기출문제_정답지.pdf', body: '2025년 제2회 건설안전기사 실기 필답형 기출문항과 모범 답안입니다.', note: '최초 등록' }] },
+
+    { id: 'FL-2601', type: 'EXAM', round: 1, cert: '위험물산업기사', year: '2025', postDate: '2026-08-20', title: '[기출문제] 2025년 위험물산업기사 필기 제1회 기출문제 해설', pdf: '2025_위험물_필기_1회_기출문제.pdf', views: 980, visible: true, body: '2025년 제1회 위험물산업기사 필기 기출문제 해설입니다.', versions: [{ ver: 1, date: '2026-08-20', pdf: '2025_위험물_필기_1회_기출문제.pdf', body: '2025년 제1회 위험물산업기사 필기 기출문제 해설입니다.', note: '최초 등록' }] }
 
   ];
 
@@ -1391,7 +1433,7 @@ code, pre, kbd, samp,
 
       passEssay: ['ADMN-BRD-005-B', '합격수기 검수 관리 (자격증 합격증빙 심사·축하 포인트)'],
 
-      freeLecture: ['ADMN-BRD-010', '무료콘텐츠 관리 (빈출자료 · 매일 1문제)']
+      freeLecture: ['ADMN-BRD-010', '무료콘텐츠 관리 (기출문제 · 매일 1문제 · 출퇴근 1분 산안기)']
 
     };
 
@@ -1627,7 +1669,7 @@ code, pre, kbd, samp,
 
         <div style="font-weight:800; margin-bottom:6px;">${p.title}</div>
 
-        <p style="margin:0; color:var(--text-sub); line-height:1.6;">산준모 정규 커리큘럼과 빈출문제 무료특강, 정답지 해설을 반복 회독하여 비전공자임에도 동차 합격할 수 있었습니다.</p>
+        <p style="margin:0; color:var(--text-sub); line-height:1.6;">산준모 정규 커리큘럼과 기출문제 무료강의, 정답지 해설을 반복 회독하여 비전공자임에도 동차 합격할 수 있었습니다.</p>
 
       </div>
 
@@ -1691,61 +1733,39 @@ code, pre, kbd, samp,
 
 
 
-  // 3. 무료콘텐츠 — 빈출자료 · 매일 1문제 (ADMN-BRD-010)
+  // 3. 무료콘텐츠 — 기출문제 · 정조교의 매일 1문제 · 나나조교의 출퇴근 1분 산안기 (ADMN-BRD-010, v3.2.32)
   function renderFreeLectures() {
-
     const tp = document.getElementById('fl-type-filter').value;
-
+    const hd = document.getElementById('fl-head-filter').value;
     const cert = document.getElementById('fl-cert-filter').value;
-
     const list = FREE_LECTURES.filter(item =>
-
       (tp === 'ALL' || item.type === tp) &&
-
+      (hd === 'ALL' || item.head === hd) &&
       (cert === 'ALL' || item.cert === cert)
-
     );
-
     document.getElementById('cnt-freeLecture').textContent = FREE_LECTURES.length;
-
     document.getElementById('fl-tbody').innerHTML = list.map(item => `
-
       <tr>
-
         <td style="font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums; font-weight:700;">${item.id}</td>
-
         <td>
-
-          <span class="badge ${(FL_TYPES[item.type] || ['badge-slate'])[0]}">
-
-            ${(FL_TYPES[item.type] || ['', item.type])[1]}
-
-          </span>
-
+          <span class="badge ${(FL_TYPES[item.type] || ['badge-slate'])[0]}">${(FL_TYPES[item.type] || ['', item.type])[1]}</span>
+          ${item.head && FL_HEADS[item.head] ? `<br/><span class="badge badge-slate" style="margin-top:3px;">${FL_HEADS[item.head]}</span>` : ''}
         </td>
-
-        <td><strong>${item.cert}</strong> (${item.year})</td>
-
-        <td style="font-weight:700;">${item.title}</td>
-
+        <td><strong>${item.cert}</strong>${item.year ? ` (${item.year}${item.round ? ' · ' + item.round + '회' : ''})` : ''}</td>
+        <td style="font-weight:700;">${item.type === 'SHORTS' && item.videoId
+          ? `<div style="display:flex; gap:8px; align-items:center;"><div class="fl-yt-thumb" title="유튜브 썸네일 i.ytimg.com/vi/${item.videoId}/mqdefault.jpg">▶</div><div>${item.title}<div style="font-size:11px; font-weight:600; color:var(--text-muted);">유튜브 썸네일 · 영상 ID ${item.videoId}</div></div></div>`
+          : item.title}</td>
         <td style="font-size:12px;">${item.postDate || '-'}</td>
-
-        <td style="color:var(--primary); font-weight:600;">📥 ${item.pdf}${item.pdf && item.pdf !== '-' ? '<br/><span class="badge badge-slate" style="margin-top:3px;">🔒 로그인 회원만</span>' : ''}</td>
-
+        <td style="color:var(--primary); font-weight:600;">${item.type === 'SHORTS'
+          ? '<span style="color:var(--text-muted); font-weight:600;">▶ 유튜브 영상 (PDF 없음)</span>'
+          : `📥 ${item.pdf}${item.pdf && item.pdf !== '-' ? '<br/><span class="badge badge-slate" style="margin-top:3px;">🔒 로그인 회원만</span>' : ''}`}</td>
         <td>${item.views.toLocaleString()}</td>
-
         <td><span class="badge ${item.visible ? 'badge-green' : 'badge-slate'}">${item.visible ? '노출중' : '비노출'}</span></td>
-
         <td>
-
           <button class="btn btn-outline btn-sm" data-dev-route="admin.free-contents.edit" data-dev-method="GET" data-dev-url="/sj-admin/free-contents/{freeContent}/edit" data-dev-perm="수정" onclick="openFreeLecturePage('${item.id}')">수정</button>
-
         </td>
-
       </tr>
-
     `).join('');
-
   }
 
 
@@ -1761,90 +1781,98 @@ code, pre, kbd, samp,
       || '<tr><td colspan="5" style="text-align:center; padding:16px; color:var(--text-sub);">저장하면 v1로 기록됩니다.</td></tr>';
   }
   function fillFreeLectureForm(id) {
-
     const item = FREE_LECTURES.find(f => f.id === id);
-
     document.getElementById('fl-edit-id').value = item ? item.id : '';
-
     document.getElementById('fl-modal-title').textContent = item ? `[ADMN-BRD-010] 무료콘텐츠 수정 (${item.id})` : '[ADMN-BRD-010] 무료콘텐츠 신규 등록';
-
     document.getElementById('fl-form-type').value = item && FL_TYPES[item.type] ? item.type : 'EXAM';
-
+    document.getElementById('fl-form-head').value = item && item.head ? item.head : '';
+    document.getElementById('fl-form-video').value = item && item.videoId ? 'https://youtube.com/shorts/' + item.videoId : '';
+    const rd = document.getElementById('fl-form-round');
+    if (rd) rd.value = item && item.round ? item.round : '';
     document.getElementById('fl-form-cert').value = item ? item.cert : '산업안전기사';
-
-    document.getElementById('fl-form-year').value = item ? item.year : '2026 대비';
-
+    document.getElementById('fl-form-year').value = item && item.year ? item.year : '2026 대비';
     document.getElementById('fl-form-title').value = item ? item.title : '';
-
-    document.getElementById('fl-form-date').value = item && item.postDate ? item.postDate : '2026-10-27';
-
-    document.getElementById('fl-form-pdf').value = item ? item.pdf : '2026_빈출문제_해설집.pdf';
-
-    document.getElementById('fl-form-body').innerHTML = item ? `<p>${item.body}</p>` : '<p>문항과 해설을 입력하세요. 본문은 로그인하지 않아도 보입니다.</p>';
-
+    document.getElementById('fl-form-date').value = item && item.postDate ? item.postDate : '2026-11-02';
+    document.getElementById('fl-form-pdf').value = item ? (item.pdf === '-' ? '' : item.pdf) : '';
+    document.getElementById('fl-form-body').innerHTML = item ? (item.body ? `<p>${item.body}</p>` : '') : '<p>문항과 해설을 입력하세요. 본문은 로그인하지 않아도 보입니다.</p>';
+    toggleFlTypeFields();
     renderFlVersions(item || null);
-
+  }
+  // 구분별 입력 칸 — 기출문제: 연도 · 회차 · PDF · 본문 / 매일 1문제: 머리말 · 연도 · PDF · 본문 / 쇼츠: 유튜브 주소(필수) · 본문(선택), 연도 · 회차 · PDF 숨김
+  function toggleFlTypeFields() {
+    const type = document.getElementById('fl-form-type').value;
+    const shorts = type === 'SHORTS', daily = type === 'DAILY', exam = type === 'EXAM';
+    document.getElementById('fl-head-group').style.display = daily ? '' : 'none';
+    document.getElementById('fl-video-group').style.display = shorts ? '' : 'none';
+    document.getElementById('fl-pdf-group').style.display = shorts ? 'none' : '';
+    document.getElementById('fl-form-year').style.display = shorts ? 'none' : '';
+    const rw = document.getElementById('fl-round-wrap');
+    if (rw) rw.style.display = exam ? '' : 'none';
+    document.getElementById('fl-cert-label').textContent = shorts ? '대상 자격증 종목 *' : exam ? '대상 자격증 종목 / 연도 · 회차 *' : '대상 자격증 종목 / 대비 연도 *';
+    document.getElementById('fl-body-label').textContent = shorts ? '본문 — 영상 설명 (선택, 누구나 열람)' : '본문 — 문항 · 해설 요약 (웹 에디터, 누구나 열람)';
+    document.getElementById('fl-form-access').innerHTML = shorts
+      ? '본문 · 영상: <strong>누구나 열람</strong> (유튜브 퍼가기 재생 — 우리 채널 영상은 퍼가기 허용 유지)'
+      : '본문: <strong>누구나 열람</strong> · PDF: <strong>🔒 로그인 회원만 다운로드</strong> (다운로드 기록을 남깁니다. 바꿀 수 없음)';
+    renderFlVideoPreview();
+  }
+  function renderFlVideoPreview() {
+    const box = document.getElementById('fl-video-preview');
+    const raw = document.getElementById('fl-form-video').value.trim();
+    const vid = flYoutubeId(raw);
+    if (!raw) { box.innerHTML = '쇼츠 · 일반 유튜브 주소를 붙여 넣으면 영상 ID만 저장합니다. 프론트는 /embed/영상ID 세로(9:16)로 보여 주고, 목록 썸네일은 유튜브 썸네일을 씁니다.'; return; }
+    box.innerHTML = vid
+      ? `<div style="display:flex; gap:10px; align-items:center;"><div class="fl-yt-thumb">▶</div><div>저장 값(영상 ID): <strong id="fl-video-id">${vid}</strong><br/>프론트 재생: youtube.com/embed/${vid} (세로 9:16)<br/>목록 썸네일: i.ytimg.com/vi/${vid}/mqdefault.jpg</div></div>`
+      : '<span style="color:var(--danger); font-weight:700;">유튜브 영상 주소가 아닙니다. youtube.com/shorts/… · youtu.be/… 주소를 넣어 주세요.</span>';
   }
 
 
 
   function saveFreeLecture() {
-
     const editId = document.getElementById('fl-edit-id').value;
-
     const type = document.getElementById('fl-form-type').value;
-
+    const shorts = type === 'SHORTS';
     const cert = document.getElementById('fl-form-cert').value;
-
-    const year = document.getElementById('fl-form-year').value.trim();
-
+    const year = shorts ? '' : document.getElementById('fl-form-year').value.trim();
+    const rd = document.getElementById('fl-form-round');
+    const round = type === 'EXAM' && rd ? rd.value.trim() : '';
+    const head = type === 'DAILY' ? document.getElementById('fl-form-head').value : '';
+    const videoRaw = document.getElementById('fl-form-video').value.trim();
+    const videoId = shorts ? flYoutubeId(videoRaw) : '';
     const title = document.getElementById('fl-form-title').value.trim();
-
-    const postDate = document.getElementById('fl-form-date').value || '2026-10-27';
-
-    const pdf = document.getElementById('fl-form-pdf').value.trim() || '-';
-
+    const postDate = document.getElementById('fl-form-date').value || '2026-11-02';
+    const pdf = shorts ? '-' : (document.getElementById('fl-form-pdf').value.trim() || '-');
     const body = document.getElementById('fl-form-body').innerText.trim();
 
-
-
     if (!title) { alert('콘텐츠 제목을 입력해주세요.'); return; }
-    // 저작권 보호: 전 화면 '기출문제' 표기 금지 → '빈출문제'(통합 설계서 강사 계약 종료 · 블라인드 절)
-    if (title.includes('기출문제')) { alert("저작권 보호를 위해 '기출문제' 표기는 쓰지 않습니다. '빈출문제'로 바꿔 주세요."); return; }
+    if (!shorts && !year) { alert('연도를 입력해 주세요.'); return; }
+    if (type === 'EXAM' && rd && !(Number(round) >= 1 && Number(round) <= 999)) { alert('기출문제는 회차(1~999)를 입력해 주세요.'); return; }
+    if (type === 'DAILY' && !FL_HEADS[head]) { alert('매일 1문제는 머리말을 골라 주세요.'); return; }
+    if (shorts && !videoRaw) { alert('나나조교의 출퇴근 1분 산안기는 유튜브 영상 주소가 필수입니다.'); return; }
+    if (shorts && !videoId) { alert('유튜브 영상 주소가 아닙니다. youtube.com/shorts/… · youtu.be/… 주소를 넣어 주세요.'); return; }
 
+    const verBody = body || (videoId ? '영상 ' + videoId : '');
     if (editId) {
-
       const target = FREE_LECTURES.find(f => f.id === editId);
-
       if (target) {
-        // PDF 파일 · 본문이 바뀌면 새 버전으로 기록
+        // PDF 파일 · 본문 · 영상이 바뀌면 새 버전으로 기록
         const changed = [];
         if (target.pdf !== pdf) changed.push('PDF 교체');
-        if (target.body !== body) changed.push('본문 수정');
+        if ((target.body || '') !== body) changed.push('본문 수정');
+        if ((target.videoId || '') !== videoId) changed.push('영상 교체');
         target.versions = target.versions || [];
-        if (changed.length) target.versions.push({ ver: target.versions.length + 1, date: '2026-10-19', pdf, body, note: changed.join(' · ') });
-        Object.assign(target, { type, cert, year, postDate, title, pdf, body });
+        if (changed.length) target.versions.push({ ver: target.versions.length + 1, date: '2026-11-02', pdf, body: verBody, note: changed.join(' · ') });
+        Object.assign(target, { type, cert, year, round, head, videoId, postDate, title, pdf, body });
       }
-
     } else {
-
       FREE_LECTURES.unshift({
-
         id: 'FL-' + (2606 + FREE_LECTURES.length),
-
-        type, cert, year, postDate, title, pdf, views: 0, visible: true, body,
-        versions: [{ ver: 1, date: '2026-10-19', pdf, body, note: '최초 등록' }]
-
+        type, cert, year, round, head, videoId, postDate, title, pdf, views: 0, visible: true, body,
+        versions: [{ ver: 1, date: '2026-11-02', pdf, body: verBody, note: '최초 등록' }]
       });
-
     }
-
     renderFreeLectures();
-
     backToList();
-
-    showToast('무료콘텐츠가 저장되었습니다. 본문은 누구나, PDF는 로그인 회원만 받을 수 있습니다.');
-
+    showToast(shorts ? '무료콘텐츠가 저장되었습니다. 유튜브 영상 ID(' + videoId + ')만 저장합니다.' : '무료콘텐츠가 저장되었습니다. 본문은 누구나, PDF는 로그인 회원만 받을 수 있습니다.');
   }
 
 

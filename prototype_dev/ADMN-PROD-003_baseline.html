@@ -680,6 +680,7 @@ code, pre, kbd, samp,
       <!-- [SUBVIEW 1] ADMN-PROD-003 : 단과 강좌 목록                                 -->
       <!-- ========================================================================= -->
       <section id="subview-list" class="subview-panel active">
+        <div id="crsNotifyResult" style="display:none; margin:0 0 10px; padding:9px 12px; border:1px solid #BFDBFE; background:#EFF6FF; color:#1E3A8A; border-radius:8px; font-size:12.5px; line-height:1.6; font-weight:600;" data-dev-route="admin.message-templates.campaigns.index" data-dev-method="GET" data-dev-url="/sj-admin/message-templates/campaigns?target_type=group&amp;saved_group_id={id}" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="커리큘럼 저장 때 만든 정적 저장 그룹으로 단체 발송 화면 진입 — v3.2.32 정본 변경(S2-10) — 개발 미구현"></div>
         <div id="bk-alert-area" style="display:none;"></div>
         <!-- 검색 필터 영역 -->
         <div class="card">
@@ -1264,6 +1265,7 @@ code, pre, kbd, samp,
           <div class="card-body">
             <div id="form-retro-note" data-dev-note="기존 수강생 소급 안 함(S-14) — 개발 '진도율 분모 증가' 영향 미리 보기(#crsImpact · #curImpact)와 반대 방향. (규칙) order_items.refund_terms_snapshot JSON — 결제 시점 판정 대상 lecture_ids · 재생시간 · refund_min_progress · 필수 출석일수" style="margin-bottom:10px; font-size:12px; line-height:1.6; color:#1E3A8A; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; padding:8px 12px;">판매를 시작한 뒤 편성을 바꿔도 기존 수강생에게는 소급하지 않습니다 — 결제 시점의 판정 대상 차시 · 재생시간 · 인정 진도율 · 필수 출석일수를 주문 라인에 박제합니다.</div>
             <div class="field-hint" data-dev-flag="dev-only" data-dev-route="admin.courses.curriculum.index" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/curriculum" data-dev-perm="조회" data-dev-note="개발 커리큘럼 구성 페이지(#curriculumForm) · 변경 영향 미리 보기 #crsImpact · #curImpact">판매 이력이 있는 강좌는 기존 강의를 제외할 수 없고 추가만 가능하다. 저장 전에 기존 수강생 진도율 분모 변화(영향 인원)를 미리 보여 준다.</div>
+            <div class="field-hint" style="margin-bottom:10px;" data-dev-flag="proto-only" data-dev-note="(규칙) lectures.publish_status=upcoming 강의도 편성 후보 — 개발 Lecture::scopePlayable(cdn_key · duration_sec>0)이 막음. v3.2.32 정본 변경(S2-10) — 개발 미구현">강의 관리에서 '업데이트 예정'으로 등록한 강의(영상 없음 · 공개 예정일)도 커리큘럼에 넣을 수 있습니다. 공개 전에는 재생 · 진도율 분모 · 7일/2강 전액환불 판정에서 빠지고, 프론트에는 'YYYY년 MM월 DD일 업데이트 예정'으로 보입니다. 판매 중인 강좌에 공개 강의를 새로 넣어 저장하면 구매자 알림 여부를 묻고, 판매 중(판매 이력 있는) 강좌에는 현재 1계층 권리자에 없는 권리자의 강의를 넣을 수 없습니다.</div>
             <div id="form-sections-wrapper" data-dev-name="lectures[]" data-dev-note="순서 = 배열 순서 · 편성 가능(VOD Key + 재생시간) 강의만"></div>
           </div>
         </div>
@@ -1350,6 +1352,57 @@ code, pre, kbd, samp,
       </section>
     </main>
   
+
+  <!-- ==================== [모달] v3.2.32 판매 중 강좌 공개 강의 추가 — 구매자 업데이트 알림 확인 ==================== -->
+  <div class="modal-backdrop" id="layerCourseNotify" data-dev-route="admin.courses.notify-targets.index (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/courses/{course}/notify-targets?lecture_ids[]=" data-dev-perm="조회" data-dev-flag="proto-only" data-dev-note="대상 인원 미리 보기(JSON): 이 강좌 유효 수강권 보유자(단과 · 패키지 경유, 회원 중복 제거) — v3.2.32 정본 변경(S2-10) — 개발 미구현">
+    <div class="modal-window" style="max-width:680px;">
+      <div class="modal-header">
+        <div class="modal-title">구매자에게 업데이트 알림을 보낼까요?</div>
+        <button type="button" class="btn btn-outline btn-sm modal-close">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="cnSummary" style="margin:0 0 10px; padding:9px 12px; border:1px solid #BFDBFE; background:#EFF6FF; color:#1E3A8A; border-radius:8px; font-size:12.5px; line-height:1.6; font-weight:600;"></div>
+        <table class="data-table">
+          <thead><tr><th style="width:105px;">구분</th><th style="width:105px;">상품 코드</th><th>대상</th><th class="text-right" style="width:130px;">유효 수강권 보유자</th></tr></thead>
+          <tbody id="cnRows"></tbody>
+        </table>
+        <div id="cnTotal" style="margin-top:10px; font-size:13px; font-weight:800;"></div>
+        <div class="field-hint">대상: 이 강좌의 유효 수강권 보유자(수강중 · 일시정지 · 사전판매 시작 전, 단과 · 패키지 경유 모두). 제외: 수강 만료 · 환불/취소 완료 · 탈퇴. 단과와 패키지로 같은 강좌를 가진 회원은 1건만 받습니다.</div>
+        <div style="display:flex; gap:16px; margin-top:12px;" data-dev-name="notify_buyers (규칙)" data-dev-value="1 보냄(기본) · 0 안 보냄">
+          <label style="display:flex; gap:6px; align-items:center; font-size:13px; font-weight:700;"><input type="radio" name="cnSend" value="1" checked> 알림 보냄 (알림톡 · 메일, 정보성)</label>
+          <label style="display:flex; gap:6px; align-items:center; font-size:13px; font-weight:700;"><input type="radio" name="cnSend" value="0"> 보내지 않음</label>
+        </div>
+        <div class="field-hint">보냄을 고르면 대상 회원으로 발송 대상 그룹(정적)을 만들어 단체 발송(정보성) 화면으로 넘깁니다. 순서 변경 · 제목 수정만 한 저장은 알림 대상이 아닙니다.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline">취소</button>
+        <button type="button" class="btn btn-primary" id="cnSubmit" data-dev-route="admin.courses.curriculum.update" data-dev-method="PUT" data-dev-url="/sj-admin/courses/{course}/curriculum" data-dev-perm="수정" data-dev-note="lectures[] + notify_buyers=1 → (규칙) 정적 저장 그룹(user_groups kind=saved_group · group_type=static) 생성" onclick="crsConfirmNotify()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== [모달] v3.2.32 S2-10 판매 중 강좌 신규 권리자 강의 추가 차단 ==================== -->
+  <div class="modal-backdrop" id="layerHolderBlock" data-dev-flag="proto-only" data-dev-note="저장 차단(서버 검증): 판매 이력 강좌의 현재 1계층 권리자(lecture_instructors.rights_holder_id, 유효 기간 내) 밖 권리자의 강의 추가 — (규칙) CourseCurriculumRequest 오류 키 lectures. v3.2.32 정본 변경(S2-10) — 개발 미구현">
+    <div class="modal-window" style="max-width:680px;">
+      <div class="modal-header">
+        <div class="modal-title">새 권리자의 강의는 이 강좌에 넣을 수 없습니다</div>
+        <button type="button" class="btn btn-outline btn-sm modal-close">닫기 ✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin:0 0 10px; padding:10px 12px; border:1px solid #EF4444; background:#FEF2F2; color:#991B1B; border-radius:8px; font-size:13px; font-weight:600;">판매 중이거나 판매 이력이 있는 강좌에는 현재 1계층 권리자 목록에 없는 권리자의 강의를 넣을 수 없습니다. 저장하지 않았습니다.</div>
+        <div style="font-size:13px; margin-bottom:8px;">이 강좌의 현재 1계층 권리자: <strong id="hbHolders"></strong></div>
+        <table class="data-table">
+          <thead><tr><th style="width:105px;">강의코드</th><th>강의명</th><th style="width:120px;">권리자</th></tr></thead>
+          <tbody id="hbRows"></tbody>
+        </table>
+        <div class="field-hint">사유: 결제 시점 안분이라 새 권리자는 기존 주문 몫이 0원이 됩니다. 새 권리자의 콘텐츠는 별도 상품(새 단과 강좌)으로 판매해 주세요. 권리자 매핑은 상품별 권리자 매핑 화면에서 확인합니다.</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline">닫기</button>
+        <button type="button" class="btn btn-danger-outline" onclick="crsRemoveForeign()">해당 강의 빼기</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ==================== [모달 1] ADMN-PROD-002 강의 불러오기 ==================== -->
   <div class="modal-backdrop" id="modal-lecture-picker" data-dev-note="개발은 모달 없이 커리큘럼 페이지(PROD-003-S1) 후보 표 #candCheckAll · #candAdd">
@@ -2226,7 +2279,7 @@ code, pre, kbd, samp,
                   <td class="text-center">${lIdx + 1}차시</td>
                   <td><span class="code-pill">${l.code}</span></td>
                   <td>${l.title}</td>
-                  <td class="text-center">${formatDuration(l.durationSec)}</td>
+                  ${pubDurCell(l.code, l.durationSec)}
                   <td style="font-size:12px; color:var(--primary);">${l.pdf || "-"}</td>
                   <td class="text-center">
                     ${l.previewYn ? `<span class="badge badge-sale">무료 맛보기</span>` : `<span class="badge badge-end">수강생 전용</span>`}
@@ -2358,7 +2411,7 @@ code, pre, kbd, samp,
                     </td>
                     <td><span class="code-pill">${lec.code}</span></td>
                     <td style="font-weight:600;">${lec.title}${curriculumBaseCodes && !curriculumBaseCodes.has(lec.code) ? ` <span class="badge badge-info" title="기존 수강생 판정 분모에서 제외 · 변경 이후 결제분부터 판정 대상">신규 추가 · 기존 수강생 판정 제외</span>` : ""}</td>
-                    <td class="text-center">${formatDuration(lec.durationSec)}</td>
+                    ${pubDurCell(lec.code, lec.durationSec)}
                     <td style="font-size:12px; color:var(--primary);">${lec.pdf || "-"}</td>
                     <td class="text-center">
                       <input type="checkbox" ${lec.previewYn ? "checked" : ""} data-dev-flag="proto-only" data-dev-note="섹션별 맛보기 토글 — 개발 없음(맛보기는 강의 is_preview)" onchange="togglePreview(${sIdx}, ${lIdx}, this.checked)" style="width:15px; height:15px; accent-color:var(--primary); cursor:pointer;" />
@@ -2461,7 +2514,7 @@ code, pre, kbd, samp,
           <td style="font-weight:600;">${l.title}</td>
           <td>${l.instructor}</td>
           <td class="text-center"><span class="badge badge-info">${l.player}</span></td>
-          <td class="text-center">${formatDuration(l.durationSec)}</td>
+          ${pubDurCell(l.code, l.durationSec)}
           <td class="text-center">${l.pdf ? "첨부됨" : "-"}</td>
         </tr>
       `).join("");
@@ -2671,7 +2724,120 @@ code, pre, kbd, samp,
         tb.innerHTML = TEXTBOOK_MASTER_POOL.map(b => `<tr><td class="text-center"><input type="checkbox" class="book-pick-chk" value="${b.sku}"/></td><td><select class="form-select book-role-sel" data-sku="${b.sku}"><option value="주교재">주교재</option><option value="부교재">부교재</option></select></td><td><span class="code-pill">${b.sku}</span></td><td style="font-weight:600;">${b.title}</td><td>${b.isbn}</td><td class="text-right">${formatNumber(b.price)}원</td><td class="text-center">${formatNumber(b.stock)}권</td></tr>`).join("");
       }
     });
-  </script><script>
+  
+    /* =========================================================================
+       v3.2.32 (2026-11-02 white 결정, S2-10) — 개발 미구현(proto-only)
+       - 업데이트 예정 강의 편성: 재생시간 칸에 '업데이트 예정 (예정일)' 배지
+       - 판매 중 강좌에 공개 강의를 새로 넣어 저장: 구매자 알림 확인 모달 → 발송 대상 그룹(정적) → 단체 발송
+       - 판매 중(판매 이력) 강좌에 현재 1계층 권리자 밖 권리자의 강의: 경고 모달 + 저장 차단
+       ========================================================================= */
+    const PUB_TODAY = "2026-11-02"; // 샘플 기준일
+    LECTURE_MASTER_POOL.push(
+      { code: "LEC-2608", title: "[8강] 2026 개정 산업안전보건법 반영 특강", instructor: "김안전", player: "StarPlayer+", durationSec: 0, pdf: "", pubStatus: "UPCOMING", plannedAt: "2026-12-15" },
+      { code: "LEC-2609", title: "[9강] 2026년 3회 필기 기출 해설", instructor: "김안전", player: "StarPlayer+", durationSec: 0, pdf: "", pubStatus: "UPCOMING", plannedAt: "2026-10-30" },
+      { code: "LEC-2610", title: "[10강] 위험성평가 실무 사례 특강", instructor: "김안전", player: "StarPlayer+", durationSec: 2280, pdf: "10강_위험성평가_사례.pdf" }
+    );
+    const CRS_AUDIENCE = {
+      "CRS-2601": { rows: [{ type: "COURSE", code: "CRS-2601", n: 1284 }, { type: "PACKAGE", code: "PKG-2601", n: 236 }, { type: "PACKAGE", code: "PKG-2602", n: 188 }], dup: 41 },
+      "CRS-2602": { rows: [{ type: "COURSE", code: "CRS-2602", n: 412 }, { type: "PACKAGE", code: "PKG-2601", n: 236 }, { type: "PACKAGE", code: "PKG-2602", n: 188 }], dup: 37 }
+    };
+    function pubLec(code) { return LECTURE_MASTER_POOL.find(x => x.code === code) || {}; }
+    function pubDurCell(code, sec) {
+      const l = pubLec(code);
+      if (l.pubStatus !== "UPCOMING") return `<td class="text-center">${formatDuration(sec)}</td>`;
+      const over = l.plannedAt < PUB_TODAY;
+      return `<td class="text-center"><span class="badge ${over ? "badge-stop" : "badge-ready"}" title="공개 전: 재생 · 진도율 분모 · 7일/2강 전액환불 판정 제외">업데이트 예정 (${l.plannedAt})</span>${over ? `<div style="font-size:11px; color:var(--rose); margin-top:3px; font-weight:700;">예정일 지남 · 미공개</div>` : ""}</td>`;
+    }
+    function crsOpenModal(id) { const el = document.getElementById(id); el.style.removeProperty("display"); el.classList.add("open"); }
+    function crsCloseModal(id) { const el = document.getElementById(id); el.classList.remove("open"); el.style.setProperty("display", "none", "important"); }
+
+    const _pubRenderFormSections = renderFormSections;
+    renderFormSections = function () {
+      _pubRenderFormSections();
+      const up = [...curriculumCodes()].filter(c => pubLec(c).pubStatus === "UPCOMING").length;
+      const el = document.getElementById("form-curriculum-summary");
+      if (el && up) el.textContent += ` · 업데이트 예정 ${up}강(진도율 분모 제외)`;
+    };
+
+    // 편집 시작 때 이 강좌의 현재 1계층 권리자(ADMN-SETT-001 매핑) 스냅샷 — 샘플은 강의 담당 강사 = 권리자로 본다
+    let crsHolderBase = null;
+    const _pubPopulateForm = populateFormWithCourse;
+    populateFormWithCourse = function (c) {
+      _pubPopulateForm(c);
+      crsHolderBase = editingSoldCourse
+        ? new Set([c.instructor, ...[...curriculumCodes()].map(code => pubLec(code).instructor).filter(Boolean)])
+        : null;
+    };
+    const _pubOpenNewCourse = openNewCourseForm;
+    openNewCourseForm = function () { _pubOpenNewCourse(); crsHolderBase = null; };
+
+    let crsForeign = [];
+    let crsPendingNotify = null;
+    function crsOpenHolderBlock(foreign) {
+      crsForeign = foreign.map(l => l.code);
+      document.getElementById("hbHolders").textContent = [...crsHolderBase].join(" · ");
+      document.getElementById("hbRows").innerHTML = foreign.map(l => `<tr><td><span class="code-pill">${l.code}</span></td><td style="font-weight:600;">${l.title}</td><td><span class="badge badge-stop">${l.instructor}</span></td></tr>`).join("");
+      crsOpenModal("layerHolderBlock");
+    }
+    function crsRemoveForeign() {
+      curriculumSections.forEach(sec => { sec.lectures = sec.lectures.filter(l => !crsForeign.includes(l.code)); });
+      showToast(`새 권리자 강의 ${crsForeign.length}개(${crsForeign.join(", ")})를 커리큘럼에서 뺐습니다.`);
+      crsForeign = [];
+      crsCloseModal("layerHolderBlock");
+      renderFormSections();
+    }
+    function crsAudience(c) {
+      const a = CRS_AUDIENCE[c.code] || { rows: [{ type: "COURSE", code: c.code, n: 96 }], dup: 0 };
+      const sum = a.rows.reduce((s, r) => s + r.n, 0);
+      return { rows: a.rows, dup: a.dup, total: sum - a.dup };
+    }
+    function crsOpenNotify(c, added) {
+      const aud = crsAudience(c);
+      crsPendingNotify = { code: c.code, aud, added: added.map(l => l.code) };
+      document.getElementById("cnSummary").innerHTML = `판매 중인 <strong>${c.title}</strong>에 공개 강의 ${added.length}개를 새로 넣습니다: ${added.map(l => l.title).join(" · ")}. 이 강좌 구매자에게 새 강의 추가 알림(알림톡 · 메일)을 보낼 수 있습니다.`;
+      document.getElementById("cnRows").innerHTML = aud.rows.map(r => `<tr>
+          <td><span class="badge ${r.type === "COURSE" ? "badge-info" : "badge-violet"}">${r.type === "COURSE" ? "단과 강좌" : "패키지 경유"}</span></td>
+          <td><span class="code-pill">${r.code}</span></td>
+          <td>${r.type === "COURSE" ? "이 강좌를 단과로 산 회원" : "이 강좌가 든 패키지를 산 회원"}</td>
+          <td class="text-right">${formatNumber(r.n)}명</td>
+        </tr>`).join("");
+      document.getElementById("cnTotal").textContent = `발송 대상 ${formatNumber(aud.total)}명 (합계 ${formatNumber(aud.total + aud.dup)}명 − 단과 · 패키지 중복 ${formatNumber(aud.dup)}명)`;
+      document.querySelector('input[name="cnSend"][value="1"]').checked = true;
+      crsOpenModal("layerCourseNotify");
+    }
+    const _pubSaveCourseForm = saveCourseForm;
+    function crsSaveAndReport(notify) {
+      const p = crsPendingNotify;
+      crsPendingNotify = null;
+      _pubSaveCourseForm();
+      if (!document.getElementById("subview-list").classList.contains("active")) return; // 원래 검증에서 막힘
+      const box = document.getElementById("crsNotifyResult");
+      if (p && notify) {
+        const group = `[강의 업데이트] ${p.code} · ${PUB_TODAY}`;
+        box.style.display = "block";
+        box.innerHTML = `발송 대상 그룹 <strong>${group}</strong>(정적, ${formatNumber(p.aud.total)}명)을 만들었습니다. 단체 발송(정보성)에서 템플릿 · 예약 시각을 정해 보내 주세요. <a href="ADMN-CONF-004_baseline.html">단체 발송으로 이동 →</a>`;
+      } else {
+        box.style.display = "none";
+      }
+    }
+    function crsConfirmNotify() {
+      const send = (document.querySelector('input[name="cnSend"]:checked') || {}).value === "1";
+      crsCloseModal("layerCourseNotify");
+      crsSaveAndReport(send);
+    }
+    saveCourseForm = function () {
+      const c = window.__currentCourse;
+      if (editingSoldCourse && curriculumBaseCodes && crsHolderBase) {
+        const added = addedLectureCodes().map(pubLec).filter(l => l.code);
+        const foreign = added.filter(l => !crsHolderBase.has(l.instructor));
+        if (foreign.length) { crsOpenHolderBlock(foreign); return; }
+        const addedPublic = added.filter(l => l.pubStatus !== "UPCOMING");
+        if (c && c.saleStatus === "판매중" && addedPublic.length) { crsOpenNotify(c, addedPublic); return; }
+      }
+      crsSaveAndReport(false);
+    };
+
+</script><script>
 /* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */
 (function() {
   if (window.__sjmModalCloserInstalled) return;

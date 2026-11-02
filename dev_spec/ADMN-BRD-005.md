@@ -1,5 +1,6 @@
 # ADMN-BRD-005 수강후기 · 합격수기 관리 및 무료콘텐츠 — 개발 명세
 
+- **v3.2.32 정본 변경(설계서 b017da2, 2026-11-02 white, prototype_dev만 반영 · clean 미반영):** 무료콘텐츠 구분 3종 — `EXAM` 기출문제(구 빈출자료, 연도 · 회차 · PDF · 본문) · `DAILY` 정조교의 매일 1문제(머리말 5종, 머리말 코드 신설) · `SHORTS` 나나조교의 출퇴근 1분 산안기(가제, 유튜브 URL 필수 · 영상 ID만 저장 · 연도 · 회차 · PDF 없음 · 본문 선택 · 목록 유튜브 썸네일). S2-08 '기출문제 표기 금지' 폐지. 무료강의(맛보기)는 유지하되 프론트 1차 메뉴 가림. SHORTS · 머리말 · 영상 ID는 개발 미구현(아래 2 · 3 · 5 · 7절 `(규칙)`)
 - 프로토타입 파일: prototype_clean/ADMN-BRD-005_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-BRD-005(수기 / 합격 후기 관리), ADMN-BRD-005-S1(합격 후기 검증), ADMN-BRD-010(무료콘텐츠 관리), ADMN-BRD-010-S1(무료콘텐츠 등록 · 수정)
@@ -46,6 +47,8 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | 수정 폼(S1) | GET | `/{admin}/free-contents/{freeContent}/edit` | `admin.free-contents.edit` | 수정 | FreeContentController@edit |
 | 수정 저장 | PUT | `/{admin}/free-contents/{freeContent}` | `admin.free-contents.update` | 수정 | FreeContentController@update |
 
+v3.2.32: 라우트 추가 없음 — SHORTS · 머리말 · 영상 주소는 같은 store · update 폼 필드로 받는다(개발 미구현, 아래 3절). 목록 필터에 머리말 `head_code`(규칙) 추가. 프론트(개발 미구현): 무료콘텐츠 메뉴 기출문제(`USER-FREE-002`) · 매일 1문제(`003`) · 산안기 쇼츠(`004`, 가제), 무료강의(`001`, 맛보기 `is_preview`)는 1차 메뉴 가림. 프론트 라우트는 `routes/web.php`에 아직 없음.
+
 ## 3. 폼 필드 · 검증
 ### 후기 검증 `modForm` (ReviewModerationRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소(id · 라벨) |
@@ -75,16 +78,18 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 ### 무료콘텐츠 등록 · 수정 `freeContentForm` (FreeContentRequest)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
-| `content_type` | required in FreeContent::TYPES | EXAM=빈출자료 · DAILY=매일 1문제(정조교의 매일 1문제) | `fl-form-type`(v6.92: EXAM 빈출자료 · DAILY 매일 1문제 — 개발과 같음) |
+| `content_type` | required in FreeContent::TYPES | 개발: EXAM=빈출자료 · DAILY=매일 1문제. **v3.2.32**: EXAM=기출문제 · DAILY=정조교의 매일 1문제 · SHORTS=나나조교의 출퇴근 1분 산안기(가제, 라벨은 설정값) — SHORTS는 개발 미구현(규칙) | `fl-form-type`(EXAM · DAILY · SHORTS) |
+| `head_code` (규칙) | DAILY면 required in FreeContent::HEADS(규칙), 그 밖 구분은 서비스가 비움 — 개발 미구현 | electric=전기 1문제 · chemistry=화학 1문제 · ergonomics=인간공학 1문제 · written=필답형 빈출 · practical=작업형 빈출 | `fl-form-head`(proto-only) |
+| `video_url` (규칙) | SHORTS면 required · 유튜브 주소(shorts/ · watch?v= · youtu.be/ · embed/) — 서비스가 영상 ID 11자만 `video_id`에 저장. 개발 미구현 | | `fl-form-video`(proto-only), 미리보기 `fl-video-preview` |
 | `cert_category_id` | required integer (categories 1Depth) | 자격증 | `fl-form-cert` |
-| `year` | required 2000~2100 | 연도 | `fl-form-year` |
-| `round_no` (`roundNo`) | EXAM 이면 required · 1~999. DAILY 는 서비스가 비움 | 회차 | 없음 |
+| `year` | required 2000~2100. **v3.2.32**: SHORTS는 연도 없음 → `required_unless:content_type,SHORTS`로 바꿔야 함 | 연도 | `fl-form-year`(SHORTS면 숨김) |
+| `round_no` (`roundNo`) | EXAM 이면 required · 1~999. DAILY · SHORTS 는 서비스가 비움 | 회차 | v3.2.32: `fl-form-round`(EXAM만 보임, 기출문제 연도 · 회차별 자료게시판) |
 | `title` | required max:100 | | `fl-form-title` |
 | `content` | nullable(에디터) | 본문 · 해설 | `fl-form-body` |
 | `status` | required in published,hidden | published=전시 · hidden=비전시 | 노출상태 |
 | `started_at` | nullable Y-m-d | 전시 시작일 | v6.92: `fl-form-date` 게시일(프로토 필수, 매일 1문제는 게시일 하루 1문제) |
 | `related_course_id` | nullable integer | 관련 강좌(상세 하단 카드) | 없음 |
-| `attachments[]` | max 5 · PDF만 · 개당 10MB(실제 바이트 검사) | | `fl-form-pdf`(파일명 텍스트) |
+| `attachments[]` | max 5 · PDF만 · 개당 10MB(실제 바이트 검사). v3.2.32: SHORTS는 PDF 없음(`prohibited_if:content_type,SHORTS` 또는 서비스가 무시) | | `fl-form-pdf`(파일명 텍스트, SHORTS면 숨김) |
 | `delete_attachments[]` | integer | | 없음 |
 | `list_query` | max:1000 | 저장 후 목록 조건 | 없음 |
 | (없음) | | | ~~`fl-form-vod` 연동 VOD 에셋 코드 / 러닝타임~~ v6.92 삭제(S-22 · D-BRD-01). 공개 범위 고정 표시 `fl-form-access`(본문 누구나 · PDF 로그인 회원만, 입력 없음) |
@@ -108,6 +113,7 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 필터: `type`(EXAM/DAILY) · `cert` · `year` · `round` · `display`(published/hidden) · `keyword`(100자) · `sort`(latest 등록일순 · year 연도순 · round 회차순) · `page`.
 - 표 컬럼(개발): 선택 · No · 구분 · 자격증 · 제목 · 연도 · 회차 · PDF · 등록일 · 등록자 · 전시.
 - 프로토타입: 콘텐츠 ID · 구분 · 종목/대비연도 · 제목 · 게시일 · PDF(로그인 회원만) · 조회수 · 노출상태 · 관리(v6.92: '연동 VOD/러닝타임' 열 → '게시일'). 필터 `fl-type-filter`(EXAM · DAILY) · `fl-cert-filter`.
+- v3.2.32 prototype_dev: 구분 필터에 SHORTS, 머리말 필터 `fl-head-filter`(`head_code`, 규칙 · 개발 미구현). 구분 열에 머리말 배지, '자격증 / 연도 · 회차' 열, SHORTS 행은 제목 칸에 유튜브 썸네일(개발: `https://i.ytimg.com/vi/{video_id}/mqdefault.jpg`, 프로토는 네트워크 없이 자리 표시) · PDF 칸 '유튜브 영상(PDF 없음)'. 개발 `FreeContentRepository::counts`(:52-58)도 SHORTS 건수를 더해야 함.
 
 ## 5. DB 테이블 · 컬럼
 | 테이블.컬럼 | 타입 | 뜻 | 화면 표시 위치 |
@@ -125,7 +131,9 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | points / point_logs | | 지급 원장(회원 수동 지급과 같은 경로) | 지급 이력 |
 | notification_logs(target=review) | | 지급 알림 이력 · 재발송 | 발송 이력 |
 | boards.code = `free-content` | | 무료콘텐츠 게시판(FreeContent::BOARD_CODE) | — |
-| posts.content_type | string(10) | EXAM 빈출자료 · DAILY 매일 1문제 | 구분 |
+| posts.content_type | string(10) | EXAM 빈출자료 · DAILY 매일 1문제. v3.2.32: EXAM 기출문제 · SHORTS 추가(6자, 길이 그대로 됨) — 컬럼 코멘트도 갱신 | 구분 |
+| posts.head_code (규칙) | string(20) nullable | v3.2.32 매일 1문제 머리말(electric · chemistry · ergonomics · written · practical). 개발 미구현 — 레거시 `posts.category`(nullable, 미사용) 재사용도 가능하나 새 컬럼 권고 | 머리말 배지 · 필터 |
+| posts.video_id (규칙) | string(20) nullable | v3.2.32 SHORTS 유튜브 영상 ID(11자)만 저장 — URL · 썸네일은 ID로 조립. 개발 미구현(`video_url` 컬럼도 없음) | 썸네일 · 영상 ID |
 | posts.cert_category_id / year / round_no / related_course_id | | 자격증(categories 1Depth) · 연도 · 회차(빈출만) · 관련 강좌 | 자격증 · 연도 · 회차 |
 | posts.status / started_at / view_count | | 전시(published) · 비전시(hidden) · 전시 시작일 · 조회수 | 전시 |
 | attachments(PDF) | | 무료콘텐츠 PDF(로그인 회원만 받는 비공개 파일) | PDF |
@@ -155,11 +163,13 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 - 무료특강 영상(FREE_LECTURE) 구분과 VOD 에셋 코드 · 러닝타임. **→ 결정(v6.92 white, S-22 · D-BRD-01)**: 무료콘텐츠는 빈출자료 · 매일 1문제 2종(개발 TYPES와 같음), VOD 필드 · 열 삭제 — 무료특강 영상은 PROD-002 맛보기 · PROD-003 무료 강좌에서 등록
 - (v6.92 S-21) 후기 보상 회수(허위 · 표절 · 게시 후 30일 안 자진 삭제, 무상 P 잔액 한도) · 보상 후기 '포인트 지급 후기' 배지 · 합격수기 반려 시 합격환급 '보완 요청' 연동 표시.
 - 무료콘텐츠 버전 이력 표(버전 · 저장일 · PDF · 본문 요약 · 변경 내용).
+- **v3.2.32 (개발 미구현):** SHORTS 구분(유튜브 URL 필수 → 영상 ID 저장, 연도 · 회차 · PDF 없음, 본문 선택, 목록 유튜브 썸네일), 매일 1문제 머리말 5종(`head_code` · `FreeContent::HEADS`, 규칙) · 머리말 필터, 무료강의 1차 가림 표시(`fl-free-lecture-hidden`, 프론트 `/free/lectures` 메뉴 숨김).
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 검수 상태: 심사대기 → `pending`, 인증승인 완료(APPROVED) → `verified`, 반려(REJECTED) → `rejected`.
 - 무료콘텐츠 구분: FREQ_EXAM → `EXAM`(빈출자료). FREE_LECTURE 는 개발에 없고 개발 DAILY(매일 1문제)는 프로토타입에 없음. **→ 결정(v6.92 white, S-22 · D-BRD-01)**: 프로토 값이 `EXAM` · `DAILY`로 바뀌어 차이 없음
 - 노출상태 → 무료콘텐츠 `status` published(전시) · hidden(비전시), 후기 `display_site`.
+- **v3.2.32 라벨:** `EXAM` 빈출자료 → 기출문제(코드 유지). 개발 `FreeContent::TYPES`(app/Models/FreeContent.php:21) · 클래스 주석(:9) · 마이그레이션 코멘트(000239:25 · :36) · 화면 문구(index.blade.php:1 · :15 · :92, form.blade.php:35 · :117) · 검증 메시지(FreeContentRequest.php:67 '빈출자료는 회차를…')를 '기출문제'로.
 - 화면 단위: 탭 3개 → 개발 메뉴 2개(`reviews` · `free-contents`).
 
 ## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)

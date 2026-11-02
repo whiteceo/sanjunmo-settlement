@@ -4,6 +4,7 @@
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
 - 포함 화면: PROD-005 목록 · 005-S2 패키지 상세(프로토에만) · 005-S1 등록 · 수정 · 강좌 선택 모달 · 교재 선택 모달
 - 개발 진행: 구현(목록 · 등록 · 수정 · 삭제 · 복사 · 판매중지 · 미리보기 · 엑셀). `_index/progress.md` PROD-005 커밋 언급 7건(라우트 주석 없음). 005-S2 읽기 전용 상세는 개발 미구현
+- **v3.2.32 정본 변경 (2026-11-02 white 결정, 설계서 S2-10 · 005 판매 중 구성 추가)**: 판매 중(판매 이력) 패키지에 현재 1계층 권리자 밖 권리자의 강좌 추가 → 경고 모달 + 저장 차단, 나중에 들어올 내용은 '업데이트 예정 강의만 든 강좌'로 미리 넣는다는 안내 · 배지. 포함 강좌에 강의가 공개되면 패키지 구매자도 수강 · 알림(알림은 PROD-002 · 003에서). 개발 미구현 — prototype_dev에 `proto-only` + (규칙) 이름
 
 프로토타입 view ↔ 개발 화면
 | 프로토타입 view / 모달 | 개발 화면 | 개발 뷰 파일 |
@@ -53,6 +54,7 @@
 | 교재 정보(저자 · ISBN · 정산 경로 · 배송) | GET | `/packages/books` | `admin.packages.books.index` | 조회 | PackageController@books |
 | 강좌 선택 모달 검색 | GET | `/api/courses` | `admin.api.courses` | 로그인만 | CourseController@apiList |
 | 교재 선택 모달 검색 | GET | `/api/books` | `admin.api.books` | 로그인만 | BookController@apiList |
+| (v3.2.32) 저장 차단 — 신규 권리자 강좌 `#layerPkgHolderBlock` | PUT | `/packages/{package}` | `admin.packages.update` (기존) | 수정 | 개발 미구현: PackageRequest에 권리자 검사 (규칙) 추가 |
 
 ## 3. 폼 필드 · 검증
 
@@ -91,6 +93,8 @@
 | `items[n][product_id]` | required · integer | courses.id · books.id | 강좌코드(`CRS-…`) · 교재 SKU(`PROD-BK-…`) |
 | `items[n][sort_order]` | nullable · integer | | 순번 |
 | `items` 전체 | 1개 이상 · 강좌 1개 이상 · 중복 불가 · **구성품 전부 전시 · 판매중이어야 저장**(`PackageRequest.php:98-187`) | | 강좌 최소 1개(`removeCourseFromPkg`, L1931) · 주교재 상태 경고 `bkSyncPkgs`(L1426) (8절 Q6) |
+| (v3.2.32) 신규 권리자 강좌 차단 (규칙) | 판매 이력 패키지(`order_items` 있음)에 새로 넣는 강좌의 1계층 권리자(편성 강의 `lecture_instructors.rights_holder_id`, 유효 기간 내)가 패키지의 현재 권리자 집합 밖이면 422, 오류 키 `items` | | `#layerPkgHolderBlock` · `pkgRemoveForeign()` |
+| (v3.2.32) 업데이트 예정 강의만 든 강좌 | 구성품 조건 '전시 · 판매중'(`PackageRequest.php:172`)과 별개로, 커리큘럼이 모두 `publish_status=upcoming`(규칙)인 강좌도 넣을 수 있어야 함 — 강좌 자체가 판매중이면 현재 규칙으로 통과 | | 강좌 표 · 선택 모달 '업데이트 예정 강의만 (예정일~)' 배지 `pkgUpcomingBadges()` |
 | (안분 가중치) | 입력 없음 — 서버가 강좌 정가 비율로 `price_ratio` · `discount_amount` 계산(`PackagePricingService.php`) | | `updateCourseWeight()` 직접 입력 · `autoDistributeCourseWeights()` (8절 Q2) |
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼
@@ -125,6 +129,7 @@
 | `package_items` (`product_type`, `product_id`, `sort_order`, `original_price_snapshot`, `price_ratio`, `discount_amount`, `is_excluded_from_discount`) | | 구성품 · 할인 배분 원장(교재는 비율 0 · 할인 0 · 제외 1) | S1 구성 표 · 엑셀 |
 | `category_products` (`product_type`='package') | | 노출 카테고리 | 목록 · S1 |
 | `product_instructors` (`product_type`='package', `product_id`, `instructor_id`, `role` m/s/a, `sort_order`) | | 옛 `package_instructors`는 이름이 바뀜(2026_07_10_200000_rename_package_instructors_to_product_instructors — `package_id` → `product_type` · `product_id`, `is_main` → `role`), `settlement_rate`는 삭제됨(2026_09_15_000110_drop_settlement_rate_from_instructors_and_product_instructors). 패키지 화면은 현재 미사용(확인 필요) | — |
+| `lecture_instructors.rights_holder_id` · `start_date` · `end_date` (기존, SETT-001) | | v3.2.32 패키지의 현재 1계층 권리자 = 포함 강좌 편성 강의들의 유효 매핑 권리자 합집합 | `#phHolders` |
 
 ## 6. 개발 JS · 마크업 이름
 | 개발 id/class | 역할 | 프로토타입 대응 id |
@@ -161,6 +166,8 @@
 - 교재 연동 상태 경고 · 자동 판매중지 로그(`bk*` 함수, localStorage `sjm.prod.bookStatus.v1` 등 L1337-1523)
 - 목록 유형 · 등록일 필터, 강좌 결제액 · 교재 결제액 분리 컬럼
 - (v6.92) '기존 수강생 적용' 행 — 판매 이력 환급반의 인정 진도율 · 출석일수를 바꾸면 변경 전 → 후를 보여 주고 저장 때 확인. 개발은 `refund_min_progress` 현재 값 1개 · 결제 시점 스냅샷 없음. **→ 결정(v6.92 white, S-14)**: 진도율 기준 변경 소급 안 함, 결제 시점 환급 조건을 주문 라인에 박제(`order_items.refund_terms_snapshot` (규칙)).
+- (v3.2.32, S2-10) 판매 중(판매 이력, 판매대기 외) 패키지에 현재 1계층 권리자 밖 권리자의 강좌 추가 → 경고 모달 `#layerPkgHolderBlock` + 저장 차단, [해당 강좌 빼기]. 신규 · 판매대기 패키지는 차단 없음. 샘플은 강좌 담당 강사 = 권리자로 단순화
+- (v3.2.32) '업데이트 예정 강의만 든 강좌'를 미리 넣는 안내(구성 강좌 카드 부제) · 배지, 샘플 강좌 `CRS-2607`(예정 2027-01-20~)
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |

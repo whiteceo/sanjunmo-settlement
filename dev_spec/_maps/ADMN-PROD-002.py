@@ -114,8 +114,8 @@ NAME("s1Inst", "instructor_id", note="개발 #instructorSelect — 프로필 등
 NAME("s1Title", "title", note="required · max 255 (화면 maxlength 80)")
 # v6.92: VOD Key 1칸(s1VodKey · verifyVodKey · s1VodVerifiedBadge) 삭제 → 영상 출처 + CDN 경로 + DRM ID + YouTube 링크(결정 반영 D-PROD-01, 개발안과 같음)
 NAME("s1Source", "source_type", note="cdn · youtube(맛보기 Y 강의만)")
-DEVNAME('<option value="CDN">', "source_type", value="cdn")
-DEVNAME('<option value="YOUTUBE">', "source_type", value="youtube")
+DEVNAME('<option value="CDN"', "source_type", value="cdn")  # v3.2.32 작업 중 고침: '>' 뒤에 붙어 옵션 글자로 보이던 속성
+DEVNAME('<option value="YOUTUBE"', "source_type", value="youtube")
 NAME("s1CdnPath", "cdn_key", note="5~255 · CDN_KEY_PATTERN · 전체 유일, 도메인 · 서명 URL 금지")
 NAME("s1DrmId", "drm_content_id", note="max 100 · 전체 유일. 유료(맛보기 N) 필수 — 개발은 nullable(D-PROD-01 필수 규칙 반영 필요). 값이 있으면 duration_sec을 OVP 값으로")
 ACT("verifyDrmId", route="admin.lectures.vod-info.index", method="GET", url=A + "/lectures/vod-info?drm_content_id=", perm="조회", note="개발 #vodVerify → #vodVerifyResult (lectures.vod_verified_at)")
@@ -158,6 +158,350 @@ ACT("deleteLesson", route="admin.lectures.destroy", method="DELETE", url=A + "/l
     note="개발 #lectureDelete · #lectureDeleteForm — 편성 강좌 수만 검사(패키지 수는 프로토만)")
 ACT("saveLesson", route="admin.lectures.store | admin.lectures.update", method="POST | PUT", url=A + "/lectures | /lectures/{lecture}", perm="등록 | 수정",
     note="개발 #lectureForm (LectureRequest)")
+
+# ── v3.2.32 (2026-11-02 white 결정, S2-10): 강의 상태 업데이트 예정 → 공개 · 구매자 업데이트 알림 ──────────
+# 개발에 없음 → 전부 proto-only. 이름은 (규칙): lectures.publish_status(upcoming · published) · planned_at · published_at,
+# 저장 필드 notify_buyers, 대상 인원 조회 admin.lectures.notify-targets.index
+V3232_NOTE = "v3.2.32 정본 변경(S2-10) — 개발 미구현"
+OPS.append(dict(kind="insert_before", anchor="</head>", html=(
+    '  <style>\n'
+    '  /* v3.2.32 구매자 알림 확인 모달 — PROD-003 · 005와 같은 모달 구조(.modal-window · header · body · footer) */\n'
+    '  .modal-backdrop { background: rgba(15, 23, 42, 0.55); }\n'
+    '  .modal-window { background: #fff; border-radius: 12px; width: 100%; max-width: 660px; max-height: 86vh; display: flex; flex-direction: column; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25); overflow: hidden; }\n'
+    '  .modal-header { padding: 15px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }\n'
+    '  .modal-title { font-size: 15px; font-weight: 800; color: var(--ink); }\n'
+    '  .modal-body { padding: 18px 20px; overflow-y: auto; }\n'
+    '  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--line); background: #f8fafc; display: flex; justify-content: flex-end; gap: 8px; }\n'
+    '  .pub-box { margin: 0 0 12px; padding: 9px 12px; border-radius: 8px; font-size: 12.5px; line-height: 1.6; font-weight: 600; }\n'
+    '  .pub-box.warn { border: 1px solid var(--warn-line); background: var(--warn-soft); color: var(--warn); }\n'
+    '  .pub-box.info { border: 1px solid #BFDBFE; background: #EFF6FF; color: #1E3A8A; }\n'
+    '  </style>\n')))
+
+# 목록 검색: 강의 상태
+OPS.append(dict(kind="insert_before", anchor="          <tr>\n            <th>맛보기</th>", html=(
+    '          <tr' + attrs(flag="proto-only", name="publish_status (규칙)", value="'' 전체 · published 공개 · upcoming 업데이트 예정 · overdue=1 예정일 지남(미공개)", note=V3232_NOTE) + '>\n'
+    '            <th>강의 상태</th>\n'
+    '            <td colspan="3">\n'
+    '              <select id="fPubStatus" name="publish_status" style="width:220px;" onchange="applyFilter()">\n'
+    '                <option value="ALL">전체</option>\n'
+    '                <option value="PUBLIC">공개</option>\n'
+    '                <option value="UPCOMING">업데이트 예정</option>\n'
+    '                <option value="OVERDUE">예정일 지남 · 미공개</option>\n'
+    '              </select>\n'
+    '            </td>\n'
+    '          </tr>\n')))
+R('  const sample = document.getElementById("fSample").value;',
+  '  const sample = document.getElementById("fSample").value;\n  const pubSt = (document.getElementById("fPubStatus") || {}).value || "ALL";')
+R('    if (sample !== "ALL" && item.sampleYn !== sample) return false;',
+  '    if (sample !== "ALL" && item.sampleYn !== sample) return false;\n    if (!pubMatch(item, pubSt)) return false;')
+R('  document.getElementById("fKeyword").value = "";',
+  '  document.getElementById("fKeyword").value = "";\n  if (document.getElementById("fPubStatus")) document.getElementById("fPubStatus").value = "ALL";')
+
+# 목록: 예정일 경과 경고 · 알림 그룹 결과
+OPS.append(dict(kind="insert_before", anchor="      <!-- 목록 그리드 -->", html=(
+    '      <div id="pubOverdueAlert" class="pub-box warn" style="display:none;"' + attrs(flag="proto-only", note="예정일(planned_at) < 오늘 AND publish_status=upcoming 건수 — " + V3232_NOTE) + '></div>\n'
+    '      <div id="pubNotifyResult" class="pub-box info" style="display:none;"' + attrs(flag="proto-only", route="admin.message-templates.campaigns.index", method="GET",
+                                                                               url=A + "/message-templates/campaigns?target_type=group&saved_group_id={id}", perm="조회",
+                                                                               note="공개 저장 때 만든 정적 저장 그룹(user_groups kind=saved_group · group_type=static)으로 단체 발송 화면 진입 — " + V3232_NOTE) + '></div>\n')))
+
+# 목록 표: 강의 상태 열 · 업데이트 예정 강의의 빈 영상 · 재생시간 표시
+R('<th class="left">강의 제목</th>',
+  '<th class="left">강의 제목</th>\n              <th style="width:150px;"' + attrs(flag="proto-only", name="publish_status · planned_at (규칙)", note=V3232_NOTE) + '>강의 상태</th>')
+R('        <td class="left"><strong>${item.title}</strong></td>',
+  '        <td class="left"><strong>${item.title}</strong></td>\n        <td data-dev-flag="proto-only">${pubCell(item)}</td>')
+R('        ? `<span class="badge b-bad">미등록</span>`',
+  '        ? (item.pubStatus === "UPCOMING" ? `<span class="badge b-gray">공개 전환 때 등록</span>` : `<span class="badge b-bad">미등록</span>`)')
+R('      : `<span class="badge b-bad">미입력</span>`;',
+  '      : (item.pubStatus === "UPCOMING" ? `<span class="badge b-gray">공개 전환 때 입력</span>` : `<span class="badge b-bad">미입력</span>`);')
+
+# S1: 강의 상태 · 공개 예정일
+OPS.append(dict(kind="insert_before", anchor="        <!-- 영상 식별자: CDN 콘텐츠 경로 + DRM 콘텐츠 ID", html=(
+    '        <!-- 강의 상태 (v3.2.32 S2-10): 업데이트 예정 → 공개 -->\n'
+    '        <div class="form-row"' + attrs(flag="proto-only", note="(규칙) lectures.publish_status upcoming · published (Lecture::PUBLISH_STATUS_LABELS) — 강의 구분 type(normal · ot · sample …)과 별개 값. " + V3232_NOTE) + '>\n'
+    '          <label>강의 상태 <span class="req">*</span></label>\n'
+    '          <div class="chk-group">\n'
+    '            <div class="chk-box-item" id="pillPubPublic"' + attrs(name="publish_status", value="published") + ' onclick="setPubStatus(\'PUBLIC\')">\n'
+    '              <input type="checkbox" id="chkPubPublic" style="pointer-events:none;"> 공개 — 영상 재생 가능\n'
+    '            </div>\n'
+    '            <div class="chk-box-item" id="pillPubUpcoming"' + attrs(name="publish_status", value="upcoming") + ' onclick="setPubStatus(\'UPCOMING\')">\n'
+    '              <input type="checkbox" id="chkPubUpcoming" style="pointer-events:none;"> 업데이트 예정 — 영상 없이 먼저 등록\n'
+    '            </div>\n'
+    '          </div>\n'
+    '          <div id="s1PlannedRow" style="display:none; margin-top:10px;">\n'
+    '            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">\n'
+    '              <span style="font-size:12.5px; font-weight:700;">공개 예정일 <span class="req">*</span></span>\n'
+    '              <input type="date" id="s1PlannedAt" name="planned_at"' + attrs(note="(규칙) lectures.planned_at date — upcoming이면 required") + ' style="width:180px;" oninput="updatePlannedPreview()" onchange="updatePlannedPreview()">\n'
+    '              <span id="s1PlannedPreview" style="font-size:12px; font-weight:700; color:var(--warn);"></span>\n'
+    '            </div>\n'
+    '            <div class="help-txt">업데이트 예정이면 영상 출처 · CDN 경로 · DRM 콘텐츠 ID · 재생 시간을 비워 저장할 수 있습니다. 영상을 채워 \'공개\'로 바꿔 저장할 때 구매자에게 알림을 보낼지 묻습니다.</div>\n'
+    '            <div class="help-warn">업데이트 예정 강의는 공개 전까지 재생할 수 없고, 진도율 분모와 7일 · 2강 전액환불 판정에서 빠집니다. 인강 부분환불의 전체 회차에는 들어가며, 공개 전 강의는 학습하지 않은 회차로 봅니다.</div>\n'
+    '          </div>\n'
+    '        </div>\n\n')))
+
+# 구매자 알림 확인 모달 (공개 전환 저장 시)
+OPS.append(dict(kind="insert_before", anchor='<div class="toast" id="toast"></div>', html=(
+    '<!-- v3.2.32 구매자 업데이트 알림 확인 (업데이트 예정 → 공개 저장 시) -->\n'
+    '<div class="modal-backdrop" id="layerLectureNotify"' + attrs(flag="proto-only", route="admin.lectures.notify-targets.index (규칙)", method="GET",
+                                                                  url=A + "/lectures/{lecture}/notify-targets", perm="조회",
+                                                                  note="대상 인원 미리 보기(JSON): 이 강의가 든 강좌의 유효 수강권 보유자(user_courses.status active · paused + 사전판매 시작 전), 단과 · 패키지 경유 회원 중복 제거 — " + V3232_NOTE) + '>\n'
+    '  <div class="modal-window">\n'
+    '    <div class="modal-header">\n'
+    '      <div class="modal-title">구매자에게 업데이트 알림을 보낼까요?</div>\n'
+    '      <button type="button" class="btn btn-sm modal-close">닫기 ✕</button>\n'
+    '    </div>\n'
+    '    <div class="modal-body">\n'
+    '      <div class="pub-box info" id="lnSummary"></div>\n'
+    '      <table class="grid-table">\n'
+    '        <thead><tr><th style="width:90px;">구분</th><th style="width:110px;">상품 코드</th><th>상품명</th><th style="width:130px;">유효 수강권 보유자</th></tr></thead>\n'
+    '        <tbody id="lnRows"></tbody>\n'
+    '      </table>\n'
+    '      <div id="lnTotal" style="margin-top:10px; font-size:13px; font-weight:800;"></div>\n'
+    '      <div class="help-txt">대상: 이 강의가 든 강좌의 유효 수강권 보유자(수강중 · 일시정지 · 사전판매 시작 전, 단과 · 패키지 경유 모두). 제외: 수강 만료 · 환불/취소 완료 · 탈퇴. 단과와 패키지로 같은 강좌를 가진 회원은 1건만 받습니다.</div>\n'
+    '      <div class="chk-group" style="margin-top:12px;"' + attrs(name="notify_buyers (규칙)", value="1 보냄(기본) · 0 안 보냄") + '>\n'
+    '        <label style="display:flex; gap:6px; align-items:center; font-size:13px; font-weight:700;"><input type="radio" name="lnSend" value="1" checked> 알림 보냄 (알림톡 · 메일, 정보성)</label>\n'
+    '        <label style="display:flex; gap:6px; align-items:center; font-size:13px; font-weight:700;"><input type="radio" name="lnSend" value="0"> 보내지 않음</label>\n'
+    '      </div>\n'
+    '      <div class="help-txt">보냄을 고르면 대상 회원으로 발송 대상 그룹(정적)을 만들어 단체 발송(정보성) 화면으로 넘깁니다. 예약 시각 · 템플릿은 단체 발송 화면에서 정합니다. 본문에 다른 상품 홍보 · 구매 링크를 넣지 않습니다.</div>\n'
+    '    </div>\n'
+    '    <div class="modal-footer">\n'
+    '      <button type="button" class="btn">취소</button>\n'
+    '      <button type="button" class="btn btn-dark" id="lnSubmit"' + attrs(route="admin.lectures.update", method="PUT", url=A + "/lectures/{lecture}",
+                                                                          perm="수정", note="publish_status=published + notify_buyers=1 → (규칙) 정적 저장 그룹 생성(user_groups · user_group_members) 후 admin.message-templates.campaigns.index?target_type=group&saved_group_id= 로 이동") + ' onclick="pubConfirmNotify()">공개로 저장</button>\n'
+    '    </div>\n'
+    '  </div>\n'
+    '</div>\n\n')))
+
+# JS (원본 함수는 감싸기만 한다 — onclick 이름 · 원래 검증은 그대로)
+OPS.append(dict(kind="insert_before", anchor="</script><script>\n/* === [UNIVERSAL-MODAL-CLOSER-HOTFIX] === */", html=r'''
+// ============================================================================
+// v3.2.32 (2026-11-02 white 결정, S2-10) 강의 상태 업데이트 예정 → 공개 · 구매자 업데이트 알림 — 개발 미구현(proto-only)
+// (규칙) lectures.publish_status upcoming · published, planned_at, published_at
+// ============================================================================
+const PUB_TODAY = "2026-11-02"; // 샘플 기준일
+const PUB_SAMPLE_LINKS = [
+  { type: "COURSE", code: "CRS-2602", name: "2026 산업안전기사 실기 필답형 만점 답안 작성 전략반", pos: "", status: "판매중" },
+  { type: "PACKAGE", code: "PKG-2601", name: "2026 산업안전기사 필기+실기 0원 합격 환급반 (교재포함)", pos: "구성 강좌 CRS-2602 경유", status: "판매중" },
+  { type: "PACKAGE", code: "PKG-2602", name: "2026 산업안전기사 필기+실기(필답+작업) 올인원 종합반", pos: "구성 강좌 CRS-2602 경유", status: "판매중" }
+];
+const PUB_SAMPLE_AUDIENCE = { rows: { "CRS-2602": 412, "PKG-2601": 236, "PKG-2602": 188 }, dup: 37 };
+LESSONS.forEach(l => { if (!l.pubStatus) l.pubStatus = "PUBLIC"; });
+LESSONS.unshift(
+  {
+    no: 130, cat1: "산업안전기사", cat2: "실기",
+    title: "[실기 필답] 13. 2026년 개정 산업안전보건법 반영 특강",
+    instructor: "안창훈", source: "CDN", cdnPath: "", drmId: "", ytUrl: "", verifiedAt: "미검증",
+    durationSec: null, pdfFile: "", sampleYn: "N", useYn: true, refCourseCount: 1, mappedYn: true,
+    pubStatus: "UPCOMING", plannedAt: "2026-12-15", audience: PUB_SAMPLE_AUDIENCE,
+    links: PUB_SAMPLE_LINKS.map(l => Object.assign({}, l, { pos: l.type === "COURSE" ? "커리큘럼 13강 (업데이트 예정)" : l.pos }))
+  },
+  {
+    no: 129, cat1: "산업안전기사", cat2: "실기",
+    title: "[실기 필답] 12. 2026년 3회 필답형 기출 해설",
+    instructor: "안창훈", source: "CDN", cdnPath: "", drmId: "", ytUrl: "", verifiedAt: "미검증",
+    durationSec: null, pdfFile: "", sampleYn: "N", useYn: true, refCourseCount: 1, mappedYn: true,
+    pubStatus: "UPCOMING", plannedAt: "2026-10-30", audience: PUB_SAMPLE_AUDIENCE,
+    links: PUB_SAMPLE_LINKS.map(l => Object.assign({}, l, { pos: l.type === "COURSE" ? "커리큘럼 12강 (업데이트 예정)" : l.pos }))
+  }
+);
+
+let currentPubStatus = "PUBLIC";
+let pubPending = null;
+
+function pubOverdue(item) {
+  return item.pubStatus === "UPCOMING" && !!item.plannedAt && item.plannedAt < PUB_TODAY;
+}
+function pubMatch(item, st) {
+  if (!st || st === "ALL") return true;
+  if (st === "PUBLIC") return item.pubStatus !== "UPCOMING";
+  if (st === "UPCOMING") return item.pubStatus === "UPCOMING";
+  if (st === "OVERDUE") return pubOverdue(item);
+  return true;
+}
+function pubDateText(d) {
+  const p = (d || "").split("-");
+  return p.length === 3 ? `${p[0]}년 ${Number(p[1])}월 ${Number(p[2])}일` : "";
+}
+function pubCell(item) {
+  if (item.pubStatus !== "UPCOMING") return `<span class="badge b-ok">공개</span>`;
+  if (pubOverdue(item)) return `<span class="badge b-bad">예정일 지남 · 미공개</span><div style="font-size:11px; color:var(--bad); margin-top:3px;">예정 ${item.plannedAt}</div>`;
+  return `<span class="badge b-warn">업데이트 예정</span><div style="font-size:11px; color:var(--sub); margin-top:3px;">${item.plannedAt}</div>`;
+}
+function pubRenderAlerts() {
+  const over = LESSONS.filter(pubOverdue);
+  const el = document.getElementById("pubOverdueAlert");
+  if (!el) return;
+  el.style.display = over.length ? "block" : "none";
+  el.innerHTML = over.length
+    ? `공개 예정일이 지났는데 아직 공개하지 않은 강의 ${over.length}건 — ${over.map(l => `${l.title} (예정 ${l.plannedAt})`).join(" · ")}. 영상 · DRM 콘텐츠 ID를 채워 공개하거나 예정일을 고쳐 주세요.`
+    : "";
+}
+
+function setPubStatus(st) {
+  const item = editingNo ? LESSONS.find(x => x.no === editingNo) : null;
+  if (st === "UPCOMING" && item && item.pubStatus !== "UPCOMING") {
+    alert("이미 공개된 강의는 업데이트 예정으로 되돌릴 수 없습니다.\n수강생의 재생 · 진도 기록이 끊기기 때문입니다.");
+    return;
+  }
+  currentPubStatus = st;
+  document.getElementById("pillPubPublic").classList.toggle("selected", st === "PUBLIC");
+  document.getElementById("chkPubPublic").checked = (st === "PUBLIC");
+  document.getElementById("pillPubUpcoming").classList.toggle("selected", st === "UPCOMING");
+  document.getElementById("chkPubUpcoming").checked = (st === "UPCOMING");
+  document.getElementById("s1PlannedRow").style.display = st === "UPCOMING" ? "" : "none";
+  updatePlannedPreview();
+}
+function updatePlannedPreview() {
+  const v = document.getElementById("s1PlannedAt").value;
+  const el = document.getElementById("s1PlannedPreview");
+  el.textContent = v
+    ? `프론트 커리큘럼 표시: '${pubDateText(v)} 업데이트 예정' (재생 불가)${v < PUB_TODAY ? " · 예정일이 이미 지났습니다" : ""}`
+    : "예정일을 넣으면 프론트 표시 문구를 보여 줍니다";
+}
+
+// 목록 렌더 뒤 경고 갱신
+const _pubRenderListTable = renderListTable;
+renderListTable = function () {
+  _pubRenderListTable();
+  pubRenderAlerts();
+};
+
+// 등록 · 수정 진입 시 상태 채우기
+const _pubOpenFormView = openFormView;
+openFormView = function (no) {
+  _pubOpenFormView(no);
+  const item = LESSONS.find(x => x.no === no);
+  document.getElementById("s1PlannedAt").value = (item && item.plannedAt) || "";
+  setPubStatus(item ? (item.pubStatus || "PUBLIC") : "PUBLIC");
+};
+
+// 저장
+const _pubSaveLesson = saveLesson;
+function pubFormValues() {
+  const source = document.getElementById("s1Source").value;
+  return {
+    title: document.getElementById("s1Title").value.trim(),
+    source,
+    cdnPath: source === "CDN" ? document.getElementById("s1CdnPath").value.trim() : "",
+    drmId: source === "CDN" ? document.getElementById("s1DrmId").value.trim() : "",
+    ytUrl: source === "YOUTUBE" ? document.getElementById("s1YtUrl").value.trim() : "",
+    dur: parseInt(document.getElementById("s1Duration").value, 10) || null,
+    plannedAt: document.getElementById("s1PlannedAt").value
+  };
+}
+function pubSaveUpcoming(item) {
+  const v = pubFormValues();
+  if (!v.title) { alert("강의 제목을 입력해 주세요."); return; }
+  if (!v.plannedAt) { alert("업데이트 예정 강의는 공개 예정일이 필수입니다."); return; }
+  if (v.source === "CDN" && v.cdnPath) {
+    const err = cdnPathError(v.cdnPath);
+    if (err) { alert(err); return; }
+  }
+  const fields = {
+    cat1: document.getElementById("s1Cat1").value,
+    cat2: document.getElementById("s1Cat2").value,
+    instructor: document.getElementById("s1Inst").value,
+    title: v.title, source: v.source, cdnPath: v.cdnPath, drmId: v.drmId, ytUrl: v.ytUrl,
+    durationSec: v.dur, sampleYn: currentSampleYn, useYn: currentUseYn, pdfFile: currentPdfFile,
+    pubStatus: "UPCOMING", plannedAt: v.plannedAt
+  };
+  if (item) {
+    Object.assign(item, fields);
+  } else {
+    const nextNo = Math.max(...LESSONS.map(l => l.no)) + 1;
+    LESSONS.unshift(Object.assign({ no: nextNo, verifiedAt: "미검증", refCourseCount: 0, mappedYn: false, links: [] }, fields));
+  }
+  backToList();
+  showToast(`'${v.title}' — 업데이트 예정(공개 예정일 ${v.plannedAt})으로 저장했습니다. 영상 경로 · DRM 콘텐츠 ID는 공개로 바꿀 때 채웁니다.`);
+}
+function pubCheckPublishable() {
+  const v = pubFormValues();
+  if (!v.title) { alert("강의 제목을 입력해 주세요."); return false; }
+  if (v.source === "CDN") {
+    const err = cdnPathError(v.cdnPath);
+    if (err) { alert(`공개하려면 영상 경로를 채워야 합니다.\n${err}`); return false; }
+    if (currentSampleYn === "N" && !v.drmId) { alert("공개하려면 DRM 콘텐츠 ID를 채워 주세요(유료 강의 필수)."); return false; }
+    if (!v.drmId && !v.dur) { alert("재생 시간(초)을 입력하거나 DRM 메타에서 가져와 주세요."); return false; }
+  } else {
+    if (currentSampleYn !== "Y") { alert("YouTube 링크는 맛보기 Y(전체 공개) 강의에만 쓸 수 있습니다."); return false; }
+    if (!/^https:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(v.ytUrl)) { alert("YouTube 링크(https://www.youtube.com/... 또는 https://youtu.be/...)를 입력해 주세요."); return false; }
+  }
+  return true;
+}
+function pubAudience(item) {
+  const sold = (item.links || []).filter(l => l.status === "판매중");
+  if (!sold.length) return null;
+  const a = item.audience || { rows: {}, dup: 0 };
+  const rows = sold.map((l, i) => Object.assign({}, l, { n: a.rows[l.code] != null ? a.rows[l.code] : 40 + i * 15 }));
+  const sum = rows.reduce((s, r) => s + r.n, 0);
+  return { rows, dup: a.dup || 0, total: sum - (a.dup || 0) };
+}
+function pubOpenModal(id) {
+  const el = document.getElementById(id);
+  el.style.removeProperty("display");
+  el.classList.add("open");
+}
+function pubCloseModal(id) {
+  const el = document.getElementById(id);
+  el.classList.remove("open");
+  el.style.setProperty("display", "none", "important");
+}
+function pubOpenNotifyModal(item, aud) {
+  pubPending = { no: item.no, aud };
+  document.getElementById("lnSummary").innerHTML =
+    `<strong>${item.title}</strong> 강의를 '공개'로 바꿉니다. 이 강의가 든 판매 중 상품의 구매자에게 새 강의 추가 알림(알림톡 · 메일)을 보낼 수 있습니다.`;
+  document.getElementById("lnRows").innerHTML = aud.rows.map(r => `<tr>
+      <td><span class="badge ${r.type === "COURSE" ? "b-pri" : "b-gray"}">${r.type === "COURSE" ? "단과 강좌" : "패키지"}</span></td>
+      <td><code>${r.code}</code></td>
+      <td style="text-align:left;">${r.name}</td>
+      <td>${r.n.toLocaleString("ko-KR")}명</td>
+    </tr>`).join("");
+  document.getElementById("lnTotal").textContent =
+    `발송 대상 ${aud.total.toLocaleString("ko-KR")}명 (합계 ${(aud.total + aud.dup).toLocaleString("ko-KR")}명 − 단과 · 패키지 중복 ${aud.dup.toLocaleString("ko-KR")}명)`;
+  document.querySelector('input[name="lnSend"][value="1"]').checked = true;
+  pubOpenModal("layerLectureNotify");
+}
+function pubCommitPublish(item, notify, aud) {
+  const v = pubFormValues();
+  const prevDur = item.durationSec;
+  // 업데이트 예정 → 공개는 재생시간 '변경'이 아니라 첫 입력이다 — 재생시간 변경 소급 확인 창(S-14) 대상이 아니다
+  item.durationSec = v.dur;
+  _pubSaveLesson();
+  if (document.getElementById("viewForm").style.display !== "none") { item.durationSec = prevDur; return; } // 원래 검증에서 막힘
+  item.pubStatus = "PUBLIC";
+  item.publishedAt = PUB_TODAY;
+  (item.links || []).forEach(l => { l.pos = l.pos.replace(" (업데이트 예정)", ""); });
+  renderListTable(); // 공개로 바뀐 상태 · 지난 예정 경고 다시 그림
+  const box = document.getElementById("pubNotifyResult");
+  if (notify && aud) {
+    const group = `[강의 업데이트] ${item.title} · ${PUB_TODAY}`;
+    box.style.display = "block";
+    box.innerHTML = `발송 대상 그룹 <strong>${group}</strong>(정적, ${aud.total.toLocaleString("ko-KR")}명)을 만들었습니다. 단체 발송(정보성)에서 템플릿 · 예약 시각을 정해 보내 주세요. <a href="ADMN-CONF-004_baseline.html">단체 발송으로 이동 →</a>`;
+    showToast(`'${item.title}' 공개 저장 · 발송 대상 그룹(${aud.total.toLocaleString("ko-KR")}명)을 만들었습니다.`);
+  } else {
+    box.style.display = "none";
+    showToast(`'${item.title}'을(를) 공개로 저장했습니다${aud ? " (구매자 알림 보내지 않음)" : " (판매 중 편성 상품이 없어 알림 대상 없음)"}.`);
+  }
+}
+function pubConfirmNotify() {
+  if (!pubPending) return;
+  const item = LESSONS.find(x => x.no === pubPending.no);
+  const aud = pubPending.aud;
+  const send = (document.querySelector('input[name="lnSend"]:checked') || {}).value === "1";
+  pubPending = null;
+  pubCloseModal("layerLectureNotify");
+  if (item) pubCommitPublish(item, send, aud);
+}
+saveLesson = function () {
+  const item = editingNo ? LESSONS.find(x => x.no === editingNo) : null;
+  if (currentPubStatus === "UPCOMING") { pubSaveUpcoming(item); return; }
+  if (!(item && item.pubStatus === "UPCOMING")) { _pubSaveLesson(); return; }
+  // 업데이트 예정 → 공개: 영상 · DRM 콘텐츠 ID를 채운 뒤에만 공개, 판매 중 편성 상품이 있으면 알림 확인
+  if (!pubCheckPublishable()) return;
+  const aud = pubAudience(item);
+  if (!aud) { pubCommitPublish(item, false, null); return; }
+  pubOpenNotifyModal(item, aud);
+};
+''' + "\n"))
 
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [
