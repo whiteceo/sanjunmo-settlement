@@ -5,6 +5,7 @@
 - 포함 화면: PROD-002 강의 목록 · 002-S1 강의 등록/수정(프로토는 한 파일 안 view 2개 `#viewList` · `#viewForm`, 개발은 페이지 2개)
 - 개발 진행: 구현(002 · 002-S1 라우트 · 화면 있음, `_index/progress.md` 라우트 주석 있음)
 - **v3.2.32 정본 변경 (2026-11-02 white 결정, 설계서 S2-10 · PROD-002-S1 · 2.2 알림 표)**: 강의 상태 `업데이트 예정 → 공개` 추가(예정일 필수, 영상 · DRM ID · 재생시간 비워 저장 허용), `공개` 전환 저장 때 구매자 알림 확인 모달(대상 인원 · 기본 '보냄') → 발송 대상 그룹(정적) → 단체 발송(`ADMN-CONF-004`, 정보성), 목록 상태 필터 · 배지 · 예정일 경과 경고. 개발 미구현 — prototype_dev에 `data-dev-flag="proto-only"` + (규칙) 이름으로 추가
+- **v3.2.34 · v3.2.35 보완(2026-11-02):** 편성 검증은 upcoming 강의만 '재생 가능 강의만 편성'에서 뺀다(공개 강의는 유지, 오픈 전 적용). 프론트 총 N강은 '총 20강(업데이트 예정 2강 포함)', 총 재생시간은 공개 강의만. 진도율 분모(재생시간 0초 제외) · 환불 분모(결제 시점 박제)는 개발에 이미 분리돼 추가 작업 없음. 공개 → 업데이트 예정 되돌리기 금지(v3.2.33).
 
 프로토타입 view ↔ 개발 화면
 | 프로토타입 view(id) | 개발 화면 | 개발 뷰 파일 |
@@ -86,7 +87,7 @@
 | `source_url` | nullable · max 500 · http/https만 | youtube일 때 | `#s1YtUrl`(v6.92, youtube.com · youtu.be만) |
 | `list[*]` | 목록 복귀 질의(화이트리스트) | | `backToList()` |
 | (강의 코드) | 서버 채번 `LEC_00001` | | 프로토 없음 |
-| `publish_status` (규칙) | required · in:upcoming,published. `published` → `upcoming` 되돌리기 거부(프로토 동작, 정본 미정 — 8절) | `upcoming` 업데이트 예정 · `published` 공개 (`Lecture::PUBLISH_STATUS_LABELS` (규칙)) | `setPubStatus('UPCOMING'/'PUBLIC')` `#pillPubUpcoming` · `#pillPubPublic` (v3.2.32, 개발 미구현) |
+| `publish_status` (규칙) | required · in:upcoming,published. `published` → `upcoming` 되돌리기 거부(설계서 v3.2.33 S2-10, white 결정 — 8절) | `upcoming` 업데이트 예정 · `published` 공개 (`Lecture::PUBLISH_STATUS_LABELS` (규칙)) | `setPubStatus('UPCOMING'/'PUBLIC')` `#pillPubUpcoming` · `#pillPubPublic` (v3.2.32, 개발 미구현) |
 | `planned_at` (규칙) | `publish_status=upcoming`이면 required · date | 공개 예정일 | `#s1PlannedAt` · 프론트 표시 미리보기 `#s1PlannedPreview` |
 | `cdn_key` · `drm_content_id` · `duration_sec` (기존) | `upcoming`이면 비워도 통과(현재 `duration_sec`은 `required_without:drm_content_id`, `LectureRequest.php:125`) · `published`로 바꿀 때는 기존 규칙 + 유료 DRM ID 필수 | | `pubSaveUpcoming()` · `pubCheckPublishable()` |
 | `notify_buyers` (규칙) | `upcoming` → `published` 전환 저장 때만 · boolean · 기본 1 | `1` 보냄 · `0` 안 보냄 | `#layerLectureNotify` `input[name=lnSend]` |
