@@ -155,3 +155,16 @@
 - **구매자 알림:** 공개 전환 저장(`admin.lectures.update`) · 판매 중 강좌에 공개 강의 추가 저장(`admin.courses.curriculum.update`)에서 `notify_buyers`(규칙) 확인 모달(대상 인원 표시, 기본 '보냄') → 유효 수강권 보유자(수강중 · 일시정지 · 사전판매 전, 단과 · 패키지 중복 1건, 만료 · 환불/취소 완료 · 탈퇴 제외)로 정적 발송 대상 그룹 생성 → CONF-004 단체 발송(`target_type=group&saved_group_id=`). 대상 미리 보기 라우트(규칙) `admin.lectures.notify-targets.index` · `admin.courses.notify-targets.index`.
 - **알림 분류 · 템플릿(CONF-004):** `TemplateCatalog::GROUPS`에 `course_update`(정보성) 추가, 알림톡 1 · 메일 1(규칙 `TPL_COURSE_UPDATE` · `TPL_COURSE_UPDATE_EMAIL`)을 `MessageCampaignService::CODES`에 허용. 변수 `name` · `course_name` · `lecture_title` · `lecture_count` · `url` — 지금 단체 발송은 회원별 `name`만 넘기므로 회원별 강좌 값 전달 경로 필요. 개발 강좌명 키가 `course`이면 템플릿 쪽을 맞추거나 `course_name` 추가(개발 판단). 본문에 다른 상품 홍보 · 구매 링크 금지(정보성 검수).
 - **신규 권리자 차단(PROD-003 · 005):** 판매 이력이 있는 강좌 · 패키지에 현재 1계층 권리자 집합 밖의 권리자(`lecture_instructors.rights_holder_id`, 유효 기간 내) 강의 · 강좌를 넣으면 422로 저장 차단(오류 키 `lectures` · `items`, 규칙). 판매대기 · 신규 상품은 차단하지 않음. 새 강좌는 판매 시작 전에 '업데이트 예정 강의만 든 강좌'로 패키지에 미리 넣는 방식(안분 정합).
+
+## 17. 개발 서버 QA 결과 (2026-11-02, 개발 dev `b171387b` 기준) — 상세 `dev_handoff/QA_개발서버_2026-11-02.md`
+| # | 화면 | 내용 | 근거 · 개발 위치 |
+| :--- | :--- | :--- | :--- |
+| Q1 | USER-005 강제 탈퇴 | 남은 수강권 미이용분 환불액 계산 · 부채 상계 · 잔액 환불 계좌 지급이 없음. 지금은 수강권을 만료만 함 | 설계서 3.1.2 · 강제 탈퇴 절차 ④(12절). `AccountWithdrawService::execute` |
+| Q2 | 탈퇴 공통 | 탈퇴 알림(소멸 포인트 `void_points` 포함) 발송이 강제 · 자진 탈퇴 모두 없음 | 강제 탈퇴 절차 ⑤ · ⑥. `AccountWithdrawService::execute` 이후 |
+| Q3 | USER-005 등재 | 영구 정지 등재가 최고 관리자만 가능 — 정본은 최고 관리자 + 블랙리스트 메뉴 권한자(해제도 같음). 화면 안내 문구도 같이 고침 | 결정 2 · 3 · 14 · 31, 설계서 v3.2.20. `MemberBlacklistController:62` `canPermanent`, `blacklist/create.blade.php:96` |
+| Q4 | CONF-002 약관 | 이번 개정 6종은 최초 제정 v1.0 · 2026-11-16 시행으로 통일(프로토 v7.36 샘플 기준). 개발 서버 데이터는 시행일이 제각각이고 T04가 9999.12.31, T03은 시행중인데 시행 일자 · T01은 공시 일자가 빈 칸 — 오픈 전 데이터 정리 + 시행중 버전에 시행 일자 필수 검증 | 설계서 3.4.2 5항. 개발 서버 `/sj-admin/terms` |
+| Q5 | USER-001 · 002 | 포인트 열 · 항목 이름 '유상 P' · '유상 포인트' → '적립 P' · '구매적립 포인트'('유상 포인트' 용어 폐기). 내부 코드값 `PAID`는 그대로 | 설계서 120 · 185줄. 회원 목록 · 회원 상세 |
+| Q6 | 운영 env | DI 원장 파기 배치 스위치 `SCHEDULE_WITHDRAWN_DI_PURGE` 기본 꺼짐 — 오픈 전 운영에서 켬(D9 배송완료 스위치와 같이 점검) | `config/app.php:150` |
+| Q7 | 정산 엔진 | 10-28 전달 13건 중 엔진 파일은 그대로, 3번(분할)만 단일 계약 권리자 한정으로 연결됨. 분할이 넘어가기 시작해 **13번(분할 시 세후 이월 · 전속계약금 반환을 수취인마다 적용)이 실제 금액으로 나올 수 있으니 13번을 먼저** 고칠 것. 나머지 1 · 2 · 4~12와 3번의 지원금 · 전속계약금 반환 전달은 미수정 | `개발팀 전달 사항 10·28.md` 1절 · `ENGINE_PARITY.md`. `SettlementEngine.php` 10단계 · 11단계, `SettlementInputCollector.php` 223 · 234 |
+| Q8 | USER-005 화면 | 블랙리스트 목록이 프로토와 다름 — 이름 · 계정, 등재 유형 배지 · 사유 필터, 등재 일시, 관리 칸의 회원 상세 · 강제 탈퇴 · 세션 제어 버튼. SNB에서 '회원 관리'와 '블랙리스트 관리'가 함께 선택 표시됨 | `prototype_clean/ADMN-USER-001_baseline.html` 블랙리스트 뷰 · `design_kit/` |
+| Q9 | USER-001 화면 | 회원 목록에 회원번호 열 없음, 마지막 열 머리가 '최종 접속 관리'로 합쳐짐 | 같은 프로토 회원 목록 |
