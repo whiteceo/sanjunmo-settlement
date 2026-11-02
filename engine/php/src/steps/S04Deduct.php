@@ -217,11 +217,10 @@ final class S04Deduct
     {
         $lr = $rf['lecture_refund'];
         $paid = D($lr['paid_amount']);
-        $total = D($lr['total_sessions']);
-        $learned = D($lr['learned_sessions']);
         $days = g($lr, 'days_since_payment');
         $snap = (either(g($rf, 'snapshot'), [[]]))[0];
         $c = $ctx->contract(g($snap, 'contract_id'));
+        [$total, $learned] = self::refundSessions($ctx, $rf, $lr, $c);
         $kw = ['ref_id' => either(g($rf, 'voucher_id'), g($rf, 'refund_id')),
             'inputs' => ['강좌 실결제액' => $paid, '전체 회차' => $total, '학습 회차' => $learned, '결제 후 경과일' => $days,
                 '원 수강기간 종료' => truthy(g($lr, 'course_period_ended'))],
@@ -239,6 +238,43 @@ final class S04Deduct
         return $ctx->emit(self::STEP, 'lecture_refund_amount', floor_won($raw), $c, ...$kw,
             formula: '환불액 = 강좌 실결제액 × (전체 회차 − 학습 회차) ÷ 전체 회차(원 단위 절사)',
             code: 'refund = floor(paid × (total − learned) / total)', before: $raw, rounding: 'FLOOR_WON');
+    }
+
+    /**
+     * 인강 부분환불의 전체 회차 · 학습 회차. sessions(결제 시점 박제 커리큘럼)가 있으면 여기서 센다
+     * (통합 설계서 S2-10 · S2-11, 2026-11-02 white 결정): 맛보기는 전체 · 학습 회차 모두에서 빼고, 업데이트 예정 강의는
+     * 전체 회차에 넣되 공개 전이라 학습 회차로 세지 않으며, 결제 시점에 이미 미사용 · 삭제였던 강의는 뺀다.
+     * 결제 뒤 미사용으로 바뀐 강의는 박제 값(is_active = true)이 그대로라 전체 회차에 남는다. 없으면 입력 total_sessions · learned_sessions.
+     */
+    private static function refundSessions(Context $ctx, array $rf, array $lr, ?ContractState $c): array
+    {
+        $sessions = g($lr, 'sessions');
+        if (!truthy($sessions)) {
+            return [D($lr['total_sessions']), D($lr['learned_sessions'])];
+        }
+        $yes = fn($v) => S00PipelineIn::yes($v);
+        $no = fn($v) => S00PipelineIn::no($v);
+        $prev = array_values(array_filter($sessions, fn($s) => $yes(g($s, 'is_preview'))));
+        $gone = array_values(array_filter($sessions, fn($s) => !$yes(g($s, 'is_preview'))
+            && ($no(g($s, 'is_active')) || $yes(g($s, 'is_deleted')))));
+        $counted = array_values(array_filter($sessions, fn($s) => !$yes(g($s, 'is_preview')) && !$no(g($s, 'is_active'))
+            && !$yes(g($s, 'is_deleted'))));
+        $learnedRows = array_values(array_filter($counted, fn($s) => $yes(g($s, 'learned')) && g($s, 'publish_status') !== 'upcoming'));
+        $ref = either(g($rf, 'voucher_id'), g($rf, 'refund_id'));
+        $total = $ctx->emit(self::STEP, 'lecture_refund_total_sessions', D(count($counted)), $c, ref_id: $ref,
+            inputs: ['박제 커리큘럼 강의' => count($sessions), '맛보기 제외' => count($prev), '결제 시점 미사용 · 삭제 제외' => count($gone),
+                '업데이트 예정(포함)' => count(array_filter($counted, fn($s) => g($s, 'publish_status') === 'upcoming'))],
+            formula: '전체 회차 = 결제 시점 박제 커리큘럼 − 맛보기 − 결제 시점 미사용 · 삭제 강의(업데이트 예정 강의는 포함, '
+                . '결제 뒤 미사용으로 바뀐 강의는 그대로 둠)',
+            code: 'total = count(sessions − preview − inactive_at_payment − deleted)',
+            ref: '통합 설계서 S2-10 · S2-11 · RFD-002(2026-11-02 white 결정)', output: false);
+        $learned = $ctx->emit(self::STEP, 'lecture_refund_learned_sessions', D(count($learnedRows)), $c, ref_id: $ref,
+            inputs: ['재생한 강의(맛보기 포함)' => count(array_filter($sessions, fn($s) => $yes(g($s, 'learned')))),
+                '맛보기 재생(제외)' => count(array_filter($prev, fn($s) => $yes(g($s, 'learned'))))],
+            formula: '학습 회차 = 전체 회차에 든 강의 중 1초라도 재생한 강의 수(맛보기 재생은 수강 회차로 세지 않음, 공개 전 강의는 미학습)',
+            code: 'learned = count(counted ∧ learned ∧ publish_status ≠ upcoming)',
+            ref: '통합 설계서 S2-10 · S2-11(2026-11-02 white 결정)', output: false);
+        return [$total, $learned];
     }
 
     private static function refundSnapshot(Context $ctx, ContractState $c, array $rf, array $snap): void

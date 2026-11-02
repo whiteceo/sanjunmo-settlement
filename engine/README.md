@@ -134,6 +134,6 @@ fixture는 04권 서술을 옮긴 형식이라 엔진 입력과 다르다.
 - 금액은 `BcMath\Number`, 사칙연산은 `add · sub · mul · div`(`src/helpers.php`). 파이썬 `Decimal` 기본 문맥(유효숫자 28자리 · ROUND_HALF_EVEN)을 그대로 흉내 내서 절사 · 역산 결과가 끝자리까지 같다.
 - 파일: `src/Engine.php`(단계 목록 · trace · 상태 · 실행기 · 전월 정산 조정) · `src/Tax.php`(세무 판정 · 세액) · `src/steps/`(0~13단계, 파이썬 `core/s00~s13`과 1:1).
 - 실행: `php engine/php/run.php 입력.json 출력.json`
-- 대조: `python engine/php/tests/parity.py [--php php]` — fixture(+변형) · 정본 결정 회귀 · 샘플 · 시나리오 입력 전부를 두 판으로 계산해 출력 JSON 전체(values · trace 수식 · 수취인 · 원장 · 이월 연속성 · issues)를 비교한다. PHP가 없으면 php-wasm(node, `D:\Work\_tools\phpwasm`)으로 돈다. 2026-10-27 v6.96 기준 61건 모두 일치.
+- 대조: `python engine/php/tests/parity.py [--php php]` — fixture(+변형) · 정본 결정 회귀 · 샘플 · 시나리오 입력 전부를 두 판으로 계산해 출력 JSON 전체(values · trace 수식 · 수취인 · 원장 · 이월 연속성 · issues)를 비교한다. PHP가 없으면 php-wasm(node, `D:\Work\_tools\phpwasm`)으로 돈다. 2026-11-02 v7.46 기준 64건 모두 일치(맛보기 · 업데이트 예정 · 미사용 강의 규칙 회귀 3건 포함).
 - 웹 페이지: `python engine/php/web/build_web.py` → `engine/out/web/`(index.html + 브라우저용 PHP 8.4 wasm). 브라우저 안에서 PHP판을 돌리고 예시 입력은 파이썬판 값과 바로 대조해 보여 준다. 올린 곳: claude.ai 아티팩트 "정산 기준 계산기 PHP"(비공개, white).
 - 파이썬판 `core/`를 고치면 같은 변경을 `src/`에 옮기고 `parity.py`로 차이 0을 확인한 뒤 `build_web.py`로 페이지를 다시 만든다.

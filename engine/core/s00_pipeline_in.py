@@ -98,8 +98,44 @@ def step1_allocate(ctx, items):
     return out
 
 
+def yes(v):
+    return v is True or v in ("Y", "y", "1", "true", "TRUE") or (type(v) is int and v == 1)
+
+
+def no(v):
+    return v is False or v in ("N", "n", "0", "false", "FALSE") or (type(v) is int and v == 0)
+
+
+def lecture_excluded(lec):
+    """정산 가중치 분할 · 권리자 매핑 필수 대상에서 빼는 강의 — 결제 시점 편성 기준(정산 02권 Pipeline 1.1 Step 2,
+    통합 설계서 S2-11, 2026-11-02 white 결정). 해당하면 사유 문구, 아니면 None."""
+    if yes(lec.get("is_preview")):
+        return "맛보기(is_preview = Y) — 강좌에 편성되어 있어도 상품 구성이 아니다"
+    if lec.get("publish_status") == "upcoming":
+        return "업데이트 예정(publish_status = upcoming) — 결제 시점에 영상 · 러닝타임이 없어 0초 기본 가중치도 주지 않는다"
+    if no(lec.get("is_active")):
+        return "미사용(is_active = false) — 수강생이 볼 수 없는 강의는 이후 결제분 분할에서 뺀다"
+    if yes(lec.get("is_deleted")):
+        return "삭제된 강의"
+    return None
+
+
 def lecture_rs(ctx, it, paid, p11):
     lectures = it.get("lectures") or [{"lecture_id": it.get("product_id"), "lecture_base_amount": paid}]
+    kept = []
+    for lec in lectures:
+        why = lecture_excluded(lec)
+        if not why:
+            kept.append(lec)
+            continue
+        ctx.emit(STEP, "lecture_excluded", True, line="1.1", ref_id=lec.get("lecture_id"),
+                 inputs={k: lec.get(k) for k in ("is_preview", "publish_status", "is_active", "is_deleted")},
+                 formula="정산 러닝타임 가중치 분할 · 권리자 매핑 필수 대상에서 뺀다 — " + why,
+                 ref="V2 §8.3 1단계 Step 2 L134 · 통합 설계서 S2-11(2026-11-02 white 결정)", output=False)
+    if len(kept) < len(lectures) and not kept:
+        ctx.issue("INPUT_MISSING", f"{it.get('order_item_id')} 정산 대상 강의 없음(맛보기 · 업데이트 예정 · 미사용 강의만 편성) — P1.1 0원",
+                  STEP, None, "V2 §8.3 1단계 Step 2")
+    lectures = kept
     if any(lec.get("lecture_base_amount") is None for lec in lectures):
         w = [D(lec.get("runtime_seconds") or 0) or D(ctx.p("default_weight_seconds")) for lec in lectures]
         tw = sum(w)
@@ -109,7 +145,7 @@ def lecture_rs(ctx, it, paid, p11):
             lec["lecture_base_amount"] = ctx.emit(
                 STEP, "lecture_base_amount", base, line="1.1", ref_id=lec["lecture_id"],
                 inputs={"paid_amount": paid, "weight": wi, "Σweight": tw},
-                formula="강좌 실결제액을 하위 강의 동영상 원본 러닝타임 가중치로 분할(러닝타임 0초는 기본 가중치)",
+                formula="강좌 실결제액을 하위 강의 동영상 원본 러닝타임 가중치로 분할(러닝타임 0초는 기본 가중치, 맛보기 · 업데이트 예정 · 미사용 강의 제외)",
                 code="lecture_base[i] = q4(paid_amount × w_i / Σw)", before=paid * wi / tw if tw else 0,
                 rounding="Q4", ref="V2 §8.3 1단계 Step 2 L134", provisional=True, note="Q-01 · Q-03", output=False)
             one_lecture(ctx, it, lec, p11)

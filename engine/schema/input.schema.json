@@ -311,7 +311,7 @@
           "book_supply_type_snapshot": { "type": ["string", "null"], "enum": ["OWN_PUBLISHED", "CONSIGNMENT", "PURCHASED_RESALE", "BUNDLED", null], "description": "[03-DD]" },
           "goods_supply_type_snapshot": { "type": ["string", "null"], "enum": ["PURCHASED_RESALE", "DIRECT_SALE", null], "description": "[02-T]" },
           "lectures": {
-            "description": "Step 2 차시 분할 입력. 또는 lecture_base_amount를 직접 줄 수 있다.",
+            "description": "Step 2 차시 분할 입력(결제 시점 편성). 또는 lecture_base_amount를 직접 줄 수 있다. 맛보기 · 업데이트 예정 · 미사용 · 삭제 강의는 가중치 분할과 권리자 매핑 필수 대상에서 빠진다.",
             "type": "array",
             "items": {
               "type": "object",
@@ -319,7 +319,11 @@
               "properties": {
                 "lecture_id": { "type": "string" },
                 "runtime_seconds": { "type": "integer", "description": "[신규 명명]" },
-                "lecture_base_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] Step 2 결과(q4)" }
+                "lecture_base_amount": { "$ref": "#/$defs/money", "description": "[신규 명명] Step 2 결과(q4)" },
+                "is_preview": { "type": ["boolean", "string", "null"], "description": "[엔진 확장] 2026-11-02 white 결정(통합 설계서 S2-10 · S2-11, 정산 02권 v4.0.16 Step 2) 맛보기(Y · true) — 상품 구성이 아니므로 분할 · 매핑 필수에서 제외" },
+                "publish_status": { "type": ["string", "null"], "enum": ["published", "upcoming", null], "description": "[엔진 확장] 2026-11-02 white 결정(통합 설계서 S2-10 · S2-11, 정산 02권 v4.0.16 Step 2) upcoming(업데이트 예정)이면 분할에서 제외(0초 기본 가중치 미적용)" },
+                "is_active": { "type": ["boolean", "string", "null"], "description": "[엔진 확장] 2026-11-02 white 결정(통합 설계서 S2-10 · S2-11, 정산 02권 v4.0.16 Step 2) false(미사용)이면 이후 결제분 분할에서 제외" },
+                "is_deleted": { "type": ["boolean", "string", "null"], "description": "[엔진 확장] 2026-11-02 white 결정(통합 설계서 S2-10 · S2-11, 정산 02권 v4.0.16 Step 2) 삭제된 강의는 분할에서 제외" }
               }
             }
           }
@@ -351,7 +355,7 @@
           "origin_month": { "$ref": "#/$defs/month", "description": "[03-DD]" },
           "voucher_id": { "type": ["string", "null"], "description": "[엔진 확장] 환불 사후 보정 전표 번호(ADJ-YYYYMMDD-NNN, RFD-003-S2). 있으면 반영 기준월 = 승인 시점 미마감 가장 이른 귀속월(origin_month부터, S-10) — 원 발생월이면 4단계, 아니면 진행 중인 달 수동 조정 라인" },
           "approved_at": { "$ref": "#/$defs/datetime", "description": "[엔진 확장] 보정 전표 승인 일시(params.month_closed_at과 비교)" },
-          "lecture_refund": { "description": "[엔진 확장] 인강 환불액 산출 입력 — 있으면 refund_amount 대신 계산(통합 설계서 RFD-002 · D-ORD-03): 7일 이내 · 2강 이하 전액, 그 밖 내림(실결제 × (전체 − 학습 회차) ÷ 전체), 원 수강기간 종료 0", "type": ["object", "null"], "required": ["paid_amount", "total_sessions", "learned_sessions"], "properties": { "paid_amount": { "$ref": "#/$defs/money" }, "total_sessions": { "type": "integer" }, "learned_sessions": { "type": "integer", "description": "1초라도 재생한 회차(맛보기 제외)" }, "days_since_payment": { "type": ["integer", "null"] }, "course_period_ended": { "type": "boolean" }, "point_used": { "$ref": "#/$defs/money", "description": "라인 사용 포인트 — 복원 포인트 = 내림(point_used × 환불액 ÷ paid_amount), 권리자 R/S 공제는 현금분만(2026-10-27 white 결정)" } } },
+          "lecture_refund": { "description": "[엔진 확장] 인강 환불액 산출 입력 — 있으면 refund_amount 대신 계산(통합 설계서 RFD-002 · D-ORD-03): 7일 이내 · 2강 이하 전액, 그 밖 내림(실결제 × (전체 − 학습 회차) ÷ 전체), 원 수강기간 종료 0", "type": ["object", "null"], "required": ["paid_amount"], "properties": { "paid_amount": { "$ref": "#/$defs/money" }, "total_sessions": { "type": "integer" }, "learned_sessions": { "type": "integer", "description": "1초라도 재생한 회차(맛보기 제외)" }, "days_since_payment": { "type": ["integer", "null"] }, "course_period_ended": { "type": "boolean" }, "sessions": { "type": ["array", "null"], "description": "[엔진 확장] 2026-11-02 white 결정(통합 설계서 S2-10 · S2-11, 정산 02권 v4.0.16 Step 2) 결제 시점 박제 커리큘럼. 있으면 전체 회차 = 맛보기 · 결제 시점 미사용 · 삭제 강의를 뺀 수(업데이트 예정 포함), 학습 회차 = 그중 재생한 강의(맛보기 · 업데이트 예정 제외), total_sessions · learned_sessions 대신 씀. 결제 뒤 미사용으로 바뀐 강의는 박제 값 그대로(is_active = true).", "items": { "type": "object", "properties": { "lecture_id": { "type": "string" }, "is_preview": { "type": ["boolean", "string", "null"] }, "publish_status": { "type": ["string", "null"] }, "is_active": { "type": ["boolean", "string", "null"] }, "is_deleted": { "type": ["boolean", "string", "null"] }, "learned": { "type": ["boolean", "string", "null"], "description": "1초라도 재생" } } } }, "point_used": { "$ref": "#/$defs/money", "description": "라인 사용 포인트 — 복원 포인트 = 내림(point_used × 환불액 ÷ paid_amount), 권리자 R/S 공제는 현금분만(2026-10-27 white 결정)" } } },
           "refund_point_amount": { "$ref": "#/$defs/money", "description": "[엔진 확장] 환불액 중 복원 포인트(lecture_refund 없이 환불액을 직접 줄 때). 권리자 R/S 공제 기준 = refund_amount − refund_point_amount(2026-10-27 white 결정)" },
           "snapshot": { "type": "array", "items": { "$ref": "#/$defs/settlement_line_snapshot" }, "description": "rate_type별 스냅샷 행(BASIC · SUPPORT)" }
         }

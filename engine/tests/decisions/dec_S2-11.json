@@ -1,0 +1,342 @@
+{
+ "case": "DEC-S2-11",
+ "title": "맛보기 · 업데이트 예정 · 미사용 강의는 정산 러닝타임 가중치 분할에서 뺀다(0초 기본 가중치도 없음)",
+ "canon_ref": "정산 02권 v4.0.16 Pipeline 1.1 Step 2 · 통합 설계서 v3.2.36~37 S2-10 · S2-11 · white 결정(2026-11-02)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "LEC-1",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "LEC-2",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "LEC-4",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "LEC-5",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-A",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1000000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-05T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "LEC-1",
+      "runtime_seconds": 3000
+     },
+     {
+      "lecture_id": "LEC-2",
+      "runtime_seconds": 1000
+     },
+     {
+      "lecture_id": "LEC-3",
+      "runtime_seconds": 600,
+      "is_preview": "Y"
+     },
+     {
+      "lecture_id": "LEC-4",
+      "runtime_seconds": 0,
+      "publish_status": "upcoming"
+     },
+     {
+      "lecture_id": "LEC-5",
+      "runtime_seconds": 1000,
+      "is_active": false
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "가중치 = LEC-1 3,000 + LEC-2 1,000 = 4,000(LEC-3 맛보기 · LEC-4 업데이트 예정 · LEC-5 미사용 제외, 예전 규칙이면 600 + 60 + 1,000 더해 5,660) → 기준금 750,000 · 250,000 → R/S 50% = 375,000 + 125,000 → P1.1 500,000. 맛보기 LEC-3은 매핑이 없어도 미매핑으로 보지 않는다 → 소득세 15,000 · 지방 1,500 → 실정산 483,500",
+ "expected": {
+  "PIPELINE_IN": {
+   "p1_1_new": 500000
+  },
+  "TAX": {
+   "income_tax": 15000,
+   "local_income_tax": 1500,
+   "net_payable": 483500
+  }
+ },
+ "variants": [
+  {
+   "code": "DEC-S2-11-REFUND",
+   "title": "인강 부분환불 회차: 맛보기는 전체 · 학습 회차에서 빼고, 업데이트 예정은 전체 회차에 넣되 미학습, 결제 시점 미사용은 뺀다(결제 뒤 미사용은 박제 값 그대로 포함)",
+   "input_delta": {
+    "refund_lines": [
+     {
+      "refund_id": "RF-S211",
+      "order_item_id": "OI-OLD",
+      "refund_approved_date": "2026-10-20",
+      "lecture_refund": {
+       "paid_amount": 260000,
+       "sessions": [
+        {
+         "lecture_id": "R0",
+         "learned": true
+        },
+        {
+         "lecture_id": "R1",
+         "learned": true
+        },
+        {
+         "lecture_id": "R2",
+         "learned": true
+        },
+        {
+         "lecture_id": "R3",
+         "learned": true
+        },
+        {
+         "lecture_id": "R4",
+         "learned": false
+        },
+        {
+         "lecture_id": "R5",
+         "learned": false
+        },
+        {
+         "lecture_id": "R6",
+         "learned": false
+        },
+        {
+         "lecture_id": "R7",
+         "learned": false
+        },
+        {
+         "lecture_id": "R8",
+         "learned": false
+        },
+        {
+         "lecture_id": "R9",
+         "learned": false
+        },
+        {
+         "lecture_id": "RP1",
+         "is_preview": "Y",
+         "learned": true
+        },
+        {
+         "lecture_id": "RP2",
+         "is_preview": "Y",
+         "learned": true
+        },
+        {
+         "lecture_id": "RU1",
+         "publish_status": "upcoming"
+        },
+        {
+         "lecture_id": "RU2",
+         "publish_status": "upcoming"
+        },
+        {
+         "lecture_id": "RX1",
+         "is_active": false
+        }
+       ],
+       "days_since_payment": 20,
+       "course_period_ended": false
+      },
+      "snapshot": [
+       {
+        "settlement_line_id": "SL-OLD",
+        "contract_id": "C-A",
+        "rights_holder_id": "H-A",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "rate_value": 50,
+        "share_ratio": 100,
+        "payment_state": "UNPAID"
+       }
+      ]
+     }
+    ]
+   },
+   "notes": "박제 커리큘럼 15강 = 일반 10(4강 재생) + 맛보기 2(둘 다 재생) + 업데이트 예정 2 + 결제 시점 미사용 1 → 전체 회차 = 10 + 2 = 12, 학습 4 → 환불 = 내림(260,000 × 8/12 = 173,333.33) = 173,333 → R/S 공제 내림(86,666.5) = 86,666 → P1.1 순액 413,334 → 소득세 12,400 · 지방 1,240 → 실정산 399,694",
+   "expected": {
+    "DEDUCT": {
+     "lecture_refund_amount": 173333,
+     "refund_deduct_1_1": 86666,
+     "1.1_net": 413334
+    },
+    "TAX": {
+     "income_tax": 12400,
+     "local_income_tax": 1240,
+     "net_payable": 399694
+    }
+   }
+  },
+  {
+   "code": "DEC-S2-11-7DAYS",
+   "title": "7일 · 2강 판정에서 맛보기 재생은 세지 않는다(일반 2강 + 맛보기 2강 재생 → 2강 → 전액 환불)",
+   "input_delta": {
+    "refund_lines": [
+     {
+      "refund_id": "RF-S211",
+      "order_item_id": "OI-OLD",
+      "refund_approved_date": "2026-10-20",
+      "lecture_refund": {
+       "paid_amount": 260000,
+       "sessions": [
+        {
+         "lecture_id": "R0",
+         "learned": true
+        },
+        {
+         "lecture_id": "R1",
+         "learned": true
+        },
+        {
+         "lecture_id": "R2",
+         "learned": false
+        },
+        {
+         "lecture_id": "R3",
+         "learned": false
+        },
+        {
+         "lecture_id": "R4",
+         "learned": false
+        },
+        {
+         "lecture_id": "R5",
+         "learned": false
+        },
+        {
+         "lecture_id": "R6",
+         "learned": false
+        },
+        {
+         "lecture_id": "R7",
+         "learned": false
+        },
+        {
+         "lecture_id": "R8",
+         "learned": false
+        },
+        {
+         "lecture_id": "R9",
+         "learned": false
+        },
+        {
+         "lecture_id": "RP1",
+         "is_preview": "Y",
+         "learned": true
+        },
+        {
+         "lecture_id": "RP2",
+         "is_preview": "Y",
+         "learned": true
+        },
+        {
+         "lecture_id": "RU1",
+         "publish_status": "upcoming",
+         "learned": false
+        },
+        {
+         "lecture_id": "RU2",
+         "publish_status": "upcoming",
+         "learned": false
+        },
+        {
+         "lecture_id": "RX1",
+         "is_active": false,
+         "learned": false
+        }
+       ],
+       "days_since_payment": 5,
+       "course_period_ended": false
+      },
+      "snapshot": [
+       {
+        "settlement_line_id": "SL-OLD",
+        "contract_id": "C-A",
+        "rights_holder_id": "H-A",
+        "pipeline_id": "1.1",
+        "rate_type": "BASIC",
+        "rate_value": 50,
+        "share_ratio": 100,
+        "payment_state": "UNPAID"
+       }
+      ]
+     }
+    ]
+   },
+   "notes": "학습 회차 = 일반 2강(맛보기 재생 2강 제외) ≤ 2, 결제 후 5일 → 환불 260,000 전액 → R/S 공제 130,000 → P1.1 순액 370,000 → 소득세 11,100 · 지방 1,110 → 실정산 357,790",
+   "expected": {
+    "DEDUCT": {
+     "lecture_refund_amount": 260000,
+     "refund_deduct_1_1": 130000,
+     "1.1_net": 370000
+    },
+    "TAX": {
+     "income_tax": 11100,
+     "local_income_tax": 1110,
+     "net_payable": 357790
+    }
+   }
+  }
+ ]
+}

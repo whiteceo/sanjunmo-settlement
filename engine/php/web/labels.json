@@ -91,7 +91,7 @@
     "unrefunded_amount": "원거래 미환불 확정액", "payment_state": "원거래 지급 상태", "paid_portion_amount": "기지급분", "unpaid_portion_amount": "미지급분",
     "paid_return_post_tax_amount": "기지급 반환 세후액", "runtime_seconds": "러닝타임(초)", "lecture_base_amount": "강의 기준금",
     "total_sessions": "전체 회차", "learned_sessions": "학습 회차", "days_since_payment": "결제 후 경과일", "course_period_ended": "수강기간 종료",
-    "point_used": "사용 포인트", "corp_yn": "법인"
+    "point_used": "사용 포인트", "corp_yn": "법인", "is_preview": "맛보기", "publish_status": "공개 상태", "is_active": "사용 중", "is_deleted": "삭제됨", "sessions": "결제 시점 커리큘럼(박제)", "learned": "재생함"
   },
   "trace": {
     "abs_le_min_claim_limit": "음수가 최소 청구액 이내", "accrual_total": "당월 신규 발생액", "adjusted_1_1": "MMG 보정 후 강좌 R/S",
@@ -113,7 +113,7 @@
     "excluded_from_bulk_transfer": "대량이체 제외", "expired_excess": "한도 초과 소멸액", "fee_supply": "위탁 수수료 공급가액", "fee_supply_adjust": "반품 수수료 조정",
     "fee_vat_adjust": "반품 수수료 부가세 조정", "force_claim": "강제 청구 사유", "force_settle": "강제 정산 사유", "gross_settle_sales_adjust": "총액 정산 판매대금 조정",
     "gross_settle_separate_claim": "총액 정산 별도 청구", "income_clause": "기타소득 호", "income_tax": "소득세", "income_tax_total": "소득세 합계",
-    "lecture_base_amount": "강의 기준금", "lecture_refund_amount": "인강 환불액", "local_income_tax": "지방소득세", "local_income_tax_total": "지방소득세 합계",
+    "lecture_base_amount": "강의 기준금", "lecture_excluded": "가중치 분할 제외 강의", "lecture_refund_total_sessions": "환불 전체 회차", "lecture_refund_learned_sessions": "환불 학습 회차", "lecture_refund_amount": "인강 환불액", "local_income_tax": "지방소득세", "local_income_tax_total": "지방소득세 합계",
     "lumpsum_line": "비정기 약정금", "lumpsum_total": "비정기 가산금 합계", "matrix_case_id": "세무 케이스", "mmg_basis_1_1": "MMG 판정용 강좌 R/S",
     "mmg_promo_overlap_flag": "MMG · 합격환급 동시 발생 확인", "mmg_subsidy": "MMG 보전금", "monthly_sales": "위탁 월 판매대금", "net_1_1": "강좌 R/S 순액",
     "net_2_1": "도서 인세 순액", "net_2_2": "위탁 정산 순액", "net_5_1": "지원금 공제 후 금액(참고)", "net_after_return": "반환 반영 후 순액",
@@ -161,6 +161,6 @@
     "PIPELINE_1_1_ONLY": "강좌만", "PIPELINE_2_1_ONLY": "도서만", "PIPELINE_1_1_2_1": "강좌 + 도서", "BOOK_SKU": "도서", "INSTRUCTOR": "강사", "CONSIGNOR": "위탁자",
     "AUTHOR": "저자", "AGENCY": "소속사", "SIX_MONTHS": "6개월 경과", "DECEMBER": "12월", "CONTRACT_END": "계약 종료", "BUSINESS_CLOSED": "폐업",
     "1.1": "강좌 R/S", "2.1": "자사 도서 인세", "2.2": "위탁 도서", "2.3": "일반 상품", "5.1": "매출연동 지원금", "LUMPSUM": "비정기 약정금",
-    "FLOOR_WON": "원 단위 내림", "Q4": "소수 4자리 유지", "ABS_FLOOR_SIGN": "절대값 내림 후 부호 복원", "ALLOC_LAST_REMAINDER": "끝전은 마지막 항목에"
+    "FLOOR_WON": "원 단위 내림", "upcoming": "업데이트 예정", "published": "공개", "Q4": "소수 4자리 유지", "ABS_FLOOR_SIGN": "절대값 내림 후 부호 복원", "ALLOC_LAST_REMAINDER": "끝전은 마지막 항목에"
   }
 }

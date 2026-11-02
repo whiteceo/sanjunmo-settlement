@@ -129,9 +129,60 @@ final class S00PipelineIn
         return $out;
     }
 
+    public static function yes($v): bool
+    {
+        return $v === true || $v === 1 || in_array($v, ['Y', 'y', '1', 'true', 'TRUE'], true);
+    }
+
+    public static function no($v): bool
+    {
+        return $v === false || $v === 0 || in_array($v, ['N', 'n', '0', 'false', 'FALSE'], true);
+    }
+
+    /**
+     * 정산 가중치 분할 · 권리자 매핑 필수 대상에서 빼는 강의 — 결제 시점 편성 기준(정산 02권 Pipeline 1.1 Step 2,
+     * 통합 설계서 S2-11, 2026-11-02 white 결정). 해당하면 사유 문구, 아니면 null.
+     */
+    public static function lectureExcluded(array $lec): ?string
+    {
+        if (self::yes(g($lec, 'is_preview'))) {
+            return '맛보기(is_preview = Y) — 강좌에 편성되어 있어도 상품 구성이 아니다';
+        }
+        if (g($lec, 'publish_status') === 'upcoming') {
+            return '업데이트 예정(publish_status = upcoming) — 결제 시점에 영상 · 러닝타임이 없어 0초 기본 가중치도 주지 않는다';
+        }
+        if (self::no(g($lec, 'is_active'))) {
+            return '미사용(is_active = false) — 수강생이 볼 수 없는 강의는 이후 결제분 분할에서 뺀다';
+        }
+        if (self::yes(g($lec, 'is_deleted'))) {
+            return '삭제된 강의';
+        }
+        return null;
+    }
+
     private static function lectureRs(Context $ctx, array $it, Number $paid, array &$p11): void
     {
         $lectures = either(g($it, 'lectures'), [['lecture_id' => g($it, 'product_id'), 'lecture_base_amount' => $paid]]);
+        $kept = [];
+        foreach ($lectures as $lec) {
+            $why = self::lectureExcluded($lec);
+            if ($why === null) {
+                $kept[] = $lec;
+                continue;
+            }
+            $inp = [];
+            foreach (['is_preview', 'publish_status', 'is_active', 'is_deleted'] as $k) {
+                $inp[$k] = g($lec, $k);
+            }
+            $ctx->emit(self::STEP, 'lecture_excluded', true, line: '1.1', ref_id: g($lec, 'lecture_id'), inputs: $inp,
+                formula: '정산 러닝타임 가중치 분할 · 권리자 매핑 필수 대상에서 뺀다 — ' . $why,
+                ref: 'V2 §8.3 1단계 Step 2 L134 · 통합 설계서 S2-11(2026-11-02 white 결정)', output: false);
+        }
+        if (count($kept) < count($lectures) && !$kept) {
+            $ctx->issue('INPUT_MISSING', pystr(g($it, 'order_item_id')) . ' 정산 대상 강의 없음(맛보기 · 업데이트 예정 · 미사용 강의만 편성) — P1.1 0원',
+                self::STEP, null, 'V2 §8.3 1단계 Step 2');
+        }
+        $lectures = $kept;
         $anyNull = false;
         foreach ($lectures as $lec) {
             if (g($lec, 'lecture_base_amount') === null) {
@@ -149,7 +200,7 @@ final class S00PipelineIn
                 $base = truthy($tw) ? q4(div(mul($paid, $wi), $tw)) : D(0);
                 $lec['lecture_base_amount'] = $ctx->emit(self::STEP, 'lecture_base_amount', $base, line: '1.1',
                     ref_id: $lec['lecture_id'], inputs: ['paid_amount' => $paid, 'weight' => $wi, 'Σweight' => $tw],
-                    formula: '강좌 실결제액을 하위 강의 동영상 원본 러닝타임 가중치로 분할(러닝타임 0초는 기본 가중치)',
+                    formula: '강좌 실결제액을 하위 강의 동영상 원본 러닝타임 가중치로 분할(러닝타임 0초는 기본 가중치, 맛보기 · 업데이트 예정 · 미사용 강의 제외)',
                     code: 'lecture_base[i] = q4(paid_amount × w_i / Σw)',
                     before: truthy($tw) ? div(mul($paid, $wi), $tw) : 0,
                     rounding: 'Q4', ref: 'V2 §8.3 1단계 Step 2 L134', provisional: true, note: 'Q-01 · Q-03', output: false);

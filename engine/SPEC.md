@@ -112,7 +112,7 @@
       paid_amount[row] = list_price[row] − alloc[row]
   ```
   입력에 `paid_amount`(안분 후)가 이미 있으면 Step 1은 건너뛴다(`allocation_applied = true`).
-- **Step 2 강의 차시별 분할**: 강좌 실결제액 × (차시 러닝타임 / Σ러닝타임). 러닝타임 0초 → `default_weight_seconds`(기본 60, 계약별 덮어쓰기 가능). 결과 `q4`(V2 L134, V3 부록B L466).
+- **Step 2 강의 차시별 분할**: 강좌 실결제액 × (차시 러닝타임 / Σ러닝타임). 러닝타임 0초 → `default_weight_seconds`(기본 60, 계약별 덮어쓰기 가능). 결과 `q4`(V2 L134, V3 부록B L466). **분할 대상에서 뺀다(2026-11-02 white 결정, V2 v4.0.16 Step 2 · 통합 설계서 S2-11)**: 맛보기(`is_preview` = Y) · 업데이트 예정(`publish_status` = upcoming, 0초 기본 가중치도 미적용) · 미사용(`is_active` = false) · 삭제 강의. 결제 시점 편성 기준. 맛보기는 권리자 매핑 필수 대상도 아니다(미매핑으로 보지 않음). 인강 부분환불 회차는 `lecture_refund.sessions`(박제 커리큘럼)로 세며 맛보기는 전체 · 학습 회차에서 빼고 업데이트 예정은 전체 회차에 넣는다.
   ```
   w_i = runtime_i if runtime_i > 0 else default_weight_seconds
   lecture_base[i] = q4(paid_amount × w_i / Σw)

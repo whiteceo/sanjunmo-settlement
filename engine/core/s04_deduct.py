@@ -155,11 +155,10 @@ def lecture_refund_amount(ctx, rf):
     원 수강기간이 끝난 강좌 → 0. 회차를 1초라도 재생하면 학습 회차(입력 learned_sessions가 이미 그 기준)."""
     lr = rf["lecture_refund"]
     paid = D(lr["paid_amount"])
-    total = D(lr["total_sessions"])
-    learned = D(lr["learned_sessions"])
     days = lr.get("days_since_payment")
     snap = (rf.get("snapshot") or [{}])[0]
     c = ctx.contract(snap.get("contract_id"))
+    total, learned = refund_sessions(ctx, rf, lr, c)
     kw = dict(ref_id=rf.get("voucher_id") or rf.get("refund_id"),
               inputs={"강좌 실결제액": paid, "전체 회차": total, "학습 회차": learned, "결제 후 경과일": days,
                       "원 수강기간 종료": bool(lr.get("course_period_ended"))},
@@ -175,6 +174,36 @@ def lecture_refund_amount(ctx, rf):
     return ctx.emit(STEP, "lecture_refund_amount", floor_won(raw), c, **kw,
                     formula="환불액 = 강좌 실결제액 × (전체 회차 − 학습 회차) ÷ 전체 회차(원 단위 절사)",
                     code="refund = floor(paid × (total − learned) / total)", before=raw, rounding="FLOOR_WON")
+
+
+def refund_sessions(ctx, rf, lr, c):
+    """인강 부분환불의 전체 회차 · 학습 회차. sessions(결제 시점 박제 커리큘럼)가 있으면 여기서 센다
+    (통합 설계서 S2-10 · S2-11, 2026-11-02 white 결정): 맛보기는 전체 · 학습 회차 모두에서 빼고, 업데이트 예정 강의는
+    전체 회차에 넣되 공개 전이라 학습 회차로 세지 않으며, 결제 시점에 이미 미사용 · 삭제였던 강의는 뺀다.
+    결제 뒤 미사용으로 바뀐 강의는 박제 값(is_active = true)이 그대로라 전체 회차에 남는다. 없으면 입력 total_sessions · learned_sessions."""
+    from .s00_pipeline_in import no, yes
+    sessions = lr.get("sessions")
+    if not sessions:
+        return D(lr["total_sessions"]), D(lr["learned_sessions"])
+    prev = [s for s in sessions if yes(s.get("is_preview"))]
+    gone = [s for s in sessions if not yes(s.get("is_preview")) and (no(s.get("is_active")) or yes(s.get("is_deleted")))]
+    counted = [s for s in sessions if not yes(s.get("is_preview")) and not no(s.get("is_active")) and not yes(s.get("is_deleted"))]
+    learned_rows = [s for s in counted if yes(s.get("learned")) and s.get("publish_status") != "upcoming"]
+    total = ctx.emit(STEP, "lecture_refund_total_sessions", D(len(counted)), c, ref_id=rf.get("voucher_id") or rf.get("refund_id"),
+                     inputs={"박제 커리큘럼 강의": len(sessions), "맛보기 제외": len(prev), "결제 시점 미사용 · 삭제 제외": len(gone),
+                             "업데이트 예정(포함)": sum(1 for s in counted if s.get("publish_status") == "upcoming")},
+                     formula="전체 회차 = 결제 시점 박제 커리큘럼 − 맛보기 − 결제 시점 미사용 · 삭제 강의(업데이트 예정 강의는 포함, "
+                             "결제 뒤 미사용으로 바뀐 강의는 그대로 둠)",
+                     code="total = count(sessions − preview − inactive_at_payment − deleted)",
+                     ref="통합 설계서 S2-10 · S2-11 · RFD-002(2026-11-02 white 결정)", output=False)
+    learned = ctx.emit(STEP, "lecture_refund_learned_sessions", D(len(learned_rows)), c,
+                       ref_id=rf.get("voucher_id") or rf.get("refund_id"),
+                       inputs={"재생한 강의(맛보기 포함)": sum(1 for s in sessions if yes(s.get("learned"))),
+                               "맛보기 재생(제외)": sum(1 for s in prev if yes(s.get("learned")))},
+                       formula="학습 회차 = 전체 회차에 든 강의 중 1초라도 재생한 강의 수(맛보기 재생은 수강 회차로 세지 않음, 공개 전 강의는 미학습)",
+                       code="learned = count(counted ∧ learned ∧ publish_status ≠ upcoming)",
+                       ref="통합 설계서 S2-10 · S2-11(2026-11-02 white 결정)", output=False)
+    return total, learned
 
 
 def refund_snapshot(ctx, c, rf, snap, acc, comps, sup, cons_ret):
