@@ -1191,7 +1191,28 @@ function setPubStatus(st) {
   document.getElementById("pillPubUpcoming").classList.toggle("selected", st === "UPCOMING");
   document.getElementById("chkPubUpcoming").checked = (st === "UPCOMING");
   document.getElementById("s1PlannedRow").style.display = st === "UPCOMING" ? "" : "none";
+  pubToggleReq(st);
   updatePlannedPreview();
+}
+// 업데이트 예정이면 영상 항목의 필수(*) 표시를 '공개 때 필수'로 바꾼다 — 공개 예정일은 필수(s1PlannedRow)
+function pubToggleReq(st) {
+  const up = st === "UPCOMING";
+  ["영상 출처", "CDN 콘텐츠 경로", "DRM 콘텐츠 ID", "재생 시간(초)"].forEach(name => {
+    document.querySelectorAll("label").forEach(lb => {
+      const req = lb.querySelector(".req");
+      if (!req || !lb.textContent.trim().startsWith(name)) return;
+      req.style.display = up ? "none" : "";
+      let later = lb.querySelector(".pub-later");
+      if (up && !later) {
+        later = document.createElement("span");
+        later.className = "pub-later";
+        later.style.cssText = "font-size:11px; font-weight:700; color:var(--text-muted); margin-left:4px;";
+        later.textContent = "(선택 · 공개 때 필수)";
+        lb.appendChild(later);
+      }
+      if (later) later.style.display = up ? "" : "none";
+    });
+  });
 }
 function updatePlannedPreview() {
   const v = document.getElementById("s1PlannedAt").value;
