@@ -64,8 +64,8 @@ OPS.append(dict(kind="insert_before", anchor="</head>", html=(
     '  <script src="dev-overlay.js" defer></script>\n')))
 
 # ── 목록 ──────────────────────────────────────────
-R('onclick="showToast(\'신규 약관 코드(T06 등)',
-  attrs(flag="proto-only", note="개발은 6종 고정(Term CODES T01~T06) — 종류 추가 경로 없음").lstrip() + ' onclick="showToast(\'신규 약관 코드(T06 등)')
+R('onclick="showToast(\'약관 종류는 T01~T06 6종으로',
+  attrs(flag="proto-only", note="약관 종류 안내 버튼 — 개발 화면에 없음. 6종 고정 · 추가 · 삭제 없음은 개발 Term::CODES(T01~T06)와 같음").lstrip() + ' onclick="showToast(\'약관 종류는 T01~T06 6종으로')
 R('<button type="button" class="btn btn-sm btn-primary" onclick="openTermDetail(\'${t.code}\', \'edit\')">',
   '<button type="button" class="btn btn-sm btn-primary"' + attrs(route="admin.terms.create", method="GET", url=A + "/terms/create?type=", perm="등록",
                                                                  note="작성중 개정본이 있으면 그 편집(admin.terms.edit)으로") + ' onclick="openTermDetail(\'${t.code}\', \'edit\')">')
@@ -74,9 +74,8 @@ R('<button type="button" class="btn btn-sm btn-outline" onclick="openTermDetail(
 
 # ── 상세 머리 ──────────────────────────────────────
 NAME("dt-term-switcher", "type", value="T01 service · T02 privacy_consent · T03 privacy · T04 refund · T05 marketing · T06 age14")
-R('<option value="T05">[T05] 마케팅 정보 수신 동의 (현행 v1.1)</option>',
-  '<option value="T05">[T05] 마케팅 정보 수신 동의 (현행 v1.1)</option>\n'
-  '                <option value="T06" disabled data-dev-flag="dev-only" data-dev-value="age14" data-dev-note="개발 6종 중 프로토 switcher에 없는 종류(만 14세 이상 확인)">[T06] 만 14세 이상 확인 (개발 전용)</option>')
+R('<option value="T06">',
+  '<option value="T06"' + attrs(value="age14", note="terms.type=age14 · terms.code=T06(Term::CODES) · 필수 동의(OPTIONAL_TYPES는 marketing만)") + '>')
 R('<button type="button" class="btn btn-sm btn-outline" onclick="goTermsNoticeSend()">',
   '<button type="button" class="btn btn-sm btn-outline"' + attrs(flag="proto-only", note="개정 고지 발송 바로가기(CONF-004-S1) — 개발 약관 화면에 없음") + ' onclick="goTermsNoticeSend()">')
 R('onclick="goTermsNoticeSend(\'${h.ver}\')"', attrs(flag="proto-only", note="이력 행 개정 고지 발송 — 개발 없음").lstrip() + ' onclick="goTermsNoticeSend(\'${h.ver}\')"')
