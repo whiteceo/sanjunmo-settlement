@@ -75,14 +75,16 @@ RENAME_ID("modal-vendor", "layerVendor", 5)
 RENAME_ID("modal-type", "layerVendorType", 4)
 
 # ── 목록 ────────────────────────────────────────────
-NAME("flt-type", "type", note="(규칙) vendor_type_id")
+# 3PL 화면 반영(초안, 기능 정의 초안 2 F5): 거래처 유형은 suppliers.type (규칙) — 프로토타입 값은 유형 코드 VT-xx 유지
+TYPE_VALUES = "book_supplier 도서 공급사(VT-01) · warehouse 보관 창고(VT-03) · courier 배송사(VT-04) (규칙, suppliers.type) — 상품 매입처(VT-02)는 굿즈 범위 결정(정책질문 28번) 뒤"
+NAME("flt-type", "type", value=TYPE_VALUES, note="(규칙) suppliers.type — 이전 이름 vendor_type_id")
 NAME("flt-status", "status", value="active 거래 중 · suspended 거래 중지 (규칙, 프로토타입 값 ON · OFF 유지)")
 NAME("flt-keyword", "keyword")
 ACT("openTypeModal", flag="proto-only", route="admin.vendors.types.index (규칙)", method="GET", url=B + "/types", perm="조회", note="거래처 유형 테이블 없음 — 규칙상 vendor_types")
 ACT("openVendorModal", count=2, note="null = 등록, id = 수정. 수정은 개발 라우트 없음(admin.vendors.update (규칙) PUT /vendors/{vendor})")
 
 # ── 거래처 등록 · 수정 모달 ─────────────────────────────
-NAME("vf-type", "vendor_type_id", note="(규칙)")
+NAME("vf-type", "type", value=TYPE_VALUES, note="(규칙) suppliers.type — 이전 이름 vendor_type_id. 보관 창고일 때만 단가 · 운영 연락처 · 메일 참조 칸")
 NAME("vf-id", "code", note="SUP-%04d 자동 채번(개발 SupplierService와 같은 방식)")
 NAME("vf-name", "name", note="SupplierRequest ≤100")
 NAME("vf-biz", "business_no", note="digits:10 · 중복 불가")
@@ -118,10 +120,86 @@ NAME("nt-evidence", "evidence_type", value="tax_invoice 전자세금계산서 ·
 ACT("addType", flag="proto-only", route="admin.vendors.types.store (규칙)", method="POST", url=B + "/types", perm="등록")
 R("onchange=\"setTypeStatus(", attrs(flag="proto-only", route="admin.vendors.types.update (규칙)", method="PUT", url=B + "/types/{type}", perm="수정").lstrip() + " onchange=\"setTypeStatus(")
 
+# ── 3PL 화면 반영(초안, 기능 정의 초안 2 F5 · SCREEN_3PL.md) ────────────────
+# 거래처 유형 3종(도서 공급사 · 보관 창고 · 배송사), 보관 창고만 배송 · 회수 단가 · 운영 연락처 · 메일 참조, 1차 보관 창고 1곳만 활성.
+# 유형 · 거래처 최초값은 공통 common-master.js(SJM_MASTER)에 있다 — 공통 파일은 고치지 않고 이 화면 안에서만 덧씌운다.
+# 저장은 dev 전용 저장소 키(sjm.dev.vend3pl.v1) — prototype_clean 화면의 sjm.master.* 값과 섞이지 않게.
+R('''    const M = window.SJM_MASTER;
+    const NOW''', '''    // (dev 3PL 초안) 공통 SJM_MASTER 위에 거래처 유형 3종 · 보관 창고 정보 · 샘플을 이 화면 안에서만 덧씌운다
+    const M0 = window.SJM_MASTER;
+    const DEV_KEY = 'sjm.dev.vend3pl.v1';
+    const DEV_TYPE_PATCH = { 'VT-01': { name: '도서 공급사', kind: 'book_supplier' }, 'VT-03': { kind: 'warehouse' } }; // VT-03 이름 '보관 창고'는 공통 최초값(2026-11-04)
+    const DEV_TYPE_ADD = [{ id: 'VT-04', name: '배송사', kind: 'courier', form: 'GENERAL', evidence: '전자세금계산서(과세)', on: true, order: 4 }];
+    // 1차 보관 창고는 대영물류 1곳 — 이전 샘플 CJ대한통운 파주 물류센터는 거래 중지로 둔다
+    const DEV_VENDOR_PATCH = { 'SUP-0020': { on: false } };
+    const DEV_VENDOR_ADD = [
+      { id: 'SUP-0021', type: 'VT-01', name: '오스틴북스', bizNo: '999-99-00021', ceo: '[대표자]', taxType: '일반과세', status: '계속', checkedAt: '2026-11-04', on: true,
+        terms: { rate: '', pay: '[결제 조건 — 계약 후 입력]' }, contact: '[연락처]', since: '2026-11-01' },
+      { id: 'SUP-0022', type: 'VT-03', name: '대영물류', bizNo: '999-99-00022', ceo: '[대표자]', taxType: '일반과세', status: '계속', checkedAt: '2026-11-04', on: true,
+        terms: { outFee: '2000', returnFee: '4000', storage: '', cycle: '월 1회 (익월 초 명세서)', opsContact: '낭주특송 [담당자 이름 · 연락처]', mailCc: '오스틴북스 [메일 주소]' }, contact: '[연락처]', since: '2026-11-01' },
+      { id: 'SUP-0023', type: 'VT-04', name: '낭주특송', bizNo: '999-99-00023', ceo: '[대표자]', taxType: '일반과세', status: '계속', checkedAt: '2026-11-04', on: true,
+        terms: { memo: '출고 · 회수 운송 — 롯데택배 위탁' }, contact: '[연락처]', since: '2026-11-01' }
+    ];
+    const devLoad = () => { try { return JSON.parse(localStorage.getItem(DEV_KEY) || 'null') || {}; } catch (e) { return {}; } };
+    const devSave = (k, v) => { try { const s = devLoad(); s[k] = JSON.parse(JSON.stringify(v)); localStorage.setItem(DEV_KEY, JSON.stringify(s)); } catch (e) {} };
+    const devTypes = () => devLoad().types || M0.vendors.types().map(t => Object.assign({}, t, DEV_TYPE_PATCH[t.id] || {})).concat(DEV_TYPE_ADD.filter(a => !M0.vendors.type(a.id)));
+    const devVendors = () => devLoad().vendors || M0.vendors.list().map(v => Object.assign({}, v, DEV_VENDOR_PATCH[v.id] || {})).concat(DEV_VENDOR_ADD.filter(a => !M0.vendors.get(a.id)));
+    const devMaxNo = arr => Math.max(0, ...arr.map(x => parseInt(String(x.id).split('-')[1], 10) || 0));
+    const M = { vendors: {
+      types: () => devTypes().sort((a, b) => (a.order || 0) - (b.order || 0)),
+      activeTypes: () => M.vendors.types().filter(t => t.on),
+      type: id => devTypes().find(t => t.id === id) || null,
+      list: () => devVendors(),
+      get: id => devVendors().find(v => v.id === id) || null,
+      name: id => (M.vendors.get(id) || {}).name || id,
+      byType: id => devVendors().filter(v => v.type === id),
+      save: list => devSave('vendors', list),
+      saveTypes: list => devSave('types', list),
+      nextId: () => 'SUP-' + String(devMaxNo(devVendors()) + 1).padStart(4, '0'),
+      nextTypeId: () => 'VT-' + String(devMaxNo(devTypes()) + 1).padStart(2, '0')
+    } };
+    const NOW''')
+
+# 머리 · 안내 문구 — 용어: 도서 공급사 · 보관 창고 · 배송사 (원본의 '3PL' 제거는 2026-11-04 prototype_clean에 반영)
+R('거래처 관리 (매입처 · 물류 대행사 · 공급 파트너)', '거래처 관리 (도서 공급사 · 보관 창고 · 배송사 · 매입처)')
+R('도서 · 상품 매입처, 물류 업체(보관 창고 · 배송사), 이후 생기는 공급 파트너.',
+  '도서 공급사 · 상품 매입처, 물류를 맡는 보관 창고 · 배송사, 이후 생기는 공급 파트너. 1차 보관 창고는 1곳만 거래 중으로 둡니다.')
+
+# 거래 조건 — 보관 창고(물류 대행 양식)일 때만 배송 · 회수 단가 · 운영 연락처 · 메일 참조
+WH_LABEL = 'style="font-size:11.5px; color:var(--text-sub); font-weight:700; margin-bottom:2px;"'
+R('''html = `<div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;"><input class="f-input" id="vt-out" type="number" placeholder="출고 건당 단가(원)" value="${x.outFee || ''}" /><input class="f-input" id="vt-ret" type="number" placeholder="반품 회수 단가(원)" value="${x.returnFee || ''}" /><input class="f-input" id="vt-sto" type="number" placeholder="월 보관료(원)" value="${x.storage || ''}" /><input class="f-input" id="vt-cycle" placeholder="정산 주기" value="${x.cycle || '월 1회 (익월 초 명세서)'}" /></div><div class="form-help">물류비 대사(ADMN-SETT-011)가 이 단가로 물류 업체 청구를 검수합니다.</div>`;''',
+  '''html = `<div id="vt-wh" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">'''
+  f'''<div><div {WH_LABEL}>배송 건당 단가(원) *</div><input class="f-input" id="vt-out" type="number" style="width:100%;" placeholder="배송 건당 단가(원)" value="${{x.outFee || ''}}"''' + attrs(name="delivery_fee", note="(규칙) suppliers.delivery_fee — 보관 창고만. 개발 suppliers 칸 없음") + ''' /></div>'''
+  f'''<div><div {WH_LABEL}>회수 단가(원) *</div><input class="f-input" id="vt-ret" type="number" style="width:100%;" placeholder="회수 단가(원)" value="${{x.returnFee || '4000'}}"''' + attrs(name="return_fee", note="(규칙) suppliers.return_fee — 기본 4,000원, 물류비 대사 반품 행 기준값") + ''' /></div>'''
+  f'''<div><div {WH_LABEL}>월 보관료(원)</div><input class="f-input" id="vt-sto" type="number" style="width:100%;" placeholder="월 보관료(원)" value="${{x.storage || ''}}" /></div>'''
+  f'''<div><div {WH_LABEL}>정산 주기</div><input class="f-input" id="vt-cycle" style="width:100%;" placeholder="정산 주기" value="${{x.cycle || '월 1회 (익월 초 명세서)'}}" /></div>'''
+  f'''<div><div {WH_LABEL}>운영 연락처</div><input class="f-input" id="vt-ops" style="width:100%;" placeholder="출고 · 회수 운영 연락 (배송사 담당자)" value="${{x.opsContact || ''}}"''' + attrs(flag="proto-only", name="ops_contact", note="(규칙) suppliers.ops_contact — 운영 연락은 배송사 담당자와 직접(F7)") + ''' /></div>'''
+  f'''<div><div {WH_LABEL}>메일 참조</div><input class="f-input" id="vt-cc" style="width:100%;" placeholder="메일 참조 (도서 공급사 메일)" value="${{x.mailCc || ''}}"''' + attrs(flag="proto-only", name="mail_cc", note="(규칙) suppliers.mail_cc — 메일은 도서 공급사 참조(F7)") + ''' /></div>'''
+  '''</div><div class="form-help">배송 · 회수 단가는 물류비 대사의 기준값입니다 — 보관 창고 월 청구를 이 단가로 검수합니다(회수 기본 4,000원).</div>`;''')
+R("if (form === 'LOGISTICS') return { outFee: g('vt-out'), returnFee: g('vt-ret'), storage: g('vt-sto'), cycle: g('vt-cycle') };",
+  "if (form === 'LOGISTICS') return { outFee: g('vt-out'), returnFee: g('vt-ret'), storage: g('vt-sto'), cycle: g('vt-cycle'), opsContact: g('vt-ops'), mailCc: g('vt-cc') };")
+R("if (t.form === 'LOGISTICS') return `출고 건당 ${won(x.outFee)}원 · 반품 회수 ${won(x.returnFee)}원 · 보관 월 ${won(x.storage)}원 · ${x.cycle || ''}`;",
+  "if (t.form === 'LOGISTICS') return `배송 건당 ${won(x.outFee)}원 · 회수 ${won(x.returnFee)}원${x.storage ? ' · 보관 월 ' + won(x.storage) + '원' : ''} · ${x.cycle || ''}${x.opsContact ? ' · 운영 연락 ' + x.opsContact : ''}${x.mailCc ? ' · 메일 참조 ' + x.mailCc : ''}`;")
+R("if (t.form === 'LOGISTICS' && !(Number(terms.outFee) > 0)) return fail('물류 대행사는 출고 건당 단가를 입력해야 물류비 대사를 할 수 있습니다.');",
+  "if (t.form === 'LOGISTICS' && !(Number(terms.outFee) > 0 && Number(terms.returnFee) > 0)) return fail('보관 창고는 배송 · 회수 단가를 입력해야 물류비 대사를 할 수 있습니다.');")
+# 1차 보관 창고 1곳만 활성 — 두 번째 활성 저장을 막는다(이름 확인 직후, 국세청 조회보다 먼저)
+R("if (!name) return fail('거래처명을 입력해 주십시오.');",
+  "if (!name) return fail('거래처명을 입력해 주십시오.');\n"
+  "      const otherWh = t.kind === 'warehouse' && on ? M.vendors.list().find(v => v.on && v.id !== editingId && (M.vendors.type(v.type) || {}).kind === 'warehouse') : null;\n"
+  "      if (otherWh) return fail(`1차는 보관 창고 1곳만 거래 중으로 둘 수 있습니다. 지금 거래 중인 보관 창고 ${otherWh.name}(${otherWh.id})을(를) 먼저 거래 중지하거나, 이 거래처를 거래 중지로 저장해 주십시오.`);")
+# 목록 유형 배지 — 배송사도 물류 쪽 색으로
+R("<span class=\"badge ${t && t.form === 'LOGISTICS' ? 'badge-purple' : 'badge-blue'}\">",
+  "<span class=\"badge ${t && (t.form === 'LOGISTICS' || t.kind === 'courier') ? 'badge-purple' : 'badge-blue'}\">")
+
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [
     ("거래처 등록 모달", "openVendorModal(null)", "#layerVendor|#modal-vendor"),
     ("거래처 수정 모달", "openVendorModal('SUP-0020')", "#layerVendor|#modal-vendor"),
     ("거래처 유형 모달", "openTypeModal()", "#layerVendorType|#modal-type"),
     ("상태 필터", "document.getElementById('flt-status').value='OFF'; renderVendors()", "#flt-status"),
+    # 3PL 화면 반영(초안): dev는 보관 창고 칸(#vt-wh · #vt-ops), clean은 기존 물류 대행 칸(#vt-out)
+    ("보관 창고 유형 칸", "openVendorModal(null); document.getElementById('vf-type').value='VT-03'; renderTermsForm()", "#vt-wh|#vt-out"),
+    ("배송사 유형(dev) · 매입 양식(clean)", "openVendorModal(null); if (M.vendors.type('VT-04')) { document.getElementById('vf-type').value='VT-04'; renderTermsForm(); }", "#vt-memo|#vt-rate"),
+    ("보관 창고 두 번째 활성 저장 막음(dev) · 형식 오류(clean)", "openVendorModal(null); document.getElementById('vf-type').value='VT-03'; renderTermsForm(); document.getElementById('vf-name').value='시험 창고'; saveVendor()", "#vendor-error"),
+    ("유형 필터 보관 창고", "document.getElementById('flt-type').value='VT-03'; renderVendors()", "#vendor-tbody tr"),
 ]

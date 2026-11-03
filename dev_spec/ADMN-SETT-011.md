@@ -95,3 +95,6 @@
 - database/migrations/2026_09_21_000156_rename_sett003_to_sett009_in_comments.php:8-41
 - dev_spec/_index/schema.md:1273-1359, 1665-1703
 - (라우트 · 컨트롤러 · 뷰 없음 — routes/admin.php grep "logistics" 0건)
+
+## 변경 기록
+- 2026-11-04 3PL 화면 반영(초안, 기능 정의 초안 2 기준): 화면 제목 '물류비 대사 (3PL)' → '물류비 대사', 노출 문구 '3PL' → 보관 창고 · 창고(코드값 ONLY_3PL · 파일명 그대로). 반품 대사 표에 회수 송장번호(매칭 키, `return_waybill_no` (규칙)) 열, 계약 단가 줄에 회수 단가 4,000원 · 매칭 키 표시, 취소완료(출고 안 됨) 건 청구 예시 행(no 13, 차이). 보관 창고는 거래처 관리 dev 값(대영물류) — prototype_dev만

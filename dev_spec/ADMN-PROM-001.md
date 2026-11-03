@@ -169,6 +169,12 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`). 사용�
 - 랜딩 배너(PC · 모바일 · alt) 저장 위치 확인 필요 — 개발 주석은 banner_pc/mobile_path 를 목록 썸네일 용도로 보고 미연결. **→ 정책 아님(POLICY_D_BRD B)**: 화면 · 이름 문제로 처리 — `banner_pc_path` · `banner_mobile_path`를 랜딩 배너로 폼 연결 + alt 칸, 목록 썸네일은 `thumbnail` 유지(개발팀 전달)
 - 중복 할인 차단을 상품 행별로 다르게 둘지(프로토타입) 혜택 · 대상을 일괄로 둘지(개발 S1) 확인 필요. **→ 결정(v6.92 white, S-16 · D-BRD-03)**: 둘 다 아님 — 기획전 = 단순 게시물, 중복 할인 차단 · 대상 상품 매핑 1차 미사용(쿠폰 중복은 PROM-002 '1주문 1쿠폰' 고정)
 
+## 9. 이벤트 참여 기능 (2026-11-03 김영호 PO, 설계서 v3.2.50)
+- 위 7 · 8절의 S-16 결정('단순 게시물', 혜택 차단 · 대상 상품 미사용)은 **기획전**에만 해당한다. 혜택 차단 · 대상 상품 매핑을 쓰지 않는 것은 이벤트도 같다.
+- 이벤트(`type = event`)에는 참여 기능을 1차에 넣는다: 증빙 업로드 참여 · 참여 관리 화면(승인 / 반려) · 승인 시 연결 쿠폰 자동 발급 · 강사 쿠폰 발급 버튼(중복 차단) · 응원 댓글 · 회원 전용 PDF. 개발 작업은 `DEV_TRANSFER.md` 19-6 6-21 ~ 6-25.
+- 참여 관리 화면 코드는 자리표시자다. 개발이 번호를 정하면 이 명세와 설계서에 반영한다.
+- 화면 반영(2026-11-04, 미커밋): 프로토 S3 폼에 이벤트일 때만 참여 방식(증빙 업로드 · 증빙 없이 참여 · 참여 없음) · 보상 쿠폰(PROM-002 쿠폰 마스터) · 응원 댓글 · 회원 전용 PDF 칸, S2 상세 · 목록 이벤트 행 [참여 관리] → SJM_PAGE 하위 화면 `part`(`[화면 코드 미정]` 배지: 신청 목록 · 증빙 승인 / 반려(사유 M-04) · 승인 때 쿠폰 자동 발급(이미 받았으면 안 함) · [강사 쿠폰 발급](이미 보유 제외 건수) · 응원 댓글 숨김 사유 · PDF 다운로드 기록). prototype_dev는 모두 `proto-only` + 규칙 제안 이름(`participation_type` · `reward_coupon_id` · `allow_comment` · `member_pdf` · 라우트 `admin.promotions.participations.*` (규칙)).
+
 ## 출처
 - routes/admin.php:1061-1083 (dev_spec/_index/routes.md)
 - app/Http/Controllers/Admin/PromotionController.php:38-58(index), 59-90(download), 92-108(create · store), 109-120(show), 121-139(edit · update), 140-160(blocks), 161-169(stop), 170-186(preview), 187-219(targets · slug), 220-235(assets)

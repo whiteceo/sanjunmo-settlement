@@ -165,3 +165,6 @@
 - resources/views/admin/admin-users/index.blade.php:27-140 · form.blade.php · verify-cap.blade.php · admin-roles/index.blade.php:27-106 · form.blade.php:47-152 · admin-menus/*
 - `_index/schema.md` users · admin_roles · admin_user_roles · admin_role_menus · admin_menus · admin_allowed_ips
 - 프로토타입: prototype_clean/ADMN-CONF-005_baseline.html:129-793 (digest 기준)
+
+## 변경 기록
+- 2026-11-04 3PL 화면 반영(초안, 기능 정의 초안 2 기준): 시작 화면 후보 이름 '주문 · 배송 · 3PL 관리' → '주문 · 배송 관리', '물류비 대사 (3PL)' → '물류비 대사'. RG-08 표시 이름 '외부 3PL' → '보관 창고'는 공통 common-master.js 역할 그룹 최초값(`sjm.master.roleGroups.v1`)에서 와서 이 화면 맵으로 바꾸지 않음(역할 코드 RG-08 · ROLE_PARTNER_3PL 그대로) — 공통 파일 반영 대기

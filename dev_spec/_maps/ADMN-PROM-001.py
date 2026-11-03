@@ -55,7 +55,7 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-PROM-001",
     "devCommit": DEV_COMMIT,
-    "progress": "구현(PROM-001 · S1 · S2 · S3). 랜딩 배너 PC · 모바일 · alt, Beautify, 주소 · 소스 복사는 개발 없음 — 주황 표시. 개발 S1 중복 할인 차단 · 대상 상품 매핑은 v6.92 결정(S-16 · D-BRD-03, 기획전 = 단순 게시물)으로 프로토타입에서 삭제",
+    "progress": "구현(PROM-001 · S1 · S2 · S3). 랜딩 배너 PC · 모바일 · alt, Beautify, 주소 · 소스 복사는 개발 없음 — 주황 표시. 개발 S1 중복 할인 차단 · 대상 상품 매핑은 v6.92 결정(S-16 · D-BRD-03, 기획전 = 단순 게시물)으로 프로토타입에서 삭제. 이벤트 참여 관리(설계서 v3.2.50 · DEV_TRANSFER 19-6 6-21 ~ 6-25: 등록 폼 참여 방식 · 보상 쿠폰 · 응원 댓글 · 회원 전용 PDF, 참여 관리 하위 화면)는 개발 미구현 — 주황 표시, 이름은 규칙으로 정한 제안값",
     "menus": [
         {"route": "admin.promotions.index", "label": "이벤트 관리"},
     ],
@@ -147,6 +147,31 @@ R('id="cm-code-input"', 'id="cm-code-input"' + attrs(name="html_content | css_co
 # v6.92: chk-bulk-disable · chk-block-cpn · chk-block-pt · chk-block-earn · bulk-disable-config-box(dev-only 차단 기간 · 대상 · 사유 · 저장) · sel-add-prod · addMappedProduct · removeMappedProd 삭제(결정 반영, S-16 · D-BRD-03)
 # 기획전 = 단순 게시물. 개발 admin.promotions.blocks.edit · blocks.update · targets.index · products[n][…]는 개발에만 남음(1차 미사용)
 
+# ── 이벤트 참여 관리 (설계서 v3.2.50, 2026-11-03 김영호 PO) — 개발 미구현, 이름 · 라우트는 규칙으로 정한 제안값 ──
+PART = "이벤트 참여 — 개발 미구현(DEV_TRANSFER 19-6 6-21 ~ 6-25). 이름은 규칙 제안값"
+R('id="evt-part-box"', 'id="evt-part-box"' + attrs(flag="proto-only", note="S3 이벤트(type=event)일 때만 — 참여 설정. " + PART))
+R('name="evt_part_mode" id="f-evt-mode-proof" value="PROOF"', 'name="evt_part_mode" id="f-evt-mode-proof" value="PROOF"' + attrs(flag="proto-only", name="participation_type", value="proof", note="증빙 업로드 — 승인 때 보상 쿠폰 발급"))
+R('name="evt_part_mode" id="f-evt-mode-noproof" value="NOPROOF"', 'name="evt_part_mode" id="f-evt-mode-noproof" value="NOPROOF"' + attrs(flag="proto-only", name="participation_type", value="instant", note="증빙 없이 참여 — 참여 때 보상 쿠폰 발급"))
+R('name="evt_part_mode" id="f-evt-mode-none" value="NONE"', 'name="evt_part_mode" id="f-evt-mode-none" value="NONE"' + attrs(flag="proto-only", name="participation_type", value="none"))
+R('id="f-evt-proof-guide"', 'id="f-evt-proof-guide"' + attrs(flag="proto-only", name="proof_guide", note="max:100"))
+R('id="f-evt-coupon"', 'id="f-evt-coupon"' + attrs(flag="proto-only", name="reward_coupon_id", note="coupons.id — 회원 · 이벤트당 1회(유니크 키 promotion_id + user_id), 금액은 쿠폰 마스터 값(19-10)"))
+R('id="f-evt-comment"', 'id="f-evt-comment"' + attrs(flag="proto-only", name="allow_comment", value="1"))
+R('id="f-evt-pdf"', 'id="f-evt-pdf"' + attrs(flag="proto-only", name="member_pdf", note="file · 로그인 회원만 다운로드 · 다운로드 기록(S-22 무료콘텐츠 PDF 로직 재사용)"))
+R('id="btn-dt-part"', 'id="btn-dt-part"' + attrs(flag="proto-only", route="admin.promotions.participations.index (규칙)", method="GET", url=A + "/promotions/{promotion}/participations", perm="조회", note="이벤트 참여 관리 — 화면 코드 자리표시자"))
+R("onclick=\"openEventPart('${item.code}')\"", attrs(flag="proto-only", route="admin.promotions.participations.index (규칙)", method="GET", url=A + "/promotions/{promotion}/participations", perm="조회").lstrip() + " onclick=\"openEventPart('${item.code}')\"")
+R('<section id="view-part" class="view-panel subview-panel" data-subpage="part">', '<section id="view-part" class="view-panel subview-panel" data-subpage="part"' + attrs(flag="proto-only", note="이벤트 참여 관리 — 개발 별도 페이지 예정. 화면 코드 [자리표시자], 참여 테이블 신설(6-21)") + '>')
+R('id="part-evt-sel"', 'id="part-evt-sel"' + attrs(flag="proto-only", name="promotion", note="경로 {promotion}"))
+R('id="part-flt-status"', 'id="part-flt-status"' + attrs(flag="proto-only", name="status", value="pending · approved · rejected"))
+R('id="btn-part-inst"', 'id="btn-part-inst"' + attrs(flag="proto-only", route="admin.promotions.instructor-coupons.store (규칙)", method="POST", url=A + "/promotions/{promotion}/instructor-coupons", perm="등록", note="6-23 강사 쿠폰 — 이미 가진 회원은 건너뛰고 제외 건수 응답"))
+R('id="inst-coupon-sel"', 'id="inst-coupon-sel"' + attrs(flag="proto-only", name="coupon_id"))
+R('class="inst-mem"', 'class="inst-mem"' + attrs(flag="proto-only", name="user_ids[]"))
+R('id="btn-inst-issue"', 'id="btn-inst-issue"' + attrs(flag="proto-only", route="admin.promotions.instructor-coupons.store (규칙)", method="POST", url=A + "/promotions/{promotion}/instructor-coupons", perm="등록"))
+R('id="btn-proof-approve"', 'id="btn-proof-approve"' + attrs(flag="proto-only", route="admin.promotions.participations.approve (규칙)", method="PUT", url=A + "/promotions/{promotion}/participations/{participation}/approve", perm="수정", note="승인 + 연결 쿠폰 자동 발급(이미 받았으면 발급 안 함) · 알림"))
+R('id="btn-proof-reject"', 'id="btn-proof-reject"' + attrs(flag="proto-only", route="admin.promotions.participations.reject (규칙)", method="PUT", url=A + "/promotions/{promotion}/participations/{participation}/reject", perm="수정", note="반려 — 재신청 허용"))
+R('id="proof-reject-reason"', 'id="proof-reject-reason"' + attrs(flag="proto-only", name="reason", note="M-04 공백 뺀 10자 이상 · 200자 이하 · 서로 다른 글자 3개 이상"))
+R('id="hide-reason"', 'id="hide-reason"' + attrs(flag="proto-only", name="reason", note="M-04"))
+R('id="btn-hide-confirm"', 'id="btn-hide-confirm"' + attrs(flag="proto-only", route="admin.promotions.comments.hide (규칙)", method="PUT", url=A + "/promotions/{promotion}/comments/{comment}/hide", perm="수정", note="6-24 숨김 사유 기록"))
+
 # ── 검증 ──────────────────────────────────────────
 VERIFY = [
     ("상세 S2", "openPromoDetail(PROMO_ITEMS[0].code)", "#view-detail"),
@@ -155,4 +180,6 @@ VERIFY = [
     ("목록 복귀", "openPromoFormNew(); switchPromoView('list')", "#view-list"),
     ("코드 탭 CSS", "openPromoFormNew(); switchCodeTab('CSS')", "#cm-code-input"),
     ("모바일 미리보기", "openPromoFormNew(); setPreviewViewport('375px')", "#view-form"),
+    ("이벤트 참여 관리", "openEventPart('PRM-2610-CAFE')", "#view-part"),
+    ("이벤트 폼 참여 구획", "openPromoEdit('PRM-2610-TRANSFER')", "#evt-part-box"),
 ]

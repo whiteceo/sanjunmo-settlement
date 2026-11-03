@@ -55,7 +55,7 @@ def RENAME_ID(old, new, count):
 DEV_MAP = {
     "code": "ADMN-PROM-002",
     "devCommit": DEV_COMMIT,
-    "progress": "PROM-002 · P1 구현. PROM-003 일부(사이트 설정 ③ 포인트 구획) — 포인트 원장 목록 · 후기 보상 P · 무상 잔액 상한은 개발 없음(주황 표시)",
+    "progress": "PROM-002 · P1 구현. PROM-003 일부(사이트 설정 ③ 포인트 구획) — 포인트 원장 목록 · 후기 보상 P · 무상 잔액 상한은 개발 없음(주황 표시). 이벤트 보상 쿠폰(발급 방식 · 용도, 설계서 v3.2.50 · DEV_TRANSFER 6-22 · 6-23)은 개발 미구현 — 주황 표시, 이름은 규칙 제안값",
     "menus": [
         {"route": "admin.coupons.index", "label": "쿠폰 관리"},
         {"route": "admin.site-settings.index", "label": "사이트 설정 (③ 포인트 정책)"},
@@ -108,7 +108,7 @@ NAME("f-name", "name", note="max:30")
 R('id="f-code"', 'id="f-code"' + attrs(note="개발 code는 코드 입력형 쿠폰 코드(등록만 · ^[A-Z0-9_]+$ · max:50, 수정 불가) — 아래 '사용자 입력 코드' 칸"))
 R('onclick="setCouponType(\'RATE\')"', 'data-dev-name="type" data-dev-value="percent" onclick="setCouponType(\'RATE\')"')
 R('onclick="setCouponType(\'FIXED\')"', 'data-dev-name="type" data-dev-value="fixed" onclick="setCouponType(\'FIXED\')"')
-NAME("f-val", "discount_value", note="coupon-discount — 정률 1~40 정수 / 정액 1,000~200,000 · 1,000원 단위. 초과 시 cap_alert(P1)")
+NAME("f-val", "discount_value", note="coupon-discount — 정률 1~상한 정수(상한 = 운영 설정값, 기본 19% · 종전 40% 고정에서 변경, 설계서 v3.2.42 · 2026-11-04 white 결정 — 개발 상수 40 → 설정값으로 바꿔야 함) / 정액 1,000~200,000 · 1,000원 단위. 초과 시 cap_alert(P1)")
 NAME("f-min-order", "min_order_amount", note="0 · 비움 = 제한 없음")
 R('onclick="setExpMode(\'DN\')"', 'data-dev-name="expire_mode" data-dev-value="days" onclick="setExpMode(\'DN\')"')
 R('onclick="setExpMode(\'ABS\')"', 'data-dev-name="expire_mode" data-dev-value="fixed" onclick="setExpMode(\'ABS\')"')
@@ -151,6 +151,11 @@ R('id="sim-lec"', 'id="sim-lec" data-dev-flag="proto-only" data-dev-note="Cap �
 R('id="sim-book"', 'id="sim-book" data-dev-flag="proto-only" data-dev-note="Cap 시뮬레이터 입력 — 개발 없음"')
 ACT("focusBackToDiscountInput", count=3, note="개발 couponCapAlertOk — 할인값 칸으로 포커스")
 
+# ── 이벤트 보상 쿠폰 (설계서 v3.2.50, 2026-11-03 김영호 PO) — 개발 미구현, 이름은 규칙 제안값 ──
+R('<option value="EVENT">이벤트 보상 (참여 관리에서 발급)</option>', '<option value="EVENT"' + attrs(flag="proto-only", name="issue_method", value="event (규칙)", note="이벤트 참여 승인 · 참여 · 강사 쿠폰 버튼으로 발급") + '>이벤트 보상 (참여 관리에서 발급)</option>')
+R('id="seg-mth-event"', 'id="seg-mth-event"' + attrs(flag="proto-only", name="issue_method", value="event (규칙)", note="이벤트 등록(PROM-001-S3) reward_coupon_id로 연결 — 회원 · 이벤트당 1회, 강사 쿠폰은 같은 쿠폰 1회(6-22 · 6-23)"))
+R('id="form-purpose-pill"', 'id="form-purpose-pill"' + attrs(flag="proto-only", note="용도 표시(이벤트 보상) — 개발은 issue_method=event로 구분(규칙 제안)"))
+
 # ── PROM-003 포인트 정책 (사이트 설정 ③ 포인트) ──────────
 R('<input type="checkbox" checked /> 자동 지급 사용', '<input type="checkbox" checked data-dev-note="개발은 welcome_point=0이면 미지급" /> 자동 지급 사용')
 R('<input type="number" class="form-input" style="width:110px; font-weight:800;" value="5000" />',
@@ -190,4 +195,5 @@ VERIFY = [
     # couponCapAlert(modal-p1) · layerPointGrant(modal-point)는 clean 원본에서도 열리지 않음(show 클래스만 붙이고 핫픽스 인라인 display:none을 안 지움) — 원본 문제라 VERIFY에서 뺌
     ("코드 입력형", "openFormNew(); setIssueMethod('CODE')", "#row-promo-code"),
     ("절대 기간", "openFormNew(); setExpMode('ABS')", "#exp-abs-box"),
+    ("이벤트 보상 쿠폰", "openFormEdit(15)", "#form-purpose-pill"),
 ]

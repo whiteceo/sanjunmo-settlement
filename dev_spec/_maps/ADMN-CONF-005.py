@@ -130,6 +130,10 @@ ACT("confirmImpact", route="admin.admin-roles.update", method="PUT", url=A + "/a
 R('<div class="modal-backdrop" id="modal-impact">', '<div class="modal-backdrop" id="modal-impact" data-dev-flag="proto-only" data-dev-note="변경 영향 확인(영향 계정 · 문의 분류) — 개발 없음">')
 R('<tbody id="log-tbody"></tbody>', '<tbody id="log-tbody" data-dev-flag="proto-only" data-dev-note="역할 그룹 변경 이력 — 개발은 admin_logs 기록만, 화면 없음"></tbody>')
 
+# ── 3PL 화면 반영 ────────────────
+# 시작 화면 후보 이름의 '3PL' 제거와 RG-08(보관 창고 · 1차 미발급) · 물류팀 삭제는 2026-11-04 원본(prototype_clean)과
+# 공통 common-master.js에 반영됐다 — 여기서 덧씌울 것 없음
+
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [
     ("계정 탭", "switchTab('accounts')", "#tab-accounts"),

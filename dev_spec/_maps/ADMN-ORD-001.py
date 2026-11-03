@@ -159,7 +159,7 @@ NAME("inpShipHoldMemo", "memo", note="(규칙) reason_code=etc일 때 필수")
 ACT("sendShipHoldRequest", flag="proto-only", route="admin.orders.ship-holds.store (규칙)", method="POST", url=A + "/orders/{order}/ship-holds", perm="수정",
     note="상태 requested — 3PL 회신 전까지 잠금 유지")
 ACTX("recordShipHoldReply('HELD')", flag="proto-only", route="admin.orders.ship-holds.update (규칙)", method="PUT", url=A + "/orders/{order}/ship-holds/{hold}", perm="수정",
-     name="result", value="held", note="3PL 계정 또는 물류팀 대리 입력 — held면 출고지시 잠금 해제")
+     name="result", value="held", note="보관 창고 계정 또는 운영자 대리 입력 — held면 출고지시 잠금 해제")
 ACTX("recordShipHoldReply('SHIPPED')", flag="proto-only", route="admin.orders.ship-holds.update (규칙)", method="PUT", url=A + "/orders/{order}/ship-holds/{hold}", perm="수정",
      name="result", value="already_shipped", note="잠금 유지 → 맞교환 재출고")
 ACT("openSwapReship", flag="proto-only", perm="등록", note="(규칙) 레이어 layerReship — '이미 출고' 회신 또는 배송중 · 배송완료 주문만")
@@ -260,8 +260,8 @@ R('<select class="form-select" style="width:320px;">\n                    <optio
 R('<label><input type="checkbox" checked /> 배송출고 알림톡 자동 발송', '<label><input type="checkbox" name="notify" value="1" checked /> 배송출고 알림톡 자동 발송')
 R('<label><input type="checkbox" checked /> 오류 행은 건너뛰고', '<label><input type="checkbox" checked' + attrs(note="개발은 항상 정상 행만 반영(옵션 없음)") + ' /> 오류 행은 건너뛰고')
 R('<input type="checkbox" /> 기존 운송장 덮어쓰기', '<input type="checkbox" name="overwrite" value="1" /> 기존 운송장 덮어쓰기')
-ALERT("3PL 송장 업로드 표준 엑셀 양식", route="admin.deliveries.template.download", method="GET", url=A + "/deliveries/tracking/template/download", perm="다운로드")
-ALERT("3PL 회신용 실패 목록 엑셀", route="admin.deliveries.failures.download", method="GET", url=A + "/deliveries/tracking/{batch}/failures/download", perm="다운로드")
+ALERT("회신 파일 표준 양식", route="admin.deliveries.template.download", method="GET", url=A + "/deliveries/tracking/template/download", perm="다운로드")
+ALERT("물류 회신용 실패 목록 엑셀", route="admin.deliveries.failures.download", method="GET", url=A + "/deliveries/tracking/{batch}/failures/download", perm="다운로드")
 ACT("retryFailedAlimtalk", route="admin.deliveries.batches.notifications.update", method="PUT", url=A + "/deliveries/batches/{batch}/notifications", perm="수정")
 R('id="btnP1Action" onclick="switchP1Step(2)"', 'id="btnP1Action"' + attrs(route="admin.deliveries.tracking.store", method="POST", url=A + "/deliveries/tracking", perm="등록", note="1,000행 초과는 큐 처리") + ' onclick="switchP1Step(2)"')
 
@@ -274,7 +274,7 @@ DEVNAME('<option value="우체국택배"', "courier", value="EPOST")
 NAME("p2WaybillNo", "tracking_no", note="숫자 10~14자리")
 NAME("p2ShipDate", "shipped_at")
 NAME("p2ReasonType", "reason_code")
-DEVNAME('<option value="3PL 회신 누락"', "reason_code", value="missing")
+DEVNAME('<option value="물류 회신 누락"', "reason_code", value="missing")
 DEVNAME('<option value="운송장 오타 정정"', "reason_code", value="typo")
 DEVNAME('<option value="택배사 변경"', "reason_code", value="courier")
 R('<option value="기타">기타 (하단', '<option value="기타"' + attrs(name="reason_code", value="etc") + '>기타 (하단')
@@ -294,7 +294,7 @@ R('      <div class="modal-body">\n        <div class="table-wrap">\n          <
   '        <div class="table-wrap" id="batchHistoryBody">\n          <table class="data-table" style="min-width:100%;">\n            <thead>\n              <tr>\n                <th>배치 · 업로드 번호</th>')
 ALERT("발송 실패 2건에 대해", route="admin.deliveries.batches.notifications.update", method="PUT", url=A + "/deliveries/batches/{batch}/notifications", perm="수정")
 ALERT("업로드 원본 파일", route="admin.deliveries.batches.download", method="GET", url=A + "/deliveries/batches/{batch}/download", perm="다운로드")
-ALERT("실패 7건 엑셀", route="admin.deliveries.failures.download", method="GET", url=A + "/deliveries/tracking/{batch}/failures/download", perm="다운로드")
+ALERT("실패 6건 엑셀", route="admin.deliveries.failures.download", method="GET", url=A + "/deliveries/tracking/{batch}/failures/download", perm="다운로드")
 ALERT("동일 발주 엑셀 파일을 재다운로드", count=2, route="admin.deliveries.batches.download", method="GET", url=A + "/deliveries/batches/{batch}/download", perm="다운로드")
 
 # ── 001-P4 수강권 직권 부여 (개발 미구현, 규칙 기반 명명) ──────
@@ -304,6 +304,11 @@ NAME("grantProdCode", "product_id", note="(규칙) product_type · product_id")
 NAME("grantPeriodDays", "course_days", note="(규칙)")
 NAME("grantReason", "reason", note="(규칙) MemberReasonRequest")
 ACT("submitDirectGrant", flag="proto-only", route="admin.orders.grants.store (규칙)", method="POST", url=A + "/orders/grants", perm="등록")
+
+# ── 3PL(물류) 화면 반영 (2026-11-04) — 화면 변경은 prototype_clean 원본에 들어감(설계서 v3.2.40 · v3.2.49). 여기서는 새 입력 · 버튼에 개발 이름만 단다 ──
+R('<input type="checkbox" id="inpShipHoldPhone"', '<input type="checkbox" id="inpShipHoldPhone"' + attrs(name="phone_requested", flag="proto-only", note="(규칙) 유선으로 먼저 요청한 건 — 파일에도 함께 실어 회신으로 확인, 메일 기록은 메모 · 첨부"))
+R('id="btnShipHoldWithdraw"', 'id="btnShipHoldWithdraw"' + attrs(route="admin.orders.ship-holds.destroy (규칙)", method="DELETE", url=A + "/orders/{order}/ship-holds/{hold}", perm="수정", flag="proto-only", note="요청 대기(파일 나가기 전)일 때만"))
+R('id="btnShipHoldSendFile"', 'id="btnShipHoldSendFile"' + attrs(flag="proto-only", note="시연용 — 실제로는 발주 파일 내려받기(F1) 때 '요청 보냄'으로 바뀜"))
 
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [

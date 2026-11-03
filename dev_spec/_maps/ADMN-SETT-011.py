@@ -59,7 +59,7 @@ DEV_MAP = {
     "devCommit": DEV_COMMIT,
     "progress": "개발 미구현(2차, DECISIONS 107 물류비 대사 1차 제외) — 테이블만 있음(logistics_settlements · logistics_settlement_items · book_purchase_costs). 이름은 모두 (규칙), 동작은 전부 주황 표시",
     "menus": [
-        {"route": "admin.settlement.logistics-reconciliations.index (규칙)", "label": "물류비 대사(3PL)"},
+        {"route": "admin.settlement.logistics-reconciliations.index (규칙)", "label": "물류비 대사"},
     ],
 }
 OPS.append(dict(kind="insert_before", anchor="</head>", html=(
@@ -108,6 +108,37 @@ ACT("downloadExcel", count=2, flag="proto-only", route=RT + ".download (규칙)"
 ACT("completeRecon", flag="proto-only", route=RT + ".lock.update (규칙)", method="PUT", url=B + "/{settlement}/lock", perm="수정",
     note="logistics_settlements.is_locked · confirmed_at — 매출 마감(SETT-004) 이후에만 잠금(재무 마감 2단계)")
 
+# ── 3PL 화면 반영(초안, 기능 정의 초안 2 F8 · SCREEN_3PL.md) ────────────────
+# 화면 노출 '3PL' → '물류비 대사' · '보관 창고' · '창고'(용어 표)는 2026-11-04 원본(prototype_clean)에 반영돼 여기서는 회수 단가 문구만 덧씌운다.
+# 코드값(ONLY_3PL · value="3PL") · 파일명(3pl_*.xlsx)은 그대로
+R("/ 창고 회수비 4,000원", "/ 창고 회수 단가 4,000원(회수 송장번호로 매칭)")
+
+# 보관 창고 · 계약 단가 — 거래처 관리 dev 화면 값(sjm.dev.vend3pl.v1)을 먼저 읽고, 없으면 그 화면 샘플(대영물류)과 같은 값.
+# 공통 SJM_MASTER의 물류 대행 거래처(CJ대한통운 파주 물류센터)는 dev 거래처 관리에서 거래 중지로 덧씌웠으므로 여기서도 쓰지 않는다
+R("""      // 보관 창고 · 계약 단가는 거래처 관리(물류 대행 양식)에서 읽는다
+      const tpls = M.vendors.byForm('LOGISTICS').filter(v => v.on);""",
+  """      // (dev 3PL 초안) 보관 창고 · 계약 단가는 거래처 관리 dev 화면 값을 먼저 읽고, 없으면 그 화면 샘플(대영물류)과 같은 값
+      const devWh = (() => { try { const s = JSON.parse(localStorage.getItem('sjm.dev.vend3pl.v1') || 'null'); return s && s.vendors ? s.vendors.filter(v => v.type === 'VT-03') : null; } catch (e) { return null; } })();
+      const tpls = (devWh || [{ id: 'SUP-0022', name: '대영물류', on: true, terms: { outFee: '2000', returnFee: '4000', storage: '' } }]).filter(v => v.on);""")
+R("'등록된 물류 대행사 없음'", "'거래 중인 보관 창고 없음'")
+R("`계약 단가(거래처 관리): 출고 건당 ${won(Number(v.terms.outFee))}원 · 반품 회수 ${won(Number(v.terms.returnFee))}원 · 보관료 월 ${won(Number(v.terms.storage))}원(보관료 별도 정산 · 이 대사 범위 밖) — 창고 청구 단가가 이와 다르면 불일치로 봅니다.`",
+  "`계약 단가(거래처 관리): 배송 건당 ${won(Number(v.terms.outFee))}원 · 회수 단가 ${won(Number(v.terms.returnFee || 4000))}원 · 보관료는 별도 정산(이 대사 범위 밖) — 창고 청구 단가가 이와 다르면 불일치로 봅니다. 매칭 키: 출고 행은 송장번호, 반품(회수) 행은 회수 송장번호.`")
+R('<div class="k-sub">송장번호 → 주문번호 → 수령인 · 출고일 순서로 매칭</div>',
+  '<div class="k-sub">송장번호 → 주문번호 → 수령인 · 출고일 순서로 매칭 · 반품은 회수 송장번호</div>')
+
+# 예시 행: 취소완료(출고 안 됨) 건이 창고 청구에 있으면 차이(청구 대상 아님)
+R("order: 'SJM-20260929-004590 · 문*희', qty: 1, db: '출고', claim: '청구', price: 2000, status: 'MATCH', diff: '일치' }",
+  "order: 'SJM-20260929-004590 · 문*희', qty: 1, db: '출고', claim: '청구', price: 2000, status: 'MATCH', diff: '일치' },\n"
+  "          { no: 13, date: '09.30', waybill: '6841-2201-0815', order: 'SJM-20260929-004593 · 장*민', qty: 1, db: '취소완료 (출고 안 됨)', claim: '청구', price: 2000, status: 'ONLY_3PL', diff: '취소완료 건 청구 — 청구 대상 아님' }")
+
+# 반품(회수) 행 매칭 키 = 회수 송장번호(F4 회신)
+R('<th style="width:170px;">주문번호 · 수령인</th><th style="width:150px;">DB 반품 사유</th>',
+  '<th style="width:170px;">주문번호 · 수령인</th><th style="width:140px;"' + attrs(flag="proto-only", name="return_waybill_no", note="(규칙) logistics_settlement_items 반품 행 매칭 키 — 회수 송장번호(F4 회신으로 저장). 개발 칸 없음") + '>회수 송장번호 (매칭 키)</th><th style="width:150px;">DB 반품 사유</th>')
+R("<td>${r.dbReason}</td>", "<td>${r.rtnWaybill || '—'}</td>\n          <td>${r.dbReason}</td>")
+R("{ order: 'SJM-20260905-004102 · 김*수', dbReason", "{ order: 'SJM-20260905-004102 · 김*수', rtnWaybill: '2510-0908-3311', dbReason")
+R("{ order: 'SJM-20260912-004260 · 이*정', dbReason", "{ order: 'SJM-20260912-004260 · 이*정', rtnWaybill: '2510-0915-3478', dbReason")
+R("{ order: 'SJM-20260921-004418 · 박*현', dbReason", "{ order: 'SJM-20260921-004418 · 박*현', rtnWaybill: '2510-0924-3602', dbReason")
+
 # ── 검증(check_dev_screen.py): (라벨, 실행할 JS, 보여야 할 선택자 — '|'로 여럿) ──
 VERIFY = [
     ("출고 탭", "switchTab('out')", "#tab-out"),
@@ -115,4 +146,7 @@ VERIFY = [
     ("도서 매입 탭", "switchTab('book')", "#tab-book"),
     ("불일치만 보기", "switchTab('out'); showMismatchOnly()", "#flt-status"),
     ("불일치 처리 모달", "switchTab('out'); openResolve(2)", "#layerLogisticsResolve|#modal-resolve"),
+    # 3PL 화면 반영(초안): 취소완료 건 청구 예시 행(no 13) 처리 모달, 반품 대사 표
+    ("취소완료 건 청구 처리 모달(dev) · 불일치 처리(clean)", "switchTab('out'); openResolve(cur().rows.some(r => r.no === 13) ? 13 : 2)", "#layerLogisticsResolve|#modal-resolve"),
+    ("반품 대사 표(회수 송장번호)", "switchTab('ship')", "#ret-tbody tr"),
 ]

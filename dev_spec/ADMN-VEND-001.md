@@ -130,3 +130,6 @@
 - app/Models/Supplier.php:21-75
 - resources/views/admin/book-supply/_suppliers.blade.php
 - tests/Feature/Admin/QaResultAdminTest.php:108, 190 (더미 행)
+
+## 변경 기록
+- 2026-11-04 3PL 화면 반영(초안, 기능 정의 초안 2 기준): 거래처 유형 `suppliers.type` (규칙) book_supplier 도서 공급사 · warehouse 보관 창고 · courier 배송사(이전 이름 vendor_type_id, 프로토타입 값 VT-xx 유지 · VT-04 배송사 추가). 보관 창고만 배송 · 회수 단가(기본 4,000원) · 운영 연락처 `ops_contact` · 메일 참조 `mail_cc` (규칙), 1차 활성 보관 창고 1곳 제한. 샘플 오스틴북스 · 대영물류 · 낭주특송(CJ대한통운 파주는 거래 중지). 유형 · 거래처 값은 공통 SJM_MASTER 위에 화면 안에서만 덧씌움(dev 저장소 키 `sjm.dev.vend3pl.v1`) — prototype_dev만
