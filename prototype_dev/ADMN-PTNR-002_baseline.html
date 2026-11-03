@@ -7,13 +7,13 @@
   <title>물류 파트너 센터 — 산준모닷컴</title>
   <!--
     ADMN-PTNR-002 물류 파트너 센터 (prototype_dev 신규 · 추론 기반 신규, 정본 근거 없음)
-    - 대상: 소속이 '거래처'이고 거래처 유형 양식이 물류 대행(LOGISTICS)인 외부 계정(최초값 역할 그룹 RG-08 외부 3PL).
+    - 대상: 소속이 '거래처'이고 거래처 유형 양식이 물류 대행(LOGISTICS)인 외부 계정(최초값 역할 그룹 RG-08 보관 창고 — 1차 미발급(설계서 v3.2.48), 2차).
       진입 ?vendor=SUP-NNNN&role=RG-08 (vendor 기본 SUP-0020, role 기본 RG-08). 거래처 코드는 공통 기준정보 거래처(SJM_MASTER.vendors, ADMN-VEND-001) · 개발 suppliers.code 형식을 따른다.
-    - 정본에는 소속 규칙(README 1절 5항, 통합 설계서 S3-03 · 3장 RBAC)과 3PL 계정의 업무 범위(출고지시 엑셀 · 송장 업로드, 금액 · 강좌내역 마스킹)만 있고 이 화면 자체의 근거는 없다.
-      화면 구성은 ADMN-ORD-001(배송 관리 ORD-002 · P1 · P2 · P3 · S3) · ADMN-SETT-011(물류비 대사) · ADMN-VEND-001(거래처 · 3PL 유형)에서 추론했다. 근거 목록 dev_spec/ADMN-PTNR-002.md.
+    - 정본에는 소속 규칙(README 1절 5항, 통합 설계서 S3-03 · 3장 RBAC)과 외부 물류 계정의 업무 범위(출고지시 엑셀 · 송장 업로드, 금액 · 강좌내역 마스킹)만 있고 이 화면 자체의 근거는 없다.
+      화면 구성은 ADMN-ORD-001(배송 관리 ORD-002 · P1 · P2 · P3 · S3) · ADMN-SETT-011(물류비 대사) · ADMN-VEND-001(거래처 · 보관 창고 유형)에서 추론했다. 근거 목록 dev_spec/ADMN-PTNR-002.md.
     - 화면을 만들 때 둔 가정(D-PTNR2-02 · 03 · 05~09)은 확정(2026-10-27 white, D-PTNR2-NN 권고대로)이다. 근거 · 권고 원문은 scripts/qa/reports/review/findings/devspec/POLICY_D_PTNR2.md.
       확정 반영: 물류비 탭은 별도 메뉴 키 logibill(02), 마스킹 위치는 운송장 권고(이름 가운데 글자 · 연락처 끝 4자리)와 출고 30일 뒤 수령인 비표시(03),
-      명세서 버전 이력 · 대사 실행 전까지만 3PL 재제출(07), 담당자별 계정 · 거래 중지 · 폐업 · 휴업 자동 차단(09).
+      명세서 버전 이력 · 대사 실행 전까지만 외부 물류 계정 재제출(07), 담당자별 계정 · 거래 중지 · 폐업 · 휴업 자동 차단(09).
     - 디자인은 ADMN-PTNR-001(SNB 밖 파트너 전용 화면)을 그대로 따른다. common-snb.js는 PTNR-001과 같은 이유로 로드하지 않는다(운영자 SNB를 body 맨 앞에 무조건 넣음).
     - 메뉴 노출은 역할 그룹 권한(SJM_MASTER.roles perms.shipout: R 조회 · W 등록 · X 다운로드)으로 판정한다. 역할 그룹 이름을 화면에 직접 적지 않는다.
       v6.92부터 공통 기준정보 RG-08 최초값이 shipout RWX(출고 지시 = 발주 엑셀) · logibill RW라 발주 엑셀 · 물류비 탭 모두 기준정보 값으로 열린다.
@@ -208,13 +208,14 @@
     <button type="button" class="tab-btn" data-tab="bill" id="navBill" onclick="switchPtnrTab('bill')" data-dev-route="admin.partner.logistics-bills.index (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/logistics-bills" data-dev-perm="can_view" data-dev-note="메뉴 키 logibill(확정 2026-10-27 white, D-PTNR2-02 권고대로) — 역할 그룹마다 켜고 끈다. shipout과 별개">물류비 청구 · 대사 결과</button>
     <button type="button" class="tab-btn" data-tab="me" onclick="switchPtnrTab('me')" data-dev-route="admin.partner.profile.show (규칙)" data-dev-method="GET" data-dev-url="/{admin}/partner/profile" data-dev-perm="로그인만">내 정보</button>
     <div class="ptnr-nav-help">
-      출고 · 송장 문의<br><strong>물류팀 logistics@sanjunmo.com</strong><br>
+      출고 · 송장 문의<br><strong>운영 담당 [메일 주소]</strong><br>
       물류비 · 계좌 문의<br><strong>재무팀 settlement@sanjunmo.com</strong><br>
       이 화면에는 본 거래처에 배정된 출고 · 반품 정보만 표시됩니다.
     </div>
   </nav>
 
   <main class="ptnr-main" id="ptnrMain">
+    <div class="ptnr-notice is-amber" data-dev-flag="proto-only" data-dev-note="설계서 v3.2.48 — 외부 물류 계정(RG-08)은 1차 미발급, 2차 배송사 계정"><div><b>2차 화면</b> — 외부 파트너 계정은 1차에 발급하지 않습니다(1차는 발주 · 회신 파일을 메일로 주고받음). 2차에 계정을 열 때 쓰는 화면입니다.</div></div>
 
     <!-- 홈 -->
     <section class="ptnr-section active" id="tab-home" data-dev-flag="proto-only">
@@ -326,7 +327,7 @@
     <!-- 배송 현황 · 예외 -->
     <section class="ptnr-section" id="tab-status" data-dev-flag="proto-only">
       <h2 class="ptnr-h2">배송 현황 · 예외</h2>
-      <p class="ptnr-sub">출고한 라인의 배송 상태와 반송 · 분실 · 파손 같은 예외를 관리합니다. 운송장 정정과 예외 등록은 운영자(물류팀)에게 바로 전달됩니다.</p>
+      <p class="ptnr-sub">출고한 라인의 배송 상태와 반송 · 분실 · 파손 같은 예외를 관리합니다. 운송장 정정과 예외 등록은 운영자에게 바로 전달됩니다.</p>
       <div class="ptnr-chipbar" id="statusChips">
         <button type="button" class="chip active" data-st="SHIPPING" onclick="setStatusChip('SHIPPING')">배송중 <span id="chipCntSHIPPING">0</span></button>
         <button type="button" class="chip" data-st="DELIVERED" onclick="setStatusChip('DELIVERED')">배송완료 <span id="chipCntDELIVERED">0</span></button>
@@ -461,7 +462,7 @@
           <div class="ptnr-field"><label for="trackingReason">등록 사유 *</label>
             <select id="trackingReason" name="reason_code" class="ptnr-select" style="width:100%;">
               <option value="">선택</option>
-              <option value="missing">3PL 회신 누락</option>
+              <option value="missing">물류 회신 누락</option>
               <option value="typo">운송장 오타 정정</option>
               <option value="courier">택배사 변경</option>
               <option value="etc">기타</option>
@@ -567,29 +568,29 @@
   var PL_FEE_LABEL = { FREE: "무료", PREPAID: "선불", ISLAND: "도서산간" };
   var PL_STATUS_LABEL = { READY: "배송준비중", SHIPPING: "배송중", DELIVERED: "배송완료", RETURNING: "반품진행중" };
   var PL_COURIER = { CJ: "CJ대한통운", HANJIN: "한진택배", LOTTE: "롯데택배", EPOST: "우체국택배" };
-  var PL_TRACKING_REASON = { missing: "3PL 회신 누락", typo: "운송장 오타 정정", courier: "택배사 변경", etc: "기타" };
+  var PL_TRACKING_REASON = { missing: "물류 회신 누락", typo: "운송장 오타 정정", courier: "택배사 변경", etc: "기타" };
   var PL_EXC_LABEL = { return_to_sender: "반송", lost: "분실", damaged: "파손" };
 
-  // 물류비: ADMN-SETT-011 2026-09 데이터와 같은 값(대사 결과 · 3PL 청구 쪽만, 고객 배송비 수납액 제외)
+  // 물류비: ADMN-SETT-011 2026-09 데이터와 같은 값(대사 결과 · 공급사 청구 쪽만, 고객 배송비 수납액 제외)
   var PL_BILLS = {
     "2026-09": {
       file: { name: "3pl_202609_cj_paju.xlsx", at: "2026-10-03 10:12" },
-      // 명세서 버전 이력(확정 D-PTNR2-07) — 3PL 제출과 재무팀 업로드가 같은 이력에 쌓인다
+      // 명세서 버전 이력(확정 D-PTNR2-07) — 외부 물류 계정 제출과 재무팀 업로드가 같은 이력에 쌓인다
       versions: [{ ver: 1, name: "3pl_202609_cj_paju.xlsx", at: "2026-10-03 10:12", by: "이물류 (본 거래처 계정)" }],
       runAt: "2026-10-03 10:15", completed: false,
       dbCount: 1842, claimCount: 1849, fee: 3698000,
       rows: [
         { no: 1, date: "09.03", waybill: "6841-2201-0031", order: "SJM-20260902-004010 · 홍*동", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
-        { no: 2, date: "09.08", waybill: "6841-2201-0198", order: "SJM-20260907-004188 · 김*연", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "3PL만 존재" },
+        { no: 2, date: "09.08", waybill: "6841-2201-0198", order: "SJM-20260907-004188 · 김*연", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "공급사 청구만 존재" },
         { no: 3, date: "09.11", waybill: "6841-2201-0244", order: "SJM-20260910-004221 · 박*우", qty: 2, db: "2건", claim: "3건", price: 2000, status: "DIFF", diff: "+2,000" },
         { no: 4, date: "09.15", waybill: "6841-2201-0402", order: "SJM-20260914-004301 · 이*준", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
         { no: 5, date: "09.19", waybill: "—", order: "SJM-20260918-004377 · 최*아", qty: 1, db: "출고", claim: "미청구", price: 0, status: "ONLY_DB", diff: "DB만 존재" },
         { no: 6, date: "09.24", waybill: "6841-2201-0611", order: "SJM-20260923-004455 · 정*늘", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
-        { no: 7, date: "09.25", waybill: "6841-2201-0655", order: "SJM-20260924-004470 · 강*재", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "3PL만 존재" },
+        { no: 7, date: "09.25", waybill: "6841-2201-0655", order: "SJM-20260924-004470 · 강*재", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "공급사 청구만 존재" },
         { no: 8, date: "09.26", waybill: "6841-2201-0702", order: "SJM-20260925-004498 · 오*훈", qty: 1, db: "1건", claim: "1건", price: 2500, status: "DIFF", diff: "단가 +500" },
         { no: 9, date: "09.27", waybill: "6841-2201-0733", order: "SJM-20260926-004512 · 윤*연", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" },
         { no: 10, date: "09.29", waybill: "—", order: "SJM-20260928-004560 · 한*우", qty: 1, db: "출고", claim: "미청구", price: 0, status: "ONLY_DB", diff: "DB만 존재" },
-        { no: 11, date: "09.30", waybill: "6841-2201-0790", order: "SJM-20260929-004588 · 서*민", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "3PL만 존재" },
+        { no: 11, date: "09.30", waybill: "6841-2201-0790", order: "SJM-20260929-004588 · 서*민", qty: 1, db: "미출고", claim: "청구", price: 2000, status: "ONLY_3PL", diff: "공급사 청구만 존재" },
         { no: 12, date: "09.30", waybill: "6841-2201-0801", order: "SJM-20260929-004590 · 문*희", qty: 1, db: "출고", claim: "청구", price: 2000, status: "MATCH", diff: "일치" }
       ],
       ship: [
@@ -606,7 +607,7 @@
     },
     "2026-10": null
   };
-  var PL_BILL_STATUS = { MATCH: "일치", ONLY_3PL: "3PL만 존재", ONLY_DB: "산준모 기록만 존재", DIFF: "수량 · 단가 차이" };
+  var PL_BILL_STATUS = { MATCH: "일치", ONLY_3PL: "공급사 청구만 존재", ONLY_DB: "산준모 기록만 존재", DIFF: "수량 · 단가 차이" };
   var PL_RESULT_LABEL = { PAY: "승인 지급", DEDUCT: "차감", CARRY: "차월 이월" };
   // 거래처 담당자 · 계좌(개발 suppliers.contact_email · bank_name · account_no_enc · account_holder) — 화면에는 가린 값만
   var PL_VENDOR_PROFILE = {
@@ -632,7 +633,7 @@
   function plWon(n) { var v = Number(n) || 0; return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("ko-KR") + "원"; }
   function plEsc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   // 수령인 마스킹 — 확정(2026-10-27 white, D-PTNR2-03 권고대로): 운송장 마스킹 권고 위치(이름 가운데 글자 · 연락처 끝 4자리)로 통일.
-  // ADMN-ORD-001 3PL 격리 보기(현재 이름 두 번째 글자 · 연락처 가운데 4자리)도 같은 위치로 바꿔야 한다 — 위치가 다르면 두 화면을 조합해 원문이 드러난다.
+  // ADMN-ORD-001 외부 물류 계정 보기(현재 이름 두 번째 글자 · 연락처 가운데 4자리)도 같은 위치로 바꿔야 한다 — 위치가 다르면 두 화면을 조합해 원문이 드러난다.
   // 서버가 이미 가린 값이 오지만 화면에서도 한 번 더 가린다(해제 기능 없음)
   function plMaskName(name) {
     if (!name) return "-";
@@ -837,7 +838,7 @@
     btn.disabled = !PL.canDownload || selCount === 0;
     var note = document.getElementById("dispatchPermNote");
     if (!PL.canDownload) {
-      note.textContent = "이 계정의 역할 그룹에는 다운로드 권한이 없어 발주 엑셀(출고지시)을 내려받을 수 없습니다. 출고지시가 필요하면 운영자에게 역할 그룹의 다운로드 권한을 요청해 주세요. 그때까지는 운영자(물류팀)가 출고지시하고, 출고지시 완료 라인의 송장만 등록할 수 있습니다.";
+      note.textContent = "이 계정의 역할 그룹에는 다운로드 권한이 없어 발주 엑셀(출고지시)을 내려받을 수 없습니다. 출고지시가 필요하면 운영자에게 역할 그룹의 다운로드 권한을 요청해 주세요. 그때까지는 운영자가 출고지시하고, 출고지시 완료 라인의 송장만 등록할 수 있습니다.";
       note.style.display = "block";
       note.style.background = "#F8FAFC"; note.style.borderColor = "#E2E8F0"; note.style.color = "#475569";
     } else {
@@ -904,7 +905,7 @@
   }
   function useSampleImportFile() {
     if (!PL.canWrite) return;
-    PL.importFile = "3PL_송장회신_20261027.xlsx";
+    PL.importFile = "물류회신_20261027.xlsx";
     document.getElementById("importFileName").textContent = PL.importFile + " (예시 파일)";
     setError("importError", "");
   }
@@ -1057,7 +1058,7 @@
           + '<td style="white-space:nowrap;">' + (PL.canWrite ? '<button type="button" class="btn btn-sm" onclick="openTrackingLayer(' + l.id + ')" data-dev-route="admin.partner.deliveries.tracking.update (규칙)" data-dev-method="PUT" data-dev-url="/{admin}/partner/deliveries/' + l.id + '/tracking" data-dev-perm="can_update">정정</button> ' : '') + excBtn(l) + '</td></tr>';
       }).join("") : '<tr class="is-empty"><td colspan="9">배송중인 라인이 없습니다.</td></tr>';
     } else if (st === "DELIVERED") {
-      note.innerHTML = "<div>배송완료 라인은 연락처 · 주소를 표시하지 않습니다(배송 목적 달성). 출고 후 " + PL_RECV_RETAIN_DAYS + "일이 지나면 수령인 이름도 표시하지 않습니다. 반품 회수에 수령인 정보가 필요하면 물류팀이 다시 내려 줍니다. 배송완료 뒤 분실 · 파손 신고가 오면 예외로 등록합니다.</div>";
+      note.innerHTML = "<div>배송완료 라인은 연락처 · 주소를 표시하지 않습니다(배송 목적 달성). 출고 후 " + PL_RECV_RETAIN_DAYS + "일이 지나면 수령인 이름도 표시하지 않습니다. 반품 회수에 수령인 정보가 필요하면 운영 담당자가 다시 내려 줍니다. 배송완료 뒤 분실 · 파손 신고가 오면 예외로 등록합니다.</div>";
       th.innerHTML = "<tr><th>주문번호 · 라인</th><th>수령인</th><th>교재 · 상품</th><th class=\"num\">수량</th><th>출고일</th><th>배송완료일</th><th>완료 근거</th><th>택배사 · 운송장</th><th>관리</th></tr>";
       var dl = linesBy("DELIVERED");
       tb.innerHTML = dl.map(function (l) {
@@ -1066,14 +1067,14 @@
           + '<td>' + plEsc(l.basis) + '</td><td>' + plEsc(PL_COURIER[l.courier]) + '<div class="ptnr-mono">' + plEsc(l.waybill) + '</div>' + hasExcBadge(l) + '</td><td>' + excBtn(l) + '</td></tr>';
       }).join("");
     } else if (st === "RETURNING") {
-      note.innerHTML = "<div>반품 수거 · 창고 입고 현황입니다. 검수 판정(정상 · 훼손)은 운영자(물류팀)가 입력하며 이 화면에서는 결과만 확인합니다.</div>";
+      note.innerHTML = "<div>반품 수거 · 창고 입고 현황입니다. 검수 판정(정상 · 훼손)은 운영자가 입력하며 이 화면에서는 결과만 확인합니다.</div>";
       th.innerHTML = "<tr><th>주문번호 · 라인</th><th>수령인</th><th>반품 교재 · 상품</th><th class=\"num\">수량</th><th>수거 운송장</th><th>창고 입고일</th><th>검수 상태</th></tr>";
       tb.innerHTML = linesBy("RETURNING").map(function (l) {
         var cls = l.inspect.indexOf("훼손") !== -1 ? "badge-rose" : (l.inDate ? "badge-amber" : "badge-gray");
         return '<tr><td class="ptnr-mono"><b>' + plEsc(l.key) + '</b></td><td>' + plEsc(plMaskName(l.recv)) + '</td><td>' + plEsc(l.book) + '</td><td class="num">' + l.qty + '</td><td class="ptnr-mono">' + plEsc(l.returnWb) + '</td><td>' + (l.inDate ? plDate(l.inDate) : '입고 전') + '</td><td><span class="badge ' + cls + '">' + plEsc(l.inspect) + '</span></td></tr>';
       }).join("");
     } else {
-      note.innerHTML = "<div>등록한 예외는 운영자(물류팀)가 확인해 재출고 · 환불 · 택배사 배상 청구 · 종결을 정합니다. 이 화면에서는 등록과 결과 확인만 하며, 처리 결과는 이 목록에 반영됩니다.</div>";
+      note.innerHTML = "<div>등록한 예외는 운영자가 확인해 재출고 · 환불 · 택배사 배상 청구 · 종결을 정합니다. 이 화면에서는 등록과 결과 확인만 하며, 처리 결과는 이 목록에 반영됩니다.</div>";
       th.innerHTML = "<tr><th>주문번호 · 라인</th><th>예외 구분</th><th>발생일</th><th>내용</th><th>등록</th><th>처리 상태</th></tr>";
       tb.innerHTML = PL_EXCEPTIONS.length ? PL_EXCEPTIONS.map(function (e) {
         return '<tr><td class="ptnr-mono"><b>' + plEsc(e.key) + '</b></td><td><span class="badge badge-rose">' + plEsc(PL_EXC_LABEL[e.type]) + '</span></td><td>' + plDate(e.occurredAt) + '</td><td>' + plEsc(e.reason) + '</td><td>' + plEsc(e.by) + '</td><td><span class="badge badge-amber">' + plEsc(e.status) + '</span></td></tr>';
@@ -1117,7 +1118,7 @@
     PL_EXCEPTIONS.unshift({ lineId: l.id, key: l.key, type: type, occurredAt: at, reason: reason, by: plUserLabel(), status: "운영자 확인 대기" });
     closeLayer("layerDeliveryException");
     renderStatus();
-    showPtnrToast(l.key + " " + PL_EXC_LABEL[type] + " 예외를 등록했습니다. 물류팀에 알림이 갑니다.");
+    showPtnrToast(l.key + " " + PL_EXC_LABEL[type] + " 예외를 등록했습니다. 운영 담당자에게 알림이 갑니다.");
   }
 
   // ===== 물류비 청구 · 대사 결과 =====
@@ -1130,7 +1131,7 @@
     var meta = document.getElementById("billFileMeta");
     var body = document.getElementById("billBody");
     if (!m) {
-      // 대사 실행 전 — 3PL이 직접 제출하고, 실행 전까지는 새 버전으로 다시 낼 수 있다(확정 D-PTNR2-07). 재무팀 업로드도 같은 이력에 쌓인다
+      // 대사 실행 전 — 외부 물류 계정이 직접 제출하고, 실행 전까지는 새 버전으로 다시 낼 수 있다(확정 D-PTNR2-07). 재무팀 업로드도 같은 이력에 쌓인다
       var vers = PL.statements[month] || [];
       var sub = vers[0];
       badge.innerHTML = sub ? '<span class="badge badge-blue">명세서 제출 · 재무팀 대사 대기</span>' : '<span class="badge badge-gray">명세서 미제출</span>';

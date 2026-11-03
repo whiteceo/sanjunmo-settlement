@@ -101,7 +101,7 @@
 | 소명/통제 상태 라벨 | approval_status UNRESOLVED · PENDING_APPROVAL · APPROVED · MATCHED |
 | 우측 상세 패널(selectRecord) | S1 별도 페이지 `…pg-reconciliations.show` |
 
-## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 김영호 PO 전부 결정)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_SETT.md` 의 D-SETT 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
 - 확인 필요: "1,000원 이내 단수차액 자동 대체"가 개발에 없다 — 정본에서 1차 범위인지. **→ 정본대로(POLICY_D_SETT A, 02권 §8.2 L109 · L110 · 03권 L169)**: 1차 범위(기준 이내 차액은 단수 차액 조정 계정으로 자동 대체 · 로그) — 개발팀 전달

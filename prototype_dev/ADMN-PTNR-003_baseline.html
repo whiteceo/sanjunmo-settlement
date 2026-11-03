@@ -205,12 +205,13 @@
       data-dev-route="admin.partner.profile.index" data-dev-method="GET" data-dev-url="/{admin}/partner/profile" data-dev-perm="can_view">내 정보</button>
     <div class="ptnr-nav-help">
       매입 대금 · 계좌 문의<br><strong>재무팀 settlement@sanjunmo.com</strong><br>
-      발주 · 입고 문의<br><strong>물류팀 logistics@sanjunmo.com</strong><br>
+      발주 · 입고 문의<br><strong>운영 담당 [메일 주소]</strong><br>
       이 화면에는 본인 거래처의 공급 도서 · 매입 정보만 표시됩니다.
     </div>
   </nav>
 
   <main class="ptnr-main" id="ptnrMain">
+    <div class="ptnr-notice is-amber" data-dev-flag="proto-only" data-dev-note="설계서 v3.2.48 — 외부 물류 계정(RG-08)은 1차 미발급, 2차 배송사 계정"><div><b>2차 화면</b> — 외부 파트너 계정은 1차에 발급하지 않습니다(1차는 발주 · 회신 파일을 메일로 주고받음). 2차에 계정을 열 때 쓰는 화면입니다.</div></div>
     <div id="readOnlyNotice"></div>
 
     <!-- 홈 -->
@@ -505,7 +506,7 @@
   // 기준정보에 값이 있으면 그 값, 없을 때만(RG-09 없음 · supply 권한 키 없음) 아래 최초값을 쓴다
   var ROLE_PROPOSED = { id: "RG-09", name: "도서 공급사", side: "EXTERNAL", aff: ["VENDOR"], on: true, perms: { supply: "RWX" }, proposed: true };
 
-  // 발주 시스템화 단계 — 확정(2026-10-27 white, D-PTNR3-05 권고대로): 1단계는 발주를 시스템으로 내지 않고(물류팀 기존 방식) 입고 전표 확인 · 이의만 연다.
+  // 발주 시스템화 단계 — 확정(2026-10-27 white, D-PTNR3-05 권고대로): 1단계는 발주를 시스템으로 내지 않고(운영 담당 기존 방식) 입고 전표 확인 · 이의만 연다.
   // 2단계에 발주 + 공급사 확인(납품 예정일 회신)을 연다. 시연: ?po_stage=2로 2단계 화면을 미리 본다
   var VD_PO_STAGE = new URLSearchParams(window.location.search).get("po_stage") === "2" ? 2 : 1;
   // 매입처 반품(반출) 조건 — 확정(D-PTNR3-03 권고대로): 기본은 파본 · 인쇄 불량만, 거래 조건(VEND-001 '반품 조건' 칸, 추가 예정)에 반품 가능이면 재고 반품도.
@@ -767,7 +768,7 @@
       var nav = document.getElementById("navOrders");
       nav.firstChild.nodeValue = "입고 · 반출 확인 ";
       document.getElementById("ordersTitle").textContent = "입고 · 반출 확인";
-      document.getElementById("ordersSub").textContent = "물류센터 입고 전표의 수량과 매입처 반품(반출)을 확인하고, 다르면 이의를 제기합니다. 확인한 수량이 월 매입 정산서의 기준이 됩니다. 발주는 지금처럼 물류팀이 따로 보냅니다.";
+      document.getElementById("ordersSub").textContent = "물류센터 입고 전표의 수량과 매입처 반품(반출)을 확인하고, 다르면 이의를 제기합니다. 확인한 수량이 월 매입 정산서의 기준이 됩니다. 발주는 지금처럼 운영 담당자가 따로 보냅니다.";
       document.getElementById("ordersCardTitle").textContent = "입고 전표";
       document.getElementById("ordersPoHead").textContent = "관련 발주";
       document.querySelectorAll('#ordersStatusFilter option[value="ORDERED"], #ordersStatusFilter option[value="ACCEPTED"]').forEach(function (o) { o.parentNode.removeChild(o); });
@@ -958,7 +959,7 @@
     if (!d) return fail("납품 예정일을 입력해 주세요.");
     if (d < TODAY) return fail("납품 예정일은 오늘(" + TODAY + ") 이후여야 합니다.");
     if (!q || q < 1 || q % 1 !== 0) return fail("납품 가능 수량을 1 이상의 정수로 입력해 주세요.");
-    if (q > o.qty) return fail("발주 수량(" + vdNum(o.qty) + "권)보다 많이 납품할 수 없습니다. 추가 수량은 물류팀과 협의해 주세요.");
+    if (q > o.qty) return fail("발주 수량(" + vdNum(o.qty) + "권)보다 많이 납품할 수 없습니다. 추가 수량은 운영 담당자와 협의해 주세요.");
     if (q < o.qty && memo.replace(/\s/g, "").length < 10) return fail("발주 수량보다 적게 납품하면 사유를 10자 이상 적어 주세요.");
     o.expected = d;
     o.status = "ACCEPTED";
@@ -966,7 +967,7 @@
     else if (memo) o.memo = memo;
     closeLayer("layerPurchaseOrderConfirm");
     refreshAfterAction();
-    showPtnrToast(o.po + " 발주를 확인했습니다. 납품 예정일 " + d + "을 물류팀에 전달했습니다.");
+    showPtnrToast(o.po + " 발주를 확인했습니다. 납품 예정일 " + d + "을 운영 담당자에게 전달했습니다.");
   }
   function confirmReceipt(po) {
     var o = findOrder(po);
@@ -991,7 +992,7 @@
     document.getElementById("disputeTitle").textContent = (kind === "receipt" ? "입고 수량 이의 제기 — " + target.recvDoc : "반출 이의 제기 — " + target.rt);
     document.getElementById("disputeInfo").innerHTML = '<div><strong>' + vdEsc(VD_BOOKS[target.sku].title) + '</strong> (' + target.sku + ')<br>'
       + (kind === "receipt" ? '발주 ' + target.po + ' · 발주 ' + vdNum(target.qty) + '권 · 물류센터 입고 ' + vdNum(target.recvQty) + '권' : '반출 ' + vdNum(target.qty) + '권 · 사유 ' + vdEsc(target.reason))
-      + '<br>이의를 등록하면 물류팀 · 재무팀이 확인할 때까지 이 수량은 매입 정산서에서 잠정으로 표시됩니다.</div>';
+      + '<br>이의를 등록하면 운영 · 재무 담당이 확인할 때까지 이 수량은 매입 정산서에서 잠정으로 표시됩니다.</div>';
     document.getElementById("disputeReason").value = "";
     document.getElementById("disputeQty").value = "";
     document.getElementById("disputeMemo").value = "";
@@ -1021,7 +1022,7 @@
     target.dispute = "공급사 기준 " + vdNum(Number(qRaw)) + "권 · " + memo;
     closeLayer("layerStockReceiptDispute");
     refreshAfterAction();
-    showPtnrToast((VD.disputeKind === "receipt" ? target.recvDoc + " 입고" : target.rt + " 반출") + " 이의를 등록했습니다. 물류팀이 확인 후 회신합니다.");
+    showPtnrToast((VD.disputeKind === "receipt" ? target.recvDoc + " 입고" : target.rt + " 반출") + " 이의를 등록했습니다. 운영 담당자가 확인 후 회신합니다.");
   }
 
   // ===== 월 매입 정산서 (권리자 정산서 SETT-002-S2 형식을 따른 공급 대금 명세) =====
@@ -1093,7 +1094,7 @@
     html.push('<div class="ptnr-notice is-gray" style="margin-top:14px;"><div>'
       + '이 명세서는 본인 거래처의 입고 · 반출 수량과 매입 단가만 발췌한 것입니다. 판매 수량 · 판매가 · 다른 거래처 정보는 포함되지 않습니다.<br>'
       + '매입 대금은 산준모닷컴 회계 시스템의 매입채무(AP) 결제로 지급하며, 강사 · 저자 정산 지급과는 별도로 처리됩니다.<br>'
-      + '단가는 입고일 기준 유효한 매입 단가(도서 공급 원장)를 적용합니다. 단가 변경은 물류팀 · 재무팀과 협의해 주세요.'
+      + '단가는 입고일 기준 유효한 매입 단가(도서 공급 원장)를 적용합니다. 단가 변경은 운영 · 재무 담당과 협의해 주세요.'
       + '</div></div>');
     box.innerHTML = html.join("");
   }

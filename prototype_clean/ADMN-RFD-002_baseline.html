@@ -694,7 +694,7 @@ code, pre, kbd, samp,
                   <td><strong id="book-title">[교재] 2026 정종대 산업안전기사 필기 기본서 ×1 (쿠폰/포인트 제외)</strong></td>
                   <td class="num" id="book-list">20,000원</td>
                   <td class="num"><strong id="book-paid">20,000원</strong><div id="book-pt-share" style="font-size:11px; color:var(--text-muted); font-weight:400; margin-top:2px;">포인트 몫 0 P (도서 포인트 사용 잠금)</div></td>
-                  <td>출고완료 ➔ 3PL 반품 입고완료 (배송 완료 D+7 이내)</td>
+                  <td>출고완료 ➔ 보관 창고 반품 입고완료 (배송 완료 D+7 이내)</td>
                   <td><span class="badge badge-green">검수 합격 시 환불 가능</span></td>
                 </tr>
               </tbody>
@@ -828,7 +828,7 @@ code, pre, kbd, samp,
               </button>
             </div>
 
-            <!-- [2] 3PL 교재 반품 검수 & [3] 적립금 A/B 검증 (컴팩트 통합 카드) -->
+            <!-- [2] 창고 교재 반품 검수 & [3] 적립금 A/B 검증 (컴팩트 통합 카드) -->
             <div class="card">
               <div class="card-header">
                 <div class="card-title">[2] 교재 반품 검수 & [3] 적립금(A−B) 선소진 검증</div>
@@ -840,9 +840,9 @@ code, pre, kbd, samp,
               <div class="card-body">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                   <div class="form-group">
-                    <label>3PL 실물 교재 입고·검수 판정</label>
+                    <label>보관 창고 실물 교재 입고·검수 판정</label>
                     <select class="form-control" id="sel-book-inspect" onchange="recalcDetail()">
-                      <option value="WAIT" selected>⏳ 입고 대기 (미판정 · 3PL 입고 전)</option>
+                      <option value="WAIT" selected>⏳ 입고 대기 (미판정 · 창고 입고 전)</option>
                       <option value="PASS">✅ 정상 (미개봉 ➔ 재고 +1)</option>
                       <option value="DAMAGED">⚠️ 파본/불량 (회사 귀책 ➔ 재고 미입고 · 교재비 차감 없음 · 반품 배송비 0원)</option>
                       <option value="REJECT">❌ 고객 훼손 (교재비만 차감 · 고객 반송 · 강좌 환불은 진행)</option>
@@ -1627,7 +1627,7 @@ code, pre, kbd, samp,
       const photoMissing = bookOn && inspect === 'REJECT' && !rfdInspectPhoto;
       let lockMsg = '';
       if (lecBlocked) lockMsg = '원 수강기간이 끝난 강좌는 반환 대상이 아닙니다(인강 환불액 0원). 환불 거절 안내 또는 인강 항목 체크 해제 후 교재만 진행합니다.';
-      else if (bookWait) lockMsg = '3PL 교재 입고 완료·정상 판정 전에는 [환불 승인 및 PG 취소]가 비활성화됩니다(하드락). 입고·검수 판정을 선택해 주세요.';
+      else if (bookWait) lockMsg = '창고 교재 입고 완료·정상 판정 전에는 [환불 승인 및 PG 취소]가 비활성화됩니다(하드락). 입고·검수 판정을 선택해 주세요.';
       else if (photoMissing) lockMsg = '고객 훼손 판정은 검수 사진을 1장 이상 첨부해야 승인할 수 있습니다(교재비 차감 근거). [검수 사진 첨부]를 눌러 주세요.';
       lockNote.style.display = lockMsg ? 'block' : 'none';
       lockNote.textContent = lockMsg ? '🔒 ' + lockMsg : '';

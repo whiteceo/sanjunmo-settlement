@@ -107,8 +107,8 @@
 | (업무 외 노무 활용) | 개발 없음 | | `#externalLabor` |
 | `address` · `address_detail` | 개인이면 required | | 프로토 없음 |
 | `suspended_approval_reason` | max 255 | | `#suspendedReason`(휴업자 저장 예외 승인) |
-| `tax_decision_status` | | `PENDING_REVIEW` 검토 보류 · `DECIDED` 판정 완료 | `#taxDecision` | **→ v7.07 원본에서 입력칸 삭제(white) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
-| `matrix_case_id` · `tax_decision_reason` | DECIDED면 required | MATRIX_CASE_IDS | `#matrixCase` · `#taxDecisionReason` | **→ v7.07 원본에서 입력칸 삭제(white) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
+| `tax_decision_status` | | `PENDING_REVIEW` 검토 보류 · `DECIDED` 판정 완료 | `#taxDecision` | **→ v7.07 원본에서 입력칸 삭제(김영호 PO) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
+| `matrix_case_id` · `tax_decision_reason` | DECIDED면 required | MATRIX_CASE_IDS | `#matrixCase` · `#taxDecisionReason` | **→ v7.07 원본에서 입력칸 삭제(김영호 PO) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
 | `bank_name` · `account_no_enc` · `account_holder` | 비자사면 required(계좌는 등록 시) | | `#payeeAccount` |
 | `partnership_started_at` · `email` · `phone` | | | 프로토 없음 |
 | `proofs[PERSON_ID\|BANKBOOK\|BIZ_LICENSE][]` | 각 1개 · jpg/png/pdf · 10MB | | 증빙 선택(L1383대) |
@@ -240,7 +240,7 @@
 | `#bizType` 개인사업자 · 법인·단체 · 자사 귀속 | `business_subtype` `SOLE` · `CORP` + `is_internal` |
 | `#payeeAuthor` 본인 · 본인 아님 | `payee_is_author` 1 · 0 |
 | `#resident` 거주자 · 비거주자 | `is_resident` 1 · 0 |
-| `#taxDecision` 검토 보류 · 판정 완료 | `tax_decision_status` `PENDING_REVIEW` · `DECIDED` | **→ v7.07 원본에서 입력칸 삭제(white) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
+| `#taxDecision` 검토 보류 · 판정 완료 | `tax_decision_status` `PENDING_REVIEW` · `DECIDED` | **→ v7.07 원본에서 입력칸 삭제(김영호 PO) — 세무 판정은 정산 라인 단위 시스템 판정, 개발 수동 입력은 제거 대상(DEV_TRANSFER 15절)**
 | `#renewalMode` 자동 갱신 · 수동 종료 / `#renewalMonths` 1 · 2 · 3년 | `auto_extend` / `renewal_unit_years` 1 · 2 · 3 |
 | `#originType` 신규 · 승계 | `origin_type` `NEW` · `SUCCESSION` |
 | `#refundBurden` A · B · C | `refund_promo_burden_type` `A`(B · C 표시만) |
@@ -256,9 +256,9 @@
 | 계약번호 `CT-2026-0412` | `rights_holder_contracts.id` + `sequence_no`(표시 형식 확인 필요) |
 | 권리자 코드 `RH-0019` | `rights_holders.code` |
 
-## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 김영호 PO 전부 결정)
 
 | # | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-INST001-1 | 환급 부담 방식 B · C: 정본 · 프로토는 계약마다 A · B · C 선택. 개발은 1차에 A만 저장(DECISIONS 113 ②, B · C 차감 연산 2차). 1차 범위를 A로 확정하는지 | 설계서 `:239`(옵션 A/B/C), 프로토 `#refundBurden` L948-953 | `app/Http/Requests/Admin/RightsHolderContractRequest.php:86-89`, `app/Models/RightsHolderContract.php:148-164` **→ 결정(white 10-27, D-SETT-02)**: B · C 부담 계약이 실제로 있음 → 1차에 B · C 저장 · 차감 연산 구현(개발 전달) |
-| Q-INST001-2 | 위탁 조항(도서 위탁판매) 적용: 프로토는 위탁 카드 [적용] 선택 가능. 개발은 1차 저장 거부(화면설계서 v12 S2 ⑨ · DECISIONS 94). 도서 공급 원장의 위탁 저장 거부(BOOK-001 Q2)와 같은 결정인지 | 설계서 `:251`(CONSIGNMENT), 프로토 `#onConsignment` L1368 | `RightsHolderContractRequest.php:99-102` **→ 결정(white 10-27, D-PROD-05)**: BOOK-001과 같은 결정 — 위탁 계약이 없어도 1차 개발, 위탁 조항도 1차 저장(개발 전달) |
+| Q-INST001-1 | 환급 부담 방식 B · C: 정본 · 프로토는 계약마다 A · B · C 선택. 개발은 1차에 A만 저장(DECISIONS 113 ②, B · C 차감 연산 2차). 1차 범위를 A로 확정하는지 | 설계서 `:239`(옵션 A/B/C), 프로토 `#refundBurden` L948-953 | `app/Http/Requests/Admin/RightsHolderContractRequest.php:86-89`, `app/Models/RightsHolderContract.php:148-164` **→ 결정(김영호 PO 10-27, D-SETT-02)**: B · C 부담 계약이 실제로 있음 → 1차에 B · C 저장 · 차감 연산 구현(개발 전달) |
+| Q-INST001-2 | 위탁 조항(도서 위탁판매) 적용: 프로토는 위탁 카드 [적용] 선택 가능. 개발은 1차 저장 거부(화면설계서 v12 S2 ⑨ · DECISIONS 94). 도서 공급 원장의 위탁 저장 거부(BOOK-001 Q2)와 같은 결정인지 | 설계서 `:251`(CONSIGNMENT), 프로토 `#onConsignment` L1368 | `RightsHolderContractRequest.php:99-102` **→ 결정(김영호 PO 10-27, D-PROD-05)**: BOOK-001과 같은 결정 — 위탁 계약이 없어도 1차 개발, 위탁 조항도 1차 저장(개발 전달) |

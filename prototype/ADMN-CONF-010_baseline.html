@@ -280,7 +280,7 @@ code, pre, kbd, samp,
       <h1 class="crumb-title" id="header-screen-title">시스템 감사 로그 (정산 원장 변경 · 개인정보 열람 · 운영자 작업 불변 이력)</h1>
     </div>
     <div class="top-bar-right" id="v4-topbar-right-slot">
-      <button class="btn" onclick="verifyHashChain()" title="2차 기능 — 1차는 Append-Only 저장 + 월별 감사 원장 추출">🛡️ 해시 체인 무결성 검증 (2차)</button> <button class="btn btn-pri" onclick="exportAuditCsv()">⬇ 현재 조회 월·기간 감사 원장 추출 (CSV/JSON)</button>
+      <button class="btn" onclick="verifyHashChain()" title="Append-Only 저장된 감사 원장의 행 해시 체인 · 월별 블록 해시를 다시 계산해 위변조를 확인">🛡️ 해시 체인 무결성 검증</button> <button class="btn btn-pri" onclick="exportAuditCsv()">⬇ 현재 조회 월·기간 감사 원장 추출 (CSV/JSON)</button>
     </div></header><div id="v4-page-body">
   
   
@@ -461,7 +461,7 @@ code, pre, kbd, samp,
                   <th class="num">수동조정·계정대체·수기검수</th>
                   <th class="num">지원금·국세청·도서</th>
                   <th class="num">민감정보 열람·파기</th>
-                  <th>월별 블록 해시 (2차)</th>
+                  <th>월별 블록 해시</th>
                   <th>월별 원장 보기 / 추출</th>
                 </tr>
               </thead>
@@ -474,7 +474,7 @@ code, pre, kbd, samp,
                   <td class="num">3건</td>
                   <td class="num">2건</td>
                   <td class="num">2건</td>
-                  <td style="color:var(--muted); font-size:12px;">2차</td>
+                  <td><span style="color:var(--muted); font-size:12px;">마감 후 생성</span></td>
                   <td>
                     <button class="btn btn-sm btn-pri" onclick="jumpToMonthLogs('2026-10')">이 달의 로그 보기</button>
                     <button class="btn btn-sm" onclick="exportMonthPackage('2026-10')">⬇ 월별 패키지</button>
@@ -488,7 +488,7 @@ code, pre, kbd, samp,
                   <td class="num">0건</td>
                   <td class="num">1건</td>
                   <td class="num">1건</td>
-                  <td style="color:var(--muted); font-size:12px;">2차</td>
+                  <td><span class="code" style="font-size:11.5px;">a3f9…7c21</span> <span class="badge b-ok">일치</span></td>
                   <td>
                     <button class="btn btn-sm btn-pri" onclick="jumpToMonthLogs('2026-09')">이 달의 로그 보기</button>
                     <button class="btn btn-sm" onclick="exportMonthPackage('2026-09')">⬇ 월별 패키지</button>
@@ -502,7 +502,7 @@ code, pre, kbd, samp,
                   <td class="num">0건</td>
                   <td class="num">1건</td>
                   <td class="num">0건</td>
-                  <td style="color:var(--muted); font-size:12px;">2차</td>
+                  <td><span class="code" style="font-size:11.5px;">5be0…19d4</span> <span class="badge b-ok">일치</span></td>
                   <td>
                     <button class="btn btn-sm btn-pri" onclick="jumpToMonthLogs('2026-08')">이 달의 로그 보기</button>
                     <button class="btn btn-sm" onclick="exportMonthPackage('2026-08')">⬇ 월별 패키지</button>
@@ -524,7 +524,7 @@ code, pre, kbd, samp,
         </span>
       </div>
       <div style="font-family:var(--mono); font-size:12px; color:#93c5fd;">
-        1차: Append-Only 저장 · 월별 감사 원장 추출 / 해시 체인 · 블록 해시 검증은 2차
+        1차: Append-Only 저장 · 해시 체인 · 월별 블록 해시 검증 · 월별 감사 원장 추출 (김영호 PO 결정)
       </div>
     </footer>
   </main>
@@ -1120,7 +1120,7 @@ code, pre, kbd, samp,
     `;
     document.getElementById("diffBeforeBox").textContent = JSON.stringify(ev.beforeJson, null, 2);
     document.getElementById("diffAfterBox").textContent = JSON.stringify(ev.afterJson, null, 2);
-    document.getElementById("diffHashText").textContent = `행 해시(참고 · 해시 체인 검증은 2차): ${ev.hash}`;
+    document.getElementById("diffHashText").textContent = `행 해시(해시 체인 연결): ${ev.hash}`;
     document.getElementById("btnJumpSourceScreen").onclick = () => goNav(ev.screenFile);
 
     document.getElementById("diffModal").classList.add("open");
@@ -1131,8 +1131,8 @@ code, pre, kbd, samp,
   }
 
   function verifyHashChain() {
-    // D-CONF-03(white 결정): 1차 = Append-Only 저장(수정 · 삭제 권한 없음) + 월별 감사 원장 추출. 해시 체인 검증 · 월별 블록 해시는 2차
-    showToast('해시 체인 무결성 검증은 2차 기능입니다. 1차는 감사 원장을 수정 · 삭제 권한 없는 Append-Only로 저장하고 월별 감사 원장을 추출해 보존합니다.');
+    // D-CONF-03 → 김영호 PO 결정(2026-11-04): 해시 체인 검증 · 월별 블록 해시도 1차 포함
+    showToast('해시 체인 무결성 검증 완료 — 마감 월 블록 해시 2건 일치, 진행 중인 달(2026-10)은 행 해시 체인 연결 이상 없음. 검증 실행은 감사 로그에 남습니다.');
   }
 
   function exportAuditCsv() {
@@ -1145,9 +1145,9 @@ code, pre, kbd, samp,
     { id: 'AUD-9925', dt: '2026-10-19 13:05', actor: 'fin_manager (재무관리)', type: '잠금 해제', loginEvent: true, detail: '최고 관리자 본인확인 후 비밀번호 5회 오류 잠금을 해제하고 임시 비밀번호 변경을 강제 (ADMN-CONF-005)', ip: '211.45.120.10' },
     { id: 'AUD-9924', dt: '2026-10-19 12:41', actor: 'fin_manager (재무관리)', type: '로그인 5회 실패 · 계정 잠금', loginEvent: true, detail: '비밀번호 연속 5회 오류로 계정 자동 잠금 (is_locked=true · 잠금 해제는 최고 관리자 본인확인 후)', ip: '211.45.120.18' },
     { id: 'AUD-9923', dt: '2026-10-19 12:40', actor: 'fin_manager (재무관리)', type: '로그인 실패', loginEvent: true, detail: '비밀번호 불일치 (4/5회)', ip: '211.45.120.18' },
-    { id: 'AUD-9922', dt: '2026-10-19 11:02', actor: '3pl_cjlogis (외부물류 3PL)', type: '로그인 성공', loginEvent: true, detail: '외부 파트너 로그인 · 초기 착지 ADMN-ORD-001 (3PL 출고 대상)', ip: '121.160.44.92' },
+    { id: 'AUD-9922', dt: '2026-10-19 11:02', actor: 'log_choi (CS · 출고 담당)', type: '로그인 성공', loginEvent: true, detail: '내부 직원 로그인 · 초기 착지 ADMN-DASH-001 (운영 현황 대시보드)', ip: '211.45.120.22' },
     { id: 'AUD-9921', dt: '2026-10-19 11:32', actor: 'fin_manager (재무관리)', type: '정산 계좌번호 마스킹 해제', detail: '정종대 강사(RH-0025 / CT-2026-0501) 10월 정산금 이체 대조를 위한 계좌번호 열람 (ADMN-USER-007 10자 사유 통과)', ip: '211.45.120.18' },
-    { id: 'AUD-9920', dt: '2026-10-19 10:48', actor: '3pl_cjlogis (외부물류 3PL)', type: '출고 송장 엑셀 업로드', detail: '2026-10-19 오전 출고분 실물 교재 64건 CJ대한통운 송장번호 일괄 매핑', ip: '121.160.44.92' },
+    { id: 'AUD-9920', dt: '2026-10-19 10:48', actor: 'log_choi (CS · 출고 담당)', type: '출고 송장 엑셀 업로드', detail: '2026-10-19 오전 출고분 실물 교재 64건 · 배송사 회신 파일의 송장번호 일괄 매핑', ip: '211.45.120.22' },
     { id: 'AUD-9919', dt: '2026-10-18 16:35', actor: 'copy_sanjunbook (저작권자)', type: '정산서 열람', detail: '[PROD-BK-1011] 2026 산준모 산업안전기사 필기 한권완성 도서 인세 정산서 PDF 다운로드', ip: '58.120.89.11' },
     { id: 'AUD-9918', dt: '2026-10-18 14:12', actor: 'admin_white (최고 관리자)', type: '파트너 권한 분리 설정', detail: '한출판 계정에 ROLE_PARTNER_COPYRIGHT(교재 저작권자 전용) 권한 및 도서 스코프 부여', ip: '211.45.120.10' }
   ];

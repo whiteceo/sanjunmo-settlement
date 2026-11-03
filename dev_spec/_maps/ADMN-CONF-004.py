@@ -89,7 +89,7 @@ R('<select id="tpl-channel-filter"',
   '            <select id="tpl-channel-filter"')
 
 # ══ v3.2.32 정본 변경(설계서 b017da2 2.2 알림 표 새 행, 2026-11-02 white) — 강의 업데이트(course_update, 정보성) 알림톡 1 · 메일 1 ══
-# prototype_clean은 아직 안 바뀜 → prototype_dev에만. 치환 변수는 설계서 원문 이름(name · course_name · lecture_title · lecture_count · url)을 #{…}로.
+# prototype_clean은 아직 안 바뀜 → prototype_dev에만. 치환 변수는 설계서 원문 이름(name · course · lecture_title · lecture_count · url)을 #{…}로.
 OPS.append(dict(kind="insert_before", anchor="    {\n      code: 'TPL-SMS-007',", html=(
     "    // v3.2.32 강의 업데이트(신규 차시 공개) — ADMN-PROD-002-S1 '업데이트 예정 → 공개' 저장 · 판매 중 강좌 커리큘럼(PROD-003-S1)에 공개 강의 추가 저장 시\n"
     "    // 확인 모달 [알림 보내기] → 발송 대상 그룹(정적) → 이 템플릿으로 단체 발송(정보성). 개발 TemplateCatalog 미등록 — trigger_group course_update(규칙)\n"
@@ -99,7 +99,7 @@ OPS.append(dict(kind="insert_before", anchor="    {\n      code: 'TPL-SMS-007',"
     "      type: 'INFO',\n"
     "      domain: '강의 업데이트 (ADMN-PROD)',\n"
     "      title: '[산준모닷컴] 수강 중인 강좌 새 강의 추가 안내',\n"
-    "      body: '[산준모닷컴] #{name}님, 수강 중인 #{course_name} 강좌에 새 강의 #{lecture_count}개가 추가되었습니다.\\n• 추가 강의: #{lecture_title}\\n내 강의실에서 바로 수강하실 수 있습니다.',\n"
+    "      body: '[산준모닷컴] #{name}님, 수강 중인 #{course} 강좌에 새 강의 #{lecture_count}개가 추가되었습니다.\\n• 추가 강의: #{lecture_title}\\n내 강의실에서 바로 수강하실 수 있습니다.',\n"
     "      status: 'DRAFT',\n"
     "      rejectReason: '',\n"
     "      fallback: true,\n"
@@ -111,7 +111,7 @@ OPS.append(dict(kind="insert_before", anchor="    {\n      code: 'TPL-SMS-007',"
     "      type: 'INFO',\n"
     "      domain: '강의 업데이트 (ADMN-PROD)',\n"
     "      title: '[산준모닷컴] 수강 중인 강좌에 새 강의가 추가되었습니다',\n"
-    "      body: '[산준모닷컴] #{name}님, 수강 중인 #{course_name} 강좌에 새 강의 #{lecture_count}개가 추가되었습니다.\\n• 추가 강의: #{lecture_title}\\n내 강의실에서 바로 수강하실 수 있습니다: #{url}\\n(같은 내용의 안내 메일 · 다른 상품 홍보 · 구매 링크 없음)',\n"
+    "      body: '[산준모닷컴] #{name}님, 수강 중인 #{course} 강좌에 새 강의 #{lecture_count}개가 추가되었습니다.\\n• 추가 강의: #{lecture_title}\\n내 강의실에서 바로 수강하실 수 있습니다: #{url}\\n(같은 내용의 안내 메일 · 다른 상품 홍보 · 구매 링크 없음)',\n"
     "      status: 'APPROVED',\n"
     "      rejectReason: '',\n"
     "      fallback: false,\n"
@@ -122,7 +122,7 @@ R('            <option value="마케팅/수동 (ADMN-PROM)">마케팅 타겟 수
   '            <option value="강의 업데이트 (ADMN-PROD)" data-dev-flag="proto-only" data-dev-value="course_update" data-dev-note="v3.2.32 (규칙) trigger_group course_update — 강의 공개 저장 시 확인 모달 → 대상 그룹 → 단체 발송(정보성)">강의 공개(업데이트) 저장 시 구매자 알림 (정보성)</option>\n')
 R("            <span class=\"var-chip\" onclick=\"insertTplVar('#{경품명}')\">#{경품명}</span>\n",
   "            <span class=\"var-chip\" onclick=\"insertTplVar('#{경품명}')\">#{경품명}</span>\n"
-  "            <span class=\"var-chip\" data-dev-flag=\"proto-only\" onclick=\"insertTplVar('#{course_name}')\">#{course_name}</span>\n"
+  "            <span class=\"var-chip\" data-dev-flag=\"proto-only\" onclick=\"insertTplVar('#{course}')\">#{course}</span>\n"
   "            <span class=\"var-chip\" data-dev-flag=\"proto-only\" onclick=\"insertTplVar('#{lecture_title}')\">#{lecture_title}</span>\n"
   "            <span class=\"var-chip\" data-dev-flag=\"proto-only\" onclick=\"insertTplVar('#{lecture_count}')\">#{lecture_count}</span>\n"
   "            <span class=\"var-chip\" data-dev-flag=\"proto-only\" onclick=\"insertTplVar('#{url}')\">#{url}</span>\n")
@@ -137,7 +137,7 @@ NAME("tpl-form-title", "subject", note="email이면 필수 · LMS 제목 40바�
 R('<input type="text" id="tpl-form-sens-code"', '<input type="text" id="tpl-form-sens-code" data-dev-name="provider_template_code" data-dev-note="SENS 동기화본"')
 R('<select id="tpl-form-status"', '<select id="tpl-form-status" data-dev-name="approval_status" data-dev-value="none · pending · approved · rejected"')
 R('<input type="text" id="tpl-form-reject-reason"', '<input type="text" id="tpl-form-reject-reason" data-dev-name="approval_reason"')
-ACT("insertTplVar", count=11, note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course_name · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)")
+ACT("insertTplVar", count=11, note="개발 [data-mt-chip] 치환 변수 칩. v3.2.32 proto-only 칩 course · lecture_title · lecture_count · url은 개발 TemplateCatalog::VARIABLES에 없음(강좌명은 course)")
 NAME("tpl-form-body", "content", note="알림톡 1000자 · LMS 2000바이트 · 메일 10000자")
 R('<input type="text" id="tpl-form-btn-name"', '<input type="text" id="tpl-form-btn-name" data-dev-flag="proto-only" data-dev-note="버튼은 SENS 동기화본 buttons — 입력 칸 없음"')
 NAME("tpl-form-fallback", "use_fallback", value="1")

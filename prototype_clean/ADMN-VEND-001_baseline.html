@@ -134,7 +134,7 @@ code, pre, kbd, samp,
 
     <div id="v4-page-body" class="main-container">
       <div class="scope-note">
-        <strong>거래처</strong>는 권리자 계약 원장에 올리지 않는 거래 상대방입니다 — 도서 · 상품 매입처, 물류 대행사(3PL), 이후 생기는 공급 파트너.
+        <strong>거래처</strong>는 권리자 계약 원장에 올리지 않는 거래 상대방입니다 — 도서 · 상품 매입처, 물류 업체(보관 창고 · 배송사), 이후 생기는 공급 파트너.
         수익을 배분받는 계약 당사자(강사 · 저자 · 위탁 도서의 위탁사 등)는 권리자 계약 원장(ADMN-INST-001)에 등록합니다.
         거래처 대금(매입 대금 · 물류비)은 월간 정산 대량이체가 아니라 회계 시스템 매입채무(AP) 결제로 지급합니다. 거래처 유형은 운영하면서 추가할 수 있습니다.
       </div>
@@ -384,7 +384,7 @@ code, pre, kbd, samp,
       if (t.form === 'PURCHASE') {
         html = `<div style="display:flex; gap:8px; flex-wrap:wrap;"><input class="f-input" id="vt-rate" type="number" min="1" max="100" style="width:120px;" placeholder="공급률 %" value="${x.rate || ''}" /><input class="f-input" id="vt-pay" style="flex:1; min-width:220px;" placeholder="결제 조건 (예: 월말 마감 · 익월 10일)" value="${x.pay || ''}" /></div><div class="form-help">도서 매입 원가는 교재 관리의 사입 원가 · 도서 공급 원장 기준값과 함께 씁니다.</div><input class="f-input" id="vt-ret-cond" style="width:100%; margin-top:8px;" placeholder="반품 조건(예: 파본 · 인쇄 불량만 반출, 일반 반품은 계약 시에만)" value="${x.ret || ''}" />`;
       } else if (t.form === 'LOGISTICS') {
-        html = `<div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;"><input class="f-input" id="vt-out" type="number" placeholder="출고 건당 단가(원)" value="${x.outFee || ''}" /><input class="f-input" id="vt-ret" type="number" placeholder="반품 회수 단가(원)" value="${x.returnFee || ''}" /><input class="f-input" id="vt-sto" type="number" placeholder="월 보관료(원)" value="${x.storage || ''}" /><input class="f-input" id="vt-cycle" placeholder="정산 주기" value="${x.cycle || '월 1회 (익월 초 명세서)'}" /></div><div class="form-help">물류비 대사(ADMN-SETT-011)가 이 단가로 3PL 청구를 검수합니다.</div>`;
+        html = `<div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;"><input class="f-input" id="vt-out" type="number" placeholder="출고 건당 단가(원)" value="${x.outFee || ''}" /><input class="f-input" id="vt-ret" type="number" placeholder="반품 회수 단가(원)" value="${x.returnFee || ''}" /><input class="f-input" id="vt-sto" type="number" placeholder="월 보관료(원)" value="${x.storage || ''}" /><input class="f-input" id="vt-cycle" placeholder="정산 주기" value="${x.cycle || '월 1회 (익월 초 명세서)'}" /></div><div class="form-help">물류비 대사(ADMN-SETT-011)가 이 단가로 물류 업체 청구를 검수합니다.</div>`;
       } else {
         html = `<input class="f-input" id="vt-memo" style="width:100%;" placeholder="거래 조건 메모" value="${x.memo || ''}" />`;
       }

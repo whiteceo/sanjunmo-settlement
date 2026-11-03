@@ -24,13 +24,14 @@
     {
       title: "주문 · 환불 · CS · 프로모션",
       items: [
-        { code: "ORD-001", label: "주문 · 배송 · 3PL 관리", href: "ADMN-ORD-001_baseline.html" },
+        { code: "ORD-001", label: "주문 · 배송 관리", href: "ADMN-ORD-001_baseline.html" },
         { code: "RFD-002", label: "환불 요청 · 심사 관리", href: "ADMN-RFD-002_baseline.html" },
         { code: "BRD-002", label: "1:1 문의 관리 (문의 분기 허브)", href: "ADMN-BRD-002_baseline.html", screenCode: "ADMN-BRD-002" },
         { code: "BRD-007", label: "1:1 문의 분류 관리", href: "ADMN-BRD-007_baseline.html", screenCode: "ADMN-BRD-007" },
         { code: "BRD-001", label: "공지 · FAQ · Q&A · 당첨자 발표", href: "ADMN-BRD-001_baseline.html?view=notice", screenCode: "ADMN-BRD-001" },
         { code: "BRD-005", label: "수강·합격수기 · 무료콘텐츠", href: "ADMN-BRD-005_baseline.html?view=review", screenCode: "ADMN-BRD-005" },
         { code: "PROM-001", label: "이벤트 · 기획전 관리 (Slug·특가)", href: "ADMN-PROM-001_baseline.html", screenCode: "ADMN-PROM-001" },
+        { code: "PROM-004", label: "이벤트 참여 관리 (증빙 승인 · 보상 쿠폰)", href: "ADMN-PROM-001_baseline.html?view=part", screenCode: "ADMN-PROM-004" },
         { code: "PROM-002", label: "쿠폰 마스터 등록 · 발급 관리", href: "ADMN-PROM-002_baseline.html?view=list", screenCode: "ADMN-PROM-002" },
         { code: "PROM-003", label: "포인트 적립 정책 및 원장 관리", href: "ADMN-PROM-002_baseline.html?view=point", screenCode: "ADMN-PROM-003" }
       ]
@@ -61,7 +62,7 @@
       title: "정산 마감 전 사전 대사",
       items: [
         { code: "SETT-004", label: "PG 정산 원장 대사", href: "ADMN-SETT-004_baseline.html", screenCode: "ADMN-SETT-004" },
-        { code: "SETT-011", label: "물류비 대사 (3PL)", href: "ADMN-SETT-011_baseline.html", screenCode: "ADMN-SETT-011" },
+        { code: "SETT-011", label: "물류비 대사", href: "ADMN-SETT-011_baseline.html", screenCode: "ADMN-SETT-011" },
         { code: "INST-002", label: "약정금 마일스톤 검수", href: "ADMN-INST-002_baseline.html", screenCode: "ADMN-INST-002" },
         { code: "SETT-006", label: "합격 환급반 관리", href: "ADMN-SETT-006_baseline.html", screenCode: "ADMN-SETT-006" },
         { code: "SETT-008", label: "사업자등록 확인 이력", href: "ADMN-SETT-008_baseline.html", screenCode: "ADMN-SETT-008" }

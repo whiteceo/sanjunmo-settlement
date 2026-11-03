@@ -2,7 +2,7 @@
 
 - 프로토타입 파일: `prototype_clean/ADMN-ORD-001_baseline.html` (원본 상태: d6723b0 v7.01)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
-- v7.01 정본 변경: 재고 2단 차감(white 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
+- v7.01 정본 변경: 재고 2단 차감(김영호 PO 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
 - 포함 화면: ORD-001 주문 목록 · 001-S1 주문 상세(배송지 Lock) · 001-P4 수강권 직권 부여 · ORD-002 배송 관리(탭 4개: 출고 대기 · S1 배송중 · S2 배송완료 · S3 반품 수거 · 검수) · 002-P1 송장 벌크 업로드 · 002-P2 송장 단건 등록/정정 · 002-P3 발주 배치 · 업로드 이력 · 3PL 발주 확인 모달
 - 개발 진행: 구현(ORD-001 · 001-S1 · 002 · 002-P1 라우트 · 화면 있음, `_index/progress.md` 48~51행). 001-P4 직권 부여 · 가상계좌 입금 기한 연장 · 3PL 외부 계정(ROLE_PARTNER_3PL)은 미구현 → 규칙 기반 명명
 - 근거: 개발 `routes/admin.php:851-889`, `app/Http/Controllers/Admin/OrderController.php` · `DeliveryController.php` · `RefundController.php`(반품 검수), `app/Services/Admin/OrderService.php` · `DeliveryService.php`, `config/delivery.php`
@@ -309,14 +309,14 @@
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
 - 001-P4 수강권 직권 부여(0원 주문, 구 ORD-003) — 프로토 `modalDirectGrant` L1696, `submitDirectGrant()` L1831. 개발 검색 결과 없음
-- S1 가상계좌 입금 기한 연장 — 프로토 `#vbankExtendBox` L1067-1077, `extendVbankDueDate()` L3596. 개발 `OrderService.php:490` 의도적 미구현. 기한을 담을 `payments` 컬럼도 없다(`virtual_account_due_at` 삭제, 기한은 PG 발급 응답 원문에만) → Q-ORD-1 (10-27 스키마 재색인 반영) **→ 결정(v6.92 white, D-ORD-01)**: 연장 없음(개발과 같음) · 기본 기한 72시간, 프로토는 연장 박스 삭제 · 재안내 알림톡(`resendVbankNotice()`, 개발 미구현)으로 바꿈
+- S1 가상계좌 입금 기한 연장 — 프로토 `#vbankExtendBox` L1067-1077, `extendVbankDueDate()` L3596. 개발 `OrderService.php:490` 의도적 미구현. 기한을 담을 `payments` 컬럼도 없다(`virtual_account_due_at` 삭제, 기한은 PG 발급 응답 원문에만) → Q-ORD-1 (10-27 스키마 재색인 반영) **→ 결정(v6.92 김영호 PO, D-ORD-01)**: 연장 없음(개발과 같음) · 기본 기한 72시간, 프로토는 연장 박스 삭제 · 재안내 알림톡(`resendVbankNotice()`, 개발 미구현)으로 바꿈
 - 3PL 외부 계정 격리 모드(ROLE_PARTNER_3PL, 금액 · 결제수단 차단, 연락처 마스킹) — 프로토 L539-540 · L794-803 · `setSessionRole()` L1788. 개발 역할 없음 → Q-ORD-4 (v6.92: 3PL 보기 마스킹 위치를 PTNR-002와 같게 — 이름 가운데 글자 · 연락처 끝 4자리, 출고 대기 외 탭 · 검수 패널까지. `pName()` · `pPhone()`)
 - 001 주문 구분 '일반상품(과세 10%)' — 프로토 L712. 개발 `OrderService::KINDS`(`OrderService.php:96`)는 인강 · 교재 · 복합 3종, `order_items.item_type`도 LECTURE · BOOK · SHIPPING_FEE만
 - 002 배송 권역 필터 · 도서산간만 체크 — 프로토 L857 · `#chkIslandOnly` L864. 개발 `normalizeFilters`에 없음(`DeliveryService.php:130-150`)
 - KPI '배송중' 카드 — 프로토 `#kpi-ord-ship` L626. 개발 요약은 4개 + 건수
-- S1 주소 변경 시 도서산간 추가배송비 고객 청구 판정 배지 — 프로토 `simulateZipSearch()` L3565. 개발 배송지 보정은 금액 재판정 없음(확인 필요) **→ 결정(v6.92 white, D-ORD-10)**: 고객 귀책은 PG 추가 결제 · 무통장 입금 · 재주문 안내 중 택1(결제 · 입금 확인 전 3PL 발주 제외), 관리자 귀책은 미청구 · 판관비/잡손실 — 프로토 `#islandFeeBox` · `confirmIslandFeePaid()`, 개발 미구현
-- S1 3PL 출고보류 요청 · 3PL 회신 · 맞교환 재출고 등록(v6.92 신설, S-13) — 프로토 `#shipHoldPanel` · `sendShipHoldRequest()` · `recordShipHoldReply()` · `saveSwapReship()`. 개발은 출고지시 회수(`orders.dispatch.destroy`)만 있음 **→ 결정(v6.92 white, S-13)**: 회수(잠금만 해제) 버튼 없음, 보류 완료 회신 때만 잠금 해제 · 이미 출고면 맞교환
-- 002-S3 검수 결과 '파본 · 불량'(v6.92 신설) **→ 결정(v6.92 white, D-ORD-09)**: 정상 · 파본/불량(회사 귀책 · 재고 미입고) · 고객 훼손 3값, 개발 `inspection_result`에 `defective` 추가 필요
+- S1 주소 변경 시 도서산간 추가배송비 고객 청구 판정 배지 — 프로토 `simulateZipSearch()` L3565. 개발 배송지 보정은 금액 재판정 없음(확인 필요) **→ 결정(v6.92 김영호 PO, D-ORD-10)**: 고객 귀책은 PG 추가 결제 · 무통장 입금 · 재주문 안내 중 택1(결제 · 입금 확인 전 3PL 발주 제외), 관리자 귀책은 미청구 · 판관비/잡손실 — 프로토 `#islandFeeBox` · `confirmIslandFeePaid()`, 개발 미구현
+- S1 3PL 출고보류 요청 · 3PL 회신 · 맞교환 재출고 등록(v6.92 신설, S-13) — 프로토 `#shipHoldPanel` · `sendShipHoldRequest()` · `recordShipHoldReply()` · `saveSwapReship()`. 개발은 출고지시 회수(`orders.dispatch.destroy`)만 있음 **→ 결정(v6.92 김영호 PO, S-13)**: 회수(잠금만 해제) 버튼 없음, 보류 완료 회신 때만 잠금 해제 · 이미 출고면 맞교환
+- 002-S3 검수 결과 '파본 · 불량'(v6.92 신설) **→ 결정(v6.92 김영호 PO, D-ORD-09)**: 정상 · 파본/불량(회사 귀책 · 재고 미입고) · 고객 훼손 3값, 개발 `inspection_result`에 `defective` 추가 필요
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 | 프로토타입 | 개발 |
@@ -336,20 +336,20 @@
 | 주문 상세 배송지 인라인 편집 | 레이어 `layerAddress` + PUT `orders.address.update` |
 | 처리 이력 구분(배송지보정 · 출고지시회수 · 기한연장 · 관리자메모) | `OrderService::ACTION_LABELS` `address_update` 배송지 수정 · `dispatch_revoke` 출고지시 회수 · `tracking_register` 송장 단건 등록 · `tracking_correct` 운송장 정정 · `delivered` 배송완료 처리 + 메모 |
 
-## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 김영호 PO 전부 결정)
 
 | 번호 | 질문 | 정본 근거 | 개발 근거 |
 |---|---|---|---|
-| Q-ORD-1 | 가상계좌 입금 기한 연장을 제공하는가? 정본은 S1에서 새 기한 + 사유로 연장하고 알림톡(TPL_VBANK_DUE_EXTENDED)을 보낸다. 개발은 "토스에 발급 후 기한 변경 방법이 없어 두지 않는다"며 연장을 뺐고, 주석이 "관리자 연장 대상"이던 `payments.virtual_account_due_at`도 삭제됐다. 기한은 발급 응답 원문(`raw_response`)에만 남고, 운영자가 정하는 것은 새 발급분의 유효 시간(`site_settings.virtual_account_valid_hours`)뿐이다. 제공하지 않으면 프로토에서 연장 박스를 빼고 '재발급 안내'(또는 기본 유효 시간 안내)로 바꿀지 | 프로토 L1067-1077 `#vbankExtendBox`, `extendVbankDueDate()` L3596 | `app/Services/Admin/OrderService.php:490`, `app/Services/Order/OrderService.php:701`(depositInfo), `database/migrations/2026_09_08_000076_drop_payment_legacy_columns.php`, `2026_10_20_000226_add_virtual_account_valid_hours_to_site_settings_table.php` (10-27 스키마 재색인 반영)  **→ 결정(v6.92 white, D-ORD-01)**: 연장 없음 · 기본 입금 기한 72시간(`virtual_account_valid_hours` 기본값 24 → 72) · 같은 계좌 · 기한 재안내(`TPL_VBANK_ISSUED`)만 |
+| Q-ORD-1 | 가상계좌 입금 기한 연장을 제공하는가? 정본은 S1에서 새 기한 + 사유로 연장하고 알림톡(TPL_VBANK_DUE_EXTENDED)을 보낸다. 개발은 "토스에 발급 후 기한 변경 방법이 없어 두지 않는다"며 연장을 뺐고, 주석이 "관리자 연장 대상"이던 `payments.virtual_account_due_at`도 삭제됐다. 기한은 발급 응답 원문(`raw_response`)에만 남고, 운영자가 정하는 것은 새 발급분의 유효 시간(`site_settings.virtual_account_valid_hours`)뿐이다. 제공하지 않으면 프로토에서 연장 박스를 빼고 '재발급 안내'(또는 기본 유효 시간 안내)로 바꿀지 | 프로토 L1067-1077 `#vbankExtendBox`, `extendVbankDueDate()` L3596 | `app/Services/Admin/OrderService.php:490`, `app/Services/Order/OrderService.php:701`(depositInfo), `database/migrations/2026_09_08_000076_drop_payment_legacy_columns.php`, `2026_10_20_000226_add_virtual_account_valid_hours_to_site_settings_table.php` (10-27 스키마 재색인 반영)  **→ 결정(v6.92 김영호 PO, D-ORD-01)**: 연장 없음 · 기본 입금 기한 72시간(`virtual_account_valid_hours` 기본값 24 → 72) · 같은 계좌 · 기한 재안내(`TPL_VBANK_ISSUED`)만 |
 | Q-ORD-2 | 주문 조회용 엑셀에 반출 사유를 받는가? 정본(ORD-001 ⑥)은 사유 없이 열람 로그만, 개발은 CONF-005 반출 정책을 따라 공용 사유(ReasonRequest)를 받는다(개발이 충돌 대장에 기록) | 프로토 `downloadOrderLookupExcel()` L3050 | `app/Http/Requests/Admin/OrderDownloadRequest.php:7` **→ 정본대로(POLICY_D_ORD A, 통합설계서 L128 · D-CONF-04 원칙)**: 주문 엑셀은 수령인 연락처 · 주소가 들어가 사유를 받음 — 개발이 맞음, 프로토에 사유 모달 추가 |
-| Q-ORD-3 | 반품 검수 사진 필수 범위 — 정본 배송 관리 화면은 '훼손 판정 시 필수', 개발은 훼손 **또는 정상 + 고객 귀책**에도 필수(두 화면 제안을 합친 임시안, 개발도 미확정 표시) | 프로토 L953 "창고 검수 증빙 사진 (훼손 판정 시 필수)" | `app/Http/Requests/Admin/ReturnInspectionRequest.php:32`, `app/Models/Refund.php:281`  **→ 결정(v6.92 white, D-ORD-02)**: 고객 훼손 판정 때만 필수(정상 + 고객 귀책 필수 제거). 함께 D-ORD-09 검수 3값 |
+| Q-ORD-3 | 반품 검수 사진 필수 범위 — 정본 배송 관리 화면은 '훼손 판정 시 필수', 개발은 훼손 **또는 정상 + 고객 귀책**에도 필수(두 화면 제안을 합친 임시안, 개발도 미확정 표시) | 프로토 L953 "창고 검수 증빙 사진 (훼손 판정 시 필수)" | `app/Http/Requests/Admin/ReturnInspectionRequest.php:32`, `app/Models/Refund.php:281`  **→ 결정(v6.92 김영호 PO, D-ORD-02)**: 고객 훼손 판정 때만 필수(정상 + 고객 귀책 필수 제거). 함께 D-ORD-09 검수 3값 |
 | Q-ORD-4 | 외부 3PL 대행사 계정(ROLE_PARTNER_3PL)을 두는가? 정본은 배송 관리 전용 격리 세션(금액 · 결제수단 차단, 연락처 마스킹, 발주 · P1 · P2 · S3만)을 정의. 개발은 역할 없이 메뉴 권한(`admin.deliveries.index`)만 있고 발주 파일에 연락처 원문이 실림 | 프로토 L539-540, L794-803, `setSessionRole()` L1788 | `routes/admin.php:866-889`(메뉴 권한만), `app/Services/Admin/DeliveryService.php:53` DISPATCH_HEADERS(수령인연락처) **→ 정본대로(POLICY_D_ORD A, 통합설계서 L365 · L380)**: `ROLE_PARTNER_3PL` 격리 계정 — 개발팀 전달, 3PL에 주는 연락처 범위는 D-PTNR2-03 결정(화면 가림 + 발주 엑셀 원문) |
 
 - 반품 배송비 귀책(편도 3,000 / 왕복 6,000) 질문은 계산 규칙이라 `ADMN-RFD-002.md` Q-RFD-7에 둔다(S3 `#inpInspectFault` 값도 그 결정을 따른다).
 
 ## 9. 물류(3PL) 화면 반영 (2026-11-04, 설계서 v3.2.40 · v3.2.44 · v3.2.48 · v3.2.49)
 
-- 근거: 기능 정의 `scripts/qa/reports/review/findings/qa1103/FUNC_3PL_draft.md` 초안 2(미결 5건 11-04 white 확정), 화면 목록 `SCREEN_3PL.md`. 화면 변경은 prototype_clean · prototype 원본에 들어갔고, prototype_dev 맵은 새 입력 · 버튼에 개발 이름만 단다.
+- 근거: 기능 정의 `scripts/qa/reports/review/findings/qa1103/FUNC_3PL_draft.md` 초안 2(미결 5건 11-04 김영호 PO 확정), 화면 목록 `SCREEN_3PL.md`. 화면 변경은 prototype_clean · prototype 원본에 들어갔고, prototype_dev 맵은 새 입력 · 버튼에 개발 이름만 단다.
 - 주문 상태(S3-03): 결제완료(출고대기) = 결제 뒤 출고 지시 전 / 배송준비중 = 출고 지시(발주 파일) 뒤 운송장 전 / 배송중 / 배송완료. 출고 대기 탭 · 상세 배지 · 주문 데이터를 이 기준으로 맞춤. 판정은 `ship_ordered_at` · 운송장 여부.
 - F1 발주 파일: 확인 레이어에 시트 3개(발주 · 취소 · 회수) · 마감(출고 14:00 · 회신 18:00). 고를 출고 라인이 없어도 취소 · 회수 대기가 있으면 파일 생성. (규칙) 개발 `DeliveryService` 발주 파일에 시트 2개 추가 필요.
 - F2 회신 파일 올리기(P1): 시트 3개 모두 읽기, 운송장 빈 줄은 E03 오류가 아니라 '미출고'(상태 유지). 지금 개발은 첫 시트만 읽고 빈 줄을 E03으로 셈.

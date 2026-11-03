@@ -477,7 +477,7 @@ code, pre, kbd, samp,
         <span class="badge badge-blue">SENS 알림톡 자동연동 (SMS 폴백)</span>
         <span class="badge badge-slate">1차 오픈 스펙: 동시접속 IP/세션 제어 적용</span>
         <a href="ADMN-RFD-002_baseline.html" class="btn btn-sm">⇄ 환불 심사 큐 (ADMN-RFD-002)</a>
-        <a href="ADMN-ORD-001_baseline.html" class="btn btn-sm">📦 주문·3PL 배송 (ADMN-ORD-001)</a>
+        <a href="ADMN-ORD-001_baseline.html" class="btn btn-sm">📦 주문·배송 (ADMN-ORD-001)</a>
         <a href="ADMN-BRD-007_baseline.html" class="btn btn-sm">⚙️ 1:1 문의 분류 관리 (ADMN-BRD-007)</a>
       </div>
     </header>
@@ -516,7 +516,7 @@ code, pre, kbd, samp,
             <span class="badge">우선 처리</span>
           </div>
           <div class="k-num" style="color:var(--warning);">3건</div>
-          <div class="k-sub">3PL 출고지시 Lock 확인 필요 2건 포함</div>
+          <div class="k-sub">출고지시 Lock 확인 필요 2건 포함</div>
         </button>
         <button type="button" class="kpi-card" onclick="filterByCategory('REFUND')">
           <div class="k-title">
@@ -556,7 +556,7 @@ code, pre, kbd, samp,
               <span class="badge badge-amber">분기 [2] 배송·교재</span>
               <span style="color:#FDE047;">➔ ORD-001/002</span>
             </div>
-            <div class="route-node-title">3PL 출고지시 Lock 판별</div>
+            <div class="route-node-title">출고지시 Lock 판별</div>
             <div class="route-node-desc"><code>ship_ordered_at</code> 잠금 여부 실시간 조회 → 출고 전 주소 변경 or 출고지시 회수/반품검수 연결</div>
           </div>
           <div class="route-node" onclick="openCaseDetail('INQ-20261016-084')">
@@ -683,7 +683,7 @@ code, pre, kbd, samp,
                   </td>
                 </tr>
 
-                <!-- Row 2: 배송·교재 (3PL Lock) -->
+                <!-- Row 2: 배송·교재 (출고지시 Lock) -->
                 <tr data-id="INQ-20261016-088" data-cat="SHIPPING" data-status="WAITING" data-order="LINKED" onclick="openCaseDetail('INQ-20261016-088')">
                   <td>
                     <div style="font-weight:800; color:var(--primary);">INQ-20261016-088</div>
@@ -696,7 +696,7 @@ code, pre, kbd, samp,
                   </td>
                   <td>
                     <div style="font-weight:700; color:var(--text-primary);">[긴급] 교재 배송지 주소를 옛날 집으로 적었어요! 변경 부탁드립니다.</div>
-                    <div style="font-size:11.5px; color:var(--danger);">⚠️ 3PL 발주 엑셀 다운로드 완료(<code>ship_ordered_at</code> 기록)로 마이페이지 수정 차단됨</div>
+                    <div style="font-size:11.5px; color:var(--danger);">⚠️ 물류 발주 엑셀 다운로드 완료(<code>ship_ordered_at</code> 기록)로 마이페이지 수정 차단됨</div>
                   </td>
                   <td>
                     <div style="font-weight:700;">ORD-20261016-0019</div>
@@ -704,7 +704,7 @@ code, pre, kbd, samp,
                   </td>
                   <td>
                     <span class="badge badge-amber">➔ ADMN-ORD-001-S1</span>
-                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔒 3PL 출고지시 Lock 확인</div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🔒 출고지시 Lock 확인</div>
                   </td>
                   <td><span class="badge badge-amber">⚡ SLA 임박</span></td>
                   <td onclick="event.stopPropagation();">
@@ -814,7 +814,7 @@ code, pre, kbd, samp,
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
               <span style="font-size:12px; font-weight:800; color:var(--text-secondary);">시연 케이스 빠른 전환:</span>
               <button type="button" class="btn btn-sm" id="case-btn-091" onclick="openCaseDetail('INQ-20261016-091')">[1] 결제·환불 (RFD-002 이관)</button>
-              <button type="button" class="btn btn-sm" id="case-btn-088" onclick="openCaseDetail('INQ-20261016-088')">[2] 배송·교재 (3PL Lock)</button>
+              <button type="button" class="btn btn-sm" id="case-btn-088" onclick="openCaseDetail('INQ-20261016-088')">[2] 배송·교재 (출고지시 Lock)</button>
               <button type="button" class="btn btn-sm" id="case-btn-084" onclick="openCaseDetail('INQ-20261016-084')">[3] 수강·동시접속 (IP/세션 초기화)</button>
               <button type="button" class="btn btn-sm" id="case-btn-079" onclick="openCaseDetail('INQ-20261016-079')">[4] 합격환급·포인트 (SETT-006)</button>
               <button type="button" class="btn btn-sm" id="case-btn-075" onclick="openCaseDetail('INQ-20261016-075')">[5] 학습질문 오인입 (카페 아웃링크)</button>
@@ -877,7 +877,7 @@ code, pre, kbd, samp,
 
                   <div class="macro-chips">
                     <span class="macro-chip" onclick="insertMacro('REFUND_GUIDE')">[매크로] 복합결제 교재 부분환불 안내</span>
-                    <span class="macro-chip" onclick="insertMacro('3PL_LOCKED')">[매크로] 3PL 출고지시 완료(배송지 변경불가) 안내</span>
+                    <span class="macro-chip" onclick="insertMacro('3PL_LOCKED')">[매크로] 출고지시 완료(배송지 변경불가) 안내</span>
                     <span class="macro-chip" onclick="insertMacro('IP_RESET')">[매크로] 동시접속 IP 세션 초기화 완료 안내</span>
                     <span class="macro-chip" onclick="insertMacro('PASS_REFUND')">[매크로] 합격환급반 진도율 90% 충족 안내</span>
                     <span class="macro-chip" onclick="insertMacro('CAFE_QNA')">[매크로] 학습질문 ➔ 산준모 네이버 카페 안내</span>
@@ -937,7 +937,7 @@ code, pre, kbd, samp,
               <div style="background:#FFFFFF; border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px;">
                 <div style="font-weight:800; margin-bottom:4px;">📌 사전 체크 (도서정가제 & 복합결제 분리 규칙)</div>
                 <div style="color:var(--text-secondary);">• 패키지 쿠폰 할인은 강좌 라인에만 배분되었으므로 교재 라인(38,000원, 면세 · 최대 10% 기본할인 반영 실판매가)은 쿠폰/포인트 왜곡 없이 실결제액 기준 반품 검수 후 부분취소 가능</div>
-                <div style="color:var(--text-secondary);">• 3PL 반품 입고 검수(<code>ADMN-ORD-002-S3</code>) 양품 판정 후 PG 면세 부분취소 집행</div>
+                <div style="color:var(--text-secondary);">• 반품 입고 검수(<code>ADMN-ORD-002-S3</code>) 양품 판정 후 PG 면세 부분취소 집행</div>
               </div>
               <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 <button type="button" class="btn btn-danger" onclick="transferToRefundQueue()">🚀 환불 심사 큐(ADMN-RFD-002)로 즉시 이관</button>
@@ -948,15 +948,15 @@ code, pre, kbd, samp,
             <!-- 3. 동적 분기 패널 [2]: 배송·교재 (SHIPPING -> ADMN-ORD-001/002) -->
             <div id="branch-SHIPPING" class="branch-panel warn-theme">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span class="badge badge-amber">분기 [2] 배송 · 3PL 출고지시 Lock 허브</span>
+                <span class="badge badge-amber">분기 [2] 배송 · 출고지시 Lock 허브</span>
                 <span style="font-size:11.5px; font-weight:700; color:var(--warning);">연결 화면: ADMN-ORD-001-S1 / ORD-002</span>
               </div>
               <div style="font-size:13.5px; font-weight:800; margin-bottom:8px;">
-                🔒 3PL 출고지시 잠금(Lock) 상태 실시간 판별
+                🔒 출고지시 잠금(Lock) 상태 실시간 판별
               </div>
               <div style="background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:12px; margin-bottom:12px; font-size:12px; color:#991B1B;">
                 <div style="font-weight:800; margin-bottom:4px;">상태: 🔒 출고지시 완료 (<code>ship_ordered_at = 2026-10-16 11:00:12</code>)</div>
-                <div>운영자가 3PL 발주 엑셀 다운로드를 완료하여 고객 마이페이지 및 일반 CS 권한의 배송지 직접 수정이 차단(HTTP 409)된 상태입니다.</div>
+                <div>운영자가 물류 발주 엑셀 다운로드를 완료하여 고객 마이페이지 및 일반 CS 권한의 배송지 직접 수정이 차단(HTTP 409)된 상태입니다.</div>
               </div>
               <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 <button type="button" class="btn btn-warning" onclick="insertMacro('3PL_LOCKED')">출고지시 Lock 안내 문구 삽입</button>
@@ -1099,7 +1099,7 @@ code, pre, kbd, samp,
         cat: 'SHIPPING',
         catLabel: '배송 · 교재 문의',
         catClass: 'badge-amber',
-        statusLabel: '⚡ SLA 임박 (3PL Lock)',
+        statusLabel: '⚡ SLA 임박 (출고지시 Lock)',
         statusClass: 'badge-amber',
         user: '박안전 (네이버 카페 ID: safe_park)',
         phone: '010-****-9912',
@@ -1109,7 +1109,7 @@ code, pre, kbd, samp,
         unlinkedAlert: false,
         orderNo: 'ORD-20261016-0019',
         ctxOrder: 'ORD-20261016-0019 (토스페이 · 38,000원 · 배송비 무료)',
-        ctxLines: '[면세 교재] 정종대 필기 기본서 외 1종 (3PL 출고지시 Lock 완료)',
+        ctxLines: '[면세 교재] 정종대 필기 기본서 외 1종 (출고지시 Lock 완료)',
         ctxPoints: '무상 5,000P (교재 단독 결제로 포인트 적립 0%)',
         draft: ''
       },
@@ -1174,7 +1174,7 @@ code, pre, kbd, samp,
 
     const MACROS = {
       REFUND_GUIDE: '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님. 복합 패키지(강좌+교재) 중 미개봉 실물 교재 부분 환불 관련 안내드립니다.\n교재 수령일로부터 7일 이내 미개봉(래핑 유지) 상태인 경우 교재 라인(면세) 단독 반품 및 부분 환불이 가능합니다.\n본 문의를 환불 심사 전담 부서(ADMN-RFD-002)로 즉시 연결하여 택배 회수 및 반품 검수 절차를 진행해 드리겠습니다.',
-      '3PL_LOCKED': '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님. 요청하신 주문(ORD-20261016-0019)은 금일 11:00 물류센터(3PL) 출고지시가 완료되어 시스템상 자동 배송지 변경이 잠금(Lock) 처리된 상태입니다.\n물류 관리자 권한으로 [출고지시 회수] 가능 여부를 즉시 확인한 뒤 송장 출력 전이면 요청하신 송파구 주소로 변경 처리해 드리겠습니다.',
+      '3PL_LOCKED': '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님. 요청하신 주문(ORD-20261016-0019)은 금일 11:00 물류센터 출고지시가 완료되어 시스템상 자동 배송지 변경이 잠금(Lock) 처리된 상태입니다.\n담당자가 [출고지시 회수] 가능 여부를 즉시 확인한 뒤 송장 출력 전이면 요청하신 송파구 주소로 변경 처리해 드리겠습니다.',
       IP_RESET: '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님. 댁내 PC 브라우저 미종료로 인해 남아있던 기존 접속 세션(IP)을 강제 로그아웃(초기화) 처리 완료하였습니다.\n지금 바로 아이패드에서 다시 강의 플레이어를 실행하시면 정상 재생됩니다.',
       PASS_REFUND: '[산준모닷컴 고객센터 안내]\n최종 합격을 진심으로 축하드립니다! 조회 결과 수험생님의 패키지 재생시간 가중평균 진도율은 92.4%로 환급 기준(90% 이상)을 정상 충족하셨습니다.\n[마이페이지 > 합격환급 신청] 메뉴에서 합격증명서와 신분증·통장 사본을 업로드해 주시면 검수 후 환급금이 지급됩니다.',
       CAFE_QNA: '[산준모닷컴 고객센터 안내]\n안녕하세요, 수험생님! 본 1:1 문의 게시판은 결제·환불·배송·시스템 이용 관련 전용 상담 창구입니다.\n강의 및 교재 내용에 대한 학습 질문은 산준모 공식 네이버 카페 [학습 Q&A 게시판]을 이용해 주시면 교수님 및 전담 조교진의 정확한 답변을 받으실 수 있습니다.\n▶ 산준모 공식 카페 바로가기: https://cafe.naver.com/sanjunmo'
@@ -1473,8 +1473,8 @@ code, pre, kbd, samp,
     const MAJOR_BADGE = { PAY: 'badge-red', SHIP: 'badge-amber', LECT: 'badge-blue', PASS: 'badge-green', STUDY: 'badge-purple', ETC: 'badge-slate' };
     const SCREENS = {
       'ADMN-RFD-002-S1': ['환불 요청 · 심사 관리', 'ADMN-RFD-002_baseline.html'],
-      'ADMN-ORD-001-S1': ['주문 · 배송 · 3PL 관리', 'ADMN-ORD-001_baseline.html'],
-      'ADMN-ORD-002': ['주문 · 배송 · 3PL 관리 (3PL 출고 · 반품)', 'ADMN-ORD-001_baseline.html'],
+      'ADMN-ORD-001-S1': ['주문 · 배송 관리', 'ADMN-ORD-001_baseline.html'],
+      'ADMN-ORD-002': ['주문 · 배송 관리 (출고 · 반품)', 'ADMN-ORD-001_baseline.html'],
       'ADMN-USER-003': ['회원 수강 · 기간 · 기기 제어', 'ADMN-USER-001_baseline.html?view=course'],
       'ADMN-USER-004': ['진도율 보정', 'ADMN-USER-001_baseline.html?view=course'],
       'ADMN-SETT-006': ['합격 환급반 관리', 'ADMN-SETT-006_baseline.html'],

@@ -2,7 +2,7 @@
 
 - 프로토타입 파일: `prototype_clean/ADMN-PROD-004_baseline.html` (원본 상태: d6723b0 v7.01)
 - 맞춘 개발 커밋: `d562524a` (2026-10-26 19:52)
-- v7.01 정본 변경: 재고 2단 차감(white 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
+- v7.01 정본 변경: 재고 2단 차감(김영호 PO 결정 Q-3PL-1, 설계서 v3.2.25): 결제 완료 → 예약(가용 감소), 3PL 송장 업로드 → 실재고 확정 차감. 화면은 실재고 · 예약 · 가용 3칸. 개발은 재고 1칸(books.stock · goods.stock, 결제 시 즉시 차감)이라 예약 · 가용은 개발 미구현 — reserved_stock (규칙), 가용 = stock − reserved_stock 파생. 개발팀 전달 대상
 - 포함 화면: PROD-004 교재 목록 · 004-S2 교재 상세 · 재고이력 · 004-S1 교재 등록/수정 + 모달 4개(`modal-temp-book` 가채번 불러오기 · `modal-supply-sku` 공급원장 SKU 불러오기 · `modal-stock-adjust` 재고 수불 · `modal-autostop-confirm` 연결 상품 자동 판매중지 확인)
 - 개발 진행: 구현(목록 · 등록 · 수정 · 재고 조정 · 판매중지 · 재고 이력 레이어). 교재 상세 화면 · 가채번/공급원장 불러오기 · 3원장 신호등은 미구현
 
@@ -202,7 +202,7 @@
 | 공급 형태 셀렉트(`#f-supply-ledger`) | `book_supply_type` `OWN_PUBLISHED` · `PURCHASED_RESALE` · `CONSIGNMENT` · `BUNDLED` (BOOK-001에서 지정) |
 | 재무팀 원가 열람 역할 | 역할 코드 `finance` |
 
-## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 김영호 PO 전부 결정)
 - **Q-PROD004-1 주교재 판매중지 · 판매종료 시 연결 강좌 · 패키지 자동 판매중지** — 정본 프로토(v6.42): 주교재가 판매중지 · 판매종료되면 연결 강좌 · 패키지를 자동 판매중지하고 [판매중] 선택을 잠근다(복귀는 수동), 일시품절은 구매만 일시 중지, 부교재는 경고만(`prototype_clean/ADMN-PROD-003_baseline.html:1686-1689`, `ADMN-PROD-004_baseline.html` `modal-autostop-confirm` :1535 · `bkAutoStopTargets()`). 개발: 교재 판매중지는 교재만 `stopped`로 바꾸고 "패키지 N건의 판매 가능 상태가 깨집니다" 문구만 보여 준다. 강좌는 보지 않는다(`app/Services/Admin/BookService.php:287-320`). 자동 판매중지를 넣을지, 경고만 둘지. **→ 정본대로(POLICY_D_PROD A, 통합설계서 L249(2026-10-26 확정))**: 주교재 판매중지 · 판매종료 시 연결 강좌 · 패키지 자동 판매중지(복귀 수동), 일시품절은 구매만 차단, 부교재는 경고만 — 개발팀 전달
 - **Q-PROD004-2 교재 판매 상태 체계** — 정본 프로토: 판매중 · 예약판매 · 판매대기(원장 매핑 대기) · 일시품절(재고 0) · 판매중지(구매 차단) · 판매종료(구판 · 절판) 6종 + 노출 Y/N(`ADMN-PROD-004_baseline.html:1290-1326`, 필터 :823). 개발: `display_status` 3값(`selling` · `hidden` · `stopped`) + `is_preorder` + 재고 파생 품절(`BookRequest.php` `display_status`, `form.blade.php:540-556`). 특히 '판매대기(원장 매핑 대기)'는 3원장 매핑 전 판매를 막는 규칙인데 개발에 없다. PROD-003 Q-PROD003-1과 함께 결정. **→ 정본대로(POLICY_D_PROD A, 통합설계서 L248(2026-10-26 확정))**: 교재 6종 + 노출 Y/N 별도 칸, 판매대기(매핑 대기) 판매 차단 포함 — 개발팀 전달
 - **Q-PROD004-3 도서 할인 한도 기본값** — 정본 프로토: 도서정가제 상한 10% 이내 기본 할인 `book_discount_rate` 0~10% 입력(`ADMN-PROD-004_baseline.html:780-782`, 헤더 :687). 개발: 교재별 할인율 칸 없이 판매가를 직접 넣고, 한도는 사이트 설정 `book_discount_rate_limit` 기본 0%(`database/migrations/2026_09_21_000149_add_v7_settings_to_site_settings_table.php:26`, `BookRequest.php:268-280`). 기본 0%면 교재 할인이 막힌다. 한도 기본값을 10%로 둘지, 교재별 할인율 칸을 둘지. **→ 정본대로(POLICY_D_PROD A, 통합설계서 기본 할인율 0~10% · S2-04 · 출판문화산업 진흥법 제22조)**: 교재별 `book_discount_rate`(0~10%), `book_discount_rate_limit`은 쿠폰 · 포인트 추가 할인 한도로 정리 — 개발팀 전달

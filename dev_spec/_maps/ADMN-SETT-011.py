@@ -121,8 +121,8 @@ R("""      // 보관 창고 · 계약 단가는 거래처 관리(물류 대행 �
       const devWh = (() => { try { const s = JSON.parse(localStorage.getItem('sjm.dev.vend3pl.v1') || 'null'); return s && s.vendors ? s.vendors.filter(v => v.type === 'VT-03') : null; } catch (e) { return null; } })();
       const tpls = (devWh || [{ id: 'SUP-0022', name: '대영물류', on: true, terms: { outFee: '2000', returnFee: '4000', storage: '' } }]).filter(v => v.on);""")
 R("'등록된 물류 대행사 없음'", "'거래 중인 보관 창고 없음'")
-R("`계약 단가(거래처 관리): 출고 건당 ${won(Number(v.terms.outFee))}원 · 반품 회수 ${won(Number(v.terms.returnFee))}원 · 보관료 월 ${won(Number(v.terms.storage))}원(보관료 별도 정산 · 이 대사 범위 밖) — 창고 청구 단가가 이와 다르면 불일치로 봅니다.`",
-  "`계약 단가(거래처 관리): 배송 건당 ${won(Number(v.terms.outFee))}원 · 회수 단가 ${won(Number(v.terms.returnFee || 4000))}원 · 보관료는 별도 정산(이 대사 범위 밖) — 창고 청구 단가가 이와 다르면 불일치로 봅니다. 매칭 키: 출고 행은 송장번호, 반품(회수) 행은 회수 송장번호.`")
+R("`계약 단가(거래처 관리): 출고 건당 ${won(Number(v.terms.outFee))}원 · 반품 회수 ${won(Number(v.terms.returnFee))}원 · 보관료 월 ${won(Number(v.terms.storage))}원(보관료 별도 정산 · 이 대사 범위 밖) — 공급사 청구 단가가 이와 다르면 불일치로 봅니다.`",
+  "`계약 단가(거래처 관리): 배송 건당 ${won(Number(v.terms.outFee))}원 · 회수 단가 ${won(Number(v.terms.returnFee || 4000))}원 · 보관료는 별도 정산(이 대사 범위 밖) — 공급사 청구 단가가 이와 다르면 불일치로 봅니다. 매칭 키: 출고 행은 송장번호, 반품(회수) 행은 회수 송장번호.`")
 R('<div class="k-sub">송장번호 → 주문번호 → 수령인 · 출고일 순서로 매칭</div>',
   '<div class="k-sub">송장번호 → 주문번호 → 수령인 · 출고일 순서로 매칭 · 반품은 회수 송장번호</div>')
 

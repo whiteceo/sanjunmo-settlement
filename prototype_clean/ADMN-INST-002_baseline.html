@@ -1466,7 +1466,7 @@ code, pre, kbd, samp,
 
     state.auditLogs.unshift({
       time: "2026-10-14 15:10:00",
-      actor: "재무담당자 (white)",
+      actor: "재무담당자 (김영호 PO)",
       targetId: `${item.id} (${item.contractId})`,
       mode: "국세청 API 연동",
       action: "사업자 상태 수시 재조회 (MILESTONE_APPROVAL 트리거)",
@@ -1543,7 +1543,7 @@ code, pre, kbd, samp,
     item.targetMonth = tMonth;
     item.memo = memo || `${item.evidenceFileName} 증빙 확인 완료`;
     item.status = "APPROVED";
-    item.approvedBy = "재무담당자 (white)";
+    item.approvedBy = "재무담당자 (김영호 PO)";
     item.approvedAt = "2026-10-14 16:05:00";
     item.bankReceiptLinked = "이체확인증 대기 (SETT-002 대량이체 결과 대사 후 자동 바인딩)";
     const batchAt = SETTLE_BATCH_AT[item.targetMonth];

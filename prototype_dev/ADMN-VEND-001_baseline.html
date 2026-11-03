@@ -130,14 +130,14 @@ code, pre, kbd, samp,
       <div class="crumb-wrap">
         <span class="crumb-code" id="top-crumb-code">ADMN-VEND-001</span>
         <h1 class="crumb-title">거래처 관리</h1>
-        <span class="crumb-sub">권리자 · 거래처 · 지분 매핑 &gt; 거래처 관리 (매입처 · 물류 대행사 · 공급 파트너)</span>
+        <span class="crumb-sub">권리자 · 거래처 · 지분 매핑 &gt; 거래처 관리 (도서 공급사 · 보관 창고 · 배송사 · 매입처)</span>
       </div>
       <a class="btn btn-outline btn-sm" href="ADMN-INST-001_baseline.html">권리자 계약 원장 →</a>
     </header>
 
     <div id="v4-page-body" class="main-container">
       <div class="scope-note">
-        <strong>거래처</strong>는 권리자 계약 원장에 올리지 않는 거래 상대방입니다 — 도서 · 상품 매입처, 물류 대행사(3PL), 이후 생기는 공급 파트너.
+        <strong>거래처</strong>는 권리자 계약 원장에 올리지 않는 거래 상대방입니다 — 도서 공급사 · 상품 매입처, 물류를 맡는 보관 창고 · 배송사, 이후 생기는 공급 파트너. 1차 보관 창고는 1곳만 거래 중으로 둡니다.
         수익을 배분받는 계약 당사자(강사 · 저자 · 위탁 도서의 위탁사 등)는 권리자 계약 원장(ADMN-INST-001)에 등록합니다.
         거래처 대금(매입 대금 · 물류비)은 월간 정산 대량이체가 아니라 회계 시스템 매입채무(AP) 결제로 지급합니다. 거래처 유형은 운영하면서 추가할 수 있습니다.
       </div>
@@ -158,7 +158,7 @@ code, pre, kbd, samp,
         </div>
         <div class="toolbar">
           <div class="toolbar-left">
-            <select class="f-select" id="flt-type" name="type" data-dev-note="(규칙) vendor_type_id" onchange="renderVendors()"></select>
+            <select class="f-select" id="flt-type" name="type" data-dev-note="(규칙) suppliers.type — 이전 이름 vendor_type_id" data-dev-value="book_supplier 도서 공급사(VT-01) · warehouse 보관 창고(VT-03) · courier 배송사(VT-04) (규칙, suppliers.type) — 상품 매입처(VT-02)는 굿즈 범위 결정(정책질문 28번) 뒤" onchange="renderVendors()"></select>
             <select class="f-select" id="flt-status" name="status" data-dev-value="active 거래 중 · suspended 거래 중지 (규칙, 프로토타입 값 ON · OFF 유지)" onchange="renderVendors()">
               <option value="ALL">상태 전체</option>
               <option value="ON">거래 중</option>
@@ -208,7 +208,7 @@ code, pre, kbd, samp,
       </div>
       <div class="modal-body">
         <div class="form-error" id="vendor-error"></div>
-        <div class="form-row"><label>거래처 유형 *</label><div><select class="f-select" id="vf-type" name="vendor_type_id" data-dev-note="(규칙)" style="width:100%;" onchange="renderTermsForm()"></select><div class="form-help" id="vf-type-help"></div></div></div>
+        <div class="form-row"><label>거래처 유형 *</label><div><select class="f-select" id="vf-type" name="type" data-dev-note="(규칙) suppliers.type — 이전 이름 vendor_type_id. 보관 창고일 때만 단가 · 운영 연락처 · 메일 참조 칸" data-dev-value="book_supplier 도서 공급사(VT-01) · warehouse 보관 창고(VT-03) · courier 배송사(VT-04) (규칙, suppliers.type) — 상품 매입처(VT-02)는 굿즈 범위 결정(정책질문 28번) 뒤" style="width:100%;" onchange="renderTermsForm()"></select><div class="form-help" id="vf-type-help"></div></div></div>
         <div class="form-row"><label>거래처 코드</label><div><input class="f-input" id="vf-id" name="code" data-dev-note="SUP-%04d 자동 채번(개발 SupplierService와 같은 방식)" readonly style="width:160px; background:var(--bg-subtle);" /><div class="form-help">최초 저장 시 자동 채번되며 바꿀 수 없습니다.</div></div></div>
         <div class="form-row"><label>거래처명 *</label><div><input class="f-input" id="vf-name" name="name" data-dev-note="SupplierRequest ≤100" maxlength="40" style="width:100%;" /></div></div>
         <div class="form-row"><label>사업자등록번호 *</label><div style="display:flex; gap:8px; align-items:center;"><input class="f-input" id="vf-biz" name="business_no" data-dev-note="digits:10 · 중복 불가" style="width:180px;" placeholder="000-00-00000" oninput="onBizInput()" /><button type="button" class="btn btn-outline btn-sm" data-dev-route="admin.vendors.nts-verify (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/vendors/{vendor}/nts-verify" data-dev-perm="수정(nts-verify 접미사)" data-dev-flag="proto-only" data-dev-note="개발 매입처 탭 '사업자 확인' 버튼은 disabled(준비 중) — 등록 시 business_status PENDING_VERIFICATION" onclick="checkNts()">국세청 상태조회</button><span id="vf-nts" style="font-size:12px;"></span></div></div>
@@ -256,7 +256,39 @@ code, pre, kbd, samp,
   <div id="toast-box"></div>
 
   <script>
-    const M = window.SJM_MASTER;
+    // (dev 3PL 초안) 공통 SJM_MASTER 위에 거래처 유형 3종 · 보관 창고 정보 · 샘플을 이 화면 안에서만 덧씌운다
+    const M0 = window.SJM_MASTER;
+    const DEV_KEY = 'sjm.dev.vend3pl.v1';
+    const DEV_TYPE_PATCH = { 'VT-01': { name: '도서 공급사', kind: 'book_supplier' }, 'VT-03': { kind: 'warehouse' } }; // VT-03 이름 '보관 창고'는 공통 최초값(2026-11-04)
+    const DEV_TYPE_ADD = [{ id: 'VT-04', name: '배송사', kind: 'courier', form: 'GENERAL', evidence: '전자세금계산서(과세)', on: true, order: 4 }];
+    // 1차 보관 창고는 대영물류 1곳 — 이전 샘플 CJ대한통운 파주 물류센터는 거래 중지로 둔다
+    const DEV_VENDOR_PATCH = { 'SUP-0020': { on: false } };
+    const DEV_VENDOR_ADD = [
+      { id: 'SUP-0021', type: 'VT-01', name: '오스틴북스', bizNo: '999-99-00021', ceo: '[대표자]', taxType: '일반과세', status: '계속', checkedAt: '2026-11-04', on: true,
+        terms: { rate: '', pay: '[결제 조건 — 계약 후 입력]' }, contact: '[연락처]', since: '2026-11-01' },
+      { id: 'SUP-0022', type: 'VT-03', name: '대영물류', bizNo: '999-99-00022', ceo: '[대표자]', taxType: '일반과세', status: '계속', checkedAt: '2026-11-04', on: true,
+        terms: { outFee: '2000', returnFee: '4000', storage: '', cycle: '월 1회 (익월 초 명세서)', opsContact: '낭주특송 [담당자 이름 · 연락처]', mailCc: '오스틴북스 [메일 주소]' }, contact: '[연락처]', since: '2026-11-01' },
+      { id: 'SUP-0023', type: 'VT-04', name: '낭주특송', bizNo: '999-99-00023', ceo: '[대표자]', taxType: '일반과세', status: '계속', checkedAt: '2026-11-04', on: true,
+        terms: { memo: '출고 · 회수 운송 — 롯데택배 위탁' }, contact: '[연락처]', since: '2026-11-01' }
+    ];
+    const devLoad = () => { try { return JSON.parse(localStorage.getItem(DEV_KEY) || 'null') || {}; } catch (e) { return {}; } };
+    const devSave = (k, v) => { try { const s = devLoad(); s[k] = JSON.parse(JSON.stringify(v)); localStorage.setItem(DEV_KEY, JSON.stringify(s)); } catch (e) {} };
+    const devTypes = () => devLoad().types || M0.vendors.types().map(t => Object.assign({}, t, DEV_TYPE_PATCH[t.id] || {})).concat(DEV_TYPE_ADD.filter(a => !M0.vendors.type(a.id)));
+    const devVendors = () => devLoad().vendors || M0.vendors.list().map(v => Object.assign({}, v, DEV_VENDOR_PATCH[v.id] || {})).concat(DEV_VENDOR_ADD.filter(a => !M0.vendors.get(a.id)));
+    const devMaxNo = arr => Math.max(0, ...arr.map(x => parseInt(String(x.id).split('-')[1], 10) || 0));
+    const M = { vendors: {
+      types: () => devTypes().sort((a, b) => (a.order || 0) - (b.order || 0)),
+      activeTypes: () => M.vendors.types().filter(t => t.on),
+      type: id => devTypes().find(t => t.id === id) || null,
+      list: () => devVendors(),
+      get: id => devVendors().find(v => v.id === id) || null,
+      name: id => (M.vendors.get(id) || {}).name || id,
+      byType: id => devVendors().filter(v => v.type === id),
+      save: list => devSave('vendors', list),
+      saveTypes: list => devSave('types', list),
+      nextId: () => 'SUP-' + String(devMaxNo(devVendors()) + 1).padStart(4, '0'),
+      nextTypeId: () => 'VT-' + String(devMaxNo(devTypes()) + 1).padStart(2, '0')
+    } };
     const NOW = '2026.10.22 14:10';
     const TODAY = '2026-10-22';
     const ADMIN = '이재무 (fin_manager)';
@@ -284,7 +316,7 @@ code, pre, kbd, samp,
       const x = v.terms || {};
       if (!t) return '—';
       if (t.form === 'PURCHASE') return `매입 공급률 ${x.rate || '—'}% · ${x.pay || '결제 조건 미정'} · 반품 ${x.ret || '파본 · 인쇄 불량만 반출'}`;
-      if (t.form === 'LOGISTICS') return `출고 건당 ${won(x.outFee)}원 · 반품 회수 ${won(x.returnFee)}원 · 보관 월 ${won(x.storage)}원 · ${x.cycle || ''}`;
+      if (t.form === 'LOGISTICS') return `배송 건당 ${won(x.outFee)}원 · 회수 ${won(x.returnFee)}원${x.storage ? ' · 보관 월 ' + won(x.storage) + '원' : ''} · ${x.cycle || ''}${x.opsContact ? ' · 운영 연락 ' + x.opsContact : ''}${x.mailCc ? ' · 메일 참조 ' + x.mailCc : ''}`;
       return x.memo || '—';
     }
 
@@ -324,7 +356,7 @@ code, pre, kbd, samp,
         <tr class="row-click ${v.on ? '' : 'row-off'}" onclick="if (!event.target.closest('a,button')) openVendorModal('${v.id}')">
           <td><code>${v.id}</code></td>
           <td><strong>${v.name}</strong><div style="font-size:11px; color:var(--text-muted);">${v.ceo || ''} · ${v.taxType} · ${v.contact || ''}</div></td>
-          <td><span class="badge ${t && t.form === 'LOGISTICS' ? 'badge-purple' : 'badge-blue'}">${t ? t.name : v.type}</span></td>
+          <td><span class="badge ${t && (t.form === 'LOGISTICS' || t.kind === 'courier') ? 'badge-purple' : 'badge-blue'}">${t ? t.name : v.type}</span></td>
           <td>${v.bizNo}</td>
           <td>${statusBadge(v)}</td>
           <td style="font-size:12px;">${termsText(v)}</td>
@@ -388,7 +420,7 @@ code, pre, kbd, samp,
       if (t.form === 'PURCHASE') {
         html = `<div style="display:flex; gap:8px; flex-wrap:wrap;"><input class="f-input" id="vt-rate" type="number" min="1" max="100" style="width:120px;" placeholder="공급률 %" value="${x.rate || ''}" /><input class="f-input" id="vt-pay" style="flex:1; min-width:220px;" placeholder="결제 조건 (예: 월말 마감 · 익월 10일)" value="${x.pay || ''}" /></div><div class="form-help">도서 매입 원가는 교재 관리의 사입 원가 · 도서 공급 원장 기준값과 함께 씁니다.</div><input class="f-input" id="vt-ret-cond" name="return_terms" data-dev-note="(규칙) 반품(반출) 조건 — 파본 · 인쇄 불량은 반출, 그 밖의 반품은 이 조건이 있을 때만(D-PTNR3-03). 개발 suppliers 칸 없음" style="width:100%; margin-top:8px;" placeholder="반품 조건(예: 파본 · 인쇄 불량만 반출, 일반 반품은 계약 시에만)" value="${x.ret || ''}" />`;
       } else if (t.form === 'LOGISTICS') {
-        html = `<div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;"><input class="f-input" id="vt-out" type="number" placeholder="출고 건당 단가(원)" value="${x.outFee || ''}" /><input class="f-input" id="vt-ret" type="number" placeholder="반품 회수 단가(원)" value="${x.returnFee || ''}" /><input class="f-input" id="vt-sto" type="number" placeholder="월 보관료(원)" value="${x.storage || ''}" /><input class="f-input" id="vt-cycle" placeholder="정산 주기" value="${x.cycle || '월 1회 (익월 초 명세서)'}" /></div><div class="form-help">물류비 대사(ADMN-SETT-011)가 이 단가로 3PL 청구를 검수합니다.</div>`;
+        html = `<div id="vt-wh" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;"><div><div style="font-size:11.5px; color:var(--text-sub); font-weight:700; margin-bottom:2px;">배송 건당 단가(원) *</div><input class="f-input" id="vt-out" type="number" style="width:100%;" placeholder="배송 건당 단가(원)" value="${x.outFee || ''}" data-dev-note="(규칙) suppliers.delivery_fee — 보관 창고만. 개발 suppliers 칸 없음" data-dev-name="delivery_fee" /></div><div><div style="font-size:11.5px; color:var(--text-sub); font-weight:700; margin-bottom:2px;">회수 단가(원) *</div><input class="f-input" id="vt-ret" type="number" style="width:100%;" placeholder="회수 단가(원)" value="${x.returnFee || '4000'}" data-dev-note="(규칙) suppliers.return_fee — 기본 4,000원, 물류비 대사 반품 행 기준값" data-dev-name="return_fee" /></div><div><div style="font-size:11.5px; color:var(--text-sub); font-weight:700; margin-bottom:2px;">월 보관료(원)</div><input class="f-input" id="vt-sto" type="number" style="width:100%;" placeholder="월 보관료(원)" value="${x.storage || ''}" /></div><div><div style="font-size:11.5px; color:var(--text-sub); font-weight:700; margin-bottom:2px;">정산 주기</div><input class="f-input" id="vt-cycle" style="width:100%;" placeholder="정산 주기" value="${x.cycle || '월 1회 (익월 초 명세서)'}" /></div><div><div style="font-size:11.5px; color:var(--text-sub); font-weight:700; margin-bottom:2px;">운영 연락처</div><input class="f-input" id="vt-ops" style="width:100%;" placeholder="출고 · 회수 운영 연락 (배송사 담당자)" value="${x.opsContact || ''}" data-dev-flag="proto-only" data-dev-note="(규칙) suppliers.ops_contact — 운영 연락은 배송사 담당자와 직접(F7)" data-dev-name="ops_contact" /></div><div><div style="font-size:11.5px; color:var(--text-sub); font-weight:700; margin-bottom:2px;">메일 참조</div><input class="f-input" id="vt-cc" style="width:100%;" placeholder="메일 참조 (도서 공급사 메일)" value="${x.mailCc || ''}" data-dev-flag="proto-only" data-dev-note="(규칙) suppliers.mail_cc — 메일은 도서 공급사 참조(F7)" data-dev-name="mail_cc" /></div></div><div class="form-help">배송 · 회수 단가는 물류비 대사의 기준값입니다 — 보관 창고 월 청구를 이 단가로 검수합니다(회수 기본 4,000원).</div>`;
       } else {
         html = `<input class="f-input" id="vt-memo" style="width:100%;" placeholder="거래 조건 메모" value="${x.memo || ''}" />`;
       }
@@ -399,7 +431,7 @@ code, pre, kbd, samp,
     function readTerms(form) {
       const g = id => (document.getElementById(id) || {}).value || '';
       if (form === 'PURCHASE') return { rate: g('vt-rate'), pay: g('vt-pay'), ret: g('vt-ret-cond') };
-      if (form === 'LOGISTICS') return { outFee: g('vt-out'), returnFee: g('vt-ret'), storage: g('vt-sto'), cycle: g('vt-cycle') };
+      if (form === 'LOGISTICS') return { outFee: g('vt-out'), returnFee: g('vt-ret'), storage: g('vt-sto'), cycle: g('vt-cycle'), opsContact: g('vt-ops'), mailCc: g('vt-cc') };
       return { memo: g('vt-memo') };
     }
 
@@ -436,6 +468,8 @@ code, pre, kbd, samp,
       const bizNo = document.getElementById('vf-biz').value.trim();
       const on = document.querySelector('input[name="vf-on"]:checked').value === 'ON';
       if (!name) return fail('거래처명을 입력해 주십시오.');
+      const otherWh = t.kind === 'warehouse' && on ? M.vendors.list().find(v => v.on && v.id !== editingId && (M.vendors.type(v.type) || {}).kind === 'warehouse') : null;
+      if (otherWh) return fail(`1차는 보관 창고 1곳만 거래 중으로 둘 수 있습니다. 지금 거래 중인 보관 창고 ${otherWh.name}(${otherWh.id})을(를) 먼저 거래 중지하거나, 이 거래처를 거래 중지로 저장해 주십시오.`);
       if (!/^\d{3}-\d{2}-\d{5}$/.test(bizNo)) return fail('사업자등록번호 형식(000-00-00000)을 확인해 주십시오.');
       if (M.vendors.list().some(v => v.bizNo === bizNo && v.id !== editingId)) return fail('같은 사업자등록번호의 거래처가 이미 있습니다.');
       const prev = editingId ? M.vendors.get(editingId) : null;
@@ -449,7 +483,7 @@ code, pre, kbd, samp,
         if (!suspReason) return fail('휴업 사업자 거래 승인 사유를 입력해 주십시오.');
       }
       const terms = readTerms(t.form);
-      if (t.form === 'LOGISTICS' && !(Number(terms.outFee) > 0)) return fail('물류 대행사는 출고 건당 단가를 입력해야 물류비 대사를 할 수 있습니다.');
+      if (t.form === 'LOGISTICS' && !(Number(terms.outFee) > 0 && Number(terms.returnFee) > 0)) return fail('보관 창고는 배송 · 회수 단가를 입력해야 물류비 대사를 할 수 있습니다.');
       const data = {
         type: typeId, name, bizNo, on, terms,
         ceo: document.getElementById('vf-ceo').value.trim(),

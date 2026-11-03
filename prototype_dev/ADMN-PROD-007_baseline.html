@@ -618,7 +618,7 @@ code, pre, kbd, samp,
                 <tr>
                   <th>배송 정책</th>
                   <td colspan="3">
-                    기본 배송비 <strong>3,000원</strong> · <strong>교재 및 일반상품 합산 실결제 30,000원 이상 무료배송</strong> (강좌 결제액 합산 제외 · 3PL 파주 물류센터 합포장 출고)
+                    기본 배송비 <strong>3,000원</strong> · <strong>교재 및 일반상품 합산 실결제 30,000원 이상 무료배송</strong> (강좌 결제액 합산 제외 · 물류 합포장 출고)
                   </td>
                 </tr>
                 <tr>
@@ -657,7 +657,7 @@ code, pre, kbd, samp,
       <div class="modal-body">
         <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:12.5px;">
           대상 상품: <strong id="p1-target-name">GDS-0001 · 산준모 안전모 키링</strong><br/>
-          실재고: <strong id="p1-cur-stock" data-dev-name="stock (현재 실재고)">142</strong> 개 · 예약(결제 완료 미출고): <strong id="p1-cur-res" data-dev-flag="proto-only" data-dev-name="reserved_stock (규칙)">4</strong> 개 · 가용: <strong id="p1-cur-avail" data-dev-flag="proto-only" data-dev-name="available_stock (규칙, stock − reserved_stock 파생)">138</strong> 개<br/><span style="font-size:11.5px; color:var(--text-muted);">재고 조정은 실재고를 바꿉니다. 결제 예약 · 예약 해제 · 출고 확정은 주문 · 3PL 송장 업로드에서 자동 기록됩니다.</span>
+          실재고: <strong id="p1-cur-stock" data-dev-name="stock (현재 실재고)">142</strong> 개 · 예약(결제 완료 미출고): <strong id="p1-cur-res" data-dev-flag="proto-only" data-dev-name="reserved_stock (규칙)">4</strong> 개 · 가용: <strong id="p1-cur-avail" data-dev-flag="proto-only" data-dev-name="available_stock (규칙, stock − reserved_stock 파생)">138</strong> 개<br/><span style="font-size:11.5px; color:var(--text-muted);">재고 조정은 실재고를 바꿉니다. 결제 예약 · 예약 해제 · 출고 확정은 주문 · 송장 업로드에서 자동 기록됩니다.</span>
         </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
@@ -698,7 +698,7 @@ code, pre, kbd, samp,
 
         <div>
           <label style="display:block; font-size:12px; font-weight:800; margin-bottom:4px;">사유 메모 (최대 200자 · 실사 조정 선택 시 필수)</label>
-          <input type="text" id="p1-memo" name="memo" data-dev-note="개발 선택 · 255자 — 프로토 200자, 실사 조정이면 필수(v6.92)" class="f-input" style="width:100%;" value="2026년 10월 2차분 파주 3PL 센터 입고 검수 완료" />
+          <input type="text" id="p1-memo" name="memo" data-dev-note="개발 선택 · 255자 — 프로토 200자, 실사 조정이면 필수(v6.92)" class="f-input" style="width:100%;" value="2026년 10월 2차분 보관 창고 입고 검수 완료" />
         </div>
       </div>
       <div class="modal-foot">
@@ -780,9 +780,9 @@ code, pre, kbd, samp,
         hasSalesHistory: true,
         logs: [
           { dt: '2026.10.16 15:20', type: '결제 예약', diff: -2, after: 142, res: 4, memo: '수험생 주문 결제 완료 — 가용 재고에서 예약 차감 (실재고 변동 없음)', ref: 'ORD-20261016-0041' },
-          { dt: '2026.10.15 17:00', type: '출고 확정', diff: -3, after: 142, res: 2, memo: '3PL 송장 업로드 — 예약 3개 실재고 확정 차감 (가용 변동 없음)', ref: 'BATCH-20261015-01' },
+          { dt: '2026.10.15 17:00', type: '출고 확정', diff: -3, after: 142, res: 2, memo: '송장 업로드 — 예약 3개 실재고 확정 차감 (가용 변동 없음)', ref: 'BATCH-20261015-01' },
           { dt: '2026.10.12 11:05', type: '예약 해제', diff: +1, after: 145, res: 5, memo: '출고 전 주문 취소 — 예약 해제 · 가용 복원 (실재고 변동 없음)', ref: 'RFD-20261012-0009' },
-          { dt: '2026.10.01 09:30', type: '수기 조정', diff: +50, after: 145, res: 6, memo: '신규 발주 입고 (파주 3PL)', ref: 'admin_kim (김물류)' }
+          { dt: '2026.10.01 09:30', type: '수기 조정', diff: +50, after: 145, res: 6, memo: '신규 발주 입고 (보관 창고)', ref: 'admin_kim (김물류)' }
         ]
       },
       {
@@ -800,7 +800,7 @@ code, pre, kbd, samp,
         supplier: 'SELF',
         hasSalesHistory: true,
         logs: [
-          { dt: '2026.10.16 14:00', type: '출고 확정', diff: -5, after: 12, res: 0, memo: '3PL 송장 업로드 — 예약 5개 실재고 확정 차감 (가용 변동 없음)', ref: 'BATCH-20261016-01' },
+          { dt: '2026.10.16 14:00', type: '출고 확정', diff: -5, after: 12, res: 0, memo: '송장 업로드 — 예약 5개 실재고 확정 차감 (가용 변동 없음)', ref: 'BATCH-20261016-01' },
           { dt: '2026.10.15 18:10', type: '결제 예약', diff: -5, after: 17, res: 5, memo: '패키지 부가 구매 결제 — 가용 12개로 임계치 20개 이하 도달 (임박 경고)', ref: 'ORD-20261015-0112' }
         ]
       },
@@ -819,7 +819,7 @@ code, pre, kbd, samp,
         supplier: 'SUP-0007',
         hasSalesHistory: true,
         logs: [
-          { dt: '2026.10.15 10:30', type: '출고 확정', diff: -3, after: 0, res: 0, memo: '3PL 송장 업로드 — 예약 3개 실재고 확정 차감', ref: 'BATCH-20261015-01' },
+          { dt: '2026.10.15 10:30', type: '출고 확정', diff: -3, after: 0, res: 0, memo: '송장 업로드 — 예약 3개 실재고 확정 차감', ref: 'BATCH-20261015-01' },
           { dt: '2026.10.14 20:01', type: '결제 예약', diff: -3, after: 3, res: 3, memo: '가용 재고 전량 예약 → 가용 0개 자동 품절 전환 (결제 차단)', ref: 'ORD-20261014-0088' }
         ]
       },
@@ -844,15 +844,15 @@ code, pre, kbd, samp,
     ];
 
     /* Q-3PL-1(white 2026-10-27) 재고 2단 차감: stock = 실재고, reserved = 예약(결제 완료 · 미출고), 가용 = 실재고 − 예약
-       결제 완료 → 예약(가용 −) · 결제 취소 / 출고 전 환불 → 예약 해제(가용 +) · 3PL 송장 업로드 → 실재고 확정 차감(가용 변동 없음)
-       임박 · 자동 품절은 가용 기준, 3PL 재고 피드백(출고 불가 라인)은 실재고와 대조 */
+       결제 완료 → 예약(가용 −) · 결제 취소 / 출고 전 환불 → 예약 해제(가용 +) · 송장 업로드 → 실재고 확정 차감(가용 변동 없음)
+       임박 · 자동 품절은 가용 기준, 보관 창고 재고 회신(출고 불가 라인)은 실재고와 대조 */
     function goodsAvail(g) { return Math.max(0, Number(g.stock || 0) - Number(g.reserved || 0)); }
     function renderGoodsStockTrio(g) {
       const el = document.getElementById('f-stock-trio');
       if (!el) return;
       if (!g) { el.innerHTML = '신규 등록: 입력한 초기 재고가 실재고 · 가용이 됩니다 (예약 0개).'; return; }
       const rs = Number(g.reserved || 0);
-      const short = g.stock < rs ? ` <span style="color:var(--danger);">⚠️ 실재고가 예약보다 ${rs - g.stock}개 적음 — 3PL 출고 불가 라인과 대조</span>` : '';
+      const short = g.stock < rs ? ` <span style="color:var(--danger);">⚠️ 실재고가 예약보다 ${rs - g.stock}개 적음 — 보관 창고 출고 불가 라인과 대조</span>` : '';
       el.innerHTML = `실재고 ${g.stock}개 · 예약(결제 완료 미출고) ${rs}개 → <strong>가용 ${goodsAvail(g)}개</strong> (판매 가능 수량 · 임박 · 품절 판정 기준)${short}`;
     }
 

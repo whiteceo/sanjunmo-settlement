@@ -3615,7 +3615,7 @@ code, pre, kbd, samp,
         <div class="s1-card">
           <div class="s1-card-head">
             <div class="s1-card-title">📚 [테이블 C] 교재 저작권 인세(도서 인세) · 위탁 도서 판매대금 산출 명세</div>
-            <span style="font-size:11.5px; color:#64748b;">3PL 출고 완료 및 구매확정(D+7) 반품 차감 기준</span>
+            <span style="font-size:11.5px; color:#64748b;">물류 출고 완료 및 구매확정(D+7) 반품 차감 기준</span>
           </div>
           <table class="table" style="width:100%; font-size:12px;">
             <thead>
@@ -3802,7 +3802,7 @@ code, pre, kbd, samp,
     const doc = (window.TAX_DOCS || []).find(d => d.key === holderId);
     if (doc && doc.status !== "MATCHED") doc.status = "DISPUTED";
     c.disputes = c.disputes || [];
-    c.disputes.push({ at: "2026-10-31 즉시등록", by: "재무관리자(white)", reason: inp.value.trim(), docLabel: doc ? doc.kind + " 이견 접수" : "발행 요청 건 없음" });
+    c.disputes.push({ at: "2026-10-31 즉시등록", by: "재무관리자(김영호 PO)", reason: inp.value.trim(), docLabel: doc ? doc.kind + " 이견 접수" : "발행 요청 건 없음" });
     inp.value = "";
     renderS1Dispute(c);
     if (typeof renderTaxDocs === "function") renderTaxDocs();
@@ -3818,7 +3818,7 @@ code, pre, kbd, samp,
     const holderId = normalizePayeeKey(document.getElementById("selS1Holder").value);
     const c = window.S1_STATEMENT_CASES[holderId];
     if (c) {
-      c.auditMemos.push(`[2026-10-31 즉시등록] 재무관리자(white): ${inp.value.trim()}`);
+      c.auditMemos.push(`[2026-10-31 즉시등록] 재무관리자(김영호 PO): ${inp.value.trim()}`);
       inp.value = "";
       renderStatementS1();
       showToast("📝 재무 검토 메모가 통합 정산서 원장에 기록되었습니다.");

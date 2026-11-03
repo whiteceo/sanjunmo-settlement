@@ -1474,7 +1474,7 @@ code, pre, kbd, samp,
 
     state.auditLogs.unshift({
       time: "2026-10-14 16:20:00",
-      actor: "재무담당자 (white)",
+      actor: "재무담당자 (김영호 PO)",
       targetId: newId,
       summary: `${newItem.reasonLabel} / ${amt >= 0 ? "+" : ""}${amt.toLocaleString()}원`,
       action: `신규 수동 조정 등록 — ${ADJ_TYPE_MAP[adjType]} (원정산서: ${originStmtId}, 원귀속: ${originMonth} → 반영: ${appliedMonth})`,
@@ -1503,17 +1503,17 @@ code, pre, kbd, samp,
     item.status = "APPROVED";
     // 1차 오픈: level 1(재무 담당자 단독 확정)만 쓴다. level 2(재무 책임자 2차 승인)는 2차 릴리스용으로 남김.
     if (level === 1) {
-      item.firstApprover = "재무담당자 (white)";
+      item.firstApprover = "재무담당자 (김영호 PO)";
       item.secondApprover = "-";
       item.statusLabel = "최종 승인 완료 (재무 담당자 단독 확정)";
     } else {
-      item.secondApprover = "재무책임자 (white)";
+      item.secondApprover = "재무책임자 (김영호 PO)";
       item.statusLabel = "최종 승인 완료 (2차 책임자 승인)";
     }
 
     state.auditLogs.unshift({
       time: "2026-10-14 16:25:00",
-      actor: level === 1 ? "재무담당자 (white)" : "재무책임자 (white)",
+      actor: level === 1 ? "재무담당자 (김영호 PO)" : "재무책임자 (김영호 PO)",
       targetId: item.id,
       summary: `${item.reasonLabel} / ${item.amount >= 0 ? "+" : ""}${item.amount.toLocaleString()}원`,
       action: item.statusLabel,

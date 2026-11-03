@@ -1,6 +1,6 @@
 # ADMN-CONF-004 메시지 템플릿 · 타겟 발송 · 발송 이력 — 개발 명세
 
-- **v3.2.32 정본 변경(설계서 b017da2 2.2 알림 표 새 행, 2026-11-02 white, prototype_dev만 반영 · clean 미반영):** 알림 종류 '강의 업데이트(신규 차시 공개)' — 발송 분류 `course_update`(정보성), 알림톡 템플릿 1건(`TPL-ALIM-008`) · 메일 1건(`TPL-MAIL-009`)을 목록에 추가. 치환 변수 `name` · `course_name` · `lecture_title` · `lecture_count` · `url`(설계서 원문). 강의 공개 저장 확인 모달 → 발송 대상 그룹(정적) → 이 화면 단체 발송(정보성). 개발 미구현(아래 2 · 3 · 5 · 7절 `(규칙)`)
+- **v3.2.32 정본 변경(설계서 b017da2 2.2 알림 표 새 행, 2026-11-02 김영호 PO, prototype_dev만 반영 · clean 미반영):** 알림 종류 '강의 업데이트(신규 차시 공개)' — 발송 분류 `course_update`(정보성), 알림톡 템플릿 1건(`TPL-ALIM-008`) · 메일 1건(`TPL-MAIL-009`)을 목록에 추가. 치환 변수 `name` · `course` · `lecture_title` · `lecture_count` · `url`(설계서 원문). 강의 공개 저장 확인 모달 → 발송 대상 그룹(정적) → 이 화면 단체 발송(정보성). 개발 미구현(아래 2 · 3 · 5 · 7절 `(규칙)`)
 - 프로토타입 파일: prototype_clean/ADMN-CONF-004_baseline.html (원본 상태: 18d66c1 v6.92)
 - 맞춘 개발 커밋: d562524a (2026-10-26)
 - 포함 화면: ADMN-CONF-004 메시지 템플릿 관리 · ADMN-CONF-004-S1 타겟 단체 알림톡/LMS 예약 발송 · 프로토타입 3번째 탭 "통합 발송 이력 및 실패 재발송 (ADMN-CONF-004-S2, v6.92 전 표기 ADMN-CONF-007)" · 개발 ADMN-CONF-007 알림톡 SENS 템플릿 관리
@@ -72,7 +72,7 @@ v3.2.32: 이 화면 라우트 추가 없음 — 강의 업데이트 템플릿은
 | `content` | required · 채널별 길이(알림톡 1000자 · LMS 2000바이트 · 메일 10000자) | 치환 변수 포함 | `#tpl-form-body` |
 | `fallback_content` | nullable · LMS 바이트 규칙 | LMS 대체 본문(버튼 링크를 URL 로 풀어 씀) | (없음) |
 | `is_active` | required · boolean | 사용 여부 | (없음) |
-| `code` (v3.2.32, 규칙) | TemplateCatalog 코드 추가 — 예 `CourseUpdateService::TPL_UPDATE`(알림톡) · `TPL_UPDATE_EMAIL`(메일), group `course_update` · 발송 시점 '강의 공개 저장 확인 모달 [알림 보내기]' · 변수 name · course_name · lecture_title · lecture_count · url. 개발 미구현 | 강의 업데이트(신규 차시 공개) | 목록 `TPL-ALIM-008` · `TPL-MAIL-009`, `#tpl-form-domain` 옵션 '강의 업데이트 (ADMN-PROD)'(proto-only, `data-dev-value=course_update`), 변수 칩 4개(proto-only) |
+| `code` (v3.2.32, 규칙) | TemplateCatalog 코드 추가 — 예 `CourseUpdateService::TPL_UPDATE`(알림톡) · `TPL_UPDATE_EMAIL`(메일), group `course_update` · 발송 시점 '강의 공개 저장 확인 모달 [알림 보내기]' · 변수 name · course · lecture_title · lecture_count · url. 개발 미구현 | 강의 업데이트(신규 차시 공개) | 목록 `TPL-ALIM-008` · `TPL-MAIL-009`, `#tpl-form-domain` 옵션 '강의 업데이트 (ADMN-PROD)'(proto-only, `data-dev-value=course_update`), 변수 칩 4개(proto-only) |
 
 ### 예약 발송 `#campaignStoreForm` (MessageCampaignRequest — store 라우트에서만 rules 적용)
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 요소 |
@@ -153,12 +153,12 @@ v3.2.32: 이 화면 라우트 추가 없음 — 강의 업데이트 템플릿은
 - (v6.92) 예약 취소는 프로토타입 발송 이력(S2) 행에도 생김 — 개발 `campaigns.status.update` 와 같은 동작.
 
 ### 프로토타입에만 있음 (백엔드 필요 · 개발 미구현)
-- "통합 발송 이력 및 실패 재발송" 탭(ADMN-CONF-004-S2 — 발송배치 ID · 성공/실패 · 상태 필터 · 검색 · 실패 건 모달 · 재발송) — 개발에 건별 이력 · 재발송 화면 없음(notification_logs 테이블만). 규칙 기반 명명: `admin.message-logs.index`(규칙) · 재발송 `admin.message-logs.resends.store`(규칙). **→ 결정(v6.92 white, D-ORD-12)**: 1차에 이력 조회와 발송사 장애 건 재발송만 넣는다(전체 재발송 · 일괄 재시도 · 발송 중단은 2차).
-- 즉시 발송(`send-schedule-mode` = 즉시) — 개발은 예약만(`scheduled_at` required · after:now). **→ 결정(v6.92 white, S-23 + D-CONF-02)**: 즉시 발송 허용(재확인 모달), 광고성 금지 구간은 법정 21:00~08:00 표기, 즉시 · 예약 시작 상한 20:50 · 예약 취소 30분 전(둘 다 설정값).
+- "통합 발송 이력 및 실패 재발송" 탭(ADMN-CONF-004-S2 — 발송배치 ID · 성공/실패 · 상태 필터 · 검색 · 실패 건 모달 · 재발송) — 개발에 건별 이력 · 재발송 화면 없음(notification_logs 테이블만). 규칙 기반 명명: `admin.message-logs.index`(규칙) · 재발송 `admin.message-logs.resends.store`(규칙). **→ 결정(v6.92 김영호 PO, D-ORD-12)**: 1차에 이력 조회와 발송사 장애 건 재발송만 넣는다(전체 재발송 · 일괄 재시도 · 발송 중단은 2차).
+- 즉시 발송(`send-schedule-mode` = 즉시) — 개발은 예약만(`scheduled_at` required · after:now). **→ 결정(v6.92 김영호 PO, S-23 + D-CONF-02)**: 즉시 발송 허용(재확인 모달), 광고성 금지 구간은 법정 21:00~08:00 표기, 즉시 · 예약 시작 상한 20:50 · 예약 취소 30분 전(둘 다 설정값).
 - 템플릿 모달의 SENS 상태 직접 선택(`#tpl-form-status`) · 반려 사유 입력 — 개발은 SENS 동기화 결과로만 바뀜.
 - 메시지 성격 필터(`#tpl-type-filter` 정보성/광고성), 알림톡 버튼명 입력(`#tpl-form-btn-name`) — 개발은 SENS 동기화본 `buttons`.
 - 저장 후 SENS 상태 동기화 버튼.
-- **v3.2.32 (개발 미구현):** 강의 업데이트 알림 템플릿 2건(알림톡 · 메일, 정보성) · 발송 분류 `course_update` · 변수 `course_name` · `lecture_title` · `lecture_count` · `url`. 개발 단체 발송은 `MessageCampaignService::CODES`가 `TPL_NOTICE_TERMS` 하나뿐이고 회원별 값은 `name`만 넘겨(:34 · :396) 강좌별 변수를 채울 수 없음 — 대상 그룹 행마다 강좌 · 추가 강의 값을 넘기는 경로가 필요. 대상: 그 강좌 유효 수강권 보유자(수강중 · 일시정지 · 사전판매 시작 전, 단과 · 패키지 경유), 제외 수강 만료 · 환불/취소 완료 · 탈퇴, 단과 · 패키지 중복은 1건. 알림톡 본문에 다른 상품 홍보 · 구매 링크 금지(정보성 검수).
+- **v3.2.32 (개발 미구현):** 강의 업데이트 알림 템플릿 2건(알림톡 · 메일, 정보성) · 발송 분류 `course_update` · 변수 `course` · `lecture_title` · `lecture_count` · `url`. 개발 단체 발송은 `MessageCampaignService::CODES`가 `TPL_NOTICE_TERMS` 하나뿐이고 회원별 값은 `name`만 넘겨(:34 · :396) 강좌별 변수를 채울 수 없음 — 대상 그룹 행마다 강좌 · 추가 강의 값을 넘기는 경로가 필요. 대상: 그 강좌 유효 수강권 보유자(수강중 · 일시정지 · 사전판매 시작 전, 단과 · 패키지 경유), 제외 수강 만료 · 환불/취소 완료 · 탈퇴, 단과 · 패키지 중복은 1건. 알림톡 본문에 다른 상품 홍보 · 구매 링크 금지(정보성 검수).
 
 ### 이름 · 값이 다름 (prototype_dev에서 개발 이름으로 바꿈)
 - 화면 코드: 프로토타입 탭 3 "ADMN-CONF-007 = 통합 발송 이력", 개발 ADMN-CONF-007 = 알림톡 SENS 템플릿 관리 — 코드 의미가 다름. **→ 해결(v6.92)**: 프로토타입 탭 3 코드를 `ADMN-CONF-004-S2` 로 고침(`?view=ADMN-CONF-007` 은 옛 링크 호환으로만 남음). CONF-007 = SENS 템플릿 관리로 일치.
@@ -166,14 +166,14 @@ v3.2.32: 이 화면 라우트 추가 없음 — 강의 업데이트 템플릿은
 - SENS 상태: 프로토타입 APPROVED · INSPECTING · REJECTED · 초안 → `approved` · `pending` · `rejected` · `none`.
 - 세그먼트 select(`#send-target-seg` 고정 목록) → `target_type` + `saved_group_id` / `tags[]` / 회원 검색 조건.
 - 템플릿 등록 모달 → 별도 페이지 `create` · `show`.
-- v3.2.32 치환 변수 이름: 설계서 `course_name` ↔ 개발 `TemplateCatalog::VARIABLES`의 강좌명 키 `course`(:69). 개발이 `course`를 쓰면 설계서 · 템플릿 본문을 `#{course}`로 맞추거나, 개발에 `course_name`을 더한다(개발 판단). `lecture_title` · `lecture_count` · `url`은 개발에 없음(답변 주소용 `answer_url`만 있음).
+- 치환 변수 이름: 강좌명은 개발 `TemplateCatalog::VARIABLES`의 키 `course`(:69)를 쓴다. 설계서 · 템플릿 본문은 `#{course}`로 맞췄다(2026-11-03 김영호 PO, 종전 설계서 `course_name`). `lecture_title` · `lecture_count` · `url`은 개발에 없음(답변 주소용 `answer_url`만 있음).
 
-## 8. 정책 질문 (처리 결과 — 2026-10-27 white 전부 결정)
+## 8. 정책 질문 (처리 결과 — 2026-10-27 김영호 PO 전부 결정)
 > 정본 대조 결과(2026-10-27): 아래 질문 중 정본에 답이 있는 것은 정본 근거로 처리했고, 결정이 필요한 것만 `scripts/qa/reports/review/findings/devspec/POLICY_D_CONF.md` 의 D-CONF 항목으로 올렸다. 분류표는 그 파일 "질문이 아닌 것" 절.
 
-- 즉시 발송 허용 여부(개발은 예약만) — 확인 필요. **→ 결정(v6.92 white, S-23 + D-CONF-02)**: 즉시 발송 허용 — 대상 수 · 비용 · 본문 재확인 모달 후 실행, 시작 후 취소 불가.
-- ADMN-CONF-007 화면 코드: 정본은 "발송 이력 · 실패 재발송" 인지 "SENS 템플릿 관리" 인지 — 확인 필요. **→ 결정(v6.92 white, D-ORD-12)**: 발송 이력 · 실패 재발송은 `ADMN-CONF-004-S2`(1차 = 이력 조회 + 발송사 장애 건 재발송), CONF-007 은 SENS 템플릿.
-- 예약 취소 마감 30분(개발 "미확정") — 확인 필요. **→ 결정(v6.92 white, S-23 + D-CONF-02)**: 예약 취소 발송 30분 전까지 · 광고성 예약 시작 상한 20:50(둘 다 설정 가능한 기본값).
+- 즉시 발송 허용 여부(개발은 예약만) — 확인 필요. **→ 결정(v6.92 김영호 PO, S-23 + D-CONF-02)**: 즉시 발송 허용 — 대상 수 · 비용 · 본문 재확인 모달 후 실행, 시작 후 취소 불가.
+- ADMN-CONF-007 화면 코드: 정본은 "발송 이력 · 실패 재발송" 인지 "SENS 템플릿 관리" 인지 — 확인 필요. **→ 결정(v6.92 김영호 PO, D-ORD-12)**: 발송 이력 · 실패 재발송은 `ADMN-CONF-004-S2`(1차 = 이력 조회 + 발송사 장애 건 재발송), CONF-007 은 SENS 템플릿.
+- 예약 취소 마감 30분(개발 "미확정") — 확인 필요. **→ 결정(v6.92 김영호 PO, S-23 + D-CONF-02)**: 예약 취소 발송 30분 전까지 · 광고성 예약 시작 상한 20:50(둘 다 설정 가능한 기본값).
 
 ## 출처
 - routes/admin.php:1101-1135

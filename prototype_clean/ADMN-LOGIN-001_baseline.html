@@ -236,7 +236,7 @@ code, pre, kbd, samp,
             <span class="brand-pill">admin.sanjunmo.com · v4.0.0 SSOT</span>
             <div class="brand-title">산준모닷컴 백오피스<br/>통합 어드민 &amp; 파트너 센터</div>
             <div class="brand-desc">
-              사내 운영자(최고 관리자 · CS담당자 · 물류팀 · 재무팀 · 조교 등 역할 그룹)와 외부 계정(강사 · 저작권자 · 외부 3PL 등)가 동일한 게이트웨이로 로그인하며, 부여된 역할(RBAC)에 따라 진입 화면이 자동 분기됩니다.
+              사내 운영자(최고 관리자 · CS담당자 · 재무팀 · 조교 등 역할 그룹)와 외부 계정(강사 · 저작권자 등, 외부 물류 계정은 1차 미발급)이 동일한 게이트웨이로 로그인하며, 부여된 역할(RBAC)에 따라 진입 화면이 자동 분기됩니다.
             </div>
             <div class="security-policy-list">
               <div>• 모든 로그인 성공 · 실패 · 잠금 이력은 보안 감사 로그(<strong>ADMN-CONF-010</strong>)에 자동 기록됩니다.</div>
@@ -524,11 +524,10 @@ code, pre, kbd, samp,
       { id: "admin_white", roles: ["RG-01"], aff: { kind: "STAFF" } },
       { id: "fin_manager", roles: ["RG-04"], aff: { kind: "STAFF" } },
       { id: "cs_lead01", roles: ["RG-02"], aff: { kind: "STAFF" } },
-      { id: "log_choi", roles: ["RG-03", "RG-02"], aff: { kind: "STAFF" } },
+      { id: "log_choi", roles: ["RG-02"], aff: { kind: "STAFF" } },
       { id: "inst_jjd", roles: ["RG-05"], aff: { kind: "RH", ref: "RH-0025" } },
       { id: "ta_jung", roles: ["RG-06"], aff: { kind: "STAFF" } },
       { id: "author_lee", roles: ["RG-07"], aff: { kind: "RH", ref: "RH-0031" } },
-      { id: "3pl_cjlogis", roles: ["RG-08"], aff: { kind: "VENDOR", ref: "SUP-0020" } },
       { id: "new_staff", roles: ["RG-02"], aff: { kind: "STAFF" }, firstLogin: true, tempPw: "Temp!2026" }
     ];
     const DEMO_RETURN_SAMPLE = "ADMN-BRD-002_baseline.html";

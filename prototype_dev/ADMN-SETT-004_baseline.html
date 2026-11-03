@@ -1482,7 +1482,7 @@ code, pre, kbd, samp,
 
     state.auditLogs.unshift({
       time: "2026-10-28 14:30:00",
-      actor: "재무담당자 (white)",
+      actor: "재무담당자 (김영호 PO)",
       pgTid: r.pgTid,
       action: "차이 원인 코드 분류 저장",
       change: `${prev} → ${r.reasonCode} (${r.approvalStatus})`,
@@ -1515,7 +1515,7 @@ code, pre, kbd, samp,
     r.reasonCode = code;
     r.memo = memo;
     r.approvalStatus = "APPROVED";
-    r.approvedBy = "재무책임자 (white)";
+    r.approvedBy = "재무책임자 (김영호 PO)";
     r.approvedAt = "2026-10-28 14:32:10";
 
     state.auditLogs.unshift({
@@ -1549,7 +1549,7 @@ code, pre, kbd, samp,
       r.approvedAt = "2026-10-28 14:35:00";
       state.auditLogs.unshift({
         time: r.approvedAt,
-        actor: "재무담당자 (white)",
+        actor: "재무담당자 (김영호 PO)",
         pgTid: r.pgTid,
         action: "임계값(1,000원) 이내 단수차액 조정계정 자동 대체",
         change: r.unmatched ? `UNKNOWN_MISMATCH (주문 매칭 불가) → 단수 차액 조정 (${fmtNum(r.diff)})` : `PG_FEE_DIFF (PENDING) → APPROVED (${fmtNum(r.diff)})`,

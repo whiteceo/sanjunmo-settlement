@@ -4,7 +4,7 @@
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>주문 · 배송 통합 관리 및 3PL 물류 연동 — 산준모닷컴 백오피스 v4.0.0</title>
+  <title>주문 · 배송 통합 관리 및 물류 연동 — 산준모닷컴 백오피스 v4.0.0</title>
   <style>
     :root {
       --bg-body: #F1F5F9;
@@ -533,19 +533,19 @@ code, pre, kbd, samp,
       <div class="top-bar-left">
         <div class="crumb-group">
           <span class="crumb-code">ADMN-ORD-001</span>
-          <span class="crumb-title" id="topbar-title">주문 · 배송 통합 관리 및 3PL 물류 연동</span>
+          <span class="crumb-title" id="topbar-title">주문 · 배송 통합 관리 및 물류 연동</span>
         </div>
       </div>
       <div class="top-bar-right" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <!-- 접속 권한/세션 모드 전환 (최고운영자 vs 외부 물류 3PL 파트너 격리) -->
+        <!-- 접속 권한/세션 모드 전환 (최고운영자 vs 외부 물류 계정 격리) -->
         <div style="display:inline-flex;background:#F1F5F9;padding:3px;border-radius:8px;border:1px solid #CBD5E1;gap:4px;">
           <button type="button" class="btn btn-sm btn-dark" id="btnRoleAdmin" data-dev-flag="proto-only" data-dev-note="3PL 외부 계정(ROLE_PARTNER_3PL) — 개발에 역할 없음, 메뉴 권한만(Q-ORD-4)" onclick="setSessionRole('ADMIN')">👑 운영자 전체 권한</button>
-          <button type="button" class="btn btn-sm btn-outline" id="btnRole3pl" data-dev-flag="proto-only" data-dev-note="3PL 외부 계정(ROLE_PARTNER_3PL) — 개발에 역할 없음, 메뉴 권한만(Q-ORD-4)" onclick="setSessionRole('ROLE_PARTNER_3PL')">🚚 3PL 물류 격리 (ROLE_PARTNER_3PL)</button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnRole3pl" data-dev-flag="proto-only" data-dev-note="3PL 외부 계정(ROLE_PARTNER_3PL) — 개발에 역할 없음, 메뉴 권한만(Q-ORD-4)" onclick="setSessionRole('ROLE_PARTNER_3PL')">🚚 외부 물류 계정 보기 (2차 · 1차 미발급)</button>
         </div>
 
         <div class="subview-switcher" id="ordViewSwitcher" style="display:inline-flex;background:#F1F5F9;padding:3px;border-radius:8px;border:1px solid #E2E8F0;gap:4px;">
           <button type="button" class="btn btn-sm btn-primary" id="sw-ord001" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders" data-dev-perm="조회" onclick="switchOrdView('ord001')">📋 1. 주문 내역 관리 (ORD-001)</button>
-          <button type="button" class="btn btn-sm btn-outline" id="sw-ord002" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회" onclick="switchOrdView('ord002')">🚚 2. 3PL 배송·출고·반품검수 (ORD-002)</button>
+          <button type="button" class="btn btn-sm btn-outline" id="sw-ord002" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회" onclick="switchOrdView('ord002')">🚚 2. 출고 지시 · 송장 · 반품검수 (ORD-002)</button>
           <button type="button" class="btn btn-sm btn-outline" id="sw-ord001s1" data-dev-route="admin.orders.show" data-dev-method="GET" data-dev-url="/sj-admin/orders/{order}" data-dev-perm="조회" onclick="switchOrdView('ord001s1')">🔍 3. 주문 상세 · 배송지 Lock (ORD-001-S1)</button>
         </div>
         <span class="badge b-blue" id="topbarPgBadge">PG: 토스페이먼츠 (전 수단 연동)</span>
@@ -558,7 +558,7 @@ code, pre, kbd, samp,
         <!-- 상단 4단계 워크플로우 신호등 (공통 규격: 1층 신호등 / 2층 단계명 / 3층 설명) -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">🚦 주문 · 3PL 물류 · 환불 · 정산 대사 4단계 자동 연동 파이프라인 (SET3-5 · 합의서 정산 기준)</h2>
+            <h2 class="card-title">🚦 주문 · 물류 · 환불 · 정산 대사 4단계 자동 연동 파이프라인 (SET3-5 · 합의서 정산 기준)</h2>
             <span class="badge b-gray">실결제금액 단일 원장 기준</span>
           </div>
           <div class="card-body">
@@ -569,17 +569,17 @@ code, pre, kbd, samp,
                   <span class="step-light light-blue">🔵 강좌(교육면세) · 교재(도서면세) · 일반상품(과세) 라인 분리</span>
                 </div>
                 <div class="step-desc">
-                  <code>ADMN-ORD-001</code> · 토스페이먼츠 승인 완료(가상계좌는 입금 웹훅 수신) 즉시 강좌는 <b>수강중</b>, 실물 교재는 <b>배송준비중</b>으로 자동 전이됩니다.
+                  <code>ADMN-ORD-001</code> · 토스페이먼츠 승인 완료(가상계좌는 입금 웹훅 수신) 즉시 강좌는 <b>수강중</b>, 실물 교재는 <b>결제완료(출고대기)</b>가 되고, 출고 지시(발주 파일 내려받기) 뒤 <b>배송준비중</b>이 됩니다.
                 </div>
               </div>
 
               <div class="step-node" onclick="switchOrdView('ord002')" style="cursor:pointer;">
                 <div class="step-node-top">
-                  <span class="step-num">Step 2. 3PL 발주 엑셀 &amp; 배송지 Lock</span>
+                  <span class="step-num">Step 2. 발주 파일 &amp; 배송지 Lock</span>
                   <span class="step-light light-amber">🔒 발주 다운로드 = 주소 변경 잠금</span>
                 </div>
                 <div class="step-desc">
-                  <code>ADMN-ORD-002</code> · 3PL 발주 엑셀 다운로드 즉시 <code>ship_ordered_at</code>이 기록되며 관리자·고객 양쪽 배송지 수정이 하드락됩니다.
+                  <code>ADMN-ORD-002</code> · 발주 파일 내려받기 즉시 <code>ship_ordered_at</code>이 기록되며 관리자·고객 양쪽 배송지 수정이 하드락됩니다.
                 </div>
               </div>
 
@@ -589,7 +589,7 @@ code, pre, kbd, samp,
                   <span class="step-light light-green">🟢 주문번호+라인번호 크로스 매핑</span>
                 </div>
                 <div class="step-desc">
-                  <code>ORD-002-P1</code> · 3PL 회신 송장 업로드 시 <b>배송중</b> 자동 전환 + 구매자 배송출고 알림톡 비동기 발송 (오류 <code>E01~E06</code> 분리).
+                  <code>ORD-002-P1</code> · 물류 회신 송장 업로드 시 <b>배송중</b> 자동 전환 + 구매자 배송출고 알림톡 비동기 발송 (오류 <code>E01~E06</code> 분리).
                 </div>
               </div>
 
@@ -615,7 +615,7 @@ code, pre, kbd, samp,
           </div>
 
           <div class="kpi-card" id="kpi-ord-ready" data-dev-route="admin.orders.index" data-dev-method="GET" data-dev-url="/sj-admin/orders?statuses[]=ready" data-dev-perm="조회" onclick="filterOrdListByKpi('배송준비중')">
-            <div class="k-title"><span>배송준비중 (3PL 발주 · 송장 대기)</span><span class="badge">SET3-5 출고 대상</span></div>
+            <div class="k-title"><span>출고 대기 (결제완료 30 · 배송준비중 12)</span><span class="badge">SET3-5 출고 대상</span></div>
             <div class="k-num" style="color:var(--warn);" id="kpiNumReady">42건 (🔒 출고지시 12건)</div>
             <div class="k-sub">실물 교재 · 일반상품 포함 라인 (즉시 발주 대상 30건)</div>
           </div>
@@ -763,7 +763,7 @@ code, pre, kbd, samp,
                   </select>
                   <button type="button" class="btn btn-outline" data-dev-route="admin.orders.download" data-dev-method="GET" data-dev-url="/sj-admin/orders/download" data-dev-perm="다운로드" data-dev-note="개발은 공용 사유 레이어 layerReason(reason · reason_etc · reason_ref)을 먼저 띄움 — 정본은 사유 없이 열람 로그만(Q-ORD-2), 화면은 정본 유지" onclick="downloadOrderLookupExcel()">📥 조회용 엑셀 다운로드 (라인 단위 · 열람로그 적재)</button>
                   <button type="button" class="btn btn-dark" data-dev-route="admin.orders.grants.create (규칙)" data-dev-method="GET" data-dev-url="/sj-admin/orders/grants/create" data-dev-perm="등록" data-dev-flag="proto-only" onclick="openDirectGrantModal()">🎟️ 수강권 직권 부여 (0원 주문 · 구 ORD-003)</button>
-                  <button type="button" class="btn btn-primary" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회(배송 관리 메뉴)" onclick="goToDeliveryManageWithReady()">🚚 배송 관리로 이동 (배송준비중 42건 ➔)</button>
+                  <button type="button" class="btn btn-primary" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회(배송 관리 메뉴)" onclick="goToDeliveryManageWithReady()">🚚 배송 관리로 이동 (출고 대기 42건 ➔)</button>
                 </div>
               </div>
 
@@ -791,25 +791,25 @@ code, pre, kbd, samp,
         </section>
 
         <!-- =====================================================================
-             [VIEW 2] ADMN-ORD-002 (+ S1, S2, S3) : 배송 관리 · 3PL 연동
+             [VIEW 2] ADMN-ORD-002 (+ S1, S2, S3) : 출고 지시 · 송장
              ===================================================================== -->
         <section id="view-ord002" class="subview-panel">
-          <!-- 외부 물류 파트너(ROLE_PARTNER_3PL) 전용 데이터 격리 배너 -->
+          <!-- 외부 물류 계정(ROLE_PARTNER_3PL) 전용 데이터 격리 배너 -->
           <div id="partner3plBanner" class="notice-bar warn" style="display:none;margin-bottom:12px;background:#FFFBEB;border:1.5px solid #FDE68A;">
             <div>
-              🔒 <b>외부 물류 파트너(ROLE_PARTNER_3PL) 보안 격리 모드 활성:</b><br>
+              🔒 <b>외부 물류 계정(2차 · 1차 미발급) 보안 격리 모드 미리보기:</b><br>
               • <b>데이터 스코프 격리:</b> 개인정보보호법 및 정산 보안 통제에 따라 강좌 결제금액, 매출 및 회원의 결제 수단 정보가 100% 차단/마스킹됩니다.<br>
               • <b>출고 업무 필수 정보만 제한 제공:</b> 실물 교재 피킹 및 배송에 필요한 <b>마스킹 수취인명(홍*동) · 연락처(010-1234-****), 배송지 주소, 도서 SKU(PROD-BK-1006 등), 수량</b>만 노출됩니다.<br>
-              • 3PL 발주 엑셀 다운로드, 송장 벌크 업로드(P1), 단건 등록/정정(P2), 반품 수거 창고 검수(S3) 기능만 안전하게 수행할 수 있습니다.
+              • 발주 파일 내려받기, 송장 벌크 업로드(P1), 단건 등록/정정(P2), 반품 수거 창고 검수(S3) 기능만 안전하게 수행할 수 있습니다.
             </div>
-            <span class="badge b-purple">Data Scope: 3PL 풀필먼트 격리</span>
+            <span class="badge b-purple">Data Scope: 외부 물류 계정 격리</span>
           </div>
 
           <div class="notice-bar" id="ord002AdminNotice">
             <div>
               💡 <b>실물 배송(교재 BOOK · 일반상품 GOODS) 라인 아이템 전용 워크스페이스:</b> 인강 단독 주문과 강좌 라인은 이 화면에 표시되지 않습니다. <b>1행 = 실물 주문 라인 1건(SKU 단위 피킹)</b>이므로 한 주문에 교재가 2종이면 2행으로 노출됩니다.
             </div>
-            <span class="badge b-blue">프로세스맵 SET3-5 · 3PL 물류비 대사(SETT-011) 원천</span>
+            <span class="badge b-blue">프로세스맵 SET3-5 · 물류비 대사(SETT-011) 원천</span>
           </div>
 
           <div class="card">
@@ -817,7 +817,7 @@ code, pre, kbd, samp,
               <!-- 4개 상태 탭 (탭 클릭 시 배송 상태 조건 자동 적용 · 배송 상태 필터 별도 미배치: 피드백 #458) -->
               <div class="tabs" style="margin-bottom:14px;">
                 <button type="button" class="tab-btn active" id="shipTab-READY" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=ready" data-dev-perm="조회" onclick="switchShipTab('READY')">
-                  1. 출고 대기 (배송준비중) <span class="tab-cnt" id="shipCntReady">4</span>
+                  1. 출고 대기 (결제완료 · 배송준비중) <span class="tab-cnt" id="shipCntReady">4</span>
                 </button>
                 <button type="button" class="tab-btn" id="shipTab-SHIPPING" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=shipping" data-dev-perm="조회" onclick="switchShipTab('SHIPPING')">
                   2. 배송중 (S1) <span class="tab-cnt" id="shipCntShipping">3</span>
@@ -826,7 +826,7 @@ code, pre, kbd, samp,
                   3. 배송완료 (S2) <span class="tab-cnt" id="shipCntDelivered">3</span>
                 </button>
                 <button type="button" class="tab-btn" id="shipTab-RETURN" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=return" data-dev-perm="조회" onclick="switchShipTab('RETURN')">
-                  4. 반품 수거 · 창고 검수 (S3) <span class="tab-cnt" id="shipCntReturn">3</span>
+                  4. 반품 수거 · 창고 검수 (S3) <span class="tab-cnt" id="shipCntReturn">4</span>
                 </button>
               </div>
 
@@ -895,10 +895,10 @@ code, pre, kbd, samp,
                 </div>
                 <div class="toolbar-right">
                   <button type="button" class="btn btn-dark" id="dispatchButton" data-dev-perm="다운로드" data-dev-note="개발 dispatchButton → 레이어 layerDispatch" onclick="open3plConfirmModal()">
-                    📦 3PL 발주 엑셀 다운로드 (출고지시 Lock)
+                    📦 발주 파일 내려받기 (출고 지시)
                   </button>
                   <button type="button" class="btn btn-primary" id="btnBulkWaybill" data-dev-perm="등록" data-dev-note="개발 레이어 layerImport · importForm" onclick="openModal('layerImport')">
-                    📤 송장 벌크 업로드 (P1)
+                    📤 회신 파일 올리기 (P1)
                   </button>
                   <button type="button" class="btn btn-outline" id="trackingButton" data-dev-perm="수정" data-dev-note="개발 trackingButton → 레이어 layerTracking" onclick="openSingleWaybillModal()">
                     ✏️ 송장 단건 등록/정정 (P2)
@@ -977,7 +977,7 @@ code, pre, kbd, samp,
         </section>
 
         <!-- =====================================================================
-             [VIEW 3] ADMN-ORD-001-S1 : 주문 상세 & 배송지 Lock / 가상계좌 입금 안내 / 3PL 출고보류 요청
+             [VIEW 3] ADMN-ORD-001-S1 : 주문 상세 & 배송지 Lock / 가상계좌 입금 안내 / 물류 취소 요청
              ===================================================================== -->
         <section id="view-ord001s1" class="subview-panel">
           <!-- 상단 샘플 시나리오 전환 바 -->
@@ -989,7 +989,7 @@ code, pre, kbd, samp,
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
                 <select class="form-select" id="detailPresetSelect" onchange="loadOrderDetailPreset(this.value)" style="width:430px;font-weight:700;">
-                  <option value="SJM20260818-0021">[케이스 1] SJM20260818-0021 (홍길동 · 복합패키지 · 🔒 3PL 출고지시 완료 Lock 상태)</option>
+                  <option value="SJM20260818-0021">[케이스 1] SJM20260818-0021 (홍길동 · 복합패키지 · 🔒 출고 지시 완료 Lock 상태)</option>
                   <option value="SJM20260818-0019">[케이스 2] SJM20260818-0019 (김수현 · 교재단독 · 출고지시 전 ➔ 배송지 수정 가능)</option>
                   <option value="SJM20260817-0132">[케이스 3] SJM20260817-0132 (이서준 · 가상계좌 입금대기 ➔ 입금 기한 · 재안내)</option>
                 </select>
@@ -1001,49 +1001,55 @@ code, pre, kbd, samp,
           <!-- 1. 상태 타임라인 + 출고지시 잠금 배너 -->
           <div class="order-steps" id="detailStepsBar">
             <div class="order-step-item done"><span class="step-circle">✓</span> 1. 결제완료 (PG 통합승인)</div>
-            <div class="order-step-item current"><span class="step-circle">2</span> 2. 배송준비중 (3PL 출고지시 완료)</div>
+            <div class="order-step-item current"><span class="step-circle">2</span> 2. 배송준비중 (출고 지시 완료)</div>
             <div class="order-step-item"><span class="step-circle">3</span> 3. 배송중 (송장 매핑)</div>
             <div class="order-step-item"><span class="step-circle">4</span> 4. 배송완료</div>
           </div>
 
           <div class="notice-bar warn" id="detailLockBanner">
             <div>
-              🔒 <b>3PL 출고 지시 완료 (2026.08.18 14:02 · 배치 <code>BATCH-20260818-01</code>)</b> — 포장 라벨 출력 불일치로 인한 오배송 방지를 위해 <b>수령인 정보 및 배송지 주소 수정이 서버와 화면 모두 잠금(Lock)</b> 되었습니다. 주소 변경이 꼭 필요하면 우측 <b>[3PL 출고보류 요청]</b>을 보내세요. 3PL이 <b>보류 완료</b>로 회신하면 잠금이 풀리고, <b>이미 출고</b>로 회신하면 <b>[맞교환 재출고 등록]</b>으로 처리합니다.
+              🔒 <b>출고 지시 완료 (2026.08.18 14:02 · 배치 <code>BATCH-20260818-01</code>)</b> — 포장 라벨 출력 불일치로 인한 오배송 방지를 위해 <b>수령인 정보 및 배송지 주소 수정이 서버와 화면 모두 잠금(Lock)</b> 되었습니다. 배송지 변경 · 주문 취소가 필요하면 우측 <b>[물류 취소 요청]</b>을 등록하세요. 다음 발주 파일 취소 시트로 창고에 가고, 물류 업체가 <b>취소완료</b>로 회신하면 잠금이 풀리며, <b>이미출고</b>로 회신하면 배송중으로 바뀌어 회수(주문 취소) 또는 <b>[맞교환 재출고 등록]</b>으로 처리합니다. 고객 화면 취소는 출고 지시와 함께 잠기므로 고객 요청은 1:1 문의로 받습니다.
             </div>
-            <button type="button" class="btn btn-sm btn-outline" id="btnShipHoldReq" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerShipHold — 출고지시 잠금 + 미출고 주문만(S-13)" onclick="openShipHoldPanel()">⏸️ 3PL 출고보류 요청</button>
+            <button type="button" class="btn btn-sm btn-outline" id="btnShipHoldReq" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerShipHold — 출고지시 잠금 + 미출고 주문만(S-13)" onclick="openShipHoldPanel()">⏸️ 물류 취소 요청</button>
           </div>
 
-          <!-- S-13(white 2026-10-27): 출고지시 회수(잠금만 해제) 버튼 없음 — 3PL 출고보류 요청(3PL 회신: 보류 완료 / 이미 출고) · 맞교환 재출고 등록 -->
+          <!-- S-13(white 2026-10-27): 출고지시 회수(잠금만 해제) 버튼 없음 — 물류 취소 요청(회신: 취소완료 / 이미출고) · 맞교환 재출고 등록 -->
           <div class="card" id="shipHoldPanel" style="display:none;border:1.5px solid #FDE68A;">
             <div class="card-header" style="background:#FFFBEB;">
-              <h3 class="card-title">⏸️ 3PL 출고보류 요청 · 맞교환 재출고 등록</h3>
+              <h3 class="card-title">⏸️ 물류 취소 요청 · 맞교환 재출고 등록</h3>
               <span class="badge b-gray" id="shipHoldStateBadge">요청 전</span>
             </div>
             <div class="card-body">
               <div id="shipHoldReqBox">
-                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">출고 보류 여부는 3PL이 정합니다. 요청을 보내도 3PL이 <b>보류 완료</b>로 회신하기 전까지 잠금은 그대로입니다.</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">요청은 <b>다음 발주 파일의 취소 시트</b>에 실려 창고로 갑니다(출고 마감 평일 14:00 · 회신 마감 18:00). 처리 유형은 <b>주문 취소</b>(회신 취소완료면 주문 취소 · 환불) 또는 <b>배송지 변경</b>(회신 취소완료면 출고 지시를 회수해 결제완료로 되돌림)입니다. 파일이 나가기 전(요청 대기)에는 철회할 수 있고, 회신 전까지 잠금은 그대로입니다. 회신이 없으면 다음 영업일 18시에 CS에 물류 지연 경보가 갑니다. 급하면 담당자가 전화로도 알리고 메일로 남깁니다.</div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                   <select class="form-select" id="inpShipHoldReason" name="reason_code" data-dev-note="(규칙) address · cancel · item · etc" style="width:260px;">
-                    <option value="">— 보류 요청 사유 선택 —</option>
-                    <option value="ADDR">고객 배송지 오기재 · 변경 요청</option>
-                    <option value="CANCEL">고객 주문 취소 요청</option>
-                    <option value="ITEM">출고 품목 오류</option>
-                    <option value="ETC">기타 (메모 필수)</option>
+                    <option value="">— 처리 유형 선택 —</option>
+                    <option value="CANCEL">주문 취소 (취소완료면 주문 취소 · 환불)</option>
+                    <option value="ADDR">배송지 변경 (취소완료면 결제완료로 되돌림)</option>
                   </select>
-                  <input type="text" class="form-input" id="inpShipHoldMemo" name="memo" data-dev-note="(규칙) reason_code=etc일 때 필수" placeholder="요청 메모 (3PL 전달 · 감사 로그 기록)" style="flex:1;min-width:240px;" />
-                  <button type="button" class="btn btn-dark btn-sm" id="btnShipHoldSend" data-dev-route="admin.orders.ship-holds.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/orders/{order}/ship-holds" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="상태 requested — 3PL 회신 전까지 잠금 유지" onclick="sendShipHoldRequest()">📨 3PL에 출고보류 요청</button>
+                  <input type="text" class="form-input" id="inpShipHoldMemo" name="memo" data-dev-note="(규칙) reason_code=etc일 때 필수" placeholder="사유 (필수 · 물류 업체 전달 · 감사 로그 기록)" style="flex:1;min-width:240px;" />
+                  <label style="font-size:12px;font-weight:600;white-space:nowrap;"><input type="checkbox" id="inpShipHoldPhone" data-dev-flag="proto-only" data-dev-note="(규칙) 유선으로 먼저 요청한 건 — 파일에도 함께 실어 회신으로 확인, 메일 기록은 메모 · 첨부" data-dev-name="phone_requested" /> 유선으로 먼저 요청함</label>
+                  <button type="button" class="btn btn-dark btn-sm" id="btnShipHoldSend" data-dev-route="admin.orders.ship-holds.store (규칙)" data-dev-method="POST" data-dev-url="/sj-admin/orders/{order}/ship-holds" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="상태 requested — 3PL 회신 전까지 잠금 유지" onclick="sendShipHoldRequest()">📨 물류 취소 요청 등록</button>
+                </div>
+              </div>
+              <div id="shipHoldQueuedBox" style="display:none;margin-top:12px;padding:10px 12px;background:#F8FAFC;border:1px solid var(--border);border-radius:8px;">
+                <div style="font-size:12.5px;margin-bottom:8px;"><b>요청 대기</b> — <span id="shipHoldQueuedInfo"></span></div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <button type="button" class="btn btn-sm btn-outline" id="btnShipHoldWithdraw" data-dev-route="admin.orders.ship-holds.destroy (규칙)" data-dev-method="DELETE" data-dev-url="/sj-admin/orders/{order}/ship-holds/{hold}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="요청 대기(파일 나가기 전)일 때만" onclick="withdrawShipHold()">↩️ 요청 철회</button>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnShipHoldSendFile" data-dev-flag="proto-only" data-dev-note="시연용 — 실제로는 발주 파일 내려받기(F1) 때 '요청 보냄'으로 바뀜" onclick="markShipHoldSent()">📦 발주 파일로 보냄 (예시)</button>
                 </div>
               </div>
               <div id="shipHoldReplyBox" style="display:none;margin-top:12px;padding:10px 12px;background:#F8FAFC;border:1px solid var(--border);border-radius:8px;">
-                <div style="font-size:12.5px;margin-bottom:8px;"><b>3PL 회신 입력</b> <span style="color:var(--text-muted);">(3PL 계정 또는 물류팀 대리 입력)</span> — <span id="shipHoldReqInfo"></span></div>
+                <div style="font-size:12.5px;margin-bottom:8px;"><b>물류 회신</b> <span style="color:var(--text-muted);">(회신 파일 취소 시트로 반영 · 빠진 건은 운영자 대리 입력)</span> — <span id="shipHoldReqInfo"></span></div>
                 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                  <button type="button" class="btn btn-sm btn-outline" id="btnHoldReplyHeld" data-dev-route="admin.orders.ship-holds.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/ship-holds/{hold}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="3PL 계정 또는 물류팀 대리 입력 — held면 출고지시 잠금 해제" data-dev-name="result" data-dev-value="held" onclick="recordShipHoldReply('HELD')">✅ 보류 완료 (출고 전 멈춤 ➔ 잠금 해제)</button>
-                  <button type="button" class="btn btn-sm btn-outline" id="btnHoldReplyShipped" data-dev-route="admin.orders.ship-holds.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/ship-holds/{hold}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="잠금 유지 → 맞교환 재출고" data-dev-name="result" data-dev-value="already_shipped" onclick="recordShipHoldReply('SHIPPED')">🚚 이미 출고 (잠금 유지 ➔ 맞교환 재출고)</button>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnHoldReplyHeld" data-dev-route="admin.orders.ship-holds.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/ship-holds/{hold}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="보관 창고 계정 또는 운영자 대리 입력 — held면 출고지시 잠금 해제" data-dev-name="result" data-dev-value="held" onclick="recordShipHoldReply('HELD')">✅ 취소완료 (출고 전 멈춤 ➔ 잠금 해제)</button>
+                  <button type="button" class="btn btn-sm btn-outline" id="btnHoldReplyShipped" data-dev-route="admin.orders.ship-holds.update (규칙)" data-dev-method="PUT" data-dev-url="/sj-admin/orders/{order}/ship-holds/{hold}" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="잠금 유지 → 맞교환 재출고" data-dev-name="result" data-dev-value="already_shipped" onclick="recordShipHoldReply('SHIPPED')">🚚 이미출고 (배송중 ➔ 회수 또는 맞교환)</button>
                 </div>
               </div>
               <div id="shipHoldResultNote" style="display:none;margin-top:12px;font-size:12.5px;"></div>
               <div id="swapReshipBox" style="display:none;margin-top:12px;padding:12px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;">
-                <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🔁 맞교환 재출고 등록 <span style="font-weight:500;font-size:12px;color:var(--text-muted);">— 바른 품목 · 배송지로 다시 보내고 이미 나간 품목은 회수합니다 (다음 3PL 발주 배치에 재출고 라인으로 포함)</span></div>
+                <div style="font-weight:800;font-size:13px;margin-bottom:8px;">🔁 맞교환 재출고 등록 <span style="font-weight:500;font-size:12px;color:var(--text-muted);">— 바른 품목 · 배송지로 다시 보내고 이미 나간 품목은 회수합니다 (다음 발주 배치에 재출고 라인으로 포함)</span></div>
                 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
                   <div>
                     <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;">재출고 사유 <span style="color:var(--danger);">*</span></label>
@@ -1216,10 +1222,10 @@ code, pre, kbd, samp,
           <!-- 4 & 5. 배송지 정보 및 수기 보정 + 변경 전/후 비교 확인 -->
           <div class="card" id="detailDeliveryCard">
             <div class="card-header">
-              <h3 class="card-title">🏠 3. 배송지 정보 및 운영자 수기 보정 (실물 교재·상품 라인 존재 시 노출 · 3PL 출고지시 Lock 연동)</h3>
+              <h3 class="card-title">🏠 3. 배송지 정보 및 운영자 수기 보정 (실물 교재·상품 라인 존재 시 노출 · 출고 지시 Lock 연동)</h3>
               <div style="display:flex;gap:8px;">
                 <button type="button" class="btn btn-sm btn-outline" id="btnEnableAddrEdit" data-dev-perm="수정" data-dev-note="개발은 레이어 layerAddress · addressForm(인라인 편집 아님)" onclick="enableAddressEditMode()" disabled>✏️ 배송지 수정 모드 전환</button>
-                <button type="button" class="btn btn-sm btn-warn" id="btnShipHoldReq2" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerShipHold — 출고지시 잠금 + 미출고 주문만(S-13)" onclick="openShipHoldPanel()">⏸️ 3PL 출고보류 요청</button>
+                <button type="button" class="btn btn-sm btn-warn" id="btnShipHoldReq2" data-dev-perm="수정" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerShipHold — 출고지시 잠금 + 미출고 주문만(S-13)" onclick="openShipHoldPanel()">⏸️ 물류 취소 요청</button>
                 <button type="button" class="btn btn-sm btn-outline" id="btnSwapReship" data-dev-perm="등록" data-dev-flag="proto-only" data-dev-note="(규칙) 레이어 layerReship — '이미 출고' 회신 또는 배송중 · 배송완료 주문만" onclick="openSwapReship()">🔁 맞교환 재출고 등록</button>
               </div>
             </div>
@@ -1325,22 +1331,22 @@ code, pre, kbd, samp,
           <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:16px;">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">🔗 4. 3PL 물류 배치 · 운송장 · 환불 심사 연동</h3>
+                <h3 class="card-title">🔗 4. 물류 배치 · 운송장 · 환불 심사 연동</h3>
               </div>
               <div class="card-body">
                 <table class="kv-table">
                   <tbody>
                     <tr>
-                      <th>3PL 출고 배치</th>
+                      <th>발주 배치</th>
                       <td>
                         <span class="badge b-amber">배송준비중</span> · 출고지시 <code>2026.08.18 14:02</code><br>
-                        발주 배치번호: <code class="mono">BATCH-20260818-01</code> (3PL 물류비 대사 키)
+                        발주 배치번호: <code class="mono">BATCH-20260818-01</code> (물류비 대사 키)
                       </td>
                     </tr>
                     <tr>
                       <th>운송장 번호</th>
                       <td>
-                        <span style="color:var(--text-muted);">미등록 — 3PL 회신 엑셀 업로드(P1) 시 자동 매핑</span>
+                        <span style="color:var(--text-muted);">미등록 — 물류 회신 엑셀 업로드(P1) 시 자동 매핑</span>
                         <button type="button" class="btn btn-sm btn-outline" style="margin-left:6px;" data-dev-route="admin.deliveries.index" data-dev-method="GET" data-dev-url="/sj-admin/deliveries?tab=…&amp;search_type=order_no&amp;keyword={order_no}" data-dev-perm="조회" onclick="switchOrdView('ord002')">배송 관리에서 보기 ➔</button>
                       </td>
                     </tr>
@@ -1386,13 +1392,13 @@ code, pre, kbd, samp,
                         <td class="mono">08.18 14:02</td>
                         <td><code>system</code></td>
                         <td><span class="badge b-amber">출고지시</span></td>
-                        <td>3PL 발주 엑셀 다운로드(<code>BATCH-20260818-01</code>) — 관리자·고객 배송지 수정 잠금(Lock) 적용</td>
+                        <td>발주 파일 내려받기(<code>BATCH-20260818-01</code>) — 관리자·고객 배송지 수정 잠금(Lock) 적용</td>
                       </tr>
                       <tr>
                         <td class="mono">08.18 10:24</td>
                         <td><code>system</code></td>
                         <td><span class="badge b-green">상태전이</span></td>
-                        <td>토스페이먼츠 승인 완료 → 교재 라인(#2) <b>배송준비중</b> 자동 전이 / 강좌 라인(#1) <b>수강중</b> 즉시 부여</td>
+                        <td>토스페이먼츠 승인 완료 → 교재 라인(#2) <b>결제완료(출고대기)</b> / 강좌 라인(#1) <b>수강중</b> 즉시 부여</td>
                       </tr>
                       <tr>
                         <td class="mono">08.18 10:24</td>
@@ -1413,12 +1419,12 @@ code, pre, kbd, samp,
   </div>
 
   <!-- =========================================================================
-       [MODAL 0] 3PL 발주 엑셀 다운로드 · 출고지시 Lock 확정 확인 모달 (ORD-002 6번)
+       [MODAL 0] 발주 파일 내려받기 · 출고지시 Lock 확정 확인 모달 (ORD-002 6번)
        ========================================================================= -->
   <div class="modal-backdrop" id="layerDispatch">
     <div class="modal-dialog" style="max-width:600px;">
       <div class="modal-header">
-        <h3 class="modal-title">📦 선택한 주문 라인 3PL 발주 엑셀 다운로드 · 출고 지시 확정</h3>
+        <h3 class="modal-title">📦 발주 파일 내려받기 · 출고 지시 확정</h3>
         <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerDispatch')">✕</button>
       </div>
       <div class="modal-body">
@@ -1427,15 +1433,25 @@ code, pre, kbd, samp,
             ⚠️ <b>출고 지시 확정(Lock) 안내:</b> 발주 엑셀 다운로드와 동시에 대상 주문 라인에 <code>ship_ordered_at</code> 및 배치번호(<code>BATCH-20260818-02</code>)가 부여되며, <b>관리자와 수험생(마이페이지) 모두 수령인 정보와 배송지 주소를 수정할 수 없습니다.</b>
           </div>
         </div>
+        <table class="kv-table" style="margin-bottom:12px;">
+          <tbody>
+            <tr><th>파일</th><td><code>SJM_3PL_발주_20260818_02.xlsx</code> · 시트 3개 — 물류 업체가 같은 파일의 회신 칸을 채워 돌려줍니다</td></tr>
+            <tr><th>발주 시트</th><td>선택한 출고 라인 <b id="dispatchSheetOrder">0</b>건 — 회신 칸: 택배사코드(LOTTE 미리 채움) · 운송장번호 · 출고일자</td></tr>
+            <tr><th>취소 시트</th><td>물류 취소 요청 대기 <b id="dispatchSheetCancel">1</b>건 (자동 포함) — 회신 칸: 처리결과(취소완료 / 이미출고) · 운송장번호</td></tr>
+            <tr><th>회수 시트</th><td>회수 요청 대기 <b id="dispatchSheetRecall">1</b>건 (자동 포함) — 회신 칸: 회수 송장번호 · 입고일 · 검수 결과(정상 / 훼손) · 검수 메모</td></tr>
+            <tr><th>마감</th><td>출고 마감 평일 14:00 (이후 결제분은 다음 영업일 발주) · 회신 마감 당일 18:00 — 지나면 미출고 · 미회신 지연 경보(CS)</td></tr>
+          </tbody>
+        </table>
         <p style="margin:0 0 8px;font-size:13px;line-height:1.6;">
           • 이미 출고 지시된 라인은 중복 발주 방지를 위해 자동 제외되며, 파일 생성 실패 시 잠금(Lock)은 100% 롤백됩니다.<br>
           • 이 시점에는 실제 운송장이 없으므로 <b>고객 알림톡을 발송하지 않습니다.</b> (송장 업로드 시 발송)<br>
-          • 잘못 발주한 경우 <b>주문 상세(ORD-001-S1)의 [3PL 출고보류 요청]</b>을 보내고, 3PL이 <b>보류 완료</b>로 회신했을 때만 잠금이 풀립니다(이미 출고면 맞교환 재출고 등록).
+          • 잘못 발주한 경우 <b>주문 상세(ORD-001-S1)의 [물류 취소 요청]</b>을 등록하면 다음 발주 파일 취소 시트로 갑니다. 물류 업체가 <b>취소완료</b>로 회신했을 때만 잠금이 풀립니다(이미출고면 회수 또는 맞교환 재출고).<br>
+          • 취소 · 회수 시트 요청은 이 파일이 나가면 '요청 보냄'으로 바뀝니다. 고를 출고 라인이 없어도 취소 · 회수 요청이 있으면 파일을 만들 수 있습니다.
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" onclick="closeModal('layerDispatch')">취소</button>
-        <button type="button" class="btn btn-dark" data-dev-route="admin.deliveries.dispatch.download" data-dev-method="POST" data-dev-url="/sj-admin/deliveries/dispatch" data-dev-perm="다운로드" data-dev-note="ids[] — 출고지시 · 예약판매 · 환불 심사 중 · 취소 건은 서비스가 빼고 건수 안내" onclick="execute3plExcelDownload()">📥 다운로드 · 출고 지시 Lock 확정</button>
+        <button type="button" class="btn btn-dark" data-dev-route="admin.deliveries.dispatch.download" data-dev-method="POST" data-dev-url="/sj-admin/deliveries/dispatch" data-dev-perm="다운로드" data-dev-note="ids[] — 출고지시 · 예약판매 · 환불 심사 중 · 취소 건은 서비스가 빼고 건수 안내" onclick="execute3plExcelDownload()">📥 발주 파일 내려받기 · 출고 지시 확정</button>
       </div>
     </div>
   </div>
@@ -1446,10 +1462,10 @@ code, pre, kbd, samp,
   <div class="modal-backdrop" id="layerImport">
     <div class="modal-dialog" style="max-width:920px;">
       <div class="modal-header">
-        <h3 class="modal-title">📤 [ADMN-ORD-002-P1] 3PL 운송장 엑셀 벌크 업로드 및 크로스 매핑</h3>
+        <h3 class="modal-title">📤 [ADMN-ORD-002-P1] 회신 파일 올리기 (발주 · 취소 · 회수 시트)</h3>
         <div style="display:flex;gap:6px;">
           <button type="button" class="btn btn-sm btn-primary" id="btnP1Step1" data-dev-route="admin.deliveries.tracking.preview.store" data-dev-method="POST" data-dev-url="/sj-admin/deliveries/tracking/preview" data-dev-perm="등록" data-dev-note="STEP 1 사전 읽기(JSON, 저장 안 함)" onclick="switchP1Step(1)">STEP 1. 파일 선택 · 옵션</button>
-          <button type="button" class="btn btn-sm btn-outline" id="btnP1Step2" onclick="switchP1Step(2)">STEP 2. 업로드 결과 · 오류(E01~E06)</button>
+          <button type="button" class="btn btn-sm btn-outline" id="btnP1Step2" onclick="switchP1Step(2)">STEP 2. 시트별 반영 결과</button>
           <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerImport')">✕</button>
         </div>
       </div>
@@ -1458,7 +1474,7 @@ code, pre, kbd, samp,
         <div id="p1Step1Box">
           <div class="notice-bar">
             <div>
-              3PL 대행사가 회신한 운송장 엑셀(<code>.xlsx</code>, 최대 5,000행)을 업로드하면 <b>주문번호 + 주문라인번호</b> 복합키로 크로스 매핑하여 <b>배송중</b>으로 일괄 전환하고 실시간 배송 추적(<code>USER-MY-009</code>)을 활성화합니다.
+              물류 업체가 회신 칸을 채운 <b>발주 파일</b>(<code>.xlsx</code>, 최대 5,000행)을 올리면 <b>시트 3개를 모두</b> 읽어 한 번에 반영합니다. 발주 시트는 <b>주문번호 + 주문라인번호</b>로 맞춰 운송장이 있는 줄을 <b>배송중</b>으로 바꾸고 실시간 배송 추적(<code>USER-MY-009</code>)을 켭니다. 운송장이 빈 줄은 오류가 아니라 <b>미출고</b>로 따로 표시합니다. 취소 시트는 물류 취소 요청에, 회수 시트는 반품 회수 · 입고 · 검수에 반영합니다.
             </div>
           </div>
           <table class="kv-table">
@@ -1469,7 +1485,7 @@ code, pre, kbd, samp,
                   <div style="display:flex;align-items:center;gap:8px;">
                     <input type="text" class="form-input" data-dev-name="file" data-dev-note="xlsx · 10MB · 5,000행 — 개발 id importFile" value="3PL_송장회신_20260818.xlsx" style="width:280px;border-color:var(--success);font-weight:700;" readonly />
                     <button type="button" class="btn btn-outline btn-sm">파일 선택</button>
-                    <span class="badge b-green">✓ 헤더 5종 검증 통과 · 총 148행 인식</span>
+                    <span class="badge b-green">✓ 시트 3개 인식 · 발주 148행 · 취소 2행 · 회수 3행</span>
                   </div>
                 </td>
               </tr>
@@ -1496,16 +1512,44 @@ code, pre, kbd, samp,
             </tbody>
           </table>
           <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:12px;color:var(--text-muted);">표준 컬럼: 주문번호 | 주문라인번호 | 택배사코드 | 운송장번호(숫자 10~14자리) | 출고일자</span>
-            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.template.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/template/download" data-dev-perm="다운로드" onclick="alert('3PL 송장 업로드 표준 엑셀 양식(SJM_3PL_Waybill_Template.xlsx)을 다운로드합니다.')">📥 표준 양식 다운로드</button>
+            <span style="font-size:12px;color:var(--text-muted);">헤더 이름으로 읽음(순서 무관 · 병합셀 · 수식 금지) — 발주: 택배사코드 | 운송장번호(숫자 10~14자리) | 출고일자 · 취소: 처리결과 | 운송장번호 · 회수: 회수 송장번호 | 입고일 | 검수 결과 | 검수 메모. 시트 이름이 다르면 파일을 받지 않습니다.</span>
+            <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.template.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/template/download" data-dev-perm="다운로드" onclick="alert('회신 파일 표준 양식(시트 3개 · SJM_3PL_Waybill_Template.xlsx)을 다운로드합니다.')">📥 표준 양식 다운로드</button>
           </div>
         </div>
 
         <!-- STEP 2 -->
         <div id="p1Step2Box" style="display:none;">
+          <div class="table-wrap" style="margin-bottom:12px;">
+            <table class="data-table" style="min-width:100%;">
+              <thead>
+                <tr>
+                  <th style="width:80px;">시트</th>
+                  <th style="width:60px;">행</th>
+                  <th style="width:60px;">반영</th>
+                  <th style="width:130px;">남은 것</th>
+                  <th>반영 내용</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><b>발주</b></td><td>148</td><td>141</td>
+                  <td><span class="badge b-amber">미출고 1</span> <span class="badge b-red">오류 6</span></td>
+                  <td>운송장 있는 줄 → 배송중 · 실재고 확정 차감 · 출고 알림톡. 운송장 빈 줄(<span class="mono">SJM20260818-0033 #1</span>) → <b>미출고</b> 표시 · 출고 대기 유지(18:00까지 없으면 지연 경보)</td>
+                </tr>
+                <tr>
+                  <td><b>취소</b></td><td>2</td><td>2</td><td>—</td>
+                  <td>취소완료 1 → 출고 지시 회수 · 주문 취소 · 환불 진행 / 이미출고 1 → 운송장 등록 · 배송중 · 회수 요청 자동 생성</td>
+                </tr>
+                <tr>
+                  <td><b>회수</b></td><td>3</td><td>3</td><td><span class="badge b-blue">회수 중 1</span></td>
+                  <td>입고일 · 검수 결과 2건 자동 입력(반품 수거 · 검수 탭, 귀책 판정 · 사진은 운영자) / 회수 송장만 있는 1건 → 회수 중</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <div class="kpi-grid" style="margin-bottom:12px;">
             <div class="kpi-card">
-              <div class="k-title"><span>총 처리 행수</span><span class="badge">성공+실패 일치</span></div>
+              <div class="k-title"><span>발주 시트 행수</span><span class="badge">반영+미출고+오류</span></div>
               <div class="k-num">148건</div>
               <div class="k-sub">3PL_송장회신_20260818.xlsx</div>
             </div>
@@ -1516,7 +1560,7 @@ code, pre, kbd, samp,
             </div>
             <div class="kpi-card">
               <div class="k-title"><span>매핑 실패 (미반영)</span><span class="badge">E01 ~ E06</span></div>
-              <div class="k-num" style="color:var(--danger);">7건</div>
+              <div class="k-num" style="color:var(--danger);">6건</div>
               <div class="k-sub">배송준비중 유지 · 수정 후 재업로드</div>
             </div>
             <div class="kpi-card">
@@ -1535,16 +1579,16 @@ code, pre, kbd, samp,
 
           <div class="notice-bar" id="p1StockLine" style="margin-bottom:12px;">
             <div>
-              📦 <b>재고 반영 (2단 차감):</b> 성공 141건의 예약 수량 141개(교재 · 일반상품)를 <b>실재고에서 확정 차감</b>했습니다. 결제 완료 때 가용 재고에서 이미 예약 차감했으므로 이번 출고로 <b>가용 재고는 바뀌지 않습니다</b>.<br>              · 실패 7건은 배송준비중이라 예약을 그대로 두고 실재고에서 차감하지 않았습니다 · 3PL 재고 피드백 대조: 실재고가 예약보다 적은 출고 불가 라인 0건 · 안전재고(가용 20개 이하) 경고 · 자동 일시품절(가용 0개)은 결제 · 취소 시점에 판정됩니다 (상품 관리에서 확인)
+              📦 <b>재고 반영 (2단 차감):</b> 성공 141건의 예약 수량 141개(교재 · 일반상품)를 <b>실재고에서 확정 차감</b>했습니다. 결제 완료 때 가용 재고에서 이미 예약 차감했으므로 이번 출고로 <b>가용 재고는 바뀌지 않습니다</b>.<br>              · 실패 6건 · 미출고 1건은 배송준비중이라 예약을 그대로 두고 실재고에서 차감하지 않았습니다 · 창고 재고 피드백 대조: 실재고가 예약보다 적은 출고 불가 라인 0건 · 안전재고(가용 20개 이하) 경고 · 자동 일시품절(가용 0개)은 결제 · 취소 시점에 판정됩니다 (상품 관리에서 확인)
             </div>
           </div>
 
           <div class="toolbar">
             <div class="toolbar-left">
-              <b>실패 목록 (7건) — 주문번호 불일치 2 · 이미 처리됨 1 · 필수값 누락 1 · 형식 오류 1 · 상태 불일치 1 · 운송장 중복 1</b>
+              <b>실패 목록 (6건) — 주문번호 불일치 2 · 이미 처리됨 1 · 형식 오류 1 · 상태 불일치 1 · 운송장 중복 1</b> <span style="font-size:12px;color:var(--text-muted);">· 운송장 빈 줄 1건은 실패가 아니라 미출고</span>
             </div>
             <div class="toolbar-right">
-              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.failures.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/{batch}/failures/download" data-dev-perm="다운로드" onclick="alert('3PL 회신용 실패 목록 엑셀(오류코드 E01~E06 및 조치 사유 포함)을 다운로드합니다.')">📥 실패 목록 엑셀 다운로드</button>
+              <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.failures.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/{batch}/failures/download" data-dev-perm="다운로드" onclick="alert('물류 회신용 실패 목록 엑셀(오류코드 E01~E06 및 조치 사유 포함)을 다운로드합니다.')">📥 실패 목록 엑셀 다운로드</button>
             </div>
           </div>
 
@@ -1565,7 +1609,7 @@ code, pre, kbd, samp,
                 <tr>
                   <td>14</td><td class="mono">SJM20260818-0O21</td><td>2</td><td class="mono">641233879044</td><td>CJ대한통운</td>
                   <td><span class="badge b-red">E01</span></td>
-                  <td><b>주문번호 불일치</b> — 존재하지 않는 주문번호 (숫자 0 / 영문 O 오타 추정). 3PL 원본 확인 필요</td>
+                  <td><b>주문번호 불일치</b> — 존재하지 않는 주문번호 (숫자 0 / 영문 O 오타 추정). 물류 회신 원본 확인 필요</td>
                 </tr>
                 <tr>
                   <td>27</td><td class="mono">SJM20260817-0132</td><td>1</td><td class="mono">641233879077</td><td>CJ대한통운</td>
@@ -1576,11 +1620,6 @@ code, pre, kbd, samp,
                   <td>31</td><td class="mono">SJM20260814-0077</td><td>1</td><td class="mono">641233879021</td><td>CJ대한통운</td>
                   <td><span class="badge b-gray">E02</span></td>
                   <td><b>이미 처리됨</b> — 동일 운송장이 08.15에 기등록됨. 중복 회신으로 판단해 건너뜀 (멱등성 보장)</td>
-                </tr>
-                <tr>
-                  <td>58</td><td class="mono">SJM20260818-0033</td><td>1</td><td><span style="color:#94A3B8;">(공란)</span></td><td>CJ대한통운</td>
-                  <td><span class="badge b-amber">E03</span></td>
-                  <td><b>필수값 누락</b> — 운송장번호 공란. 3PL 회신 파일 보완 필요</td>
                 </tr>
                 <tr>
                   <td>92</td><td class="mono">SJM20260818-0041</td><td>1</td><td class="mono">6412-3387-9105</td><td>CJ대한통운</td>
@@ -1606,7 +1645,8 @@ code, pre, kbd, samp,
               <b style="font-size:12.5px;">📌 처리 결과 요약 (부분 커밋 정책)</b>
               <p style="font-size:12px;color:var(--text-sub);margin:6px 0 0;line-height:1.55;">
                 • 성공 <b>141건</b>은 즉시 <b>배송중</b>으로 전환되었으며 구매자 마이페이지 실시간 배송 조회가 활성화되었습니다.<br>
-                • 실패 <b>7건</b>은 반영되지 않았으며 여전히 <b>출고 대기(배송준비중)</b> 탭에 남아 있습니다(예약 유지 · 실재고 미차감). 실패 목록 엑셀을 내려받아 수정 후 재업로드하세요.
+                • 운송장이 빈 <b>1건</b>은 <b>미출고</b>로 출고 대기 탭에 남습니다(물류 회신 마감 18:00 · 지나면 지연 경보).<br>
+                • 실패 <b>6건</b>은 반영되지 않았으며 여전히 <b>출고 대기(배송준비중)</b> 탭에 남아 있습니다(예약 유지 · 실재고 미차감). 실패 목록 엑셀을 내려받아 수정 후 재업로드하세요.
               </p>
             </div>
             <div>
@@ -1681,7 +1721,7 @@ code, pre, kbd, samp,
               <th>등록/정정 사유 <span style="color:var(--danger);">*</span></th>
               <td>
                 <select class="form-select" id="p2ReasonType" name="reason_code" style="width:100%;margin-bottom:6px;">
-                  <option value="3PL 회신 누락" data-dev-name="reason_code" data-dev-value="missing">3PL 회신 누락</option>
+                  <option value="물류 회신 누락" data-dev-name="reason_code" data-dev-value="missing">물류 회신 누락</option>
                   <option value="운송장 오타 정정" data-dev-name="reason_code" data-dev-value="typo">운송장 오타 정정</option>
                   <option value="택배사 변경" data-dev-name="reason_code" data-dev-value="courier">택배사 변경</option>
                   <option value="기타" data-dev-name="reason_code" data-dev-value="etc">기타 (하단 메모 필수)</option>
@@ -1716,7 +1756,7 @@ code, pre, kbd, samp,
   <div class="modal-backdrop" id="layerBatches">
     <div class="modal-dialog" style="max-width:860px;">
       <div class="modal-header">
-        <h3 class="modal-title">🗂️ [ADMN-ORD-002-P3] 3PL 발주 배치 및 송장 벌크 업로드 이력 (물류비 대사 SETT-011 근거)</h3>
+        <h3 class="modal-title">🗂️ [ADMN-ORD-002-P3] 발주 배치 · 회신 파일 이력 (물류비 대사 SETT-011 근거)</h3>
         <button type="button" class="btn btn-sm btn-outline" onclick="closeModal('layerBatches')">✕</button>
       </div>
       <div class="modal-body">
@@ -1734,8 +1774,8 @@ code, pre, kbd, samp,
                 <th>구분</th>
                 <th>처리 일시</th>
                 <th>처리자</th>
-                <th>처리 건수</th>
-                <th>송장 회신 · 알림톡 현황</th>
+                <th>처리 건수 (발주 · 취소 · 회수)</th>
+                <th>물류 회신 · 알림톡 현황</th>
                 <th>파일 다운로드</th>
               </tr>
             </thead>
@@ -1745,14 +1785,14 @@ code, pre, kbd, samp,
                 <td><span class="badge b-blue">송장 업로드</span></td>
                 <td>08.18 17:40</td>
                 <td>이물류</td>
-                <td>총 148 · 성공 141 · 실패 7</td>
+                <td>발주 148 (반영 141 · 미출고 1 · 오류 6)<br>취소 2 (취소완료 1 · 이미출고 1) · 회수 3 (입고 2 · 회수 중 1)</td>
                 <td>
                   알림톡 실패 <b style="color:var(--danger);">2</b>건
                   <button type="button" class="btn btn-sm btn-outline" style="margin-left:4px;" data-dev-route="admin.deliveries.batches.notifications.update" data-dev-method="PUT" data-dev-url="/sj-admin/deliveries/batches/{batch}/notifications" data-dev-perm="수정" onclick="alert('발송 실패 2건에 대해 알림톡을 재발송했습니다.')">발송 실패 재시도</button>
                 </td>
                 <td>
                   <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.batches.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/batches/{batch}/download" data-dev-perm="다운로드" onclick="alert('업로드 원본 파일을 다운로드합니다.')">원본</button>
-                  <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.failures.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/{batch}/failures/download" data-dev-perm="다운로드" onclick="alert('실패 7건 엑셀 파일을 다운로드합니다.')">실패 목록</button>
+                  <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.failures.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/tracking/{batch}/failures/download" data-dev-perm="다운로드" onclick="alert('실패 6건 엑셀 파일을 다운로드합니다.')">실패 목록</button>
                 </td>
               </tr>
               <tr>
@@ -1760,8 +1800,8 @@ code, pre, kbd, samp,
                 <td><span class="badge b-amber">발주 다운로드</span></td>
                 <td>08.18 14:02</td>
                 <td>이물류</td>
-                <td>12건</td>
-                <td>송장 등록 10 · 미등록 <b style="color:var(--warn);">2</b>건</td>
+                <td>발주 12 · 취소 2 · 회수 3</td>
+                <td>운송장 10 · 미출고 <b style="color:var(--warn);">1</b> · 오류 1 <span class="badge b-red">18:00 지남 · 지연 경보</span><br>취소 회신 2 · 회수 회신 3 (회수 중 1)</td>
                 <td>
                   <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.batches.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/batches/{batch}/download" data-dev-perm="다운로드" onclick="alert('동일 발주 엑셀 파일을 재다운로드합니다. (출고지시 Lock을 새로 걸지 않으며 감사 로그에만 기록됩니다)')">재다운로드</button>
                 </td>
@@ -1771,8 +1811,8 @@ code, pre, kbd, samp,
                 <td><span class="badge b-amber">발주 다운로드</span></td>
                 <td>08.17 15:10</td>
                 <td>김운영</td>
-                <td>38건</td>
-                <td>송장 등록 38 · <span style="color:var(--success);font-weight:700;">미등록 0 (전량 출고완료)</span></td>
+                <td>발주 38 · 취소 0 · 회수 1</td>
+                <td>운송장 38 · <span style="color:var(--success);font-weight:700;">미출고 0 (전량 출고)</span> · 회수 회신 1</td>
                 <td>
                   <button type="button" class="btn btn-sm btn-outline" data-dev-route="admin.deliveries.batches.download" data-dev-method="GET" data-dev-url="/sj-admin/deliveries/batches/{batch}/download" data-dev-perm="다운로드" onclick="alert('동일 발주 엑셀 파일을 재다운로드합니다.')">재다운로드</button>
                 </td>
@@ -1884,7 +1924,7 @@ code, pre, kbd, samp,
     // 0. 역할(RBAC) 세션 스코프 (ADMIN vs ROLE_PARTNER_3PL)
     // =========================================================================
     let currentRole = "ADMIN";
-    // 3PL 격리 보기 수령인 마스킹 — PTNR-002(3PL 파트너 화면)와 같은 위치(개인정보위 운송장 권고: 이름 가운데 글자 · 연락처 끝 4자리). 위치가 화면마다 다르면 맞춰 보아 원문이 드러난다
+    // 외부 물류 계정 보기 수령인 마스킹 — PTNR-002(보관 창고 화면)와 같은 위치(개인정보위 운송장 권고: 이름 가운데 글자 · 연락처 끝 4자리). 위치가 화면마다 다르면 맞춰 보아 원문이 드러난다
     function maskRecvName(n) { if (!n) return "-"; if (n.indexOf("*") !== -1) return n; if (n.length <= 2) return n.charAt(0) + "*"; return n.charAt(0) + "*".repeat(n.length - 2) + n.charAt(n.length - 1); }
     function maskRecvPhone(p) { return p ? String(p).replace(/(\d{3})-(\d{3,4})-(\d{4})/, "$1-$2-****") : "-"; }
     function pName(n) { return currentRole === "ROLE_PARTNER_3PL" ? maskRecvName(n) : n; }
@@ -1910,7 +1950,7 @@ code, pre, kbd, samp,
         if (banner) banner.style.display = "flex";
         if (pgBadge) pgBadge.textContent = "Data Scope: ROLE_PARTNER_3PL (정산·매출 차단)";
         if (codeEl) codeEl.textContent = "ADMN-ORD-002";
-        if (titleEl) titleEl.textContent = "배송 관리 · 3PL 물류 연동 — 외부 파트너(ROLE_PARTNER_3PL) 격리 세션";
+        if (titleEl) titleEl.textContent = "배송 관리 · 물류 연동 — 외부 파트너(ROLE_PARTNER_3PL) 격리 세션";
         switchOrdView("ord002");
       } else {
         if (btnAdmin) { btnAdmin.className = "btn btn-sm btn-dark"; }
@@ -1922,7 +1962,7 @@ code, pre, kbd, samp,
         if (banner) banner.style.display = "none";
         if (pgBadge) pgBadge.textContent = "PG: 토스페이먼츠 (전 수단 연동)";
         if (codeEl) codeEl.textContent = "ADMN-ORD-001";
-        if (titleEl) titleEl.textContent = "주문 · 배송 통합 관리 및 3PL 물류 연동";
+        if (titleEl) titleEl.textContent = "주문 · 배송 통합 관리 및 물류 연동";
         renderShipTable();
       }
     }
@@ -2113,7 +2153,7 @@ code, pre, kbd, samp,
         hasDelivery: true,
         lines: [
           { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "입금대기", sCls: "b-gray", sub: "입금 웹훅 수신 시 수강 부여", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
-          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "입금대기", sCls: "b-gray", sub: "입금 시 배송준비중 자동전이", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×2", status: "입금대기", sCls: "b-gray", sub: "입금 시 결제완료(출고대기)", productId: "PROD-BK-1006", itemType: "BOOK", qty: 2, unitPrice: 20000, discount: 0, linePaid: 40000, holder: "정종대 100% (인세)" }
         ],
         deliverySub: "국민은행 가상계좌 · 입금 기한 2026.08.20 18:41 (발급 후 72h)",
         paidAmt: "190,000원",
@@ -2172,7 +2212,7 @@ code, pre, kbd, samp,
         hasDelivery: true,
         lines: [
           { tag: "강좌", cls: "b-blue", name: "정종대 산업안전 실전 빈출특강", status: "환불심사", sCls: "b-red", sub: "ADMN-RFD-002 심사중 (RFD-2026-001173)", productId: "CRS-1002", itemType: "LECTURE", qty: 1, unitPrice: 150000, discount: 0, linePaid: 150000, holder: "정종대 70% · 자사 30%" },
-          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×1", status: "반품수거중", sCls: "b-red", sub: "3PL 창고 입고 · 검수 대기", productId: "PROD-BK-1006", itemType: "BOOK", qty: 1, unitPrice: 20000, discount: 0, linePaid: 20000, holder: "정종대 100% (인세)" },
+          { tag: "교재", cls: "b-teal", name: "2026 정종대 산업안전기사 필기 기본서 ×1", status: "반품수거중", sCls: "b-red", sub: "창고 입고 · 검수 대기", productId: "PROD-BK-1006", itemType: "BOOK", qty: 1, unitPrice: 20000, discount: 0, linePaid: 20000, holder: "정종대 100% (인세)" },
           { tag: "배송비", cls: "b-gray", name: "배송비 (교재 3만원 미만)", status: "부과", sCls: "b-gray", sub: "권리자 정산 제외", productId: "SHIPPING", itemType: "SHIPPING_FEE", qty: 1, unitPrice: 3000, discount: 0, linePaid: 3000, holder: "플랫폼 물류비" }
         ],
         deliverySub: "수거 운송장 641299001122 · 창고 입고일 2026.08.18 · 환불 전(10월 정산 영향 없음)",
@@ -3221,7 +3261,7 @@ code, pre, kbd, samp,
     }
 
     // =========================================================================
-    // 2. 3PL 배송 · 출고 · 반품검수 워크스페이스 (ADMN-ORD-002 + S1~S3)
+    // 2. 물류 출고 · 반품검수 워크스페이스 (ADMN-ORD-002 + S1~S3)
     // =========================================================================
     let curShipTab = "READY";
     let selectedReturnKey = "SJM20260809-0044 #2";
@@ -3244,9 +3284,10 @@ code, pre, kbd, samp,
         { key: "SJM20260809-0011 #2", recv: "장미래", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서", qty: 1, shipDate: "08.10", delivDate: "2026.08.12", basis: "수동 보정", bCls: "b-amber", waybill: "641233878702", courier: "CJ대한통운" }
       ],
       RETURN: [
-        { key: "SJM20260809-0044 #2", recv: "홍길동", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299001122", inDate: "2026.08.18", status: "검수 대기", sCls: "b-amber", selectable: true },
-        { key: "SJM20260805-0012 #1", recv: "서지호", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×1", returnWb: "641288774411", inDate: "2026.08.17", status: "고객 훼손 · 교재비 차감 (사진 첨부 · 환불심사 전달 완료)", sCls: "b-red", selectable: true },
-        { key: "SJM20260811-0030 #1", recv: "이도윤", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", returnWb: "641299004455", inDate: "입고 전", status: "창고 입고 대기", sCls: "b-gray", selectable: false }
+        { key: "SJM20260809-0044 #2", recv: "홍길동", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", req: "입고 · 검수 회신", reqCls: "b-green", batch: "BATCH-20260817-02", returnWb: "641299001122", inDate: "2026.08.18", status: "창고 검수: 정상 · 귀책 판정 대기", sCls: "b-amber", selectable: true },
+        { key: "SJM20260805-0012 #1", recv: "서지호", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×1", req: "입고 · 검수 회신", reqCls: "b-green", batch: "BATCH-20260816-01", returnWb: "641288774411", inDate: "2026.08.17", status: "창고 검수: 훼손 → 고객 훼손 · 교재비 차감 (사진 첨부 · 환불심사 전달 완료)", sCls: "b-red", selectable: true },
+        { key: "SJM20260811-0030 #1", recv: "이도윤", book: "정종대 (RH-0025) 2026 산업안전기사 필기 기본서 ×1", req: "회수 중", reqCls: "b-blue", batch: "BATCH-20260818-01", returnWb: "641299004455", inDate: "입고 전", status: "창고 입고 대기", sCls: "b-gray", selectable: false },
+        { key: "SJM20260812-0055 #1", recv: "박서연", book: "정종대 (RH-0025) 2026 산업안전기사 실기 기본서 ×1", req: "요청 대기", reqCls: "b-amber", batch: "", returnWb: "—", inDate: "—", status: "회수 전 (다음 발주 파일 회수 시트)", sCls: "b-gray", selectable: false }
       ]
     };
 
@@ -3276,7 +3317,7 @@ code, pre, kbd, samp,
             <th style="width:150px;">주문번호 / 라인</th>
             <th style="width:90px;">수령인</th>
             <th style="width:115px;">연락처</th>
-            <th>배송지 주소 · 배송 메시지 (3PL 라벨 인쇄 원문)</th>
+            <th>배송지 주소 · 배송 메시지 (택배 라벨 인쇄 원문)</th>
             <th style="width:210px;">교재 / 실물 SKU</th>
             <th style="width:55px;">수량</th>
             <th style="width:85px;" class="text-right">배송비</th>
@@ -3306,16 +3347,16 @@ code, pre, kbd, samp,
             <td>${r.qty}</td>
             <td class="text-right">${feeCol}</td>
             <td>
-              <span class="badge b-amber">배송준비중</span><br>
+              ${r.locked ? '<span class="badge b-amber">배송준비중</span>' : '<span class="badge b-green">결제완료</span>'}<br>
               <span style="font-size:11px;color:${r.locked ? 'var(--text-main)' : 'var(--text-muted)'};font-weight:${r.locked ? '700' : '400'};">
-                ${r.locked ? `🔒 ${r.lockTime}` : "출고지시 전"}
+                ${r.locked ? `🔒 ${r.lockTime}` : "출고대기 (출고 지시 전)"}
               </span>
             </td>
             <td><span style="color:#94A3B8;">미등록</span></td>
           </tr>
         `;
         }).join("");
-        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>출고 대기 탭 안내:</b> [3PL 발주 엑셀 다운로드] 실행 시 선택된 주문 라인에 <code>🔒 출고지시 완료</code> 잠금이 걸리며, 송장이 등록되면 <b>배송중(S1)</b> 탭으로 이동합니다.</div></div>`;
+        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>출고 대기 탭 안내:</b> [발주 파일 내려받기] 실행 시 선택된 주문 라인에 <code>🔒 출고지시 완료</code> 잠금이 걸리며, 송장이 등록되면 <b>배송중(S1)</b> 탭으로 이동합니다.</div></div>`;
       } else if (curShipTab === "SHIPPING") {
         const list = SHIP_LINES.SHIPPING;
         thead.innerHTML = `
@@ -3387,9 +3428,10 @@ code, pre, kbd, samp,
             <th style="width:165px;">주문번호 / 라인</th>
             <th style="width:100px;">수령인</th>
             <th>반품 교재 / 실물 SKU</th>
-            <th style="width:150px;">3PL 수거 운송장</th>
+            <th style="width:140px;">회수 요청</th>
+            <th style="width:140px;">회수 송장 (물류 회신)</th>
             <th style="width:120px;">창고 입고일</th>
-            <th style="width:210px;">창고 검수 상태</th>
+            <th style="width:210px;">창고 검수 결과 · 귀책 판정</th>
           </tr>
         `;
         tbody.innerHTML = list.map(r => `
@@ -3402,12 +3444,13 @@ code, pre, kbd, samp,
             <td><b>${r.key}</b></td>
             <td><b>${pName(r.recv)}</b></td>
             <td><b>${r.book}</b></td>
+            <td><span class="badge ${r.reqCls}">${r.req}</span>${r.batch ? `<br><span class="mono" style="font-size:11px;color:var(--text-muted);">${r.batch}</span>` : ""}</td>
             <td class="mono">${r.returnWb}</td>
             <td class="mono">${r.inDate}</td>
             <td><span class="badge ${r.sCls}">${r.status}</span></td>
           </tr>
         `).join("");
-        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>반품 수거 · 검수 탭(ORD-002-S3) 안내:</b> 창고 입고일이 찍힌 건만 단일 선택하여 하단 검수 판정을 입력할 수 있습니다 (피드백 #460). 정상 판정 시 교재 재고에 자동 재입고되고, 파본 · 불량(회사 귀책)은 재고에 넣지 않으며, 고객 훼손 판정 시 교재비만 차감하고(고객 착불 반송 · 검수 사진 필수) 강좌 환불은 진행됩니다.</div></div>`;
+        notice.innerHTML = `<div class="notice-bar"><div>📌 <b>반품 수거 · 검수 탭(ORD-002-S3) 안내:</b> 환불 승인 · 이미출고 취소로 생긴 회수 라인은 <b>요청 대기</b>로 쌓였다가 다음 발주 파일 회수 시트로 창고에 갑니다. 물류 회신의 회수 송장 · 입고일 · 검수 결과(정상 / 훼손)는 자동으로 채워지고, 귀책 판정과 사진 첨부(메일로 받은 사진)는 운영자가 합니다. 창고 입고일이 찍힌 건만 단일 선택하여 하단 검수 판정을 입력할 수 있습니다 (피드백 #460). 정상 판정 시 교재 재고에 자동 재입고되고, 파본 · 불량(회사 귀책)은 재고에 넣지 않으며, 고객 훼손 판정 시 교재비만 차감하고(고객 착불 반송 · 검수 사진 필수) 강좌 환불은 진행됩니다.</div></div>`;
       }
 
       updateShipToolbarButtons();
@@ -3438,8 +3481,10 @@ code, pre, kbd, samp,
 
       if (curShipTab === "READY") {
         summary.innerHTML = `출고 대기 <b>${SHIP_LINES.READY.length}</b>건 · 선택 <b>${cnt}</b>건`;
-        btn3pl.disabled = (cnt === 0);
-        btn3pl.title = cnt === 0 ? "발주할 주문을 1건 이상 선택해 주세요." : "";
+        const sheetPend = SHEET_PENDING.cancel + SHEET_PENDING.recall;
+        btn3pl.disabled = (cnt === 0 && sheetPend === 0);
+        btn3pl.title = (cnt === 0 && sheetPend === 0) ? "발주할 주문을 고르거나, 파일에 실을 취소 · 회수 요청이 있어야 합니다." : "";
+        const sheetOrd = document.getElementById("dispatchSheetOrder"); if (sheetOrd) sheetOrd.textContent = cnt;
         btnSingle.disabled = (cnt !== 1);
         btnSingle.title = cnt !== 1 ? "송장을 단건 등록할 출고지시 완료 라인 1건을 선택해 주세요." : "";
       } else if (curShipTab === "SHIPPING") {
@@ -3524,6 +3569,9 @@ code, pre, kbd, samp,
       openModal("layerDispatch");
     }
 
+    // F1: 다음 발주 파일에 자동으로 실릴 취소 · 회수 요청(샘플). 출고 라인을 안 골라도 이 건수가 있으면 파일을 만든다
+    const SHEET_PENDING = { cancel: 1, recall: 1 };
+
     function execute3plExcelDownload() {
       SHIP_LINES.READY.forEach(r => {
         if (r.checked) {
@@ -3533,7 +3581,9 @@ code, pre, kbd, samp,
       });
       closeModal("layerDispatch");
       renderShipTable();
-      alert("📦 [SJM_3PL_발주_20260818_02.xlsx 다운로드 및 출고 지시 Lock 완료]\n• 선택한 주문 라인에 출고 지시 플래그(ship_ordered_at)가 기록되었습니다.\n• 지금부터 관리자 및 구매자 마이페이지에서 배송지 주소를 수정할 수 없습니다.");
+      const nOrd = SHIP_LINES.READY.filter(r => r.checked).length;
+      alert(`📦 [SJM_3PL_발주_20260818_02.xlsx 내려받기 · 출고 지시 완료]\n• 시트 3개: 발주 ${nOrd}건 · 취소 ${SHEET_PENDING.cancel}건 · 회수 ${SHEET_PENDING.recall}건\n• 발주 라인에 출고 지시(ship_ordered_at)가 기록되어 관리자 · 구매자 마이페이지 모두 배송지를 고칠 수 없고, 고객 화면 취소도 잠깁니다.\n• 취소 · 회수 요청은 '요청 보냄'으로 바뀝니다. 회신 마감 18:00.`);
+      SHEET_PENDING.cancel = 0; SHEET_PENDING.recall = 0;
     }
 
     function openSingleWaybillModal() {
@@ -3702,7 +3752,7 @@ code, pre, kbd, samp,
         lockBanner.style.display = "none";
         document.getElementById("dtOrderNo").textContent = "SJM20260818-0019";
         document.getElementById("dtOrderType").textContent = "교재 단독";
-        document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-amber">배송준비중</span> <span class="badge b-green">출고지시 전 (주소 수정 가능)</span>`;
+        document.getElementById("dtOrderStatus").innerHTML = `<span class="badge b-green">결제완료</span> <span class="badge b-green">출고대기 (주소 수정 가능)</span>`;
         document.getElementById("dtPayMethod").textContent = "간편결제 (카카오페이 · 토스페이먼츠)";
         applyShipLockUiState();
       } else if (key === "SJM20260817-0132") {
@@ -3725,13 +3775,13 @@ code, pre, kbd, samp,
 
       btnEdit.disabled = isDetailShipLocked;
       const hold = curShipHold();
-      // 보류 요청은 출고지시 잠금 상태에서 아직 요청하지 않았을 때만, 맞교환 재출고는 3PL '이미 출고' 회신 또는 배송중 · 배송완료 주문만
+      // 보류 요청은 출고지시 잠금 상태에서 아직 요청하지 않았을 때만, 맞교환 재출고는 물류 '이미출고' 회신 또는 배송중 · 배송완료 주문만
       const btnSwap = document.getElementById("btnSwapReship");
       const od = ORDERS_DATA.find(x => x.orderNo === curDetailOrderNo());
       const shippedOut = !!(od && ["배송중", "배송완료"].includes(od.status));
       const canHold = isDetailShipLocked && hold.state === "NONE" && !shippedOut;
-      if (btnRecall) { btnRecall.disabled = !canHold; btnRecall.title = canHold ? "" : (shippedOut ? "이미 출고된 주문은 맞교환 재출고 등록으로 처리합니다." : (isDetailShipLocked ? "이미 출고보류를 요청했습니다." : "출고지시 전 주문은 보류 요청 없이 배송지를 고칠 수 있습니다.")); }
-      if (btnSwap) { btnSwap.disabled = !(hold.state === "SHIPPED" || shippedOut); btnSwap.title = btnSwap.disabled ? "3PL이 '이미 출고'로 회신했거나 배송중 · 배송완료인 주문만 등록합니다." : ""; }
+      if (btnRecall) { btnRecall.disabled = !canHold; btnRecall.title = canHold ? "" : (shippedOut ? "이미 출고된 주문은 맞교환 재출고 등록으로 처리합니다." : (isDetailShipLocked ? "이미 물류 취소를 요청했습니다." : "출고지시 전 주문은 물류 취소 요청 없이 배송지를 고칠 수 있습니다.")); }
+      if (btnSwap) { btnSwap.disabled = !(hold.state === "SHIPPED" || shippedOut); btnSwap.title = btnSwap.disabled ? "물류 업체가 '이미 출고'로 회신했거나 배송중 · 배송완료인 주문만 등록합니다." : ""; }
       const bHold = document.getElementById("btnShipHoldReq");
       if (bHold) bHold.disabled = !canHold;
       lockIcons.forEach(el => el.style.display = isDetailShipLocked ? "inline" : "none");
@@ -3740,9 +3790,9 @@ code, pre, kbd, samp,
       document.querySelectorAll(".addr-field").forEach(el => el.disabled = true);
     }
 
-    // S-13(white 2026-10-27): 출고지시 회수(잠금만 해제) 없음. 3PL 출고보류 요청 → 3PL 회신(보류 완료 / 이미 출고) → 보류 완료일 때만 잠금 해제, 이미 출고면 맞교환 재출고 등록
+    // S-13(white 2026-10-27): 출고지시 회수(잠금만 해제) 없음. 물류 취소 요청 → 물류 회신(취소완료 / 이미출고) → 취소완료일 때만 잠금 해제, 이미 출고면 맞교환 재출고 등록
     const shipHoldByOrder = {};
-    const SHIP_HOLD_REASON = { ADDR: "고객 배송지 오기재 · 변경 요청", CANCEL: "고객 주문 취소 요청", ITEM: "출고 품목 오류", ETC: "기타" };
+    const SHIP_HOLD_REASON = { CANCEL: "주문 취소", ADDR: "배송지 변경" };
     const SWAP_REASON = { ADDR: "배송지 오기재로 출고됨", WRONG_ITEM: "오배송 (품목 오류)", DEFECTIVE: "파본 · 불량 교환", ETC: "기타" };
     function curDetailOrderNo() { const el = document.getElementById("dtOrderNo"); return el ? el.textContent.trim() : ""; }
     function curShipHold() { const k = curDetailOrderNo(); return shipHoldByOrder[k] || (shipHoldByOrder[k] = { state: "NONE" }); }
@@ -3750,25 +3800,32 @@ code, pre, kbd, samp,
     function renderShipHold() {
       const h = curShipHold();
       const badge = document.getElementById("shipHoldStateBadge");
-      const map = { NONE: ["b-gray", "요청 전"], REQUESTED: ["b-amber", "보류 요청됨 · 3PL 회신 대기 (잠금 유지)"], HELD: ["b-green", "3PL 회신: 보류 완료 · 잠금 해제"], SHIPPED: ["b-red", "3PL 회신: 이미 출고 · 잠금 유지"] };
+      const map = { NONE: ["b-gray", "요청 전"], QUEUED: ["b-amber", "요청 대기 · 다음 발주 파일 취소 시트"], REQUESTED: ["b-amber", "요청 보냄 · 물류 회신 대기 (잠금 유지)"], HELD: ["b-green", "물류 회신: 취소완료 · 잠금 해제"], SHIPPED: ["b-red", "물류 회신: 이미출고 · 배송중"] };
       const m = map[h.state];
       badge.className = "badge " + m[0];
       badge.textContent = h.swap ? m[1] + " · 맞교환 재출고 등록됨" : m[1];
+      const why = h.reason ? `처리 유형: ${SHIP_HOLD_REASON[h.reason]}${h.memo ? " · 사유: " + h.memo : ""}` : "";
       document.getElementById("shipHoldReqBox").style.display = h.state === "NONE" && isDetailShipLocked ? "block" : "none";
+      document.getElementById("shipHoldQueuedBox").style.display = h.state === "QUEUED" ? "block" : "none";
+      if (h.state === "QUEUED") document.getElementById("shipHoldQueuedInfo").textContent = `${h.phone ? "유선 요청함 · " : ""}등록 ${h.at} · ${why} — 다음 발주 파일(출고 마감 14:00) 취소 시트에 실립니다`;
       document.getElementById("shipHoldReplyBox").style.display = h.state === "REQUESTED" ? "block" : "none";
-      if (h.state === "REQUESTED") document.getElementById("shipHoldReqInfo").textContent = `요청 ${h.at} · 사유: ${SHIP_HOLD_REASON[h.reason]}${h.memo ? " · " + h.memo : ""}`;
+      if (h.state === "REQUESTED") document.getElementById("shipHoldReqInfo").textContent = `${h.batch} 취소 시트로 보냄 · ${why} · 회신 마감 18:00 (회신 없으면 다음 영업일 18시 지연 경보)`;
       const note = document.getElementById("shipHoldResultNote");
       note.style.display = (h.state === "HELD" || h.state === "SHIPPED") ? "block" : "none";
-      if (h.state === "HELD") note.innerHTML = `✅ 3PL이 출고를 멈췄습니다. 배송지를 고칠 수 있으며, 다음 3PL 발주 때 다시 잠깁니다.`;
-      if (h.state === "SHIPPED") note.innerHTML = `🚚 3PL이 이미 출고했습니다. 배송지 잠금은 유지되며, <b>맞교환 재출고 등록</b>으로 다시 보냅니다.`;
-      const swapOpen = h.state === "SHIPPED" || h.swapOpen;
+      if (h.state === "HELD") note.innerHTML = h.reason === "CANCEL"
+        ? `✅ 물류 업체가 출고를 멈췄습니다(취소완료). 출고 지시를 회수하고 재고 예약을 되돌린 뒤 <b>주문 취소 · 환불</b>을 진행합니다.`
+        : `✅ 물류 업체가 출고를 멈췄습니다(취소완료). 출고 지시가 회수되어 <b>결제완료(출고대기)</b>로 돌아갔습니다. 배송지를 고친 뒤 다음 발주에 다시 넣습니다.`;
+      if (h.state === "SHIPPED") note.innerHTML = h.reason === "CANCEL"
+        ? `🚚 물류 업체가 이미 출고했습니다. 회신 운송장으로 배송중이 되고, <b>회수 요청</b>이 자동으로 만들어져 다음 발주 파일 회수 시트에 실립니다(반품 · 환불 흐름).`
+        : `🚚 물류 업체가 이미 출고했습니다. 고객에게 안내한 뒤 반품 · 재주문 또는 <b>맞교환 재출고 등록</b>으로 처리합니다.`;
+      const swapOpen = (h.state === "SHIPPED" && h.reason !== "CANCEL") || h.swapOpen;
       document.getElementById("swapReshipBox").style.display = swapOpen && !h.swap ? "block" : "none";
-      if (h.swap) { note.style.display = "block"; note.innerHTML = (h.state === "SHIPPED" ? note.innerHTML + "<br>" : "") + `🔁 맞교환 재출고 등록됨 — ${h.swap.item} · 회수 송장 ${h.swap.wb} · 사유: ${SWAP_REASON[h.swap.reason]} (다음 3PL 발주 배치에 재출고 라인 포함)`; }
+      if (h.swap) { note.style.display = "block"; note.innerHTML = (h.state === "SHIPPED" ? note.innerHTML + "<br>" : "") + `🔁 맞교환 재출고 등록됨 — ${h.swap.item} · 회수 송장 ${h.swap.wb} · 사유: ${SWAP_REASON[h.swap.reason]} (다음 발주 배치에 재출고 라인 포함)`; }
     }
 
     function openShipHoldPanel() {
       const h = curShipHold();
-      if (!isDetailShipLocked && h.state === "NONE") { alert("출고지시 전 주문은 보류 요청 없이 배송지를 바로 고칠 수 있습니다."); return; }
+      if (!isDetailShipLocked && h.state === "NONE") { alert("출고지시 전 주문은 물류 취소 요청 없이 배송지를 바로 고칠 수 있습니다."); return; }
       document.getElementById("shipHoldPanel").style.display = "block";
       renderShipHold();
     }
@@ -3776,13 +3833,31 @@ code, pre, kbd, samp,
     function sendShipHoldRequest() {
       const reason = document.getElementById("inpShipHoldReason").value;
       const memo = document.getElementById("inpShipHoldMemo").value.trim();
-      if (!reason) { alert("보류 요청 사유를 선택해 주세요."); return; }
-      if (reason === "ETC" && memo.length < 2) { alert("기타 사유는 요청 메모를 입력해 주세요."); return; }
+      const phone = document.getElementById("inpShipHoldPhone").checked;
+      if (!reason) { alert("처리 유형을 선택해 주세요."); return; }
+      if (memo.length < 2) { alert("사유를 입력해 주세요."); return; }
       const h = curShipHold();
-      Object.assign(h, { state: "REQUESTED", reason: reason, memo: memo, at: "08.18 15:20" });
-      appendTimelineRow("김운영", "출고보류요청", "b-amber", `3PL 출고보류 요청 — 사유: ${SHIP_HOLD_REASON[reason]}${memo ? " · " + memo : ""} · 배치 BATCH-20260818-01 · 3PL 회신 대기 (잠금 유지)`);
+      Object.assign(h, { state: "QUEUED", reason: reason, memo: memo, phone: phone, at: "08.18 15:20" });
+      appendTimelineRow("김운영", "물류취소요청", "b-amber", `물류 취소 요청 등록 — 처리 유형: ${SHIP_HOLD_REASON[reason]} · 사유: ${memo}${phone ? " · 유선 요청함" : ""} · 다음 발주 파일 취소 시트에 실림 (잠금 유지)`);
       renderShipHold();
       applyShipLockUiState();
+    }
+
+    function withdrawShipHold() {
+      const h = curShipHold();
+      if (h.state !== "QUEUED") { alert("발주 파일로 이미 보낸 요청은 철회할 수 없습니다. 물류 회신을 기다려 주세요."); return; }
+      Object.assign(h, { state: "NONE", reason: "", memo: "", phone: false });
+      appendTimelineRow("김운영", "요청철회", "b-gray", "물류 취소 요청 철회 — 발주 파일로 보내기 전");
+      renderShipHold();
+      applyShipLockUiState();
+    }
+
+    function markShipHoldSent() {
+      const h = curShipHold();
+      if (h.state !== "QUEUED") return;
+      Object.assign(h, { state: "REQUESTED", batch: "BATCH-20260818-02" });
+      appendTimelineRow("시스템", "요청보냄", "b-amber", "물류 취소 요청을 발주 파일 BATCH-20260818-02 취소 시트로 보냄 · 회신 마감 18:00");
+      renderShipHold();
     }
 
     function recordShipHoldReply(result) {
@@ -3792,11 +3867,20 @@ code, pre, kbd, samp,
         h.state = "HELD";
         isDetailShipLocked = false;
         document.getElementById("detailLockBanner").style.display = "none";
-        appendTimelineRow("3PL", "출고보류완료", "b-green", "3PL 회신: 보류 완료 — 출고 전 멈춤 · 출고지시 잠금 해제 (배송지 수정 가능, 다음 3PL 발주 때 다시 잠김)");
+        appendTimelineRow("물류 업체", "취소완료", "b-green", h.reason === "CANCEL"
+          ? "물류 회신: 취소완료 — 출고 전 멈춤 · 출고 지시 회수 · 재고 예약 복원 → 주문 취소 · 환불 진행"
+          : "물류 회신: 취소완료 — 출고 전 멈춤 · 출고 지시 회수 → 결제완료(출고대기), 배송지 수정 후 다음 발주에 다시 넣음");
+        document.getElementById("dtOrderStatus").innerHTML = h.reason === "CANCEL"
+          ? `<span class="badge b-gray">주문 취소 · 환불 진행</span>`
+          : `<span class="badge b-green">결제완료</span> <span class="badge b-green">출고대기 (주소 수정 가능)</span>`;
       } else {
         h.state = "SHIPPED";
-        appendTimelineRow("3PL", "이미출고", "b-red", "3PL 회신: 이미 출고 — 잠금 유지 · 맞교환 재출고 등록 필요");
-        fillSwapItems();
+        if (h.reason === "CANCEL") {
+          appendTimelineRow("물류 업체", "이미출고", "b-red", "물류 회신: 이미출고 — 운송장 641233880155 등록 · 배송중 · 회수 요청 자동 생성(다음 발주 파일 회수 시트)");
+        } else {
+          appendTimelineRow("물류 업체", "이미출고", "b-red", "물류 회신: 이미출고 — 운송장 641233880155 등록 · 배송중 · 고객 안내 후 반품 · 재주문 또는 맞교환 재출고");
+          fillSwapItems();
+        }
       }
       renderShipHold();
       applyShipLockUiState();
@@ -3828,9 +3912,9 @@ code, pre, kbd, samp,
       const h = curShipHold();
       const item = itemSel.options[itemSel.selectedIndex].text;
       h.swap = { reason: reason, item: item, wb: wb };
-      appendTimelineRow("김운영", "맞교환재출고", "b-blue", `맞교환 재출고 등록 — 품목 ${item} · 회수 송장 ${wb} · 사유: ${SWAP_REASON[reason]} · 다음 3PL 발주 배치에 재출고 라인 포함 (원 주문 금액 불변)`);
+      appendTimelineRow("김운영", "맞교환재출고", "b-blue", `맞교환 재출고 등록 — 품목 ${item} · 회수 송장 ${wb} · 사유: ${SWAP_REASON[reason]} · 다음 발주 배치에 재출고 라인 포함 (원 주문 금액 불변)`);
       renderShipHold();
-      alert("✅ 맞교환 재출고가 등록되었습니다.\n• 다음 3PL 발주 배치에 재출고 라인으로 들어가며, 나간 품목은 회수 송장으로 회수합니다.");
+      alert("✅ 맞교환 재출고가 등록되었습니다.\n• 다음 발주 배치에 재출고 라인으로 들어가며, 나간 품목은 회수 송장으로 회수합니다.");
     }
 
     function enableAddressEditMode() {
@@ -3889,7 +3973,7 @@ code, pre, kbd, samp,
     }
 
     function confirmIslandFeePaid() {
-      appendTimelineRow("김운영", "추가배송비확인", "b-green", `도서산간 추가 배송비 ${ISLAND_FEE.toLocaleString("ko-KR")}원 결제 · 입금 확인 — 출고 보류 해제 (3PL 발주 대상 포함)`);
+      appendTimelineRow("김운영", "추가배송비확인", "b-green", `도서산간 추가 배송비 ${ISLAND_FEE.toLocaleString("ko-KR")}원 결제 · 입금 확인 — 출고 보류 해제 (발주 대상 포함)`);
       document.getElementById("islandFeePendingBox").style.display = "none";
       document.getElementById("islandCheckBadge").className = "badge b-green";
       document.getElementById("islandCheckBadge").textContent = "🏝️ 제주 권역 · 추가 배송비 3,000원 결제 확인";
@@ -3918,7 +4002,7 @@ code, pre, kbd, samp,
         if (fault === "CUSTOMER") {
           const how = method === "PG_LINK" ? "PG 추가 결제 링크 발송(개인 결제창)" : "무통장 입금 안내(지정 계좌)";
           islandMsg = ` · 도서산간 추가 배송비 ${feeTxt} 고객 귀책 — ${how} · 결제(입금) 확인 전 출고 보류`;
-          document.getElementById("islandFeePendingText").innerHTML = `🏝️ <b>도서산간 추가 배송비 ${feeTxt} ${method === "PG_LINK" ? "결제" : "입금"} 대기</b> — ${how}. 확인 전에는 3PL 발주 대상에서 빠집니다(출고 보류).`;
+          document.getElementById("islandFeePendingText").innerHTML = `🏝️ <b>도서산간 추가 배송비 ${feeTxt} ${method === "PG_LINK" ? "결제" : "입금"} 대기</b> — ${how}. 확인 전에는 발주 대상에서 빠집니다(출고 보류).`;
           document.getElementById("islandFeePendingBox").style.display = "flex";
           badge.className = "badge b-amber";
           badge.textContent = `🏝️ 제주 권역 · 추가 배송비 ${feeTxt} 고객 청구 (${method === "PG_LINK" ? "PG 추가 결제" : "무통장 입금"} 대기)`;
@@ -3988,7 +4072,7 @@ code, pre, kbd, samp,
         if (titleEl) titleEl.textContent = "주문 내역 통합 관리 — 실결제금액(쿠폰·포인트 차감 후) 기준";
       } else if (viewId === "ord002") {
         if (codeEl) codeEl.textContent = "ADMN-ORD-002";
-        if (titleEl) titleEl.textContent = "배송 관리 · 3PL 물류 연동 (출고지시 Lock · 송장 벌크 · 반품 수거 검수)";
+        if (titleEl) titleEl.textContent = "배송 관리 · 물류 연동 (출고지시 Lock · 송장 벌크 · 반품 수거 검수)";
         renderShipTable();
       } else if (viewId === "ord001s1") {
         if (codeEl) codeEl.textContent = "ADMN-ORD-001-S1";

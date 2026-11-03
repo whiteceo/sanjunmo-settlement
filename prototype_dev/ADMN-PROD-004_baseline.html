@@ -992,7 +992,7 @@ code, pre, kbd, samp,
           <div class="card-header">
             <div class="card-title-group">
               <h3 class="card-title">2. 재고 현황(실재고 · 예약 · 가용) · 수불(입고 · 결제 예약 · 출고 확정 · 반품 · 조정) 이력</h3>
-              <span class="card-subtitle">재고는 2단 차감(결제 완료 → 예약, 3PL 송장 업로드 → 실재고 확정)입니다. 안전재고 경고 · 자동 [일시품절]은 가용 재고(= 실재고 − 예약) 기준입니다.</span>
+              <span class="card-subtitle">재고는 2단 차감(결제 완료 → 예약, 송장 업로드 → 실재고 확정)입니다. 안전재고 경고 · 자동 [일시품절]은 가용 재고(= 실재고 − 예약) 기준입니다.</span>
             </div>
             <button type="button" class="btn btn-soft btn-sm" data-dev-route="admin.books.edit" data-dev-method="GET" data-dev-url="/sj-admin/books/{book}/edit" data-dev-perm="수정" data-dev-note="개발은 수정 화면의 재고 조정 레이어 layerStockAdjust" onclick="openStockAdjustModal()">+ 재고 수동 입고/조정</button>
           </div>
@@ -1906,15 +1906,15 @@ code, pre, kbd, samp,
     /* Q-3PL-1(white 2026-10-27) 재고 2단 차감
        - stock = 실재고(창고 보유), reserved = 예약(결제 완료 · 미출고), 가용 = 실재고 − 예약
        - 결제 완료: 가용에서 예약 차감(reserved +) → 판매 가능 수량이 바로 줄어 과판매 방지. 결제 취소 · 출고 전 환불이면 예약 해제(reserved −)
-       - 3PL 송장 업로드(출고): 예약 수량을 실재고에서 확정 차감(stock −, reserved −) → 가용은 변동 없음
-       - 안전재고 경고 · 자동 일시품절은 가용 기준. 3PL 재고 피드백(출고 불가 라인)은 실재고와 대조 */
+       - 송장 업로드(출고): 예약 수량을 실재고에서 확정 차감(stock −, reserved −) → 가용은 변동 없음
+       - 안전재고 경고 · 자동 일시품절은 가용 기준. 보관 창고 재고 회신(출고 불가 라인)은 실재고와 대조 */
     const BOOK_RESERVED_SAMPLE = { "PROD-BK-1011": 18, "PROD-BK-1012": 7, "PROD-BK-3003": 0, "PROD-BK-2017": 0, "PROD-BK-1007": 5, "PROD-BK-1006": 12, "PROD-BK-1001": 3, "PROD-BK-1005": 22, "PROD-BK-2001": 14, "PROD-BK-1008": 0 };
     booksData.forEach(b => { if (typeof b.reserved !== "number") b.reserved = BOOK_RESERVED_SAMPLE[b.sku] || 0; });
     function bookAvail(b) { return Math.max(0, Number(b.stock || 0) - Number(b.reserved || 0)); }
 
     let stockHistoryLogs = [
       { dt: "2026-10-15 09:20", type: "결제 예약", target: "가용", delta: -4, after: 420, reservedAfter: 18, reason: "결제 완료 주문 4건 — 가용 재고에서 예약 차감 (실재고 변동 없음)", actor: "시스템(주문)" },
-      { dt: "2026-10-14 16:40", type: "출고 확정", target: "실재고", delta: -12, after: 420, reservedAfter: 14, reason: "3PL 송장 업로드 — 예약 12권 실재고 확정 차감 · 가용 변동 없음 (송장묶음 #DLV-261014)", actor: "시스템(OMS)" },
+      { dt: "2026-10-14 16:40", type: "출고 확정", target: "실재고", delta: -12, after: 420, reservedAfter: 14, reason: "송장 업로드 — 예약 12권 실재고 확정 차감 · 가용 변동 없음 (송장묶음 #DLV-261014)", actor: "시스템(OMS)" },
       { dt: "2026-10-12 11:05", type: "예약 해제", target: "가용", delta: 1, after: 432, reservedAfter: 26, reason: "출고 전 주문 취소 — 예약 해제 · 가용 복원 (실재고 변동 없음, #RFD-261012-03)", actor: "시스템(환불)" },
       { dt: "2026-10-10 11:15", type: "반품입고(+)", target: "실재고", delta: 2, after: 432, reservedAfter: 27, reason: "단순변심 미개봉 반품 검수 입고 (#RTN-261010-04)", actor: "물류담당(박물류)" },
       { dt: "2026-10-01 09:30", type: "신규입고(+)", target: "실재고", delta: 300, after: 430, reservedAfter: 27, reason: "산준모북스 2쇄 입고 (전표 #WH-20261001-02)", actor: "상품관리(김기획)" }
@@ -2359,13 +2359,13 @@ code, pre, kbd, samp,
       const av = bookAvail(b), rs = Number(b.reserved || 0);
       const judge = av === 0 ? `<span class="badge badge-out">품절 (가용 0권 · 결제 차단)</span>`
         : (av <= b.safeStock ? `<span class="badge badge-warn">안전재고 미달 (가용 ${av}권 ≤ ${b.safeStock}권)</span>` : `<span class="badge badge-sale">정상 (안전재고 ${b.safeStock}권 초과)</span>`);
-      const short = b.stock < rs ? `<div style="font-size:11px; color:var(--rose); margin-top:4px;">⚠️ 실재고가 예약보다 ${rs - b.stock}권 적습니다 — 3PL 출고 불가 라인 회신과 대조하세요</div>` : "";
+      const short = b.stock < rs ? `<div style="font-size:11px; color:var(--rose); margin-top:4px;">⚠️ 실재고가 예약보다 ${rs - b.stock}권 적습니다 — 보관 창고 출고 불가 라인 회신과 대조하세요</div>` : "";
       const cell = (id, label, val, hint, color) => `<div style="border:1px solid var(--slate-200); border-radius:8px; padding:10px 12px; background:var(--slate-50);">
           <div style="font-size:11.5px; color:var(--slate-500); font-weight:700;">${label}</div>
           <div id="${id}" style="font-size:20px; font-weight:800; color:${color}; margin:2px 0;">${formatNumber(val)}권</div>
           <div style="font-size:11px; color:var(--slate-500); line-height:1.45;">${hint}</div></div>`;
       box.innerHTML = `<div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; padding:12px 16px; border-bottom:1px solid var(--slate-200);">
-        ${cell("d-stock-real", "실재고 (창고 보유)", b.stock, "3PL 송장 업로드(출고) 때 예약 수량을 확정 차감 · 3PL 재고 피드백과 대조" + short, "var(--navy-900)")}
+        ${cell("d-stock-real", "실재고 (창고 보유)", b.stock, "송장 업로드(출고) 때 예약 수량을 확정 차감 · 보관 창고 재고 회신과 대조" + short, "var(--navy-900)")}
         ${cell("d-stock-reserved", "예약 (결제 완료 · 미출고)", rs, "결제 완료 때 잡고, 결제 취소 · 출고 전 환불이면 해제", "var(--amber)")}
         ${cell("d-stock-avail", "가용 (= 실재고 − 예약)", av, "판매 가능 수량 · 안전재고 경고 · 자동 품절 판정 기준<div style=\"margin-top:4px;\">" + judge + "</div>", "var(--primary)")}
       </div>`;
@@ -2529,7 +2529,7 @@ code, pre, kbd, samp,
         after: b.stock,
         reservedAfter: Number(b.reserved || 0),
         reason,
-        actor: "관리자(white)"
+        actor: "관리자(김영호 PO)"
       });
 
       closeStockAdjustModal();
@@ -2537,7 +2537,7 @@ code, pre, kbd, samp,
       renderDetailView();
       recordBookStatus(b);
       showToast(b.stock < Number(b.reserved || 0)
-        ? `[${b.sku}] 실재고 ${b.stock}권 · 가용 0권으로 반영했습니다. 실재고가 예약(${b.reserved}권)보다 적어 일부 결제 건은 출고할 수 없습니다 — 3PL 재고와 대조하세요.`
+        ? `[${b.sku}] 실재고 ${b.stock}권 · 가용 0권으로 반영했습니다. 실재고가 예약(${b.reserved}권)보다 적어 일부 결제 건은 출고할 수 없습니다 — 보관 창고 재고와 대조하세요.`
         : `[${b.sku}] 실재고 ${b.stock}권 · 가용 ${bookAvail(b)}권으로 반영되었습니다.`);
     }
 

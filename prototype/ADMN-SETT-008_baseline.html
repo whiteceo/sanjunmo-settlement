@@ -1287,7 +1287,7 @@ code, pre, kbd, samp,
   function recordSupplierManualCheck(id) {
     const r = state.records.find(x => x.id === id);
     if (!r || r.partnerType !== "매입처") return;
-    r.manualCheckedAt = "2026-10-27 즉시등록 · 재무관리자(white)";
+    r.manualCheckedAt = "2026-10-27 즉시등록 · 재무관리자(김영호 PO)";
     r.controlStatusLabel = "전환 감지 · 수기 확인 완료 (원장 전환은 2차)";
     updateKpis();
     renderTable();

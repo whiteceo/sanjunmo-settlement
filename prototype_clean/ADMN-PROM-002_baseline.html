@@ -475,10 +475,11 @@ code, pre, kbd, samp,
                   <th>발급 방식</th>
                   <td>
                     <select id="q-method" class="form-select" style="width:240px;" onchange="renderMasterGrid()">
-                      <option value="ALL">전체 (자동 / 수동 대량 / 코드 입력형)</option>
+                      <option value="ALL">전체 (자동 / 수동 대량 / 코드 입력형 / 이벤트 보상)</option>
                       <option value="AUTO">자동 발급 (회원가입 웰컴 등)</option>
                       <option value="BULK">수동 대량 발급 (그룹·태그 타겟)</option>
                       <option value="CODE">코드 입력형 (오프라인·카페 코드)</option>
+                      <option value="EVENT">이벤트 보상 (참여 관리에서 발급)</option>
                     </select>
                   </td>
                   <th>사용 상태</th>
@@ -512,7 +513,7 @@ code, pre, kbd, samp,
           <div class="card-header">
             <div class="card-title">
               <span>쿠폰 마스터 목록</span>
-              <span class="badge badge-slate" id="grid-total-cnt">전체 14건 (시연 4건)</span>
+              <span class="badge badge-slate" id="grid-total-cnt">전체 17건 (시연 7건)</span>
             </div>
             <div style="display:flex; gap:8px;">
               <button type="button" class="btn btn-sm" onclick="downloadExcelReport()">📥 발급·사용 현황 엑셀 (2시트·마스킹 로깅)</button>
@@ -553,11 +554,12 @@ code, pre, kbd, samp,
           <div style="padding:11px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; background:#F8FAFC;">
             <div style="display:flex; align-items:center; gap:10px;">
               <span class="badge badge-blue" id="form-mode-pill">신규 쿠폰 등록 모드</span>
+              <span class="badge badge-purple" id="form-purpose-pill" style="display:none;">이벤트 보상</span>
               <strong id="form-header-title" style="font-size:14px;">쿠폰 마스터 등록 (ADMN-PROM-002)</strong>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               <button type="button" class="btn btn-sm" style="border-color:#FECACA; color:#DC2626;" onclick="triggerP1Demo('FIXED_250K')">🧪 [P1 시연] 정액 250,000원 초과 입력</button>
-              <button type="button" class="btn btn-sm" style="border-color:#FECACA; color:#DC2626;" onclick="triggerP1Demo('RATE_45')">🧪 [P1 시연] 정률 45% 초과 입력</button>
+              <button type="button" class="btn btn-sm" style="border-color:#FECACA; color:#DC2626;" onclick="triggerP1Demo('RATE_OVER')">🧪 [P1 시연] 정률 25% (상한 19% 초과) 입력</button>
               <button type="button" class="btn btn-sm" onclick="switchSubView('list')">← 쿠폰 마스터 목록으로</button>
             </div>
           </div>
@@ -610,11 +612,11 @@ code, pre, kbd, samp,
                           <div style="display:flex; align-items:center; gap:6px;">
                             <input type="number" id="f-val" class="form-input" style="width:140px; font-weight:800; font-size:14px;" value="15" oninput="clearFieldError()" />
                             <strong id="f-val-unit" style="font-size:13.5px;">%</strong>
-                            <span id="f-val-max-guide" style="font-size:11.5px; color:var(--text-muted); margin-left:4px;">(최대 입력 가능: <b>40%</b> 정수)</span>
+                            <span id="f-val-max-guide" style="font-size:11.5px; color:var(--text-muted); margin-left:4px;">(최대 입력 가능: <b>19%</b> 정수 · 운영 설정값)</span>
                           </div>
                         </div>
                         <div class="help-txt warn" id="f-val-help">
-                          • 정률 최대 <b>40%</b>(1~40 정수) / 정액 최대 <b>200,000원</b>(1,000원 단위) — 시스템 하드코딩 상한. 초과 입력 시 <b>ADMN-PROM-002-P1</b> 경고 후 저장 차단.
+                          • 정률 할인율 상한은 <b>운영 설정값</b>(기본 <b>19%</b>, 1~19 정수 — 종전 40% 고정에서 변경, 2026-11-04 white 결정) / 정액 최대 <b>200,000원</b>(1,000원 단위, 유지). 초과 입력 시 <b>ADMN-PROM-002-P1</b> 경고 후 저장 차단. 한 주문에 쿠폰 1장이라 발급 상한 = 사용 상한입니다.
                         </div>
                       </td>
                     </tr>
@@ -631,7 +633,7 @@ code, pre, kbd, samp,
                           • 정률 쿠폰이라도 <b>실제 감면액은 200,000원을 넘지 못합니다</b> — 결제 시 <code>FLOOR(MIN(base × rate, 200000, base))</code> 강제 연산 및 <code>order_discount.cap_applied = 1</code> 기록.
                         </div>
                         <div style="margin-top:6px; padding:8px 12px; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:6px; font-size:12px; color:#1E3A8A;">
-                          <b>Cap 연산 예시</b> · 40% 쿠폰 × 800,000원 강좌 = 산출 320,000원 → <b>실감면 200,000원</b> (결제 600,000원 · 주문서 <code>USER-PAY-001</code>에 한도 적용 문구 필수 노출)
+                          <b>Cap 연산 예시</b> · 19% 쿠폰 × 1,200,000원 강좌 = 산출 228,000원 → <b>실감면 200,000원</b> (결제 1,000,000원 · 주문서 <code>USER-PAY-001</code>에 한도 적용 문구 필수 노출)
                         </div>
                       </td>
                     </tr>
@@ -731,13 +733,14 @@ code, pre, kbd, samp,
                       <th>중복 사용</th>
                       <td>
                         <div style="display:flex; align-items:center; gap:18px; flex-wrap:wrap;">
-                          <span class="badge badge-slate" id="f-one-coupon-fixed">1주문 1쿠폰 (다른 쿠폰과 함께 쓸 수 없음 · 고정)</span>
+                          <span class="badge badge-slate" id="f-one-coupon-fixed">한 주문에 쿠폰 1장 (다른 쿠폰과 중복 불가 · 1차 고정)</span>
                           <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-weight:700;">
-                            <input type="checkbox" id="f-dup-point" checked /> 포인트와 함께 사용 허용 (쿠폰 선적용 후 잔액에 포인트 차감)
+                            <input type="checkbox" id="f-dup-point" checked /> 포인트와 함께 사용 허용 (쿠폰별 · 기본 허용, 쿠폰을 먼저 적용하고 남은 금액에 포인트 차감)
                           </label>
                         </div>
                         <div class="help-txt">
-                          • 한 주문에는 쿠폰 1장만 적용됩니다. 쿠폰마다 정할 수 있는 것은 포인트와 함께 사용할지 여부뿐입니다.
+                          • 한 주문에는 쿠폰 1장만 적용됩니다(다른 쿠폰과 중복 불가 · 1차 고정). 쿠폰마다 정할 수 있는 것은 포인트와 함께 사용할지 여부뿐이며 기본은 허용입니다.<br/>
+                          • 웰컴 쿠폰과 이벤트 보상 쿠폰(카페 인증 · 환승 증빙 · 강사 쿠폰)은 따로 받아 함께 보유할 수 있지만, 한 주문에는 그중 1장만 씁니다.
                         </div>
                       </td>
                     </tr>
@@ -785,6 +788,7 @@ code, pre, kbd, samp,
                           <button type="button" class="seg-btn" id="seg-mth-auto" onclick="setIssueMethod('AUTO')">자동 발급 (가입 웰컴)</button>
                           <button type="button" class="seg-btn active" id="seg-mth-bulk" onclick="setIssueMethod('BULK')">수동 대량 발급</button>
                           <button type="button" class="seg-btn" id="seg-mth-code" onclick="setIssueMethod('CODE')">코드 입력형</button>
+                          <button type="button" class="seg-btn" id="seg-mth-event" onclick="setIssueMethod('EVENT')">이벤트 보상 (참여 관리)</button>
                         </div>
                         <div class="help-txt" id="method-desc-txt">
                           • <b>수동 대량 발급:</b> <code>ADMN-USER-006</code> 수평적 그룹·태그로 타겟팅하여 예약 시각에 배치 발급 및 알림톡을 동시 발송합니다.
@@ -849,7 +853,7 @@ code, pre, kbd, samp,
                 <!-- 하단 저장 · 발급 중지 버튼 -->
                 <div style="display:flex; justify-content:space-between; align-items:center; padding-top:8px;">
                   <div>
-                    <span style="font-size:12px; color:var(--text-muted);">할인값을 한도(정률 40% / 정액 200,000원) 이하로 입력한 뒤 [저장 · 발급 예약]을 누르세요.</span>
+                    <span style="font-size:12px; color:var(--text-muted);">할인값을 한도(정률 19% 운영 설정값 / 정액 200,000원) 이하로 입력한 뒤 [저장 · 발급 예약]을 누르세요.</span>
                   </div>
                   <div style="display:flex; gap:8px;">
                     <button type="button" class="btn" onclick="pauseCurrentCoupon()">발급 중지</button>
@@ -883,17 +887,17 @@ code, pre, kbd, samp,
                   </thead>
                   <tbody>
                     <tr style="background:#FFFBEB;">
-                      <td><b>정률 40%</b></td>
-                      <td class="num">800,000원</td>
-                      <td class="num">320,000원</td>
+                      <td><b>정률 19%</b></td>
+                      <td class="num">1,200,000원</td>
+                      <td class="num">228,000원</td>
                       <td class="num"><b style="color:var(--danger);">200,000원</b></td>
-                      <td><span class="badge badge-amber">Cap 적용</span> 결제 600,000원</td>
+                      <td><span class="badge badge-amber">Cap 적용</span> 결제 1,000,000원</td>
                     </tr>
                     <tr>
-                      <td><b>정률 40%</b></td>
+                      <td><b>정률 19%</b></td>
                       <td class="num">450,000원</td>
-                      <td class="num">180,000원</td>
-                      <td class="num"><b>180,000원</b></td>
+                      <td class="num">85,500원</td>
+                      <td class="num"><b>85,500원</b></td>
                       <td><span class="badge badge-green">전액 적용</span> Cap 미만</td>
                     </tr>
                     <tr>
@@ -1147,6 +1151,80 @@ code, pre, kbd, samp,
   <script>
     // 화면설계서 3번 쿠폰 마스터 그리드 정본 데이터
     const MASTER_COUPONS = [
+      /* 이벤트 보상 쿠폰(설계서 v3.2.50) — 이벤트 등록(ADMN-PROM-001-S3)에서 연결, 참여 관리에서 발급. 웰컴 쿠폰과 별도로 받음
+         금액: 카페 인증 정액 30,000원(DEV_TRANSFER 19-10), 환승 증빙 · 강사 쿠폰은 이벤트 기획 기준 미정 — 자리표시자 */
+      {
+        no: 17,
+        code: "CPN-2610-0017",
+        name: "강사 쿠폰 (정종대 교수)",
+        type: "FIXED",
+        typeLabel: "정액",
+        val: null,
+        valText: "[금액 미정]",
+        capText: "200,000",
+        method: "EVENT",
+        methodLabel: "이벤트 보상 (강사 쿠폰 발급)",
+        purpose: "EVENT",
+        eventLink: "참여 관리 [강사 쿠폰 발급] — 같은 회원 1회",
+        withPoint: true,
+        expMode: "DN",
+        expDays: 30,
+        expText: "D+30",
+        issued: 2,
+        used: 0,
+        expired: 0,
+        useRate: "0.0%",
+        status: "ACTIVE",
+        minOrder: 0
+      },
+      {
+        no: 16,
+        code: "CPN-2610-0016",
+        name: "환승 증빙 쿠폰",
+        type: "FIXED",
+        typeLabel: "정액",
+        val: null,
+        valText: "[금액 미정]",
+        capText: "200,000",
+        method: "EVENT",
+        methodLabel: "이벤트 보상 (승인 때)",
+        purpose: "EVENT",
+        eventLink: "PRM-2610-TRANSFER 타사 수강생 환승 증빙 이벤트 — 회원 · 이벤트당 1회",
+        withPoint: true,
+        expMode: "DN",
+        expDays: 30,
+        expText: "D+30",
+        issued: 1,
+        used: 0,
+        expired: 0,
+        useRate: "0.0%",
+        status: "ACTIVE",
+        minOrder: 0
+      },
+      {
+        no: 15,
+        code: "CPN-2610-0015",
+        name: "카페 인증 쿠폰",
+        type: "FIXED",
+        typeLabel: "정액",
+        val: 30000,
+        valText: "30,000",
+        capText: "200,000",
+        method: "EVENT",
+        methodLabel: "이벤트 보상 (승인 때)",
+        purpose: "EVENT",
+        eventLink: "PRM-2610-CAFE 산준모 카페 회원 인증 이벤트 — 회원 · 이벤트당 1회",
+        withPoint: true,
+        expMode: "DN",
+        expDays: 30,
+        expText: "D+30",
+        issued: 2,
+        used: 0,
+        expired: 0,
+        useRate: "0.0%",
+        status: "ACTIVE",
+        minOrder: 0
+      },
       {
         no: 14,
         code: "CPN-2607-0014",
@@ -1213,11 +1291,11 @@ code, pre, kbd, samp,
       {
         no: 11,
         code: "CPN-2607-0011",
-        name: "재수강 응원 40% 쿠폰",
+        name: "재수강 응원 19% 쿠폰",
         type: "RATE",
         typeLabel: "정률",
-        val: 40,
-        valText: "40%",
+        val: 19,
+        valText: "19%",
         capText: "200,000",
         method: "BULK",
         methodLabel: "수동 대량",
@@ -1234,7 +1312,10 @@ code, pre, kbd, samp,
     ];
 
     let currentType = "RATE";
+    /* 정률 쿠폰 할인율 상한 — 운영 설정값, 기본 19%(종전 40% 고정에서 변경, 설계서 v3.2.42 · 2026-11-04 white 결정). 정액 상한 200,000원 유지 */
+    const RATE_CAP_PCT = 19;
     let currentEditingNo = null;
+    let currentIssueMethod = "BULK";
 
     function switchSubView(viewKey) {
       document.querySelectorAll(".view-section").forEach(el => el.classList.remove("active"));
@@ -1281,8 +1362,8 @@ code, pre, kbd, samp,
           <tr onclick="openFormEdit(${c.no})">
             <td class="ct"><b>${c.no}</b></td>
             <td>
-              <div style="font-weight:800; color:var(--primary);">${c.name}</div>
-              <div style="font-size:11px; color:var(--text-muted); font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;">${c.code} · 실물교재 제외(exclude_book=1)</div>
+              <div style="font-weight:800; color:var(--primary);">${c.name}${c.purpose === "EVENT" ? ' <span class="badge badge-purple">이벤트 보상</span>' : ''}</div>
+              <div style="font-size:11px; color:var(--text-muted); font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, 'Malgun Gothic', sans-serif; font-variant-numeric: tabular-nums;">${c.code} · 실물교재 제외(exclude_book=1) · 한 주문 1장 · 포인트 함께 ${c.withPoint === false ? '불가' : '허용'}</div>${c.eventLink ? `<div style="font-size:11px; color:var(--purple);">연결: ${c.eventLink}</div>` : ''}
             </td>
             <td class="ct">${c.typeLabel}</td>
             <td class="num"><b>${c.valText}</b></td>
@@ -1328,7 +1409,9 @@ code, pre, kbd, samp,
       document.getElementById("issued-lock-notice").style.display = "none";
 
       document.getElementById("f-name").value = "가을 얼리버드 15% 쿠폰";
-      document.getElementById("f-code").value = "CPN-2610-0015";
+      document.getElementById("f-code").value = `CPN-2610-${String(Math.max(...MASTER_COUPONS.map(x => x.no)) + 1).padStart(4, "0")}`;
+      document.getElementById("f-dup-point").checked = true;   // 포인트와 함께 사용 — 쿠폰별, 기본 허용
+      document.getElementById("form-purpose-pill").style.display = "none";
       document.getElementById("f-min-order").value = 50000;
 
       // 잠금 해제
@@ -1359,6 +1442,8 @@ code, pre, kbd, samp,
       document.getElementById("f-name").value = c.name;
       document.getElementById("f-code").value = c.code;
       document.getElementById("f-min-order").value = c.minOrder;
+      document.getElementById("f-dup-point").checked = c.withPoint !== false;
+      document.getElementById("form-purpose-pill").style.display = c.purpose === "EVENT" ? "" : "none";
 
       setCouponType(c.type, c.val);
       setExpMode(c.expMode);
@@ -1392,7 +1477,7 @@ code, pre, kbd, samp,
 
       if (type === "RATE") {
         unitEl.textContent = "%";
-        guideEl.innerHTML = "(최대 입력 가능: <b>40%</b> 정수)";
+        guideEl.innerHTML = `(최대 입력 가능: <b>${RATE_CAP_PCT}%</b> 정수 · 운영 설정값)`;
         valEl.value = customVal !== undefined ? customVal : 15;
       } else {
         unitEl.textContent = "원";
@@ -1419,6 +1504,8 @@ code, pre, kbd, samp,
       document.getElementById("seg-mth-auto").classList.toggle("active", m === "AUTO");
       document.getElementById("seg-mth-bulk").classList.toggle("active", m === "BULK");
       document.getElementById("seg-mth-code").classList.toggle("active", m === "CODE");
+      document.getElementById("seg-mth-event").classList.toggle("active", m === "EVENT");
+      currentIssueMethod = m;
 
       document.getElementById("row-target-group").style.display = m === "BULK" ? "" : "none";
       document.getElementById("row-promo-code").style.display = m === "CODE" ? "" : "none";
@@ -1428,6 +1515,8 @@ code, pre, kbd, samp,
         desc.innerHTML = "• <b>자동 발급(회원가입 웰컴):</b> 가입 커밋 직후 5,000P + 10% 쿠폰(D+21 자정 만료) 동기 발급. <code>welcome_benefits_history</code>의 <b>DI 해시 기준 생애 1회</b>만 발급되며 재가입 회원은 자동 SKIP.";
       } else if (m === "BULK") {
         desc.innerHTML = "• <b>수동 대량 발급:</b> <code>ADMN-USER-006</code> 수평적 그룹·태그로 타겟팅하여 예약 시각에 배치 발급 및 알림톡을 동시 발송합니다.";
+      } else if (m === "EVENT") {
+        desc.innerHTML = "• <b>이벤트 보상:</b> 기획전 · 이벤트 등록(<code>ADMN-PROM-001-S3</code>)에서 이벤트에 이 쿠폰을 연결하면, 증빙 이벤트는 참여 관리에서 <b>승인할 때</b> · 증빙 없는 이벤트는 <b>참여할 때</b> 자동 발급합니다(같은 회원 · 같은 이벤트 1회). 강사 쿠폰은 참여 관리의 [강사 쿠폰 발급]으로 대상 회원에게 주고, 이미 받은 회원은 건너뜁니다. 웰컴 쿠폰과 별도로 받으며 사용은 한 주문에 쿠폰 1장입니다.";
       } else {
         desc.innerHTML = "• <b>코드 입력형:</b> 오프라인·산준모 카페 이벤트용 코드로, 수험생이 마이페이지 쿠폰함(<code>USER-MY-007-P1</code>)에서 직접 입력해 등록합니다.";
       }
@@ -1441,7 +1530,7 @@ code, pre, kbd, samp,
       if (mode === "FIXED_250K") {
         setCouponType("FIXED", 250000);
       } else {
-        setCouponType("RATE", 45);
+        setCouponType("RATE", RATE_CAP_PCT + 6);
       }
       saveCouponMaster();
     }
@@ -1467,9 +1556,9 @@ code, pre, kbd, samp,
         return;
       }
 
-      if (currentType === "RATE" && val > 40) {
+      if (currentType === "RATE" && val > RATE_CAP_PCT) {
         valEl.classList.add("fld--err");
-        const msg = `정률 쿠폰의 할인율은 최대 <b>40%</b>입니다.<br/>입력값 <b style="color:#DC2626;">${val}%</b>는 저장할 수 없습니다. 40% 이하 정수로 다시 입력해 주세요.`;
+        const msg = `정률 쿠폰의 할인율 상한은 <b>${RATE_CAP_PCT}%</b>입니다(운영 설정값).<br/>입력값 <b style="color:#DC2626;">${val}%</b>는 저장할 수 없습니다. ${RATE_CAP_PCT}% 이하 정수로 다시 입력해 주세요.`;
         document.getElementById("p1-inline-msg").innerHTML = msg;
         document.getElementById("modal-p1-body").innerHTML = msg;
         document.getElementById("p1-inline-box").classList.add("show");
@@ -1485,7 +1574,7 @@ code, pre, kbd, samp,
 
       if (currentEditingNo) {
         const target = MASTER_COUPONS.find(x => x.no === currentEditingNo);
-        if (target) target.name = name;
+        if (target) { target.name = name; target.withPoint = document.getElementById("f-dup-point").checked; }
         showToast(`✓ 쿠폰(No.${currentEditingNo}) 수정사항이 저장되었습니다. (admin_log 기록 완료)`);
       } else {
         const nextNo = Math.max(...MASTER_COUPONS.map(x => x.no)) + 1;
@@ -1498,8 +1587,10 @@ code, pre, kbd, samp,
           val: val,
           valText: currentType === "RATE" ? `${val}%` : val.toLocaleString(),
           capText: "200,000",
-          method: "BULK",
-          methodLabel: "수동 대량",
+          method: currentIssueMethod,
+          methodLabel: ({ AUTO: "자동(가입)", BULK: "수동 대량", CODE: "코드 입력형", EVENT: "이벤트 보상" })[currentIssueMethod] || "수동 대량",
+          purpose: currentIssueMethod === "EVENT" ? "EVENT" : "",
+          withPoint: document.getElementById("f-dup-point").checked,
           expMode: "DN",
           expDays: 21,
           expText: "D+21 자정",

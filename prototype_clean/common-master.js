@@ -57,7 +57,7 @@
     { key: "contract", label: "권리자 계약 · 지분 매핑", screens: "INST-001 · SETT-001 · 007 · BOOK-001" },
     { key: "vendor", label: "거래처 관리", screens: "VEND-001" },
     { key: "presettle", label: "정산 마감 전 사전 대사", screens: "SETT-004 · 011 · 008 · INST-002" },
-    // 물류비 청구 · 대사 — 3PL이 월 명세서를 제출하고 재무가 대사(D-PTNR2-07 · D-ORD-11 1차, 2026-10-27 white)
+    // 물류비 청구 · 대사 — 물류 업체가 월 명세서를 제출하고 재무가 대사(D-PTNR2-07 · D-ORD-11 1차, 2026-10-27 white)
     { key: "logibill", label: "물류비 청구 · 대사", screens: "SETT-011 · PTNR-002 (물류비 청구)" },
     { key: "refundpass", label: "합격 환급반 관리 · 서류 보완", screens: "SETT-006" },
     { key: "settle", label: "월간 정산 · 지급 · 조회", screens: "SETT-002 · 005 · 009" },
@@ -82,9 +82,7 @@
     { id: "RG-02", name: "CS담당자", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 2, dashArea: "CS", startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
       desc: "회원 응대 · 1:1 문의 · 환불 접수",
       perms: { dash: "R", user: "RW", order: "RW", refund: "RW", inquiry: "RW", pqna: "RW", lqna: "R", freecon: "RW", refundpass: "RW", promo: "R", product: "R" } },
-    { id: "RG-03", name: "물류팀", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 3, dashArea: "LOGI", startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
-      desc: "출고 지시 · 송장 · 반품 검수",
-      perms: { dash: "R", order: "RW", shipout: "RWX", refund: "R", inquiry: "RW", pqna: "RW", product: "R" } },
+    // RG-03 물류팀은 두지 않는다 — 내부 물류 조직이 없다(설계서 v3.2.48). 출고 · 송장 · 반품 입고 메뉴 권한은 실제 담당 운영자의 그룹에 메뉴별로 준다
     { id: "RG-04", name: "재무팀", side: "INTERNAL", queue: true, aff: ["STAFF"], on: true, order: 4, dashArea: "SETTLE", startScreen: { code: "ADMN-DASH-001", label: "운영 현황 대시보드", url: "ADMN-DASH-001_baseline.html?view=dash" },
       desc: "환불 승인 · 지급 · 정산 · 세무",
       perms: { dash: "R", stat: "RX", user: "R", order: "R", refund: "RWX", product: "R", inquiry: "RW", contract: "RWX", vendor: "RWX", presettle: "RWX", refundpass: "RWX", settle: "RWX", privacy: "RW" } },
@@ -97,8 +95,10 @@
     { id: "RG-07", name: "저작권자", side: "EXTERNAL", queue: false, aff: ["RH"], on: true, order: 7, dashArea: "NONE", startScreen: { code: "ADMN-PTNR-001", label: "파트너 센터", url: "ADMN-PTNR-001_baseline.html?role=RG-07" },
       desc: "본인 도서 인세 정산서 확인 · 세금계산서 제출",
       perms: { statement: "RW" } },
-    { id: "RG-08", name: "외부 3PL", side: "EXTERNAL", queue: false, aff: ["VENDOR"], on: true, order: 8, dashArea: "NONE", startScreen: { code: "ADMN-ORD-001", label: "출고 · 송장", url: "ADMN-ORD-001_baseline.html?view=ord002&role=ROLE_PARTNER_3PL" },
-      desc: "출고 대상 조회 · 출고 지시(발주 엑셀) · 송장 업로드 · 월 물류비 명세서 제출 (금액 비노출)",
+    // 외부 물류 계정 — 1차는 발급하지 않고 업체와 메일로 파일을 주고받는다. 2차에 배송사 계정으로 발급(설계서 v3.2.44 이름 · v3.2.48 1차 미발급)
+    // offNote: 사용으로 바꿀 수 없는 그룹의 상태 표시(CONF-005)
+    { id: "RG-08", name: "보관 창고", side: "EXTERNAL", queue: false, aff: ["VENDOR"], on: false, offNote: "1차 미발급", order: 8, dashArea: "NONE", startScreen: { code: "ADMN-ORD-001", label: "출고 · 송장", url: "ADMN-ORD-001_baseline.html?view=ord002&role=ROLE_PARTNER_3PL" },
+      desc: "1차 미발급(2차에 배송사 계정으로 발급) — 본인 배정 출고 대상 조회 · 송장 업로드 · 월 물류비 명세서 제출 (금액 비노출)",
       perms: { shipout: "RWX", logibill: "RW" } },
     // 도서 공급사(매입처) 외부 계정 — 공급사 센터(PTNR-003)와 함께 2차에 사용(D-PTNR3-01, 2026-10-27 white). 1차는 미사용
     { id: "RG-09", name: "도서 공급사", side: "EXTERNAL", queue: false, aff: ["VENDOR"], on: false, order: 9, dashArea: "NONE", startScreen: { code: "ADMN-PTNR-003", label: "공급사 센터", url: "ADMN-PTNR-003_baseline.html" },
@@ -128,10 +128,10 @@
     { code: "VOC-PAY-03", major: "PAY", name: "휴대폰 결제 환불", screen: "ADMN-RFD-002-S1", depts: ["RG-04"], on: true, order: 3 },
     { code: "VOC-PAY-04", major: "PAY", name: "영수증 · 증빙 발급", screen: "ADMN-BRD-002", depts: ["RG-02"], on: true, order: 4 },
     { code: "VOC-PAY-05", major: "PAY", name: "상담 필요 (관리자 판단)", screen: "ADMN-BRD-002", depts: ["RG-02"], on: true, order: 5 },
-    { code: "VOC-SHIP-01", major: "SHIP", name: "배송지 변경", screen: "ADMN-ORD-001-S1", depts: ["RG-03"], on: true, order: 1 },
-    { code: "VOC-SHIP-02", major: "SHIP", name: "배송 지연 · 배송 조회", screen: "ADMN-ORD-002", depts: ["RG-03", "RG-02"], on: true, order: 2 },
-    { code: "VOC-SHIP-03", major: "SHIP", name: "파손 · 오배송 교환", screen: "ADMN-ORD-002", depts: ["RG-03"], on: true, order: 3 },
-    { code: "VOC-SHIP-04", major: "SHIP", name: "교재 낙장 · 인쇄 불량", screen: "ADMN-ORD-002", depts: ["RG-03"], on: true, order: 4 },
+    { code: "VOC-SHIP-01", major: "SHIP", name: "배송지 변경", screen: "ADMN-ORD-001-S1", depts: ["RG-02"], on: true, order: 1 },
+    { code: "VOC-SHIP-02", major: "SHIP", name: "배송 지연 · 배송 조회", screen: "ADMN-ORD-002", depts: ["RG-02"], on: true, order: 2 },
+    { code: "VOC-SHIP-03", major: "SHIP", name: "파손 · 오배송 교환", screen: "ADMN-ORD-002", depts: ["RG-02"], on: true, order: 3 },
+    { code: "VOC-SHIP-04", major: "SHIP", name: "교재 낙장 · 인쇄 불량", screen: "ADMN-ORD-002", depts: ["RG-02"], on: true, order: 4 },
     { code: "VOC-LECT-01", major: "LECT", name: "동시접속 · 세션 차단", screen: "ADMN-USER-003", depts: ["RG-02"], on: true, order: 1 },
     { code: "VOC-LECT-02", major: "LECT", name: "수강 기간 연장", screen: "ADMN-USER-003", depts: ["RG-02"], on: true, order: 2 },
     { code: "VOC-LECT-03", major: "LECT", name: "진도율 누락 · 플레이어 오류", screen: "ADMN-USER-004", depts: ["RG-02"], on: true, order: 3 },
@@ -151,10 +151,10 @@
   var VENDOR_TYPE_SEED = [
     { id: "VT-01", name: "도서 매입처", form: "PURCHASE", evidence: "전자계산서(면세)", on: true, order: 1 },
     { id: "VT-02", name: "상품 매입처", form: "PURCHASE", evidence: "전자세금계산서(과세)", on: true, order: 2 },
-    { id: "VT-03", name: "물류 대행사(3PL)", form: "LOGISTICS", evidence: "전자세금계산서(과세)", on: true, order: 3 }
+    { id: "VT-03", name: "보관 창고", form: "LOGISTICS", evidence: "전자세금계산서(과세)", on: true, order: 3 }
   ];
 
-  // 거래처 최초값 — 화면들에 흩어져 있던 매입처 · 3PL을 한 원장으로 모은 것(코드 SUP-NNNN은 기존 화면 표기를 따름)
+  // 거래처 최초값 — 화면들에 흩어져 있던 매입처 · 물류 업체를 한 원장으로 모은 것(코드 SUP-NNNN은 기존 화면 표기를 따름)
   var VENDOR_SEED = [
     { id: "SUP-0003", type: "VT-01", name: "한국자격교재총판", bizNo: "214-81-33201", ceo: "권총판", taxType: "일반과세", status: "계속", checkedAt: "2026-10-02", on: true,
       terms: { rate: "65", pay: "월말 마감 · 익월 10일 지급" }, contact: "02-555-1203", since: "2024-03-01" },
@@ -227,6 +227,37 @@
   var vendorStore = store("sjm.master.vendors.v1", VENDOR_SEED);
   var majorStore = store("sjm.master.inquiryMajors.v1", MAJOR_SEED);
   var catStore = store("sjm.master.inquiryCats.v1", CAT_SEED);
+
+  // 2026-11-04 내부 물류팀 없음 · 외부 물류 계정 1차 미발급(설계서 v3.2.48) — 이전 버전이 저장한 값 보정
+  //   1) 저장된 역할 그룹에서 '물류팀'을 뺀다(운영자가 이름을 바꾼 그룹은 그대로 둔다)
+  //   2) 그 그룹을 담당 부서 큐로 쓰던 1:1 문의 분류는 CS담당자(RG-02) 큐로 옮긴다
+  //   3) RG-08은 이름이 옛 기본값이면 '보관 창고'로, 상태는 1차 미발급으로
+  //   4) 거래처 유형 VT-03 옛 기본 이름 '물류 대행사(3PL)'를 '보관 창고'로
+  (function () {
+    var cur = roleStore.get(), removed = [];
+    var kept = cur.filter(function (g) { if (g.name === "물류팀") { removed.push(g.id); return false; } return true; });
+    var rg08 = ROLE_SEED.filter(function (g) { return g.id === "RG-08"; })[0];
+    var changed = removed.length > 0;
+    kept.forEach(function (g) {
+      if (g.id !== "RG-08" || g.offNote) return;
+      if (g.name === "외부 3PL" || g.name === "외부 물류(3PL)") g.name = rg08.name;
+      g.on = false; g.offNote = rg08.offNote; g.desc = rg08.desc; changed = true;
+    });
+    if (changed) roleStore.set(kept);
+    if (removed.length) {
+      var cats = catStore.get(), catChanged = false;
+      cats.forEach(function (c) {
+        if (!c.depts || !c.depts.some(function (d) { return removed.indexOf(d) !== -1; })) return;
+        var next = [];
+        c.depts.forEach(function (d) { var v = removed.indexOf(d) !== -1 ? "RG-02" : d; if (next.indexOf(v) === -1) next.push(v); });
+        c.depts = next; catChanged = true;
+      });
+      if (catChanged) catStore.set(cats);
+    }
+    var vts = vendorTypeStore.get(), vtChanged = false;
+    vts.forEach(function (t) { if (t.id === "VT-03" && t.name === "물류 대행사(3PL)") { t.name = "보관 창고"; vtChanged = true; } });
+    if (vtChanged) vendorTypeStore.set(vts);
+  })();
 
   function byOrder(a, b) { return (a.order || 0) - (b.order || 0); }
 
