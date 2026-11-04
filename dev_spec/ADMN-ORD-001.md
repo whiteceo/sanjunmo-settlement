@@ -244,7 +244,7 @@
 | 주문 라인(강좌 · 교재 · 배송비) | | 주문 라인 아이템 |
 | 실결제금액 | `final_amount` | 실결제금액 |
 | 결제수단 | | 결제수단 (토스) |
-| 주문상태(대표값 우선순위: 반품 > 배송준비중 > 배송중 > 기각 > 배송완료) + 🔒 출고지시 완료 | | 대표 주문상태 |
+| 주문상태(대표값 우선순위: 반품 > 결제완료(출고대기) > 배송준비중 > 배송중 > 기각 > 배송완료 — 2026-11-04 결정 D1) + 🔒 출고지시 완료 | | 대표 주문상태 |
 | 관리: [상세] · [환불건] | | 관리 |
 
 요약 카드(`orders/index.blade.php:20`): 조회 주문 · 실결제 합계 · 배송준비중 · 입금대기(가상계좌) · 환불/반품 요청 ↔ 프로토 `#kpi-ord-all` · `#kpi-ord-ready` · `#kpi-ord-vbank` · `#kpi-ord-ship`(배송중 — 개발 카드 없음) · `#kpi-ord-return`.
@@ -267,7 +267,7 @@
 | `site_settings.virtual_account_valid_hours` | 가상계좌 입금 기한(발급 후 시간, 1~2160, 지나면 자동 취소, 이미 발급된 계좌에는 미적용) | S1 '발급 후 N시간' 표기 |
 | `order_cs_logs` (`order_id`, `admin_id`, `cs_type`='memo', `content`) | 관리자 메모(추가만) | S1 처리 이력 `#detailTimelineTbody` |
 | `order_status_logs` | 상태 변경 이력 | S1 처리 이력 |
-| `deliveries` (`order_item_id`, `status` READY · SHIPPING · DELIVERED · RETURNING · REFUNDED · REJECTED, `courier`, `tracking_no`, `ship_ordered_at`(= 배송지 Lock), `batch_id`, `shipped_at`, `delivered_at`, `zipcode`, `fee_type`, `notification_sent_at`) | 배송 라인(1행 = 교재 라인 1건) | 002 표 · S1 배송 블록 |
+| `deliveries` (`order_item_id`, `status` WAITING(결제완료(출고대기), 신설 · 기존 데이터 이관 — 결정 D1) · READY · SHIPPING · DELIVERED · RETURNING · REFUNDED · REJECTED, `courier`, `tracking_no`, `ship_ordered_at`(= 배송지 Lock), `batch_id`, `shipped_at`, `delivered_at`, `zipcode`, `fee_type`, `notification_sent_at`) | 배송 라인(1행 = 교재 라인 1건) | 002 표 · S1 배송 블록 |
 | `delivery_logs` (`delivery_id`, `status`, `description`, `logged_at`) | 배송 이력(정정 · 알림 실패 표식) | 002 '정정 n' 배지 · S1 |
 | `delivery_batches` (`batch_no`, `type` export · import, `file_name`, `file_path`, `total_count`, `success_count`, `fail_count`, `status`, `admin_id`) | 발주 · 송장 배치 | P3 |
 | `delivery_batch_items` (`row_no`, `order_no`, `line_no`, `carrier`, `tracking_no`, `shipped_at`, `result`, `error_code`, `error_message`) | 송장 업로드 행 결과 | P1 실패 표 |
