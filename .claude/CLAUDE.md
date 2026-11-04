@@ -20,7 +20,7 @@
 - C 드라이브 예외: Claude 앱·계정 설정(`C:\Users\white\.claude`), 안티그래비티 전역 설정(`C:\Users\white\.gemini`), Python과 패키지, Playwright 브라우저처럼 PC에 한 번 설치해 여러 에이전트가 같이 쓰는 도구.
 
 ## 작업 시작 전
-1. `git pull origin main` — Apps Script가 구글 드라이브에서 고친 문서를 GitHub에 커밋하므로 반드시 먼저 받는다. 안 받으면 드라이브 수정분을 옛 버전으로 덮어쓸 수 있다.
+1. `git pull whiteceo main` 다음 `git pull origin main` — Apps Script는 드라이브 수정분을 `whiteceo` 원격에만 커밋하므로 둘 다 받는다(`origin`=lcampus만 받으면 드라이브 수정분을 놓쳐 push가 갈라진다, 2026-11-04). push도 `origin` → `whiteceo` 순으로 둘 다 한다.
 2. `PROJECT_STATE.md`의 확정 기준(1절)과 현재 상태·미결(4절)을 확인한다. 정책·화면 목록은 `README.md`.
 3. 대형 HTML(1,000줄 이상)은 통째로 읽지 않고 grep으로 필요한 줄만 본다.
 
@@ -37,6 +37,7 @@
 - Apps Script(`scripts/gas/sync_settlement.gs`)가 GitHub `main` ↔ 공유 문서함 `산준모 닷컴/04.설계서/정산시스템`을 6시간마다 양방향 동기화한다. `_archive/backup/`은 제외.
   - 드라이브에서 고친 파일은 `drive-sync:` 커밋으로 올라온다 → 작업 전 `git pull` 필수.
   - 양쪽이 같은 파일을 고치면 원래 이름엔 GitHub 버전, 드라이브 버전은 `_drive충돌_` 사본으로 남고 메일이 온다.
+  - 드라이브에서 기존 `.md`를 고치면 커밋하지 않고 같은 방식(`_drive충돌_` 사본 + 메일)으로만 남긴다(`mdDriveEditToConflict`, 2026-11-04). 구글 문서로 열었다 저장하면 `\[` `\~` 이스케이프 · `~~` 취소선 · 목록 번호 변형이 생기기 때문. 사본에 의도한 수정이 있으면 Claude가 이스케이프를 걷어내고 단어 단위로 대조해 정본에 옮긴다. `.md`는 드라이브에서 구글 문서로 열지 않는다.
   - 동기화 스크립트를 고치면 `sync_settlement.gs`와 Apps Script 편집기 양쪽에 반영한다. 토큰(`GH_TOKEN`)은 스크립트 속성에만 둔다.
 - 예전 방식은 쓰지 않는다.
   - `sync_to_gdrive.ps1`: 커밋마다 `04.설계서/docs`에 덮어쓰던 스크립트. v6.4에서 삭제(git 이력에만 있음). 되살려 실행하지 않는다.

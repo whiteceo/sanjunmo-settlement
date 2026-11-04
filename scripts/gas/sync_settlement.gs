@@ -12,6 +12,9 @@ const SYNC = {
   folderId: '1ubVGRBK3DWcrMZglMaA_Yt1lyCNYFQ4a',  // 공유 문서함 산준모 닷컴/04.설계서/정산시스템
   exclude: ['.git/', '.claude/', '_archive/backup/'],  // 양쪽 모두 제외할 경로 접두어
   driveDeleteToGithub: false,  // false: 드라이브에서 지운 파일은 GitHub 버전으로 복구
+  // 드라이브에서 바뀐 기존 .md는 커밋하지 않고 _drive충돌_ 사본 + 메일로만 남긴다.
+  // 구글 문서로 열었다 저장하면 \[ \~ 이스케이프 · ~~ 취소선 · 목록 번호 변형이 생긴다(2026-11-04 3e0d4c2).
+  mdDriveEditToConflict: true,
   maxMs: 4 * 60 * 1000,
   conflictTag: '_drive충돌_',
 };
@@ -122,7 +125,10 @@ function decide_(p, r, d, m) {
   const rChanged = (r || null) !== m.s;
   if (!rChanged) {
     if (dState === 'same') return dSha ? { op: 'record', p, r, d } : null;  // 시각만 바뀐 경우 기준점 갱신
-    if (dState === 'changed') return { op: 'up', p, d, dSha };
+    if (dState === 'changed') {
+      if (SYNC.mdDriveEditToConflict && r && /\.md$/i.test(p)) return { op: 'conflict', p, r, d };
+      return { op: 'up', p, d, dSha };
+    }
     return SYNC.driveDeleteToGithub ? { op: 'delRemote', p } : { op: 'down', p, r };  // gone
   }
   if (dState === 'same' || dState === 'gone') {
