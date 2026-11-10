@@ -99,9 +99,9 @@
    "1.1_net": 411459
   },
   "TAX": {
-   "income_tax": 12343,
-   "local_income_tax": 1234,
-   "net_payable": 397882
+   "income_tax": 12340,
+   "local_income_tax": 1230,
+   "net_payable": 397889
   }
  },
  "variants": [
@@ -121,8 +121,8 @@
     },
     "TAX": {
      "income_tax": 11250,
-     "local_income_tax": 1125,
-     "net_payable": 362625
+     "local_income_tax": 1120,
+     "net_payable": 362630
     }
    }
   },
@@ -159,9 +159,9 @@
      "1.1_net": 380209
     },
     "TAX": {
-     "income_tax": 11406,
+     "income_tax": 11400,
      "local_income_tax": 1140,
-     "net_payable": 367663
+     "net_payable": 367669
     }
    }
   },
@@ -183,9 +183,9 @@
      "1.1_net": 404167
     },
     "TAX": {
-     "income_tax": 12125,
-     "local_income_tax": 1212,
-     "net_payable": 390830
+     "income_tax": 12120,
+     "local_income_tax": 1210,
+     "net_payable": 390837
     }
    }
   }

@@ -499,7 +499,7 @@ if taxable_base < 0: pending_negative_base[p, line] = taxable_base; taxable_base
 | :--- | :--- | :--- |
 | `matrix_case_id`, `tax_decision_status` | TX-01~13 / DECIDED · PENDING_REVIEW | V2 §11.1 L407~411 |
 | `supply_amount`, `vat_amount`, `vat_applied_amount` | VAT_EXCLUDED: `공급가액 = 세전 지급액(상계 전 공급가액 기준)`, `부가세 = 내림(공급가액 × 10%)`, `부가세 반영 후 정산액 = 세전 지급액 + 부가세` / VAT_INCLUDED: `공급가액 = 내림(총액 × 100/110)`, `부가세 = 총액 − 공급가액` | V2 L263~265 |
-| `income_tax`, `local_income_tax`, `withholding_total` | `소득세 = 내림(과세표준 × 소득세율)`, `지방소득세 = 내림(소득세 × 10%)` 순차(합산세율 금지) | V2 L268~271 |
+| `income_tax`, `local_income_tax`, `withholding_total` | `소득세 = 10원 미만 내림(지급 1건 과세표준 × 소득세율)`, `지방소득세 = 10원 미만 내림(소득세 × 10%)` 순차(정본 v4.0.36)(합산세율 금지) | V2 L268~271 |
 | `deemed_expense`, `other_income_amount`, `threshold_exempt_yn` | OTHER: `필요경비 = 내림(판정 단위 과세표준 × 의제율)`, `기타소득금액 = 과세표준 − 필요경비`, `≤ 50,000`이면 세액 0 | V2 L273~278 |
 | `small_amount_exempt_yn` | 소득세 1천 원 미만 비징수, 인적용역 사업소득 제외 | V2 L279 |
 | `consignment_fee_vat`, `consignment_settle_amount` | `위탁 수수료 부가세 = 내림(당월 순 위탁 수수료 공급가액 × 10%)`, NET_DEDUCT: `위탁 실정산액 = 순 위탁 정산액 − 수수료 부가세`, GROSS_SETTLE: `= 순 위탁 정산액`(수수료 · 부가세 별도 청구) | V2 L266 |

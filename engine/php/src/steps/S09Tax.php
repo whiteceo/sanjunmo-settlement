@@ -42,6 +42,7 @@ final class S09Tax
         $pid = $p->payee_id;
         $treat = self::vatTreatment($ctx, $c, $pid);
         $units = []; // tkey(origin, unit key, clause) → [line index]  — OTHER 판정 단위
+        $biz = []; // BUSINESS 원천징수 라인 index — 받는 사람 단위 합산(v4.0.36)
         foreach ($p->lines as &$ln) {
             foreach (['deemed_expense', 'other_income_amount', 'threshold_exempt_yn', 'small_amount_exempt_yn',
                          'after_tax_amount', 'consignment_fee_vat'] as $k) {
@@ -116,10 +117,22 @@ final class S09Tax
                 $units[tkey($ln['origin'], $ln['tax_threshold_unit_key'], $ln['income_clause'])][] = $i;
                 continue;
             }
-            $w = Tax::withholdBusiness($ctx, $ln['taxable_base']);
-            self::setWithholding($ctx, $c, $ln, $kw, $w, 'BUSINESS');
+            $biz[] = $i;
         }
         unset($ln);
+        if ($biz) {
+            // 사업소득은 받는 사람 · 지급일 단위로 과세표준을 합산한 뒤 세액을 1회 계산(10원 미만 내림), 라인에는 비율 배분(V2 §8.3 9단계 · §13.1, v4.0.36)
+            $bases = array_map(fn($i) => $p->lines[$i]['taxable_base'], $biz);
+            $w = Tax::withholdBusiness($ctx, dsum($bases));
+            $its = alloc_last_remainder($w['income_tax'], $bases);
+            $lts = alloc_last_remainder($w['local_income_tax'], $bases);
+            foreach ($biz as $j => $i) {
+                $x = &$p->lines[$i];
+                self::setWithholding($ctx, $c, $x, ['payee' => $pid, 'line' => $x['line_id'], 'line_key' => $x['line_key']],
+                    array_merge($w, ['income_tax' => $its[$j], 'local_income_tax' => $lts[$j]]), 'BUSINESS');
+                unset($x);
+            }
+        }
         foreach ($units as $k => $idx) {
             [$origin, $unit, $clause] = untkey($k);
             $u = dsum(array_map(fn($i) => $p->lines[$i]['taxable_base'], $idx));

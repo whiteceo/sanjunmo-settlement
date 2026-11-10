@@ -744,9 +744,9 @@
     "step7LumpSumAdd": 0,
     "step8TaxableBaseSum": 1306650,
     "step9VatAmount": 0,
-    "step9WithholdingTax": 43118,
+    "step9WithholdingTax": 43100,
     "step10PostTaxAdjust": 0,
-    "step11NetPayout": 1263532,
+    "step11NetPayout": 1263550,
     "payoutCategory": "PAYOUT_TARGET"
    },
    "payees": [
@@ -761,21 +761,21 @@
      "preTaxPayable": 1306650,
      "taxableBase": 1306650,
      "vat": 0,
-     "incomeTax": 39199,
-     "localIncomeTax": 3919,
-     "withholdingTotal": 43118,
-     "netSettleAmount": 1263532,
-     "netSettleProtected": 145050,
+     "incomeTax": 39190,
+     "localIncomeTax": 3910,
+     "withholdingTotal": 43100,
+     "netSettleAmount": 1263550,
+     "netSettleProtected": 145052,
      "carryPreTaxAfterTax": 0,
-     "netAfterReturn": 1263532,
+     "netAfterReturn": 1263550,
      "claimNegativeNet": 0,
      "claimIssued": false,
      "claimAmount": 0,
      "unoffsetPrepayClaim": 0,
-     "payableNetForPayout": 1263532,
-     "payoutJudgementAmount": 1263532,
+     "payableNetForPayout": 1263550,
+     "payoutJudgementAmount": 1263550,
      "payoutConfirmed": true,
-     "payoutAmount": 1263532,
+     "payoutAmount": 1263550,
      "carryLoad": 0,
      "excludedFromBulkTransfer": false,
      "lines": [
@@ -789,12 +789,12 @@
        "pre_tax_payable": 1156650,
        "taxable_base": 1156650,
        "vat_amount": 0,
-       "income_tax": 34699,
-       "local_income_tax": 3469,
+       "income_tax": 34691,
+       "local_income_tax": 3461,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 1118482,
+       "net_settle_line": 1118498,
        "after_tax_amount": null
       },
       {
@@ -807,12 +807,12 @@
        "pre_tax_payable": 150000,
        "taxable_base": 150000,
        "vat_amount": 0,
-       "income_tax": 4500,
-       "local_income_tax": 450,
+       "income_tax": 4499,
+       "local_income_tax": 449,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 145050,
+       "net_settle_line": 145052,
        "after_tax_amount": null
       }
      ]
@@ -965,7 +965,7 @@
      "confirmed_amount": 150000,
      "confirmed_net_total": 3000000,
      "cap_consumed_amount": 3000000,
-     "cash_paid_total": 145050,
+     "cash_paid_total": 145052,
      "remaining_cap": 0,
      "status_change": "ACTIVE->COMPLETED",
      "settlement_line_id": null
@@ -1017,6 +1017,12 @@
       "calc": 235550
      },
      {
+      "step_code": "SUPPORT_CAP",
+      "path": "cash_paid_total_after_payout",
+      "expected": 145050,
+      "calc": 145052
+     },
+     {
       "step_code": "PAYEE_SPLIT",
       "path": "payee_split_base",
       "expected": 1350000,
@@ -1032,37 +1038,58 @@
       "step_code": "TAX",
       "path": "1.1 / income_tax",
       "expected": 36000,
-      "calc": 34699
+      "calc": 34691
      },
      {
       "step_code": "TAX",
       "path": "1.1 / local_income_tax",
       "expected": 3600,
-      "calc": 3469
+      "calc": 3461
+     },
+     {
+      "step_code": "TAX",
+      "path": "5.1 / income_tax",
+      "expected": 4500,
+      "calc": 4499
+     },
+     {
+      "step_code": "TAX",
+      "path": "5.1 / local_income_tax",
+      "expected": 450,
+      "calc": 449
      },
      {
       "step_code": "TAX",
       "path": "total_withholding",
       "expected": 44550,
-      "calc": 43118
+      "calc": 43100
      },
      {
       "step_code": "TAX",
       "path": "net_payable",
       "expected": 1305450,
-      "calc": 1263532
+      "calc": 1263550
      },
      {
       "step_code": "PAYOUT",
       "path": "payout_amount",
       "expected": 1305450,
-      "calc": 1263532
+      "calc": 1263550
      }
     ],
     "d9Diffs": [],
-    "note": "Case 9에 합격환급 옵션 B를 더한 결합 — D-9 규칙(복원 후 한도 = 잔여 + 복원, 신규 확정 = min(신규, 복원 후 한도), 지급 대상 = 신규 확정 − 공제) 값 일치. 옵션 B 때문에 Case 9 기대값과 달라진 값: DEDUCT 1.1_net 1,200,000 → 1,156,650, DEDUCT 5.1_net 400,000 → 385,550, SUPPORT_CAP expired_excess 250,000 → 235,550, PAYEE_SPLIT payee_split_base 1,350,000 → 1,306,650, PAYEE_SPLIT taxable_base 1,350,000 → 1,306,650, TAX 1.1 / income_tax 36,000 → 34,699, TAX 1.1 / local_income_tax 3,600 → 3,469, TAX total_withholding 44,550 → 43,118, TAX net_payable 1,305,450 → 1,263,532, PAYOUT payout_amount 1,305,450 → 1,263,532"
+    "note": "Case 9에 합격환급 옵션 B를 더한 결합 — D-9 규칙(복원 후 한도 = 잔여 + 복원, 신규 확정 = min(신규, 복원 후 한도), 지급 대상 = 신규 확정 − 공제) 값 일치. 옵션 B 때문에 Case 9 기대값과 달라진 값: DEDUCT 1.1_net 1,200,000 → 1,156,650, DEDUCT 5.1_net 400,000 → 385,550, SUPPORT_CAP expired_excess 250,000 → 235,550, SUPPORT_CAP cash_paid_total_after_payout 145,050 → 145,052, PAYEE_SPLIT payee_split_base 1,350,000 → 1,306,650, PAYEE_SPLIT taxable_base 1,350,000 → 1,306,650, TAX 1.1 / income_tax 36,000 → 34,691, TAX 1.1 / local_income_tax 3,600 → 3,461, TAX 5.1 / income_tax 4,500 → 4,499, TAX 5.1 / local_income_tax 450 → 449, TAX total_withholding 44,550 → 43,100, TAX net_payable 1,305,450 → 1,263,550, PAYOUT payout_amount 1,305,450 → 1,263,550"
    },
-   "screenDiff": {}
+   "screenDiff": {
+    "step9WithholdingTax": [
+     43118,
+     43100
+    ],
+    "step11NetPayout": [
+     1263532,
+     1263550
+    ]
+   }
   },
   {
    "holderId": "RH-0044",
@@ -1465,13 +1492,13 @@
     "step4SupportDeduct": 0,
     "step5SupportConfirmed": 450000,
     "step6PrepayEligible": 3275000,
-    "step6PrepayOffset": -3056925,
+    "step6PrepayOffset": -3056928,
     "step7LumpSumAdd": 7000000,
     "step8TaxableBaseSum": 8275000,
     "step9VatAmount": 0,
-    "step9WithholdingTax": 383075,
+    "step9WithholdingTax": 383070,
     "step10PostTaxAdjust": 0,
-    "step11NetPayout": 4835000,
+    "step11NetPayout": 4835002,
     "payoutCategory": "PAYOUT_TARGET"
    },
    "payees": [
@@ -1482,25 +1509,25 @@
      ],
      "taxDecisionPendingLines": [],
      "splitAmount": 8275000,
-     "prepayOffset": 3056925,
-     "preTaxPayable": 5218075,
+     "prepayOffset": 3056928,
+     "preTaxPayable": 5218072,
      "taxableBase": 8275000,
      "vat": 0,
      "incomeTax": 348250,
-     "localIncomeTax": 34825,
-     "withholdingTotal": 383075,
-     "netSettleAmount": 4835000,
-     "netSettleProtected": 4835000,
+     "localIncomeTax": 34820,
+     "withholdingTotal": 383070,
+     "netSettleAmount": 4835002,
+     "netSettleProtected": 4835002,
      "carryPreTaxAfterTax": 0,
-     "netAfterReturn": 4835000,
+     "netAfterReturn": 4835002,
      "claimNegativeNet": 0,
      "claimIssued": false,
      "claimAmount": 0,
      "unoffsetPrepayClaim": 0,
-     "payableNetForPayout": 4835000,
-     "payoutJudgementAmount": 4835000,
+     "payableNetForPayout": 4835002,
+     "payoutJudgementAmount": 4835002,
      "payoutConfirmed": true,
-     "payoutAmount": 4835000,
+     "payoutAmount": 4835002,
      "carryLoad": 0,
      "excludedFromBulkTransfer": false,
      "lines": [
@@ -1510,12 +1537,12 @@
        "matrix_case_id": "TX-08",
        "tax_decision_status": "DECIDED",
        "split_amount": 725000,
-       "offset_amount": 676723,
-       "pre_tax_payable": 48277,
+       "offset_amount": 676724,
+       "pre_tax_payable": 48276,
        "taxable_base": 725000,
        "vat_amount": 0,
        "income_tax": 21750,
-       "local_income_tax": 2175,
+       "local_income_tax": 2174,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
@@ -1533,11 +1560,11 @@
        "taxable_base": 100000,
        "vat_amount": 0,
        "income_tax": 3000,
-       "local_income_tax": 300,
+       "local_income_tax": 299,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 3359,
+       "net_settle_line": 3360,
        "after_tax_amount": null
       },
       {
@@ -1551,11 +1578,11 @@
        "taxable_base": 450000,
        "vat_amount": 0,
        "income_tax": 13500,
-       "local_income_tax": 1350,
+       "local_income_tax": 1349,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 15115,
+       "net_settle_line": 15116,
        "after_tax_amount": null
       },
       {
@@ -1564,8 +1591,8 @@
        "matrix_case_id": "TX-08",
        "tax_decision_status": "DECIDED",
        "split_amount": 2000000,
-       "offset_amount": 1866826,
-       "pre_tax_payable": 133174,
+       "offset_amount": 1866828,
+       "pre_tax_payable": 133172,
        "taxable_base": 2000000,
        "vat_amount": 0,
        "income_tax": 160000,
@@ -1573,7 +1600,7 @@
        "deemed_expense": 1200000,
        "other_income_amount": 800000,
        "threshold_exempt_yn": false,
-       "net_settle_line": -42826,
+       "net_settle_line": -42828,
        "after_tax_amount": null
       },
       {
@@ -1587,11 +1614,11 @@
        "taxable_base": 5000000,
        "vat_amount": 0,
        "income_tax": 150000,
-       "local_income_tax": 15000,
+       "local_income_tax": 14998,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 4835000,
+       "net_settle_line": 4835002,
        "after_tax_amount": null
       }
      ]
@@ -1748,12 +1775,12 @@
      "prepayment_tax_type": "LOAN",
      "prepay_balance_before": 3500000,
      "offset_eligible_total": 3275000,
-     "offset_withholding_equiv": 218075,
-     "offset_capacity": 3056925,
-     "offset_amount_initial": 3056925,
+     "offset_withholding_equiv": 218070,
+     "offset_capacity": 3056930,
+     "offset_amount_initial": 3056930,
      "taxable_reduction_flag": false,
-     "offset_amount": 3056925,
-     "prepay_balance_after": 443075,
+     "offset_amount": 3056928,
+     "prepay_balance_after": 443072,
      "offset_eligible_lines": [
       {
        "line_key": {
@@ -1767,7 +1794,7 @@
         "tax_threshold_unit_key": null
        },
        "eligible": 725000,
-       "offset": 676723
+       "offset": 676724
       },
       {
        "line_key": {
@@ -1809,7 +1836,7 @@
         "tax_threshold_unit_key": "CT-2026-0501::MS-2026-004"
        },
        "eligible": 2000000,
-       "offset": 1866826
+       "offset": 1866828
       }
      ]
     },
@@ -1869,7 +1896,7 @@
      "confirmed_amount": 450000,
      "confirmed_net_total": 5300000,
      "cap_consumed_amount": 5300000,
-     "cash_paid_total": 15115,
+     "cash_paid_total": 15116,
      "remaining_cap": 9700000,
      "status_change": null,
      "settlement_line_id": null
@@ -1879,13 +1906,21 @@
    "prepaymentLedger": [
     {
      "contract_id": "CT-2026-0501",
-     "offset_amount": 3056925,
-     "balance_after": 443075,
+     "offset_amount": 3056928,
+     "balance_after": 443072,
      "status": null
     }
    ],
    "continuity": [],
    "issues": [
+    {
+     "kind": "CANON_GAP",
+     "step_code": "TAX",
+     "rights_holder_id": "RH-0025",
+     "message": "CT-2026-0501 상계액 3056930 > 현금 가용액 3056928 — 상계액 축소(잠정 산식)",
+     "ref": "V2 L228 · L231",
+     "question": "Q-13"
+    },
     {
      "kind": "INPUT_MISSING",
      "step_code": "PAYOUT",
@@ -1950,7 +1985,20 @@
     "step11NetPayout": 5000000,
     "payoutCategory": "PAYOUT_TARGET"
    },
-   "screenDiff": {}
+   "screenDiff": {
+    "step6PrepayOffset": [
+     -3056925,
+     -3056928
+    ],
+    "step9WithholdingTax": [
+     383075,
+     383070
+    ],
+    "step11NetPayout": [
+     4835000,
+     4835002
+    ]
+   }
   },
   {
    "holderId": "RH-0012",
@@ -2320,9 +2368,9 @@
     "step7LumpSumAdd": 0,
     "step8TaxableBaseSum": 33600,
     "step9VatAmount": 0,
-    "step9WithholdingTax": 1108,
+    "step9WithholdingTax": 1100,
     "step10PostTaxAdjust": 0,
-    "step11NetPayout": 32492,
+    "step11NetPayout": 32500,
     "payoutCategory": "CARRYOVER_HOLD"
    },
    "payees": [
@@ -2337,19 +2385,19 @@
      "preTaxPayable": 33600,
      "taxableBase": 33600,
      "vat": 0,
-     "incomeTax": 1008,
+     "incomeTax": 1000,
      "localIncomeTax": 100,
-     "withholdingTotal": 1108,
-     "netSettleAmount": 32492,
+     "withholdingTotal": 1100,
+     "netSettleAmount": 32500,
      "netSettleProtected": 0,
      "carryPreTaxAfterTax": 0,
-     "netAfterReturn": 32492,
+     "netAfterReturn": 32500,
      "claimNegativeNet": 0,
      "claimIssued": false,
      "claimAmount": 0,
      "unoffsetPrepayClaim": 0,
-     "payableNetForPayout": 32492,
-     "payoutJudgementAmount": 32492,
+     "payableNetForPayout": 32500,
+     "payoutJudgementAmount": 32500,
      "payoutConfirmed": false,
      "payoutAmount": 0,
      "carryLoad": 33600,
@@ -2365,12 +2413,12 @@
        "pre_tax_payable": 33600,
        "taxable_base": 33600,
        "vat_amount": 0,
-       "income_tax": 1008,
+       "income_tax": 1000,
        "local_income_tax": 100,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 32492,
+       "net_settle_line": 32500,
        "after_tax_amount": null
       }
      ]
@@ -2508,7 +2556,16 @@
     "PROD-BK-1001 10월 40권 × 정가 28,000(SETT-001에 정가 없음 — PTNR-001 값), 인세 10%, 지분 산준교육 50 · 이안전 30 · 자사 20(SETT-001 매핑, 요율 같음 → 총액 역산)",
     "매핑 종료일 2026-10-14 — 구매확정일을 10-10으로 둠(15일 이후 확정분은 미매핑)"
    ],
-   "screenDiff": {}
+   "screenDiff": {
+    "step9WithholdingTax": [
+     1108,
+     1100
+    ],
+    "step11NetPayout": [
+     32492,
+     32500
+    ]
+   }
   },
   {
    "holderId": "RH-0018",
@@ -2755,9 +2812,9 @@
     "step7LumpSumAdd": 0,
     "step8TaxableBaseSum": 72000,
     "step9VatAmount": 0,
-    "step9WithholdingTax": 2376,
+    "step9WithholdingTax": 2370,
     "step10PostTaxAdjust": 0,
-    "step11NetPayout": 69624,
+    "step11NetPayout": 69630,
     "payoutCategory": "CARRYOVER_HOLD"
    },
    "payees": [
@@ -2773,18 +2830,18 @@
      "taxableBase": 72000,
      "vat": 0,
      "incomeTax": 2160,
-     "localIncomeTax": 216,
-     "withholdingTotal": 2376,
-     "netSettleAmount": 69624,
+     "localIncomeTax": 210,
+     "withholdingTotal": 2370,
+     "netSettleAmount": 69630,
      "netSettleProtected": 0,
      "carryPreTaxAfterTax": 0,
-     "netAfterReturn": 69624,
+     "netAfterReturn": 69630,
      "claimNegativeNet": 0,
      "claimIssued": false,
      "claimAmount": 0,
      "unoffsetPrepayClaim": 0,
-     "payableNetForPayout": 69624,
-     "payoutJudgementAmount": 69624,
+     "payableNetForPayout": 69630,
+     "payoutJudgementAmount": 69630,
      "payoutConfirmed": false,
      "payoutAmount": 0,
      "carryLoad": 72000,
@@ -2801,11 +2858,11 @@
        "taxable_base": 72000,
        "vat_amount": 0,
        "income_tax": 2160,
-       "local_income_tax": 216,
+       "local_income_tax": 210,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 69624,
+       "net_settle_line": 69630,
        "after_tax_amount": null
       }
      ]
@@ -2971,7 +3028,16 @@
     "SETT-002 STMT-04: 매출연동 지원금(무한도형 SFA-2026-012 · 요율 5%) 발생 72,000 — 지원금 모수 1,440,000(대상 강좌 CRS-1012(자사 100%) 10월 실결제 1,440,000)",
     "모수 강좌의 강의 R/S는 다른 권리자 몫이라 이 입력에 넣지 않음(미매핑으로 표시됨)"
    ],
-   "screenDiff": {}
+   "screenDiff": {
+    "step9WithholdingTax": [
+     2376,
+     2370
+    ],
+    "step11NetPayout": [
+     69624,
+     69630
+    ]
+   }
   },
   {
    "holderId": "RH-0055",
@@ -3655,12 +3721,7 @@
     "payoutCategory": "PAYOUT_TARGET",
     "step2ConsignGross": 4000000
    },
-   "screenDiff": {
-    "step10PostTaxAdjust": [
-     220000,
-     0
-    ]
-   }
+   "screenDiff": {}
   }
  ],
  "open_questions": [

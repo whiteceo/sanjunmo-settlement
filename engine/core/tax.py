@@ -5,7 +5,7 @@ withhold(): TAX.md [C] 원천징수 — 소득세 내림 → 지방소득세 내
 vat(): TAX.md [B] 부가가치세 — VAT_EXCLUDED 10% 가산 / VAT_INCLUDED 100/110 역산.
 """
 
-from .money import D, floor_won
+from .money import D, floor_won, floor_ten
 
 SUPPLY_TO_FREELANCER_CASE = {"LECTURE_RS": "TX-02", "SUPPORT_RS": "TX-02", "ROYALTY": "TX-03", "BUYOUT": "TX-03",
                              "NONRECURRING": "TX-04"}
@@ -126,9 +126,9 @@ def rates(ctx, case_row, income_category, clause):
 def withhold_business(ctx, base):
     """사업소득: 소득세 = 내림(과세표준 × 3%), 지방소득세 = 내림(소득세 × 10%). 소액부징수 제외."""
     it_raw = base * rates(ctx, None, "BUSINESS", None)[0]
-    it = floor_won(it_raw)
+    it = floor_ten(it_raw)
     lt_raw = it * D(str(ctx.p("local_income_tax_rate")))
-    lt = floor_won(lt_raw)
+    lt = floor_ten(lt_raw)
     return {"income_tax": it, "local_income_tax": lt, "it_raw": it_raw, "lt_raw": lt_raw}
 
 
@@ -145,9 +145,9 @@ def withhold_other(ctx, unit_base, clause):
         it_raw = lt_raw = D(0)
     else:
         it_raw = amt * rate
-        it = floor_won(it_raw)
+        it = floor_ten(it_raw)
         lt_raw = it * D(str(ctx.p("local_income_tax_rate")))
-        lt = floor_won(lt_raw)
+        lt = floor_ten(lt_raw)
     small = (not exempt) and it < D(ctx.p("small_amount_exemption_limit"))
     if small:
         it = lt = D(0)

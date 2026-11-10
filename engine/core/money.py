@@ -37,6 +37,12 @@ def q4(x):
     return D(x).quantize(Q4, rounding=ROUND_DOWN)
 
 
+def floor_ten(x):
+    """원천징수 세액 10원 미만 내림(국고금 관리법 제47조 제1항 · 지방회계법 제55조, 정본 v4.0.36 V2 §13.1)."""
+    d = D(x)
+    return (d / 10).quantize(Q0, rounding=ROUND_DOWN) * 10
+
+
 def floor_won(x):
     """원 단위 내림 — 음수는 절대값 내림 후 부호 복원(V2 §13.1 L569)."""
     return D(x).quantize(Q0, rounding=ROUND_DOWN)

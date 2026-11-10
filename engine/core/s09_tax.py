@@ -34,6 +34,7 @@ def tax_payee(ctx, c, p):
     pid = p.payee_id
     treat = vat_treatment(ctx, c, pid)
     units = OrderedDict()  # (origin, unit key, clause) → [lines]  — OTHER 판정 단위
+    biz = []  # BUSINESS 원천징수 라인 — 받는 사람 단위 합산(v4.0.36)
     for ln in p.lines:
         for k in ("deemed_expense", "other_income_amount", "threshold_exempt_yn", "small_amount_exempt_yn",
                   "after_tax_amount", "consignment_fee_vat"):
@@ -97,8 +98,15 @@ def tax_payee(ctx, c, p):
         if ln["income_category"] == "OTHER":
             units.setdefault((ln["origin"], ln["tax_threshold_unit_key"], ln["income_clause"]), []).append(ln)
             continue
-        w = withhold_business(ctx, ln["taxable_base"])
-        set_withholding(ctx, c, ln, kw, w, "BUSINESS")
+        biz.append(ln)
+    if biz:
+        # 사업소득은 받는 사람 · 지급일 단위로 과세표준을 합산한 뒤 세액을 1회 계산(10원 미만 내림), 라인에는 비율 배분(V2 §8.3 9단계 · §13.1, v4.0.36)
+        w = withhold_business(ctx, sum(x["taxable_base"] for x in biz))
+        its = alloc_last_remainder(w["income_tax"], [x["taxable_base"] for x in biz])
+        lts = alloc_last_remainder(w["local_income_tax"], [x["taxable_base"] for x in biz])
+        for x, it, lt in zip(biz, its, lts):
+            set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
+                            dict(w, income_tax=it, local_income_tax=lt), "BUSINESS")
     for (origin, unit, clause), lines in units.items():
         u = sum(x["taxable_base"] for x in lines)
         w = withhold_other(ctx, u, clause)

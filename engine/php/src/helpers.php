@@ -187,6 +187,12 @@ function q4($x): Number
     return new Number(bcadd(D($x)->value, '0', 4));
 }
 
+/** 원천징수 세액 10원 미만 내림(국고금 관리법 제47조 제1항 · 지방회계법 제55조, 정본 v4.0.36 V2 §13.1). */
+function floor_ten($x): Number
+{
+    return new Number(bcmul(bcdiv(D($x)->value, '10', 0), '10', 0));
+}
+
 /** 원 단위 내림 — 음수는 절대값 내림 후 부호 복원(V2 §13.1 L569). */
 function floor_won($x): Number
 {

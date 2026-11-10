@@ -162,9 +162,9 @@ final class Tax
     public static function withholdBusiness(Context $ctx, Number $base): array
     {
         $itRaw = mul($base, self::rates($ctx, 'BUSINESS', null)[0]);
-        $it = floor_won($itRaw);
+        $it = floor_ten($itRaw);
         $ltRaw = mul($it, D(pystr($ctx->p('local_income_tax_rate'))));
-        $lt = floor_won($ltRaw);
+        $lt = floor_ten($ltRaw);
         return ['income_tax' => $it, 'local_income_tax' => $lt, 'it_raw' => $itRaw, 'lt_raw' => $ltRaw];
     }
 
@@ -184,9 +184,9 @@ final class Tax
             $itRaw = $ltRaw = D(0);
         } else {
             $itRaw = mul($amt, $rate);
-            $it = floor_won($itRaw);
+            $it = floor_ten($itRaw);
             $ltRaw = mul($it, D(pystr($ctx->p('local_income_tax_rate'))));
-            $lt = floor_won($ltRaw);
+            $lt = floor_ten($ltRaw);
         }
         $small = !$exempt && $it < D($ctx->p('small_amount_exemption_limit'));
         if ($small) {
