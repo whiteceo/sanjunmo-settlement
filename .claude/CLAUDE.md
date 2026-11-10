@@ -5,7 +5,7 @@
 > | :--- | :--- |
 > | `README.md` | 프로젝트가 무엇인가 — 정본 문서 구조, 핵심 정책·용어, 폴더·마크업 규격, 화면 목록 |
 > | `.claude/CLAUDE.md` (이 문서) | 어떻게 작업하나 — 작업 규칙, 검증, 커밋, 동기화 |
-> | `PROJECT_STATE.md` | 지금 어디까지 왔나 — 확정 기준, QA 도구, 기준선, 현재 상태·미결, 작업 로그 |
+> | `PROJECT_STATE.md` | 지금 어디까지 왔나 — 확정 기준, QA 도구, 기준선, 현재 상태 · 정본 반영 대기 작업, 작업 로그 |
 > | `.agents/rules/RULES.md` | 안티그래비티 예비 사용 시 추가 제한 (안티그래비티가 자동으로 읽음) |
 
 ## 기본 원칙
@@ -21,7 +21,7 @@
 
 ## 작업 시작 전
 1. `git pull whiteceo main` 다음 `git pull origin main` — Apps Script는 드라이브 수정분을 `whiteceo` 원격에만 커밋하므로 둘 다 받는다(`origin`=lcampus만 받으면 드라이브 수정분을 놓쳐 push가 갈라진다, 2026-11-04). push도 `origin` → `whiteceo` 순으로 둘 다 한다.
-2. `PROJECT_STATE.md`의 확정 기준(1절)과 현재 상태·미결(4절)을 확인한다. 정책·화면 목록은 `README.md`.
+2. `PROJECT_STATE.md`의 확정 기준(1절)과 현재 상태 · 정본 반영 대기(4절)을 확인한다. 정책·화면 목록은 `README.md`.
 3. 대형 HTML(1,000줄 이상)은 통째로 읽지 않고 grep으로 필요한 줄만 본다.
 
 ## 역할 (2026-10-22 확정)
