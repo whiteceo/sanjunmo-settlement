@@ -133,7 +133,15 @@ final class Tax
         if ($case === 'TX-07' && self::isCorp($h)) {
             return $done($case, 'DECIDED', $src . ' · 법인(원천징수 대상 아님)', 'NONE');
         }
-        // TX-05 · TX-06 · TX-07(개인) · TX-08: 원천징수 판정 기준 공백(TAX.md 확인 필요 2) — 자문 결과 입력이 있을 때만 확정
+        if (in_array($case, ['TX-05', 'TX-06'], true) && $decision === 'APPLY') {
+            // 예외(11-10): 실질이 면세 인적용역이면 재무가 원천징수 적용(3.3%)으로 확정
+            return $done($case, 'DECIDED', $src . ' · 실질 면세 인적용역 — 재무 확정 withholding_decision = APPLY', 'APPLY');
+        }
+        if (in_array($case, ['TX-05', 'TX-06', 'TX-07'], true)) {
+            // 정본 v4.0.29(김영호 PO 11-10): 개인 과세사업자 용역은 원천징수 대상 사업소득 아님(소득세법 시행령 제184조 제1항)
+            return $done($case, 'DECIDED', $src . ' · 과세사업자(원천징수 대상 아님)', 'NONE');
+        }
+        // TX-08: 원천징수 판정 기준 공백(TAX.md 확인 필요 2) — 자문 결과 입력이 있을 때만 확정
         if (in_array($decision, ['NONE', 'APPLY'], true)) {
             return $done($case, 'DECIDED', $src . ' · 자문 확정 입력 withholding_decision = ' . $decision, $decision);
         }
