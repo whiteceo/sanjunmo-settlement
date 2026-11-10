@@ -54,7 +54,7 @@
   order_items(LECTURE) ─Step1 안분─Step2 차시분할─Step3 요율바인딩─Step4 1계층지분─► P1.1 라인(q4)
   book_sales(OWN_PUBLISHED, 구매확정월) ─6.3 절사 시퀀스─────────────────────► P2.1 라인(원)
   consignment_sales(CONSIGNMENT, 구매확정월) ─6.6 인입 공식─────────────────► P2.2 라인(원)
-  rate_basis(P1.1 기준금 / P2.1 부수×기준가) × 지원금 요율 ──────────────────► P5.1 신규 발생(원)
+  rate_basis(P1.1 기준금 / P2.1 구매확정 실결제액) × 지원금 요율 ──────────────────► P5.1 신규 발생(원)
   goods(Pipeline 2.3) ─► 자사 집계 전용(엔진 비인입, 출력 internal_only)
   PURCHASED_RESALE · BUNDLED 도서 ─► 비인입(0원)
 
@@ -167,7 +167,7 @@
 
 ### 3.6 P5.1 매출연동 개발지원금 (V2 L156~160)
 - 대상: `support_fund_agreements.payment_method = REVENUE_SHARE` 이고 `status = ACTIVE`(신규 발생). `COMPLETED · EXPIRED · TERMINATED`도 기확정 원거래의 환불 · 옵션 B · C 공제와 한도 복원은 4 · 5단계에 인입(V2 L158).
-- 모수(`rate_basis = SAME_AS_BASIC`): P1.1 대상은 Step 2 강의 기준금, P2.1 대상은 확정 부수 × 약정 기준가(V1 L273). **자사 지분율을 곱하지 않는다**(V2 L159).
+- 모수(`rate_basis = SAME_AS_BASIC`): P1.1 대상은 Step 2 강의 기준금, P2.1 대상은 당월 구매확정분의 할인 후 실결제액 합계(정본 v4.0.34, 김영호 PO 11-10 — 종전 '확정 부수 × 약정 기준가'). 엔진 입력 rate_basis_amount는 이 값으로 넣는다. **자사 지분율을 곱하지 않는다**(V2 L159).
 - `settlement_scope`: `PIPELINE_1_1_ONLY`(기본) / `PIPELINE_2_1_ONLY` / `PIPELINE_1_1_2_1`. P2.2 · P2.3은 어떤 경우도 제외.
 - 약정 대상(`support_fund_agreement_targets`)의 유효 기간 안 · 자사 지분 > 0 인 대상만. 자사 지분 0% 구간은 발생 0원 · 상태 ACTIVE 유지 · 정산서 '자사 지분 없음으로 미발생'(V1 L274).
   ```
