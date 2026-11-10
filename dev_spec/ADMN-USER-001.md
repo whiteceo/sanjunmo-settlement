@@ -257,9 +257,9 @@
 | `users.address` · `address_detail` | 기본 배송지 | 001 필터 · 002 |
 | `users.cafe_id` | 산준모 네이버 카페 ID(가입 데이터에 있음, 관리자 화면 미표시) | 002 |
 | `users.di_hash` | 본인인증 DI 해시 | 002 |
-| `users.total_points` | 포인트 잔액 캐시(무상+유상, 마이너스 가능) | 001 |
+| `users.total_points` | 포인트 잔액 캐시(무상+적립, 마이너스 가능) | 001 |
 | `users.last_login_at` · `admin_memo` · `birth_date` · `gender` | | 002 |
-| `points` (`type`, `amount`, `balance`, `source`, `expires_at`, `admin_id`, `memo`) | 포인트 적립 단위(유상/무상 구분 `type`) | 002 포인트 원장 |
+| `points` (`type`, `amount`, `balance`, `source`, `expires_at`, `admin_id`, `memo`) | 포인트 적립 단위(적립/무상 구분 `type`) | 002 포인트 원장 |
 | `payments.cancelled_amount` · `refunds`(`status`, `pg_cancel_status`, `refund_amount`) · `refund_adjustments`(`adjustment_type`, `method`, `amount`) | 누적 결제 · 환불 계산 재료(4절 산식) | 001 · 002 |
 | `point_logs` (`action`, `amount`, `balance_after`, `order_id`, `refund_id`, `reason`) | 포인트 원장 | 002 포인트 원장 탭 |
 | `social_accounts` (`provider`, `provider_id`) | 소셜 연동 | 002-P2 |

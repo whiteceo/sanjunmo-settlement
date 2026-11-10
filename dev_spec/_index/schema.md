@@ -32,7 +32,7 @@
 | `is_marketing_agreed` | boolean |  | 마케팅 정보 수신 동의 여부. 이메일·SMS·알림톡 통합 단일 값. | 2026_09_07_000059 |
 | `must_change_password` | boolean |  | 첫 로그인 시 비밀번호 변경 강제 여부. 기본값 0. | 2026_09_08_000095 |
 | `unsub_token` | string(32) | nullable | 광고 수신거부 링크 토큰. 정보통신망법 제50조 무료 거부 수단. | 2026_09_08_000095 |
-| `total_points` | integer |  | 포인트 잔액 캐시. 무상 + 유상 합계. 환불 시 선사용 혜택 보전 공제로 마이너스가 될 수 있으며 0P 미만이면 포인트 사용과 회원탈퇴가 차단된다. | 2026_09_08_000105 |
+| `total_points` | integer |  | 포인트 잔액 캐시. 무상 + 적립 합계. 환불 시 선사용 혜택 보전 공제로 마이너스가 될 수 있으며 0P 미만이면 포인트 사용과 회원탈퇴가 차단된다. | 2026_09_08_000105 |
 | `password_changed_at` | dateTime | nullable | 비밀번호 마지막 변경 일시. 관리자 90일 주기 변경 강제 판정 기준(admin.password_max_age_days). 회원은 NULL | 2026_09_28_000164 |
 | `verify_cap_reset_at` | dateTime | nullable | 인증번호 발송 횟수 수동 초기화 시각. 이 시각 이전 발송은 한도 계산에서 제외한다(ADMN-CONF-005). NULL 이면 초기화 이력 없음 | 2026_09_28_000165 |
 | `admin_memo` | text | nullable | 관리자 내부 메모. 회원 비노출. 수정 전 내용은 user_change_logs(field=admin_memo) | 2026_09_28_000166 |
@@ -413,7 +413,7 @@
 | `has_physical_item` | boolean |  | 실물 교재 포함 여부. 배송지 폼 노출 / 배송비 가산 / 결제 후 배송대기 트리거 3개가 이 값 하나로 결정된다. 강좌만 주문이면 0이며 배송 관련 요소를 DOM 에서 완전히 제거한다. | 2026_09_08_000104 |
 | `course_amount` | integer |  | 강좌 라인 합계. 쿠폰·포인트 할인 적용 가능 금액의 기준이다. 교재 라인과 배송비는 이 금액에서 제외된다. | 2026_09_08_000104 |
 | `book_amount` | integer |  | 교재 라인 합계. 도서정가제에 따라 쿠폰·포인트가 원천 차단되며 적립도 지급하지 않는다. 서버가 할인 가능액을 0원으로 락한다. | 2026_09_08_000104 |
-| `earned_point` | integer |  | 적립 예정 포인트. 실결제액 x site_settings.point_earn_rate 올림. 유상 포인트로 적립되며 환불 시 LIFO 회수·부활 대상. | 2026_09_08_000104 |
+| `earned_point` | integer |  | 적립 예정 포인트. 실결제액 x site_settings.point_earn_rate 올림. 적립 포인트로 적립되며 환불 시 LIFO 회수·부활 대상. | 2026_09_08_000104 |
 | `exemption_basis` | string(20) | nullable | 면세 근거. EDU_SERVICE=교육용역(부가법 26①15) / BOOK_GOODS=도서 재화(26①8) / MIXED (합의서 8.1) | 2026_09_18_000135 |
 | `receiver_zipcode` | string(5) | nullable | 수령지 우편번호. 주소 검색 결과. 도서산간 판정 · 3PL 발주 필수값 | 2026_09_30_000177 |
 
@@ -503,10 +503,10 @@
 | `refund_scope` | string(20) |  | 환불 범위. full=전액 / partial=부분(라인 선택). 패키지 주문은 라인 단위로 나눠 계산한다. | 2026_09_08_000078 |
 | `progress_deduction` | integer |  | 수강 차시 비례 차감액. 실결제액 × (수강완료 차시 ÷ 총 차시). 원 단위 절사. | 2026_09_08_000078 |
 | `delivery_fee_deduction` | integer |  | 반품 왕복 배송비 공제액. 고객 귀책일 때만 공제하며 회사 귀책이면 0이다. | 2026_09_08_000078 |
-| `point_clawback_amount` | integer |  | 적립 포인트 회수액. 유상 적립 + 무상 프로모션 포인트 모두 회수 대상. | 2026_09_08_000078 |
+| `point_clawback_amount` | integer |  | 적립 포인트 회수액. 구매 적립 + 무상 프로모션 포인트 모두 회수 대상. | 2026_09_08_000078 |
 | `point_shortage_amount` | integer |  | 회수 부족분. 이미 사용해 회수하지 못한 금액이며 1P=1원으로 현금에서 선차감한다. | 2026_09_08_000078 |
-| `minus_point_amount` | integer |  | 마이너스 적재액. 부족분이 환불 예정액을 초과해 현금 공제가 불가능할 때 유상 마이너스로 적재. | 2026_09_08_000078 |
-| `restored_point_amount` | integer |  | LIFO 복원액. 결제에 사용한 포인트를 사용 역순으로 되돌리며 유상을 최우선 복원한다. | 2026_09_08_000078 |
+| `minus_point_amount` | integer |  | 마이너스 적재액. 부족분이 환불 예정액을 초과해 현금 공제가 불가능할 때 적립 P 마이너스로 적재. | 2026_09_08_000078 |
+| `restored_point_amount` | integer |  | LIFO 복원액. 결제에 사용한 포인트를 사용 역순으로 되돌리며 적립을 최우선 복원한다. | 2026_09_08_000078 |
 | `calc_snapshot` | json | nullable | 연산 근거 스냅샷. 단계별 산식·대입값·금액. 정책이 바뀌어도 당시 계산이 재현되어야 한다. | 2026_09_08_000078 |
 | `return_tracking_no` | string(100) | nullable | 반품 수거 운송장번호. | 2026_09_08_000078 |
 | `warehouse_received_at` | timestamp | nullable | 3PL 창고 실물 입고 일시. 입고 전에는 검수 입력이 잠긴다. | 2026_09_08_000078 |
@@ -969,17 +969,17 @@
 | `remember_ttl_user_days` | unsignedSmallInteger |  | 사용자 자동 로그인 유지 기간(일). 기본값 30. | 2026_09_07_000058 |
 | `remember_ttl_admin_days` | unsignedSmallInteger |  | 관리자 자동 로그인 유지 기간(일). 기본값 7. | 2026_09_07_000058 |
 | `welcome_point` | unsignedInteger |  | 신규 가입 축하금(P). 무상 포인트로 회원가입 트랜잭션 안에서 즉시 지급한다. DI 기준 생애 1회. 0이면 미지급. | 2026_09_08_000085 |
-| `earn_book_line` | tinyInteger |  | 실물 교재 라인 유상 적립 지급 여부. 도서정가제로 교재는 쿠폰·포인트 사용이 원천 차단되므로 적립도 주지 않는다. 기본값 0(미지급). | 2026_09_08_000085 |
-| `earn_rounding` | string(10) |  | 유상 적립 단수 처리. ceil=올림 / floor=버림 / round=반올림. 1P 단위. 기본값 ceil. | 2026_09_08_000085 |
+| `earn_book_line` | tinyInteger |  | 실물 교재 라인 구매 적립 지급 여부. 도서정가제로 교재는 쿠폰·포인트 사용이 원천 차단되므로 적립도 주지 않는다. 기본값 0(미지급). | 2026_09_08_000085 |
+| `earn_rounding` | string(10) |  | 구매 적립 단수 처리. ceil=올림 / floor=버림 / round=반올림. 1P 단위. 기본값 ceil. | 2026_09_08_000085 |
 | `earn_confirm_timing` | string(30) |  | 적립 확정 시점. paid=결제 승인 즉시 / delivered=배송완료 후 / course_started=수강 시작 후. 기본값 paid. | 2026_09_08_000085 |
 | `free_point_expire_years` | unsignedTinyInteger |  | 무상 포인트 유효기간(년). 가입 축하금·관리자 수동 지급·보상성 지급이 해당한다. 환불 시 회수 대상. | 2026_09_08_000085 |
-| `paid_point_expire_years` | unsignedTinyInteger | nullable | 유상 포인트 유효기간(년). 실결제로 적립된 포인트다. NULL이면 무기한. 환불 시 LIFO 부활 대상. | 2026_09_08_000085 |
+| `paid_point_expire_years` | unsignedTinyInteger | nullable | 적립 포인트 유효기간(년). 실결제로 적립된 포인트다. NULL이면 무기한. 환불 시 LIFO 부활 대상. | 2026_09_08_000085 |
 | `deduct_priority` | varchar(30) | sql | 차감 우선순위. expire_asc_free_first=만료 임박순, 같은 만료일이면 무상 우선. 회원 손해를 최소화하는 순서다. | 2026_09_30_000179 |
 | `expire_notice_days` | unsignedSmallInteger |  | 소멸 사전 안내 일수. 매일 09:00 배치가 D+N 소멸 예정 포인트를 스캔해 대상 회원에게 발송한다. 0이면 미발송. 1~90일. | 2026_09_08_000085 |
 | `expire_notice_alimtalk` | tinyInteger |  | 소멸 안내 알림톡 발송 여부. 기본값 1. | 2026_09_08_000085 |
 | `expire_notice_lms` | tinyInteger |  | 소멸 안내 알림톡 실패 시 LMS(문자) 대체 발송 여부. 기본값 1. | 2026_09_08_000085 |
 | `expire_notice_email` | tinyInteger |  | 소멸 안내 이메일 발송 여부. 기본값 0. | 2026_09_08_000085 |
-| `paid_restore_grace_days` | unsignedTinyInteger |  | 만료 유상 포인트 부활 유예 일수. 환불 시점에 이미 원 유효기간이 도과한 유상 포인트를 되돌릴 때 환불 완료일 + N일 자정으로 유효기간을 재설정한다. ADMN-RFD-003 D+7 유예 탭과 연동한다. | 2026_09_08_000085 |
+| `paid_restore_grace_days` | unsignedTinyInteger |  | 만료 적립 포인트 부활 유예 일수. 환불 시점에 이미 원 유효기간이 도과한 적립 포인트를 되돌릴 때 환불 완료일 + N일 자정으로 유효기간을 재설정한다. ADMN-RFD-003 D+7 유예 탭과 연동한다. | 2026_09_08_000085 |
 | `ad_block_start_hour` | unsignedTinyInteger |  | 광고성 메시지 발송 금지 시작 시(24h). 정보통신망법 제50조. 기본값 21. | 2026_09_08_000096 |
 | `ad_block_end_hour` | unsignedTinyInteger |  | 광고성 메시지 발송 금지 종료 시(24h). 기본값 8. 설계서 06 표기는 오타. | 2026_09_08_000096 |
 | `campaign_cancel_before_min` | unsignedSmallInteger |  | 예약 발송 취소 가능 시한(분). 큐 적재 시작 후에는 취소되지 않는다. 기본값 30. | 2026_09_08_000096 |
@@ -1103,7 +1103,7 @@
 |---|---|---|---|---|
 | `id` | bigIncrements |  | 포인트 적립 건 ID | 2026_08_14_000001 |
 | `user_id` | unsignedBigInteger |  | users.id 참조 | 2026_08_14_000001 |
-| `type` | string(20) |  | paid=유상 / free=무상 | 2026_08_14_000001 |
+| `type` | string(20) |  | paid=적립 / free=무상 | 2026_08_14_000001 |
 | `amount` | integer |  | 최초 적립액. 불변 | 2026_08_14_000001 |
 | `balance` | integer |  | 현재 잔여액. 음수 허용(마이너스 채권) | 2026_08_14_000001 |
 | `source` | string(30) |  | signup / purchase / event / cs / restore / clawback | 2026_08_14_000001 |
@@ -1203,7 +1203,7 @@
 | `withdrawn_at` | timestamp |  | 탈퇴 처리 일시 | 2026_08_14_000008 |
 | `created_at` | timestamp |  | 기록 일시 | 2026_08_14_000008 |
 | `void_free_points` | integer |  | 소멸 무상 포인트. 가입 축하금·관리자 수동 지급분. | 2026_09_08_000105 |
-| `void_paid_points` | integer |  | 소멸 유상 포인트. 실결제로 적립된 분. | 2026_09_08_000105 |
+| `void_paid_points` | integer |  | 소멸 적립 포인트. 실결제로 적립된 분. | 2026_09_08_000105 |
 | `void_course_count` | integer |  | 소멸 수강중 강좌 수. 잔여 수강 기간이 모두 소멸되며 환불되지 않는다. | 2026_09_08_000105 |
 | `void_course_days` | integer |  | 소멸 잔여 수강일 합계. 화면에 "잔여 138일" 형태로 숫자를 노출한다. | 2026_09_08_000105 |
 | `pending_delivery_count` | integer |  | 탈퇴 시점 미배송 주문 건수. 익명화로 배송지가 파기되어 배송 불가가 된다. | 2026_09_08_000105 |
@@ -1440,7 +1440,7 @@
 | `updated_at` | timestamp | nullable |  | 2026_08_14_000039 |
 | `welcome_granted` | tinyInteger |  | 웰컴 혜택 지급 이력. 1이면 이 DI 로 가입 축하금·웰컴 쿠폰을 이미 받았다는 뜻이다. 재가입 시 지급하지 않는다. 생애 1회 판정 근거이므로 탈퇴 후에도 보존한다. | 2026_09_08_000085 |
 | `di_hash` | string(64) | unique,change | 본인인증 DI의 SHA-256 해시(users.di_hash 와 같은 값). DI당 1행 유지 | 2026_09_29_000174 |
-| `unpaid_paid_points` | integer |  | 미회수 유상 마이너스 포인트(절대값). 재가입 시 같은 유형으로 복원 후 0 초기화. 기본값 0. | 2026_10_22_000245 |
+| `unpaid_paid_points` | integer |  | 미회수 적립 P 마이너스 포인트(절대값). 재가입 시 같은 유형으로 복원 후 0 초기화. 기본값 0. | 2026_10_22_000245 |
 | `unpaid_free_points` | integer |  | 미회수 무상 마이너스 포인트(절대값). 재가입 시 같은 유형으로 복원 후 0 초기화. 기본값 0. | 2026_10_22_000245 |
 | `rejoin_count` | unsignedInteger |  | 이 DI 로 재가입한 횟수. 탈퇴 후 다시 가입할 때 1 올린다. 부정 이용 판정 근거라 초기화하지 않는다. | 2026_10_22_000245 |
 
@@ -1773,7 +1773,7 @@
 | `sort_no` | integer |  | 진열 순서. promotions.sort_type 이 manual 일 때 드래그 순서를 그대로 저장한다. | 2026_09_08_000083 |
 | `block_coupon` | tinyInteger |  | 쿠폰 사용 차단. 1이면 주문서 쿠폰 선택 레이어에서 해당 라인이 적용 대상에서 제외된다. 보유 쿠폰은 소멸되지 않는다. 기본값 0. | 2026_09_08_000083 |
 | `block_point` | tinyInteger |  | 포인트 사용 차단. 1이면 해당 라인 금액만큼 포인트 사용 가능 한도에서 제외한다. 복합 주문이면 차단되지 않은 라인 금액 한도까지는 사용 가능하다. 기본값 0. | 2026_09_08_000083 |
-| `block_earn` | tinyInteger |  | 구매 적립 차단. 1이면 결제는 되지만 유상 적립을 주지 않는다. 기본값 0(적립 지급). | 2026_09_08_000083 |
+| `block_earn` | tinyInteger |  | 구매 적립 차단. 1이면 결제는 되지만 구매 적립을 주지 않는다. 기본값 0(적립 지급). | 2026_09_08_000083 |
 | `block_from` | dateTime | nullable | 차단 시작. 노출 기간과 독립적으로 잡을 수 있다. 예) 기획전은 한 달, 차단은 첫 2주만. NULL이면 노출 기간과 동일. | 2026_09_08_000083 |
 | `block_to` | dateTime | nullable | 차단 종료. | 2026_09_08_000083 |
 | `block_reason` | string(100) | nullable | 사용자 노출 차단 사유. 40자 이내 권장. 주문서(USER-PAY-001) 혜택 입력란 아래에 그대로 출력되므로 비활성만 시키고 사유를 안 쓰면 CS 문의가 폭증한다. | 2026_09_08_000083 |
@@ -2775,8 +2775,8 @@
 |---|---|---|---|---|
 | `id` | id |  | PK | 2026_10_20_000231 |
 | `refund_id` | unsignedBigInteger |  | 원 환불 refunds.id. 완료된 환불에만 붙는다 | 2026_10_20_000231 |
-| `adjustment_type` | string(20) |  | extra_refund=추가 환불(현금 추가 지급) / clawback=환불 회수(과다 환불분 청구) / point=포인트 보정(유상 지급 · 차감) | 2026_10_20_000231 |
-| `method` | string(20) |  | 처리 수단. pg_cancel=PG 추가 부분 취소 / bank_transfer=계좌 이체 / customer_claim=고객 청구 / point_grant=유상 포인트 지급 / point_deduct=유상 포인트 차감 | 2026_10_20_000231 |
+| `adjustment_type` | string(20) |  | extra_refund=추가 환불(현금 추가 지급) / clawback=환불 회수(과다 환불분 청구) / point=포인트 보정(적립 지급 · 차감) | 2026_10_20_000231 |
+| `method` | string(20) |  | 처리 수단. pg_cancel=PG 추가 부분 취소 / bank_transfer=계좌 이체 / customer_claim=고객 청구 / point_grant=적립 포인트 지급 / point_deduct=적립 포인트 차감 | 2026_10_20_000231 |
 | `amount` | unsignedInteger |  | 보정 금액(원) 또는 포인트(P). 항상 양수 — 방향은 유형 · 처리 수단이 정한다 | 2026_10_20_000231 |
 | `bank_code` | string(10) | nullable | 계좌 이체 은행 코드(토스 은행 코드). 계좌 이체일 때만 | 2026_10_20_000231 |
 | `account_no` | text | nullable | 계좌 이체 계좌번호 — 앱 키 암호문(평문 저장 금지). 계좌 이체일 때만 | 2026_10_20_000231 |

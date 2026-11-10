@@ -102,14 +102,14 @@ URL 접두사 `/{admin}` = `config('admin.prefix')`(기본 `sj-admin`).
 | 필드 name | 규칙 | 코드값(라벨) | 프로토타입 대응 |
 |---|---|---|---|
 | `welcome_point` | required 0~100000 (0=미지급) | 신규 가입 축하금(DI 생애 1회) | 웰컴 포인트 지급액 |
-| `point_earn_rate` | nullable 0~10(%) | 유상 적립율 | 강좌 결제 기본 적립률 |
+| `point_earn_rate` | nullable 0~10(%) | 적립율 | 강좌 결제 기본 적립률 |
 | `earn_rounding` | in CODE_OPTIONS | ceil 올림 · floor 버림 · round 반올림 | 없음 |
 | `earn_confirm_timing` | in paid 만 | 결제 승인 즉시 | 없음 |
-| `free_point_expire_years` / `paid_point_expire_years` | required 1~10 | 무상 · 유상(포인트) 유효기간(년) | "포인트 사용 기준 · 유효기간" |
+| `free_point_expire_years` / `paid_point_expire_years` | required 1~10 | 무상 · 적립(포인트) 유효기간(년) | "포인트 사용 기준 · 유효기간" |
 | `deduct_priority` | in CODE_OPTIONS | expire_asc_free_first(만료 임박순 · 같은 날 무상 우선) | 없음 |
 | `expire_notice_days` | 0~90 (0=미발송) | 소멸 사전 안내 일수 | 없음 |
 | `expire_notice_alimtalk` / `expire_notice_lms` / `expire_notice_email` | boolean | 소멸 안내 채널 | 없음 |
-| `paid_restore_grace_days` | 0~255 | 만료 유상 포인트 부활 유예 | 없음 |
+| `paid_restore_grace_days` | 0~255 | 만료 적립 포인트 부활 유예 | 없음 |
 | `book_point_rate_limit` | 0~100 | 도서 적립률 상한(교재 라인 적립, ⑤ 도서 구획) | "교재 · 배송비 적립 제외" 문구 |
 | `point_change_reason` | max:200. 포인트 항목이 바뀌면 필수(서비스) | 변경 사유 → admin_logs | 없음 |
 | (없음) | | | `pol-review`(일반 후기 승인 P) · `pol-best`(베스트 · 합격수기 P) · `pol-cap`(무상 잔액 상한) |

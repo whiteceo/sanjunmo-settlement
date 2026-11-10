@@ -184,13 +184,13 @@
 |---|---|---|---|
 | (원 환불) | URL `{refund}` 고정(완료 건만) | | `#m3f-ra-rfd` select |
 | `adjustment_type` | required | `extra_refund` 추가 환불 · `clawback` 환불 회수 · `point` 포인트 보정 | `m3f-ra-type` ADD · RECOVER · POINT |
-| `method` | required · 유형별 허용(METHODS_BY_TYPE) | extra_refund → `pg_cancel` PG 추가 부분 취소 · `bank_transfer` 계좌 이체 / clawback → `customer_claim` 고객 청구 / point → `point_grant` 유상 포인트 지급 · `point_deduct` 유상 포인트 차감 | `#m3f-ra-exec` 토스페이먼츠 PG 추가 부분취소 · 고객 환불계좌 무통장 입금 · 고객 과오납 환수 입금 확인 · 포인트 원장만 조정 |
+| `method` | required · 유형별 허용(METHODS_BY_TYPE) | extra_refund → `pg_cancel` PG 추가 부분 취소 · `bank_transfer` 계좌 이체 / clawback → `customer_claim` 고객 청구 / point → `point_grant` 적립 포인트 지급 · `point_deduct` 적립 포인트 차감 | `#m3f-ra-exec` 토스페이먼츠 PG 추가 부분취소 · 고객 환불계좌 무통장 입금 · 고객 과오납 환수 입금 확인 · 포인트 원장만 조정 |
 | `amount` | required · 1~100,000,000 · 콤마 허용. 원 또는 P(수단으로 구분) | | `#m3f-ra-amount`(원) · `#m3f-ra-point`(P, ±) — 개발은 한 칸 |
 | `reason` | required · 공백 제외 10자 · max 2000 | | `#m3f-ra-reason` · `#m3f-ra-reason-count` |
 | `bank_code` · `account_no` · `account_holder` | bank_transfer일 때 서비스가 필수 판정 | | 없음 |
 | `evidences[]` | jpg · png · pdf · 10MB · 최대 3개(EVIDENCE_MAX) | | 없음 |
 | (정산 반영 월) | 등록일이 속한 월, 마감 월 소급 없음(`RefundAdjustmentService.php:71-74`) | | `#m3f-ra-settle` · `#m3f-ra-settle-rule` — S-10: 승인 시점 미마감 가장 이른 귀속월, 원 발생월 보존 |
-| `point_kind` (규칙, S-09) | adjustment_type=point일 때 required | `paid` 적립 P · `free` 무상 P | `#m3f-ra-pkind` PAID · FREE — 개발은 유상 P만 |
+| `point_kind` (규칙, S-09) | adjustment_type=point일 때 required | `paid` 적립 P · `free` 무상 P | `#m3f-ra-pkind` PAID · FREE — 개발은 적립 P만 |
 | `point_expires_at` (규칙, S-09) | adjustment_type=point일 때 required · date | | `#m3f-ra-pexp` |
 
 ## 4. 목록 필터 · 정렬 · 표 컬럼
@@ -302,7 +302,7 @@
 - 002 법정 환불 불가 하드락(인정진도율 50% 초과 · 기간 1/2 경과) — 프로토 `recalcDetail()` L1380 · L1440 → Q-RFD-3 **→ 결정(v6.87 김영호 PO, D-ORD-03): 인강 부분환불 = 실결제 × (전체 − 학습 회차) ÷ 전체, 원 단위 절사(평생교육법 시행령 별표 3 비고 4). 위약금 · 기간 경과 차감 · 1/2 경과 환불 불가 삭제 — 개발 산식과 같아짐(통합 설계서 v3.2.22).**
 - 002 왼쪽 탭 '고객 환불 신청서 원문' · '연관 1:1 문의 원문 & 답변'을 한 화면에 — 개발은 환불 상세 / 문의 상세 두 화면
 - 003 목록에서 원 환불을 골라 보정 등록(`openRefundAdjustPage(null,'list')` L966) — 개발은 완료 상세에서만
-- 003-S2 금액 · 포인트 동시 입력, 무상 P 포인트 보정 — 개발은 한 거래 = 한 수단, 포인트는 유상만(`refund-histories/adjust.blade.php:61`) **→ 결정(v6.92 김영호 PO, S-09)**: 포인트 단독 보정은 현금 0 · 포인트 구분(적립 P / 무상 P) · 만료일 필수 — 개발 `point_kind` · `point_expires_at` 추가 필요
+- 003-S2 금액 · 포인트 동시 입력, 무상 P 포인트 보정 — 개발은 한 거래 = 한 수단, 포인트는 적립만(`refund-histories/adjust.blade.php:61`) **→ 결정(v6.92 김영호 PO, S-09)**: 포인트 단독 보정은 현금 0 · 포인트 구분(적립 P / 무상 P) · 만료일 필수 — 개발 `point_kind` · `point_expires_at` 추가 필요
 - 003-S2 보정 전표 반영 기준월 — 개발은 등록일이 속한 월 **→ 결정(v6.92 김영호 PO, S-10)**: 승인 시점 미마감 가장 이른 귀속월(원 발생월이 미마감이면 그 달), 원 발생월을 전표에 보존
 - 002 계산기 Step 7-1 강좌 사용 포인트 복원(v6.92 신설) **→ 결정(v6.92 김영호 PO, S-12)**: 복원 P = ⌊라인 사용 포인트 × 인강 환불액 ÷ 라인 결제액⌋, 나머지 현금 — 개발 '유상만 미수강 비율 복원'과 비율 방식은 같음(무상 P 처리는 Q-RFD-6)
 - 002 케이스 4 마이페이지 직접 신청 건의 휴대폰 익월 계좌 폴백 — 개발은 1:1 문의 건만 계좌 환불 경로 → Q-RFD-8
@@ -335,7 +335,7 @@
 | Q-RFD-3 | 법정 환불 불가 — 정본은 인정진도율 50% 초과 또는 수강기간 1/2 경과면 인강 환불 승인 불가(하드락). 개발은 막지 않고 진도 비례로 계산, 원 수강기간이 끝난 경우만 전액 차감 | 프로토 L1380 · L1440(`lecBlocked`), 설계서 L347 단서 | `RefundCalculator.php:219` | **→ 결정(v6.87 김영호 PO, D-ORD-03): 인강 부분환불 = 실결제 × (전체 − 학습 회차) ÷ 전체, 원 단위 절사(평생교육법 시행령 별표 3 비고 4). 위약금 · 기간 경과 차감 · 1/2 경과 환불 불가 삭제 — 개발 산식과 같아짐(통합 설계서 v3.2.22).**
 | Q-RFD-4 | 마이너스 전환 때 현금 — 정본은 부족분이 예정액보다 크면 **예정액 전액을 선차감(현금 0원)하고 초과분만** 마이너스 적재. 개발은 **현금 100% 지급 + 부족분 전액** 마이너스 적재 | 프로토 L1404-1412, P1 문구 L1161-1162, 설계서 L350 ③ | `RefundCalculator.php:139-140` **→ 정본대로(D-ORD-05 A, 통합설계서 L351 · L369)**: 부족분이 예정액보다 크면 현금 0, 마이너스 = 부족분 − 예정액 — 개발팀 전달 |
 | Q-RFD-5 | 원 주문 적립 회수 순서 — 정본은 보유 가용 포인트에서 **무상 P → 적립 P** 순으로 먼저 차감. 개발은 **이 주문 적립 건부터, 그다음 소멸 임박순** | 프로토 L1213 · L1946, 설계서 L350 ① | `app/Services/Point/PointLedgerService.php:451` **→ 결정(김영호 PO 10-27, D-ORD-06)**: 정본대로 — 보유 무상 P → 적립 P 순 회수, 개발 순서 정정 전달 |
-| Q-RFD-6 | 결제에 쓴 무상 P의 환불 처리 — 정본은 사용 포인트를 **적립 P → 무상 P 순으로 LIFO 복원**(만료분 복원일 + 7일 유예). 개발은 **유상만 미수강 비율로 복원, 무상은 소멸** | 프로토 L1212 · L1938 | `RefundCalculator.php:25`, `refund-histories/adjust.blade.php:61` **→ 정본대로(D-ORD-07 A, 통합설계서 L190 · L369)**: 사용 포인트는 적립 P → 무상 P 순 LIFO 복원(만료분 복원일 + 7일), 무상 P도 복원 — 개발팀 전달 |
+| Q-RFD-6 | 결제에 쓴 무상 P의 환불 처리 — 정본은 사용 포인트를 **적립 P → 무상 P 순으로 LIFO 복원**(만료분 복원일 + 7일 유예). 개발은 **적립만 미수강 비율로 복원, 무상은 소멸** | 프로토 L1212 · L1938 | `RefundCalculator.php:25`, `refund-histories/adjust.blade.php:61` **→ 정본대로(D-ORD-07 A, 통합설계서 L190 · L369)**: 사용 포인트는 적립 P → 무상 P 순 LIFO 복원(만료분 복원일 + 7일), 무상 P도 복원 — 개발팀 전달 |
 | Q-RFD-7 | 반품 배송비 고객 귀책 공제 — 정본은 단순변심 **편도 3,000원**(유료배송 주문) / 무료배송 혜택 취소 **왕복 6,000원**, 주문당 1회. 개발은 고객 귀책이면 **항상 왕복**(설정값, 비면 편도 × 2), 귀책 코드도 2종뿐 | 프로토 L834-838 `#sel-fault`, ORD-001 L939-943, 설계서 L348, `docs/screen_spec/07_환불관리_ADMN-RFD.md:1496` | `app/Services/Refund/RefundInputBuilder.php:74`, `RefundCalculator.php:110-117`, `app/Models/Refund.php:74-86` **→ 정본대로(D-ORD-08 A, 통합설계서 L349)**: 단순변심 편도 3,000원 / 무료배송 혜택 취소 왕복 6,000원, 주문당 1회 — 개발 `customer_oneway` 추가 전달 |
 | Q-RFD-8 | PG 직취소 불가(휴대폰 익월 등) 계좌 폴백 범위 — 정본 케이스 4는 **마이페이지 직접 신청** 건도 등록 환불계좌로 현금 폴백. 개발은 **1:1 문의 유입 건만** 계좌 환불 경로가 있고, 마이페이지 건은 "관리자 수기 환불에서 그때 계좌를 받는다"는 주석뿐(경로 확인 필요) | 프로토 L1307-1310 · L1459, `submitFinalRefund()` L1479 | `RefundController.php:299-301`, `app/Services/Admin/RefundInquiryService.php:239-242`, `app/Services/Front/MyRefundService.php:493` **→ 정본대로(POLICY_D_ORD A, 통합설계서 표 5.1-A · S3-06 L370-371)**: 유입 경로 구분 없이 마이페이지 직접 신청 건도 USER-007 계좌 폴백 — 개발팀 전달 |
 | Q-RFD-9 | 파본 · 불량(회사 귀책) 반품 교재의 재고 — 정본은 '파본/불량 합격'을 **재고 미산입 · 폐기**로 따로 두고, 정상 합격만 재고 +1. 개발은 검수 2값(정상 · 훼손)이라 **정상 + 회사 귀책도 재입고** | 프로토 L825-829 `#sel-book-inspect` | `app/Services/Refund/RefundService.php:254` **→ 결정(v6.92 김영호 PO, D-ORD-09)**: 검수 3값 정상 · 파본/불량(회사 귀책 고정 · 재고 미입고 · 교재비 차감 · 반품 배송비 없음) · 고객 훼손 — 개발 `inspection_result`에 `defective` 추가, 정상 + 회사 귀책 재입고와 분리 |
