@@ -78,7 +78,7 @@
 - 판정: `payee_tax_type = SIMPLIFIED_INVOICE`, `tax_invoice_eligible_yn = true`, 유효 시작 `invoice_apply_dt`. 상단 경계 초과 시 TX-07.
 - VAT: 10% 과세. `vat_treatment` 분기(VAT_EXCLUDED: 내림(공급가액 × 10%) 가산 / VAT_INCLUDED: 공급가액 = 내림(총액 × 100/110), 부가세 = 총액 − 공급가액).
 - 증빙: 전자세금계산서(권리자 발행 · 제출) / 채널 1(원천징수 대상 소득이면 3-a 병행).
-- 원천징수: 별도 판정(공백, 확인 필요 2번). 자문(14.3) 확정 전 개인 인적용역 · 인세 · 지원금 지급분은 PENDING_REVIEW 후보 TX-06(줄 409, 535).
+- 원천징수: 별도 판정(공백, 확인 필요 2번). 자문(14.3) 확정 전 개인 인적용역 · 인세 · 지원금 지급분은 PENDING_REVIEW 후보 TX-06(줄 409, 535). → 정본 v4.0.28(김영호 PO 11-10)에서 TX-06은 원천징수 없음 · 보류 대상 아님으로 확정. 엔진 코드 · tax_table.json 반영은 후속.
 
 ### TX-07 일반과세자 (tax_type_cd=01) (줄 470~476)
 - 판정: `payee_tax_type = GENERAL`, `tax_invoice_eligible_yn = true`. 법인 · 단체가 인적용역 면세 대상이 아닌 강의 R/S · 약정금 · 지원금을 수취하는 경우도 TX-07.
