@@ -1,0 +1,100 @@
+{
+ "case": "DEC-V451-Q28-10",
+ "title": "기지급 달 보정 전표의 이월 음수는 다음 달 과세표준 · 지급에서 자동 차감하지 않음",
+ "canon_ref": "정산 02권 10.2절 379 · 380줄(기지급 달 보정 전표 = 전월 정산 조정, 세전 음수 보류 · 원 귀속월 수정신고) · 8.3절 1단계(세무 경로 미확정 조정액 PRE_TAX 음수) · 9단계 290줄 · 04권 Case 2-G",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-N",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 600000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-20T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 600000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-1",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-NEW",
+    "origin_month": "2026-09",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "청구 이월(원거래 지급 · 세무 경로 미확정)",
+    "carryover_amount": -50000,
+    "first_occurred_month": "2026-09",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false
+   }
+  ]
+ },
+ "notes": "다음 달(10월) R/S 300,000 → 소득세 9,000 · 지방 900(과세표준 300,000, 미마감 원거래 음수가 아니라 합산하지 않음), 지급 290,100. 9월 이월 −50,000은 따로 남아 확정 시 반환채권 · 원 귀속월 수정신고로 연결(9단계 290줄)",
+ "expected": {
+  "TAX": {
+   "income_tax": 9000,
+   "local_income_tax": 900
+  },
+  "PAYOUT": {
+   "payout_amount": 290100
+  }
+ }
+}

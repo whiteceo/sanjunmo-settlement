@@ -1,0 +1,82 @@
+{
+ "case": "DEC-V451-Q28-09",
+ "title": "기지급 달 매출의 환불 보정 전표 −50,000 — 반영월에 매출 없음",
+ "canon_ref": "정산 02권 10.2절 379 · 380줄(기지급 달 보정 전표 = 전월 정산 조정, 세전 음수 보류 · 원 귀속월 수정신고) · 8.3절 1단계(세무 경로 미확정 조정액 PRE_TAX 음수) · 9단계 290줄 · 04권 Case 2-G",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [
+   {
+    "adj_id": "ADJ-1",
+    "contract_id": "C-NEW",
+    "origin_month": "2026-08",
+    "applied_month": "2026-09",
+    "adj_reason_code": "REFUND_OMIT",
+    "adj_explanation": "지급 끝난 8월 매출의 환불 사후 보정 전표 반영",
+    "adj_amount": -50000,
+    "adj_tax_type": "EXEMPT",
+    "income_category": "BUSINESS",
+    "payee_id": "H-A",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1"
+   }
+  ]
+ },
+ "notes": "반영월(9월) 조정 세전 −50,000만 있음 → 원천세 0, 소액(|−50,000| ≤ 100,000)이라 청구서 없이 이월(세무 경로 미확정 조정액), 지급 0",
+ "expected": {
+  "TAX": {
+   "income_tax": 0
+  },
+  "CLAIM": {
+   "claim_issued_yn": false,
+   "claim_amount": 0
+  },
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}
