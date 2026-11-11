@@ -1,0 +1,80 @@
+{
+ "case": "DEC-V469-POSTCARRY-11",
+ "title": "세후 반환채권 소액은 청구 이월(POST_TAX)",
+ "canon_ref": "정산 02권 8.3절 10단계 '청구 이월 행 — 세후 반환채권도 같음'(v4.0.69) · 04권 Case 1-L",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [
+   {
+    "adj_id": "ADJ-POST",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "applied_month": "2026-11",
+    "adj_reason_code": "RATE_ERR",
+    "adj_explanation": "10월 과다 지급 정정",
+    "adj_amount": -60000,
+    "adj_tax_type": "TAXABLE",
+    "payee_id": "H-A",
+    "account_type": "POST_TAX",
+    "approver_id": "재무담당자",
+    "origin_settlement_id": "STMT-202610-001"
+   }
+  ]
+ },
+ "notes": "11월 10월분 세후 정정 −60,000, 새 매출 없음 → 청구 기준 이내 → POST_TAX −60,000 청구 이월",
+ "expected": {
+  "CLAIM": {
+   "claim_amount": 0
+  },
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}

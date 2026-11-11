@@ -1,0 +1,101 @@
+{
+ "case": "DEC-V469-POSTCARRY-END",
+ "title": "계약 종료 달에는 새 음수가 없어도 청구 이월을 청구",
+ "canon_ref": "정산 02권 8.3절 10단계 '청구 이월 행 — 세후 반환채권도 같음'(v4.0.69) · 04권 Case 1-L",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-12",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "EXPIRED",
+    "start_date": "2026-01-01",
+    "current_end_date": "2026-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-2026-12",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 300000,
+    "allocation_applied": true,
+    "approved_at": "2026-12-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 300000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-POST-11",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-11",
+    "account_type": "POST_TAX",
+    "pipeline_id": "MIXED",
+    "consignment_balance_yn": false,
+    "income_category": null,
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "청구 이월(기지급 반환채권 · 전속계약금 반환)",
+    "carryover_amount": -60000,
+    "first_occurred_month": "2026-11",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false
+   }
+  ]
+ },
+ "notes": "12월 계약 만료(끝난 달 + 0) · R/S 150,000 → 145,050 지급, 세후 청구 이월 −60,000은 강제 청구 60,000",
+ "expected": {
+  "CLAIM": {
+   "claim_amount": 60000
+  },
+  "PAYOUT": {
+   "payout_amount": 145050
+  }
+ }
+}

@@ -164,7 +164,8 @@ def payout_payee(ctx, c, p, end, closed, limit):
     # 합칠 때는 운영자 수동 대체 전표(V2 §8.3 10단계, v4.0.61 정본 공백 보완)
     # 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)
     merged = set(p.out["CLAIM"].get("claim_carry_settled") or [])
-    for r in c.carry["pre_neg"]:
+    # 세후(POST_TAX) 반환채권 청구 이월도 같은 규칙 — ID · 발생월 · 최초 발생월을 그대로 둠(v4.0.69)
+    for r in c.carry["pre_neg"] + c.carry["post_neg"]:
         if r["payee_id"] == pid and not r.get("carry_line_origin"):
             if r.get("ledger_id") in merged:
                 rows.append(dict(r, action="SETTLE", payout_reservation_status="SETTLED", extinguished_yn=True,

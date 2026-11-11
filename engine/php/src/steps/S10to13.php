@@ -62,8 +62,10 @@ final class S10Claim
         foreach ($sts as $i => [$c, $p, $end, $closed, $limit, $st]) {
             $k = tkey($c->holder_id, $st['pid']);
             // 청구 이월 행은 그 달 새 음수가 있을 때만 청구 판정 합에 함께 넣음(새 양수와는 합치지 않음, v4.0.62)
-            $cin = $st['cnn'] < 0 ? array_values(array_filter($c->carry['pre_neg'],
-                fn($r) => $r['payee_id'] === $st['pid'] && !truthy(g($r, 'carry_line_origin')))) : [];
+            // 세후(POST_TAX) 반환채권 청구 이월도 같음, 강제 청구(끝난 달 + N · 폐업)이면 새 음수가 없어도 넣음(v4.0.69)
+            $cin = ($st['cnn'] < 0 || $end || $closed) ? array_merge(
+                array_values(array_filter($c->carry['pre_neg'], fn($r) => $r['payee_id'] === $st['pid'] && !truthy(g($r, 'carry_line_origin')))),
+                array_values(array_filter($c->carry['post_neg'], fn($r) => $r['payee_id'] === $st['pid']))) : [];
             $sts[$i][5]['claim_carry_in'] = $cin;
             $sts[$i][5]['cnn_carry'] = dsum(array_map(fn($r) => $r['carryover_amount'], $cin));
             $gsum[$k] = add(add($gsum[$k] ?? D(0), dmin(D(0), $st['cnn'])), $sts[$i][5]['cnn_carry']);
@@ -219,8 +221,7 @@ final class S10Claim
         }
         $o['unoffset_prepay_claim'] = $unoffset;
         $returns = dsum(array_map(fn($r) => $r['post_tax_amount'], array_filter($c->return_claims, fn($r) => $r['payee_id'] === $pid)));
-        $returns = add($returns, neg(dsum(array_map(fn($r) => $r['carryover_amount'],
-            array_filter($c->carry['post_neg'], fn($r) => $r['payee_id'] === $pid)))));
+        // 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
         $returns = add($returns, $postNeg); // 세후 전월 정산 조정(−)
         if (truthy($returns)) {
             $ctx->issue('CANON_GAP', '기지급 소득 반환채권 · 전월 POST_TAX(−)의 10단계 차감 위치 정본 없음 — 청구 음수 항에 가산',
@@ -250,9 +251,9 @@ final class S10Claim
         $o['force_claim'] = $ctx->emit(self::STEP, 'force_claim', $force, $c, ...$kw,
             inputs: ['끝난 달 + 지급 시차 이후' => $end, '폐업' => $closed],
             formula: '강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인', ref: 'V2 L292 · V1 L568 · v4.0.51');
-        $issued = $cnn < 0 && (dabs($gsum) > dabs($limit) || $force);
         $cin = $st['claim_carry_in'] ?? [];
         $ccarry = $st['cnn_carry'] ?? D(0);
+        $issued = add($cnn, $ccarry) < 0 && (dabs($gsum) > dabs($limit) || $force);
         if ($cin) {
             $ctx->emit(self::STEP, 'claim_carry_merged', $ccarry, $c, ...$kw,
                 inputs: ['그 달 새 청구 대상 음수' => $cnn, '청구 이월 행' => array_map(fn($r) => g($r, 'ledger_id'), $cin)],
@@ -645,7 +646,8 @@ final class S11Payout
         // 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김(v4.0.61 정본 공백 보완)
         // 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)
         $merged = $p->out['CLAIM']['claim_carry_settled'] ?? [];
-        foreach ($c->carry['pre_neg'] as $r) {
+        // 세후(POST_TAX) 반환채권 청구 이월도 같은 규칙 — ID · 발생월 · 최초 발생월을 그대로 둠(v4.0.69)
+        foreach (array_merge($c->carry['pre_neg'], $c->carry['post_neg']) as $r) {
             if ($r['payee_id'] === $pid && !truthy(g($r, 'carry_line_origin'))) {
                 if (in_array(g($r, 'ledger_id'), $merged, true)) {
                     $rows[] = array_merge($r, ['action' => 'SETTLE', 'payout_reservation_status' => 'SETTLED', 'extinguished_yn' => true,

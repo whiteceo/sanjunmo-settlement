@@ -51,8 +51,10 @@ def run(ctx):
         k = (c.holder_id, st["pid"])
         # 청구 이월 행(지난달까지 청구 하한 미달로 넘긴 PRE_TAX −)은 그 달 새 음수가 있을 때만 청구 판정 합에 함께 넣음
         # (새 양수 지급 금액과는 합치지 않음, V2 §8.3 10단계, v4.0.62)
-        st["claim_carry_in"] = [r for r in c.carry["pre_neg"] if r["payee_id"] == st["pid"] and not r.get("carry_line_origin")] \
-            if st["cnn"] < 0 else []
+        # 세후(POST_TAX) 반환채권 청구 이월도 같음, 강제 청구(끝난 달 + N · 폐업)이면 새 음수가 없어도 넣음(v4.0.69)
+        st["claim_carry_in"] = ([r for r in c.carry["pre_neg"] if r["payee_id"] == st["pid"] and not r.get("carry_line_origin")]
+                                + [r for r in c.carry["post_neg"] if r["payee_id"] == st["pid"]]) \
+            if (st["cnn"] < 0 or end or closed) else []
         st["cnn_carry"] = sum((r["carryover_amount"] for r in st["claim_carry_in"]), D(0))
         gsum[k] = gsum.get(k, D(0)) + min(D(0), st["cnn"]) + st["cnn_carry"]
         s = str(c.row.get("start_date") or "")[:10]
@@ -170,7 +172,7 @@ def claim_payee(ctx, c, p, end, closed, limit):
                  provisional=pp["type"] == "EARNED", note="Q-18" if pp["type"] == "EARNED" else "")
     o["unoffset_prepay_claim"] = unoffset
     returns = sum((r["post_tax_amount"] for r in c.return_claims if r["payee_id"] == pid), D(0))
-    returns += -sum((r["carryover_amount"] for r in c.carry["post_neg"] if r["payee_id"] == pid), D(0))
+    # 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
     returns += post_neg  # 세후 전월 정산 조정(−)
     if returns:
         ctx.issue("CANON_GAP", "기지급 소득 반환채권 · 전월 POST_TAX(−)의 10단계 차감 위치 정본 없음 — 청구 음수 항에 가산",
@@ -197,8 +199,8 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
     o["force_claim"] = ctx.emit(STEP, "force_claim", bool(force), c, **kw,
                                 inputs={"끝난 달 + 지급 시차 이후": end, "폐업": closed},
                                 formula="강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인", ref="V2 L292 · V1 L568 · v4.0.51")
-    issued = cnn < 0 and (abs(gsum) > abs(limit) or force)
     cin, ccarry = st.get("claim_carry_in") or [], st.get("cnn_carry") or D(0)
+    issued = (cnn + ccarry) < 0 and (abs(gsum) > abs(limit) or force)
     if cin:
         ctx.emit(STEP, "claim_carry_merged", ccarry, c, **kw,
                  inputs={"그 달 새 청구 대상 음수": cnn, "청구 이월 행": [r.get("ledger_id") for r in cin]},
