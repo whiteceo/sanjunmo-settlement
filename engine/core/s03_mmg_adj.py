@@ -16,7 +16,7 @@ def _d(s):
     return date.fromisoformat(str(s)[:10]) if s else None
 
 
-def prorate(ctx, c, mmg):
+def prorate(ctx, c):
     """첫 달 · 끝 달 일할(V1 §5.3 · V2 §8.3 3단계, v4.0.38): 내림(MMG × 그 달 계약 일수 ÷ 그 달 일수). → (금액, 일수, 그 달 일수, 부분 여부)"""
     y, m = int(ctx.month[:4]), int(ctx.month[5:7])
     dim = calendar.monthrange(y, m)[1]
@@ -25,20 +25,30 @@ def prorate(ctx, c, mmg):
     ends = [x for x in (_d(c.row.get("termination_date")), _d(c.row.get("current_end_date"))) if x]
     e = min(ends) if ends else last
     lo, hi = max(s, first), min(e, last)
-    days = (hi - lo).days + 1 if hi >= lo else 0
     # 승계 · 재계약은 등록된 계약 기간만 본다 — 계약 사이 연결을 추론하지 않음(V2 §8.3 3단계, v4.0.48)
-    if days >= dim:
-        return mmg, dim, dim, False
-    return floor_won(mmg * D(days) / D(dim)), days, dim, True
+    # 달 중간에 보장액(요율 라인)이 바뀌면 구간별 보장액 × 날수를 더한 뒤 그 달 일수로 나눠 한 번 내림(v4.0.51)
+    tot, days, amts, d = D(0), 0, set(), lo
+    while d <= hi:
+        rl = ctx.rate(c.id, "BASIC", d.isoformat(), pipeline_id="1.1")
+        a = D((rl or {}).get("mmg_amount"))
+        if a > 0:
+            tot += a
+            days += 1
+            amts.add(a)
+        d = date.fromordinal(d.toordinal() + 1)
+    if days == 0:
+        return None
+    if days >= dim and len(amts) == 1:
+        return amts.pop(), dim, dim, False
+    return floor_won(tot / D(dim)), days, dim, True
 
 
 def run(ctx):
     prorated = {}
     for c in ctx.contracts.values():
-        rl = ctx.rate(c.id, "BASIC", f"{ctx.month}-01", pipeline_id="1.1") or ctx.rate(c.id, "BASIC", None, "1.1")
-        full = D((rl or {}).get("mmg_amount"))
-        if full > 0:
-            prorated[c.id] = prorate(ctx, c, full)
+        r = prorate(ctx, c)
+        if r:
+            prorated[c.id] = r
     # 달 중간 재계약 · 승계 달도 계약마다 자기 일할 보장액과 자기 R/S만 비교(계약주의, V2 §8.3 3단계, v4.0.49)
     for c in ctx.contracts.values():
         out = c.step_out(STEP)

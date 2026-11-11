@@ -1,0 +1,124 @@
+{
+ "case": "DEC-V449-MMG-A",
+ "title": "재계약 · 승계 달 월 보장액 계약별 판정 — 정본 예시",
+ "canon_ref": "정산 02권 §8.3 3단계 '달 중간 재계약 · 승계 달 — 계약별 판정'(v4.0.49) · '승계 · 재계약 — 등록된 계약 기간만'(v4.0.48) · 04권 Case 3-C",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-OLD",
+    "rights_holder_id": "H-A",
+    "contract_status": "EXPIRED",
+    "start_date": "2026-01-01",
+    "current_end_date": "2026-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-09-16",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-OLD",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 1000000,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 1200000,
+    "start_date": "2026-09-16",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-OLD",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "end_date": "2026-09-15"
+   },
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-09-16",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-N",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1600000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-20T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 1600000
+     }
+    ]
+   },
+   {
+    "order_item_id": "OI-O",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 600000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-05T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 600000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "9월(30일) 앞 계약 ~9/15 보장액 1,000,000 · R/S 300,000 → 일할 500,000 · 보전금 200,000. 새 계약 9/16~ 보장액 1,200,000 · R/S 800,000 → 일할 600,000 · 보전금 0. 세전 500,000 + 800,000 → 소득세 39,000 · 지방 3,900, 지급 합 1,257,100",
+ "expected": {
+  "MMG_ADJ": {
+   "mmg_subsidy": 200000
+  },
+  "TAX": {
+   "income_tax": 39000,
+   "local_income_tax": 3900
+  },
+  "PAYOUT": {
+   "payout_amount": 1257100
+  }
+ }
+}

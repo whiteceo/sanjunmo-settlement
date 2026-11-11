@@ -1,0 +1,77 @@
+{
+ "case": "DEC-V451-MMG-SEG-B",
+ "title": "한 계약 안에서 달 중간에 보장액이 바뀐 달 — 30일 달",
+ "canon_ref": "정산 02권 §8.3 3단계 '첫 달 · 끝 달 일할'(v4.0.38) · '달 중간 보장액 변경'(v4.0.51) · 04권 Case 3-C",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 1000000,
+    "start_date": "2026-01-01",
+    "end_basis": "FIXED_DATE",
+    "end_date": "2026-09-14"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 1200000,
+    "start_date": "2026-09-15",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "9월(30일) 9/1~9/14 보장액 1,000,000, 9/15~ 1,200,000, 매출 0 → 내림((1,000,000 × 14 + 1,200,000 × 16) ÷ 30) = 1,106,666 → 소득세 33,190 · 지방 3,310, 지급 1,070,166",
+ "expected": {
+  "MMG_ADJ": {
+   "mmg_prorated": 1106666,
+   "mmg_subsidy": 1106666
+  },
+  "TAX": {
+   "income_tax": 33190,
+   "local_income_tax": 3310
+  },
+  "PAYOUT": {
+   "payout_amount": 1070166
+  }
+ }
+}

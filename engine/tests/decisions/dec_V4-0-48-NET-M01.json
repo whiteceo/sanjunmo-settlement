@@ -1,0 +1,142 @@
+{
+ "case": "DEC-V448-NET-M01",
+ "title": "두 계약 R/S와 앞 계약 원거래 환불 공제 — 환불은 원거래 계약 라인에서",
+ "canon_ref": "정산 02권 §8.3 9단계 '환불 공제 음수의 합산'(v4.0.48) · 04권 Case 2-D · 소득세법 제127조 ① · 시행령 제51조 ③ 1호의2 · 1호의4 · 제213조 ① · 01권 5.4 · 02권 1단계 Step 3(v4.0.47 귀속 계약 기준 시각)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-OLD",
+    "rights_holder_id": "H-A",
+    "contract_status": "EXPIRED",
+    "start_date": "2026-01-01",
+    "current_end_date": "2026-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-09-16",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-OLD",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-09-16",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-OLD",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "end_date": "2026-09-15"
+   },
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-09-16",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-N",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 600000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-20T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 600000
+     }
+    ]
+   },
+   {
+    "order_item_id": "OI-O",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1000000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-05T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 1000000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [
+   {
+    "refund_id": "RF-1",
+    "order_item_id": "OI-OLD",
+    "refund_approved_date": "2026-09-22",
+    "refund_amount": 200000,
+    "origin_month": "2026-08",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-1",
+      "contract_id": "C-OLD",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 200000,
+      "payment_state": "UNPAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "앞 계약 R/S 500,000(판매 1,000,000) − 환불 공제 100,000(환불 200,000 × 50%) = 400,000, 새 계약 R/S 300,000 → 과세표준 700,000 → 소득세 21,000 · 지방소득세 2,100(라인 12,000 · 1,200 / 9,000 · 900), 지급 합 386,800 + 290,100 = 676,900",
+ "expected": {
+  "TAX": {
+   "income_tax": 21000,
+   "local_income_tax": 2100
+  },
+  "PAYOUT": {
+   "payout_amount": 676900
+  }
+ }
+}

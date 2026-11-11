@@ -1,0 +1,96 @@
+{
+ "case": "DEC-V448-MMG-D",
+ "title": "승계 계약이 일찍 끝나도 앞 계약 보장은 되살아나지 않음",
+ "canon_ref": "정산 02권 §8.3 3단계 '달 중간 재계약 · 승계 달 — 계약별 판정'(v4.0.49) · '승계 · 재계약 — 등록된 계약 기간만'(v4.0.48) · 04권 Case 3-C",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-OLD",
+    "rights_holder_id": "H-A",
+    "contract_status": "EXPIRED",
+    "start_date": "2026-01-01",
+    "current_end_date": "2026-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "TERMINATED",
+    "start_date": "2026-09-16",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "termination_date": "2026-10-10"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-OLD",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 1000000,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 1000000,
+    "start_date": "2026-09-16",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-OLD",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "end_date": "2026-09-15"
+   },
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-09-16",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "보장액 각 1,000,000, 앞 계약 9/15 종료로 등록, 승계 계약 9/16 시작 · 10/10 해지, 10월 매출 0 → 앞 계약 0, 승계 계약 322,580(1,000,000 × 10 ÷ 31 내림) → 소득세 9,670 · 지방 960, 지급 311,950",
+ "expected": {
+  "MMG_ADJ": {
+   "mmg_subsidy": 322580
+  },
+  "TAX": {
+   "income_tax": 9670,
+   "local_income_tax": 960
+  },
+  "PAYOUT": {
+   "payout_amount": 311950
+  }
+ }
+}

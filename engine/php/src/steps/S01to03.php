@@ -137,7 +137,7 @@ final class S03MmgAdj
     const STEP = 'MMG_ADJ';
 
     /** 첫 달 · 끝 달 일할(V1 §5.3 · V2 §8.3 3단계, v4.0.38): 내림(MMG × 그 달 계약 일수 ÷ 그 달 일수). → [금액, 일수, 그 달 일수, 부분 여부] */
-    public static function prorate(Context $ctx, $c, Number $mmg): array
+    public static function prorate(Context $ctx, $c): ?array
     {
         $y = (int)substr($ctx->month, 0, 4);
         $m = (int)substr($ctx->month, 5, 2);
@@ -154,22 +154,36 @@ final class S03MmgAdj
         $e = $ends ? min($ends) : $last;
         $lo = max($s, $first);
         $hi = min($e, $last);
-        $days = $hi >= $lo ? (int)$lo->diff($hi)->days + 1 : 0;
         // 승계 · 재계약은 등록된 계약 기간만 본다 — 계약 사이 연결을 추론하지 않음(V2 §8.3 3단계, v4.0.48)
-        if ($days >= $dim) {
-            return [$mmg, $dim, $dim, false];
+        // 달 중간에 보장액(요율 라인)이 바뀌면 구간별 보장액 × 날수를 더한 뒤 그 달 일수로 나눠 한 번 내림(v4.0.51)
+        $tot = D(0);
+        $days = 0;
+        $amts = [];
+        for ($d = $lo; $d <= $hi; $d = $d->modify('+1 day')) {
+            $rl = $ctx->rate($c->id, 'BASIC', $d->format('Y-m-d'), '1.1');
+            $a = D(g($rl ?? [], 'mmg_amount'));
+            if ($a > 0) {
+                $tot = add($tot, $a);
+                $days++;
+                $amts[$a->value] = $a;
+            }
         }
-        return [floor_won(div(mul($mmg, D($days)), D($dim))), $days, $dim, true];
+        if ($days === 0) {
+            return null;
+        }
+        if ($days >= $dim && count($amts) === 1) {
+            return [array_values($amts)[0], $dim, $dim, false];
+        }
+        return [floor_won(div($tot, D($dim))), $days, $dim, true];
     }
 
     public static function run(Context $ctx): void
     {
         $prorated = [];
         foreach ($ctx->contracts as $c) {
-            $rl = $ctx->rate($c->id, 'BASIC', $ctx->month . '-01', '1.1') ?? $ctx->rate($c->id, 'BASIC', null, '1.1');
-            $full = D(g($rl ?? [], 'mmg_amount'));
-            if ($full > 0) {
-                $prorated[$c->id] = self::prorate($ctx, $c, $full);
+            $r = self::prorate($ctx, $c);
+            if ($r) {
+                $prorated[$c->id] = $r;
             }
         }
         // 달 중간 재계약 · 승계 달도 계약마다 자기 일할 보장액과 자기 R/S만 비교(계약주의, V2 §8.3 3단계, v4.0.49)

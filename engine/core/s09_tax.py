@@ -85,6 +85,9 @@ def business_all(ctx, holder=None):
                              "계약": sorted({c.id for c, _ in items})},
                      formula="사업소득 과세표준 = max(0, 양수 과세표준 합 + 미마감 원거래 음수 합) — 계약이 달라도 합산, 0 이하면 원천세 0 · 남은 음수 이월",
                      ref="V2 §8.3 9단계 · 소득세법 제127조 제1항 · 시행령 제51조 제3항 제1호의2 · 제1호의4 · 제213조 제1항 (v4.0.48)")
+            if net < 0:
+                ctx.emit(STEP, "business_negative_carry", net, c0, payee=pid, inputs={"합계": net},
+                         formula="합계 0 이하 — 남은 음수를 보류 음수 과세표준으로 이월(다음 지급의 합산에)", ref="V2 §8.3 9단계 (v4.0.48)")
         w = withhold_business(ctx, sum((x["taxable_base"] for _, x in pos), D(0)))
         bases = [x["taxable_base"] for _, x in pos]
         its = alloc_last_remainder(w["income_tax"], bases)
