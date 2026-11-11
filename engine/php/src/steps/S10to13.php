@@ -334,9 +334,10 @@ final class S11Payout
                 break;
             }
         }
-        $hold = truthy(g($ctx->holder($pid), 'payout_hold_yn'));
+        $designated = truthy(g($ctx->holder($pid), 'carry_designated_yn')); // 운영자 이월 지정 후 재배치(v4.0.43)
+        $hold = truthy(g($ctx->holder($pid), 'payout_hold_yn')) || $designated;
         if ($hold) {
-            $reasons = []; // 지급 보류 수취인은 강제 정산 없이 세전 이월(v4.0.39)
+            $reasons = []; // 지급 보류 · 운영자 이월 지정 수취인은 강제 정산 없이 세전 이월(v4.0.39 · v4.0.43)
         }
         $force = (bool)$reasons;
         $evaluated = $payable > 0 || (bool)$prePos || (bool)$postPos || $force;
@@ -377,7 +378,7 @@ final class S11Payout
                         'pipeline_id' => g($key, 'pipeline_id'), 'consignment_balance_yn' => false,
                         'income_category' => g($key, 'income_category'), 'income_clause' => g($key, 'income_clause'),
                         'tax_threshold_unit_key' => g($key, 'tax_threshold_unit_key'),
-                        'carryover_reason' => $hold ? '지급 보류' : '지급 하한 미달', 'carryover_amount' => $ln['pre_tax_payable'],
+                        'carryover_reason' => $hold ? ($designated ? '운영자 이월 지정' : '지급 보류') : '지급 하한 미달', 'carryover_amount' => $ln['pre_tax_payable'],
                         'components' => ['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
                             'vat_amount' => g($ln, 'vat_amount')],
                         'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,

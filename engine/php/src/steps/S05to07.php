@@ -289,11 +289,13 @@ final class S06PrepayOffset
                 formula: '상계 가능액 = 상계 대상 세전액 − 상계 대상 원천세 상당액',
                 code: 'offset_capacity = offset_eligible_total − offset_withholding_equiv', ref: 'V2 §8.3 6단계 L229');
             $amount = $capacity > 0 ? dmin($capacity, $pp['balance']) : D(0);
-            if (truthy(g($ctx->holder($pp['payee']), 'payout_hold_yn'))) {
-                // 지급 보류 수취인: 마감 때 상계를 확정하지 않고 세전 이월(V2 §8.3 11단계, v4.0.39)
-                $ctx->emit(self::STEP, 'offset_deferred_hold', $amount, $c, inputs: ['payout_hold_yn' => true],
-                    formula: '지급 보류 수취인은 상계 미확정 — 상계 전 금액 그대로 PRE_TAX 이월, 보류가 풀린 달에 상계 · 원천징수',
-                    ref: 'V2 §8.3 11단계 (v4.0.39)');
+            $hd = $ctx->holder($pp['payee']);
+            if (truthy(g($hd, 'payout_hold_yn')) || truthy(g($hd, 'carry_designated_yn'))) {
+                // 지급 보류 · 운영자 이월 지정 수취인: 상계를 확정하지 않고 세전 이월(V2 §8.3 11단계, v4.0.39 · v4.0.43)
+                $ctx->emit(self::STEP, 'offset_deferred_hold', $amount, $c,
+                    inputs: ['payout_hold_yn' => truthy(g($hd, 'payout_hold_yn')), 'carry_designated_yn' => truthy(g($hd, 'carry_designated_yn'))],
+                    formula: '지급 보류 · 운영자 이월 지정 수취인은 상계 미확정 — 상계 전 금액 그대로 PRE_TAX 이월, 실제 지급하는 달에 상계 · 원천징수',
+                    ref: 'V2 §8.3 11단계 (v4.0.39 · v4.0.43)');
                 $amount = D(0);
             }
             $out['offset_amount_initial'] = $ctx->emit(self::STEP, 'offset_amount_initial', $amount, $c,

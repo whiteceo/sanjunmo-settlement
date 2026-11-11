@@ -70,9 +70,10 @@ def payout_payee(ctx, c, p, end, closed, limit):
         reasons.append("BUSINESS_CLOSED")
     if any((ln.get("offset_amount") or D(0)) > 0 for ln in p.lines if ln["origin"] in ("NEW", "ADJUSTMENT")):
         reasons.append("OFFSET_PRIORITY")  # 상계가 성립한 달은 하한 미달이어도 그 달 상계 · 지급 · 신고(V2 §8.3 11단계, v4.0.41)
-    hold = bool(ctx.holder(pid).get("payout_hold_yn"))
+    designated = bool(ctx.holder(pid).get("carry_designated_yn"))  # 운영자 이월 지정 후 재배치(v4.0.43)
+    hold = bool(ctx.holder(pid).get("payout_hold_yn")) or designated
     if hold:
-        reasons = []  # 지급 보류 수취인은 강제 정산 없이 세전 이월(v4.0.39)
+        reasons = []  # 지급 보류 · 운영자 이월 지정 수취인은 강제 정산 없이 세전 이월(v4.0.39 · v4.0.43)
     force = bool(reasons)
     evaluated = payable > 0 or bool(pre_pos) or bool(post_pos) or force
     judge = ctx.emit(STEP, "payout_judgement_amount", payable + post_total, c, **kw,
@@ -111,7 +112,7 @@ def payout_payee(ctx, c, p, end, closed, limit):
                              "pipeline_id": key.get("pipeline_id"), "consignment_balance_yn": False,
                              "income_category": key.get("income_category"), "income_clause": key.get("income_clause"),
                              "tax_threshold_unit_key": key.get("tax_threshold_unit_key"),
-                             "carryover_reason": "지급 보류" if hold else "지급 하한 미달", "carryover_amount": ln["pre_tax_payable"],
+                             "carryover_reason": ("운영자 이월 지정" if designated else "지급 보류") if hold else "지급 하한 미달", "carryover_amount": ln["pre_tax_payable"],
                              "components": {"split_amount": ln["split_amount"], "offset_amount": ln["offset_amount"],
                                             "vat_amount": ln.get("vat_amount")},
                              "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
