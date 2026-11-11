@@ -13,7 +13,7 @@ STEP = "PAYOUT"
 
 def run(ctx):
     for c in ctx.contracts.values():
-        end = c.end_in_month(ctx.month)
+        end = c.closing_due(ctx.month)  # 계약 만료 · 해지 강제 지급도 끝난 달 + 지급 시차 N부터(v4.0.51)
         closed = bool(ctx.holder(c.holder_id).get("business_closed_yn"))
         limit = D(c.row.get("min_payout_limit") if c.row.get("min_payout_limit") is not None
                   else ctx.p("default_min_payout_limit"))

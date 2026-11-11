@@ -164,12 +164,15 @@ class ContractState:
     def step_out(self, code):
         return self.out.setdefault(code, {})
 
-    def ended_before(self, month):
-        """만료 · 해지 귀속월이 당월보다 앞인가 — 종료된 계약(V2 §8.3 10단계, v4.0.50)."""
-        for k in ("termination_date", "current_end_date"):
-            if self.row.get(k) and month_of(self.row[k]) < month:
-                return True
-        return False
+    def closing_due(self, month):
+        """종료 처리 달 이후인가: 대상월 ≥ 끝난 달 + 지급 시차 N(payout_lag_months, 기본 0).
+        청구 전환 · 계약 만료 · 해지 강제 지급 · 종료 뒤 환불 강제 청구가 같은 기준을 쓴다.
+        끝난 날을 모르는 닫힌 계약(만료 · 해지 상태인데 날짜 없음)은 시차 없이 바로(V1 §5.3 · V2 §8.3 10 · 11단계, v4.0.51)."""
+        ends = [month_of(self.row[k]) for k in ("termination_date", "current_end_date") if self.row.get(k)]
+        if not ends:
+            return self.row.get("contract_status") in ("TERMINATED", "EXPIRED")
+        lag = int(self.row.get("payout_lag_months") or 0)
+        return months_between(min(ends), month) >= lag
 
     def end_in_month(self, month):
         """만료 · 해지 귀속월이 당월인가(V2 L287 · SPEC 13.2)."""

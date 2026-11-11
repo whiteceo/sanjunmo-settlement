@@ -288,15 +288,24 @@ final class ContractState
     }
 
     /** 만료 · 해지 귀속월이 당월인가(V2 L287 · SPEC 13.2). */
-    /** 만료 · 해지 귀속월이 당월보다 앞인가 — 종료된 계약(V2 §8.3 10단계, v4.0.50). */
-    public function endedBefore(string $month): bool
+    /**
+     * 종료 처리 달 이후인가: 대상월 ≥ 끝난 달 + 지급 시차 N(payout_lag_months, 기본 0).
+     * 청구 전환 · 계약 만료 · 해지 강제 지급 · 종료 뒤 환불 강제 청구가 같은 기준을 쓴다.
+     * 끝난 날을 모르는 닫힌 계약(만료 · 해지 상태인데 날짜 없음)은 시차 없이 바로(V1 §5.3 · V2 §8.3 10 · 11단계, v4.0.51).
+     */
+    public function closingDue(string $month): bool
     {
+        $ends = [];
         foreach (['termination_date', 'current_end_date'] as $k) {
-            if (truthy(g($this->row, $k)) && month_of($this->row[$k]) < $month) {
-                return true;
+            if (truthy(g($this->row, $k))) {
+                $ends[] = month_of($this->row[$k]);
             }
         }
-        return false;
+        if (!$ends) {
+            return in_array(g($this->row, 'contract_status'), ['TERMINATED', 'EXPIRED'], true);
+        }
+        $lag = (int)either(g($this->row, 'payout_lag_months'), 0);
+        return months_between(min($ends), $month) >= $lag;
     }
 
     public function endInMonth(string $month): bool

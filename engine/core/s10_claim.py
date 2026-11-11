@@ -35,7 +35,7 @@ def clawback_amount(ctx, c, cb, kw):
 
 def run(ctx):
     for c in ctx.contracts.values():
-        end = c.end_in_month(ctx.month)
+        end = c.closing_due(ctx.month)  # 끝난 달 + 지급 시차 N 이후(v4.0.51)
         closed = bool(ctx.holder(c.holder_id).get("business_closed_yn"))
         limit = D(c.row.get("min_claim_limit") if c.row.get("min_claim_limit") is not None
                   else ctx.p("default_min_claim_limit"))
@@ -132,11 +132,10 @@ def claim_payee(ctx, c, p, end, closed, limit):
         formula="청구 대상 음수 = min(0, 반환 반영 후 순액) − 상계 동의 없는 반환 − 미상계 선급금 청구 전환액",
         code="claim_negative_net = min(0, net_after_return) − clawback_no_consent − unoffset_claim − returns",
         ref="V2 §8.3 10단계 L288")
-    ended = c.ended_before(ctx.month)  # 종료 달 이후 환불 공제도 소액 이월 없이 청구(v4.0.50)
-    force = end or ended or closed
+    force = end or closed
     o["force_claim"] = ctx.emit(STEP, "force_claim", bool(force), c, **kw,
-                                inputs={"만료 · 해지 귀속월": end, "종료 뒤 달": ended, "폐업": closed},
-                                formula="강제 청구 트리거 = 계약 만료 · 해지 귀속월 · 그 뒤 달(종료된 계약) 또는 폐업 확인", ref="V2 L292 · V1 L568 · v4.0.50")
+                                inputs={"끝난 달 + 지급 시차 이후": end, "폐업": closed},
+                                formula="강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인", ref="V2 L292 · V1 L568 · v4.0.51")
     issued = cnn < 0 and (abs(cnn) > abs(limit) or force)
     o["claim_issued_yn"] = ctx.emit(STEP, "claim_issued_yn", issued, c, **kw,
                                     inputs={"청구 대상 음수": cnn, "min_claim_limit": limit, "강제": force},
