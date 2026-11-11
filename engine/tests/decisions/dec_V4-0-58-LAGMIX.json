@@ -1,0 +1,137 @@
+{
+ "case": "DEC-V458-LAGMIX",
+ "title": "지급 시차가 다른 두 계약(시차 3 · 시차 0)의 같은 달 정산",
+ "canon_ref": "정산 02권 §8.3 11단계 지급 시차 정의 · 9.1절 정산서 계약별 구역 · 04권 Case 2-H",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-12",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-OLD",
+    "rights_holder_id": "H-A",
+    "contract_status": "EXPIRED",
+    "start_date": "2026-01-01",
+    "current_end_date": "2026-09-30",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 3
+   },
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-10-01",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-OLD",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-10-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-OLD",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "end_date": "2026-09-30"
+   },
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-10-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-9",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 600000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 600000
+     }
+    ]
+   },
+   {
+    "order_item_id": "OI-12",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-12-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 400000
+     }
+    ]
+   },
+   {
+    "order_item_id": "OI-10",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 500000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 500000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "12월 정산: A(시차 3) 9월 판매 R/S 300,000 + B(시차 0) 12월 판매 R/S 200,000, B 10월 판매분은 제외 → 원천세 15,000 · 1,500 → 지급 290,100 + 193,400 = 483,500",
+ "expected": {
+  "TAX": {
+   "income_tax_total": 15000,
+   "local_income_tax_total": 1500
+  },
+  "PAYOUT": {
+   "payout_amount": 483500
+  }
+ }
+}
