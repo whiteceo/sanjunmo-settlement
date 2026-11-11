@@ -887,6 +887,23 @@ code, pre, kbd, samp,
               </div>
             </div>
 
+            <!-- 지급 시차 — 정본 02권 8.3절 11단계 · 03권 ADMN-INST-001 (v4.0.58) -->
+            <div class="row c3" id="payLagRow">
+              <div>
+                <label class="lbl" for="payLag">지급 시차 · 개월</label>
+                <input class="fc" id="payLag" type="number" min="0" max="12" step="1" value="3" data-field="">
+                <div class="note">기본값 3(체결 계약 기준). 계약서 문구대로 바꿉니다.</div>
+              </div>
+              <div>
+                <label class="lbl">정산 · 지급 예시</label>
+                <div class="eff" id="payLagExample"></div>
+              </div>
+              <div>
+                <label class="lbl">변경 가능 여부</label>
+                <div class="eff" id="payLagLockView"></div>
+              </div>
+            </div>
+
             <div class="row c3">
               <div>
                 <label class="lbl" for="renewalMode">종료 방식</label>
@@ -1834,7 +1851,29 @@ function ntsHold(nts){
   return "";
 }
 
+/* 지급 시차 잠금 — 그 계약의 판매분이 들어갈 귀속월(계약 시작 달 이후)에 마감된 달이 있으면 잠금. 단 판매가 아직 없으면 바꿀 수 있음(02권 11단계).
+   마감된 달이 생긴 뒤 시차를 바꾸려면 부속합의가 아니라 재계약(01권 5.5절) */
+function updatePayLag(){
+  if(!$("payLag")) return;
+  let c = {};
+  try { c = contractCatalog.find(x=>x.id===currentContractId) || {}; } catch(_) { /* 첫 그리기 때는 목록이 아직 없다 */ }
+  const startMonth = (val("contractStart")||"").slice(0,7);
+  const closedExists = !!startMonth && startMonth <= CLOSED_MONTH;
+  const hasSales = c.hasSales !== false;
+  const locked = closedExists && hasSales;
+  $("payLag").readOnly = locked;
+  $("payLagLockView").innerHTML = locked
+    ? `<span class="chip">잠금</span> 마감된 정산월(${CLOSED_MONTH})이 있고 판매가 있어 바꿀 수 없습니다. 바꾸려면 재계약합니다.`
+    : closedExists
+      ? `<span class="chip info">변경 가능</span> 마감된 달이 있지만 이 계약은 판매가 아직 없습니다.`
+      : `<span class="chip info">변경 가능</span> 이 계약의 판매가 들어갈 달 중 마감된 달이 없습니다.`;
+  const n = Math.max(0, Number(val("payLag"))||0);
+  const mon = m => ((m-1)%12)+1;
+  $("payLagExample").textContent = `시차 ${n}: 1월 판매 → ${mon(1+n)}월 귀속 정산 → ${mon(2+n)}월 10일 지급`;
+}
+document.addEventListener("input", e => { if(e.target.id==="payLag") updatePayLag(); });
 function refresh(){
+  updatePayLag();
   const business = radio("partyType") === "BUSINESS";
   const internal = business && val("bizType") === "INTERNAL";
   $("businessSubtype").hidden = !business;
@@ -2805,6 +2844,7 @@ function collectSnapshot(){
     fields,
     derived:{
       currentEndDate:val("initialEnd"),
+      paymentLagMonths:Number(val("payLag")),
       consignmentPeriod:{start:val("contractStart"),end:val("initialEnd")},
       supportEffectiveEnd:val("supportEndBasis")==="CONTRACT_LINKED"?null:val("supportEndDate"),
       taxProfile:state.nts,
@@ -3275,6 +3315,12 @@ function applyContractDetail(contractId){
 }
 
 const contractCatalog = [
+  {
+    id:"CT-2026-0820", holderId:"RH-0090", holderName:"한신규 강사 (판매 없음)", partyType:"PERSON", bizType:"FREELANCER",
+    rep:"한신규", bizNo:"", status:"ACTIVE", start:"2026-08-01", end:"2028-07-31", daysLeft:600, lag:3, hasSales:false,
+    pipelines:["온라인 R/S (1.1)"], taxDecision:"DECIDED", matrixCase:"TX-02", ntsVerified:true, supportMethod:"REVENUE_SHARE", supportOffset:"CONDITIONAL",
+    advanceBalance:0, alertType:"NONE", summaryNote:"9월이 마감됐지만 판매가 아직 없어 지급 시차를 바꿀 수 있음"
+  },
   {
     id:"CT-2026-0412",
     holderId:"RH-0012",
@@ -3757,6 +3803,7 @@ function loadContractPreset(contractId){
   state.nts = null; state.suspendedApproved = false;
   $("contractStart").value = c.start;
   $("initialEnd").value = c.end;
+  if($("payLag")) $("payLag").value = c.lag != null ? c.lag : 3;
 
   /* 계약별 상세 조건(요율 · 저서 · 지원금 · 위탁 · 선급금) — 프리셋이 없으면 화면 최초 예시 조건 */
   applyContractDetail(c.id);
