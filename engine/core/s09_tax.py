@@ -43,7 +43,8 @@ def finish_contract(ctx, c):
 
 def is_open_negative(x):
     """원거래 달 미마감 음수 라인(당월 신규 라인의 환불 공제 초과분) — 별개 채권의 상계가 아니라 대가의 감소(v4.0.48)."""
-    return x["origin"] == "NEW" and (x.get("pending_negative_base") or D(0)) < 0
+    return ((x["origin"] == "NEW" or (x["origin"] == "CARRY_PRE_TAX" and x.get("carry_line_origin") == "NEW"))
+            and (x.get("pending_negative_base") or D(0)) < 0)
 
 
 def net_negatives(pos, negs):
@@ -247,7 +248,7 @@ def finish_payee(ctx, c, p):
                      formula="라인 실정산액 = 세전 지급액 − 원천징수세액 + 부가가치세(VAT_INCLUDED는 가산 없음)",
                      ref="V2 §8.3 9단계 L282 · TAX.md 확인 필요 5", provisional=ln.get("vat_treatment") == "VAT_INCLUDED",
                      note="TAX-5" if ln.get("vat_treatment") == "VAT_INCLUDED" else "")
-        elif ln["origin"] == "CARRY_PRE_TAX" and ln["taxable_base"] is not None:
+        elif ln["origin"] == "CARRY_PRE_TAX" and (ln["taxable_base"] is not None or ln.get("carry_with_positive")):
             wt = ln.get("withholding_total") or D(0)
             cv = ln.get("carry_vat_amount") or D(0)
             ln["after_tax_amount"] = ln["pre_tax_payable"] - wt + cv

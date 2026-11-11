@@ -56,6 +56,8 @@ def payout_payee(ctx, c, p, end, closed, limit):
     o = p.out["PAYOUT"]
     payable = p.out["CLAIM"].get("payable_net_for_payout") or D(0)
     pre_pos = [r for r in c.carry["pre_pos"] if r["payee_id"] == pid]
+    # 최소 지급 미달로 양수 줄과 함께 넘어온 음수 줄 — 양수 줄과 같이 지급 · 이월(v4.0.60 정본 공백 보완)
+    pre_neg_with = [r for r in c.carry["pre_neg"] if r["payee_id"] == pid and r.get("carry_line_origin")]
     post_pos = [r for r in c.carry["post_pos"] if r["payee_id"] == pid]
     post_total = sum((r["carryover_amount"] for r in post_pos), D(0))
     reasons = []
@@ -100,11 +102,14 @@ def payout_payee(ctx, c, p, end, closed, limit):
              formula="자사 권리자(TX-01)는 증빙 · 대량이체 제외", ref="V2 L280 · TAX.md TX-01")
     rows = []
     if confirmed:
-        for r in pre_pos + post_pos:
+        for r in pre_pos + pre_neg_with + post_pos:
             rows.append(dict(r, action="RESERVE", payout_reservation_status="RESERVED"))
     elif evaluated:
+        # 그 달 순액이 양수면 줄을 고르지 않고 음수 줄까지 모두 이월(음수만 빠져 다음 달 더 지급되는 일 방지,
+        # V1 §7.3 · V2 §8.3 11단계, v4.0.60 정본 공백 보완). 순액이 0 이하면 음수는 10단계 청구 경로로 감.
+        net_pos = (p.out["CLAIM"].get("net_after_return") or D(0)) > 0
         for ln in p.lines:
-            if ln["origin"] in ("NEW", "ADJUSTMENT") and ln["pre_tax_payable"] > 0:
+            if ln["origin"] in ("NEW", "ADJUSTMENT") and (ln["pre_tax_payable"] > 0 or (net_pos and ln["pre_tax_payable"] < 0)):
                 key = ln["line_key"]
                 if (ln.get("offset_amount") or D(0)) > 0 and not hold:
                     carry_amt, extra = offset_carry(ctx, c, p, pid, ln)
@@ -113,16 +118,19 @@ def payout_payee(ctx, c, p, end, closed, limit):
                 rows.append({"ledger_id": None, "action": "NEW", "rights_holder_id": c.holder_id, "payee_id": pid,
                              "contract_id": c.id, "origin_month": ctx.month, "account_type": "PRE_TAX",
                              "pipeline_id": key.get("pipeline_id"), "consignment_balance_yn": False,
-                             "income_category": key.get("income_category"), "income_clause": key.get("income_clause"),
-                             "tax_threshold_unit_key": key.get("tax_threshold_unit_key"),
+                             # 전월 정산 조정 줄은 소득 구분이 라인 키가 아니라 라인에 있음 — 라인 값으로 보충(v4.0.60)
+                             "income_category": key.get("income_category") or ln.get("income_category"),
+                             "income_clause": key.get("income_clause") or ln.get("income_clause"),
+                             "tax_threshold_unit_key": key.get("tax_threshold_unit_key") or ln.get("tax_threshold_unit_key"),
                              "carryover_reason": ("운영자 이월 지정" if designated else "지급 보류") if hold else "지급 하한 미달",
                              "carryover_amount": carry_amt,
                              "components": dict({"split_amount": ln["split_amount"], "offset_amount": ln["offset_amount"],
                                                  "vat_amount": ln.get("vat_amount")}, **extra.get("components", {})),
                              "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
                              "payout_reservation_status": "NONE", "extinguished_yn": False,
+                             "carry_line_origin": ln["origin"],
                              **{k: v for k, v in extra.items() if k != "components"}})
-        for r in pre_pos + post_pos:
+        for r in pre_pos + pre_neg_with + post_pos:
             rows.append(dict(r, action="KEEP"))
         if any(r["action"] == "NEW" for r in rows):
             ctx.issue("CANON_GAP", "지급 이월 적재 구성요소(VAT · 상계) 보존 방식 정본 없음 — 라인별 세전 기초금액 + 구성요소",

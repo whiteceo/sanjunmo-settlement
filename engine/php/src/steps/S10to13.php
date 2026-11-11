@@ -488,6 +488,8 @@ final class S11Payout
         $o = &$p->out['PAYOUT'];
         $payable = either($p->out['CLAIM']['payable_net_for_payout'] ?? null, D(0));
         $prePos = array_values(array_filter($c->carry['pre_pos'], fn($r) => $r['payee_id'] === $pid));
+        // 최소 지급 미달로 양수 줄과 함께 넘어온 음수 줄 — 양수 줄과 같이 지급 · 이월(v4.0.60 정본 공백 보완)
+        $preNegWith = array_values(array_filter($c->carry['pre_neg'], fn($r) => $r['payee_id'] === $pid && truthy(g($r, 'carry_line_origin'))));
         $postPos = array_values(array_filter($c->carry['post_pos'], fn($r) => $r['payee_id'] === $pid));
         $postTotal = dsum(array_map(fn($r) => $r['carryover_amount'], $postPos));
         $reasons = [];
@@ -550,12 +552,14 @@ final class S11Payout
             formula: '자사 권리자(TX-01)는 증빙 · 대량이체 제외', ref: 'V2 L280 · TAX.md TX-01');
         $rows = [];
         if ($confirmed) {
-            foreach (array_merge($prePos, $postPos) as $r) {
+            foreach (array_merge($prePos, $preNegWith, $postPos) as $r) {
                 $rows[] = array_merge($r, ['action' => 'RESERVE', 'payout_reservation_status' => 'RESERVED']);
             }
         } elseif ($evaluated) {
+            // 그 달 순액이 양수면 줄을 고르지 않고 음수 줄까지 모두 이월(v4.0.60 정본 공백 보완), 0 이하면 음수는 10단계 청구 경로
+            $netPos = either($p->out['CLAIM']['net_after_return'] ?? null, D(0)) > 0;
             foreach ($p->lines as &$ln) {
-                if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && $ln['pre_tax_payable'] > 0) {
+                if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && ($ln['pre_tax_payable'] > 0 || ($netPos && $ln['pre_tax_payable'] < 0))) {
                     [$carryAmt, $extra] = (either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) ? self::offsetCarry($ctx, $c, $p, $pid, $ln) : [$ln['pre_tax_payable'], []];
                     $extraComp = $extra['components'] ?? [];
                     unset($extra['components']);
@@ -563,17 +567,20 @@ final class S11Payout
                     $rows[] = array_merge(['ledger_id' => null, 'action' => 'NEW', 'rights_holder_id' => $c->holder_id, 'payee_id' => $pid,
                         'contract_id' => $c->id, 'origin_month' => $ctx->month, 'account_type' => 'PRE_TAX',
                         'pipeline_id' => g($key, 'pipeline_id'), 'consignment_balance_yn' => false,
-                        'income_category' => g($key, 'income_category'), 'income_clause' => g($key, 'income_clause'),
-                        'tax_threshold_unit_key' => g($key, 'tax_threshold_unit_key'),
+                        // 전월 정산 조정 줄은 소득 구분이 라인 키가 아니라 라인에 있음 — 라인 값으로 보충(v4.0.60)
+                        'income_category' => either(g($key, 'income_category'), g($ln, 'income_category')),
+                        'income_clause' => either(g($key, 'income_clause'), g($ln, 'income_clause')),
+                        'tax_threshold_unit_key' => either(g($key, 'tax_threshold_unit_key'), g($ln, 'tax_threshold_unit_key')),
                         'carryover_reason' => $hold ? ($designated ? '운영자 이월 지정' : '지급 보류') : '지급 하한 미달', 'carryover_amount' => $carryAmt,
                         'components' => array_merge(['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
                             'vat_amount' => g($ln, 'vat_amount')], $extraComp),
                         'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,
-                        'payout_reservation_status' => 'NONE', 'extinguished_yn' => false], $extra);
+                        'payout_reservation_status' => 'NONE', 'extinguished_yn' => false,
+                        'carry_line_origin' => $ln['origin']], $extra);
                 }
             }
             unset($ln);
-            foreach (array_merge($prePos, $postPos) as $r) {
+            foreach (array_merge($prePos, $preNegWith, $postPos) as $r) {
                 $rows[] = array_merge($r, ['action' => 'KEEP']);
             }
             foreach ($rows as $r) {

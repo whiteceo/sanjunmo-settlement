@@ -59,7 +59,8 @@ final class S09Tax
     /** 원거래 달 미마감 음수 라인(당월 신규 라인의 환불 공제 초과분) — 별개 채권의 상계가 아니라 대가의 감소(v4.0.48). */
     private static function isOpenNegative(array $x): bool
     {
-        return $x['origin'] === 'NEW' && either(g($x, 'pending_negative_base'), D(0)) < 0;
+        return ($x['origin'] === 'NEW' || ($x['origin'] === 'CARRY_PRE_TAX' && g($x, 'carry_line_origin') === 'NEW'))
+            && either(g($x, 'pending_negative_base'), D(0)) < 0;
     }
 
     /**
@@ -337,7 +338,7 @@ final class S09Tax
                     inputs: ['세전 지급액' => $ln['pre_tax_payable'], '원천징수세액' => $wt, '부가세(가산분)' => $addVat],
                     formula: '라인 실정산액 = 세전 지급액 − 원천징수세액 + 부가가치세(VAT_INCLUDED는 가산 없음)',
                     ref: 'V2 §8.3 9단계 L282 · TAX.md 확인 필요 5', provisional: $inc, note: $inc ? 'TAX-5' : '');
-            } elseif ($ln['origin'] === 'CARRY_PRE_TAX' && $ln['taxable_base'] !== null) {
+            } elseif ($ln['origin'] === 'CARRY_PRE_TAX' && ($ln['taxable_base'] !== null || g($ln, 'carry_with_positive'))) {
                 $wt = either(g($ln, 'withholding_total'), D(0));
                 $cv = either(g($ln, 'carry_vat_amount'), D(0));
                 $ln['after_tax_amount'] = add(sub($ln['pre_tax_payable'], $wt), $cv);

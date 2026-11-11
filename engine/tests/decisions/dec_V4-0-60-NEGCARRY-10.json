@@ -1,0 +1,93 @@
+{
+ "case": "DEC-V460-NEGCARRY-10",
+ "title": "최소 지급 미달 이월 — 음수 줄도 양수 줄과 함께 이월",
+ "canon_ref": "정산 01권 7.3절 · 02권 8.3절 11단계 '최소 지급 미달 이월 — 그 달 줄을 모두 넘김'(v4.0.60 정본 공백 보완) · 04권 Case 1-F",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-1",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 300000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 300000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [
+   {
+    "adj_id": "ADJ-1",
+    "contract_id": "C-A",
+    "origin_month": "2026-09",
+    "applied_month": "2026-10",
+    "adj_reason_code": "RATE_ERR",
+    "adj_explanation": "9월 과다 지급 정정",
+    "adj_amount": -80000,
+    "adj_tax_type": "TAXABLE",
+    "payee_id": "H-A",
+    "account_type": "PRE_TAX",
+    "approver_id": "재무담당자",
+    "origin_settlement_id": "STMT-202609-001"
+   }
+  ]
+ },
+ "notes": "10월 강의 R/S +150,000, 9월 과다 지급 정정 −80,000(전월 정산 조정, 과세표준 보류) → 실정산액 65,050 < 100,000 → 이체 0, 이월 원장에 +150,000 · −80,000 두 행(적재 순액 70,000)",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0,
+   "carry_load": 70000
+  }
+ }
+}

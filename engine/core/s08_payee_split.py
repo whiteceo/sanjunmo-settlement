@@ -223,6 +223,10 @@ def carry_lines(ctx, c):
         p = c.payee(pid)
         amt = r["carryover_amount"]
         neg = amt < 0
+        # 최소 지급 미달로 함께 넘어온 음수 줄: 원래 줄이 당월 신규(NEW)면 미마감 음수로 과세표준 합산, 전월 정산 조정이면
+        # 원래 달처럼 과세표준 보류 · 지급액에서만 뺌(v4.0.60)
+        with_pos = neg and bool(r.get("carry_line_origin"))
+        open_neg = with_pos and r.get("carry_line_origin") == "NEW"
         row = {"line_id": f"CARRY:{r.get('ledger_id')}", "ledger_id": r.get("ledger_id"),
                "line_key": {"contract_id": c.id, "pipeline_id": r.get("pipeline_id"),
                             "income_category": r.get("income_category"), "income_clause": r.get("income_clause"),
@@ -232,7 +236,8 @@ def carry_lines(ctx, c):
                                                                                                 "NONRECURRING"),
                "income_category": r.get("income_category"), "income_clause": r.get("income_clause"),
                "tax_threshold_unit_key": r.get("tax_threshold_unit_key"), "split_amount": amt, "offset_amount": D(0),
-               "pre_tax_payable": amt, "taxable_base": None if neg else amt,
+               "pre_tax_payable": amt, "taxable_base": (D(0) if open_neg else None) if neg else amt,
+               "carry_line_origin": r.get("carry_line_origin"), "carry_with_positive": with_pos,
                "pending_negative_base": amt if neg else None, "protected_yn": False, "protected_amount": D(0),
                "first_payable_confirmed_month": r.get("first_payable_confirmed_month"),
                "first_occurred_month": r.get("first_occurred_month"),

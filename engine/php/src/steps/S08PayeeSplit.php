@@ -282,6 +282,9 @@ final class S08PayeeSplit
             $p = $c->payee($pid);
             $amt = $r['carryover_amount'];
             $neg = $amt < 0;
+            // 최소 지급 미달로 함께 넘어온 음수 줄: 원래 줄이 NEW면 미마감 음수로 과세표준 합산, 전월 정산 조정이면 과세표준 보류(v4.0.60)
+            $withPos = $neg && truthy(g($r, 'carry_line_origin'));
+            $openNeg = $withPos && g($r, 'carry_line_origin') === 'NEW';
             $plStr = pystr(g($r, 'pipeline_id'));
             $row = ['line_id' => 'CARRY:' . pystr(g($r, 'ledger_id')), 'ledger_id' => g($r, 'ledger_id'),
                 'line_key' => ['contract_id' => $c->id, 'pipeline_id' => g($r, 'pipeline_id'),
@@ -291,7 +294,8 @@ final class S08PayeeSplit
                 'supply_nature' => ['1.1' => 'LECTURE_RS', '2.1' => 'ROYALTY', '5.1' => 'SUPPORT_RS'][$plStr] ?? 'NONRECURRING',
                 'income_category' => g($r, 'income_category'), 'income_clause' => g($r, 'income_clause'),
                 'tax_threshold_unit_key' => g($r, 'tax_threshold_unit_key'), 'split_amount' => $amt, 'offset_amount' => D(0),
-                'pre_tax_payable' => $amt, 'taxable_base' => $neg ? null : $amt,
+                'pre_tax_payable' => $amt, 'taxable_base' => $neg ? ($openNeg ? D(0) : null) : $amt,
+                'carry_line_origin' => g($r, 'carry_line_origin'), 'carry_with_positive' => $withPos,
                 'pending_negative_base' => $neg ? $amt : null, 'protected_yn' => false, 'protected_amount' => D(0),
                 'first_payable_confirmed_month' => g($r, 'first_payable_confirmed_month'),
                 'first_occurred_month' => g($r, 'first_occurred_month'),
