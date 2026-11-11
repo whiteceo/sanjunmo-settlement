@@ -18,6 +18,52 @@ def attrs(ln):
             "tax_threshold_unit_key": ln.tax_threshold_unit_key, "payee_is_author": ln.payee_is_author}
 
 
+class CarryOffsetLine:
+    """세전 이월(PRE_TAX +) 행의 상계 대상 몫 — 원래 금액의 계약 조건대로(보호분 제외) 6단계에 넣음(v4.0.63)."""
+    NATURE = {"1.1": "LECTURE_RS", "2.1": "ROYALTY", "5.1": "SUPPORT_RS"}
+
+    def __init__(self, c, r, e):
+        self.row = r
+        self.cid = c.id
+        self.label = f"CARRY:{r.get('ledger_id')}"
+        self.pipeline_id = str(r.get("pipeline_id"))
+        self.supply_nature = self.NATURE.get(self.pipeline_id, "NONRECURRING")
+        self.income_category = r.get("income_category")
+        self.income_clause = r.get("income_clause")
+        self.tax_threshold_unit_key = r.get("tax_threshold_unit_key")
+        self.payee_is_author = None
+        self.agreement_id = None
+        self.approval_id = None
+        self.net = D(r["carryover_amount"])
+        self.eligible = e
+        self.offset = D(0)
+
+    def key(self):
+        return {"contract_id": self.cid, "pipeline_id": self.pipeline_id, "rate_type": None, "agreement_id": None,
+                "approval_id": None, "income_category": self.income_category, "income_clause": self.income_clause,
+                "tax_threshold_unit_key": self.tax_threshold_unit_key}
+
+
+def carry_eligible(ctx, c):
+    """세전 이월 행(상계 받는 사람 몫)의 상계 대상 = 이월액 − 보호분(MMG 보전금 · 비상계 지원금 · 비정기 약정금).
+    보호분 기록이 없는 행(v4.0.63 이전 적재)은 넣지 않음."""
+    out = []
+    c.carry_offset = {}
+    if not c.prepay:
+        return out
+    for r in c.carry["pre_pos"]:
+        comp = r.get("components") or {}
+        if r["payee_id"] != c.prepay["payee"] or "protected_amount" not in comp:
+            continue
+        e = max(D(0), D(r["carryover_amount"]) - D(comp.get("protected_amount") or 0))
+        if e <= 0:
+            continue
+        ln = CarryOffsetLine(c, r, e)
+        c.carry_offset[r.get("ledger_id")] = ln
+        out.append((ln, e, "세전 이월액 − 보호분(원래 금액의 계약 조건대로, v4.0.63)"))
+    return out
+
+
 def eligible_lines(ctx, c):
     out = []
     for ln in c.lines.values():
@@ -39,7 +85,7 @@ def eligible_lines(ctx, c):
             continue
         ln.eligible = e
         out.append((ln, e, why))
-    return out
+    return out + carry_eligible(ctx, c)
 
 
 def run(ctx):
@@ -137,6 +183,8 @@ def compute(ctx, c, first, cap=None):
 
 def allocate(ctx, c, el, amount, revalidated=False):
     for ln in c.lines.values():
+        ln.offset = D(0)
+    for ln in (getattr(c, "carry_offset", None) or {}).values():
         ln.offset = D(0)
     pos = [(ln, e) for ln, e, _ in el if e > 0]
     if not pos or amount <= 0:

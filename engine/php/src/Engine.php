@@ -239,6 +239,8 @@ final class ContractState
     public array $carry;
     public array $return_claims = [];
     public ?array $prepay = null;
+    /** @var array<string, Line> 6단계 상계 대상에 넣은 세전 이월 행(ledger_id → 상계 몫, v4.0.63) */
+    public array $carry_offset = [];
     public ?Number $prepay_balance_after = null;
     public array $splits = [];
     public ?array $consignment = null;

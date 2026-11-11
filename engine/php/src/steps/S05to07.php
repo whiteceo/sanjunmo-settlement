@@ -209,6 +209,36 @@ final class S06PrepayOffset
             $ln->eligible = $e;
             $out[] = [$ln, $e, $why];
         }
+        return array_merge($out, self::carryEligible($ctx, $c));
+    }
+
+    /** 세전 이월 행(상계 받는 사람 몫)의 상계 대상 = 이월액 − 보호분. 보호분 기록이 없는 행(v4.0.63 이전 적재)은 넣지 않음. */
+    private static function carryEligible(Context $ctx, ContractState $c): array
+    {
+        $out = [];
+        $c->carry_offset = [];
+        if (!$c->prepay) {
+            return $out;
+        }
+        foreach ($c->carry['pre_pos'] as $r) {
+            $comp = either(g($r, 'components'), []);
+            if ($r['payee_id'] !== $c->prepay['payee'] || !array_key_exists('protected_amount', $comp)) {
+                continue;
+            }
+            $e = dmax(D(0), sub(D($r['carryover_amount']), D(either($comp['protected_amount'], 0))));
+            if ($e <= 0) {
+                continue;
+            }
+            $pl = pystr(g($r, 'pipeline_id'));
+            $ln = new Line('CARRY:' . pystr(g($r, 'ledger_id')), $c->id, $pl, [
+                'supply_nature' => ['1.1' => 'LECTURE_RS', '2.1' => 'ROYALTY', '5.1' => 'SUPPORT_RS'][$pl] ?? 'NONRECURRING',
+                'income_category' => g($r, 'income_category'), 'income_clause' => g($r, 'income_clause'),
+                'tax_threshold_unit_key' => g($r, 'tax_threshold_unit_key')]);
+            $ln->net = D($r['carryover_amount']);
+            $ln->eligible = $e;
+            $c->carry_offset[pystr(g($r, 'ledger_id'))] = $ln;
+            $out[] = [$ln, $e, '세전 이월액 − 보호분(원래 금액의 계약 조건대로, v4.0.63)'];
+        }
         return $out;
     }
 
@@ -327,6 +357,9 @@ final class S06PrepayOffset
     private static function allocate(Context $ctx, ContractState $c, array $el, Number $amount, bool $revalidated = false): void
     {
         foreach ($c->lines as $ln) {
+            $ln->offset = D(0);
+        }
+        foreach ($c->carry_offset as $ln) {
             $ln->offset = D(0);
         }
         $pos = array_values(array_filter(array_map(fn($x) => [$x[0], $x[1]], $el), fn($x) => $x[1] > 0));

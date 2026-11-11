@@ -521,13 +521,13 @@ final class S09Tax
             return;
         }
         $elig = [];
-        foreach ($c->lines as $l) {
+        foreach (array_merge(array_values($c->lines), array_values($c->carry_offset)) as $l) {
             if ($l->eligible > 0) {
                 $elig[] = $l->label;
             }
         }
         $cash = dsum(array_map(fn($l) => sub($l['split_amount'], either(g($l, 'withholding_total'), D(0))),
-            array_filter($payee->lines, fn($l) => $l['origin'] === 'NEW' && in_array($l['line_id'], $elig, true))));
+            array_filter($payee->lines, fn($l) => in_array($l['origin'], ['NEW', 'CARRY_PRE_TAX'], true) && in_array($l['line_id'], $elig, true))));
         $ctx->emit(self::STEP, 'cash_avail_offset_lines', $cash, $c, payee: $pp['payee'], inputs: ['상계액' => $pp['amount']],
             formula: '상계 적격 라인 계산상 현금 가용액 = Σ(분할액 − 라인 원천세)', code: 'cash_avail = Σ(split − withholding)',
             ref: 'V2 §8.3 6단계 L228', provisional: true, note: 'Q-13');

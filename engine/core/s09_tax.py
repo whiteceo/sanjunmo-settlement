@@ -400,8 +400,9 @@ def revalidate_offset(ctx, c):
     if not payee:
         return
     elig = {ln.label for ln in c.lines.values() if ln.eligible > 0}
+    elig |= {ln.label for ln in (getattr(c, "carry_offset", None) or {}).values() if ln.eligible > 0}
     cash = sum(ln["split_amount"] - (ln.get("withholding_total") or D(0)) for ln in payee.lines
-               if ln["origin"] == "NEW" and ln["line_id"] in elig)
+               if ln["origin"] in ("NEW", "CARRY_PRE_TAX") and ln["line_id"] in elig)
     ctx.emit(STEP, "cash_avail_offset_lines", cash, c, payee=pp["payee"], inputs={"상계액": pp["amount"]},
              formula="상계 적격 라인 계산상 현금 가용액 = Σ(분할액 − 라인 원천세)", code="cash_avail = Σ(split − withholding)",
              ref="V2 §8.3 6단계 L228", provisional=True, note="Q-13")

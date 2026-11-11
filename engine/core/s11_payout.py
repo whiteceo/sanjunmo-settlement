@@ -125,12 +125,37 @@ def payout_payee(ctx, c, p, end, closed, limit):
                              "carryover_reason": ("운영자 이월 지정" if designated else "지급 보류") if hold else "지급 하한 미달",
                              "carryover_amount": carry_amt,
                              "components": dict({"split_amount": ln["split_amount"], "offset_amount": ln["offset_amount"],
-                                                 "vat_amount": ln.get("vat_amount")}, **extra.get("components", {})),
+                                                 "vat_amount": ln.get("vat_amount"),
+                                                 # 보호분(상계 비대상) — 다음 달 6단계 상계 대상에서 뺌(v4.0.63)
+                                                 "protected_amount": min(max(D(0), ln.get("protected_amount") or D(0)),
+                                                                         max(D(0), carry_amt))},
+                                            **extra.get("components", {})),
                              "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
                              "payout_reservation_status": "NONE", "extinguished_yn": False,
                              "carry_line_origin": ln["origin"],
                              **{k: v for k, v in extra.items() if k != "components"}})
+        # 이번 달 6단계에서 상계한 세전 이월 행이 다시 최소 지급 미달이면: 상계분은 그 달 확정, 원래 행은 소멸 · 남은 금액만 새로 이월
+        offset_ids = set()
+        if not hold:
+            for ln in p.lines:
+                if ln["origin"] == "CARRY_PRE_TAX" and (ln.get("offset_amount") or D(0)) > 0:
+                    r0 = next((r for r in pre_pos if r.get("ledger_id") == ln.get("ledger_id")), None)
+                    if not r0:
+                        continue
+                    rest, extra = offset_carry(ctx, c, p, pid, ln)
+                    offset_ids.add(r0.get("ledger_id"))
+                    rows.append(dict(r0, action="SETTLE", payout_reservation_status="SETTLED", extinguished_yn=True,
+                                     extinguished_month=ctx.month, carryover_reason_note="선급금 상계 후 남은 금액 새로 이월"))
+                    if rest > 0:
+                        comp = dict(r0.get("components") or {})
+                        comp.update(split_amount=rest, offset_amount=D(0),
+                                    protected_amount=min(D(comp.get("protected_amount") or 0), rest), **extra.get("components", {}))
+                        rows.append(dict(r0, ledger_id=None, action="NEW", origin_month=r0.get("origin_month"), carryover_reason="지급 하한 미달",
+                                         carryover_amount=rest, components=comp,
+                                         **{k: v for k, v in extra.items() if k != "components"}))
         for r in pre_pos + pre_neg_with + post_pos:
+            if r.get("ledger_id") in offset_ids:
+                continue
             rows.append(dict(r, action="KEEP"))
         if any(r["action"] == "NEW" for r in rows):
             ctx.issue("CANON_GAP", "지급 이월 적재 구성요소(VAT · 상계) 보존 방식 정본 없음 — 라인별 세전 기초금액 + 구성요소",

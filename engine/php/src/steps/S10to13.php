@@ -587,14 +587,51 @@ final class S11Payout
                         'tax_threshold_unit_key' => either(g($key, 'tax_threshold_unit_key'), g($ln, 'tax_threshold_unit_key')),
                         'carryover_reason' => $hold ? ($designated ? '운영자 이월 지정' : '지급 보류') : '지급 하한 미달', 'carryover_amount' => $carryAmt,
                         'components' => array_merge(['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
-                            'vat_amount' => g($ln, 'vat_amount')], $extraComp),
+                            'vat_amount' => g($ln, 'vat_amount'),
+                            // 보호분(상계 비대상) — 다음 달 6단계 상계 대상에서 뺌(v4.0.63)
+                            'protected_amount' => dmin(dmax(D(0), either(g($ln, 'protected_amount'), D(0))), dmax(D(0), $carryAmt))], $extraComp),
                         'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,
                         'payout_reservation_status' => 'NONE', 'extinguished_yn' => false,
                         'carry_line_origin' => $ln['origin']], $extra);
                 }
             }
             unset($ln);
+            // 이번 달 6단계에서 상계한 세전 이월 행이 다시 최소 지급 미달이면: 상계분은 그 달 확정, 원래 행은 소멸 · 남은 금액만 새로 이월
+            $offsetIds = [];
+            if (!$hold) {
+                foreach ($p->lines as &$ln) {
+                    if ($ln['origin'] === 'CARRY_PRE_TAX' && either(g($ln, 'offset_amount'), D(0)) > 0) {
+                        $r0 = null;
+                        foreach ($prePos as $r) {
+                            if (g($r, 'ledger_id') === g($ln, 'ledger_id')) {
+                                $r0 = $r;
+                                break;
+                            }
+                        }
+                        if (!$r0) {
+                            continue;
+                        }
+                        [$rest, $extra] = self::offsetCarry($ctx, $c, $p, $pid, $ln);
+                        $offsetIds[] = g($r0, 'ledger_id');
+                        $rows[] = array_merge($r0, ['action' => 'SETTLE', 'payout_reservation_status' => 'SETTLED', 'extinguished_yn' => true,
+                            'extinguished_month' => $ctx->month, 'carryover_reason_note' => '선급금 상계 후 남은 금액 새로 이월']);
+                        if ($rest > 0) {
+                            $extraComp = $extra['components'] ?? [];
+                            unset($extra['components']);
+                            $comp0 = either(g($r0, 'components'), []);
+                            $comp = array_merge($comp0, ['split_amount' => $rest, 'offset_amount' => D(0),
+                                'protected_amount' => dmin(D(either(g($comp0, 'protected_amount'), 0)), $rest)], $extraComp);
+                            $rows[] = array_merge($r0, ['ledger_id' => null, 'action' => 'NEW', 'origin_month' => g($r0, 'origin_month'), 'carryover_reason' => '지급 하한 미달',
+                                'carryover_amount' => $rest, 'components' => $comp], $extra);
+                        }
+                    }
+                }
+                unset($ln);
+            }
             foreach (array_merge($prePos, $preNegWith, $postPos) as $r) {
+                if (in_array(g($r, 'ledger_id'), $offsetIds, true)) {
+                    continue;
+                }
                 $rows[] = array_merge($r, ['action' => 'KEEP']);
             }
             foreach ($rows as $r) {

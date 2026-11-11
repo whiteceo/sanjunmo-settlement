@@ -1,0 +1,114 @@
+{
+ "case": "DEC-V463-CARRYOFF-A11",
+ "title": "보호분(MMG 보전금)에서 온 이월은 다음 달 선급금 상계 대상에서 뺌",
+ "canon_ref": "정산 01권 7.4절 · 02권 8.3절 6단계 '세전 이월액의 상계 대상 — 원래 금액의 계약 조건대로'(v4.0.63) · 04권 Case 1-I · 1-J",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-2026-11",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-11-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 400000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 300000
+   }
+  ],
+  "adjustments": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-A0",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 80000,
+    "components": {
+     "split_amount": 80000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 80000
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   }
+  ]
+ },
+ "notes": "10월 MMG 보전금 80,000 미달 이월(보호분 80,000 기록) · 11월 R/S 200,000 · 대여금 잔액 300,000 → 상계 대상 200,000만, 상계 193,400 · 잔액 106,600",
+ "expected": {
+  "PREPAY_OFFSET": {
+   "offset_amount": 193400,
+   "prepay_balance_after": 106600
+  }
+ }
+}
