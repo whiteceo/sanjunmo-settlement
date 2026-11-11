@@ -1,0 +1,85 @@
+{
+ "case": "DEC-V465-SUPOFF-COND-S4",
+ "title": "일시금 지원금 상계 허용 — 상계",
+ "canon_ref": "정산 01권 5.3절 상계 모수(상계 허용 CONDITIONAL / 비상계 NON_OFFSET) · 02권 8.3절 6단계 232줄 · 7.4절 이월 행 보호분(v4.0.63)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 1000000
+   }
+  ],
+  "adjustments": [],
+  "lumpsum_approvals": [
+   {
+    "milestone_id": "M-1",
+    "contract_id": "C-A",
+    "approval_status": "APPROVED",
+    "target_month": "2026-10",
+    "item_kind": "SUPPORT_LUMP_SUM",
+    "amount": 200000,
+    "income_category": "BUSINESS",
+    "offset_type": "CONDITIONAL"
+   }
+  ]
+ },
+ "notes": "일시금 지원금 200,000(CONDITIONAL), 대여금 1,000,000 → 상계 193,400, 지급 0",
+ "expected": {
+  "PREPAY_OFFSET": {
+   "offset_amount": 193400
+  },
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}

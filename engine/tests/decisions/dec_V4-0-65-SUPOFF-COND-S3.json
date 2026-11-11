@@ -1,0 +1,171 @@
+{
+ "case": "DEC-V465-SUPOFF-COND-S3",
+ "title": "지원금 상계 허용 — 이월된 지원금도 다음 달 상계 대상",
+ "canon_ref": "정산 01권 5.3절 상계 모수(상계 허용 CONDITIONAL / 비상계 NON_OFFSET) · 02권 8.3절 6단계 232줄 · 7.4절 이월 행 보호분(v4.0.63)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-A",
+    "rate_type": "SUPPORT",
+    "agreement_id": "AGR-1",
+    "rate_value": 10,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 1000000
+   }
+  ],
+  "adjustments": [],
+  "support_fund_agreements": [
+   {
+    "agreement_id": "AGR-1",
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "payment_method": "REVENUE_SHARE",
+    "cap_type": "UNLIMITED",
+    "rate_basis": "SAME_AS_BASIC",
+    "settlement_scope": "PIPELINE_1_1_ONLY",
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "offset_type": "CONDITIONAL",
+    "cap_restore_on_refund": true,
+    "on_termination_policy": "FORFEIT",
+    "income_category": "BUSINESS",
+    "status": "ACTIVE"
+   }
+  ],
+  "support_fund_agreement_targets": [
+   {
+    "agreement_id": "AGR-1",
+    "target_type": "LECTURE",
+    "target_id": "CRS-A",
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "own_share_ratio": 100
+   }
+  ],
+  "support_fund_ledger_prev": [
+   {
+    "agreement_id": "AGR-1",
+    "cap_consumed_amount": 0,
+    "cash_paid_total": 0,
+    "status": "ACTIVE"
+   }
+  ],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-0",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 50000,
+    "components": {
+     "split_amount": 50000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 0
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   },
+   {
+    "ledger_id": "CL-1",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "5.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 10000,
+    "components": {
+     "split_amount": 10000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 0
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   }
+  ]
+ },
+ "notes": "10월 R/S 50,000 + 지원금 10,000(CONDITIONAL) 미달 이월(보호분 0) → 11월 대여금 1,000,000 등록 · 매출 없음 → 상계 대상 60,000 → 상계 58,020",
+ "expected": {
+  "PREPAY_OFFSET": {
+   "offset_amount": 58020
+  },
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}

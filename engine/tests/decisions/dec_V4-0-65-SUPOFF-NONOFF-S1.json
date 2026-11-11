@@ -1,0 +1,133 @@
+{
+ "case": "DEC-V465-SUPOFF-NONOFF-S1",
+ "title": "지원금 비상계 — 같은 달 지원금은 상계하지 않음",
+ "canon_ref": "정산 01권 5.3절 상계 모수(상계 허용 CONDITIONAL / 비상계 NON_OFFSET) · 02권 8.3절 6단계 232줄 · 7.4절 이월 행 보호분(v4.0.63)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-A",
+    "rate_type": "SUPPORT",
+    "agreement_id": "AGR-1",
+    "rate_value": 10,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-2026-10",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1000000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 1000000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 1000000
+   }
+  ],
+  "adjustments": [],
+  "support_fund_agreements": [
+   {
+    "agreement_id": "AGR-1",
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "payment_method": "REVENUE_SHARE",
+    "cap_type": "UNLIMITED",
+    "rate_basis": "SAME_AS_BASIC",
+    "settlement_scope": "PIPELINE_1_1_ONLY",
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "offset_type": "NON_OFFSET",
+    "cap_restore_on_refund": true,
+    "on_termination_policy": "FORFEIT",
+    "income_category": "BUSINESS",
+    "status": "ACTIVE"
+   }
+  ],
+  "support_fund_agreement_targets": [
+   {
+    "agreement_id": "AGR-1",
+    "target_type": "LECTURE",
+    "target_id": "CRS-A",
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "own_share_ratio": 100
+   }
+  ],
+  "support_fund_ledger_prev": [
+   {
+    "agreement_id": "AGR-1",
+    "cap_consumed_amount": 0,
+    "cash_paid_total": 0,
+    "status": "ACTIVE"
+   }
+  ]
+ },
+ "notes": "R/S 500,000 + 매출연동 지원금 100,000(NON_OFFSET), 대여금 1,000,000 → 상계 대상 500,000 → 상계 483,500, 지원금 세후 96,700 < 100,000 → 이월(보호분 100,000)",
+ "expected": {
+  "PREPAY_OFFSET": {
+   "offset_amount": 483500,
+   "prepay_balance_after": 516500
+  },
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}
