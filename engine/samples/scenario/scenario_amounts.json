@@ -3053,18 +3053,18 @@
     "step2LectureRs": 180000,
     "step2BookRoyalty": 0,
     "step2SupportAccrued": 0,
-    "step3MmgSubsidy": 770000,
+    "step3MmgSubsidy": 432903,
     "step4LectureDeduct": -30000,
     "step4SupportDeduct": 0,
     "step5SupportConfirmed": 0,
     "step6PrepayEligible": 150000,
     "step6PrepayOffset": -145050,
     "step7LumpSumAdd": 0,
-    "step8TaxableBaseSum": 920000,
+    "step8TaxableBaseSum": 582903,
     "step9VatAmount": 0,
-    "step9WithholdingTax": 30360,
+    "step9WithholdingTax": 19220,
     "step10PostTaxAdjust": 0,
-    "step11NetPayout": 744590,
+    "step11NetPayout": 418633,
     "payoutCategory": "PAYOUT_TARGET"
    },
    "payees": [
@@ -3074,26 +3074,26 @@
       "TX-02"
      ],
      "taxDecisionPendingLines": [],
-     "splitAmount": 920000,
+     "splitAmount": 582903,
      "prepayOffset": 145050,
-     "preTaxPayable": 774950,
-     "taxableBase": 920000,
+     "preTaxPayable": 437853,
+     "taxableBase": 582903,
      "vat": 0,
-     "incomeTax": 27600,
-     "localIncomeTax": 2760,
-     "withholdingTotal": 30360,
-     "netSettleAmount": 744590,
-     "netSettleProtected": 716470,
+     "incomeTax": 17480,
+     "localIncomeTax": 1740,
+     "withholdingTotal": 19220,
+     "netSettleAmount": 418633,
+     "netSettleProtected": 393640,
      "carryPreTaxAfterTax": 0,
-     "netAfterReturn": 744590,
+     "netAfterReturn": 418633,
      "claimNegativeNet": -1204950,
      "claimIssued": true,
      "claimAmount": 1204950,
      "unoffsetPrepayClaim": 1204950,
-     "payableNetForPayout": 744590,
-     "payoutJudgementAmount": 744590,
+     "payableNetForPayout": 418633,
+     "payoutJudgementAmount": 418633,
      "payoutConfirmed": true,
-     "payoutAmount": 744590,
+     "payoutAmount": 418633,
      "carryLoad": 0,
      "excludedFromBulkTransfer": false,
      "lines": [
@@ -3102,17 +3102,17 @@
        "origin": "NEW",
        "matrix_case_id": "TX-02",
        "tax_decision_status": "DECIDED",
-       "split_amount": 920000,
+       "split_amount": 582903,
        "offset_amount": 145050,
-       "pre_tax_payable": 774950,
-       "taxable_base": 920000,
+       "pre_tax_payable": 437853,
+       "taxable_base": 582903,
        "vat_amount": 0,
-       "income_tax": 27600,
-       "local_income_tax": 2760,
+       "income_tax": 17480,
+       "local_income_tax": 1740,
        "deemed_expense": null,
        "other_income_amount": null,
        "threshold_exempt_yn": null,
-       "net_settle_line": 744590,
+       "net_settle_line": 418633,
        "after_tax_amount": null
       }
      ]
@@ -3149,9 +3149,9 @@
     },
     "MMG_ADJ": {
      "applicable": true,
-     "mmg_amount": 950000,
-     "adjusted_1_1": 950000,
-     "mmg_subsidy": 770000,
+     "mmg_amount": 612903,
+     "adjusted_1_1": 612903,
+     "mmg_subsidy": 432903,
      "mmg_promo_overlap_flag": false
     },
     "DEDUCT": {
@@ -3182,11 +3182,11 @@
         "income_clause": null,
         "tax_threshold_unit_key": null
        },
-       "amount": 920000
+       "amount": 582903
       }
      ],
      "deduct_total": 30000,
-     "net_total": 920000
+     "net_total": 582903
     },
     "SUPPORT_CAP": [],
     "PREPAY_OFFSET": {
@@ -3220,7 +3220,7 @@
     "LUMPSUM_ADD": {
      "lines": [],
      "lumpsum_total": 0,
-     "pre_split_supply": 920000
+     "pre_split_supply": 582903
     },
     "PAYEE_SPLIT": {
      "splits_used": [
@@ -3229,7 +3229,7 @@
        "split_ratio": 100
       }
      ],
-     "payee_split_base": 920000
+     "payee_split_base": 582903
     }
    },
    "supportLedger": [],
@@ -3247,7 +3247,24 @@
    "notes": [
     "SETT-002 STMT-06 입력: 강좌 기준금 450,000 × R/S 40% = 180,000, 환불 공제 30,000(환불 기준금 75,000 역산 · 미지급 감액), MMG 950,000, 선급금 대여금 잔액 1,350,000, 2026-10-20 해지"
    ],
-   "screenDiff": {}
+   "screenDiff": {
+    "step3MmgSubsidy": [
+     770000,
+     432903
+    ],
+    "step8TaxableBaseSum": [
+     920000,
+     582903
+    ],
+    "step9WithholdingTax": [
+     30360,
+     19220
+    ],
+    "step11NetPayout": [
+     744590,
+     418633
+    ]
+   }
   },
   {
    "holderId": "RH-0063",

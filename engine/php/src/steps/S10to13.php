@@ -328,6 +328,16 @@ final class S11Payout
         if ($closed) {
             $reasons[] = 'BUSINESS_CLOSED';
         }
+        foreach ($p->lines as $ln0) {
+            if (in_array($ln0['origin'], ['NEW', 'ADJUSTMENT'], true) && either(g($ln0, 'offset_amount'), D(0)) > 0) {
+                $reasons[] = 'OFFSET_PRIORITY'; // 상계 성립 달은 하한 미달이어도 그 달 상계 · 지급 · 신고(v4.0.41)
+                break;
+            }
+        }
+        $hold = truthy(g($ctx->holder($pid), 'payout_hold_yn'));
+        if ($hold) {
+            $reasons = []; // 지급 보류 수취인은 강제 정산 없이 세전 이월(v4.0.39)
+        }
         $force = (bool)$reasons;
         $evaluated = $payable > 0 || (bool)$prePos || (bool)$postPos || $force;
         $judge = $ctx->emit(self::STEP, 'payout_judgement_amount', add($payable, $postTotal), $c, ...$kw,
@@ -335,7 +345,7 @@ final class S11Payout
             formula: '판정 금액 = 당월 지급채무 순액(원귀속 PRE_TAX 세후액 포함) + POST_TAX 지급대기액(VAT 포함 총액 기준)',
             code: 'judgement = payable_net_for_payout + Σcarry_post_tax_pos', ref: 'V2 §8.3 11단계 L302 · L304');
         $internal = truthy(g($ctx->holder($pid), 'is_internal'));
-        $confirmed = $evaluated && ($judge >= $limit || $force);
+        $confirmed = $evaluated && ($judge >= $limit || $force) && !$hold;
         $o = array_merge($o, ['evaluated' => $evaluated, 'carry_post_tax_pos_total' => $postTotal, 'payout_judgement_amount' => $judge,
             'min_payout_limit' => $limit, 'force_settle' => $force, 'force_settle_reasons' => $reasons,
             'payout_threshold_basis' => $ctx->p('payout_threshold_basis'), 'excluded_from_bulk_transfer' => $internal]);
@@ -367,7 +377,7 @@ final class S11Payout
                         'pipeline_id' => g($key, 'pipeline_id'), 'consignment_balance_yn' => false,
                         'income_category' => g($key, 'income_category'), 'income_clause' => g($key, 'income_clause'),
                         'tax_threshold_unit_key' => g($key, 'tax_threshold_unit_key'),
-                        'carryover_reason' => '지급 하한 미달', 'carryover_amount' => $ln['pre_tax_payable'],
+                        'carryover_reason' => $hold ? '지급 보류' : '지급 하한 미달', 'carryover_amount' => $ln['pre_tax_payable'],
                         'components' => ['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
                             'vat_amount' => g($ln, 'vat_amount')],
                         'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,

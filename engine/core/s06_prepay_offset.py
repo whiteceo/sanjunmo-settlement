@@ -103,6 +103,12 @@ def compute(ctx, c, first, cap=None):
                                           code="offset_capacity = offset_eligible_total − offset_withholding_equiv",
                                           ref="V2 §8.3 6단계 L229")
         amount = min(capacity, pp["balance"]) if capacity > 0 else D(0)
+        if ctx.holder(pp["payee"]).get("payout_hold_yn"):
+            # 지급 보류 수취인: 마감 때 상계를 확정하지 않고 세전 이월(V2 §8.3 11단계, v4.0.39)
+            ctx.emit(STEP, "offset_deferred_hold", amount, c, inputs={"payout_hold_yn": True},
+                     formula="지급 보류 수취인은 상계 미확정 — 상계 전 금액 그대로 PRE_TAX 이월, 보류가 풀린 달에 상계 · 원천징수",
+                     ref="V2 §8.3 11단계 (v4.0.39)")
+            amount = D(0)
         out["offset_amount_initial"] = ctx.emit(
             STEP, "offset_amount_initial", amount, c, inputs={"상계 가능액": capacity, "미상계 잔액": pp["balance"]},
             formula="상계 가능액 ≤ 0이면 상계 0원 · 잔액 유지, 아니면 당월 상계액 = min(상계 가능액, 미상계 선급금 잔액)",

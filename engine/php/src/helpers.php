@@ -439,3 +439,9 @@ function untkey(string $k): array
 {
     return json_decode($k, true);
 }
+
+/** 그 달 일수(calendar 확장 없이). */
+function cal_days_in_month_safe(int $y, int $m): int
+{
+    return (int)(new \DateTimeImmutable(sprintf('%04d-%02d-01', $y, $m)))->format('t');
+}

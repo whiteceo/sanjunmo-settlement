@@ -11,6 +11,8 @@
 
 namespace SettleCalc;
 
+use BcMath\Number;
+
 final class S01CarryIn
 {
     const STEP = 'CARRY_IN';
@@ -134,13 +136,74 @@ final class S03MmgAdj
 {
     const STEP = 'MMG_ADJ';
 
+    /** 첫 달 · 끝 달 일할(V1 §5.3 · V2 §8.3 3단계, v4.0.38): 내림(MMG × 그 달 계약 일수 ÷ 그 달 일수). → [금액, 일수, 그 달 일수, 부분 여부] */
+    public static function prorate(Context $ctx, $c, Number $mmg): array
+    {
+        $y = (int)substr($ctx->month, 0, 4);
+        $m = (int)substr($ctx->month, 5, 2);
+        $dim = cal_days_in_month_safe($y, $m);
+        $first = new \DateTimeImmutable(sprintf('%04d-%02d-01', $y, $m));
+        $last = new \DateTimeImmutable(sprintf('%04d-%02d-%02d', $y, $m, $dim));
+        $s = g($c->row, 'start_date') ? new \DateTimeImmutable(substr((string)$c->row['start_date'], 0, 10)) : $first;
+        $ends = [];
+        foreach (['termination_date', 'current_end_date'] as $k) {
+            if (g($c->row, $k)) {
+                $ends[] = new \DateTimeImmutable(substr((string)$c->row[$k], 0, 10));
+            }
+        }
+        $e = $ends ? min($ends) : $last;
+        $lo = max($s, $first);
+        $hi = min($e, $last);
+        $days = $hi >= $lo ? (int)$lo->diff($hi)->days + 1 : 0;
+        if ($days >= $dim) {
+            return [$mmg, $dim, $dim, false];
+        }
+        return [floor_won(div(mul($mmg, D($days)), D($dim))), $days, $dim, true];
+    }
+
     public static function run(Context $ctx): void
     {
+        $prorated = [];
+        foreach ($ctx->contracts as $c) {
+            $rl = $ctx->rate($c->id, 'BASIC', $ctx->month . '-01', '1.1') ?? $ctx->rate($c->id, 'BASIC', null, '1.1');
+            $full = D(g($rl ?? [], 'mmg_amount'));
+            if ($full > 0) {
+                $prorated[$c->id] = self::prorate($ctx, $c, $full);
+            }
+        }
+        // 달 중간 재계약 달: 같은 권리자의 일할 계약이 둘 이상이면 합산 1회 판정, 보전금은 일할액이 큰 계약(v4.0.41)
+        $groups = [];
+        foreach ($ctx->contracts as $c) {
+            if (isset($prorated[$c->id]) && $prorated[$c->id][3]) {
+                $groups[$c->holder_id][] = $c;
+            }
+        }
+        $merged = [];
+        foreach ($groups as $cs) {
+            if (count($cs) > 1) {
+                $big = max_by($cs, fn($x) => [$prorated[$x->id][0], $x->id]);
+                $totMmg = dsum(array_map(fn($x) => $prorated[$x->id][0], $cs));
+                $totBasis = dsum(array_map(fn($x) => dsum(array_map(fn($l) => $l->new, $x->linesOf('1.1'))), $cs));
+                foreach ($cs as $x) {
+                    $merged[$x->id] = [$big->id, $totMmg, $totBasis];
+                }
+            }
+        }
         foreach ($ctx->contracts as $c) {
             $out = &$c->stepOut(self::STEP);
             $lines = $c->linesOf('1.1');
-            $rl = $ctx->rate($c->id, 'BASIC', $ctx->month . '-01', '1.1') ?? $ctx->rate($c->id, 'BASIC', null, '1.1');
-            $mmg = D(g($rl ?? [], 'mmg_amount'));
+            [$mmg, $days, $dim, $partial] = $prorated[$c->id] ?? [D(0), 0, 0, false];
+            if ($partial) {
+                $ctx->emit(self::STEP, 'mmg_prorated', $mmg, $c, inputs: ['그 달 계약 일수' => $days, '그 달 일수' => $dim],
+                    formula: '첫 달 · 끝 달 월 보장액 = 내림(월 보장액 × 그 달 계약 일수 ÷ 그 달 일수)', ref: 'V2 §8.3 3단계 · V1 §5.3 (v4.0.38)');
+            }
+            if (isset($merged[$c->id])) {
+                [$big, $totMmg, $totBasis] = $merged[$c->id];
+                $subM = $c->id === $big ? dmax(D(0), sub($totMmg, $totBasis)) : D(0);
+                $ctx->emit(self::STEP, 'mmg_recontract_merged', $subM, $c, inputs: ['일할 보장액 합' => $totMmg, 'R/S 합' => $totBasis, '보전 원장 계약' => $big],
+                    formula: '재계약 달: 두 계약 일할 보장액 합 vs 권리자 R/S 합 1회 판정, 보전금은 일할액이 큰 계약', ref: 'V2 §8.3 3단계 (v4.0.41)');
+                $mmg = $subM > 0 ? add(dsum(array_map(fn($l) => $l->new, $lines)), $subM) : D(0);
+            }
             $applicable = (bool)$lines || $mmg > 0;
             $out['applicable'] = $ctx->emit(self::STEP, 'applicable', $applicable, $c, inputs: ['P1.1 lines' => count($lines), 'mmg' => $mmg],
                 formula: 'MMG는 온라인 강좌 특약 — Pipeline 1.1에만 적용', ref: 'V2 §8.3 3단계 L193');
@@ -149,7 +212,9 @@ final class S03MmgAdj
                 continue;
             }
             $basis = dsum(array_map(fn($l) => $l->new, $lines));
-            if ($mmg > 0 && $basis < $mmg) {
+            if (isset($merged[$c->id]) && is_zero($mmg)) {
+                [$adjusted, $subsidy] = [$basis, D(0)];
+            } elseif ($mmg > 0 && $basis < $mmg) {
                 [$adjusted, $subsidy] = [$mmg, sub($mmg, $basis)];
             } else {
                 [$adjusted, $subsidy] = [$basis, D(0)];
