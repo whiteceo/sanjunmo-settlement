@@ -1,0 +1,91 @@
+{
+ "case": "DEC-V456-OFF-LOAN-09",
+ "title": "상계한 달도 최종 정산금액이 최소 지급 미달이면 이월 — 대여금",
+ "canon_ref": "정산 01권 7.3절 · 02권 8.3절 11단계 '최소 지급 판정 — 상계한 달도 같음'(v4.0.56) · 04권 Case 1-C",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-1",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 1000000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 1000000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 400000
+   }
+  ]
+ },
+ "notes": "대여금 400,000, R/S 500,000(매출 1,000,000 × 50%) → 상계 400,000, 최종 정산금액 83,500 < 100,000 → 이체 0. 상계분은 그 달 지급 확정: 세전 413,640(소득세 12,400 · 지방 1,240을 떼면 400,000), 나머지 세전 86,360 이월",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0,
+   "offset_paid_gross": 413640,
+   "offset_month_carry_pre_tax": 86360
+  },
+  "TAX": {
+   "income_tax": 12400,
+   "local_income_tax": 1240
+  }
+ }
+}

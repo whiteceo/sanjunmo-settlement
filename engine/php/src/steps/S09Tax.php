@@ -420,7 +420,7 @@ final class S09Tax
             code: 'settle = net_2_2 − fee_vat if NET_DEDUCT else net_2_2', ref: 'V2 §8.3 9단계 L266 · L282');
     }
 
-    private static function totals(Context $ctx, ContractState $c, PayeeState $p): void
+    public static function totals(Context $ctx, ContractState $c, PayeeState $p): void
     {
         if (!$p->lines) { // 세무 대상 라인 없음(예: 자사 집계 전용) — 합계를 내지 않는다
             return;

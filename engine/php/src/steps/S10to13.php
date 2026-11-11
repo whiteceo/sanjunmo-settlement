@@ -390,6 +390,59 @@ final class S11Payout
         }
     }
 
+    /** 원천세를 뗀 뒤 금액이 net 이상이 되는 가장 작은 세전 금액(사업소득, 10원 미만 내림 순차 계산). */
+    private static function grossFor(Context $ctx, Number $net): Number
+    {
+        $lo = (int)$net->value;
+        $hi = $lo * 2;
+        while ($lo < $hi) {
+            $mid = intdiv($lo + $hi, 2);
+            $w = Tax::withholdBusiness($ctx, D($mid));
+            if (sub(sub(D($mid), $w['income_tax']), $w['local_income_tax']) >= $net) {
+                $hi = $mid;
+            } else {
+                $lo = $mid + 1;
+            }
+        }
+        return D($lo);
+    }
+
+    /**
+     * 상계한 달에 최종 정산금액이 최소 지급 미달로 이월될 때(V1 §7.3 · V2 §8.3 11단계, v4.0.56):
+     * 상계한 금액은 그 달 지급으로 확정 · 원천징수하고, 남은 금액은 원천징수 전 세전 금액으로 이월한다.
+     * 대여금(LOAN)은 상계액이 원천세를 뗀 뒤 금액이므로 세전 지급 확정액 = 원천세를 떼면 상계액이 되는 세전 금액,
+     * 소득 선지급(EARNED)은 상계액이 과세표준에서 이미 빠져 그 달 원천징수 없음. → 이월 세전 금액
+     */
+    private static function offsetCarry(Context $ctx, ContractState $c, PayeeState $p, $pid, array &$ln): Number
+    {
+        $kw = ['payee' => $pid, 'line' => $ln['line_id'], 'line_key' => $ln['line_key']];
+        $off = $ln['offset_amount'];
+        if ($c->prepay && g($c->prepay, 'type') === 'LOAN') {
+            $gross = self::grossFor($ctx, $off);
+            $w = Tax::withholdBusiness($ctx, $gross);
+            $ln['taxable_base'] = $gross;
+            $ln['income_tax'] = $w['income_tax'];
+            $ln['local_income_tax'] = $w['local_income_tax'];
+            $ln['withholding_total'] = add($w['income_tax'], $w['local_income_tax']);
+            $carry = sub($ln['split_amount'], $gross);
+            $ctx->emit(self::STEP, 'offset_paid_gross', $gross, $c, ...$kw,
+                inputs: ['상계액' => $off, '소득세' => $w['income_tax'], '지방소득세' => $w['local_income_tax']],
+                formula: '대여금 상계분 그 달 지급 확정 세전액 = 원천세를 떼면 상계액이 되는 세전 금액', ref: 'V2 §8.3 11단계 (v4.0.56)');
+        } else {
+            $ln['income_tax'] = $ln['local_income_tax'] = $ln['withholding_total'] = D(0);
+            $carry = $ln['pre_tax_payable'];
+        }
+        foreach (['taxable_base', 'income_tax', 'local_income_tax', 'withholding_total'] as $f) {
+            $ctx->emit('TAX', $f, $ln[$f], $c, ...$kw, formula: '상계한 달 미달 이월 — 그 달 원천징수는 상계분만(11단계에서 다시 정함)',
+                ref: 'V2 §8.3 11단계 (v4.0.56)');
+        }
+        S09Tax::totals($ctx, $c, $p); // 받는 사람 세액 합계를 상계분 기준으로 다시 냄
+        $ctx->emit(self::STEP, 'offset_month_carry_pre_tax', $carry, $c, ...$kw, inputs: ['분할액' => $ln['split_amount'], '상계액' => $off],
+            formula: '상계 뒤 최종 정산금액이 최소 지급 미달 — 상계분은 그 달 지급 확정, 나머지는 세전 이월(원천세는 지급하는 달)',
+            ref: 'V1 §7.3 · V2 §8.3 11단계 (v4.0.56)');
+        return $carry;
+    }
+
     private static function payoutPayee(Context $ctx, ContractState $c, PayeeState $p, bool $end, bool $closed, Number $limit): void
     {
         $pid = $p->payee_id;
@@ -427,12 +480,6 @@ final class S11Payout
         if ($closed) {
             $reasons[] = 'BUSINESS_CLOSED';
         }
-        foreach ($p->lines as $ln0) {
-            if (in_array($ln0['origin'], ['NEW', 'ADJUSTMENT'], true) && either(g($ln0, 'offset_amount'), D(0)) > 0) {
-                $reasons[] = 'OFFSET_PRIORITY'; // 상계 성립 달은 하한 미달이어도 그 달 상계 · 지급 · 신고(v4.0.41)
-                break;
-            }
-        }
         $designated = truthy(g($ctx->holder($pid), 'carry_designated_yn')); // 운영자 이월 지정 후 재배치(v4.0.43)
         $hold = truthy(g($ctx->holder($pid), 'payout_hold_yn')) || $designated;
         if ($hold) {
@@ -469,21 +516,23 @@ final class S11Payout
                 $rows[] = array_merge($r, ['action' => 'RESERVE', 'payout_reservation_status' => 'RESERVED']);
             }
         } elseif ($evaluated) {
-            foreach ($p->lines as $ln) {
+            foreach ($p->lines as &$ln) {
                 if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && $ln['pre_tax_payable'] > 0) {
+                    $carryAmt = (either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) ? self::offsetCarry($ctx, $c, $p, $pid, $ln) : $ln['pre_tax_payable'];
                     $key = $ln['line_key'];
                     $rows[] = ['ledger_id' => null, 'action' => 'NEW', 'rights_holder_id' => $c->holder_id, 'payee_id' => $pid,
                         'contract_id' => $c->id, 'origin_month' => $ctx->month, 'account_type' => 'PRE_TAX',
                         'pipeline_id' => g($key, 'pipeline_id'), 'consignment_balance_yn' => false,
                         'income_category' => g($key, 'income_category'), 'income_clause' => g($key, 'income_clause'),
                         'tax_threshold_unit_key' => g($key, 'tax_threshold_unit_key'),
-                        'carryover_reason' => $hold ? ($designated ? '운영자 이월 지정' : '지급 보류') : '지급 하한 미달', 'carryover_amount' => $ln['pre_tax_payable'],
+                        'carryover_reason' => $hold ? ($designated ? '운영자 이월 지정' : '지급 보류') : '지급 하한 미달', 'carryover_amount' => $carryAmt,
                         'components' => ['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
                             'vat_amount' => g($ln, 'vat_amount')],
                         'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,
                         'payout_reservation_status' => 'NONE', 'extinguished_yn' => false];
                 }
             }
+            unset($ln);
             foreach (array_merge($prePos, $postPos) as $r) {
                 $rows[] = array_merge($r, ['action' => 'KEEP']);
             }

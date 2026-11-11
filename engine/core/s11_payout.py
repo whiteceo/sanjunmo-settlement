@@ -6,6 +6,7 @@
 """
 
 from .money import D
+from .tax import withhold_business
 from .pipeline import months_between
 
 STEP = "PAYOUT"
@@ -68,8 +69,6 @@ def payout_payee(ctx, c, p, end, closed, limit):
         reasons.append("CONTRACT_END")
     if closed:
         reasons.append("BUSINESS_CLOSED")
-    if any((ln.get("offset_amount") or D(0)) > 0 for ln in p.lines if ln["origin"] in ("NEW", "ADJUSTMENT")):
-        reasons.append("OFFSET_PRIORITY")  # 상계가 성립한 달은 하한 미달이어도 그 달 상계 · 지급 · 신고(V2 §8.3 11단계, v4.0.41)
     designated = bool(ctx.holder(pid).get("carry_designated_yn"))  # 운영자 이월 지정 후 재배치(v4.0.43)
     hold = bool(ctx.holder(pid).get("payout_hold_yn")) or designated
     if hold:
@@ -112,7 +111,8 @@ def payout_payee(ctx, c, p, end, closed, limit):
                              "pipeline_id": key.get("pipeline_id"), "consignment_balance_yn": False,
                              "income_category": key.get("income_category"), "income_clause": key.get("income_clause"),
                              "tax_threshold_unit_key": key.get("tax_threshold_unit_key"),
-                             "carryover_reason": ("운영자 이월 지정" if designated else "지급 보류") if hold else "지급 하한 미달", "carryover_amount": ln["pre_tax_payable"],
+                             "carryover_reason": ("운영자 이월 지정" if designated else "지급 보류") if hold else "지급 하한 미달",
+                             "carryover_amount": offset_carry(ctx, c, p, pid, ln) if (ln.get("offset_amount") or D(0)) > 0 and not hold else ln["pre_tax_payable"],
                              "components": {"split_amount": ln["split_amount"], "offset_amount": ln["offset_amount"],
                                             "vat_amount": ln.get("vat_amount")},
                              "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
@@ -144,3 +144,46 @@ def apply_results(ctx, c):
             ctx.emit(STEP, "payout_result", act, c, payee=res.get("payee_id"), ref_id=lid,
                      formula="이체 성공 → SETTLED(소멸) / 실패 → RESERVED → NONE 해제(차월 기초 세전 이월 잔액에 자동 복귀)",
                      ref="V1 L589 · L591")
+
+
+def gross_for(ctx, net):
+    """원천세를 뗀 뒤 금액이 net 이상이 되는 가장 작은 세전 금액(사업소득, 10원 미만 내림 순차 계산)."""
+    lo, hi = D(net), D(net) * 2
+    while lo < hi:
+        mid = (lo + hi) // 2
+        w = withhold_business(ctx, mid)
+        if mid - w["income_tax"] - w["local_income_tax"] >= net:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+
+
+def offset_carry(ctx, c, p, pid, ln):
+    """상계한 달에 최종 정산금액이 최소 지급 미달로 이월될 때(V1 §7.3 · V2 §8.3 11단계, v4.0.56):
+    상계한 금액은 그 달 지급으로 확정 · 원천징수하고, 남은 금액은 원천징수 전 세전 금액으로 이월한다.
+    대여금(LOAN)은 상계액이 원천세를 뗀 뒤 금액이므로 세전 지급 확정액 = 원천세를 떼면 상계액이 되는 세전 금액,
+    소득 선지급(EARNED)은 상계액이 과세표준에서 이미 빠져 그 달 원천징수 없음. → 이월 세전 금액"""
+    kw = dict(payee=pid, line=ln["line_id"], line_key=ln["line_key"])
+    off = ln["offset_amount"]
+    if c.prepay and c.prepay.get("type") == "LOAN":
+        g = gross_for(ctx, off)
+        w = withhold_business(ctx, g)
+        ln["taxable_base"], ln["income_tax"], ln["local_income_tax"] = g, w["income_tax"], w["local_income_tax"]
+        ln["withholding_total"] = w["income_tax"] + w["local_income_tax"]
+        carry = ln["split_amount"] - g
+        ctx.emit(STEP, "offset_paid_gross", g, c, **kw,
+                 inputs={"상계액": off, "소득세": w["income_tax"], "지방소득세": w["local_income_tax"]},
+                 formula="대여금 상계분 그 달 지급 확정 세전액 = 원천세를 떼면 상계액이 되는 세전 금액", ref="V2 §8.3 11단계 (v4.0.56)")
+    else:
+        ln["income_tax"] = ln["local_income_tax"] = ln["withholding_total"] = D(0)
+        carry = ln["pre_tax_payable"]
+    for f in ("taxable_base", "income_tax", "local_income_tax", "withholding_total"):
+        ctx.emit("TAX", f, ln[f], c, **kw, formula="상계한 달 미달 이월 — 그 달 원천징수는 상계분만(11단계에서 다시 정함)",
+                 ref="V2 §8.3 11단계 (v4.0.56)")
+    from .s09_tax import totals
+    totals(ctx, c, p)  # 받는 사람 세액 합계를 상계분 기준으로 다시 냄
+    ctx.emit(STEP, "offset_month_carry_pre_tax", carry, c, **kw, inputs={"분할액": ln["split_amount"], "상계액": off},
+             formula="상계 뒤 최종 정산금액이 최소 지급 미달 — 상계분은 그 달 지급 확정, 나머지는 세전 이월(원천세는 지급하는 달)",
+             ref="V1 §7.3 · V2 §8.3 11단계 (v4.0.56)")
+    return carry
