@@ -1,0 +1,83 @@
+{
+ "case": "DEC-V468-PREPAYCONS-MIXED",
+ "title": "강좌 + 위탁 혼합 계약에 선급금 — 입력 차단",
+ "canon_ref": "정산 01권 5.3절 '위탁과 동시 등록 차단'(v4.0.68)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0,
+    "consignment_fee_rate": 20
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-1",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 300000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 300000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 300000
+   }
+  ],
+  "adjustments": []
+ },
+ "notes": "강좌 매핑과 위탁 수수료율 20%가 있는 계약에 대여금 잔액 300,000 → PREPAY_WITH_CONSIGNMENT(v4.0.68)",
+ "expected": {},
+ "expected_error": "PREPAY_WITH_CONSIGNMENT"
+}

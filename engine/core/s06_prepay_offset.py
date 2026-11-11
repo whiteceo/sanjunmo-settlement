@@ -88,18 +88,9 @@ def eligible_lines(ctx, c):
     return out + carry_eligible(ctx, c)
 
 
-def consignment_only(ctx, c):
-    """위탁만 있는 계약(V1 5.3절, v4.0.66): 권리자 유형이 위탁자(CONSIGNOR)이거나, 위탁 수수료율이 있고 강좌 매핑 ·
-    인세 요율 · 개발지원금 약정 · 비정기 약정금 승인이 하나도 없는 계약."""
-    if (ctx.holder(c.holder_id).get("rights_holder_type") or "") == "CONSIGNOR":
-        return True
-    if c.row.get("consignment_fee_rate") is None:
-        return False
-    cid = c.id
-    return not (any(m["contract_id"] == cid for m in ctx.input["lecture_instructors"])
-                or any(r["contract_id"] == cid and str(r.get("pipeline_id") or "") == "2.1" for r in ctx.input["rate_lines"])
-                or any(a["contract_id"] == cid for a in ctx.input["support_fund_agreements"])
-                or any(a["contract_id"] == cid for a in ctx.input["lumpsum_approvals"]))
+def has_consignment(ctx, c):
+    """위탁이 있는 계약(V1 5.3절, v4.0.68): 권리자 유형이 위탁자(CONSIGNOR)이거나 위탁 수수료율이 있는 계약."""
+    return (ctx.holder(c.holder_id).get("rights_holder_type") or "") == "CONSIGNOR" or c.row.get("consignment_fee_rate") is not None
 
 
 def run(ctx):
@@ -124,9 +115,9 @@ def run(ctx):
         # 월 보장액(MMG)을 둔 계약에는 종결되지 않은 선급금을 둘 수 없음(V1 5.3절, v4.0.65)
         if bal > 0 and any(D(r.get("mmg_amount") or 0) > 0 for r in ctx.input["rate_lines"] if r["contract_id"] == c.id):
             ctx.stop("INPUT_ERROR", "PREPAY_WITH_MMG", f"{c.id} 선급금과 월 보장액(MMG) 동시 존재 금지", "V1 5.3절 (v4.0.65)")
-        # 위탁만 있는 계약에는 종결되지 않은 선급금을 둘 수 없음 — 위탁 정산액은 상계 대상이 아님(V1 5.3절 · V2 6단계, v4.0.66)
-        if bal > 0 and consignment_only(ctx, c):
-            ctx.stop("INPUT_ERROR", "PREPAY_WITH_CONSIGNMENT_ONLY", f"{c.id} 위탁만 있는 계약에 선급금 등록 금지", "V1 5.3절 (v4.0.66)")
+        # 위탁이 있는 계약에는 종결되지 않은 선급금을 둘 수 없음 — 선급금과 위탁은 한 계약에 섞이지 않음(V1 5.3절, v4.0.68)
+        if bal > 0 and has_consignment(ctx, c):
+            ctx.stop("INPUT_ERROR", "PREPAY_WITH_CONSIGNMENT", f"{c.id} 선급금과 위탁 판매 동시 존재 금지", "V1 5.3절 (v4.0.68)")
         payee = pre[0].get("offset_payee_id") or c.holder_id
         c.prepay = {"type": ptype, "balance": bal, "payee": payee, "rows": pre}
         out["applicable"] = ctx.emit(STEP, "applicable", True, c, inputs={"prepayment_tax_type": ptype})

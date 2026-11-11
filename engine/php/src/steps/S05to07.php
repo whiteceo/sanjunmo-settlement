@@ -212,33 +212,10 @@ final class S06PrepayOffset
         return array_merge($out, self::carryEligible($ctx, $c));
     }
 
-    /** 위탁만 있는 계약(V1 5.3절, v4.0.66): 권리자 유형이 위탁자(CONSIGNOR)이거나, 위탁 수수료율이 있고 강좌 매핑 · 인세 요율 · 개발지원금 약정 · 비정기 약정금 승인이 하나도 없는 계약. */
-    private static function consignmentOnly(Context $ctx, ContractState $c): bool
+    /** 위탁이 있는 계약(V1 5.3절, v4.0.68): 권리자 유형이 위탁자(CONSIGNOR)이거나 위탁 수수료율이 있는 계약. */
+    private static function hasConsignment(Context $ctx, ContractState $c): bool
     {
-        if ((string)either(g($ctx->holder($c->holder_id), 'rights_holder_type'), '') === 'CONSIGNOR') {
-            return true;
-        }
-        if (g($c->row, 'consignment_fee_rate') === null) {
-            return false;
-        }
-        foreach ($ctx->input['lecture_instructors'] as $m) {
-            if ($m['contract_id'] === $c->id) {
-                return false;
-            }
-        }
-        foreach ($ctx->input['rate_lines'] as $r) {
-            if ($r['contract_id'] === $c->id && pystr(either(g($r, 'pipeline_id'), '')) === '2.1') {
-                return false;
-            }
-        }
-        foreach (['support_fund_agreements', 'lumpsum_approvals'] as $k) {
-            foreach ($ctx->input[$k] as $a) {
-                if ($a['contract_id'] === $c->id) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return (string)either(g($ctx->holder($c->holder_id), 'rights_holder_type'), '') === 'CONSIGNOR' || g($c->row, 'consignment_fee_rate') !== null;
     }
 
     /** 세전 이월 행(상계 받는 사람 몫)의 상계 대상 = 이월액 − 보호분. 보호분 기록이 없는 행(v4.0.63 이전 적재)은 넣지 않음. */
@@ -306,9 +283,9 @@ final class S06PrepayOffset
                     }
                 }
             }
-            // 위탁만 있는 계약에는 종결되지 않은 선급금을 둘 수 없음 — 위탁 정산액은 상계 대상이 아님(V1 5.3절 · V2 6단계, v4.0.66)
-            if ($bal > 0 && self::consignmentOnly($ctx, $c)) {
-                $ctx->stop('INPUT_ERROR', 'PREPAY_WITH_CONSIGNMENT_ONLY', pystr($c->id) . ' 위탁만 있는 계약에 선급금 등록 금지', 'V1 5.3절 (v4.0.66)');
+            // 위탁이 있는 계약에는 종결되지 않은 선급금을 둘 수 없음 — 선급금과 위탁은 한 계약에 섞이지 않음(V1 5.3절, v4.0.68)
+            if ($bal > 0 && self::hasConsignment($ctx, $c)) {
+                $ctx->stop('INPUT_ERROR', 'PREPAY_WITH_CONSIGNMENT', pystr($c->id) . ' 선급금과 위탁 판매 동시 존재 금지', 'V1 5.3절 (v4.0.68)');
             }
             $payee = either(g($pre[0], 'offset_payee_id'), $c->holder_id);
             $c->prepay = ['type' => $ptype, 'balance' => $bal, 'payee' => $payee, 'rows' => $pre];

@@ -113,6 +113,17 @@ def evaluate(fx_case, judg):
         case["error"] = "".join(traceback.format_exception(ex)[-3:]).strip()
         return case, None
     case["engine_status"] = result["status"]
+    if fx_case.get("expected_error"):
+        # 입력 검사 기대값: 엔진이 이 오류 코드로 멈춰야 PASS(v4.0.68)
+        codes = [e.get("code") for e in result.get("errors") or []]
+        case["expected_count"] = 1
+        ok = fx_case["expected_error"] in codes
+        case["matched"] = 1 if ok else 0
+        if not ok:
+            case["diffs"].append({"step_no": 0, "step_code": "INPUT", "aux": False, "path": "errors", "expected": fx_case["expected_error"],
+                                  "calc": codes, "found": bool(codes), "engine_field": "errors", "diff": None, "cause": "미판정", "issue": None})
+        case["result"] = "PASS" if ok else "FAIL"
+        return case, result
     case["issues"] = result["issues"]
     ix = Index(result)
     for (top, path), ev in want.items():
@@ -152,7 +163,8 @@ def load_cases(path):
     key = "engine_input" if engine_form else "input"
     base = {"code": fx.get("case", path.stem), "title": fx.get("title"), "ref": fx.get("canon_ref"),
             "status": fx.get("expected_status"), "input": fx[key], "expected": fx.get("expected"),
-            "tol": fx.get("tolerance", 0), "file": path.name, "engine_input": engine_form}
+            "tol": fx.get("tolerance", 0), "file": path.name, "engine_input": engine_form,
+            "expected_error": fx.get("expected_error")}
     yield base
     for v in fx.get("variants", []) or []:
         inp = copy.deepcopy(v["input"]) if "input" in v else apply_delta(base["input"], v.get("input_delta"))
