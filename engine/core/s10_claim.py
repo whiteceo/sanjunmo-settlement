@@ -1,7 +1,7 @@
 """10단계 CLAIM — 반환 반영 · 청구 판정(V2 §8.3 표 L177 · 본문 L284~298, V1 §5.2 · §5.3 · §7.3, SPEC 13절).
 
 1) 동일 계약 · 동일 수취인 + 반환 상계 동의가 연결된 전속계약금 반환만 1회 차감
-2) 만료 · 해지 귀속월 · 미상계 선급금 잔액 > 0 · 승계 미이관 → 미상계 선급금 청구 전환(비상계 보호분과 교차 상계 금지)
+2) 만료 · 해지 귀속월 · 미상계 선급금 잔액 > 0 → 미상계 선급금 청구 전환(비상계 보호분과 교차 상계 금지)
 청구 대상 음수 = min(0, 반환 반영 후 순액) − 동의 없는 반환 − 미상계 청구 전환액,
 청구 발행 = 음수 AND (|음수| > |min_claim_limit| OR 강제 청구 트리거).
 지급 판정 전달액 = max(0, 반환 반영 후 순액) + 원귀속 PRE_TAX 세후 환산액.
@@ -93,12 +93,12 @@ def claim_payee(ctx, c, p, end, closed, limit):
     held = bool(hd.get("payout_hold_yn") or hd.get("carry_designated_yn"))
     deferred_in = bool(pp) and any(r.get("claim_conversion_deferred_yn") for r in pp["rows"])
     due = end or deferred_in
-    if pp and pid == pp["payee"] and due and held and (c.prepay_balance_after or 0) > 0 and not c.row.get("successor_transfer_yn"):
+    if pp and pid == pp["payee"] and due and held and (c.prepay_balance_after or 0) > 0:
         ctx.emit(STEP, "unoffset_prepay_claim_deferred", c.prepay_balance_after, c, **kw,
                  inputs={"6단계 후 미상계 잔액": c.prepay_balance_after, "보류 · 이월 지정": True},
                  formula="보류 · 운영자 이월 지정 수취인은 청구 전환을 풀린 달로 미룸(claim_conversion_deferred_yn), 그 달 상계 후 잔액만 청구",
                  ref="V1 §5.3 · V2 §8.3 10단계 2) (v4.0.46)")
-    if pp and pid == pp["payee"] and due and not held and (c.prepay_balance_after or 0) > 0 and not c.row.get("successor_transfer_yn"):
+    if pp and pid == pp["payee"] and due and not held and (c.prepay_balance_after or 0) > 0:
         if pp["type"] == "LOAN":
             unoffset = c.prepay_balance_after
             f = "대여금(LOAN): 미상계 원금 전액 청구 전환"

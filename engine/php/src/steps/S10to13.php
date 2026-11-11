@@ -118,13 +118,13 @@ final class S10Claim
             }
         }
         $due = $end || $deferredIn;
-        if ($pp && $pid === $pp['payee'] && $due && $held && ($c->prepay_balance_after ?? D(0)) > 0 && !truthy(g($c->row, 'successor_transfer_yn'))) {
+        if ($pp && $pid === $pp['payee'] && $due && $held && ($c->prepay_balance_after ?? D(0)) > 0) {
             $ctx->emit(self::STEP, 'unoffset_prepay_claim_deferred', $c->prepay_balance_after, $c, ...$kw,
                 inputs: ['6단계 후 미상계 잔액' => $c->prepay_balance_after, '보류 · 이월 지정' => true],
                 formula: '보류 · 운영자 이월 지정 수취인은 청구 전환을 풀린 달로 미룸(claim_conversion_deferred_yn), 그 달 상계 후 잔액만 청구',
                 ref: 'V1 §5.3 · V2 §8.3 10단계 2) (v4.0.46)');
         }
-        if ($pp && $pid === $pp['payee'] && $due && !$held && ($c->prepay_balance_after ?? D(0)) > 0 && !truthy(g($c->row, 'successor_transfer_yn'))) {
+        if ($pp && $pid === $pp['payee'] && $due && !$held && ($c->prepay_balance_after ?? D(0)) > 0) {
             if ($pp['type'] === 'LOAN') {
                 $unoffset = $c->prepay_balance_after;
                 $f = '대여금(LOAN): 미상계 원금 전액 청구 전환';

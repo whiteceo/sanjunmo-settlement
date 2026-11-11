@@ -135,7 +135,7 @@
           "start_date": { "$ref": "#/$defs/date", "description": "[03-DD]" },
           "current_end_date": { "$ref": "#/$defs/date", "description": "[03-DD]" },
           "termination_date": { "$ref": "#/$defs/date", "description": "[신규 명명] 중도 해지일" },
-          "successor_transfer_yn": { "description": "[신규 명명] 선급금 잔액을 승계 계약으로 이관했는지(V1 §5.4 L354)", "type": "boolean", "default": false },
+          "successor_transfer_yn": { "description": "[사용 안 함, v4.0.50] 엔진은 이관 표시를 읽지 않고 각 계약 선급금 잔액만 본다(승계 이관은 재무 담당자가 앞 계약 잔액 0 정정 + 승계 계약 등록, V1 §5.4)", "type": "boolean", "default": false },
           "min_payout_limit": { "$ref": "#/$defs/money", "description": "[03-DD]" },
           "min_claim_limit": { "$ref": "#/$defs/money", "description": "[03-DD]" },
           "vat_treatment": { "description": "[03-DD]", "type": "string", "enum": ["VAT_EXCLUDED", "VAT_INCLUDED"], "default": "VAT_EXCLUDED" },
