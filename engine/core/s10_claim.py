@@ -88,7 +88,17 @@ def claim_payee(ctx, c, p, end, closed, limit):
                      ref="V2 §8.3 10단계 1) L286 · §10.2")
     unoffset = D(0)
     pp = c.prepay
-    if pp and pid == pp["payee"] and end and (c.prepay_balance_after or 0) > 0 and not c.row.get("successor_transfer_yn"):
+    # 보류 · 운영자 이월 지정으로 상계를 미룬 달은 청구 전환도 풀린 달로 미룸(상계 후 남은 잔액만 청구, V1 §5.3 · V2 §8.3 10단계, v4.0.46)
+    hd = ctx.holder(pid)
+    held = bool(hd.get("payout_hold_yn") or hd.get("carry_designated_yn"))
+    deferred_in = bool(pp) and any(r.get("claim_conversion_deferred_yn") for r in pp["rows"])
+    due = end or deferred_in
+    if pp and pid == pp["payee"] and due and held and (c.prepay_balance_after or 0) > 0 and not c.row.get("successor_transfer_yn"):
+        ctx.emit(STEP, "unoffset_prepay_claim_deferred", c.prepay_balance_after, c, **kw,
+                 inputs={"6단계 후 미상계 잔액": c.prepay_balance_after, "보류 · 이월 지정": True},
+                 formula="보류 · 운영자 이월 지정 수취인은 청구 전환을 풀린 달로 미룸(claim_conversion_deferred_yn), 그 달 상계 후 잔액만 청구",
+                 ref="V1 §5.3 · V2 §8.3 10단계 2) (v4.0.46)")
+    if pp and pid == pp["payee"] and due and not held and (c.prepay_balance_after or 0) > 0 and not c.row.get("successor_transfer_yn"):
         if pp["type"] == "LOAN":
             unoffset = c.prepay_balance_after
             f = "대여금(LOAN): 미상계 원금 전액 청구 전환"

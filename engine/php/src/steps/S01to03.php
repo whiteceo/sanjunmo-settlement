@@ -152,20 +152,32 @@ final class S03MmgAdj
             }
         }
         $e = $ends ? min($ends) : $last;
-        // 승계 계약이 시작하면 앞 계약의 보장은 그 전날까지(체결 대기 · 시작 전 해지된 승계 계약은 끊지 않음, v4.0.44)
+        $lo = max($s, $first);
+        $hi = min($e, $last);
+        $days = $hi >= $lo ? (int)$lo->diff($hi)->days + 1 : 0;
+        // 승계 계약이 유효한 날은 앞 계약의 보장에서 뺀다 — 승계 계약이 먼저 끝나면 다음 날부터 다시 선다
+        // (작성 중 · 시작 전 해지된 승계 계약은 빼지 않음, v4.0.44 · v4.0.46)
         foreach ($ctx->contracts as $o) {
             if ($o->id === $c->id || $o->holder_id !== $c->holder_id || g($o->row, 'contract_status') === 'DRAFT') {
                 continue;
             }
             $os = g($o->row, 'start_date') ? new \DateTimeImmutable(substr((string)$o->row['start_date'], 0, 10)) : null;
-            $ot = g($o->row, 'termination_date') ? new \DateTimeImmutable(substr((string)$o->row['termination_date'], 0, 10)) : null;
-            if ($os && $os > $s && !($ot && $ot < $os)) {
-                $e = min($e, $os->modify('-1 day'));
+            $oends = [];
+            foreach (['termination_date', 'current_end_date'] as $k) {
+                if (g($o->row, $k)) {
+                    $oends[] = new \DateTimeImmutable(substr((string)$o->row[$k], 0, 10));
+                }
+            }
+            $oe = $oends ? min($oends) : $last;
+            if (!$os || $os <= $s || $oe < $os) {
+                continue;
+            }
+            $a = max($os, $lo);
+            $b = min($oe, $hi);
+            if ($b >= $a) {
+                $days -= (int)$a->diff($b)->days + 1;
             }
         }
-        $lo = max($s, $first);
-        $hi = min($e, $last);
-        $days = $hi >= $lo ? (int)$lo->diff($hi)->days + 1 : 0;
         if ($days >= $dim) {
             return [$mmg, $dim, $dim, false];
         }

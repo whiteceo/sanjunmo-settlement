@@ -24,15 +24,21 @@ def prorate(ctx, c, mmg):
     s = _d(c.row.get("start_date")) or first
     ends = [x for x in (_d(c.row.get("termination_date")), _d(c.row.get("current_end_date"))) if x]
     e = min(ends) if ends else last
-    # 승계 계약이 시작하면 앞 계약의 보장은 그 전날까지(체결 대기 · 시작 전 해지된 승계 계약은 끊지 않음, v4.0.44)
+    lo, hi = max(s, first), min(e, last)
+    days = (hi - lo).days + 1 if hi >= lo else 0
+    # 승계 계약이 유효한 날은 앞 계약의 보장에서 뺀다 — 승계 계약이 먼저 끝나면 다음 날부터 다시 선다
+    # (작성 중 · 시작 전 해지된 승계 계약은 빼지 않음, v4.0.44 · v4.0.46)
     for o in ctx.contracts.values():
         if o.id == c.id or o.holder_id != c.holder_id or o.row.get("contract_status") == "DRAFT":
             continue
-        os_, ot = _d(o.row.get("start_date")), _d(o.row.get("termination_date"))
-        if os_ and os_ > s and not (ot and ot < os_):
-            e = min(e, date.fromordinal(os_.toordinal() - 1))
-    lo, hi = max(s, first), min(e, last)
-    days = (hi - lo).days + 1 if hi >= lo else 0
+        os_ = _d(o.row.get("start_date"))
+        oends = [x for x in (_d(o.row.get("termination_date")), _d(o.row.get("current_end_date"))) if x]
+        oe = min(oends) if oends else last
+        if not os_ or os_ <= s or oe < os_:
+            continue
+        a, b = max(os_, lo), min(oe, hi)
+        if b >= a:
+            days -= (b - a).days + 1
     if days >= dim:
         return mmg, dim, dim, False
     return floor_won(mmg * D(days) / D(dim)), days, dim, True
