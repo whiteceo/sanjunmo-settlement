@@ -26,7 +26,7 @@ final class S00PipelineIn
         foreach ($items as $it) {
             $kind = g($it, 'item_type');
             if ($kind === 'LECTURE') {
-                if (truthy(g($it, 'approved_at')) && month_of($it['approved_at']) !== $month) {
+                if (truthy(g($it, 'approved_at')) && !in_array(months_between(month_of($it['approved_at']), $month), self::lectureLags($ctx, $it), true)) {
                     continue;
                 }
                 self::lectureRs($ctx, $it, $paid[(string)$it['order_item_id']] ?? D(g($it, 'paid_amount')), $p11);
@@ -213,6 +213,28 @@ final class S00PipelineIn
         }
     }
 
+    /** 지급 시차 N(payout_lag_months, 기본 0): 판매월 M의 매출을 귀속월 M+N 정산에 넣는다(V2 §8.3 11단계, v4.0.51). */
+    private static function contractLag($c): int
+    {
+        return $c ? (int)either(g($c->row, 'payout_lag_months'), 0) : 0;
+    }
+
+    /** 이 결제 건의 강의에 매핑된 계약들의 지급 시차 목록(없으면 [0]). */
+    private static function lectureLags(Context $ctx, array $it): array
+    {
+        $lecs = [g($it, 'product_id')];
+        foreach (g($it, 'lectures') ?? [] as $lec) {
+            $lecs[] = $lec['lecture_id'];
+        }
+        $lags = [];
+        foreach ($ctx->input['lecture_instructors'] as $m) {
+            if (in_array($m['lecture_id'], $lecs, true)) {
+                $lags[] = self::contractLag($ctx->contract($m['contract_id']));
+            }
+        }
+        return $lags ? array_values(array_unique($lags)) : [0];
+    }
+
     private static function oneLecture(Context $ctx, array $it, array $lec, array &$p11): void
     {
         $date = head(pystr(either(g($it, 'approved_at'), '')), 10);
@@ -223,6 +245,9 @@ final class S00PipelineIn
                 continue;
             }
             $c = $ctx->contract($m['contract_id']);
+            if ($c && $date !== null && months_between(month_of($date), $ctx->month) !== self::contractLag($c)) {
+                continue; // 지급 시차가 다른 계약의 몫은 그 계약의 귀속월 정산에서(v4.0.51)
+            }
             if (!$c || !valid_on($m, $date, $c->row) || !valid_on(['start_date' => g($c->row, 'start_date'),
                     'end_date' => g($c->row, 'current_end_date')], $date)) {
                 $ctx->excluded_lines[] = ['ref_id' => pystr($it['order_item_id']) . '/' . pystr($lec['lecture_id']) . '/'

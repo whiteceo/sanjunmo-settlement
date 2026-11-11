@@ -1,0 +1,118 @@
+{
+ "case": "DEC-V451-LAG1-09",
+ "title": "지급 시차 1 · 10/15 해지 · 대여금 — 9월 대상월(8월 판매분) 상계만",
+ "canon_ref": "정산 01권 5.3절 · 02권 8.3절 10단계 2) '지급 시차 계약의 청구 전환 달 · 판정 기준'(v4.0.51) · 11단계 지급 시차 정의 · 04권 Case 2-F",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "TERMINATED",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 1,
+    "termination_date": "2026-10-15"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-2026-08",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-08-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 400000
+     }
+    ]
+   },
+   {
+    "order_item_id": "OI-2026-09",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 400000
+     }
+    ]
+   },
+   {
+    "order_item_id": "OI-2026-10",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 400000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 1000000
+   }
+  ]
+ },
+ "notes": "대여금 1,000,000, 요율 50%, 8월 판매 400,000 → 9월 대상월 R/S 200,000 → 상계 193,400(200,000 − 원천세 상당 6,600), 잔액 806,600, 청구 전환 없음(대상월 < 끝난 달 10월 + 1)",
+ "expected": {
+  "PREPAY_OFFSET": {
+   "offset_amount": 193400,
+   "prepay_balance_after": 806600
+  },
+  "CLAIM": {
+   "claim_amount": 0
+  }
+ }
+}

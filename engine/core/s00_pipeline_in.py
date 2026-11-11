@@ -7,7 +7,7 @@ P1.1 강좌 R/S(Step 1~4) · P2.1 자사 발행 인세 · P2.2 위탁 · P2.3 �
 from collections import OrderedDict, defaultdict
 
 from .money import D, alloc_last_remainder, floor_won, pct, q4
-from .pipeline import month_of, valid_on
+from .pipeline import month_of, months_between, valid_on
 
 STEP = "PIPELINE_IN"
 SCOPE_1_1 = {"PIPELINE_1_1_ONLY", "PIPELINE_1_1_2_1"}
@@ -23,7 +23,7 @@ def run(ctx):
     for it in items:
         kind = it.get("item_type")
         if kind == "LECTURE":
-            if it.get("approved_at") and month_of(it["approved_at"]) != month:
+            if it.get("approved_at") and months_between(month_of(it["approved_at"]), month) not in lecture_lags(ctx, it):
                 continue
             lecture_rs(ctx, it, paid.get(it["order_item_id"], D(it.get("paid_amount"))), p11)
         elif kind == "BOOK":
@@ -154,12 +154,26 @@ def lecture_rs(ctx, it, paid, p11):
         one_lecture(ctx, it, lec, p11)
 
 
+def contract_lag(c):
+    """지급 시차 N(payout_lag_months, 기본 0): 판매월 M의 매출을 귀속월 M+N 정산에 넣는다(V2 §8.3 11단계, v4.0.51)."""
+    return int((c.row.get("payout_lag_months") if c else 0) or 0)
+
+
+def lecture_lags(ctx, it):
+    """이 결제 건의 강의에 매핑된 계약들의 지급 시차 집합(없으면 {0})."""
+    lecs = {lec["lecture_id"] for lec in (it.get("lectures") or [])} | {it.get("product_id")}
+    lags = {contract_lag(ctx.contract(m["contract_id"])) for m in ctx.input["lecture_instructors"] if m["lecture_id"] in lecs}
+    return lags or {0}
+
+
 def one_lecture(ctx, it, lec, p11):
     date = str(it.get("approved_at") or "")[:10] or None
     base = q4(lec["lecture_base_amount"])
     maps = [m for m in ctx.input["lecture_instructors"] if m["lecture_id"] == lec["lecture_id"]]
     for m in maps:
         c = ctx.contract(m["contract_id"])
+        if c and date and months_between(month_of(date), ctx.month) != contract_lag(c):
+            continue  # 지급 시차가 다른 계약의 몫은 그 계약의 귀속월 정산에서(v4.0.51)
         if not c or not valid_on(m, date, c.row) or not valid_on({"start_date": c.row.get("start_date"),
                                                                     "end_date": c.row.get("current_end_date")}, date):
             ctx.excluded_lines.append({"ref_id": f"{it['order_item_id']}/{lec['lecture_id']}/{m['rights_holder_id']}",
