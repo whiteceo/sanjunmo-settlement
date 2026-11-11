@@ -34,13 +34,26 @@ def clawback_amount(ctx, c, cb, kw):
 
 
 def run(ctx):
+    sts = []
     for c in ctx.contracts.values():
         end = c.closing_due(ctx.month)  # 끝난 달 + 지급 시차 N 이후(v4.0.51)
         closed = bool(ctx.holder(c.holder_id).get("business_closed_yn"))
         limit = D(c.row.get("min_claim_limit") if c.row.get("min_claim_limit") is not None
                   else ctx.p("default_min_claim_limit"))
         for p in c.payees.values():
-            claim_payee(ctx, c, p, end, closed, limit)
+            sts.append((c, p, end, closed, limit, claim_payee(ctx, c, p, end, closed, limit)))
+    # 청구 기준 판정은 받는 사람(원 권리자 · 받는 사람)의 계약별 청구 음수 합으로(V2 §8.3 10단계, v4.0.53)
+    # 계약이 둘 이상이면 판정 기준액은 그 달 유효한 계약 가운데 늦게 시작한 계약의 값(v4.0.53)
+    gsum, glim = {}, {}
+    for c, p, end, closed, limit, st in sts:
+        k = (c.holder_id, st["pid"])
+        gsum[k] = gsum.get(k, D(0)) + min(D(0), st["cnn"])
+        s = str(c.row.get("start_date") or "")[:10]
+        if s[:7] <= ctx.month and (k not in glim or s > glim[k][0]):
+            glim[k] = (s, limit)
+    for c, p, end, closed, limit, st in sts:
+        k = (c.holder_id, st["pid"])
+        claim_decide(ctx, c, p, end, closed, glim.get(k, (None, limit))[1], st, gsum[k])
 
 
 def claim_payee(ctx, c, p, end, closed, limit):
@@ -132,19 +145,27 @@ def claim_payee(ctx, c, p, end, closed, limit):
         formula="청구 대상 음수 = min(0, 반환 반영 후 순액) − 상계 동의 없는 반환 − 미상계 선급금 청구 전환액",
         code="claim_negative_net = min(0, net_after_return) − clawback_no_consent − unoffset_claim − returns",
         ref="V2 §8.3 10단계 L288")
+    return dict(o=o, cnn=cnn, kw=kw, pid=pid, after=after, t=t, unoffset=unoffset, pp=pp, cons_rows=cons_rows)
+
+
+def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
+    o, cnn, kw, pid, after, t, unoffset, pp, cons_rows = (
+        st[k] for k in ("o", "cnn", "kw", "pid", "after", "t", "unoffset", "pp", "cons_rows"))
     force = end or closed
     o["force_claim"] = ctx.emit(STEP, "force_claim", bool(force), c, **kw,
                                 inputs={"끝난 달 + 지급 시차 이후": end, "폐업": closed},
                                 formula="강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인", ref="V2 L292 · V1 L568 · v4.0.51")
-    issued = cnn < 0 and (abs(cnn) > abs(limit) or force)
+    issued = cnn < 0 and (abs(gsum) > abs(limit) or force)
     o["claim_issued_yn"] = ctx.emit(STEP, "claim_issued_yn", issued, c, **kw,
-                                    inputs={"청구 대상 음수": cnn, "min_claim_limit": limit, "강제": force},
-                                    formula="음수 < 0 AND (|음수| > |min_claim_limit| OR 강제 청구 트리거)",
-                                    code="claim_issued = cnn < 0 and (abs(cnn) > abs(limit) or force)",
-                                    ref="V2 §8.3 표 10단계 L177 · L292 · V1 L570")
+                                    inputs={"청구 대상 음수": cnn, "받는 사람 청구 음수 합": gsum, "min_claim_limit": limit, "강제": force},
+                                    formula="음수 < 0 AND (|받는 사람의 계약별 청구 음수 합| > |min_claim_limit| OR 이 계약의 강제 청구 트리거)",
+                                    code="claim_issued = cnn < 0 and (abs(payee_claim_negative_sum) > abs(limit) or force)",
+                                    ref="V2 §8.3 표 10단계 L177 · L292 · V1 L570 · v4.0.53")
     if cnn < 0:
-        ctx.emit(STEP, "abs_le_min_claim_limit", abs(cnn) <= abs(limit), c, **kw,
-                 inputs={"청구 대상 음수": cnn, "min_claim_limit": limit},
+        ctx.emit(STEP, "payee_claim_negative_sum", gsum, c, **kw,
+                 formula="받는 사람(원 권리자 · 받는 사람)의 그 달 계약별 청구 대상 음수 합", ref="V2 §8.3 10단계 (v4.0.53)")
+        ctx.emit(STEP, "abs_le_min_claim_limit", abs(gsum) <= abs(limit), c, **kw,
+                 inputs={"받는 사람 청구 음수 합": gsum, "min_claim_limit": limit},
                  formula="|음수| ≤ |min_claim_limit|(같으면 이월)", ref="V1 §7.3 L570 · SPEC 15.2")
     o["claim_amount"] = ctx.emit(STEP, "claim_amount", -cnn if issued else D(0), c, **kw,
                                  formula="청구 · 반환채권 확정액", ref="V2 L292")

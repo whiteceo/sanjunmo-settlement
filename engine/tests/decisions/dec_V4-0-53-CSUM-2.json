@@ -1,0 +1,131 @@
+{
+ "case": "DEC-V453-CSUM-2",
+ "title": "청구 기준 판정은 받는 사람 합 — 합이 기준 미만이면 끝난 계약만 강제 청구",
+ "canon_ref": "정산 02권 §8.3 10단계 청구 판정 '받는 사람 합 판정'(v4.0.53) · 01권 7.3절 · 04권 Case 4-C",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-OLD",
+    "rights_holder_id": "H-A",
+    "contract_status": "EXPIRED",
+    "start_date": "2026-01-01",
+    "current_end_date": "2026-08-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-09-01",
+    "current_end_date": "2027-09-15",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A"
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-OLD",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-NEW",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-09-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-OLD",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "end_date": "2026-08-31"
+   },
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-NEW",
+    "share_ratio": 100,
+    "start_date": "2026-09-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [
+   {
+    "refund_id": "RF-A",
+    "order_item_id": "OI-A",
+    "refund_approved_date": "2026-09-22",
+    "refund_amount": 20000,
+    "origin_month": "2026-08",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-A",
+      "contract_id": "C-OLD",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 20000,
+      "payment_state": "UNPAID"
+     }
+    ]
+   },
+   {
+    "refund_id": "RF-B",
+    "order_item_id": "OI-B",
+    "refund_approved_date": "2026-09-22",
+    "refund_amount": 160000,
+    "origin_month": "2026-09",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-B",
+      "contract_id": "C-NEW",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 160000,
+      "payment_state": "UNPAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "adjustments": []
+ },
+ "notes": "끝난 계약 A −10,000, 진행 중 계약 B −80,000 → 합 −90,000 ≤ 100,000 → A는 종료 계약 강제 청구 10,000, B는 청구 이월 −80,000",
+ "expected": {
+  "CLAIM": {
+   "claim_amount": 10000,
+   "payee_claim_negative_sum": -90000,
+   "claim_carry": -80000
+  }
+ }
+}
