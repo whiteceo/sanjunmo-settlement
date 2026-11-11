@@ -1,0 +1,101 @@
+{
+ "case": "DEC-V462-CLMMERGE-11",
+ "title": "청구 이월 행은 그 달 새 음수와 합쳐 청구 판정",
+ "canon_ref": "정산 02권 8.3절 10단계 '청구 이월 행 — 새 음수와 합쳐 청구'(v4.0.62) · 04권 Case 1-H",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [
+   {
+    "adj_id": "ADJ-2",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "applied_month": "2026-11",
+    "adj_reason_code": "RATE_ERR",
+    "adj_explanation": "9월 과다 지급 정정",
+    "adj_amount": -60000,
+    "adj_tax_type": "TAXABLE",
+    "payee_id": "H-A",
+    "account_type": "PRE_TAX",
+    "approver_id": "재무담당자",
+    "origin_settlement_id": "STMT-202610-001"
+   }
+  ],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-10",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "MIXED",
+    "consignment_balance_yn": false,
+    "income_category": null,
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "청구 이월(원거래 지급 · 세무 경로 미확정)",
+    "carryover_amount": -50000,
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false
+   }
+  ]
+ },
+ "notes": "10월 청구 이월 −50,000 + 11월 새 정정 −60,000 → 받는 사람 합 −110,000 > 기준 100,000 → 110,000 청구, 청구 이월 행 소멸",
+ "expected": {
+  "CLAIM": {
+   "claim_amount": 110000
+  },
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}

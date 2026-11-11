@@ -137,9 +137,15 @@ def payout_payee(ctx, c, p, end, closed, limit):
                       STEP, c.holder_id, "V2 L305", "Q-21")
     # 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김.
     # 합칠 때는 운영자 수동 대체 전표(V2 §8.3 10단계, v4.0.61 정본 공백 보완)
+    # 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)
+    merged = set(p.out["CLAIM"].get("claim_carry_settled") or [])
     for r in c.carry["pre_neg"]:
         if r["payee_id"] == pid and not r.get("carry_line_origin"):
-            rows.append(dict(r, action="KEEP"))
+            if r.get("ledger_id") in merged:
+                rows.append(dict(r, action="SETTLE", payout_reservation_status="SETTLED", extinguished_yn=True,
+                                 extinguished_month=ctx.month, carryover_reason_note="그 달 새 음수와 함께 청구"))
+            else:
+                rows.append(dict(r, action="KEEP"))
     load = sum((r["carryover_amount"] for r in rows if r["action"] == "NEW"), D(0))
     ctx.emit(STEP, "carry_load", load, c, **kw, formula="지급 이월 신규 적재액(PRE_TAX 기초금액)", ref="V2 L305",
              provisional=bool(load), note="Q-21" if load else "")

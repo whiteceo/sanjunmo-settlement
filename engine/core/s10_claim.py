@@ -49,7 +49,12 @@ def run(ctx):
     gsum, glim = {}, {}
     for c, p, end, closed, limit, st in sts:
         k = (c.holder_id, st["pid"])
-        gsum[k] = gsum.get(k, D(0)) + min(D(0), st["cnn"])
+        # 청구 이월 행(지난달까지 청구 하한 미달로 넘긴 PRE_TAX −)은 그 달 새 음수가 있을 때만 청구 판정 합에 함께 넣음
+        # (새 양수 지급 금액과는 합치지 않음, V2 §8.3 10단계, v4.0.62)
+        st["claim_carry_in"] = [r for r in c.carry["pre_neg"] if r["payee_id"] == st["pid"] and not r.get("carry_line_origin")] \
+            if st["cnn"] < 0 else []
+        st["cnn_carry"] = sum((r["carryover_amount"] for r in st["claim_carry_in"]), D(0))
+        gsum[k] = gsum.get(k, D(0)) + min(D(0), st["cnn"]) + st["cnn_carry"]
         s = str(c.row.get("start_date") or "")[:10]
         if s[:7] <= ctx.month and (k not in glim or s > glim[k][0]):
             glim[k] = (s, limit)
@@ -193,6 +198,12 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
                                 inputs={"끝난 달 + 지급 시차 이후": end, "폐업": closed},
                                 formula="강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인", ref="V2 L292 · V1 L568 · v4.0.51")
     issued = cnn < 0 and (abs(gsum) > abs(limit) or force)
+    cin, ccarry = st.get("claim_carry_in") or [], st.get("cnn_carry") or D(0)
+    if cin:
+        ctx.emit(STEP, "claim_carry_merged", ccarry, c, **kw,
+                 inputs={"그 달 새 청구 대상 음수": cnn, "청구 이월 행": [r.get("ledger_id") for r in cin]},
+                 formula="그 달 새 음수가 있으면 청구 이월 행을 청구 판정 합에 함께 넣음 — 청구하면 함께 청구 · 이월 행 소멸, 기준 이내면 이월 행 유지",
+                 ref="V2 §8.3 10단계 (v4.0.62)")
     o["claim_issued_yn"] = ctx.emit(STEP, "claim_issued_yn", issued, c, **kw,
                                     inputs={"청구 대상 음수": cnn, "받는 사람 청구 음수 합": gsum, "min_claim_limit": limit, "강제": force},
                                     formula="음수 < 0 AND (|받는 사람의 계약별 청구 음수 합| > |min_claim_limit| OR 이 계약의 강제 청구 트리거)",
@@ -204,7 +215,8 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
         ctx.emit(STEP, "abs_le_min_claim_limit", abs(gsum) <= abs(limit), c, **kw,
                  inputs={"받는 사람 청구 음수 합": gsum, "min_claim_limit": limit},
                  formula="|음수| ≤ |min_claim_limit|(같으면 이월)", ref="V1 §7.3 L570 · SPEC 15.2")
-    o["claim_amount"] = ctx.emit(STEP, "claim_amount", -cnn if issued else D(0), c, **kw,
+    o["claim_carry_settled"] = [r.get("ledger_id") for r in cin] if issued else []
+    o["claim_amount"] = ctx.emit(STEP, "claim_amount", -(cnn + ccarry) if issued else D(0), c, **kw,
                                  formula="청구 · 반환채권 확정액", ref="V2 L292")
     o["claim_evaluated"] = ctx.emit(STEP, "claim_evaluated", cnn < 0, c, **kw,
                                     formula="청구 판정 대상(청구 대상 음수 < 0)", ref="V2 §8.3 10단계")

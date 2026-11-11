@@ -1,0 +1,81 @@
+{
+ "case": "DEC-V462-CLMMERGE-12",
+ "title": "합쳐 청구한 뒤 다음 달 새 매출은 그대로 지급",
+ "canon_ref": "정산 02권 8.3절 10단계 '청구 이월 행 — 새 음수와 합쳐 청구'(v4.0.62) · 04권 Case 1-H",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-12",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-12",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-12-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 400000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [],
+  "carryover_ledger": []
+ },
+ "notes": "12월 R/S 200,000 → 원천세 6,600 → 193,400 지급(남은 청구 이월 없음)",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 193400
+  },
+  "CLAIM": {
+   "claim_amount": 0
+  }
+ }
+}

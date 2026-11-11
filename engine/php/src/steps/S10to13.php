@@ -59,9 +59,14 @@ final class S10Claim
         // 계약이 둘 이상이면 판정 기준액은 그 달 유효한 계약 가운데 늦게 시작한 계약의 값(v4.0.53)
         $gsum = [];
         $glim = [];
-        foreach ($sts as [$c, $p, $end, $closed, $limit, $st]) {
+        foreach ($sts as $i => [$c, $p, $end, $closed, $limit, $st]) {
             $k = tkey($c->holder_id, $st['pid']);
-            $gsum[$k] = add($gsum[$k] ?? D(0), dmin(D(0), $st['cnn']));
+            // 청구 이월 행은 그 달 새 음수가 있을 때만 청구 판정 합에 함께 넣음(새 양수와는 합치지 않음, v4.0.62)
+            $cin = $st['cnn'] < 0 ? array_values(array_filter($c->carry['pre_neg'],
+                fn($r) => $r['payee_id'] === $st['pid'] && !truthy(g($r, 'carry_line_origin')))) : [];
+            $sts[$i][5]['claim_carry_in'] = $cin;
+            $sts[$i][5]['cnn_carry'] = dsum(array_map(fn($r) => $r['carryover_amount'], $cin));
+            $gsum[$k] = add(add($gsum[$k] ?? D(0), dmin(D(0), $st['cnn'])), $sts[$i][5]['cnn_carry']);
             $s = substr((string)either(g($c->row, 'start_date'), ''), 0, 10);
             if (substr($s, 0, 7) <= $ctx->month && (!isset($glim[$k]) || $s > $glim[$k][0])) {
                 $glim[$k] = [$s, $limit];
@@ -246,6 +251,14 @@ final class S10Claim
             inputs: ['끝난 달 + 지급 시차 이후' => $end, '폐업' => $closed],
             formula: '강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인', ref: 'V2 L292 · V1 L568 · v4.0.51');
         $issued = $cnn < 0 && (dabs($gsum) > dabs($limit) || $force);
+        $cin = $st['claim_carry_in'] ?? [];
+        $ccarry = $st['cnn_carry'] ?? D(0);
+        if ($cin) {
+            $ctx->emit(self::STEP, 'claim_carry_merged', $ccarry, $c, ...$kw,
+                inputs: ['그 달 새 청구 대상 음수' => $cnn, '청구 이월 행' => array_map(fn($r) => g($r, 'ledger_id'), $cin)],
+                formula: '그 달 새 음수가 있으면 청구 이월 행을 청구 판정 합에 함께 넣음 — 청구하면 함께 청구 · 이월 행 소멸, 기준 이내면 이월 행 유지',
+                ref: 'V2 §8.3 10단계 (v4.0.62)');
+        }
         $o['claim_issued_yn'] = $ctx->emit(self::STEP, 'claim_issued_yn', $issued, $c, ...$kw,
             inputs: ['청구 대상 음수' => $cnn, '받는 사람 청구 음수 합' => $gsum, 'min_claim_limit' => $limit, '강제' => $force],
             formula: '음수 < 0 AND (|받는 사람의 계약별 청구 음수 합| > |min_claim_limit| OR 이 계약의 강제 청구 트리거)',
@@ -258,7 +271,8 @@ final class S10Claim
                 inputs: ['받는 사람 청구 음수 합' => $gsum, 'min_claim_limit' => $limit],
                 formula: '|음수| ≤ |min_claim_limit|(같으면 이월)', ref: 'V1 §7.3 L570 · SPEC 15.2');
         }
-        $o['claim_amount'] = $ctx->emit(self::STEP, 'claim_amount', $issued ? neg($cnn) : D(0), $c, ...$kw,
+        $o['claim_carry_settled'] = $issued ? array_map(fn($r) => g($r, 'ledger_id'), $cin) : [];
+        $o['claim_amount'] = $ctx->emit(self::STEP, 'claim_amount', $issued ? neg(add($cnn, $ccarry)) : D(0), $c, ...$kw,
             formula: '청구 · 반환채권 확정액', ref: 'V2 L292');
         $o['claim_evaluated'] = $ctx->emit(self::STEP, 'claim_evaluated', $cnn < 0, $c, ...$kw,
             formula: '청구 판정 대상(청구 대상 음수 < 0)', ref: 'V2 §8.3 10단계');
@@ -592,9 +606,16 @@ final class S11Payout
             }
         }
         // 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김(v4.0.61 정본 공백 보완)
+        // 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)
+        $merged = $p->out['CLAIM']['claim_carry_settled'] ?? [];
         foreach ($c->carry['pre_neg'] as $r) {
             if ($r['payee_id'] === $pid && !truthy(g($r, 'carry_line_origin'))) {
-                $rows[] = array_merge($r, ['action' => 'KEEP']);
+                if (in_array(g($r, 'ledger_id'), $merged, true)) {
+                    $rows[] = array_merge($r, ['action' => 'SETTLE', 'payout_reservation_status' => 'SETTLED', 'extinguished_yn' => true,
+                        'extinguished_month' => $ctx->month, 'carryover_reason_note' => '그 달 새 음수와 함께 청구']);
+                } else {
+                    $rows[] = array_merge($r, ['action' => 'KEEP']);
+                }
             }
         }
         $load = dsum(array_map(fn($r) => $r['carryover_amount'], array_filter($rows, fn($r) => $r['action'] === 'NEW')));
