@@ -164,6 +164,13 @@ class ContractState:
     def step_out(self, code):
         return self.out.setdefault(code, {})
 
+    def ended_before(self, month):
+        """만료 · 해지 귀속월이 당월보다 앞인가 — 종료된 계약(V2 §8.3 10단계, v4.0.50)."""
+        for k in ("termination_date", "current_end_date"):
+            if self.row.get(k) and month_of(self.row[k]) < month:
+                return True
+        return False
+
     def end_in_month(self, month):
         """만료 · 해지 귀속월이 당월인가(V2 L287 · SPEC 13.2)."""
         for k in ("termination_date", "current_end_date"):

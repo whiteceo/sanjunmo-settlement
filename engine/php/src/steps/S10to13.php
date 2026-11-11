@@ -162,10 +162,11 @@ final class S10Claim
             formula: '청구 대상 음수 = min(0, 반환 반영 후 순액) − 상계 동의 없는 반환 − 미상계 선급금 청구 전환액',
             code: 'claim_negative_net = min(0, net_after_return) − clawback_no_consent − unoffset_claim − returns',
             ref: 'V2 §8.3 10단계 L288');
-        $force = $end || $closed;
+        $ended = $c->endedBefore($ctx->month); // 종료 달 이후 환불 공제도 소액 이월 없이 청구(v4.0.50)
+        $force = $end || $ended || $closed;
         $o['force_claim'] = $ctx->emit(self::STEP, 'force_claim', $force, $c, ...$kw,
-            inputs: ['만료 · 해지 귀속월' => $end, '폐업' => $closed],
-            formula: '강제 청구 트리거 = 계약 만료 · 해지 귀속월 또는 폐업 확인', ref: 'V2 L292 · V1 L568');
+            inputs: ['만료 · 해지 귀속월' => $end, '종료 뒤 달' => $ended, '폐업' => $closed],
+            formula: '강제 청구 트리거 = 계약 만료 · 해지 귀속월 · 그 뒤 달(종료된 계약) 또는 폐업 확인', ref: 'V2 L292 · V1 L568 · v4.0.50');
         $issued = $cnn < 0 && (dabs($cnn) > dabs($limit) || $force);
         $o['claim_issued_yn'] = $ctx->emit(self::STEP, 'claim_issued_yn', $issued, $c, ...$kw,
             inputs: ['청구 대상 음수' => $cnn, 'min_claim_limit' => $limit, '강제' => $force],
