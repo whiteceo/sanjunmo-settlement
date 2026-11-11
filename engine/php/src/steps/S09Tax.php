@@ -149,17 +149,15 @@ final class S09Tax
                 inputs: ['기타소득금액' => $w['other_income_amount'], '과세최저한' => $ctx->p('other_income_min_tax_amount')],
                 formula: '기타소득금액 ≤ 50,000원이면 소득세 · 지방소득세 0원(판정 단위 = tax_threshold_unit_key)',
                 ref: 'V2 L277~278 · V1 L436');
-            if (count($idx) > 1) {
-                $ctx->issue('CANON_GAP', '판정 단위 ' . pystr($unit) . '에 라인 ' . count($idx) . '개 — 단위 세액 라인 배분 정본 없음(총액 역산)',
-                    self::STEP, $c->holder_id, 'TAX.md 확인 필요 4', 'TAX-4');
-            }
             $bases = array_map(fn($i) => $p->lines[$i]['taxable_base'], $idx);
             $its = alloc_last_remainder($w['income_tax'], $bases);
             $lts = alloc_last_remainder($w['local_income_tax'], $bases);
+            // 필요경비 · 기타소득금액은 라인에 나눠 저장(과세표준 비율, 끝수는 마지막 라인, V2 §13.1, v4.0.44)
+            $des = alloc_last_remainder($w['deemed_expense'], $bases);
             self::filing($ctx, $c, $pid, $p->lines[$lastI], $clause);
             foreach ($idx as $j => $i) {
                 $x = &$p->lines[$i];
-                $x = array_merge($x, ['deemed_expense' => $w['deemed_expense'], 'other_income_amount' => $w['other_income_amount'],
+                $x = array_merge($x, ['deemed_expense' => $des[$j], 'other_income_amount' => sub($x['taxable_base'], $des[$j]),
                     'threshold_exempt_yn' => $w['threshold_exempt_yn'], 'small_amount_exempt_yn' => $w['small_amount_exempt_yn']]);
                 self::setWithholding($ctx, $c, $x, ['payee' => $pid, 'line' => $x['line_id'], 'line_key' => $x['line_key']],
                     array_merge($w, ['income_tax' => $its[$j], 'local_income_tax' => $lts[$j]]), 'OTHER');

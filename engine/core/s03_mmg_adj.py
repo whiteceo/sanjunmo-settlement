@@ -24,6 +24,13 @@ def prorate(ctx, c, mmg):
     s = _d(c.row.get("start_date")) or first
     ends = [x for x in (_d(c.row.get("termination_date")), _d(c.row.get("current_end_date"))) if x]
     e = min(ends) if ends else last
+    # 승계 계약이 시작하면 앞 계약의 보장은 그 전날까지(체결 대기 · 시작 전 해지된 승계 계약은 끊지 않음, v4.0.44)
+    for o in ctx.contracts.values():
+        if o.id == c.id or o.holder_id != c.holder_id or o.row.get("contract_status") == "DRAFT":
+            continue
+        os_, ot = _d(o.row.get("start_date")), _d(o.row.get("termination_date"))
+        if os_ and os_ > s and not (ot and ot < os_):
+            e = min(e, date.fromordinal(os_.toordinal() - 1))
     lo, hi = max(s, first), min(e, last)
     days = (hi - lo).days + 1 if hi >= lo else 0
     if days >= dim:
@@ -46,7 +53,7 @@ def run(ctx):
     merged = {}
     for hid, cs in groups.items():
         if len(cs) > 1:
-            big = max(cs, key=lambda x: (prorated[x.id][0], x.id))
+            big = max(cs, key=lambda x: (prorated[x.id][0], -(_d(x.row.get("start_date")) or date.min).toordinal(), x.id))  # 같으면 앞 계약(v4.0.44)
             tot_mmg = sum(prorated[x.id][0] for x in cs)
             tot_basis = sum(sum(ln.new for ln in x.lines_of("1.1")) for x in cs)
             for x in cs:

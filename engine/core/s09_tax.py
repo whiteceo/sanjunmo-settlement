@@ -121,14 +121,13 @@ def tax_payee(ctx, c, p):
                  inputs={"기타소득금액": w["other_income_amount"], "과세최저한": ctx.p("other_income_min_tax_amount")},
                  formula="기타소득금액 ≤ 50,000원이면 소득세 · 지방소득세 0원(판정 단위 = tax_threshold_unit_key)",
                  ref="V2 L277~278 · V1 L436")
-        if len(lines) > 1:
-            ctx.issue("CANON_GAP", f"판정 단위 {unit}에 라인 {len(lines)}개 — 단위 세액 라인 배분 정본 없음(총액 역산)",
-                      STEP, c.holder_id, "TAX.md 확인 필요 4", "TAX-4")
         its = alloc_last_remainder(w["income_tax"], [x["taxable_base"] for x in lines])
         lts = alloc_last_remainder(w["local_income_tax"], [x["taxable_base"] for x in lines])
+        # 필요경비 · 기타소득금액은 라인에 나눠 저장(과세표준 비율, 끝수는 마지막 라인, V2 §13.1, v4.0.44)
+        des = alloc_last_remainder(w["deemed_expense"], [x["taxable_base"] for x in lines])
         filing(ctx, c, pid, lines[-1], clause)
-        for x, it, lt in zip(lines, its, lts):
-            x.update(deemed_expense=w["deemed_expense"], other_income_amount=w["other_income_amount"],
+        for x, it, lt, de in zip(lines, its, lts, des):
+            x.update(deemed_expense=de, other_income_amount=x["taxable_base"] - de,
                      threshold_exempt_yn=w["threshold_exempt_yn"], small_amount_exempt_yn=w["small_amount_exempt_yn"])
             set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
                             dict(w, income_tax=it, local_income_tax=lt), "OTHER")

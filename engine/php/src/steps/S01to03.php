@@ -152,6 +152,17 @@ final class S03MmgAdj
             }
         }
         $e = $ends ? min($ends) : $last;
+        // 승계 계약이 시작하면 앞 계약의 보장은 그 전날까지(체결 대기 · 시작 전 해지된 승계 계약은 끊지 않음, v4.0.44)
+        foreach ($ctx->contracts as $o) {
+            if ($o->id === $c->id || $o->holder_id !== $c->holder_id || g($o->row, 'contract_status') === 'DRAFT') {
+                continue;
+            }
+            $os = g($o->row, 'start_date') ? new \DateTimeImmutable(substr((string)$o->row['start_date'], 0, 10)) : null;
+            $ot = g($o->row, 'termination_date') ? new \DateTimeImmutable(substr((string)$o->row['termination_date'], 0, 10)) : null;
+            if ($os && $os > $s && !($ot && $ot < $os)) {
+                $e = min($e, $os->modify('-1 day'));
+            }
+        }
         $lo = max($s, $first);
         $hi = min($e, $last);
         $days = $hi >= $lo ? (int)$lo->diff($hi)->days + 1 : 0;
@@ -181,7 +192,7 @@ final class S03MmgAdj
         $merged = [];
         foreach ($groups as $cs) {
             if (count($cs) > 1) {
-                $big = max_by($cs, fn($x) => [$prorated[$x->id][0], $x->id]);
+                $big = max_by($cs, fn($x) => [$prorated[$x->id][0], -(int)strtotime(substr((string)either(g($x->row, 'start_date'), '0001-01-01'), 0, 10)), $x->id]); // 같으면 앞 계약(v4.0.44)
                 $totMmg = dsum(array_map(fn($x) => $prorated[$x->id][0], $cs));
                 $totBasis = dsum(array_map(fn($x) => dsum(array_map(fn($l) => $l->new, $x->linesOf('1.1'))), $cs));
                 foreach ($cs as $x) {
