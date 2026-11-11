@@ -96,7 +96,9 @@ def tax_payee(ctx, c, p):
             ln["income_tax"] = ln["local_income_tax"] = ln["withholding_total"] = D(0)
             continue
         if ln["income_category"] == "OTHER":
-            units.setdefault((ln["origin"], ln["tax_threshold_unit_key"], ln["income_clause"]), []).append(ln)
+            # 지난달 원 건의 정정분은 원 건과 한 건으로 판정(원 건별로 묶음, v4.0.45)
+            om = ln.get("origin_month") if ln["origin"] == "ADJUSTMENT" and ln.get("origin_unit_base") is not None else None
+            units.setdefault((ln["origin"], ln["tax_threshold_unit_key"], ln["income_clause"], om), []).append(ln)
             continue
         biz.append(ln)
     if biz:
@@ -107,10 +109,31 @@ def tax_payee(ctx, c, p):
         for x, it, lt in zip(biz, its, lts):
             set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
                             dict(w, income_tax=it, local_income_tax=lt), "BUSINESS")
-    for (origin, unit, clause), lines in units.items():
+    for (origin, unit, clause, om), lines in units.items():
         u = sum(x["taxable_base"] for x in lines)
-        w = withhold_other(ctx, u, clause)
         kw = dict(payee=pid, line=lines[-1]["line_id"], line_key=lines[-1]["line_key"])
+        if om:
+            # 원 건 + 정정분 합계로 과세최저한 판정, 이미 뗀 세액을 뺀 차액을 정정분 지급 때 징수
+            # (소득세법 제84조 제3호, 소득세 집행기준 84-0-1 ②, V2 §8.3 9단계, v4.0.45)
+            f0 = lines[0]
+            ob = D(f0["origin_unit_base"])
+            w0 = withhold_other(ctx, ob, clause)
+            wt = withhold_other(ctx, u + ob, clause)
+            oit = D(f0["origin_unit_income_tax"]) if f0.get("origin_unit_income_tax") is not None else w0["income_tax"]
+            olt = D(f0["origin_unit_local_tax"]) if f0.get("origin_unit_local_tax") is not None else w0["local_income_tax"]
+            de = wt["deemed_expense"] - w0["deemed_expense"]
+            w = dict(wt, deemed_expense=de, other_income_amount=u - de,
+                     income_tax=max(D(0), wt["income_tax"] - oit), local_income_tax=max(D(0), wt["local_income_tax"] - olt))
+            ctx.emit(STEP, "origin_merged_income_tax", w["income_tax"], c, **kw,
+                     inputs={"원 건 과세표준": ob, "정정분 과세표준": u, "합계 소득세": wt["income_tax"], "원 건 기징수 소득세": oit,
+                             "합계 지방소득세": wt["local_income_tax"], "원 건 기징수 지방소득세": olt, "원 건 귀속월": om},
+                     formula="정정분 세액 = max(0, 합계 기준 세액 − 원 건에서 이미 뗀 세액), 필요경비 = 합계 필요경비 − 원 건 필요경비",
+                     ref="V2 §8.3 9단계 · 소득세법 제84조 제3호 · 집행기준 84-0-1 (v4.0.45)")
+            if wt["income_tax"] < oit or wt["local_income_tax"] < olt:
+                ctx.issue("CANON_GAP", f"감액 정정으로 합계 세액이 원 건 기징수 세액보다 작음 — 차액 환급은 정정 채널 3-a(원 건 귀속월 {om})",
+                          STEP, c.holder_id, "V2 §10.4 채널 3-a")
+        else:
+            w = withhold_other(ctx, u, clause)
         ctx.emit(STEP, "deemed_expense", w["deemed_expense"], c, **kw,
                  inputs={"판정 단위 과세표준": u, "의제율": w["deemed_rate"], "unit": unit},
                  formula="필요경비 = 내림(판정 단위 과세표준 × 의제율)", code="deemed = floor(U × deemed_rate)",

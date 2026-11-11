@@ -144,7 +144,9 @@ def adjustment_lines(ctx, c):
                    "split_amount": part, "offset_amount": D(0), "pre_tax_payable": part,
                    "taxable_base": None if goods else (D(0) if neg else part),
                    "pending_negative_base": part if (neg and not goods) else None, "protected_yn": False,
-                   "protected_amount": D(0), "origin_month": a.get("origin_month"), "adj_reason_code": a.get("adj_reason_code")}
+                   "protected_amount": D(0), "origin_month": a.get("origin_month"), "adj_reason_code": a.get("adj_reason_code"),
+                   "origin_unit_base": a.get("origin_unit_base"), "origin_unit_income_tax": a.get("origin_unit_income_tax"),
+                   "origin_unit_local_tax": a.get("origin_unit_local_tax")}
             p.lines.append(row)
             ctx.emit(STEP, "adjustment_line", part, c, payee=pid, line=row["line_id"], ref_id=a.get("adj_id"),
                      inputs={"adj_amount": amt, "account": adjust.account(a), "origin_month": a.get("origin_month"),

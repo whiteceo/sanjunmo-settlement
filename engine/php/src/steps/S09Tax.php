@@ -114,7 +114,9 @@ final class S09Tax
                 continue;
             }
             if ($ln['income_category'] === 'OTHER') {
-                $units[tkey($ln['origin'], $ln['tax_threshold_unit_key'], $ln['income_clause'])][] = $i;
+                // 지난달 원 건의 정정분은 원 건과 한 건으로 판정(원 건별로 묶음, v4.0.45)
+                $om = ($ln['origin'] === 'ADJUSTMENT' && g($ln, 'origin_unit_base') !== null) ? g($ln, 'origin_month') : null;
+                $units[tkey($ln['origin'], $ln['tax_threshold_unit_key'], $ln['income_clause'], $om)][] = $i;
                 continue;
             }
             $biz[] = $i;
@@ -134,11 +136,34 @@ final class S09Tax
             }
         }
         foreach ($units as $k => $idx) {
-            [$origin, $unit, $clause] = untkey($k);
+            [$origin, $unit, $clause, $om] = untkey($k);
             $u = dsum(array_map(fn($i) => $p->lines[$i]['taxable_base'], $idx));
-            $w = Tax::withholdOther($ctx, $u, $clause);
             $lastI = $idx[count($idx) - 1];
             $kw = ['payee' => $pid, 'line' => $p->lines[$lastI]['line_id'], 'line_key' => $p->lines[$lastI]['line_key']];
+            if ($om) {
+                // 원 건 + 정정분 합계로 과세최저한 판정, 이미 뗀 세액을 뺀 차액을 정정분 지급 때 징수
+                // (소득세법 제84조 제3호, 소득세 집행기준 84-0-1 ②, V2 §8.3 9단계, v4.0.45)
+                $f0 = $p->lines[$idx[0]];
+                $ob = D($f0['origin_unit_base']);
+                $w0 = Tax::withholdOther($ctx, $ob, $clause);
+                $wt = Tax::withholdOther($ctx, add($u, $ob), $clause);
+                $oit = g($f0, 'origin_unit_income_tax') !== null ? D($f0['origin_unit_income_tax']) : $w0['income_tax'];
+                $olt = g($f0, 'origin_unit_local_tax') !== null ? D($f0['origin_unit_local_tax']) : $w0['local_income_tax'];
+                $de = sub($wt['deemed_expense'], $w0['deemed_expense']);
+                $w = array_merge($wt, ['deemed_expense' => $de, 'other_income_amount' => sub($u, $de),
+                    'income_tax' => dmax(D(0), sub($wt['income_tax'], $oit)), 'local_income_tax' => dmax(D(0), sub($wt['local_income_tax'], $olt))]);
+                $ctx->emit(self::STEP, 'origin_merged_income_tax', $w['income_tax'], $c, ...$kw,
+                    inputs: ['원 건 과세표준' => $ob, '정정분 과세표준' => $u, '합계 소득세' => $wt['income_tax'], '원 건 기징수 소득세' => $oit,
+                        '합계 지방소득세' => $wt['local_income_tax'], '원 건 기징수 지방소득세' => $olt, '원 건 귀속월' => $om],
+                    formula: '정정분 세액 = max(0, 합계 기준 세액 − 원 건에서 이미 뗀 세액), 필요경비 = 합계 필요경비 − 원 건 필요경비',
+                    ref: 'V2 §8.3 9단계 · 소득세법 제84조 제3호 · 집행기준 84-0-1 (v4.0.45)');
+                if ($wt['income_tax'] < $oit || $wt['local_income_tax'] < $olt) {
+                    $ctx->issue('CANON_GAP', '감액 정정으로 합계 세액이 원 건 기징수 세액보다 작음 — 차액 환급은 정정 채널 3-a(원 건 귀속월 ' . pystr($om) . ')',
+                        self::STEP, $c->holder_id, 'V2 §10.4 채널 3-a');
+                }
+            } else {
+                $w = Tax::withholdOther($ctx, $u, $clause);
+            }
             $ctx->emit(self::STEP, 'deemed_expense', $w['deemed_expense'], $c, ...$kw,
                 inputs: ['판정 단위 과세표준' => $u, '의제율' => $w['deemed_rate'], 'unit' => $unit],
                 formula: '필요경비 = 내림(판정 단위 과세표준 × 의제율)', code: 'deemed = floor(U × deemed_rate)',

@@ -193,7 +193,9 @@ final class S08PayeeSplit
                     'split_amount' => $part, 'offset_amount' => D(0), 'pre_tax_payable' => $part,
                     'taxable_base' => $goods ? null : ($neg ? D(0) : $part),
                     'pending_negative_base' => ($neg && !$goods) ? $part : null, 'protected_yn' => false,
-                    'protected_amount' => D(0), 'origin_month' => g($a, 'origin_month'), 'adj_reason_code' => g($a, 'adj_reason_code')];
+                    'protected_amount' => D(0), 'origin_month' => g($a, 'origin_month'), 'adj_reason_code' => g($a, 'adj_reason_code'),
+                    'origin_unit_base' => g($a, 'origin_unit_base'), 'origin_unit_income_tax' => g($a, 'origin_unit_income_tax'),
+                    'origin_unit_local_tax' => g($a, 'origin_unit_local_tax')];
                 $p->lines[] = $row;
                 $ctx->emit(self::STEP, 'adjustment_line', $part, $c, payee: $pid, line: $row['line_id'], ref_id: g($a, 'adj_id'),
                     inputs: ['adj_amount' => $amt, 'account' => Adjust::account($a), 'origin_month' => g($a, 'origin_month'),
