@@ -294,7 +294,11 @@ final class S08PayeeSplit
                 'pre_tax_payable' => $amt, 'taxable_base' => $neg ? null : $amt,
                 'pending_negative_base' => $neg ? $amt : null, 'protected_yn' => false, 'protected_amount' => D(0),
                 'first_payable_confirmed_month' => g($r, 'first_payable_confirmed_month'),
-                'first_occurred_month' => g($r, 'first_occurred_month')];
+                'first_occurred_month' => g($r, 'first_occurred_month'),
+                // 상계한 달에 미달 이월된 기타소득 몫 · 부가세 별도 라인의 남은 부가세(v4.0.59)
+                'origin_month' => g($r, 'origin_month'), 'origin_unit_base' => g($r, 'origin_unit_base'),
+                'origin_unit_income_tax' => g($r, 'origin_unit_income_tax'), 'origin_unit_local_tax' => g($r, 'origin_unit_local_tax'),
+                'carry_vat_amount' => D(either(g(either(g($r, 'components'), []), 'carry_vat'), 0))];
             $p->lines[] = $row;
             $ctx->emit(self::STEP, 'carry_pre_tax_line', $amt, $c, payee: $pid, line: $row['line_id'], ref_id: g($r, 'ledger_id'),
                 formula: !$neg ? '원귀속 세전 이월 세전 지급액 = 원귀속 세전 미지급 소득 기초금액(현재 분할 비율 미적용)'

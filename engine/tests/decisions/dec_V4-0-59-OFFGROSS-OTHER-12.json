@@ -1,0 +1,117 @@
+{
+ "case": "DEC-V459-OFFGROSS-OTHER-12",
+ "title": "상계한 달의 기타소득 이월분은 원 거래와 한 건으로 판정해 차액만 원천징수",
+ "canon_ref": "정산 02권 8.3절 11단계 '최소 지급 판정 — 상계한 달도 같음'(v4.0.59 역산 통일) · 04권 Case 1-D · 1-E",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-12",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "OTHER"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "pipeline_id": "1.1"
+   },
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 10,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "pipeline_id": "2.1"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "book_authors": [
+   {
+    "book_sku_id": "SKU-1",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "income_category": "OTHER",
+    "income_clause": "C15",
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "prepayments": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-1",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-11",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "2.1",
+    "consignment_balance_yn": false,
+    "income_category": "OTHER",
+    "income_clause": "C15",
+    "tax_threshold_unit_key": "C-A+SKU-1",
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 90360,
+    "components": {
+     "split_amount": 200000,
+     "offset_amount": 100000,
+     "vat_amount": 0
+    },
+    "first_occurred_month": "2026-11",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "origin_unit_base": 109640,
+    "origin_unit_income_tax": 8770,
+    "origin_unit_local_tax": 870
+   }
+  ]
+ },
+ "notes": "원 거래 200,000 한 건 판정: 필요경비 120,000 · 기타소득금액 80,000 → 소득세 16,000 · 지방 1,600, 11월에 뗀 8,770 · 870을 빼고 7,230 · 730 → 90,360 − 7,960 = 82,400(12월 지급)",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 82400
+  },
+  "TAX": {
+   "carry_pre_tax_after_tax": 82400,
+   "origin_merged_income_tax": 7230
+  }
+ }
+}

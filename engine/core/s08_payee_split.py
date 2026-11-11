@@ -235,7 +235,13 @@ def carry_lines(ctx, c):
                "pre_tax_payable": amt, "taxable_base": None if neg else amt,
                "pending_negative_base": amt if neg else None, "protected_yn": False, "protected_amount": D(0),
                "first_payable_confirmed_month": r.get("first_payable_confirmed_month"),
-               "first_occurred_month": r.get("first_occurred_month")}
+               "first_occurred_month": r.get("first_occurred_month"),
+               # 상계한 달에 미달 이월된 기타소득 몫 — 지급하는 달에 원 거래와 한 건으로 판정(v4.0.59)
+               "origin_month": r.get("origin_month"), "origin_unit_base": r.get("origin_unit_base"),
+               "origin_unit_income_tax": r.get("origin_unit_income_tax"),
+               "origin_unit_local_tax": r.get("origin_unit_local_tax"),
+               # 상계한 달에 미달 이월된 부가세 별도 라인의 남은 부가세 — 지급하는 달에 붙임(v4.0.59)
+               "carry_vat_amount": D((r.get("components") or {}).get("carry_vat") or 0)}
         p.lines.append(row)
         ctx.emit(STEP, "carry_pre_tax_line", amt, c, payee=pid, line=row["line_id"], ref_id=r.get("ledger_id"),
                  formula=("원귀속 세전 이월 세전 지급액 = 원귀속 세전 미지급 소득 기초금액(현재 분할 비율 미적용)" if not neg

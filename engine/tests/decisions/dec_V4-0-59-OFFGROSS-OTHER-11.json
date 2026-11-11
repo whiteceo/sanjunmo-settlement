@@ -1,0 +1,108 @@
+{
+ "case": "DEC-V459-OFFGROSS-OTHER-11",
+ "title": "상계한 달 미달 이월 — 기타소득(C15) 대여금 상계분 역산",
+ "canon_ref": "정산 02권 8.3절 11단계 '최소 지급 판정 — 상계한 달도 같음'(v4.0.59 역산 통일) · 04권 Case 1-D · 1-E",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "OTHER"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "pipeline_id": "1.1"
+   },
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 10,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED",
+    "pipeline_id": "2.1"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-B",
+    "item_type": "BOOK",
+    "book_sku_id": "SKU-1",
+    "book_supply_type_snapshot": "OWN_PUBLISHED",
+    "confirmed_qty": 100,
+    "royalty_base_price": 20000,
+    "purchase_confirmed_at": "2026-11-20"
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "book_authors": [
+   {
+    "book_sku_id": "SKU-1",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "income_category": "OTHER",
+    "income_clause": "C15",
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 100000
+   }
+  ]
+ },
+ "notes": "인세 200,000(기타소득 C15 의제 60%), 대여금 100,000 상계 → 최종 정산금액 82,400 < 100,000 → 이체 0. 상계분 그 달 확정: 세전 109,640(소득세 8,770 · 지방 870을 떼면 100,000, 과세최저한은 지급하는 달에 원 거래 한 건으로 판정), 나머지 세전 90,360 이월",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0,
+   "offset_paid_gross": 109640,
+   "offset_month_carry_pre_tax": 90360
+  },
+  "TAX": {
+   "income_tax": 8770,
+   "local_income_tax": 870
+  }
+ }
+}

@@ -5,8 +5,8 @@
 미달 → 당월 신규분 PRE_TAX 기초금액 이월(기존 POST_TAX · PRE_TAX 유지). 판정 기준 = VAT 포함 총액. 절사 없음.
 """
 
-from .money import D
-from .tax import withhold_business
+from .money import D, floor_won, floor_ten
+from .tax import withhold_business, rates
 from .pipeline import months_between
 
 STEP = "PAYOUT"
@@ -106,17 +106,22 @@ def payout_payee(ctx, c, p, end, closed, limit):
         for ln in p.lines:
             if ln["origin"] in ("NEW", "ADJUSTMENT") and ln["pre_tax_payable"] > 0:
                 key = ln["line_key"]
+                if (ln.get("offset_amount") or D(0)) > 0 and not hold:
+                    carry_amt, extra = offset_carry(ctx, c, p, pid, ln)
+                else:
+                    carry_amt, extra = ln["pre_tax_payable"], {}
                 rows.append({"ledger_id": None, "action": "NEW", "rights_holder_id": c.holder_id, "payee_id": pid,
                              "contract_id": c.id, "origin_month": ctx.month, "account_type": "PRE_TAX",
                              "pipeline_id": key.get("pipeline_id"), "consignment_balance_yn": False,
                              "income_category": key.get("income_category"), "income_clause": key.get("income_clause"),
                              "tax_threshold_unit_key": key.get("tax_threshold_unit_key"),
                              "carryover_reason": ("운영자 이월 지정" if designated else "지급 보류") if hold else "지급 하한 미달",
-                             "carryover_amount": offset_carry(ctx, c, p, pid, ln) if (ln.get("offset_amount") or D(0)) > 0 and not hold else ln["pre_tax_payable"],
-                             "components": {"split_amount": ln["split_amount"], "offset_amount": ln["offset_amount"],
-                                            "vat_amount": ln.get("vat_amount")},
+                             "carryover_amount": carry_amt,
+                             "components": dict({"split_amount": ln["split_amount"], "offset_amount": ln["offset_amount"],
+                                                 "vat_amount": ln.get("vat_amount")}, **extra.get("components", {})),
                              "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
-                             "payout_reservation_status": "NONE", "extinguished_yn": False})
+                             "payout_reservation_status": "NONE", "extinguished_yn": False,
+                             **{k: v for k, v in extra.items() if k != "components"}})
         for r in pre_pos + post_pos:
             rows.append(dict(r, action="KEEP"))
         if any(r["action"] == "NEW" for r in rows):
@@ -146,12 +151,23 @@ def apply_results(ctx, c):
                      ref="V1 L589 · L591")
 
 
-def gross_for(ctx, net):
-    """원천세를 뗀 뒤 금액이 net 이상이 되는 가장 작은 세전 금액(사업소득, 10원 미만 내림 순차 계산)."""
+def other_tax_no_threshold(ctx, g, clause):
+    """기타소득 세액(상계한 달 확정분 — 판정 단위는 원 거래 한 건이라 과세최저한은 지급하는 달에 합쳐 판정):
+    필요경비 = 내림(g × 의제율), 소득세 = 10원 미만 내림((g − 필요경비) × 20%), 지방소득세 = 10원 미만 내림(소득세 × 10%)."""
+    rate, deemed_rate, _, _ = rates(ctx, None, "OTHER", clause)
+    de = floor_won(g * deemed_rate)
+    it = floor_ten((g - de) * rate)
+    lt = floor_ten(it * D(str(ctx.p("local_income_tax_rate"))))
+    return {"income_tax": it, "local_income_tax": lt, "deemed_expense": de}
+
+
+def gross_for(ctx, net, taxf=None):
+    """원천세를 뗀 뒤 금액이 net 이상이 되는 가장 작은 세전 금액(10원 미만 내림 순차 계산)."""
+    taxf = taxf or (lambda g: withhold_business(ctx, g))
     lo, hi = D(net), D(net) * 2
     while lo < hi:
         mid = (lo + hi) // 2
-        w = withhold_business(ctx, mid)
+        w = taxf(mid)
         if mid - w["income_tax"] - w["local_income_tax"] >= net:
             hi = mid
         else:
@@ -160,21 +176,52 @@ def gross_for(ctx, net):
 
 
 def offset_carry(ctx, c, p, pid, ln):
-    """상계한 달에 최종 정산금액이 최소 지급 미달로 이월될 때(V1 §7.3 · V2 §8.3 11단계, v4.0.56):
-    상계한 금액은 그 달 지급으로 확정 · 원천징수하고, 남은 금액은 원천징수 전 세전 금액으로 이월한다.
-    대여금(LOAN)은 상계액이 원천세를 뗀 뒤 금액이므로 세전 지급 확정액 = 원천세를 떼면 상계액이 되는 세전 금액,
-    소득 선지급(EARNED)은 상계액이 과세표준에서 이미 빠져 그 달 원천징수 없음. → 이월 세전 금액"""
+    """상계한 달에 최종 정산금액이 최소 지급 미달로 이월될 때(V1 §7.3 · V2 §8.3 11단계, v4.0.56 · v4.0.59).
+    상계한 금액은 그 달 지급으로 확정하고, 상계액이 세금 · 부가세를 정리한 뒤 금액이 되도록 그 달 확정분을 역산한다.
+    → (이월 세전 금액, 이월 행에 덧붙일 칸)
+    - 사업소득 대여금: 원천세를 떼면 상계액이 되는 세전 금액을 그 달 확정 · 원천징수, 나머지 세전 이월
+    - 기타소득 대여금: 같은 역산(과세최저한은 이 달에 따로 보지 않음). 이월 행에 그 달 확정분 · 뗀 세액을 남겨
+      지급하는 달에 원 거래 한 건으로 합쳐 판정하고 차액만 뗀다(9단계 '지난달 원 건의 정정분'과 같은 방식)
+    - 원천징수 없는 부가세 별도(VAT_EXCLUDED): 상계액 = 공급가액 + 부가세가 되도록 공급가액 = 내림(상계액 × 100/110),
+      나머지 공급가액 이월, 남은 부가세는 이월 행에 남겨 지급하는 달에 붙임(세금계산서는 그 달 전체로 발행)
+    - 소득 선지급(EARNED): 상계액이 과세표준에서 이미 빠져 그 달 원천징수 없음"""
     kw = dict(payee=pid, line=ln["line_id"], line_key=ln["line_key"])
     off = ln["offset_amount"]
-    if c.prepay and c.prepay.get("type") == "LOAN":
-        g = gross_for(ctx, off)
-        w = withhold_business(ctx, g)
+    extra = {}
+    loan = bool(c.prepay and c.prepay.get("type") == "LOAN")
+    applies = ln.get("withholding_rule") == "APPLY" and ln.get("tax_decision_status") == "DECIDED"
+    other = ln.get("income_category") == "OTHER"
+    if loan and applies:
+        if other:
+            taxf = lambda g: other_tax_no_threshold(ctx, g, ln.get("income_clause"))
+        else:
+            taxf = lambda g: withhold_business(ctx, g)
+        g = gross_for(ctx, off, taxf)
+        w = taxf(g)
         ln["taxable_base"], ln["income_tax"], ln["local_income_tax"] = g, w["income_tax"], w["local_income_tax"]
         ln["withholding_total"] = w["income_tax"] + w["local_income_tax"]
         carry = ln["split_amount"] - g
+        if other:
+            ln.update(deemed_expense=w["deemed_expense"], other_income_amount=g - w["deemed_expense"],
+                      threshold_exempt_yn=False, small_amount_exempt_yn=False)
+            extra = {"origin_unit_base": g, "origin_unit_income_tax": w["income_tax"],
+                     "origin_unit_local_tax": w["local_income_tax"]}
         ctx.emit(STEP, "offset_paid_gross", g, c, **kw,
                  inputs={"상계액": off, "소득세": w["income_tax"], "지방소득세": w["local_income_tax"]},
-                 formula="대여금 상계분 그 달 지급 확정 세전액 = 원천세를 떼면 상계액이 되는 세전 금액", ref="V2 §8.3 11단계 (v4.0.56)")
+                 formula="대여금 상계분 그 달 지급 확정 세전액 = 원천세를 떼면 상계액이 되는 세전 금액"
+                         + ("(기타소득: 과세최저한은 지급하는 달에 원 거래 한 건으로 합쳐 판정)" if other else ""),
+                 ref="V2 §8.3 11단계 (v4.0.56 · v4.0.59)")
+    elif loan and not applies and (ln.get("vat_amount") or D(0)) > 0 and ln.get("vat_treatment") != "VAT_INCLUDED":
+        supply = floor_won(off * 100 / D(110))
+        vat_paid = off - supply
+        carry = ln["split_amount"] - supply
+        extra = {"components": {"carry_vat": ln["vat_amount"] - vat_paid}}
+        ctx.emit(STEP, "offset_paid_gross", supply, c, **kw,
+                 inputs={"상계액": off, "그 달 공급가액": supply, "그 달 부가세": vat_paid, "이월 부가세": ln["vat_amount"] - vat_paid},
+                 formula="부가세 별도 라인 상계분 = 공급가액 내림(상계액 × 100/110) + 부가세(상계액 − 공급가액), 남은 공급가액 · 부가세 이월",
+                 ref="V2 §8.3 11단계 (v4.0.59)")
+    elif loan:
+        carry = ln["pre_tax_payable"]
     else:
         ln["income_tax"] = ln["local_income_tax"] = ln["withholding_total"] = D(0)
         carry = ln["pre_tax_payable"]
@@ -186,4 +233,4 @@ def offset_carry(ctx, c, p, pid, ln):
     ctx.emit(STEP, "offset_month_carry_pre_tax", carry, c, **kw, inputs={"분할액": ln["split_amount"], "상계액": off},
              formula="상계 뒤 최종 정산금액이 최소 지급 미달 — 상계분은 그 달 지급 확정, 나머지는 세전 이월(원천세는 지급하는 달)",
              ref="V1 §7.3 · V2 §8.3 11단계 (v4.0.56)")
-    return carry
+    return carry, extra

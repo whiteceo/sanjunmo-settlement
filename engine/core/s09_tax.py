@@ -167,7 +167,9 @@ def tax_payee(ctx, c, p):
             continue
         if ln["income_category"] == "OTHER":
             # 지난달 원 건의 정정분은 원 건과 한 건으로 판정(원 건별로 묶음, v4.0.45)
-            om = ln.get("origin_month") if ln["origin"] == "ADJUSTMENT" and ln.get("origin_unit_base") is not None else None
+            # 상계한 달 미달 이월분도 같은 방식(v4.0.59)
+            om = (ln.get("origin_month") if ln["origin"] in ("ADJUSTMENT", "CARRY_PRE_TAX") and ln.get("origin_unit_base") is not None
+                  else None)
             units.setdefault((ln["origin"], ln["tax_threshold_unit_key"], ln["income_clause"], om), []).append(ln)
             continue
         biz.append(ln)
@@ -247,10 +249,12 @@ def finish_payee(ctx, c, p):
                      note="TAX-5" if ln.get("vat_treatment") == "VAT_INCLUDED" else "")
         elif ln["origin"] == "CARRY_PRE_TAX" and ln["taxable_base"] is not None:
             wt = ln.get("withholding_total") or D(0)
-            ln["after_tax_amount"] = ln["pre_tax_payable"] - wt
+            cv = ln.get("carry_vat_amount") or D(0)
+            ln["after_tax_amount"] = ln["pre_tax_payable"] - wt + cv
             ctx.emit(STEP, "carry_pre_tax_after_tax", ln["after_tax_amount"], c, payee=pid, line=ln["line_id"],
-                     inputs={"기초금액": ln["pre_tax_payable"], "원천징수세액": wt},
-                     formula="원귀속 PRE_TAX 세후 환산액 = 기초금액 − 해당 원귀속분 원천징수세액", ref="V2 L271 · L282")
+                     inputs={"기초금액": ln["pre_tax_payable"], "원천징수세액": wt, "이월 부가세": cv},
+                     formula="원귀속 PRE_TAX 세후 환산액 = 기초금액 − 해당 원귀속분 원천징수세액 + 이월된 부가세(상계한 달 미달 이월분)",
+                     ref="V2 L271 · L282 · §8.3 11단계 (v4.0.59)")
     totals(ctx, c, p)
 
 

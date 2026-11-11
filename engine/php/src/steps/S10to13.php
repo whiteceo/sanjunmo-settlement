@@ -390,14 +390,25 @@ final class S11Payout
         }
     }
 
-    /** 원천세를 뗀 뒤 금액이 net 이상이 되는 가장 작은 세전 금액(사업소득, 10원 미만 내림 순차 계산). */
-    private static function grossFor(Context $ctx, Number $net): Number
+    /** 기타소득 세액(상계한 달 확정분 — 과세최저한은 지급하는 달에 원 거래 한 건으로 합쳐 판정). */
+    private static function otherTaxNoThreshold(Context $ctx, Number $g, $clause): array
     {
+        [$rate, $deemedRate] = Tax::rates($ctx, 'OTHER', $clause);
+        $de = floor_won(mul($g, $deemedRate));
+        $it = floor_ten(mul(sub($g, $de), $rate));
+        $lt = floor_ten(mul($it, D(pystr($ctx->p('local_income_tax_rate')))));
+        return ['income_tax' => $it, 'local_income_tax' => $lt, 'deemed_expense' => $de];
+    }
+
+    /** 원천세를 뗀 뒤 금액이 net 이상이 되는 가장 작은 세전 금액(10원 미만 내림 순차 계산). */
+    private static function grossFor(Context $ctx, Number $net, ?callable $taxf = null): Number
+    {
+        $taxf = $taxf ?? fn($g) => Tax::withholdBusiness($ctx, $g);
         $lo = (int)$net->value;
         $hi = $lo * 2;
         while ($lo < $hi) {
             $mid = intdiv($lo + $hi, 2);
-            $w = Tax::withholdBusiness($ctx, D($mid));
+            $w = $taxf(D($mid));
             if (sub(sub(D($mid), $w['income_tax']), $w['local_income_tax']) >= $net) {
                 $hi = $mid;
             } else {
@@ -408,26 +419,53 @@ final class S11Payout
     }
 
     /**
-     * 상계한 달에 최종 정산금액이 최소 지급 미달로 이월될 때(V1 §7.3 · V2 §8.3 11단계, v4.0.56):
-     * 상계한 금액은 그 달 지급으로 확정 · 원천징수하고, 남은 금액은 원천징수 전 세전 금액으로 이월한다.
-     * 대여금(LOAN)은 상계액이 원천세를 뗀 뒤 금액이므로 세전 지급 확정액 = 원천세를 떼면 상계액이 되는 세전 금액,
-     * 소득 선지급(EARNED)은 상계액이 과세표준에서 이미 빠져 그 달 원천징수 없음. → 이월 세전 금액
+     * 상계한 달에 최종 정산금액이 최소 지급 미달로 이월될 때(V1 §7.3 · V2 §8.3 11단계, v4.0.56 · v4.0.59).
+     * 상계한 금액은 그 달 지급으로 확정하고, 상계액이 세금 · 부가세를 정리한 뒤 금액이 되도록 그 달 확정분을 역산한다.
+     * → [이월 세전 금액, 이월 행에 덧붙일 칸]. 갈래는 Python판 offset_carry 주석과 같음.
      */
-    private static function offsetCarry(Context $ctx, ContractState $c, PayeeState $p, $pid, array &$ln): Number
+    private static function offsetCarry(Context $ctx, ContractState $c, PayeeState $p, $pid, array &$ln): array
     {
         $kw = ['payee' => $pid, 'line' => $ln['line_id'], 'line_key' => $ln['line_key']];
         $off = $ln['offset_amount'];
-        if ($c->prepay && g($c->prepay, 'type') === 'LOAN') {
-            $gross = self::grossFor($ctx, $off);
-            $w = Tax::withholdBusiness($ctx, $gross);
+        $extra = [];
+        $loan = $c->prepay && g($c->prepay, 'type') === 'LOAN';
+        $applies = g($ln, 'withholding_rule') === 'APPLY' && g($ln, 'tax_decision_status') === 'DECIDED';
+        $other = g($ln, 'income_category') === 'OTHER';
+        $vat = either(g($ln, 'vat_amount'), D(0));
+        if ($loan && $applies) {
+            $clause = g($ln, 'income_clause');
+            $taxf = $other ? fn($g) => self::otherTaxNoThreshold($ctx, $g, $clause) : fn($g) => Tax::withholdBusiness($ctx, $g);
+            $gross = self::grossFor($ctx, $off, $taxf);
+            $w = $taxf($gross);
             $ln['taxable_base'] = $gross;
             $ln['income_tax'] = $w['income_tax'];
             $ln['local_income_tax'] = $w['local_income_tax'];
             $ln['withholding_total'] = add($w['income_tax'], $w['local_income_tax']);
             $carry = sub($ln['split_amount'], $gross);
+            if ($other) {
+                $ln['deemed_expense'] = $w['deemed_expense'];
+                $ln['other_income_amount'] = sub($gross, $w['deemed_expense']);
+                $ln['threshold_exempt_yn'] = false;
+                $ln['small_amount_exempt_yn'] = false;
+                $extra = ['origin_unit_base' => $gross, 'origin_unit_income_tax' => $w['income_tax'],
+                    'origin_unit_local_tax' => $w['local_income_tax']];
+            }
             $ctx->emit(self::STEP, 'offset_paid_gross', $gross, $c, ...$kw,
                 inputs: ['상계액' => $off, '소득세' => $w['income_tax'], '지방소득세' => $w['local_income_tax']],
-                formula: '대여금 상계분 그 달 지급 확정 세전액 = 원천세를 떼면 상계액이 되는 세전 금액', ref: 'V2 §8.3 11단계 (v4.0.56)');
+                formula: '대여금 상계분 그 달 지급 확정 세전액 = 원천세를 떼면 상계액이 되는 세전 금액'
+                    . ($other ? '(기타소득: 과세최저한은 지급하는 달에 원 거래 한 건으로 합쳐 판정)' : ''),
+                ref: 'V2 §8.3 11단계 (v4.0.56 · v4.0.59)');
+        } elseif ($loan && !$applies && $vat > 0 && g($ln, 'vat_treatment') !== 'VAT_INCLUDED') {
+            $supply = floor_won(div(mul($off, D(100)), D(110)));
+            $vatPaid = sub($off, $supply);
+            $carry = sub($ln['split_amount'], $supply);
+            $extra = ['components' => ['carry_vat' => sub($vat, $vatPaid)]];
+            $ctx->emit(self::STEP, 'offset_paid_gross', $supply, $c, ...$kw,
+                inputs: ['상계액' => $off, '그 달 공급가액' => $supply, '그 달 부가세' => $vatPaid, '이월 부가세' => sub($vat, $vatPaid)],
+                formula: '부가세 별도 라인 상계분 = 공급가액 내림(상계액 × 100/110) + 부가세(상계액 − 공급가액), 남은 공급가액 · 부가세 이월',
+                ref: 'V2 §8.3 11단계 (v4.0.59)');
+        } elseif ($loan) {
+            $carry = $ln['pre_tax_payable'];
         } else {
             $ln['income_tax'] = $ln['local_income_tax'] = $ln['withholding_total'] = D(0);
             $carry = $ln['pre_tax_payable'];
@@ -440,7 +478,7 @@ final class S11Payout
         $ctx->emit(self::STEP, 'offset_month_carry_pre_tax', $carry, $c, ...$kw, inputs: ['분할액' => $ln['split_amount'], '상계액' => $off],
             formula: '상계 뒤 최종 정산금액이 최소 지급 미달 — 상계분은 그 달 지급 확정, 나머지는 세전 이월(원천세는 지급하는 달)',
             ref: 'V1 §7.3 · V2 §8.3 11단계 (v4.0.56)');
-        return $carry;
+        return [$carry, $extra];
     }
 
     private static function payoutPayee(Context $ctx, ContractState $c, PayeeState $p, bool $end, bool $closed, Number $limit): void
@@ -518,18 +556,20 @@ final class S11Payout
         } elseif ($evaluated) {
             foreach ($p->lines as &$ln) {
                 if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && $ln['pre_tax_payable'] > 0) {
-                    $carryAmt = (either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) ? self::offsetCarry($ctx, $c, $p, $pid, $ln) : $ln['pre_tax_payable'];
+                    [$carryAmt, $extra] = (either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) ? self::offsetCarry($ctx, $c, $p, $pid, $ln) : [$ln['pre_tax_payable'], []];
+                    $extraComp = $extra['components'] ?? [];
+                    unset($extra['components']);
                     $key = $ln['line_key'];
-                    $rows[] = ['ledger_id' => null, 'action' => 'NEW', 'rights_holder_id' => $c->holder_id, 'payee_id' => $pid,
+                    $rows[] = array_merge(['ledger_id' => null, 'action' => 'NEW', 'rights_holder_id' => $c->holder_id, 'payee_id' => $pid,
                         'contract_id' => $c->id, 'origin_month' => $ctx->month, 'account_type' => 'PRE_TAX',
                         'pipeline_id' => g($key, 'pipeline_id'), 'consignment_balance_yn' => false,
                         'income_category' => g($key, 'income_category'), 'income_clause' => g($key, 'income_clause'),
                         'tax_threshold_unit_key' => g($key, 'tax_threshold_unit_key'),
                         'carryover_reason' => $hold ? ($designated ? '운영자 이월 지정' : '지급 보류') : '지급 하한 미달', 'carryover_amount' => $carryAmt,
-                        'components' => ['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
-                            'vat_amount' => g($ln, 'vat_amount')],
+                        'components' => array_merge(['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
+                            'vat_amount' => g($ln, 'vat_amount')], $extraComp),
                         'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,
-                        'payout_reservation_status' => 'NONE', 'extinguished_yn' => false];
+                        'payout_reservation_status' => 'NONE', 'extinguished_yn' => false], $extra);
                 }
             }
             unset($ln);

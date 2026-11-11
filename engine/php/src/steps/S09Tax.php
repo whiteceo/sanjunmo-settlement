@@ -239,7 +239,8 @@ final class S09Tax
             }
             if ($ln['income_category'] === 'OTHER') {
                 // 지난달 원 건의 정정분은 원 건과 한 건으로 판정(원 건별로 묶음, v4.0.45)
-                $om = ($ln['origin'] === 'ADJUSTMENT' && g($ln, 'origin_unit_base') !== null) ? g($ln, 'origin_month') : null;
+                // 상계한 달 미달 이월분도 같은 방식(v4.0.59)
+                $om = (in_array($ln['origin'], ['ADJUSTMENT', 'CARRY_PRE_TAX'], true) && g($ln, 'origin_unit_base') !== null) ? g($ln, 'origin_month') : null;
                 $units[tkey($ln['origin'], $ln['tax_threshold_unit_key'], $ln['income_clause'], $om)][] = $i;
                 continue;
             }
@@ -338,10 +339,12 @@ final class S09Tax
                     ref: 'V2 §8.3 9단계 L282 · TAX.md 확인 필요 5', provisional: $inc, note: $inc ? 'TAX-5' : '');
             } elseif ($ln['origin'] === 'CARRY_PRE_TAX' && $ln['taxable_base'] !== null) {
                 $wt = either(g($ln, 'withholding_total'), D(0));
-                $ln['after_tax_amount'] = sub($ln['pre_tax_payable'], $wt);
+                $cv = either(g($ln, 'carry_vat_amount'), D(0));
+                $ln['after_tax_amount'] = add(sub($ln['pre_tax_payable'], $wt), $cv);
                 $ctx->emit(self::STEP, 'carry_pre_tax_after_tax', $ln['after_tax_amount'], $c, payee: $pid, line: $ln['line_id'],
-                    inputs: ['기초금액' => $ln['pre_tax_payable'], '원천징수세액' => $wt],
-                    formula: '원귀속 PRE_TAX 세후 환산액 = 기초금액 − 해당 원귀속분 원천징수세액', ref: 'V2 L271 · L282');
+                    inputs: ['기초금액' => $ln['pre_tax_payable'], '원천징수세액' => $wt, '이월 부가세' => $cv],
+                    formula: '원귀속 PRE_TAX 세후 환산액 = 기초금액 − 해당 원귀속분 원천징수세액 + 이월된 부가세(상계한 달 미달 이월분)',
+                    ref: 'V2 L271 · L282 · §8.3 11단계 (v4.0.59)');
             }
         }
         unset($ln);

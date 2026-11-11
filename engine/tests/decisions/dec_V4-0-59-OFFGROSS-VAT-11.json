@@ -1,0 +1,93 @@
+{
+ "case": "DEC-V459-OFFGROSS-VAT-11",
+ "title": "상계한 달 미달 이월 — 부가세 별도(TX-06) 대여금 상계분 역산",
+ "canon_ref": "정산 02권 8.3절 11단계 '최소 지급 판정 — 상계한 달도 같음'(v4.0.59 역산 통일) · 04권 Case 1-D · 1-E",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "matrix_case_id_hint": "TX-06",
+    "tax_type_cd": "01"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-1",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 900000,
+    "allocation_applied": true,
+    "approved_at": "2026-11-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 900000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "book_authors": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 400000
+   }
+  ]
+ },
+ "notes": "R/S 450,000 + 부가세 45,000, 대여금 400,000 상계 → 최종 정산금액 95,000 < 100,000 → 이체 0. 상계 400,000 = 공급가액 363,636 + 부가세 36,364, 나머지 공급가액 86,364 이월 · 부가세 8,636은 이월 행에 남김. 세금계산서는 11월 전체(450,000 / 45,000)",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0,
+   "offset_paid_gross": 363636,
+   "offset_month_carry_pre_tax": 86364
+  },
+  "TAX": {
+   "vat_total": 45000
+  }
+ }
+}
