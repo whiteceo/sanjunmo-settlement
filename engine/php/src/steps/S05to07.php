@@ -269,6 +269,14 @@ final class S06PrepayOffset
             }
             $ptype = $pre[0]['prepayment_tax_type'];
             $bal = dsum(array_map(fn($p) => D($p['prepay_unoffset_balance']), $pre));
+            // 월 보장액(MMG)을 둔 계약에는 종결되지 않은 선급금을 둘 수 없음(V1 5.3절, v4.0.65)
+            if ($bal > 0) {
+                foreach ($ctx->input['rate_lines'] as $r) {
+                    if ($r['contract_id'] === $c->id && D(either(g($r, 'mmg_amount'), 0)) > 0) {
+                        $ctx->stop('INPUT_ERROR', 'PREPAY_WITH_MMG', pystr($c->id) . ' 선급금과 월 보장액(MMG) 동시 존재 금지', 'V1 5.3절 (v4.0.65)');
+                    }
+                }
+            }
             $payee = either(g($pre[0], 'offset_payee_id'), $c->holder_id);
             $c->prepay = ['type' => $ptype, 'balance' => $bal, 'payee' => $payee, 'rows' => $pre];
             $out['applicable'] = $ctx->emit(self::STEP, 'applicable', true, $c, inputs: ['prepayment_tax_type' => $ptype]);

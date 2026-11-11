@@ -107,6 +107,9 @@ def run(ctx):
             ctx.stop("INPUT_ERROR", "PREPAY_WITH_PAYEE_SPLIT", f"{c.id} 선급금과 수취인 분할 동시 존재 금지", "V1 L323")
         ptype = pre[0]["prepayment_tax_type"]
         bal = sum(D(p["prepay_unoffset_balance"]) for p in pre)
+        # 월 보장액(MMG)을 둔 계약에는 종결되지 않은 선급금을 둘 수 없음(V1 5.3절, v4.0.65)
+        if bal > 0 and any(D(r.get("mmg_amount") or 0) > 0 for r in ctx.input["rate_lines"] if r["contract_id"] == c.id):
+            ctx.stop("INPUT_ERROR", "PREPAY_WITH_MMG", f"{c.id} 선급금과 월 보장액(MMG) 동시 존재 금지", "V1 5.3절 (v4.0.65)")
         payee = pre[0].get("offset_payee_id") or c.holder_id
         c.prepay = {"type": ptype, "balance": bal, "payee": payee, "rows": pre}
         out["applicable"] = ctx.emit(STEP, "applicable", True, c, inputs={"prepayment_tax_type": ptype})
