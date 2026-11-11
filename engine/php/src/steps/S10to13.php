@@ -54,6 +54,7 @@ final class S10Claim
                 $sts[] = [$c, $p, $end, $closed, $limit, self::claimPayee($ctx, $c, $p, $end, $closed, $limit)];
             }
         }
+        self::payeeNetting($ctx, $sts);
         // 청구 기준 판정은 받는 사람(원 권리자 · 받는 사람)의 계약별 청구 음수 합으로(V2 §8.3 10단계, v4.0.53)
         // 계약이 둘 이상이면 판정 기준액은 그 달 유효한 계약 가운데 늦게 시작한 계약의 값(v4.0.53)
         $gsum = [];
@@ -69,6 +70,58 @@ final class S10Claim
         foreach ($sts as [$c, $p, $end, $closed, $limit, $st]) {
             $k = tkey($c->holder_id, $st['pid']);
             self::claimDecide($ctx, $c, $p, $end, $closed, isset($glim[$k]) ? $glim[$k][1] : $limit, $st, $gsum[$k]);
+        }
+    }
+
+    /**
+     * 받는 사람 단위 순액(V2 §8.3 10단계, v4.0.55): 같은 원 권리자 · 받는 사람의 그 달 새 금액(계약별 반환 반영 후 순액)끼리만
+     * 합산한다. 반환채권 · 선급금 청구 전환액 · 이월 잔액(지급 · 청구)은 넣지 않는다. 합이 0 이상이면 음수 계약을 0으로 지우고
+     * 양수 계약의 지급액을 양수 비율로 줄이며, 합이 0 미만이면 양수 계약을 0으로 지우고 음수 계약의 음수를 음수 비율로 줄인다.
+     */
+    private static function payeeNetting(Context $ctx, array &$sts): void
+    {
+        $groups = [];
+        foreach ($sts as $i => $row) {
+            $groups[tkey($row[0]->holder_id, $row[5]['pid'])][] = $i;
+        }
+        foreach ($groups as $idx) {
+            $pos = array_values(array_filter($idx, fn($i) => $sts[$i][5]['after'] > 0));
+            $neg = array_values(array_filter($idx, fn($i) => $sts[$i][5]['after'] < 0));
+            if (!$pos || !$neg) {
+                continue;
+            }
+            $total = dsum(array_map(fn($i) => $sts[$i][5]['after'], $idx));
+            $new = [];
+            if ($total >= 0) {
+                $shares = alloc_last_remainder($total, array_map(fn($i) => $sts[$i][5]['after'], $pos));
+                foreach ($pos as $j => $i) {
+                    $new[$i] = $shares[$j];
+                }
+                foreach ($neg as $i) {
+                    $new[$i] = D(0);
+                }
+            } else {
+                $shares = alloc_last_remainder($total, array_map(fn($i) => $sts[$i][5]['after'], $neg));
+                foreach ($neg as $j => $i) {
+                    $new[$i] = $shares[$j];
+                }
+                foreach ($pos as $i) {
+                    $new[$i] = D(0);
+                }
+            }
+            $cids = array_values(array_unique(array_map(fn($i) => $sts[$i][0]->id, $idx)));
+            sort($cids);
+            foreach ($idx as $i) {
+                $c = $sts[$i][0];
+                $old = $sts[$i][5]['after'];
+                $nv = $new[$i] ?? $old;
+                $sts[$i][5]['cnn'] = add(sub($sts[$i][5]['cnn'], dmin(D(0), $old)), dmin(D(0), $nv));
+                $sts[$i][5]['after'] = $nv;
+                $ctx->emit(self::STEP, 'payee_netting_after', $nv, $c, ...$sts[$i][5]['kw'],
+                    inputs: ['이 계약 그 달 새 금액(반환 반영 후 순액)' => $old, '받는 사람 순액 합' => $total, '계약' => $cids],
+                    formula: '받는 사람 순액: 그 달 새 금액끼리만 계약을 넘어 합산(반환채권 · 선급금 청구 전환 · 이월 제외) — 합 ≥ 0이면 음수 계약 0 · 양수 계약에 합 배분, 합 < 0이면 양수 계약 0 · 음수 계약에 합 배분',
+                    ref: 'V2 §8.3 10단계 · 9.1절 정산서 (v4.0.55)');
+            }
         }
     }
 

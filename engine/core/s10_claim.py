@@ -6,11 +6,12 @@
 청구 발행 = 음수 AND (|음수| > |min_claim_limit| OR 강제 청구 트리거).
 지급 판정 전달액 = max(0, 반환 반영 후 순액) + 원귀속 PRE_TAX 세후 환산액.
 """
+from collections import OrderedDict
 
 from datetime import date
 
 from . import adjust
-from .money import D, floor_won
+from .money import D, floor_won, alloc_last_remainder
 
 STEP = "CLAIM"
 
@@ -42,6 +43,7 @@ def run(ctx):
                   else ctx.p("default_min_claim_limit"))
         for p in c.payees.values():
             sts.append((c, p, end, closed, limit, claim_payee(ctx, c, p, end, closed, limit)))
+    payee_netting(ctx, sts)
     # 청구 기준 판정은 받는 사람(원 권리자 · 받는 사람)의 계약별 청구 음수 합으로(V2 §8.3 10단계, v4.0.53)
     # 계약이 둘 이상이면 판정 기준액은 그 달 유효한 계약 가운데 늦게 시작한 계약의 값(v4.0.53)
     gsum, glim = {}, {}
@@ -54,6 +56,41 @@ def run(ctx):
     for c, p, end, closed, limit, st in sts:
         k = (c.holder_id, st["pid"])
         claim_decide(ctx, c, p, end, closed, glim.get(k, (None, limit))[1], st, gsum[k])
+
+
+def payee_netting(ctx, sts):
+    """받는 사람 단위 순액(V2 §8.3 10단계, v4.0.55): 같은 원 권리자 · 받는 사람의 그 달 새 금액(계약별 반환 반영 후 순액)끼리만
+    합산한다. 반환채권 · 선급금 청구 전환액 · 이월 잔액(지급 · 청구)은 넣지 않는다. 합이 0 이상이면 음수 계약을 0으로 지우고
+    양수 계약의 지급액을 양수 비율로 줄이며, 합이 0 미만이면 양수 계약을 0으로 지우고 음수 계약의 음수를 음수 비율로 줄인다."""
+    groups = OrderedDict()
+    for row in sts:
+        c, st = row[0], row[5]
+        groups.setdefault((c.holder_id, st["pid"]), []).append(row)
+    for (hid, pid), rows in groups.items():
+        pos = [r for r in rows if r[5]["after"] > 0]
+        neg = [r for r in rows if r[5]["after"] < 0]
+        if not pos or not neg:
+            continue
+        total = sum((r[5]["after"] for r in rows), D(0))
+        if total >= 0:
+            shares = alloc_last_remainder(total, [r[5]["after"] for r in pos])
+            new = {id(r): s for r, s in zip(pos, shares)}
+            new.update({id(r): D(0) for r in neg})
+        else:
+            shares = alloc_last_remainder(total, [r[5]["after"] for r in neg])
+            new = {id(r): s for r, s in zip(neg, shares)}
+            new.update({id(r): D(0) for r in pos})
+        for r in rows:
+            c, st = r[0], r[5]
+            old = st["after"]
+            nv = new.get(id(r), old)
+            st["cnn"] = st["cnn"] - min(D(0), old) + min(D(0), nv)
+            st["after"] = nv
+            ctx.emit(STEP, "payee_netting_after", nv, c, **st["kw"],
+                     inputs={"이 계약 그 달 새 금액(반환 반영 후 순액)": old, "받는 사람 순액 합": total,
+                             "계약": sorted({x[0].id for x in rows})},
+                     formula="받는 사람 순액: 그 달 새 금액끼리만 계약을 넘어 합산(반환채권 · 선급금 청구 전환 · 이월 제외) — 합 ≥ 0이면 음수 계약 0 · 양수 계약에 합 배분, 합 < 0이면 양수 계약 0 · 음수 계약에 합 배분",
+                     ref="V2 §8.3 10단계 · 9.1절 정산서 (v4.0.55)")
 
 
 def claim_payee(ctx, c, p, end, closed, limit):
