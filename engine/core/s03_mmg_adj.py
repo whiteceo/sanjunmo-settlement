@@ -39,19 +39,7 @@ def run(ctx):
         full = D((rl or {}).get("mmg_amount"))
         if full > 0:
             prorated[c.id] = prorate(ctx, c, full)
-    # 달 중간 재계약 달: 같은 권리자의 일할 계약이 둘 이상이면 일할 보장액 합 · R/S 합으로 한 번 판정, 보전금은 일할액이 큰 계약(v4.0.41)
-    groups = {}
-    for c in ctx.contracts.values():
-        if c.id in prorated and prorated[c.id][3]:
-            groups.setdefault(c.holder_id, []).append(c)
-    merged = {}
-    for hid, cs in groups.items():
-        if len(cs) > 1:
-            big = max(cs, key=lambda x: (prorated[x.id][0], -(_d(x.row.get("start_date")) or date.min).toordinal(), x.id))  # 같으면 앞 계약(v4.0.44)
-            tot_mmg = sum(prorated[x.id][0] for x in cs)
-            tot_basis = sum(sum(ln.new for ln in x.lines_of("1.1")) for x in cs)
-            for x in cs:
-                merged[x.id] = (big.id, tot_mmg, tot_basis)
+    # 달 중간 재계약 · 승계 달도 계약마다 자기 일할 보장액과 자기 R/S만 비교(계약주의, V2 §8.3 3단계, v4.0.49)
     for c in ctx.contracts.values():
         out = c.step_out(STEP)
         lines = c.lines_of("1.1")
@@ -59,21 +47,13 @@ def run(ctx):
         if partial:
             ctx.emit(STEP, "mmg_prorated", mmg, c, inputs={"그 달 계약 일수": days, "그 달 일수": dim},
                      formula="첫 달 · 끝 달 월 보장액 = 내림(월 보장액 × 그 달 계약 일수 ÷ 그 달 일수)", ref="V2 §8.3 3단계 · V1 §5.3 (v4.0.38)")
-        if c.id in merged:
-            big, tot_mmg, tot_basis = merged[c.id]
-            sub = max(D(0), tot_mmg - tot_basis) if c.id == big else D(0)
-            ctx.emit(STEP, "mmg_recontract_merged", sub, c, inputs={"일할 보장액 합": tot_mmg, "R/S 합": tot_basis, "보전 원장 계약": big},
-                     formula="재계약 달: 두 계약 일할 보장액 합 vs 권리자 R/S 합 1회 판정, 보전금은 일할액이 큰 계약", ref="V2 §8.3 3단계 (v4.0.41)")
-            mmg = (sum(ln.new for ln in lines) + sub) if sub > 0 else D(0)
         applicable = bool(lines) or mmg > 0
         out["applicable"] = ctx.emit(STEP, "applicable", applicable, c, inputs={"P1.1 lines": len(lines), "mmg": mmg},
                                      formula="MMG는 온라인 강좌 특약 — Pipeline 1.1에만 적용", ref="V2 §8.3 3단계 L193")
         if not applicable:
             continue
         basis = sum(ln.new for ln in lines)
-        if c.id in merged and mmg == 0:
-            adjusted, subsidy = basis, D(0)
-        elif mmg > 0 and basis < mmg:
+        if mmg > 0 and basis < mmg:
             adjusted, subsidy = mmg, mmg - basis
         else:
             adjusted, subsidy = basis, D(0)

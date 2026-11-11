@@ -172,24 +172,7 @@ final class S03MmgAdj
                 $prorated[$c->id] = self::prorate($ctx, $c, $full);
             }
         }
-        // 달 중간 재계약 달: 같은 권리자의 일할 계약이 둘 이상이면 합산 1회 판정, 보전금은 일할액이 큰 계약(v4.0.41)
-        $groups = [];
-        foreach ($ctx->contracts as $c) {
-            if (isset($prorated[$c->id]) && $prorated[$c->id][3]) {
-                $groups[$c->holder_id][] = $c;
-            }
-        }
-        $merged = [];
-        foreach ($groups as $cs) {
-            if (count($cs) > 1) {
-                $big = max_by($cs, fn($x) => [$prorated[$x->id][0], -(int)strtotime(substr((string)either(g($x->row, 'start_date'), '0001-01-01'), 0, 10)), $x->id]); // 같으면 앞 계약(v4.0.44)
-                $totMmg = dsum(array_map(fn($x) => $prorated[$x->id][0], $cs));
-                $totBasis = dsum(array_map(fn($x) => dsum(array_map(fn($l) => $l->new, $x->linesOf('1.1'))), $cs));
-                foreach ($cs as $x) {
-                    $merged[$x->id] = [$big->id, $totMmg, $totBasis];
-                }
-            }
-        }
+        // 달 중간 재계약 · 승계 달도 계약마다 자기 일할 보장액과 자기 R/S만 비교(계약주의, V2 §8.3 3단계, v4.0.49)
         foreach ($ctx->contracts as $c) {
             $out = &$c->stepOut(self::STEP);
             $lines = $c->linesOf('1.1');
@@ -197,13 +180,6 @@ final class S03MmgAdj
             if ($partial) {
                 $ctx->emit(self::STEP, 'mmg_prorated', $mmg, $c, inputs: ['그 달 계약 일수' => $days, '그 달 일수' => $dim],
                     formula: '첫 달 · 끝 달 월 보장액 = 내림(월 보장액 × 그 달 계약 일수 ÷ 그 달 일수)', ref: 'V2 §8.3 3단계 · V1 §5.3 (v4.0.38)');
-            }
-            if (isset($merged[$c->id])) {
-                [$big, $totMmg, $totBasis] = $merged[$c->id];
-                $subM = $c->id === $big ? dmax(D(0), sub($totMmg, $totBasis)) : D(0);
-                $ctx->emit(self::STEP, 'mmg_recontract_merged', $subM, $c, inputs: ['일할 보장액 합' => $totMmg, 'R/S 합' => $totBasis, '보전 원장 계약' => $big],
-                    formula: '재계약 달: 두 계약 일할 보장액 합 vs 권리자 R/S 합 1회 판정, 보전금은 일할액이 큰 계약', ref: 'V2 §8.3 3단계 (v4.0.41)');
-                $mmg = $subM > 0 ? add(dsum(array_map(fn($l) => $l->new, $lines)), $subM) : D(0);
             }
             $applicable = (bool)$lines || $mmg > 0;
             $out['applicable'] = $ctx->emit(self::STEP, 'applicable', $applicable, $c, inputs: ['P1.1 lines' => count($lines), 'mmg' => $mmg],
@@ -213,9 +189,7 @@ final class S03MmgAdj
                 continue;
             }
             $basis = dsum(array_map(fn($l) => $l->new, $lines));
-            if (isset($merged[$c->id]) && is_zero($mmg)) {
-                [$adjusted, $subsidy] = [$basis, D(0)];
-            } elseif ($mmg > 0 && $basis < $mmg) {
+            if ($mmg > 0 && $basis < $mmg) {
                 [$adjusted, $subsidy] = [$mmg, sub($mmg, $basis)];
             } else {
                 [$adjusted, $subsidy] = [$basis, D(0)];
