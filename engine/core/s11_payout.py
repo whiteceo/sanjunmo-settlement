@@ -135,6 +135,11 @@ def payout_payee(ctx, c, p, end, closed, limit):
         if any(r["action"] == "NEW" for r in rows):
             ctx.issue("CANON_GAP", "지급 이월 적재 구성요소(VAT · 상계) 보존 방식 정본 없음 — 라인별 세전 기초금액 + 구성요소",
                       STEP, c.holder_id, "V2 L305", "Q-21")
+    # 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김.
+    # 합칠 때는 운영자 수동 대체 전표(V2 §8.3 10단계, v4.0.61 정본 공백 보완)
+    for r in c.carry["pre_neg"]:
+        if r["payee_id"] == pid and not r.get("carry_line_origin"):
+            rows.append(dict(r, action="KEEP"))
     load = sum((r["carryover_amount"] for r in rows if r["action"] == "NEW"), D(0))
     ctx.emit(STEP, "carry_load", load, c, **kw, formula="지급 이월 신규 적재액(PRE_TAX 기초금액)", ref="V2 L305",
              provisional=bool(load), note="Q-21" if load else "")

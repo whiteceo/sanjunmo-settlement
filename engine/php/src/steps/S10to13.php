@@ -591,6 +591,12 @@ final class S11Payout
                 }
             }
         }
+        // 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김(v4.0.61 정본 공백 보완)
+        foreach ($c->carry['pre_neg'] as $r) {
+            if ($r['payee_id'] === $pid && !truthy(g($r, 'carry_line_origin'))) {
+                $rows[] = array_merge($r, ['action' => 'KEEP']);
+            }
+        }
         $load = dsum(array_map(fn($r) => $r['carryover_amount'], array_filter($rows, fn($r) => $r['action'] === 'NEW')));
         $ctx->emit(self::STEP, 'carry_load', $load, $c, ...$kw, formula: '지급 이월 신규 적재액(PRE_TAX 기초금액)', ref: 'V2 L305',
             provisional: truthy($load), note: truthy($load) ? 'Q-21' : '');

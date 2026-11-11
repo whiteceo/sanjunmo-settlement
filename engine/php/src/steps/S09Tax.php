@@ -183,6 +183,11 @@ final class S09Tax
                 self::consignment($ctx, $c, $ln, $kw);
                 continue;
             }
+            if ($ln['origin'] === 'CARRY_PRE_TAX' && $ln['pre_tax_payable'] < 0 && !truthy(g($ln, 'carry_with_positive'))) {
+                // 청구 하한 미달 이월 행 — 세무 판정 · 지급 계산에 넣지 않고 원장에만 유지(v4.0.61)
+                $ln['income_tax'] = $ln['local_income_tax'] = $ln['withholding_total'] = D(0);
+                continue;
+            }
             $cl = Tax::classify($ctx, $pid, $ln);
             $tbl = either(g($cl, 'table'), []);
             $ln['matrix_case_id'] = $cl['case'];

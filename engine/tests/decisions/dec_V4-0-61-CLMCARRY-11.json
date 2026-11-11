@@ -1,0 +1,98 @@
+{
+ "case": "DEC-V461-CLMCARRY-11",
+ "title": "청구 이월 음수는 다음 달 새 금액과 합치지 않고 원장에 남김",
+ "canon_ref": "정산 02권 8.3절 10단계 '청구 하한 미달 이월'(v4.0.61 정본 공백 보완) · 04권 Case 1-G",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-1",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-11-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 400000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-0",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "MIXED",
+    "consignment_balance_yn": false,
+    "income_category": null,
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "청구 이월(원거래 지급 · 세무 경로 미확정)",
+    "carryover_amount": -50000,
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false
+   }
+  ]
+ },
+ "notes": "11월 R/S 200,000 → 원천세 6,600 → 193,400 지급, 청구 이월 −50,000은 합치지 않고 원장에 KEEP(합칠 때는 운영자 수동 대체 전표), 세무 판정 보류 없음",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 193400
+  }
+ }
+}

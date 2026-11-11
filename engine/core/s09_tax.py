@@ -115,6 +115,10 @@ def tax_payee(ctx, c, p):
         if ln["origin"] == "CONSIGNMENT":
             consignment(ctx, c, p, ln, kw)
             continue
+        if ln["origin"] == "CARRY_PRE_TAX" and ln["pre_tax_payable"] < 0 and not ln.get("carry_with_positive"):
+            # 청구 하한 미달 이월 행 — 세무 판정 · 지급 계산에 넣지 않고 원장에만 유지(판정 보류로 마감을 막지 않음, v4.0.61)
+            ln["income_tax"] = ln["local_income_tax"] = ln["withholding_total"] = D(0)
+            continue
         cl = classify(ctx, pid, ln)
         tbl = cl.get("table") or {}
         ln["matrix_case_id"] = cl["case"]
