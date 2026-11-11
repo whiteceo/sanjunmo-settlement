@@ -16,8 +16,14 @@ PAYABLE = ("NEW", "ADJUSTMENT")  # 당월 신규 + 전월 정산 조정(세금 �
 
 
 def run(ctx):
+    # 사업소득 원천세는 원 권리자 · 받는 사람 단위로 계약을 넘어 합산하므로(V2 §8.3 9단계, v4.0.48)
+    # 모든 계약의 라인 세무를 먼저 정하고 → 사업소득 합산 → 라인 실정산액 · 합계 → 상계 재검증 순서로 돈다.
     for c in ctx.contracts.values():
         tax_contract(ctx, c)
+    business_all(ctx)
+    for c in ctx.contracts.values():
+        finish_contract(ctx, c)
+    for c in ctx.contracts.values():
         revalidate_offset(ctx, c)
 
 
@@ -28,6 +34,67 @@ def vat_treatment(ctx, c, pid):
 def tax_contract(ctx, c):
     for p in c.payees.values():
         tax_payee(ctx, c, p)
+
+
+def finish_contract(ctx, c):
+    for p in c.payees.values():
+        finish_payee(ctx, c, p)
+
+
+def is_open_negative(x):
+    """원거래 달 미마감 음수 라인(당월 신규 라인의 환불 공제 초과분) — 별개 채권의 상계가 아니라 대가의 감소(v4.0.48)."""
+    return x["origin"] == "NEW" and (x.get("pending_negative_base") or D(0)) < 0
+
+
+def net_negatives(pos, negs):
+    """양수 과세표준과 미마감 음수를 합산. 합계 > 0이면 양수 라인 과세표준을 합계로 다시 배분하고 음수는 소멸,
+    합계 ≤ 0이면 양수 라인 과세표준 0 · 남은 음수를 음수 라인에 배분(이월). → (양수 합, 음수 합, 합계)"""
+    ptot = sum((x["taxable_base"] for x in pos), D(0))
+    ntot = sum((x["pending_negative_base"] for x in negs), D(0))
+    net = ptot + ntot
+    if net > 0:
+        for x, b in zip(pos, alloc_last_remainder(net, [x["taxable_base"] for x in pos])):
+            x["taxable_base"] = b
+        for x in negs:
+            x["pending_negative_base"] = None
+    else:
+        for x in pos:
+            x["taxable_base"] = D(0)
+        for x, r in zip(negs, alloc_last_remainder(net, [x["pending_negative_base"] for x in negs])):
+            x["pending_negative_base"] = r
+    return ptot, ntot, net
+
+
+def business_all(ctx, holder=None):
+    """사업소득 원천세: 원 권리자 · 받는 사람 · 지급일 · 소득 구분 단위로 계약을 넘어 양수 · 미마감 음수 라인을 합산,
+    합계 > 0이면 1회 계산(10원 미만 내림) · 라인 비율 배분, 합계 ≤ 0이면 0원 · 남은 음수 이월
+    (V2 §8.3 9단계 · §13.1, 소득세법 제127조 제1항 · 시행령 제51조 제3항 · 제213조 제1항, v4.0.36 · v4.0.48)."""
+    groups = OrderedDict()
+    for (cid, pid), (c, p, biz) in (getattr(ctx, "biz_reg", None) or {}).items():
+        if holder is not None and c.holder_id != holder:
+            continue
+        groups.setdefault((c.holder_id, pid), []).extend((c, x) for x in biz)
+    for (h, pid), items in groups.items():
+        negs = [(c, x) for c, x in items if is_open_negative(x)]
+        pos = [(c, x) for c, x in items if not is_open_negative(x)]
+        if negs:
+            c0 = items[-1][0]
+            ptot, ntot, net = net_negatives([x for _, x in pos], [x for _, x in negs])
+            ctx.emit(STEP, "business_net_base", max(net, D(0)), c0, payee=pid,
+                     inputs={"양수 과세표준 합": ptot, "미마감 원거래 음수 합": ntot, "합계": net,
+                             "계약": sorted({c.id for c, _ in items})},
+                     formula="사업소득 과세표준 = max(0, 양수 과세표준 합 + 미마감 원거래 음수 합) — 계약이 달라도 합산, 0 이하면 원천세 0 · 남은 음수 이월",
+                     ref="V2 §8.3 9단계 · 소득세법 제127조 제1항 · 시행령 제51조 제3항 제1호의2 · 제1호의4 · 제213조 제1항 (v4.0.48)")
+        w = withhold_business(ctx, sum((x["taxable_base"] for _, x in pos), D(0)))
+        bases = [x["taxable_base"] for _, x in pos]
+        its = alloc_last_remainder(w["income_tax"], bases)
+        lts = alloc_last_remainder(w["local_income_tax"], bases)
+        for (c, x), it, lt in zip(pos, its, lts):
+            set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
+                            dict(w, income_tax=it, local_income_tax=lt), "BUSINESS")
+        for c, x in negs:
+            set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
+                            dict(w, income_tax=D(0), local_income_tax=D(0)), "BUSINESS")
 
 
 def tax_payee(ctx, c, p):
@@ -101,17 +168,24 @@ def tax_payee(ctx, c, p):
             units.setdefault((ln["origin"], ln["tax_threshold_unit_key"], ln["income_clause"], om), []).append(ln)
             continue
         biz.append(ln)
-    if biz:
-        # 사업소득은 받는 사람 · 지급일 단위로 과세표준을 합산한 뒤 세액을 1회 계산(10원 미만 내림), 라인에는 비율 배분(V2 §8.3 9단계 · §13.1, v4.0.36)
-        w = withhold_business(ctx, sum(x["taxable_base"] for x in biz))
-        its = alloc_last_remainder(w["income_tax"], [x["taxable_base"] for x in biz])
-        lts = alloc_last_remainder(w["local_income_tax"], [x["taxable_base"] for x in biz])
-        for x, it, lt in zip(biz, its, lts):
-            set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
-                            dict(w, income_tax=it, local_income_tax=lt), "BUSINESS")
+    # 사업소득은 계약을 넘어 원 권리자 · 받는 사람 단위로 business_all에서 1회 계산(v4.0.48)
+    reg = getattr(ctx, "biz_reg", None)
+    if reg is None:
+        reg = ctx.biz_reg = OrderedDict()
+    reg[(c.id, pid)] = (c, p, biz)
     for (origin, unit, clause, om), lines in units.items():
         u = sum(x["taxable_base"] for x in lines)
         kw = dict(payee=pid, line=lines[-1]["line_id"], line_key=lines[-1]["line_key"])
+        negs = [x for x in lines if is_open_negative(x)]
+        if negs:
+            # 기타소득은 판정 단위(건) 안에서만 미마감 음수를 합산, 다른 계약의 음수는 합치지 않음(v4.0.48)
+            pos = [x for x in lines if not is_open_negative(x)]
+            ptot, ntot, net = net_negatives(pos, negs)
+            ctx.emit(STEP, "other_unit_net_base", max(net, D(0)), c, **kw,
+                     inputs={"양수 과세표준 합": ptot, "미마감 원거래 음수 합": ntot, "합계": net, "unit": unit},
+                     formula="기타소득 판정 단위 과세표준 = max(0, 양수 합 + 같은 판정 단위의 미마감 음수 합), 0 이하면 남은 음수 이월",
+                     ref="V2 §8.3 9단계 · 소득세법 제84조 · 집행기준 84-0-1 (v4.0.48)")
+            u = sum(x["taxable_base"] for x in lines)
         if om:
             # 원 건 + 정정분 합계로 과세최저한 판정, 이미 뗀 세액을 뺀 차액을 정정분 지급 때 징수
             # (소득세법 제84조 제3호, 소득세 집행기준 84-0-1 ②, V2 §8.3 9단계, v4.0.45)
@@ -154,6 +228,10 @@ def tax_payee(ctx, c, p):
                      threshold_exempt_yn=w["threshold_exempt_yn"], small_amount_exempt_yn=w["small_amount_exempt_yn"])
             set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
                             dict(w, income_tax=it, local_income_tax=lt), "OTHER")
+
+
+def finish_payee(ctx, c, p):
+    pid = p.payee_id
     for ln in p.lines:
         if ln["origin"] in PAYABLE:
             wt = ln.get("withholding_total") or D(0)
@@ -322,3 +400,7 @@ def revalidate_offset(ctx, c):
     s06_prepay_offset.compute(ctx, c, first=False, cap=max(D(0), cash))
     s08_payee_split.split_contract(ctx, c)
     tax_contract(ctx, c)
+    business_all(ctx, holder=c.holder_id)
+    for cc in ctx.contracts.values():
+        if cc.holder_id == c.holder_id:
+            finish_contract(ctx, cc)

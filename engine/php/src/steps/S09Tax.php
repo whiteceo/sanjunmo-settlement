@@ -17,10 +17,22 @@ final class S09Tax
     const STEP = 'TAX';
     const PAYABLE = ['NEW', 'ADJUSTMENT']; // 당월 신규 + 전월 정산 조정(세금 계산 직전 인입)
 
+    /** 사업소득 라인 등록: "계약 id\0수취인" → [ContractState, PayeeState, [line index]] */
+    private static array $bizReg = [];
+
     public static function run(Context $ctx): void
     {
+        // 사업소득 원천세는 원 권리자 · 받는 사람 단위로 계약을 넘어 합산하므로(V2 §8.3 9단계, v4.0.48)
+        // 모든 계약의 라인 세무를 먼저 정하고 → 사업소득 합산 → 라인 실정산액 · 합계 → 상계 재검증 순서로 돈다.
+        self::$bizReg = [];
         foreach ($ctx->contracts as $c) {
             self::taxContract($ctx, $c);
+        }
+        self::businessAll($ctx);
+        foreach ($ctx->contracts as $c) {
+            self::finishContract($ctx, $c);
+        }
+        foreach ($ctx->contracts as $c) {
             self::revalidateOffset($ctx, $c);
         }
     }
@@ -34,6 +46,114 @@ final class S09Tax
     {
         foreach ($c->payees as $p) {
             self::taxPayee($ctx, $c, $p);
+        }
+    }
+
+    private static function finishContract(Context $ctx, ContractState $c): void
+    {
+        foreach ($c->payees as $p) {
+            self::finishPayee($ctx, $c, $p);
+        }
+    }
+
+    /** 원거래 달 미마감 음수 라인(당월 신규 라인의 환불 공제 초과분) — 별개 채권의 상계가 아니라 대가의 감소(v4.0.48). */
+    private static function isOpenNegative(array $x): bool
+    {
+        return $x['origin'] === 'NEW' && either(g($x, 'pending_negative_base'), D(0)) < 0;
+    }
+
+    /**
+     * 양수 과세표준과 미마감 음수를 합산. 합계 > 0이면 양수 라인 과세표준을 합계로 다시 배분하고 음수는 소멸,
+     * 합계 ≤ 0이면 양수 라인 과세표준 0 · 남은 음수를 음수 라인에 배분(이월). $pos · $negs는 라인 참조 배열.
+     * → [양수 합, 음수 합, 합계]
+     */
+    private static function netNegatives(array $pos, array $negs): array
+    {
+        $ptot = dsum(array_map(fn($r) => $r[0][$r[1]]['taxable_base'], $pos));
+        $ntot = dsum(array_map(fn($r) => $r[0][$r[1]]['pending_negative_base'], $negs));
+        $net = add($ptot, $ntot);
+        if ($net > 0) {
+            $nb = alloc_last_remainder($net, array_map(fn($r) => $r[0][$r[1]]['taxable_base'], $pos));
+            foreach ($pos as $j => $r) {
+                $r[0][$r[1]]['taxable_base'] = $nb[$j];
+            }
+            foreach ($negs as $r) {
+                $r[0][$r[1]]['pending_negative_base'] = null;
+            }
+        } else {
+            foreach ($pos as $r) {
+                $r[0][$r[1]]['taxable_base'] = D(0);
+            }
+            $rem = alloc_last_remainder($net, array_map(fn($r) => $r[0][$r[1]]['pending_negative_base'], $negs));
+            foreach ($negs as $j => $r) {
+                $r[0][$r[1]]['pending_negative_base'] = $rem[$j];
+            }
+        }
+        return [$ptot, $ntot, $net];
+    }
+
+    /**
+     * 사업소득 원천세: 원 권리자 · 받는 사람 · 지급일 · 소득 구분 단위로 계약을 넘어 양수 · 미마감 음수 라인을 합산,
+     * 합계 > 0이면 1회 계산(10원 미만 내림) · 라인 비율 배분, 합계 ≤ 0이면 0원 · 남은 음수 이월
+     * (V2 §8.3 9단계 · §13.1, 소득세법 제127조 제1항 · 시행령 제51조 제3항 · 제213조 제1항, v4.0.36 · v4.0.48).
+     */
+    private static function businessAll(Context $ctx, $holder = null): void
+    {
+        $groups = [];
+        foreach (self::$bizReg as [$c, $p, $biz]) {
+            if ($holder !== null && $c->holder_id !== $holder) {
+                continue;
+            }
+            $gk = tkey($c->holder_id, $p->payee_id);
+            foreach ($biz as $i) {
+                $groups[$gk][] = [$c, $p, $i];
+            }
+        }
+        foreach ($groups as $gk => $items) {
+            [, $pid] = untkey($gk);
+            $pos = [];
+            $negs = [];
+            foreach ($items as $it) {
+                if (self::isOpenNegative($it[1]->lines[$it[2]])) {
+                    $negs[] = $it;
+                } else {
+                    $pos[] = $it;
+                }
+            }
+            if ($negs) {
+                $c0 = $items[count($items) - 1][0];
+                $posRef = [];
+                foreach ($pos as $it) {
+                    $posRef[] = [&$it[1]->lines, $it[2]];
+                }
+                $negRef = [];
+                foreach ($negs as $it) {
+                    $negRef[] = [&$it[1]->lines, $it[2]];
+                }
+                [$ptot, $ntot, $net] = self::netNegatives($posRef, $negRef);
+                $cids = array_values(array_unique(array_map(fn($it) => $it[0]->id, $items)));
+                sort($cids);
+                $ctx->emit(self::STEP, 'business_net_base', dmax(D(0), $net), $c0, payee: $pid,
+                    inputs: ['양수 과세표준 합' => $ptot, '미마감 원거래 음수 합' => $ntot, '합계' => $net, '계약' => $cids],
+                    formula: '사업소득 과세표준 = max(0, 양수 과세표준 합 + 미마감 원거래 음수 합) — 계약이 달라도 합산, 0 이하면 원천세 0 · 남은 음수 이월',
+                    ref: 'V2 §8.3 9단계 · 소득세법 제127조 제1항 · 시행령 제51조 제3항 제1호의2 · 제1호의4 · 제213조 제1항 (v4.0.48)');
+            }
+            $bases = array_map(fn($it) => $it[1]->lines[$it[2]]['taxable_base'], $pos);
+            $w = Tax::withholdBusiness($ctx, dsum($bases));
+            $its = alloc_last_remainder($w['income_tax'], $bases);
+            $lts = alloc_last_remainder($w['local_income_tax'], $bases);
+            foreach ($pos as $j => [$c, $p, $i]) {
+                $x = &$p->lines[$i];
+                self::setWithholding($ctx, $c, $x, ['payee' => $pid, 'line' => $x['line_id'], 'line_key' => $x['line_key']],
+                    array_merge($w, ['income_tax' => $its[$j], 'local_income_tax' => $lts[$j]]), 'BUSINESS');
+                unset($x);
+            }
+            foreach ($negs as [$c, $p, $i]) {
+                $x = &$p->lines[$i];
+                self::setWithholding($ctx, $c, $x, ['payee' => $pid, 'line' => $x['line_id'], 'line_key' => $x['line_key']],
+                    array_merge($w, ['income_tax' => D(0), 'local_income_tax' => D(0)]), 'BUSINESS');
+                unset($x);
+            }
         }
     }
 
@@ -122,24 +242,32 @@ final class S09Tax
             $biz[] = $i;
         }
         unset($ln);
-        if ($biz) {
-            // 사업소득은 받는 사람 · 지급일 단위로 과세표준을 합산한 뒤 세액을 1회 계산(10원 미만 내림), 라인에는 비율 배분(V2 §8.3 9단계 · §13.1, v4.0.36)
-            $bases = array_map(fn($i) => $p->lines[$i]['taxable_base'], $biz);
-            $w = Tax::withholdBusiness($ctx, dsum($bases));
-            $its = alloc_last_remainder($w['income_tax'], $bases);
-            $lts = alloc_last_remainder($w['local_income_tax'], $bases);
-            foreach ($biz as $j => $i) {
-                $x = &$p->lines[$i];
-                self::setWithholding($ctx, $c, $x, ['payee' => $pid, 'line' => $x['line_id'], 'line_key' => $x['line_key']],
-                    array_merge($w, ['income_tax' => $its[$j], 'local_income_tax' => $lts[$j]]), 'BUSINESS');
-                unset($x);
-            }
-        }
+        // 사업소득은 계약을 넘어 원 권리자 · 받는 사람 단위로 businessAll에서 1회 계산(v4.0.48)
+        self::$bizReg[pystr($c->id) . "\0" . pystr($pid)] = [$c, $p, $biz];
         foreach ($units as $k => $idx) {
             [$origin, $unit, $clause, $om] = untkey($k);
             $u = dsum(array_map(fn($i) => $p->lines[$i]['taxable_base'], $idx));
             $lastI = $idx[count($idx) - 1];
             $kw = ['payee' => $pid, 'line' => $p->lines[$lastI]['line_id'], 'line_key' => $p->lines[$lastI]['line_key']];
+            $posRef = [];
+            $negRef = [];
+            foreach ($idx as $i) {
+                if (self::isOpenNegative($p->lines[$i])) {
+                    $negRef[] = [&$p->lines, $i];
+                } else {
+                    $posRef[] = [&$p->lines, $i];
+                }
+            }
+            if ($negRef) {
+                // 기타소득은 판정 단위(건) 안에서만 미마감 음수를 합산, 다른 계약의 음수는 합치지 않음(v4.0.48)
+                [$ptot, $ntot, $net] = self::netNegatives($posRef, $negRef);
+                $ctx->emit(self::STEP, 'other_unit_net_base', dmax(D(0), $net), $c, ...$kw,
+                    inputs: ['양수 과세표준 합' => $ptot, '미마감 원거래 음수 합' => $ntot, '합계' => $net, 'unit' => $unit],
+                    formula: '기타소득 판정 단위 과세표준 = max(0, 양수 합 + 같은 판정 단위의 미마감 음수 합), 0 이하면 남은 음수 이월',
+                    ref: 'V2 §8.3 9단계 · 소득세법 제84조 · 집행기준 84-0-1 (v4.0.48)');
+                $u = dsum(array_map(fn($i) => $p->lines[$i]['taxable_base'], $idx));
+            }
+            unset($posRef, $negRef);
             if ($om) {
                 // 원 건 + 정정분 합계로 과세최저한 판정, 이미 뗀 세액을 뺀 차액을 정정분 지급 때 징수
                 // (소득세법 제84조 제3호, 소득세 집행기준 84-0-1 ②, V2 §8.3 9단계, v4.0.45)
@@ -189,6 +317,11 @@ final class S09Tax
                 unset($x);
             }
         }
+    }
+
+    private static function finishPayee(Context $ctx, ContractState $c, PayeeState $p): void
+    {
+        $pid = $p->payee_id;
         foreach ($p->lines as &$ln) {
             if (in_array($ln['origin'], self::PAYABLE, true)) {
                 $wt = either(g($ln, 'withholding_total'), D(0));
@@ -393,5 +526,11 @@ final class S09Tax
         S06PrepayOffset::compute($ctx, $c, false, dmax(D(0), $cash));
         S08PayeeSplit::splitContract($ctx, $c);
         self::taxContract($ctx, $c);
+        self::businessAll($ctx, $c->holder_id);
+        foreach ($ctx->contracts as $cc) {
+            if ($cc->holder_id === $c->holder_id) {
+                self::finishContract($ctx, $cc);
+            }
+        }
     }
 }
