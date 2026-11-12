@@ -74,8 +74,9 @@ def payee_netting(ctx, sts):
         c, st = row[0], row[5]
         groups.setdefault((c.holder_id, st["pid"]), []).append(row)
     for (hid, pid), rows in groups.items():
-        pos = [r for r in rows if r[5]["after"] > 0]
-        neg = [r for r in rows if r[5]["after"] < 0]
+        # 계약 사이 배분 순서: 계약 id 오름차순으로 앞 계약부터 내림, 마지막 계약에 끝수(V2 §8.3 10단계, v4.0.70)
+        pos = sorted((r for r in rows if r[5]["after"] > 0), key=lambda r: str(r[0].id))
+        neg = sorted((r for r in rows if r[5]["after"] < 0), key=lambda r: str(r[0].id))
         if not pos or not neg:
             continue
         total = sum((r[5]["after"] for r in rows), D(0))
@@ -174,12 +175,9 @@ def claim_payee(ctx, c, p, end, closed, limit):
     returns = sum((r["post_tax_amount"] for r in c.return_claims if r["payee_id"] == pid), D(0))
     # 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
     returns += post_neg  # 세후 전월 정산 조정(−)
-    if returns:
-        ctx.issue("CANON_GAP", "기지급 소득 반환채권 · 전월 POST_TAX(−)의 10단계 차감 위치 정본 없음 — 청구 음수 항에 가산",
-                  STEP, c.holder_id, "V2 L286~289", "Q-19")
     o["return_claims_applied"] = ctx.emit(STEP, "return_claims_applied", returns, c, **kw,
-                                          formula="기지급 소득 반환채권 + 전월 세후 반환채권(청구 음수 항에 가산 — 잠정)",
-                                          ref="V2 L295", provisional=bool(returns), note="Q-19" if returns else "")
+                                          formula="기지급 소득 반환채권(세후) + 당월 세후 정정(−) — 청구 대상 음수 항에서 뺌",
+                                          ref="V2 §8.3 10단계 청구 대상 음수 산식 (v4.0.70, Q-19 해소)")
     cnn = min(D(0), after) - cb_other - unoffset - returns
     o["net_after_return"] = after
     o["claim_negative_net"] = ctx.emit(

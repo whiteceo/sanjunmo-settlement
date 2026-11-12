@@ -92,8 +92,12 @@ final class S10Claim
             $groups[tkey($row[0]->holder_id, $row[5]['pid'])][] = $i;
         }
         foreach ($groups as $idx) {
+            // 계약 사이 배분 순서: 계약 id 오름차순으로 앞 계약부터 내림, 마지막 계약에 끝수(V2 §8.3 10단계, v4.0.70)
+            $byId = fn($a, $b) => strcmp((string)$sts[$a][0]->id, (string)$sts[$b][0]->id);
             $pos = array_values(array_filter($idx, fn($i) => $sts[$i][5]['after'] > 0));
             $neg = array_values(array_filter($idx, fn($i) => $sts[$i][5]['after'] < 0));
+            usort($pos, $byId);
+            usort($neg, $byId);
             if (!$pos || !$neg) {
                 continue;
             }
@@ -223,13 +227,9 @@ final class S10Claim
         $returns = dsum(array_map(fn($r) => $r['post_tax_amount'], array_filter($c->return_claims, fn($r) => $r['payee_id'] === $pid)));
         // 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
         $returns = add($returns, $postNeg); // 세후 전월 정산 조정(−)
-        if (truthy($returns)) {
-            $ctx->issue('CANON_GAP', '기지급 소득 반환채권 · 전월 POST_TAX(−)의 10단계 차감 위치 정본 없음 — 청구 음수 항에 가산',
-                self::STEP, $c->holder_id, 'V2 L286~289', 'Q-19');
-        }
         $o['return_claims_applied'] = $ctx->emit(self::STEP, 'return_claims_applied', $returns, $c, ...$kw,
-            formula: '기지급 소득 반환채권 + 전월 세후 반환채권(청구 음수 항에 가산 — 잠정)',
-            ref: 'V2 L295', provisional: truthy($returns), note: truthy($returns) ? 'Q-19' : '');
+            formula: '기지급 소득 반환채권(세후) + 당월 세후 정정(−) — 청구 대상 음수 항에서 뺌',
+            ref: 'V2 §8.3 10단계 청구 대상 음수 산식 (v4.0.70, Q-19 해소)');
         $cnn = sub(sub(sub(dmin(D(0), $after), $cbOther), $unoffset), $returns);
         $o['net_after_return'] = $after;
         $o['claim_negative_net'] = $ctx->emit(self::STEP, 'claim_negative_net', $cnn, $c, ...$kw,
