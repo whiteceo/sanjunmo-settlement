@@ -472,7 +472,8 @@ final class S04Deduct
             $prev = either(g($r, 'refund_direct_reduction'), []);
             // 환불이 이월 행보다 커서 넘는 몫도 수정세금계산서 알림에 넣음(v4.0.82)
             $exc = ($j === count($idx) - 1) ? sub(floor_won($amt), $red) : D(0);
-            $excVat = ($exc > 0 && $supply0 > 0 && $cv0 > 0) ? floor_won(div(mul($vat0, $exc), $supply0)) : D(0);
+            // 알림 부가세는 환불 전체 기준 한 번 내림, 넘는 몫 부가세 = 그 값 − 이월 행 몫 부가세(v4.0.90)
+            $excVat = ($exc > 0 && $supply0 > 0 && $cv0 > 0) ? sub(floor_won(div(mul($vat0, add($part, $exc)), $supply0)), $vred) : D(0);
             $r['refund_direct_reduction'] = ['supply' => add(D(either(g($prev, 'supply'), 0)), $part), 'vat' => add(D(either(g($prev, 'vat'), 0)), $vred),
                 'carry_vat_before' => array_key_exists('carry_vat_before', $prev) ? $prev['carry_vat_before'] : $cv0, 'original_supply' => $supply0,
                 'original_vat' => $vat0, 'excess_supply' => add(D(either(g($prev, 'excess_supply'), 0)), $exc),

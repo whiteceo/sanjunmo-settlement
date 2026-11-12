@@ -325,7 +325,8 @@ def carry_direct_reduction(ctx, c, rf, snap, pl, amt, ref):
         prev = r.get("refund_direct_reduction") or {}
         # 환불이 이월 행보다 커서 넘는 몫(당월 음수 줄 → 청구 · 반환채권)도 수정세금계산서 알림에 넣음(v4.0.82)
         exc = floor_won(amt) - red if r0 is rows[-1] else D(0)
-        exc_vat = floor_won(vat0 * exc / supply0) if exc > 0 and supply0 > 0 and cv0 > 0 else D(0)
+        # 알림 부가세는 환불 전체 공급가액 기준으로 한 번 내림하고, 넘는 몫 부가세 = 그 값 − 이월 행 몫 부가세(V2 §13.1 · 11단계, v4.0.90)
+        exc_vat = (floor_won(vat0 * (part + exc) / supply0) - vred) if exc > 0 and supply0 > 0 and cv0 > 0 else D(0)
         r["refund_direct_reduction"] = {"supply": D(prev.get("supply") or 0) + part, "vat": D(prev.get("vat") or 0) + vred,
                                         "carry_vat_before": prev.get("carry_vat_before", cv0), "original_supply": supply0,
                                         "original_vat": vat0, "excess_supply": D(prev.get("excess_supply") or 0) + exc,
