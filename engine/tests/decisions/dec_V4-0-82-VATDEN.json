@@ -1,0 +1,127 @@
+{
+ "case": "DEC-V482-VATDEN",
+ "title": "이월 부가세 감액 비율의 분모 — 원 세금계산서 공급가액",
+ "canon_ref": "정산 02권 8.3절 11단계 '공급가액과 같은 비율'(v4.0.82)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2027-12",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "matrix_case_id_hint": "TX-06",
+    "tax_type_cd": "01"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [
+   {
+    "refund_id": "RF-2",
+    "order_item_id": "OI-1",
+    "refund_approved_date": "2027-12-05",
+    "refund_amount": 40000,
+    "origin_month": "2026-11",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-1",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 40000,
+      "payment_state": "UNPAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "adjustments": [],
+  "book_authors": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "EARNED",
+    "prepay_unoffset_balance": 0,
+    "earned_unoffset_post_tax_amount": 0
+   }
+  ],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-01",
+    "action": null,
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-11",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 30000,
+    "components": {
+     "split_amount": 30000,
+     "offset_amount": 0,
+     "vat_amount": 45000,
+     "protected_amount": 0,
+     "carry_vat": 45000,
+     "invoice_supply": 450000,
+     "invoice_vat": 45000
+    },
+    "first_occurred_month": "2026-11",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   }
+  ]
+ },
+ "notes": "11월 공급가액 450,000 · 부가세 45,000 이월 행이 1월 재상계로 세전 30,000이 됨, 12월 그 결제 40,000 환불(R/S 20,000) → 부가세 감액 = 45,000 × 20,000 / 450,000 = 2,000(분모를 이월 행 세전 30,000으로 쓰면 30,000 감액) → 세전 10,000 + 부가세 43,000 = 53,000 지급",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 53000
+  }
+ }
+}

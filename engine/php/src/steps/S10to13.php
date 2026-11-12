@@ -74,8 +74,17 @@ final class S10Claim
                 $glim[$k] = [$s, $limit];
             }
         }
+        // 묶음 이월 행이 낀 순액 음수 묶음: 계약 하나라도 강제 청구면 순액 전체 청구(v4.0.82)
+        $gforce = [];
+        foreach ($sts as [$c, $p, $end, $closed, $limit, $st]) {
+            if (truthy($p->out['CLAIM']['netting_group_neg'] ?? false)) {
+                $k = tkey($c->holder_id, $st['pid']);
+                $gforce[$k] = ($gforce[$k] ?? false) || $end || $closed;
+            }
+        }
         foreach ($sts as [$c, $p, $end, $closed, $limit, $st]) {
             $k = tkey($c->holder_id, $st['pid']);
+            $st['group_force'] = truthy($p->out['CLAIM']['netting_group_neg'] ?? false) && ($gforce[$k] ?? false);
             self::claimDecide($ctx, $c, $p, $end, $closed, isset($glim[$k]) ? $glim[$k][1] : $limit, $st, $gsum[$k]);
         }
     }
@@ -229,6 +238,20 @@ final class S10Claim
                 ref: 'V2 §8.3 10단계 1) (v4.0.77)');
             $cbConsent = D(0);
         }
+        // 세무 판정 보류 라인은 그 금액만 '세무 판정 보류'로 이월하고 마감 진행 — 그 달 순액에서 뺌(v4.0.82)
+        $pend = D(0);
+        foreach ($p->lines as $ln) {
+            if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && g($ln, 'tax_decision_status') === 'PENDING_REVIEW') {
+                $pend = add($pend, either(g($ln, 'net_settle_line'), D(0)));
+            }
+        }
+        $o['pending_review_amount'] = $pend;
+        if (!is_zero($pend)) {
+            $ctx->emit(self::STEP, 'pending_review_amount', $pend, $c, ...$kw,
+                formula: "세무 판정 보류 라인 금액 — 그 달 순액에서 빼고 '세무 판정 보류' 사유로 세전 이월(마감은 막지 않음)",
+                ref: 'V2 11.3절 판정 보류 상태 · 마감 허용 조건 (v4.0.82)');
+        }
+        $net = sub($net, $pend);
         $after = $ctx->emit(self::STEP, 'net_after_return', add(add(sub($net, $cbConsent), $postPos), $nc), $c, ...$kw,
             inputs: ['9단계 실정산액(위탁 음수 제외)' => $net, '동의 연결 전속계약금 반환' => $cbConsent,
                 '세후 조정(+)' => $postPos, '순액 묶음 이월 행(세후)' => $nc],
@@ -313,7 +336,7 @@ final class S10Claim
             formula: '강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인', ref: 'V2 L292 · V1 L568 · v4.0.51');
         $cin = $st['claim_carry_in'] ?? [];
         $ccarry = $st['cnn_carry'] ?? D(0);
-        $issued = add($cnn, $ccarry) < 0 && (dabs($gsum) > dabs($limit) || $force);
+        $issued = add($cnn, $ccarry) < 0 && (dabs($gsum) > dabs($limit) || $force || truthy($st['group_force'] ?? false));
         if ($cin) {
             $ctx->emit(self::STEP, 'claim_carry_merged', $ccarry, $c, ...$kw,
                 inputs: ['그 달 새 청구 대상 음수' => $cnn, '청구 이월 행' => array_map(fn($r) => g($r, 'ledger_id'), $cin)],
@@ -435,8 +458,11 @@ final class S11Payout
             if (!$dr || !(D(either(g($dr, 'carry_vat_before'), 0)) > 0)) {
                 continue;
             }
+            $exS = D(either(g($dr, 'excess_supply'), 0));
+            $exV = D(either(g($dr, 'excess_vat'), 0));
             $notes[] = ['ledger_id' => g($r, 'ledger_id'), 'origin_month' => g($r, 'origin_month'), 'original_supply' => $dr['original_supply'],
-                'original_vat' => $dr['original_vat'], 'reduced_supply' => $dr['supply'], 'reduced_vat' => $dr['vat'],
+                'original_vat' => $dr['original_vat'], 'reduced_supply' => add($dr['supply'], $exS), 'reduced_vat' => add($dr['vat'], $exV),
+                'carry_reduced_supply' => $dr['supply'], 'carry_reduced_vat' => $dr['vat'], 'excess_supply' => $exS, 'excess_vat' => $exV,
                 'carry_vat_after' => D(either(g(either(g($r, 'components'), []), 'carry_vat'), 0))];
         }
         $p->out['PAYOUT']['modified_invoice_notices'] = $notes;
@@ -663,7 +689,7 @@ final class S11Payout
             $supply = floor_won(div(mul($off, D(100)), D(110)));
             $vatPaid = sub($off, $supply);
             $carry = sub($ln['split_amount'], $supply);
-            $extra = ['components' => ['carry_vat' => sub($vat, $vatPaid)]];
+            $extra = ['components' => ['carry_vat' => sub($vat, $vatPaid), 'invoice_supply' => $ln['split_amount'], 'invoice_vat' => $vat]];
             $ctx->emit(self::STEP, 'offset_paid_gross', $supply, $c, ...$kw,
                 inputs: ['상계액' => $off, '그 달 공급가액' => $supply, '그 달 부가세' => $vatPaid, '이월 부가세' => sub($vat, $vatPaid)],
                 formula: '부가세 별도 라인 상계분 = 공급가액 내림(상계액 × 100/110) + 부가세(상계액 − 공급가액), 남은 공급가액 · 부가세 이월',
@@ -675,7 +701,7 @@ final class S11Payout
             $carry = $ln['pre_tax_payable'];
             // 소득 선지급(EARNED) + 부가세 별도: 공급한 달에 확정된 부가세는 이월분에 붙여 지급하는 달에 지급(다시 매기지 않음, v4.0.71)
             if ($vat > 0 && g($ln, 'vat_treatment') !== 'VAT_INCLUDED') {
-                $extra = ['components' => ['carry_vat' => $vat]];
+                $extra = ['components' => ['carry_vat' => $vat, 'invoice_supply' => $ln['split_amount'], 'invoice_vat' => $vat]];
                 $ctx->emit(self::STEP, 'offset_month_carry_vat', $vat, $c, ...$kw, inputs: ['그 달 부가세' => $vat, '세전 이월' => $carry],
                     formula: '소득 선지급 상계 달 미달 이월 — 세전 잔액은 이월, 공급한 달에 확정된 부가세는 이월분에 붙여 지급(세금계산서는 공급한 달 전체)',
                     ref: 'V2 §8.3 11단계 (v4.0.71)');
@@ -774,7 +800,12 @@ final class S11Payout
             // 그 달 순액이 양수면 줄을 고르지 않고 음수 줄까지 모두 이월(v4.0.60 정본 공백 보완), 0 이하면 음수는 10단계 청구 경로
             $netPos = either($p->out['CLAIM']['net_after_return'] ?? null, D(0)) > 0 || $grp !== null; // 순액 묶음이면 음수 계약 줄도(v4.0.76)
             foreach ($p->lines as &$ln) {
-                if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && ($ln['pre_tax_payable'] > 0 || ($netPos && $ln['pre_tax_payable'] < 0))) {
+                if (g($ln, 'tax_decision_status') === 'PENDING_REVIEW') {
+                    continue; // 세무 판정 보류 라인은 아래에서 따로 이월(v4.0.82)
+                }
+                // 상계가 분할액을 전부 지운 부가세 별도 라인(세전 0)도 그 달 부가세를 이월 행으로 넘김(v4.0.82)
+                $vatOnly = either(g($ln, 'offset_amount'), D(0)) > 0 && either(g($ln, 'vat_amount'), D(0)) > 0 && is_zero($ln['pre_tax_payable']);
+                if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && ($ln['pre_tax_payable'] > 0 || ($netPos && $ln['pre_tax_payable'] < 0) || $vatOnly)) {
                     [$carryAmt, $extra] = (either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) ? self::offsetCarry($ctx, $c, $p, $pid, $ln) : [$ln['pre_tax_payable'], []];
                     $extraComp = $extra['components'] ?? [];
                     unset($extra['components']);
@@ -843,6 +874,28 @@ final class S11Payout
                         self::STEP, $c->holder_id, 'V2 L305', 'Q-21');
                     break;
                 }
+            }
+        }
+        // 세무 판정 보류 라인: 지급 · 청구 판정과 상관없이 그 금액만 '세무 판정 보류' 사유로 세전 이월(마감 진행, v4.0.82)
+        foreach ($p->lines as $ln) {
+            if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && g($ln, 'tax_decision_status') === 'PENDING_REVIEW' && !is_zero($ln['pre_tax_payable'])) {
+                $key = $ln['line_key'];
+                $rows[] = ['ledger_id' => null, 'action' => 'NEW', 'rights_holder_id' => $c->holder_id, 'payee_id' => $pid,
+                    'contract_id' => $c->id, 'origin_month' => $ctx->month, 'account_type' => 'PRE_TAX',
+                    'pipeline_id' => g($key, 'pipeline_id'), 'consignment_balance_yn' => false,
+                    'income_category' => either(g($key, 'income_category'), g($ln, 'income_category')),
+                    'income_clause' => either(g($key, 'income_clause'), g($ln, 'income_clause')),
+                    'tax_threshold_unit_key' => either(g($key, 'tax_threshold_unit_key'), g($ln, 'tax_threshold_unit_key')),
+                    'carryover_reason' => '세무 판정 보류', 'carryover_amount' => $ln['pre_tax_payable'],
+                    'components' => ['split_amount' => $ln['split_amount'], 'offset_amount' => $ln['offset_amount'],
+                        'vat_amount' => g($ln, 'vat_amount'),
+                        'protected_amount' => dmin(dmax(D(0), either(g($ln, 'protected_amount'), D(0))), dmax(D(0), $ln['pre_tax_payable']))],
+                    'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,
+                    'payout_reservation_status' => 'NONE', 'extinguished_yn' => false, 'carry_line_origin' => $ln['origin']];
+                $ctx->emit(self::STEP, 'pending_review_carry', $ln['pre_tax_payable'], $c, ...$kw, line: $ln['line_id'],
+                    inputs: ['판정 보류 사유' => g($ln, 'matrix_case_id')],
+                    formula: "세무 판정 보류 라인 — 그 금액만 '세무 판정 보류' 사유로 세전 이월, 마감 진행",
+                    ref: 'V2 11.3절 판정 보류 상태 (v4.0.82)');
             }
         }
         // 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김(v4.0.61 정본 공백 보완)

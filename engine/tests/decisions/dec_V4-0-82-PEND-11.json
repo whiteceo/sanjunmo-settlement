@@ -1,0 +1,124 @@
+{
+ "case": "DEC-V482-PEND-11",
+ "title": "세무 판정 보류 — 판정이 확정된 다음 달 지급",
+ "canon_ref": "정산 02권 11.3절 판정 보류 상태(v4.0.82)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "main_work_external_labor": false
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-P10",
+    "action": null,
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "세무 판정 보류",
+    "carryover_amount": 200000,
+    "components": {
+     "split_amount": 200000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 0
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   }
+  ]
+ },
+ "notes": "10월 '세무 판정 보류' 이월 200,000, 11월 판정 확정(사업소득 3.3%) → 200,000 − 6,600 = 193,400 지급",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 193400
+  }
+ }
+}

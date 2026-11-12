@@ -61,8 +61,15 @@ def run(ctx):
         s = str(c.row.get("start_date") or "")[:10]
         if s[:7] <= ctx.month and (k not in glim or s > glim[k][0]):
             glim[k] = (s, limit)
+    # 묶음 이월 행이 낀 순액 음수 묶음: 묶음 안 계약 하나라도 강제 청구(끝난 달 + N · 폐업)이면 순액 전체 청구(v4.0.82)
+    gforce = {}
+    for c, p, end, closed, limit, st in sts:
+        if p.out["CLAIM"].get("netting_group_neg"):
+            k = (c.holder_id, st["pid"])
+            gforce[k] = gforce.get(k, False) or bool(end or closed)
     for c, p, end, closed, limit, st in sts:
         k = (c.holder_id, st["pid"])
+        st["group_force"] = bool(p.out["CLAIM"].get("netting_group_neg")) and gforce.get(k, False)
         claim_decide(ctx, c, p, end, closed, glim.get(k, (None, limit))[1], st, gsum[k])
 
 
@@ -170,6 +177,16 @@ def claim_payee(ctx, c, p, end, closed, limit):
     nc = sum((ln["after_tax_amount"] for ln in p.lines if ln["origin"] == "CARRY_PRE_TAX" and ln.get("netting_carry")
               and ln.get("after_tax_amount") is not None), D(0))
     o["netting_carry_in"] = nc
+    # 세무 판정 보류(PENDING_REVIEW) 라인은 그 금액만 '세무 판정 보류'로 이월하고 마감은 진행 — 그 달 순액에서 뺌
+    # (V2 §8.3 11장 마감 허용 조건 · 11.3절 판정 보류 상태, 2026-11-04 white 결정 60, v4.0.82)
+    pend = sum((ln.get("net_settle_line") or D(0) for ln in p.lines if ln["origin"] in ("NEW", "ADJUSTMENT")
+                and ln.get("tax_decision_status") == "PENDING_REVIEW"), D(0))
+    o["pending_review_amount"] = pend
+    if pend:
+        ctx.emit(STEP, "pending_review_amount", pend, c, **kw,
+                 formula="세무 판정 보류 라인 금액 — 그 달 순액에서 빼고 '세무 판정 보류' 사유로 세전 이월(마감은 막지 않음)",
+                 ref="V2 11.3절 판정 보류 상태 · 마감 허용 조건 (v4.0.82)")
+    net -= pend
     after = ctx.emit(STEP, "net_after_return", net - cb_consent + post_pos + nc, c, **kw,
                      inputs={"9단계 실정산액(위탁 음수 제외)": net, "동의 연결 전속계약금 반환": cb_consent,
                              "세후 조정(+)": post_pos, "순액 묶음 이월 행(세후)": nc},
@@ -239,7 +256,7 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
                                 inputs={"끝난 달 + 지급 시차 이후": end, "폐업": closed},
                                 formula="강제 청구 트리거 = 대상월 ≥ 끝난 달 + 지급 시차 N(종료 뒤 환불 포함) 또는 폐업 확인", ref="V2 L292 · V1 L568 · v4.0.51")
     cin, ccarry = st.get("claim_carry_in") or [], st.get("cnn_carry") or D(0)
-    issued = (cnn + ccarry) < 0 and (abs(gsum) > abs(limit) or force)
+    issued = (cnn + ccarry) < 0 and (abs(gsum) > abs(limit) or force or bool(st.get("group_force")))
     if cin:
         ctx.emit(STEP, "claim_carry_merged", ccarry, c, **kw,
                  inputs={"그 달 새 청구 대상 음수": cnn, "청구 이월 행": [r.get("ledger_id") for r in cin]},

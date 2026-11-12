@@ -391,8 +391,9 @@ final class S04Deduct
             }
             $comp = either(g($r, 'components'), []);
             $cv0 = D(either(g($comp, 'carry_vat'), 0));
-            $supply0 = D(either(g($comp, 'split_amount'), 0));
-            $vat0 = D(either(g($comp, 'vat_amount'), 0));
+            // 감액 비율의 분모는 원 세금계산서 공급가액(v4.0.82)
+            $supply0 = D(either(g($comp, 'invoice_supply'), either(g($comp, 'split_amount'), 0)));
+            $vat0 = D(either(g($comp, 'invoice_vat'), either(g($comp, 'vat_amount'), 0)));
             $vred = ($cv0 > 0 && $supply0 > 0) ? dmin($cv0, floor_won(div(mul($vat0, $part), $supply0))) : D(0);
             if (!is_zero($vred)) {
                 $comp['carry_vat'] = sub($cv0, $vred);
@@ -400,9 +401,13 @@ final class S04Deduct
             $r['carryover_amount'] = sub(D($r['carryover_amount']), $part);
             $r['components'] = $comp;
             $prev = either(g($r, 'refund_direct_reduction'), []);
+            // 환불이 이월 행보다 커서 넘는 몫도 수정세금계산서 알림에 넣음(v4.0.82)
+            $exc = ($j === count($idx) - 1) ? sub(floor_won($amt), $red) : D(0);
+            $excVat = ($exc > 0 && $supply0 > 0 && $cv0 > 0) ? floor_won(div(mul($vat0, $exc), $supply0)) : D(0);
             $r['refund_direct_reduction'] = ['supply' => add(D(either(g($prev, 'supply'), 0)), $part), 'vat' => add(D(either(g($prev, 'vat'), 0)), $vred),
                 'carry_vat_before' => array_key_exists('carry_vat_before', $prev) ? $prev['carry_vat_before'] : $cv0, 'original_supply' => $supply0,
-                'original_vat' => $vat0];
+                'original_vat' => $vat0, 'excess_supply' => add(D(either(g($prev, 'excess_supply'), 0)), $exc),
+                'excess_vat' => add(D(either(g($prev, 'excess_vat'), 0)), $excVat)];
             $ctx->emit(self::STEP, 'carry_direct_refund_reduction', $part, $c, payee: g($r, 'payee_id'), line: $pl, ref_id: $ref,
                 inputs: ['이월 행' => g($r, 'ledger_id'), '원 결제월' => $origin, '환불 공제(세전)' => $amt, '이월 행 줄인 뒤' => $r['carryover_amount'],
                     '이월 부가세 감액' => $vred],

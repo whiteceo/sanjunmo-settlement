@@ -260,9 +260,7 @@ def run_settlement(data):
             ctx.stop("LOCKED_MONTH", "LOCKED_MONTH", "마감된 정산월 — 마감 취소 금지, 차월 조정 라인으로", "V2 §10.1 L350")
         for s in STEPS:
             importlib.import_module(f"{__package__}.{s.module}").run(ctx)
-        if any(ln.get("tax_decision_status") == "PENDING_REVIEW"
-               for c in ctx.contracts.values() for p in c.payees.values() for ln in p.lines):
-            status = "BLOCKED_PENDING_REVIEW"
+        # 세무 판정 보류 라인은 마감을 막지 않음 — 그 금액만 '세무 판정 보류'로 이월(11단계, V2 11.3절, v4.0.82)
     except EngineStop as ex:
         status = ex.status
         ctx.errors.append({"code": ex.code, "message": ex.message, "canon_ref": ex.ref})

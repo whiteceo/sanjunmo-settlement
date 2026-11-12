@@ -515,15 +515,7 @@ final class Engine
             foreach (Steps::$all as $s) {
                 ($s->cls)::run($ctx);
             }
-            foreach ($ctx->contracts as $c) {
-                foreach ($c->payees as $p) {
-                    foreach ($p->lines as $ln) {
-                        if (g($ln, 'tax_decision_status') === 'PENDING_REVIEW') {
-                            $status = 'BLOCKED_PENDING_REVIEW';
-                        }
-                    }
-                }
-            }
+            // 세무 판정 보류 라인은 마감을 막지 않음 — 그 금액만 '세무 판정 보류'로 이월(v4.0.82)
         } catch (EngineStop $ex) {
             $status = $ex->status;
             $ctx->errors[] = ['code' => $ex->stopCode, 'message' => $ex->msg, 'canon_ref' => $ex->ref];

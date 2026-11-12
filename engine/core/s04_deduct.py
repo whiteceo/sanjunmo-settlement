@@ -296,16 +296,22 @@ def carry_direct_reduction(ctx, c, rf, snap, pl, amt, ref):
         c.carry["pre_pos"][next(i for i, x in enumerate(c.carry["pre_pos"]) if x is r0)] = r
         comp = dict(r.get("components") or {})
         cv0 = D(comp.get("carry_vat") or 0)
-        supply0, vat0 = D(comp.get("split_amount") or 0), D(comp.get("vat_amount") or 0)
+        # 감액 비율의 분모는 원 세금계산서 공급가액(다시 상계로 새로 적은 행도 원 세금계산서 값을 물려받음, v4.0.82)
+        supply0 = D(comp.get("invoice_supply") or comp.get("split_amount") or 0)
+        vat0 = D(comp.get("invoice_vat") or comp.get("vat_amount") or 0)
         vred = min(cv0, floor_won(vat0 * part / supply0)) if cv0 > 0 and supply0 > 0 else D(0)
         if vred:
             comp["carry_vat"] = cv0 - vred
         r["carryover_amount"] = D(r["carryover_amount"]) - part
         r["components"] = comp
         prev = r.get("refund_direct_reduction") or {}
+        # 환불이 이월 행보다 커서 넘는 몫(당월 음수 줄 → 청구 · 반환채권)도 수정세금계산서 알림에 넣음(v4.0.82)
+        exc = floor_won(amt) - red if r0 is rows[-1] else D(0)
+        exc_vat = floor_won(vat0 * exc / supply0) if exc > 0 and supply0 > 0 and cv0 > 0 else D(0)
         r["refund_direct_reduction"] = {"supply": D(prev.get("supply") or 0) + part, "vat": D(prev.get("vat") or 0) + vred,
                                         "carry_vat_before": prev.get("carry_vat_before", cv0), "original_supply": supply0,
-                                        "original_vat": vat0}
+                                        "original_vat": vat0, "excess_supply": D(prev.get("excess_supply") or 0) + exc,
+                                        "excess_vat": D(prev.get("excess_vat") or 0) + exc_vat}
         ctx.emit(STEP, "carry_direct_refund_reduction", part, c, payee=r.get("payee_id"), line=pl, ref_id=ref,
                  inputs={"이월 행": r.get("ledger_id"), "원 결제월": origin, "환불 공제(세전)": amt, "이월 행 줄인 뒤": r["carryover_amount"],
                          "이월 부가세 감액": vred},

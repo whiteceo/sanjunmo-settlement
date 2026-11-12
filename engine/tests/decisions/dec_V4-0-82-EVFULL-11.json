@@ -1,0 +1,89 @@
+{
+ "case": "DEC-V482-EVFULL-11",
+ "title": "소득 선지급이 부가세 별도 라인 분할액을 전부 상계 — 부가세는 다음 달로 이월",
+ "canon_ref": "정산 02권 8.3절 11단계 · 04권 Case 1-M(v4.0.82)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "matrix_case_id_hint": "TX-06",
+    "tax_type_cd": "01"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OI-1",
+    "item_type": "LECTURE",
+    "product_id": "CRS-A",
+    "paid_amount": 900000,
+    "allocation_applied": true,
+    "approved_at": "2026-11-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "CRS-A",
+      "lecture_base_amount": 900000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "book_authors": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "EARNED",
+    "prepay_unoffset_balance": 600000,
+    "earned_unoffset_post_tax_amount": 0
+   }
+  ]
+ },
+ "notes": "11월 R/S 450,000 + 부가세 45,000, 소득 선지급 잔액 600,000 → 상계 450,000(세전 0), 판정 45,000 < 100,000 → 지급 0, 세전 0원 + 이월 부가세 45,000 행 이월(종전: 행이 없어 부가세 사라짐)",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}

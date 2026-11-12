@@ -60,8 +60,12 @@ def modified_invoice_notice(ctx, c, p, pid, pre_pos, kw):
         dr = r.get("refund_direct_reduction") or {}
         if not dr or D(dr.get("carry_vat_before") or 0) <= 0:
             continue
+        # 알림 금액은 환불 전체(이월 행에서 줄인 몫 + 넘어서 청구 · 반환채권으로 간 몫, v4.0.82)
         notes.append({"ledger_id": r.get("ledger_id"), "origin_month": r.get("origin_month"), "original_supply": dr["original_supply"],
-                      "original_vat": dr["original_vat"], "reduced_supply": dr["supply"], "reduced_vat": dr["vat"],
+                      "original_vat": dr["original_vat"], "reduced_supply": dr["supply"] + D(dr.get("excess_supply") or 0),
+                      "reduced_vat": dr["vat"] + D(dr.get("excess_vat") or 0),
+                      "carry_reduced_supply": dr["supply"], "carry_reduced_vat": dr["vat"],
+                      "excess_supply": D(dr.get("excess_supply") or 0), "excess_vat": D(dr.get("excess_vat") or 0),
                       "carry_vat_after": D((r.get("components") or {}).get("carry_vat") or 0)})
     p.out["PAYOUT"]["modified_invoice_notices"] = notes
     if notes:
@@ -207,7 +211,11 @@ def payout_payee(ctx, c, p, end, closed, limit):
         # V1 §7.3 · V2 §8.3 11단계, v4.0.60 정본 공백 보완). 순액이 0 이하면 음수는 10단계 청구 경로로 감.
         net_pos = (p.out["CLAIM"].get("net_after_return") or D(0)) > 0 or bool(grp)  # 순액 묶음이면 음수 계약 줄도(v4.0.76)
         for ln in p.lines:
-            if ln["origin"] in ("NEW", "ADJUSTMENT") and (ln["pre_tax_payable"] > 0 or (net_pos and ln["pre_tax_payable"] < 0)):
+            if ln.get("tax_decision_status") == "PENDING_REVIEW":
+                continue  # 세무 판정 보류 라인은 아래에서 따로 이월(v4.0.82)
+            # 상계가 분할액을 전부 지운 부가세 별도 라인(세전 0)도 그 달 부가세를 이월 행으로 넘김(V2 §8.3 11단계, v4.0.82)
+            vat_only = (ln.get("offset_amount") or D(0)) > 0 and (ln.get("vat_amount") or D(0)) > 0 and ln["pre_tax_payable"] == 0
+            if ln["origin"] in ("NEW", "ADJUSTMENT") and (ln["pre_tax_payable"] > 0 or (net_pos and ln["pre_tax_payable"] < 0) or vat_only):
                 key = ln["line_key"]
                 if (ln.get("offset_amount") or D(0)) > 0 and not hold:
                     carry_amt, extra = offset_carry(ctx, c, p, pid, ln)
@@ -261,6 +269,27 @@ def payout_payee(ctx, c, p, end, closed, limit):
         if any(r["action"] == "NEW" for r in rows):
             ctx.issue("CANON_GAP", "지급 이월 적재 구성요소(VAT · 상계) 보존 방식 정본 없음 — 라인별 세전 기초금액 + 구성요소",
                       STEP, c.holder_id, "V2 L305", "Q-21")
+    # 세무 판정 보류 라인: 지급 · 청구 판정과 상관없이 그 금액만 '세무 판정 보류' 사유로 세전 이월, 판정이 확정되면 다음 달 지급
+    # (마감은 막지 않음, V2 11.3절 · 마감 허용 조건, 2026-11-04 white 결정 60, v4.0.82)
+    for ln in p.lines:
+        if ln["origin"] in ("NEW", "ADJUSTMENT") and ln.get("tax_decision_status") == "PENDING_REVIEW" and ln["pre_tax_payable"]:
+            key = ln["line_key"]
+            rows.append({"ledger_id": None, "action": "NEW", "rights_holder_id": c.holder_id, "payee_id": pid,
+                         "contract_id": c.id, "origin_month": ctx.month, "account_type": "PRE_TAX",
+                         "pipeline_id": key.get("pipeline_id"), "consignment_balance_yn": False,
+                         "income_category": key.get("income_category") or ln.get("income_category"),
+                         "income_clause": key.get("income_clause") or ln.get("income_clause"),
+                         "tax_threshold_unit_key": key.get("tax_threshold_unit_key") or ln.get("tax_threshold_unit_key"),
+                         "carryover_reason": "세무 판정 보류", "carryover_amount": ln["pre_tax_payable"],
+                         "components": {"split_amount": ln["split_amount"], "offset_amount": ln["offset_amount"],
+                                        "vat_amount": ln.get("vat_amount"),
+                                        "protected_amount": min(max(D(0), ln.get("protected_amount") or D(0)), max(D(0), ln["pre_tax_payable"]))},
+                         "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
+                         "payout_reservation_status": "NONE", "extinguished_yn": False, "carry_line_origin": ln["origin"]})
+            ctx.emit(STEP, "pending_review_carry", ln["pre_tax_payable"], c, **kw, line=ln["line_id"],
+                     inputs={"판정 보류 사유": ln.get("matrix_case_id")},
+                     formula="세무 판정 보류 라인 — 그 금액만 '세무 판정 보류' 사유로 세전 이월, 마감 진행",
+                     ref="V2 11.3절 판정 보류 상태 (v4.0.82)")
     # 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김.
     # 합칠 때는 운영자 수동 대체 전표(V2 §8.3 10단계, v4.0.61 정본 공백 보완)
     # 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)
@@ -361,7 +390,7 @@ def offset_carry(ctx, c, p, pid, ln):
         supply = floor_won(off * 100 / D(110))
         vat_paid = off - supply
         carry = ln["split_amount"] - supply
-        extra = {"components": {"carry_vat": ln["vat_amount"] - vat_paid}}
+        extra = {"components": {"carry_vat": ln["vat_amount"] - vat_paid, "invoice_supply": ln["split_amount"], "invoice_vat": ln["vat_amount"]}}
         ctx.emit(STEP, "offset_paid_gross", supply, c, **kw,
                  inputs={"상계액": off, "그 달 공급가액": supply, "그 달 부가세": vat_paid, "이월 부가세": ln["vat_amount"] - vat_paid},
                  formula="부가세 별도 라인 상계분 = 공급가액 내림(상계액 × 100/110) + 부가세(상계액 − 공급가액), 남은 공급가액 · 부가세 이월",
@@ -374,7 +403,7 @@ def offset_carry(ctx, c, p, pid, ln):
         # 소득 선지급(EARNED) + 부가세 별도: 공급한 달에 확정된 부가세는 이월분에 붙여 지급하는 달에 지급(다시 매기지 않음, v4.0.71)
         vat = ln.get("vat_amount") or D(0)
         if vat > 0 and ln.get("vat_treatment") != "VAT_INCLUDED":
-            extra = {"components": {"carry_vat": vat}}
+            extra = {"components": {"carry_vat": vat, "invoice_supply": ln["split_amount"], "invoice_vat": vat}}
             ctx.emit(STEP, "offset_month_carry_vat", vat, c, **kw, inputs={"그 달 부가세": vat, "세전 이월": carry},
                      formula="소득 선지급 상계 달 미달 이월 — 세전 잔액은 이월, 공급한 달에 확정된 부가세는 이월분에 붙여 지급(세금계산서는 공급한 달 전체)",
                      ref="V2 §8.3 11단계 (v4.0.71)")
