@@ -85,6 +85,11 @@ def voucher_applied_month(ctx, rf):
     """보정 전표 반영 기준월 = 승인 시점에 마감되지 않은 가장 이른 귀속월(원 발생월부터, V2 §10.2 L365 · S-10).
     마감 시각은 params.month_closed_at {월: 마감 일시}(없으면 미마감)."""
     origin = str(rf.get("origin_month") or month_of(rf.get("approved_at") or rf.get("refund_approved_date")))[:7]
+    # 지급 시차 계약: 원거래를 정산하는 달(원 결제월 + N)부터 걷는다 — 그 달이 미마감이면 4단계 감액(v4.0.84 · v4.0.94와 같은 기준, v4.0.95)
+    c0 = ctx.contract(((rf.get("snapshot") or [{}])[0]).get("contract_id"))
+    lag = int((c0.row.get("payout_lag_months") if c0 else 0) or 0)
+    if lag:
+        origin = add_months(origin, lag)
     approved = str(rf.get("approved_at") or rf.get("refund_approved_date") or "")
     closed = ctx.p("month_closed_at") or {}
     m = origin

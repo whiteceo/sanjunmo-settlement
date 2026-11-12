@@ -176,6 +176,12 @@ final class S04Deduct
     {
         $origin = head(pystr(either(g($rf, 'origin_month'),
             month_of(either(g($rf, 'approved_at'), g($rf, 'refund_approved_date'))))), 7);
+        // 지급 시차 계약: 원거래를 정산하는 달(원 결제월 + N)부터 걷는다(v4.0.95)
+        $c0 = $ctx->contract(g(either(g($rf, 'snapshot'), [[]])[0] ?? [], 'contract_id'));
+        $lag0 = $c0 ? (int)(either(g($c0->row, 'payout_lag_months'), 0)) : 0;
+        if ($lag0) {
+            $origin = self::addMonths($origin, $lag0);
+        }
         $approved = pystr(either(either(g($rf, 'approved_at'), g($rf, 'refund_approved_date')), ''));
         $closed = either($ctx->p('month_closed_at'), []);
         $m = $origin;

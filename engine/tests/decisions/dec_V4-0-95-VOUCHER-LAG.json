@@ -1,0 +1,137 @@
+{
+ "case": "DEC-V495-VOUCHER-LAG",
+ "title": "지급 시차 계약의 환불 보정 전표 — 원거래 정산 달이 미마감이면 4단계 감액",
+ "canon_ref": "정산 02권 10.2절(v4.0.95)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2027-03",
+  "params": {
+   "month_closed_at": {
+    "2026-12": "2027-01-05T00:00:00",
+    "2027-01": "2027-02-05T00:00:00",
+    "2027-02": "2027-03-04T00:00:00"
+   }
+  },
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-12-01",
+    "current_end_date": "2028-11-30",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 3
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "O-12",
+    "item_type": "LECTURE",
+    "product_id": "L-A",
+    "paid_amount": 600000,
+    "allocation_applied": true,
+    "approved_at": "2026-12-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "L-A",
+      "lecture_base_amount": 600000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [
+   {
+    "voucher_id": "ADJ-V1",
+    "refund_id": "RV-1",
+    "order_item_id": "O-12",
+    "approved_at": "2027-03-05T10:00:00",
+    "refund_amount": 100000,
+    "origin_month": "2026-12",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-V",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 100000,
+      "payment_state": "UNPAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": []
+ },
+ "notes": "시차 3, 12월 판매(3월 정산) R/S 300,000, 3월 5일 승인 보정 전표 100,000(원 결제월 2026-12), 12 · 1 · 2월 마감 → 반영 달 3월(= 12월 + 3, 미마감) → 4단계 감액: 과세표준 250,000 · 원천세 8,250 · 지급 241,750, 환급 알림 없음. 종전: 수동 조정 라인 → 240,100 + 없는 환급 알림 1,650",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 241750
+  }
+ }
+}
