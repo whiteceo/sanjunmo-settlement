@@ -145,8 +145,10 @@ final class S09Tax
             }
             $bases = array_map(fn($it) => $it[1]->lines[$it[2]]['taxable_base'], $pos);
             $w = Tax::withholdBusiness($ctx, dsum($bases));
-            $its = alloc_last_remainder($w['income_tax'], $bases);
-            $lts = alloc_last_remainder($w['local_income_tax'], $bases);
+            // 상계 라인을 앞에(끝수는 상계 없는 라인, v4.0.75)
+            $offs = array_map(fn($it) => bccomp(D($it[1]->lines[$it[2]]['offset_amount'] ?? 0)->value, '0', WORK) > 0, $pos);
+            $its = alloc_offset_first($w['income_tax'], $bases, $offs);
+            $lts = alloc_offset_first($w['local_income_tax'], $bases, $offs);
             foreach ($pos as $j => [$c, $p, $i]) {
                 $x = &$p->lines[$i];
                 self::setWithholding($ctx, $c, $x, ['payee' => $pid, 'line' => $x['line_id'], 'line_key' => $x['line_key']],
@@ -314,8 +316,9 @@ final class S09Tax
                 formula: '기타소득금액 ≤ 50,000원이면 소득세 · 지방소득세 0원(판정 단위 = tax_threshold_unit_key)',
                 ref: 'V2 L277~278 · V1 L436');
             $bases = array_map(fn($i) => $p->lines[$i]['taxable_base'], $idx);
-            $its = alloc_last_remainder($w['income_tax'], $bases);
-            $lts = alloc_last_remainder($w['local_income_tax'], $bases);
+            $offs = array_map(fn($i) => bccomp(D($p->lines[$i]['offset_amount'] ?? 0)->value, '0', WORK) > 0, $idx);  // 상계 라인을 앞에(v4.0.75)
+            $its = alloc_offset_first($w['income_tax'], $bases, $offs);
+            $lts = alloc_offset_first($w['local_income_tax'], $bases, $offs);
             // 필요경비 · 기타소득금액은 라인에 나눠 저장(과세표준 비율, 끝수는 마지막 라인, V2 §13.1, v4.0.44)
             $des = alloc_last_remainder($w['deemed_expense'], $bases);
             self::filing($ctx, $c, $pid, $p->lines[$lastI], $clause);

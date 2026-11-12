@@ -245,6 +245,29 @@ function is_zero($x): bool
     return bccomp(D($x)->value, '0', WORK) === 0;
 }
 
+/** 원천세 라인 배분(V2 §13.3, v4.0.75): 상계 라인을 앞에 둔 순서로 총액 역산, 끝수는 상계 없는 라인. 반환은 원래 순서. */
+function alloc_offset_first($total, array $weights, array $offsetFlags): array
+{
+    $order = [];
+    foreach ($offsetFlags as $i => $f) {
+        if ($f) {
+            $order[] = $i;
+        }
+    }
+    foreach ($offsetFlags as $i => $f) {
+        if (!$f) {
+            $order[] = $i;
+        }
+    }
+    $got = alloc_last_remainder($total, array_map(fn($i) => $weights[$i], $order));
+    $out = [];
+    foreach ($order as $k => $i) {
+        $out[$i] = $got[$k];
+    }
+    ksort($out);
+    return array_values($out);
+}
+
 /** 13.2 총액 역산. weights는 이미 13.3 정렬된 [가중치]. 반환: [배분액]. */
 function alloc_last_remainder($total, array $weights): array
 {

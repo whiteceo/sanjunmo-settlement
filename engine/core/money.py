@@ -66,6 +66,17 @@ def alloc_last_remainder(total, weights):
     return out
 
 
+def alloc_offset_first(total, weights, offset_flags):
+    """원천세 라인 배분(V2 §13.3, v4.0.75): 선급금 상계 라인을 앞에 두고 나머지 라인을 뒤에 둔 순서(각 묶음 안은 원 순서)로
+    총액 역산해, 끝수가 상계 라인에 가지 않게 한다. 반환은 원래 라인 순서."""
+    order = [i for i, f in enumerate(offset_flags) if f] + [i for i, f in enumerate(offset_flags) if not f]
+    got = alloc_last_remainder(total, [weights[i] for i in order])
+    out = [None] * len(weights)
+    for i, v in zip(order, got):
+        out[i] = v
+    return out
+
+
 def to_json(x):
     """Decimal → JSON 값. 정수면 int, 소수면 문자열(정밀도 보존)."""
     if isinstance(x, Decimal):

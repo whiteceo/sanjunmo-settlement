@@ -8,7 +8,7 @@ payee별 9단계 실정산액 = (당월 신규 세전 지급액 − 당월 신�
 
 from collections import OrderedDict
 
-from .money import D, alloc_last_remainder, floor_won
+from .money import D, alloc_last_remainder, alloc_offset_first, floor_won
 from .tax import classify, vat_of, withhold_business, withhold_other
 
 STEP = "TAX"
@@ -91,8 +91,9 @@ def business_all(ctx, holder=None):
                          formula="합계 0 이하 — 남은 음수를 보류 음수 과세표준으로 이월(다음 지급의 합산에)", ref="V2 §8.3 9단계 (v4.0.48)")
         w = withhold_business(ctx, sum((x["taxable_base"] for _, x in pos), D(0)))
         bases = [x["taxable_base"] for _, x in pos]
-        its = alloc_last_remainder(w["income_tax"], bases)
-        lts = alloc_last_remainder(w["local_income_tax"], bases)
+        offs = [(x.get("offset_amount") or D(0)) > 0 for _, x in pos]  # 상계 라인을 앞에(끝수는 상계 없는 라인, v4.0.75)
+        its = alloc_offset_first(w["income_tax"], bases, offs)
+        lts = alloc_offset_first(w["local_income_tax"], bases, offs)
         for (c, x), it, lt in zip(pos, its, lts):
             set_withholding(ctx, c, x, dict(payee=pid, line=x["line_id"], line_key=x["line_key"]),
                             dict(w, income_tax=it, local_income_tax=lt), "BUSINESS")
@@ -228,8 +229,9 @@ def tax_payee(ctx, c, p):
                  inputs={"기타소득금액": w["other_income_amount"], "과세최저한": ctx.p("other_income_min_tax_amount")},
                  formula="기타소득금액 ≤ 50,000원이면 소득세 · 지방소득세 0원(판정 단위 = tax_threshold_unit_key)",
                  ref="V2 L277~278 · V1 L436")
-        its = alloc_last_remainder(w["income_tax"], [x["taxable_base"] for x in lines])
-        lts = alloc_last_remainder(w["local_income_tax"], [x["taxable_base"] for x in lines])
+        offs = [(x.get("offset_amount") or D(0)) > 0 for x in lines]  # 상계 라인을 앞에(끝수는 상계 없는 라인, v4.0.75)
+        its = alloc_offset_first(w["income_tax"], [x["taxable_base"] for x in lines], offs)
+        lts = alloc_offset_first(w["local_income_tax"], [x["taxable_base"] for x in lines], offs)
         # 필요경비 · 기타소득금액은 라인에 나눠 저장(과세표준 비율, 끝수는 마지막 라인, V2 §13.1, v4.0.44)
         des = alloc_last_remainder(w["deemed_expense"], [x["taxable_base"] for x in lines])
         filing(ctx, c, pid, lines[-1], clause)

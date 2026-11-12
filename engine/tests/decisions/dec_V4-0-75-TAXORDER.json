@@ -1,0 +1,129 @@
+{
+ "case": "DEC-V475-TAXORDER",
+ "title": "원천세 라인 배분 — 상계 라인 먼저(이월 행 순서를 바꿔도 같은 결과)",
+ "canon_ref": "정산 02권 8.3절 9단계 · 13.3절 원천세 라인 배분 · 04권 Case 1-K 12월(v4.0.75)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-12",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "payout_hold_yn": false
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "LOAN",
+    "prepay_unoffset_balance": 106600
+   }
+  ],
+  "adjustments": [],
+  "lumpsum_approvals": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-K1",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "LUMPSUM",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 보류",
+    "carryover_amount": 50000,
+    "components": {
+     "split_amount": 50000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 50000
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   },
+   {
+    "ledger_id": "CL-K11-N1",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 20,
+    "components": {
+     "split_amount": 20,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 0
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   }
+  ]
+ },
+ "notes": "Case 1-K 12월 입력에서 이월 행 순서만 뒤집음(정액 수당 50,000원 행이 앞, 상계 20원 행이 뒤). 상계 라인을 앞에 두고 끝수는 정액 수당 라인 → 상계 20 · 지급 48,350. 순서 규칙이 없으면 상계 18 · 지급 48,352",
+ "expected": {
+  "PREPAY_OFFSET": {
+   "offset_amount": 20
+  },
+  "PAYOUT": {
+   "payout_amount": 48350
+  }
+ }
+}
