@@ -510,6 +510,42 @@ final class S11Payout
         }
     }
 
+    /** 기지급 달 정정을 세전으로 뺀 달 — 원 귀속월 수정신고로 돌려받는 원천세를 권리자에게 돌려줌(알림, v4.0.86). */
+    private static function withholdingRefundNotice(Context $ctx, ContractState $c, PayeeState $p, $pid, bool $confirmed, array $kw): void
+    {
+        $realized = $confirmed || truthy($p->out['CLAIM']['claim_issued_yn'] ?? false);
+        if (!$realized) {
+            $p->out['PAYOUT']['withholding_refund_to_payee'] = D(0);
+            return;
+        }
+        $amt = D(0);
+        foreach ($p->lines as $ln) {
+            $neg = either(g($ln, 'pre_tax_payable'), D(0)) < 0;
+            if (!$neg || g($ln, 'tax_decision_status') === 'PENDING_REVIEW') {
+                continue;
+            }
+            if ($ln['origin'] === 'ADJUSTMENT' || ($ln['origin'] === 'CARRY_PRE_TAX' && g($ln, 'carry_line_origin') === 'ADJUSTMENT')) {
+                $amt = add($amt, neg($ln['pre_tax_payable']));
+            }
+        }
+        $refund = D(0);
+        if ($amt > 0) {
+            $h = $ctx->holder($pid);
+            $cl = Tax::classify($ctx, $pid, ['supply_nature' => 'LECTURE_RS', 'pipeline_id' => '1.1', 'income_category' => g($h, 'income_category'),
+                'income_clause' => g($h, 'income_clause')]);
+            if (($cl['withholding'] ?? null) === 'APPLY' && g($h, 'income_category') !== 'OTHER') {
+                $w = Tax::withholdBusiness($ctx, $amt);
+                $refund = add($w['income_tax'], $w['local_income_tax']);
+            }
+        }
+        $p->out['PAYOUT']['withholding_refund_to_payee'] = $refund;
+        if (!is_zero($refund)) {
+            $ctx->emit(self::STEP, 'withholding_refund_to_payee', $refund, $c, ...$kw, inputs: ['세전으로 뺀 기지급 달 정정' => $amt],
+                formula: '이미 지급한 달의 정정을 세전으로 뺀 달 — 원 귀속월 수정신고로 돌려받는 원천세를 권리자에게 돌려줌(환급 뒤 세후 정정(+)로 지급)',
+                ref: 'V2 §10.4 채널 3-a · §8.3 10단계 (v4.0.86)');
+        }
+    }
+
     private static function limitOf(Context $ctx, ContractState $c): Number
     {
         return D(g($c->row, 'min_payout_limit') !== null ? g($c->row, 'min_payout_limit') : $ctx->p('default_min_payout_limit'));
@@ -814,6 +850,7 @@ final class S11Payout
                 ref: 'V2 §8.3 10단계 1) · 11단계 (v4.0.77)');
         }
         self::modifiedInvoiceNotice($ctx, $c, $p, $prePos, $kw);
+        self::withholdingRefundNotice($ctx, $c, $p, $pid, $confirmed, $kw);
         $roff = either($p->out['CLAIM']['return_offset'] ?? null, D(0));
         $deferredReturn = (!is_zero($roff) && !$confirmed) ? either($p->out['CLAIM']['return_offset_new'] ?? null, D(0)) : D(0);
         if (!is_zero($deferredReturn)) {

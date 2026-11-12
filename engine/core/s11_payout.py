@@ -76,6 +76,38 @@ def modified_invoice_notice(ctx, c, p, pid, pre_pos, kw):
                  ref="V2 §8.3 11단계 · 부가가치세법 제32조 제7항 · 시행령 제70조 제1항 제3호 (v4.0.80)")
 
 
+def withholding_refund_notice(ctx, c, p, pid, confirmed, kw):
+    """이미 지급한 달의 정정(세전 −, 전월 정산 조정 · 그런 달에서 온 청구 이월)을 지급에서 세전으로 빼거나 청구로 확정한 달에는,
+    원 귀속월 수정신고로 돌려받는 원천세를 권리자에게 돌려준다 — 그 금액을 알림으로 남김(V2 §10.4 채널 3-a · 8.3절 10단계, v4.0.86).
+    예: 기지급 달 정정 −50,000(사업소득 3.3%) → 1,650."""
+    realized = confirmed or bool(p.out["CLAIM"].get("claim_issued_yn"))
+    if not realized:
+        p.out["PAYOUT"]["withholding_refund_to_payee"] = D(0)
+        return
+    amt = D(0)
+    for ln in p.lines:
+        neg = (ln.get("pre_tax_payable") or D(0)) < 0
+        if not neg or ln.get("tax_decision_status") == "PENDING_REVIEW":
+            continue
+        if ln["origin"] == "ADJUSTMENT" or (ln["origin"] == "CARRY_PRE_TAX" and ln.get("carry_line_origin") == "ADJUSTMENT"):
+            amt += -ln["pre_tax_payable"]
+    refund = D(0)
+    if amt > 0:
+        from .tax import classify
+        h = ctx.holder(pid)
+        cl = classify(ctx, pid, {"supply_nature": "LECTURE_RS", "pipeline_id": "1.1", "income_category": h.get("income_category"),
+                                 "income_clause": h.get("income_clause")})
+        if cl.get("withholding") == "APPLY":
+            w = withhold_business(ctx, amt) if h.get("income_category") != "OTHER" else None
+            if w:
+                refund = w["income_tax"] + w["local_income_tax"]
+    p.out["PAYOUT"]["withholding_refund_to_payee"] = refund
+    if refund:
+        ctx.emit(STEP, "withholding_refund_to_payee", refund, c, **kw, inputs={"세전으로 뺀 기지급 달 정정": amt},
+                 formula="이미 지급한 달의 정정을 세전으로 뺀 달 — 원 귀속월 수정신고로 돌려받는 원천세를 권리자에게 돌려줌(환급 뒤 세후 정정(+)로 지급)",
+                 ref="V2 §10.4 채널 3-a · §8.3 10단계 (v4.0.86)")
+
+
 def limit_of(ctx, c):
     return D(c.row.get("min_payout_limit") if c.row.get("min_payout_limit") is not None else ctx.p("default_min_payout_limit"))
 
@@ -191,6 +223,7 @@ def payout_payee(ctx, c, p, end, closed, limit):
                                           formula="미룬 전속계약금 반환 = 반환액 − 그 달 회수액 — 반환채권 잔액에 그대로 남아 다음 지급하는 달에 뺌",
                                           ref="V2 §8.3 10단계 1) · 11단계 (v4.0.77)")
     modified_invoice_notice(ctx, c, p, pid, pre_pos, kw)
+    withholding_refund_notice(ctx, c, p, pid, confirmed, kw)
     roff = p.out["CLAIM"].get("return_offset") or D(0)
     deferred_return = (p.out["CLAIM"].get("return_offset_new") or D(0)) if roff and not confirmed else D(0)
     if deferred_return:
