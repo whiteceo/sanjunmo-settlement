@@ -270,6 +270,13 @@ def offset_carry(ctx, c, p, pid, ln):
     else:
         ln["income_tax"] = ln["local_income_tax"] = ln["withholding_total"] = D(0)
         carry = ln["pre_tax_payable"]
+        # 소득 선지급(EARNED) + 부가세 별도: 공급한 달에 확정된 부가세는 이월분에 붙여 지급하는 달에 지급(다시 매기지 않음, v4.0.71)
+        vat = ln.get("vat_amount") or D(0)
+        if vat > 0 and ln.get("vat_treatment") != "VAT_INCLUDED":
+            extra = {"components": {"carry_vat": vat}}
+            ctx.emit(STEP, "offset_month_carry_vat", vat, c, **kw, inputs={"그 달 부가세": vat, "세전 이월": carry},
+                     formula="소득 선지급 상계 달 미달 이월 — 세전 잔액은 이월, 공급한 달에 확정된 부가세는 이월분에 붙여 지급(세금계산서는 공급한 달 전체)",
+                     ref="V2 §8.3 11단계 (v4.0.71)")
     for f in ("taxable_base", "income_tax", "local_income_tax", "withholding_total"):
         ctx.emit("TAX", f, ln[f], c, **kw, formula="상계한 달 미달 이월 — 그 달 원천징수는 상계분만(11단계에서 다시 정함)",
                  ref="V2 §8.3 11단계 (v4.0.56)")
