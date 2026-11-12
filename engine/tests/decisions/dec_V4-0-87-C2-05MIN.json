@@ -1,0 +1,111 @@
+{
+ "case": "DEC-V487-C2-05MIN",
+ "title": "간이과세자 — 최소 지급 미달 이월에 이월 부가세",
+ "canon_ref": "정산 02권 11.2절 TX-06 · 8.3절 10 · 11단계 · 04권 Case 1-Q(v4.0.87)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2027-05",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "matrix_case_id_hint": "TX-06",
+    "tax_type_cd": "01"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-12-01",
+    "current_end_date": "2028-11-30",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 3
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "O-02",
+    "item_type": "LECTURE",
+    "product_id": "L-A",
+    "paid_amount": 100000,
+    "allocation_applied": true,
+    "approved_at": "2027-02-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "L-A",
+      "lecture_base_amount": 100000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": []
+ },
+ "notes": "2월 판매 R/S 50,000 + 부가세 5,000 = 55,000 < 100,000 → 세전 50,000 + 이월 부가세 5,000 이월",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}

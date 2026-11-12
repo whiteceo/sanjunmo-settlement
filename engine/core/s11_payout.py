@@ -261,6 +261,11 @@ def payout_payee(ctx, c, p, end, closed, limit):
                     carry_amt, extra = offset_carry(ctx, c, p, pid, ln)
                 else:
                     carry_amt, extra = ln["pre_tax_payable"], {}
+                    # 부가세 별도 과세사업자의 미달 · 보류 이월: 공급한 달에 확정된 부가세를 이월분에 붙여 지급하는 달에 함께 지급
+                    # (다시 매기지 않음, 세금계산서는 공급한 달 전체 — 이월 부가세 원칙을 상계 없는 이월에도 적용, V2 §8.3 11단계, v4.0.87)
+                    vat = ln.get("vat_amount") or D(0)
+                    if vat > 0 and ln.get("vat_treatment") != "VAT_INCLUDED" and carry_amt > 0:
+                        extra = {"components": {"carry_vat": vat, "invoice_supply": ln["split_amount"], "invoice_vat": vat}}
                 rows.append({"ledger_id": None, "action": "NEW", "rights_holder_id": c.holder_id, "payee_id": pid,
                              "contract_id": c.id, "origin_month": ctx.month, "account_type": "PRE_TAX",
                              "pipeline_id": key.get("pipeline_id"), "consignment_balance_yn": False,

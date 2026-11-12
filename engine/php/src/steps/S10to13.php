@@ -888,6 +888,11 @@ final class S11Payout
                 $vatOnly = either(g($ln, 'offset_amount'), D(0)) > 0 && either(g($ln, 'vat_amount'), D(0)) > 0 && is_zero($ln['pre_tax_payable']);
                 if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && ($ln['pre_tax_payable'] > 0 || ($netPos && $ln['pre_tax_payable'] < 0) || $vatOnly)) {
                     [$carryAmt, $extra] = (either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) ? self::offsetCarry($ctx, $c, $p, $pid, $ln) : [$ln['pre_tax_payable'], []];
+                    // 부가세 별도 과세사업자의 상계 없는 미달 · 보류 이월에도 공급한 달 부가세를 이월분에 붙임(v4.0.87)
+                    $vatL = either(g($ln, 'vat_amount'), D(0));
+                    if (!(either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) && $vatL > 0 && g($ln, 'vat_treatment') !== 'VAT_INCLUDED' && $carryAmt > 0) {
+                        $extra = ['components' => ['carry_vat' => $vatL, 'invoice_supply' => $ln['split_amount'], 'invoice_vat' => $vatL]];
+                    }
                     $extraComp = $extra['components'] ?? [];
                     unset($extra['components']);
                     $key = $ln['line_key'];
