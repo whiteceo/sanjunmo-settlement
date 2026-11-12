@@ -43,7 +43,7 @@ def run(ctx):
     for c in ctx.contracts.values():
         k = c.carry
         out = c.step_out(STEP)
-        out["carry_pre_tax_pos"] = k["pre_pos"]
+        out["carry_pre_tax_pos"] = list(k["pre_pos"])  # 4단계 직접 감액이 이월 행을 바꿔도 1단계 결과는 입력 그대로(v4.0.81)
         out["carry_pre_tax_neg"] = k["pre_neg"]
         out["carry_post_tax_pos"] = k["post_pos"]
         out["carry_post_tax_neg"] = k["post_neg"]

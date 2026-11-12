@@ -259,12 +259,59 @@ def refund_snapshot(ctx, c, rf, snap, acc, comps, sup, cons_ret):
         cref = "V1 §5.1 L211 · V2 L198 · L202"
     raw = base * pct(share) * pct(rate)
     amt = q4(raw)
+    amt = carry_direct_reduction(ctx, c, rf, snap, pl, amt, ref)
     acc[c.id][cat] += ctx.emit(STEP, f"{cat}_tx", amt, c, line=pl, ref_id=ref,
                                inputs={"환불 기준금": base, "snap.share_ratio": share, "snap.rate_value": rate,
                                        "payment_state": snap.get("payment_state")},
                                formula=formula, code="q4(refund_base × snap.share_ratio/100 × snap.rate_value/100)",
                                before=raw, rounding="Q4", ref=cref, output=False)
     comps[(c.id, pl)].append(component(ref, cat, amt, snap, c))
+
+
+def carry_direct_reduction(ctx, c, rf, snap, pl, amt, ref):
+    """같은 원거래의 미지급 환불은 그 원 결제월의 세전 이월 행을 직접 줄인다(V1 §7.4 '해당 원거래의 직접 환불 감액',
+    V2 §8.3 4단계 미지급 대가 감액, v4.0.81). 수취인 분할로 행이 여럿이면 원 결제 시점 분할 비율(없으면 행 금액 비율)로 나누고
+    끝수는 마지막 수취인. 이월 부가세가 붙은 행은 부가세도 공급가액과 같은 비율로 줄인다(v4.0.80).
+    → 이월 행에서 줄이고 남은 공제액(당월 라인에서 뺄 금액)"""
+    if (snap.get("payment_state") or "UNPAID") != "UNPAID" or amt <= 0:
+        return amt
+    origin = str(rf.get("origin_month") or month_of(rf.get("approved_at") or rf.get("refund_approved_date")))[:7]
+    rows = [r for r in c.carry["pre_pos"] if str(r.get("origin_month") or "")[:7] == origin
+            and str(r.get("pipeline_id")) == pl and not r.get("consignment_balance_yn")]
+    if not rows:
+        return amt
+    rows = sorted(rows, key=lambda r: str(r.get("payee_id")))
+    cap = sum((D(r["carryover_amount"]) for r in rows), D(0))
+    red = min(floor_won(amt), cap)
+    if red <= 0:
+        return amt
+    splits = {s.get("payee_id"): D(s.get("split_ratio") or 0) for s in (snap.get("payee_splits") or [])}
+    weights = [splits.get(r.get("payee_id"), D(0)) for r in rows] if splits and len(rows) > 1 else [D(r["carryover_amount"]) for r in rows]
+    parts = alloc_last_remainder(red, weights)
+    for r0, part in zip(rows, parts):
+        part = min(part, D(r0["carryover_amount"]))
+        if part <= 0:
+            continue
+        r = dict(r0)  # 1단계 결과(입력 행)는 그대로 두고 새 행으로 바꿔 끼움
+        c.carry["pre_pos"][next(i for i, x in enumerate(c.carry["pre_pos"]) if x is r0)] = r
+        comp = dict(r.get("components") or {})
+        cv0 = D(comp.get("carry_vat") or 0)
+        supply0, vat0 = D(comp.get("split_amount") or 0), D(comp.get("vat_amount") or 0)
+        vred = min(cv0, floor_won(vat0 * part / supply0)) if cv0 > 0 and supply0 > 0 else D(0)
+        if vred:
+            comp["carry_vat"] = cv0 - vred
+        r["carryover_amount"] = D(r["carryover_amount"]) - part
+        r["components"] = comp
+        prev = r.get("refund_direct_reduction") or {}
+        r["refund_direct_reduction"] = {"supply": D(prev.get("supply") or 0) + part, "vat": D(prev.get("vat") or 0) + vred,
+                                        "carry_vat_before": prev.get("carry_vat_before", cv0), "original_supply": supply0,
+                                        "original_vat": vat0}
+        ctx.emit(STEP, "carry_direct_refund_reduction", part, c, payee=r.get("payee_id"), line=pl, ref_id=ref,
+                 inputs={"이월 행": r.get("ledger_id"), "원 결제월": origin, "환불 공제(세전)": amt, "이월 행 줄인 뒤": r["carryover_amount"],
+                         "이월 부가세 감액": vred},
+                 formula="같은 원거래의 미지급 환불 — 원 결제월의 세전 이월 행을 직접 줄임(이월 부가세는 같은 비율로 감액), 남은 공제액만 당월 라인에서 뺌",
+                 ref="V1 §7.4 · V2 §8.3 4단계 (v4.0.81)", output=False)
+    return amt - red
 
 
 def pass_refund_snapshot(ctx, c, pr, opt, snap, acc, comps, sup):

@@ -341,12 +341,76 @@ final class S04Deduct
         }
         $raw = mul(mul($base, pct($share)), pct($rate));
         $amt = q4($raw);
+        $amt = self::carryDirectReduction($ctx, $c, $rf, $snap, $pl, $amt, $ref);
         self::accAdd($c->id, $cat, $ctx->emit(self::STEP, $cat . '_tx', $amt, $c, line: $pl, ref_id: $ref,
             inputs: ['환불 기준금' => $base, 'snap.share_ratio' => $share, 'snap.rate_value' => $rate,
                 'payment_state' => g($snap, 'payment_state')],
             formula: $formula, code: 'q4(refund_base × snap.share_ratio/100 × snap.rate_value/100)',
             before: $raw, rounding: 'Q4', ref: $cref, output: false));
         self::compAdd($c->id, $pl, self::component($ref, $cat, $amt, $snap, $c));
+    }
+
+    /** 같은 원거래의 미지급 환불은 원 결제월의 세전 이월 행을 직접 줄임(V1 §7.4, v4.0.81). 남은 공제액을 돌려줌. */
+    private static function carryDirectReduction(Context $ctx, ContractState $c, array $rf, array $snap, string $pl, Number $amt, $ref): Number
+    {
+        if ((g($snap, 'payment_state') ?? 'UNPAID') !== 'UNPAID' || !($amt > 0)) {
+            return $amt;
+        }
+        $origin = head(pystr(either(g($rf, 'origin_month'),
+            month_of(either(g($rf, 'approved_at'), g($rf, 'refund_approved_date'))))), 7);
+        $idx = [];
+        foreach ($c->carry['pre_pos'] as $i => $r) {
+            if (head(pystr(g($r, 'origin_month') ?? ''), 7) === $origin && pystr(g($r, 'pipeline_id')) === $pl
+                && !truthy(g($r, 'consignment_balance_yn'))) {
+                $idx[] = $i;
+            }
+        }
+        if (!$idx) {
+            return $amt;
+        }
+        usort($idx, fn($a, $b) => strcmp(pystr($c->carry['pre_pos'][$a]['payee_id'] ?? ''), pystr($c->carry['pre_pos'][$b]['payee_id'] ?? '')));
+        $cap = dsum(array_map(fn($i) => D($c->carry['pre_pos'][$i]['carryover_amount']), $idx));
+        $red = dmin(floor_won($amt), $cap);
+        if (!($red > 0)) {
+            return $amt;
+        }
+        $splits = [];
+        foreach (either(g($snap, 'payee_splits'), []) as $s) {
+            $splits[pystr(g($s, 'payee_id'))] = D(either(g($s, 'split_ratio'), 0));
+        }
+        $weights = ($splits && count($idx) > 1)
+            ? array_map(fn($i) => $splits[pystr($c->carry['pre_pos'][$i]['payee_id'] ?? '')] ?? D(0), $idx)
+            : array_map(fn($i) => D($c->carry['pre_pos'][$i]['carryover_amount']), $idx);
+        $parts = alloc_last_remainder($red, $weights);
+        foreach ($idx as $j => $i) {
+            $r = &$c->carry['pre_pos'][$i];
+            $part = dmin($parts[$j], D($r['carryover_amount']));
+            if (!($part > 0)) {
+                unset($r);
+                continue;
+            }
+            $comp = either(g($r, 'components'), []);
+            $cv0 = D(either(g($comp, 'carry_vat'), 0));
+            $supply0 = D(either(g($comp, 'split_amount'), 0));
+            $vat0 = D(either(g($comp, 'vat_amount'), 0));
+            $vred = ($cv0 > 0 && $supply0 > 0) ? dmin($cv0, floor_won(div(mul($vat0, $part), $supply0))) : D(0);
+            if (!is_zero($vred)) {
+                $comp['carry_vat'] = sub($cv0, $vred);
+            }
+            $r['carryover_amount'] = sub(D($r['carryover_amount']), $part);
+            $r['components'] = $comp;
+            $prev = either(g($r, 'refund_direct_reduction'), []);
+            $r['refund_direct_reduction'] = ['supply' => add(D(either(g($prev, 'supply'), 0)), $part), 'vat' => add(D(either(g($prev, 'vat'), 0)), $vred),
+                'carry_vat_before' => array_key_exists('carry_vat_before', $prev) ? $prev['carry_vat_before'] : $cv0, 'original_supply' => $supply0,
+                'original_vat' => $vat0];
+            $ctx->emit(self::STEP, 'carry_direct_refund_reduction', $part, $c, payee: g($r, 'payee_id'), line: $pl, ref_id: $ref,
+                inputs: ['이월 행' => g($r, 'ledger_id'), '원 결제월' => $origin, '환불 공제(세전)' => $amt, '이월 행 줄인 뒤' => $r['carryover_amount'],
+                    '이월 부가세 감액' => $vred],
+                formula: '같은 원거래의 미지급 환불 — 원 결제월의 세전 이월 행을 직접 줄임(이월 부가세는 같은 비율로 감액), 남은 공제액만 당월 라인에서 뺌',
+                ref: 'V1 §7.4 · V2 §8.3 4단계 (v4.0.81)', output: false);
+            unset($r);
+        }
+        return sub($amt, $red);
     }
 
     private static function passRefundSnapshot(Context $ctx, ContractState $c, array $pr, $opt, array $snap): void

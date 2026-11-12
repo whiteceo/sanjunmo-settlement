@@ -431,32 +431,13 @@ final class S11Payout
     {
         $notes = [];
         foreach ($prePos as $r) {
-            $comp = either(g($r, 'components'), []);
-            $cv = D(either(g($comp, 'carry_vat'), 0));
-            if (!($cv > 0)) {
+            $dr = either(g($r, 'refund_direct_reduction'), []);
+            if (!$dr || !(D(either(g($dr, 'carry_vat_before'), 0)) > 0)) {
                 continue;
             }
-            $supply0 = D(either(g($comp, 'split_amount'), 0));
-            $vat0 = D(either(g($comp, 'vat_amount'), 0));
-            $red = D(0);
-            foreach ($ctx->input['refund_lines'] as $rf) {
-                if (substr(pystr(g($rf, 'origin_month') ?? ''), 0, 7) !== substr(pystr(g($r, 'origin_month') ?? ''), 0, 7)) {
-                    continue;
-                }
-                foreach (either(g($rf, 'snapshot'), []) as $s) {
-                    if (g($s, 'contract_id') === $c->id && (g($s, 'payment_state') ?? 'UNPAID') === 'UNPAID') {
-                        $red = add($red, floor_won(div(mul(div(mul(D(either(g($s, 'base_amount'), 0)), D(either(g($s, 'rate_value'), 0))), D(100)),
-                            D(either(g($s, 'share_ratio'), 100))), D(100))));
-                    }
-                }
-            }
-            if (!($red > 0) || !($supply0 > 0)) {
-                continue;
-            }
-            $rs = dmin($red, $supply0);
-            $redVat = dmin($cv, floor_won(div(mul($vat0, $rs), $supply0)));
-            $notes[] = ['ledger_id' => g($r, 'ledger_id'), 'origin_month' => g($r, 'origin_month'), 'original_supply' => $supply0,
-                'original_vat' => $vat0, 'reduced_supply' => $rs, 'reduced_vat' => $redVat, 'carry_vat_after' => sub($cv, $redVat)];
+            $notes[] = ['ledger_id' => g($r, 'ledger_id'), 'origin_month' => g($r, 'origin_month'), 'original_supply' => $dr['original_supply'],
+                'original_vat' => $dr['original_vat'], 'reduced_supply' => $dr['supply'], 'reduced_vat' => $dr['vat'],
+                'carry_vat_after' => D(either(g(either(g($r, 'components'), []), 'carry_vat'), 0))];
         }
         $p->out['PAYOUT']['modified_invoice_notices'] = $notes;
         if ($notes) {

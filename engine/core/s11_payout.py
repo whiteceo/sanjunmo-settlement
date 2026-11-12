@@ -57,25 +57,12 @@ def modified_invoice_notice(ctx, c, p, pid, pre_pos, kw):
     (V2 §8.3 11단계, 부가가치세법 제32조 제7항 · 시행령 제70조 제1항 제3호, v4.0.80)."""
     notes = []
     for r in pre_pos:
-        comp = r.get("components") or {}
-        cv = D(comp.get("carry_vat") or 0)
-        if cv <= 0:
+        dr = r.get("refund_direct_reduction") or {}
+        if not dr or D(dr.get("carry_vat_before") or 0) <= 0:
             continue
-        supply0, vat0 = D(comp.get("split_amount") or 0), D(comp.get("vat_amount") or 0)
-        red = D(0)
-        for rf in ctx.input["refund_lines"]:
-            if str(rf.get("origin_month") or "")[:7] != str(r.get("origin_month") or "")[:7]:
-                continue
-            for s in rf.get("snapshot") or []:
-                if s.get("contract_id") == c.id and (s.get("payment_state") or "UNPAID") == "UNPAID":
-                    red += floor_won(D(s.get("base_amount") or 0) * D(s.get("rate_value") or 0) / 100
-                                     * D(s.get("share_ratio") or 100) / 100)
-        if red <= 0 or supply0 <= 0:
-            continue
-        red_vat = min(cv, floor_won(vat0 * min(red, supply0) / supply0))
-        notes.append({"ledger_id": r.get("ledger_id"), "origin_month": r.get("origin_month"), "original_supply": supply0,
-                      "original_vat": vat0, "reduced_supply": min(red, supply0), "reduced_vat": red_vat,
-                      "carry_vat_after": cv - red_vat})
+        notes.append({"ledger_id": r.get("ledger_id"), "origin_month": r.get("origin_month"), "original_supply": dr["original_supply"],
+                      "original_vat": dr["original_vat"], "reduced_supply": dr["supply"], "reduced_vat": dr["vat"],
+                      "carry_vat_after": D((r.get("components") or {}).get("carry_vat") or 0)})
     p.out["PAYOUT"]["modified_invoice_notices"] = notes
     if notes:
         ctx.emit(STEP, "modified_invoice_required", True, c, **kw, inputs={"알림": notes},
