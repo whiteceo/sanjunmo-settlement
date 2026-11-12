@@ -33,7 +33,9 @@ def run(ctx):
         if rf.get("voucher_id"):  # 환불 사후 보정 전표(ADJ-*) — 반영 기준월 규칙(S-10)
             if not voucher_in_deduct(ctx, rf):
                 continue
-        elif rf.get("refund_approved_date") and month_of(rf["refund_approved_date"]) != ctx.month:
+        elif rf.get("refund_approved_date") and not any(
+                refund_month(rf, ctx.contract(s.get("contract_id"))) == ctx.month for s in (rf.get("snapshot") or [])
+                if ctx.contract(s.get("contract_id"))):
             continue
         if rf.get("lecture_refund"):
             rf = dict(rf, refund_amount=lecture_refund_amount(ctx, rf))
@@ -41,6 +43,8 @@ def run(ctx):
         for snap in rf.get("snapshot") or []:
             c = ctx.contract(snap.get("contract_id"))
             if not c:
+                continue
+            if not rf.get("voucher_id") and rf.get("refund_approved_date") and refund_month(rf, c) != ctx.month:
                 continue
             refund_snapshot(ctx, c, rf, snap, acc, comps, sup, cons_ret)
 
@@ -56,6 +60,20 @@ def run(ctx):
 
     for c in ctx.contracts.values():
         finish_contract(ctx, c, acc[c.id], comps, sup, cons_ret[c.id])
+
+
+def add_months(m, n):
+    y, mo = int(m[:4]), int(m[5:7]) - 1 + n
+    return f"{y + mo // 12}-{mo % 12 + 1:02d}"
+
+
+def refund_month(rf, c):
+    """환불을 반영하는 귀속월 = max(환불 승인월, 원 결제월 + 지급 시차 N). 지급 시차 계약에서 원거래가 아직 정산되지 않았으면
+    원거래를 정산하는 달에 원거래의 미지급 잔액을 먼저 줄인다 — 음수 줄을 따로 만들지 않음(V2 §8.3 4단계 · 10단계, v4.0.84)."""
+    am = month_of(rf["refund_approved_date"])
+    om = str(rf.get("origin_month") or am)[:7]
+    lag = int((c.row.get("payout_lag_months") if c else 0) or 0)
+    return max(am, add_months(om, lag)) if lag else am
 
 
 def next_month(m):
@@ -368,7 +386,7 @@ def pass_refund_snapshot(ctx, c, pr, opt, snap, acc, comps, sup):
 
 def component(ref, cat, amt, snap, c):
     state = snap.get("payment_state") or "UNPAID"
-    return {"ref_id": ref, "category": cat, "weight": D(amt), "payment_state": state,
+    return {"ref_id": ref, "category": cat, "weight": D(amt), "payment_state": state, "pipeline_id": snap.get("pipeline_id"),
             "snapshot_payee_splits": snap.get("payee_splits") or [],
             "paid_return_post_tax_amount": snap.get("paid_return_post_tax_amount"),
             "paid_portion_amount": snap.get("paid_portion_amount"),
@@ -384,7 +402,9 @@ def split_paths(ctx, c, comps_line, total):
     out = []
     for comp, amt in zip(comps_line, allocs):
         st = comp["payment_state"]
-        if st == "PAID":
+        if st == "OFFSET" and earned_prepay(ctx, c):
+            parts = [("PREPAY_RESTORE", amt)]  # 소득 선지급 상계분 — 현금이 나간 적 없음, 선급금 잔액을 되살림(v4.0.84)
+        elif st in ("PAID", "OFFSET"):
             parts = [("PAID_RETURN", amt)]
         elif st == "PARTIAL":
             pp, up = D(comp["paid_portion_amount"]), D(comp["unpaid_portion_amount"])
@@ -399,13 +419,47 @@ def split_paths(ctx, c, comps_line, total):
             out.append(row)
             if path == "UNPAID_REDUCTION":
                 unpaid_total += a
+            elif path == "PREPAY_RESTORE":
+                c.prepay_restore = (getattr(c, "prepay_restore", None) or D(0)) + a
+                ctx.emit(STEP, "prepay_restore", a, c, ref_id=comp["ref_id"],
+                         formula="소득 선지급으로 상계한 몫의 환불 — 현금 청구 없이 선급금 잔액을 되살림(상계만 되고 현금은 나간 적 없음)",
+                         ref="V1 5.3절 · V2 §8.3 4단계 (v4.0.84)", output=False)
             else:
+                post = paid_return_post_tax(ctx, c, comp, a)
                 c.return_claims.append({"ref_id": comp["ref_id"], "payee_id": comp["payee_id"],
-                                        "post_tax_amount": D(comp.get("paid_return_post_tax_amount")),
-                                        "pre_tax_amount": a, "matrix_case_id": comp["matrix_case_id"]})
-                ctx.issue("CANON_GAP", "기지급 소득 반환 경로 금액 산식 미확정 — 라인 차감 제외, 세후 반환채권 후보로 10단계 전달",
-                          STEP, c.holder_id, "V2 L197 · V4 Case 4 L113", "Q-10")
+                                        "post_tax_amount": post, "pre_tax_amount": a, "matrix_case_id": comp["matrix_case_id"]})
     return out, unpaid_total
+
+
+def earned_prepay(ctx, c):
+    return any(p["contract_id"] == c.id and p.get("prepayment_tax_type") == "EARNED" for p in ctx.input["prepayments"])
+
+
+def paid_return_post_tax(ctx, c, comp, a):
+    """기지급 소득 환불의 세후 반환채권 = 상대가 실제로 받은 금액: 세전 환불액 − 원천세(지급 때 뗀 방식 그대로) + 부가세(부가세 별도
+    과세사업자). 예: 사업소득 3.3% 40,000 → 38,680, 부가세 별도 일반과세자 40,000 → 44,000(V2 §8.3 10단계, v4.0.84).
+    입력에 실제 지급 기록(paid_return_post_tax_amount)이 있으면 그 값을 씀."""
+    if comp.get("paid_return_post_tax_amount") is not None:
+        return D(comp["paid_return_post_tax_amount"])
+    from .tax import classify, withhold_business, withhold_other, vat_of
+    pid = comp.get("payee_id") or c.holder_id
+    h = ctx.holder(pid)
+    pl = comp.get("pipeline_id") or "1.1"
+    line = {"supply_nature": {"1.1": "LECTURE_RS", "2.1": "ROYALTY", "5.1": "SUPPORT_RS"}.get(str(pl), "LECTURE_RS"),
+            "pipeline_id": str(pl), "income_category": h.get("income_category"), "income_clause": h.get("income_clause")}
+    cl = classify(ctx, pid, line)
+    wt = D(0)
+    if cl.get("withholding") == "APPLY":
+        w = withhold_other(ctx, a, h.get("income_clause")) if h.get("income_category") == "OTHER" else withhold_business(ctx, a)
+        wt = w["income_tax"] + w["local_income_tax"]
+    treat = h.get("vat_treatment") or c.row.get("vat_treatment") or "VAT_EXCLUDED"
+    _, _, applied, _ = vat_of(cl.get("vat"), treat, a)
+    post = applied - wt
+    ctx.emit(STEP, "paid_return_post_tax", post, c, payee=pid, ref_id=comp.get("ref_id"),
+             inputs={"세전 환불액": a, "원천세": wt, "부가세 반영 후": applied, "matrix_case_id": cl.get("case")},
+             formula="기지급 소득 환불의 세후 반환채권 = 상대가 받은 금액(세전 − 원천세 + 부가세 별도분)",
+             ref="V2 §8.3 10단계 청구 대상 음수 '기지급 소득 반환채권(세후)' (v4.0.84)", output=False)
+    return post
 
 
 def finish_contract(ctx, c, acc, comps, sup, ret):

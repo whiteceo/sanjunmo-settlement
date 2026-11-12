@@ -1,0 +1,133 @@
+{
+ "case": "DEC-V484-PAID-11",
+ "title": "지급 뒤 환불 — 상대가 받은 세후 금액을 같은 달 지급액과 먼저 상계",
+ "canon_ref": "정산 02권 8.3절 4단계 · 10단계 청구 대상 음수 · 01권 5.3절 · 04권 Case 4-E(v4.0.84)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 0,
+    "min_claim_limit": 0,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "O-11",
+    "item_type": "LECTURE",
+    "product_id": "L-A",
+    "paid_amount": 160000,
+    "allocation_applied": true,
+    "approved_at": "2026-11-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "L-A",
+      "lecture_base_amount": 160000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [
+   {
+    "refund_id": "RF-P",
+    "order_item_id": "O-RF-P",
+    "refund_approved_date": "2026-11-12",
+    "refund_amount": 80000,
+    "origin_month": "2026-10",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-RF-P",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 80000,
+      "payment_state": "PAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": []
+ },
+ "notes": "10월 지급분 80,000 환불(R/S 40,000, 사업소득 3.3%) → 반환채권 38,680, 같은 달 새 R/S 80,000(77,360)에서 먼저 상계 → 38,680 지급, 청구 0(최소 지급 · 청구 기준 0인 계약)",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 38680
+  },
+  "CLAIM": {
+   "claim_amount": 0
+  }
+ }
+}

@@ -310,9 +310,19 @@ final class S10Claim
         $returns = dsum(array_map(fn($r) => $r['post_tax_amount'], array_filter($c->return_claims, fn($r) => $r['payee_id'] === $pid)));
         // 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
         $returns = add($returns, $postNeg); // 세후 전월 정산 조정(−)
+        // 같은 달 지급할 금액이 있으면 먼저 상계하고 남은 음수만 청구 판정으로(v4.0.84)
+        $roff = $returns > 0 ? dmin($returns, dmax(D(0), $after)) : D(0);
+        $o['return_offset'] = $roff;
+        if (!is_zero($roff)) {
+            $after = $ctx->emit(self::STEP, 'net_after_return_offset', sub($after, $roff), $c, ...$kw,
+                inputs: ['반환 반영 후 순액' => $after, '기지급 반환채권 · 세후 정정(−)' => $returns, '같은 달 상계' => $roff],
+                formula: '기지급 소득 반환채권(세후) · 당월 세후 정정(−)은 같은 달 지급할 금액과 먼저 상계, 남은 음수만 청구 판정',
+                ref: 'V2 §8.3 10단계 (v4.0.84)');
+            $returns = sub($returns, $roff);
+        }
         $o['return_claims_applied'] = $ctx->emit(self::STEP, 'return_claims_applied', $returns, $c, ...$kw,
-            formula: '기지급 소득 반환채권(세후) + 당월 세후 정정(−) — 청구 대상 음수 항에서 뺌',
-            ref: 'V2 §8.3 10단계 청구 대상 음수 산식 (v4.0.70, Q-19 해소)');
+            formula: '기지급 소득 반환채권(세후) + 당월 세후 정정(−) 가운데 같은 달 지급액과 상계하고 남은 금액 — 청구 대상 음수 항에서 뺌',
+            ref: 'V2 §8.3 10단계 청구 대상 음수 산식 (v4.0.70 · v4.0.84)');
         $cnn = sub(sub(sub(dmin(D(0), $after), $cbOther), $unoffset), $returns);
         $o['net_after_return'] = $after;
         $o['claim_negative_net'] = $ctx->emit(self::STEP, 'claim_negative_net', $cnn, $c, ...$kw,
@@ -777,6 +787,13 @@ final class S11Payout
                 ref: 'V2 §8.3 10단계 1) · 11단계 (v4.0.77)');
         }
         self::modifiedInvoiceNotice($ctx, $c, $p, $prePos, $kw);
+        $roff = either($p->out['CLAIM']['return_offset'] ?? null, D(0));
+        $deferredReturn = (!is_zero($roff) && !$confirmed) ? $roff : D(0);
+        if (!is_zero($deferredReturn)) {
+            $ctx->emit(self::STEP, 'return_offset_deferred', $deferredReturn, $c, ...$kw,
+                formula: '그 달 지급하지 않으면(미달 · 보류) 반환채권 상계를 미루고 세후 청구 이월로 남김(이월 행은 상계 전 세전 금액)',
+                ref: 'V2 §8.3 10 · 11단계 (v4.0.84)');
+        }
         $o['payout_amount'] = $ctx->emit(self::STEP, 'payout_amount', $confirmed ? $judge : D(0), $c, ...$kw,
             formula: '지급 확정액(대량이체 리스트, 부가세 · 원천세 · 상계 재가감 금지)', ref: 'V2 L303');
         $ctx->emit(self::STEP, 'excluded_from_bulk_transfer', $internal, $c, ...$kw,
@@ -897,6 +914,14 @@ final class S11Payout
                     formula: "세무 판정 보류 라인 — 그 금액만 '세무 판정 보류' 사유로 세전 이월, 마감 진행",
                     ref: 'V2 11.3절 판정 보류 상태 (v4.0.82)');
             }
+        }
+        if (!is_zero($deferredReturn)) {
+            $rows[] = ['ledger_id' => null, 'action' => 'NEW', 'rights_holder_id' => $c->holder_id, 'payee_id' => $pid, 'contract_id' => $c->id,
+                'origin_month' => $ctx->month, 'account_type' => 'POST_TAX', 'pipeline_id' => null, 'consignment_balance_yn' => false,
+                'income_category' => null, 'income_clause' => null, 'tax_threshold_unit_key' => null,
+                'carryover_reason' => '청구 이월(기지급 반환채권 — 지급하지 않은 달이라 상계 미룸)', 'carryover_amount' => neg($deferredReturn),
+                'components' => [], 'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,
+                'payout_reservation_status' => 'NONE', 'extinguished_yn' => false];
         }
         // 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김(v4.0.61 정본 공백 보완)
         // 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)

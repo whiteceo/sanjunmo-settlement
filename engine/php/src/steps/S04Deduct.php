@@ -61,8 +61,17 @@ final class S04Deduct
                 if (!self::voucherInDeduct($ctx, $rf)) {
                     continue;
                 }
-            } elseif (truthy(g($rf, 'refund_approved_date')) && month_of($rf['refund_approved_date']) !== $ctx->month) {
-                continue;
+            } elseif (truthy(g($rf, 'refund_approved_date'))) {
+                $any = false;
+                foreach (either(g($rf, 'snapshot'), []) as $s) {
+                    $cc = $ctx->contract(g($s, 'contract_id'));
+                    if ($cc && self::refundMonth($rf, $cc) === $ctx->month) {
+                        $any = true;
+                    }
+                }
+                if (!$any) {
+                    continue;
+                }
             }
             if (truthy(g($rf, 'lecture_refund'))) {
                 $rf = array_merge($rf, ['refund_amount' => self::lectureRefundAmount($ctx, $rf)]);
@@ -71,6 +80,9 @@ final class S04Deduct
             foreach ((either(g($rf, 'snapshot'), [])) as $snap) {
                 $c = $ctx->contract(g($snap, 'contract_id'));
                 if (!$c) {
+                    continue;
+                }
+                if (!truthy(g($rf, 'voucher_id')) && truthy(g($rf, 'refund_approved_date')) && self::refundMonth($rf, $c) !== $ctx->month) {
                     continue;
                 }
                 self::refundSnapshot($ctx, $c, $rf, $snap);
@@ -92,6 +104,63 @@ final class S04Deduct
         foreach ($ctx->contracts as $c) {
             self::finishContract($ctx, $c, self::$acc[(string)$c->id] ?? [], self::$consRet[(string)$c->id] ?? []);
         }
+    }
+
+    private static function addMonths(string $m, int $n): string
+    {
+        $y = (int)substr($m, 0, 4);
+        $mo = (int)substr($m, 5, 2) - 1 + $n;
+        return sprintf('%d-%02d', $y + intdiv($mo, 12), $mo % 12 + 1);
+    }
+
+    /** 환불 반영 귀속월 = max(환불 승인월, 원 결제월 + 지급 시차 N) — 시차 계약은 원거래 정산 달에 미지급 잔액을 먼저 줄임(v4.0.84). */
+    private static function refundMonth(array $rf, ContractState $c): string
+    {
+        $am = month_of($rf['refund_approved_date']);
+        $om = substr(pystr(either(g($rf, 'origin_month'), $am)), 0, 7);
+        $lag = (int)(either(g($c->row, 'payout_lag_months'), 0));
+        if (!$lag) {
+            return $am;
+        }
+        $t = self::addMonths($om, $lag);
+        return $t > $am ? $t : $am;
+    }
+
+    private static function earnedPrepay(Context $ctx, ContractState $c): bool
+    {
+        foreach ($ctx->input['prepayments'] as $p) {
+            if ($p['contract_id'] === $c->id && g($p, 'prepayment_tax_type') === 'EARNED') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** 기지급 소득 환불의 세후 반환채권 = 상대가 받은 금액(세전 − 원천세 + 부가세 별도분, v4.0.84). */
+    private static function paidReturnPostTax(Context $ctx, ContractState $c, array $comp, Number $a): Number
+    {
+        if (g($comp, 'paid_return_post_tax_amount') !== null) {
+            return D($comp['paid_return_post_tax_amount']);
+        }
+        $pid = either(g($comp, 'payee_id'), $c->holder_id);
+        $h = $ctx->holder($pid);
+        $pl = pystr(either(g($comp, 'pipeline_id'), '1.1'));
+        $sn = ['1.1' => 'LECTURE_RS', '2.1' => 'ROYALTY', '5.1' => 'SUPPORT_RS'][$pl] ?? 'LECTURE_RS';
+        $line = ['supply_nature' => $sn, 'pipeline_id' => $pl, 'income_category' => g($h, 'income_category'), 'income_clause' => g($h, 'income_clause')];
+        $cl = Tax::classify($ctx, $pid, $line);
+        $wt = D(0);
+        if (($cl['withholding'] ?? null) === 'APPLY') {
+            $w = g($h, 'income_category') === 'OTHER' ? Tax::withholdOther($ctx, $a, g($h, 'income_clause')) : Tax::withholdBusiness($ctx, $a);
+            $wt = add($w['income_tax'], $w['local_income_tax']);
+        }
+        $treat = either(g($h, 'vat_treatment'), either(g($c->row, 'vat_treatment'), 'VAT_EXCLUDED'));
+        $applied = Tax::vatOf($cl['vat'] ?? null, $treat, $a)[2];
+        $post = sub($applied, $wt);
+        $ctx->emit(self::STEP, 'paid_return_post_tax', $post, $c, payee: $pid, ref_id: g($comp, 'ref_id'),
+            inputs: ['세전 환불액' => $a, '원천세' => $wt, '부가세 반영 후' => $applied, 'matrix_case_id' => $cl['case'] ?? null],
+            formula: '기지급 소득 환불의 세후 반환채권 = 상대가 받은 금액(세전 − 원천세 + 부가세 별도분)',
+            ref: "V2 §8.3 10단계 청구 대상 음수 '기지급 소득 반환채권(세후)' (v4.0.84)", output: false);
+        return $post;
     }
 
     private static function nextMonth(string $m): string
@@ -471,7 +540,7 @@ final class S04Deduct
     private static function component($ref, string $cat, Number $amt, array $snap, ContractState $c): array
     {
         $state = either(g($snap, 'payment_state'), 'UNPAID');
-        return ['ref_id' => $ref, 'category' => $cat, 'weight' => D($amt), 'payment_state' => $state,
+        return ['ref_id' => $ref, 'category' => $cat, 'weight' => D($amt), 'payment_state' => $state, 'pipeline_id' => g($snap, 'pipeline_id'),
             'snapshot_payee_splits' => either(g($snap, 'payee_splits'), []),
             'paid_return_post_tax_amount' => g($snap, 'paid_return_post_tax_amount'),
             'paid_portion_amount' => g($snap, 'paid_portion_amount'),
@@ -489,7 +558,9 @@ final class S04Deduct
         foreach ($compsLine as $i => $comp) {
             $amt = $allocs[$i];
             $st = $comp['payment_state'];
-            if ($st === 'PAID') {
+            if ($st === 'OFFSET' && self::earnedPrepay($ctx, $c)) {
+                $parts = [['PREPAY_RESTORE', $amt]]; // 소득 선지급 상계분 — 선급금 잔액을 되살림(v4.0.84)
+            } elseif ($st === 'PAID' || $st === 'OFFSET') {
                 $parts = [['PAID_RETURN', $amt]];
             } elseif ($st === 'PARTIAL') {
                 $pp = D($comp['paid_portion_amount']);
@@ -507,12 +578,15 @@ final class S04Deduct
                 $out[] = array_merge($comp, ['path' => $path, 'amount' => neg($a)]);
                 if ($path === 'UNPAID_REDUCTION') {
                     $unpaidTotal = add($unpaidTotal, $a);
+                } elseif ($path === 'PREPAY_RESTORE') {
+                    $c->prepay_restore = add($c->prepay_restore ?? D(0), $a);
+                    $ctx->emit(self::STEP, 'prepay_restore', $a, $c, ref_id: $comp['ref_id'],
+                        formula: '소득 선지급으로 상계한 몫의 환불 — 현금 청구 없이 선급금 잔액을 되살림(상계만 되고 현금은 나간 적 없음)',
+                        ref: 'V1 5.3절 · V2 §8.3 4단계 (v4.0.84)', output: false);
                 } else {
+                    $post = self::paidReturnPostTax($ctx, $c, $comp, $a);
                     $c->return_claims[] = ['ref_id' => $comp['ref_id'], 'payee_id' => $comp['payee_id'],
-                        'post_tax_amount' => D(g($comp, 'paid_return_post_tax_amount')),
-                        'pre_tax_amount' => $a, 'matrix_case_id' => $comp['matrix_case_id']];
-                    $ctx->issue('CANON_GAP', '기지급 소득 반환 경로 금액 산식 미확정 — 라인 차감 제외, 세후 반환채권 후보로 10단계 전달',
-                        self::STEP, $c->holder_id, 'V2 L197 · V4 Case 4 L113', 'Q-10');
+                        'post_tax_amount' => $post, 'pre_tax_amount' => $a, 'matrix_case_id' => $comp['matrix_case_id']];
                 }
             }
         }

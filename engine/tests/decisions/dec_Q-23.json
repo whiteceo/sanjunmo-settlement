@@ -140,19 +140,18 @@
   },
   {
    "code": "DEC-Q-23-POST-NEG",
-   "title": "세후(−) 정정 — 반환채권, 지급분과 자동 상계 없음(소액이면 청구 이월)",
+   "title": "세후(−) 정정 — 같은 달 지급액과 먼저 상계(v4.0.84)",
    "input_delta": {
     "adjustments[0].adj_amount": -50000,
     "adjustments[0].account_type": "POST_TAX"
    },
-   "notes": "지급 483,500은 그대로, 청구 대상 음수 −50,000 · |−50,000| ≤ 100,000 → 청구서 미발행 · 세후 청구 이월(02권 L294~295)",
+   "notes": "실정산 483,500 − 세후 정정 50,000 = 433,500 지급, 청구 없음(같은 달 지급할 금액과 먼저 상계, 남은 음수만 청구 판정, 2026-11-12 white PO 결정 v4.0.84). 종전: 483,500 지급 + 세후 청구 이월 −50,000",
    "expected": {
     "CLAIM": {
-     "claim_issued": false,
-     "carry_amount": -50000
+     "claim_issued": false
     },
     "PAYOUT": {
-     "payout_amount": 483500
+     "payout_amount": 433500
     }
    }
   },

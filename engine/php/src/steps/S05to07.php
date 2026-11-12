@@ -275,6 +275,14 @@ final class S06PrepayOffset
             }
             $ptype = $pre[0]['prepayment_tax_type'];
             $bal = dsum(array_map(fn($p) => D($p['prepay_unoffset_balance']), $pre));
+            $restore = $c->prepay_restore ?? D(0);
+            if (!is_zero($restore)) {
+                // 소득 선지급 상계분 환불 — 선급금 잔액을 되살린 뒤 그 달 상계(V1 5.3절, v4.0.84)
+                $ctx->emit(self::STEP, 'prepay_balance_restored', $restore, $c, inputs: ['원장 잔액' => $bal],
+                    formula: '소득 선지급으로 상계한 몫이 환불되면 그 금액만큼 선급금 잔액을 되살림(현금 청구 없음)',
+                    ref: 'V1 5.3절 (v4.0.84)');
+                $bal = add($bal, $restore);
+            }
             // 월 보장액(MMG)을 둔 계약에는 종결되지 않은 선급금을 둘 수 없음(V1 5.3절, v4.0.65)
             if ($bal > 0) {
                 foreach ($ctx->input['rate_lines'] as $r) {

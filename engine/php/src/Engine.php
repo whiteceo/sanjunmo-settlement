@@ -242,6 +242,7 @@ final class ContractState
     /** @var array<string, Line> 6단계 상계 대상에 넣은 세전 이월 행(ledger_id → 상계 몫, v4.0.63) */
     public array $carry_offset = [];
     public ?Number $prepay_balance_after = null;
+    public ?Number $prepay_restore = null; // 소득 선지급 상계분 환불로 되살릴 잔액(v4.0.84)
     public array $splits = [];
     public ?array $consignment = null;
     public ?array $consignment_return = null;

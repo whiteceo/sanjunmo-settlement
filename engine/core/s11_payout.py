@@ -190,6 +190,12 @@ def payout_payee(ctx, c, p, end, closed, limit):
                                           formula="미룬 전속계약금 반환 = 반환액 − 그 달 회수액 — 반환채권 잔액에 그대로 남아 다음 지급하는 달에 뺌",
                                           ref="V2 §8.3 10단계 1) · 11단계 (v4.0.77)")
     modified_invoice_notice(ctx, c, p, pid, pre_pos, kw)
+    roff = p.out["CLAIM"].get("return_offset") or D(0)
+    deferred_return = roff if roff and not confirmed else D(0)
+    if deferred_return:
+        ctx.emit(STEP, "return_offset_deferred", deferred_return, c, **kw,
+                 formula="그 달 지급하지 않으면(미달 · 보류) 반환채권 상계를 미루고 세후 청구 이월로 남김(이월 행은 상계 전 세전 금액)",
+                 ref="V2 §8.3 10 · 11단계 (v4.0.84)")
     o["payout_amount"] = ctx.emit(STEP, "payout_amount", judge if confirmed else D(0), c, **kw,
                                   formula="지급 확정액(대량이체 리스트, 부가세 · 원천세 · 상계 재가감 금지)", ref="V2 L303")
     ctx.emit(STEP, "excluded_from_bulk_transfer", internal, c, **kw,
@@ -290,6 +296,13 @@ def payout_payee(ctx, c, p, end, closed, limit):
                      inputs={"판정 보류 사유": ln.get("matrix_case_id")},
                      formula="세무 판정 보류 라인 — 그 금액만 '세무 판정 보류' 사유로 세전 이월, 마감 진행",
                      ref="V2 11.3절 판정 보류 상태 (v4.0.82)")
+    if deferred_return:
+        rows.append({"ledger_id": None, "action": "NEW", "rights_holder_id": c.holder_id, "payee_id": pid, "contract_id": c.id,
+                     "origin_month": ctx.month, "account_type": "POST_TAX", "pipeline_id": None, "consignment_balance_yn": False,
+                     "income_category": None, "income_clause": None, "tax_threshold_unit_key": None,
+                     "carryover_reason": "청구 이월(기지급 반환채권 — 지급하지 않은 달이라 상계 미룸)", "carryover_amount": -deferred_return,
+                     "components": {}, "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
+                     "payout_reservation_status": "NONE", "extinguished_yn": False})
     # 청구 하한 미달 이월 행(10단계 PRE_TAX −) — 다음 달 새 금액과 합치지 않고 원장에 그대로 남김.
     # 합칠 때는 운영자 수동 대체 전표(V2 §8.3 10단계, v4.0.61 정본 공백 보완)
     # 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)

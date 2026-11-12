@@ -233,9 +233,18 @@ def claim_payee(ctx, c, p, end, closed, limit):
     returns = sum((r["post_tax_amount"] for r in c.return_claims if r["payee_id"] == pid), D(0))
     # 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
     returns += post_neg  # 세후 전월 정산 조정(−)
+    # 같은 달 지급할 금액이 있으면 먼저 상계하고 남은 음수만 청구 판정으로(최소 청구 기준 0인 계약도 같음, V2 §8.3 10단계, v4.0.84)
+    roff = min(returns, max(D(0), after)) if returns > 0 else D(0)
+    o["return_offset"] = roff
+    if roff:
+        after = ctx.emit(STEP, "net_after_return_offset", after - roff, c, **kw,
+                         inputs={"반환 반영 후 순액": after, "기지급 반환채권 · 세후 정정(−)": returns, "같은 달 상계": roff},
+                         formula="기지급 소득 반환채권(세후) · 당월 세후 정정(−)은 같은 달 지급할 금액과 먼저 상계, 남은 음수만 청구 판정",
+                         ref="V2 §8.3 10단계 (v4.0.84)")
+        returns -= roff
     o["return_claims_applied"] = ctx.emit(STEP, "return_claims_applied", returns, c, **kw,
-                                          formula="기지급 소득 반환채권(세후) + 당월 세후 정정(−) — 청구 대상 음수 항에서 뺌",
-                                          ref="V2 §8.3 10단계 청구 대상 음수 산식 (v4.0.70, Q-19 해소)")
+                                          formula="기지급 소득 반환채권(세후) + 당월 세후 정정(−) 가운데 같은 달 지급액과 상계하고 남은 금액 — 청구 대상 음수 항에서 뺌",
+                                          ref="V2 §8.3 10단계 청구 대상 음수 산식 (v4.0.70 · v4.0.84)")
     cnn = min(D(0), after) - cb_other - unoffset - returns
     o["net_after_return"] = after
     o["claim_negative_net"] = ctx.emit(

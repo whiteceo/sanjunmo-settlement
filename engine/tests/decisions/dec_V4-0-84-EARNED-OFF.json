@@ -1,0 +1,127 @@
+{
+ "case": "DEC-V484-EARNED-OFF",
+ "title": "소득 선지급 상계분의 환불 — 현금 청구 없이 선급금 잔액을 되살림",
+ "canon_ref": "정산 02권 8.3절 4단계 · 10단계 청구 대상 음수 · 01권 5.3절 · 04권 Case 4-E(v4.0.84)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [
+   {
+    "refund_id": "RF-O",
+    "order_item_id": "O-RF-O",
+    "refund_approved_date": "2026-11-12",
+    "refund_amount": 80000,
+    "origin_month": "2026-10",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-RF-O",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 80000,
+      "payment_state": "OFFSET"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "EARNED",
+    "prepay_unoffset_balance": 100000,
+    "earned_unoffset_post_tax_amount": 0
+   }
+  ],
+  "adjustments": []
+ },
+ "notes": "소득 선지급 잔액 100,000, 10월 상계분 결제 80,000 환불(R/S 40,000) → 잔액 140,000으로 되살림, 청구 0",
+ "expected": {
+  "PREPAY_OFFSET": {
+   "prepay_balance_after": 140000
+  },
+  "CLAIM": {
+   "claim_amount": 0
+  }
+ }
+}
