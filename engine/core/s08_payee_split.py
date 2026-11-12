@@ -229,8 +229,13 @@ def carry_lines(ctx, c):
         off = co.offset if co and not neg else D(0)
         earned = bool(c.prepay and c.prepay.get("type") == "EARNED")
         prot = D((r.get("components") or {}).get("protected_amount") or 0)
-        with_pos = neg and bool(r.get("carry_line_origin"))
-        open_neg = with_pos and r.get("carry_line_origin") == "NEW"
+        # 받을 돈(음수)은 생긴 시점 · 이월 여부와 관계없이 그 달 지급액과 먼저 상계(v4.0.85): 청구 이월(세전 −) 행도 순액에 넣음.
+        # 원거래 달이 마감되지 않은 음수(9단계 남은 음수)에서 온 행은 과세표준 합산, 전월 정산 조정에서 온 행은 지급액에서만 뺌
+        claim_row = neg and not r.get("carry_line_origin")
+        # 출처를 모르는 예전 청구 이월 행은 과세표준을 건드리지 않고 지급액에서만 뺌(지급하지 않은 금액으로 과세표준을 줄이지 않음, v4.0.72)
+        line_origin = r.get("carry_line_origin") or ((r.get("negative_origin") or "ADJUSTMENT") if claim_row else None)
+        with_pos = neg
+        open_neg = with_pos and line_origin == "NEW"
         row = {"line_id": f"CARRY:{r.get('ledger_id')}", "ledger_id": r.get("ledger_id"),
                "line_key": {"contract_id": c.id, "pipeline_id": r.get("pipeline_id"),
                             "income_category": r.get("income_category"), "income_clause": r.get("income_clause"),
@@ -238,10 +243,12 @@ def carry_lines(ctx, c):
                "origin": "CARRY_PRE_TAX", "pipeline_id": str(r.get("pipeline_id")),
                "supply_nature": {"1.1": "LECTURE_RS", "2.1": "ROYALTY", "5.1": "SUPPORT_RS"}.get(str(r.get("pipeline_id")),
                                                                                                 "NONRECURRING"),
-               "income_category": r.get("income_category"), "income_clause": r.get("income_clause"),
+               # 소득 구분이 비어 있는 예전 청구 이월 행은 권리자 소득 구분으로 채움(v4.0.85)
+               "income_category": r.get("income_category") or (ctx.holder(pid).get("income_category") if claim_row else None),
+               "income_clause": r.get("income_clause"),
                "tax_threshold_unit_key": r.get("tax_threshold_unit_key"), "split_amount": amt, "offset_amount": off,
                "pre_tax_payable": amt - off, "taxable_base": (D(0) if open_neg else None) if neg else (amt - off if earned else amt),
-               "carry_line_origin": r.get("carry_line_origin"), "carry_with_positive": with_pos,
+               "carry_line_origin": line_origin, "carry_with_positive": with_pos, "claim_carry_row": claim_row,
                "netting_carry": bool(r.get("netting_carry")),  # 받는 사람 순액 묶음으로 함께 이월된 행 — 다음 달 순액에 다시 넣음(v4.0.76)
                "pending_negative_base": amt if neg else None, "protected_yn": prot > 0, "protected_amount": prot,
                "first_payable_confirmed_month": r.get("first_payable_confirmed_month"),

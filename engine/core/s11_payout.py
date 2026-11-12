@@ -6,6 +6,7 @@
 """
 
 from .money import D, floor_won, floor_ten
+from .s10_claim import offsettable
 from .tax import withhold_business, rates
 from .pipeline import months_between
 
@@ -191,7 +192,7 @@ def payout_payee(ctx, c, p, end, closed, limit):
                                           ref="V2 §8.3 10단계 1) · 11단계 (v4.0.77)")
     modified_invoice_notice(ctx, c, p, pid, pre_pos, kw)
     roff = p.out["CLAIM"].get("return_offset") or D(0)
-    deferred_return = roff if roff and not confirmed else D(0)
+    deferred_return = (p.out["CLAIM"].get("return_offset_new") or D(0)) if roff and not confirmed else D(0)
     if deferred_return:
         ctx.emit(STEP, "return_offset_deferred", deferred_return, c, **kw,
                  formula="그 달 지급하지 않으면(미달 · 보류) 반환채권 상계를 미루고 세후 청구 이월로 남김(이월 행은 상계 전 세전 금액)",
@@ -307,14 +308,22 @@ def payout_payee(ctx, c, p, end, closed, limit):
     # 합칠 때는 운영자 수동 대체 전표(V2 §8.3 10단계, v4.0.61 정본 공백 보완)
     # 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)
     merged = set(p.out["CLAIM"].get("claim_carry_settled") or [])
-    # 세후(POST_TAX) 반환채권 청구 이월도 같은 규칙 — ID · 발생월 · 최초 발생월을 그대로 둠(v4.0.69)
+    # 받을 돈 상계 원칙(v4.0.85): 세전 청구 이월 행 · 상계 대상 세후 반환채권 행은 그 달 순액에 들어갔으므로
+    # 그 달 양수 줄을 이월하는 달(미달 · 보류)에는 그대로 두고(KEEP), 그 밖에는 소멸(지급에서 상계 · 청구 확정 · 새 청구 이월로 넘어감).
+    # 상계 대상이 아닌 세후 행은 종전대로 새 음수 · 강제 청구 달에 청구로 합칠 때만 소멸(v4.0.62 · v4.0.69)
+    carried_pos = any(r["action"] == "NEW" and r["carryover_amount"] > 0 for r in rows)
+    issued = bool(p.out["CLAIM"].get("claim_issued_yn"))
     for r in c.carry["pre_neg"] + c.carry["post_neg"]:
-        if r["payee_id"] == pid and not r.get("carry_line_origin"):
-            if r.get("ledger_id") in merged:
-                rows.append(dict(r, action="SETTLE", payout_reservation_status="SETTLED", extinguished_yn=True,
-                                 extinguished_month=ctx.month, carryover_reason_note="그 달 새 음수와 함께 청구"))
-            else:
-                rows.append(dict(r, action="KEEP"))
+        if r["payee_id"] != pid or r.get("carry_line_origin"):
+            continue
+        in_net = r["account_type"] == "PRE_TAX" or offsettable(r)
+        if r.get("ledger_id") in merged or (in_net and (issued or not carried_pos)):
+            note = "그 달 새 음수와 함께 청구" if r.get("ledger_id") in merged else (
+                "받을 돈 상계 — 그 달 청구로 확정" if issued else "받을 돈 상계 — 그 달 지급액과 상계 · 남은 금액은 새 청구 이월")
+            rows.append(dict(r, action="SETTLE", payout_reservation_status="SETTLED", extinguished_yn=True,
+                             extinguished_month=ctx.month, carryover_reason_note=note))
+        else:
+            rows.append(dict(r, action="KEEP"))
     load = sum((r["carryover_amount"] for r in rows if r["action"] == "NEW"), D(0))
     ctx.emit(STEP, "carry_load", load, c, **kw, formula="지급 이월 신규 적재액(PRE_TAX 기초금액)", ref="V2 L305",
              provisional=bool(load), note="Q-21" if load else "")

@@ -53,8 +53,9 @@ def run(ctx):
         # 청구 이월 행(지난달까지 청구 하한 미달로 넘긴 PRE_TAX −)은 그 달 새 음수가 있을 때만 청구 판정 합에 함께 넣음
         # (새 양수 지급 금액과는 합치지 않음, V2 §8.3 10단계, v4.0.62)
         # 세후(POST_TAX) 반환채권 청구 이월도 같음, 강제 청구(끝난 달 + N · 폐업)이면 새 음수가 없어도 넣음(v4.0.69)
-        st["claim_carry_in"] = ([r for r in c.carry["pre_neg"] if r["payee_id"] == st["pid"] and not r.get("carry_line_origin")]
-                                + [r for r in c.carry["post_neg"] if r["payee_id"] == st["pid"]]) \
+        # 세전 청구 이월 행은 8단계에서 그 달 순액에 들어가고(v4.0.85), 세후 반환채권 청구 이월 행은 반환채권 상계에 들어감.
+        # 상계 대상이 아닌 세후 행(상계 미동의 전속계약금 반환 · 미상계 선급금 청구 전환)만 종전대로 새 음수 · 강제 청구 달에 합침
+        st["claim_carry_in"] = [r for r in c.carry["post_neg"] if r["payee_id"] == st["pid"] and not offsettable(r)] \
             if (st["cnn"] < 0 or end or closed) else []
         st["cnn_carry"] = sum((r["carryover_amount"] for r in st["claim_carry_in"]), D(0))
         gsum[k] = gsum.get(k, D(0)) + min(D(0), st["cnn"]) + st["cnn_carry"]
@@ -71,6 +72,14 @@ def run(ctx):
         k = (c.holder_id, st["pid"])
         st["group_force"] = bool(p.out["CLAIM"].get("netting_group_neg")) and gforce.get(k, False)
         claim_decide(ctx, c, p, end, closed, glim.get(k, (None, limit))[1], st, gsum[k])
+
+
+def offsettable(r):
+    """세후 청구 이월 행이 받을 돈 상계 대상인가 — 기지급 반환채권 · 세후 정정(−)이면 상계 대상(v4.0.85).
+    상계 미동의 전속계약금 반환 · 미상계 선급금 청구 전환은 상계하지 않음(제1권 5.2절 · 제2권 10단계 2))."""
+    if r.get("receivable_offsettable") is not None:
+        return bool(r.get("receivable_offsettable"))
+    return True
 
 
 def payee_netting(ctx, sts):
@@ -174,7 +183,8 @@ def claim_payee(ctx, c, p, end, closed, limit):
                  formula="전월 정산 조정(세후) — 양수는 당월 지급채무에 가산, 음수는 세후 반환채권(청구 음수 항, 자동 상계 없음)",
                  ref="V2 §10.1 L353 · §10.2 · 2026-10-27 white 결정(SPEC Q-23 해소) · Q-19")
     # 지난달 받는 사람 순액 묶음이 최소 지급 미달로 함께 이월한 행(양수 · 음수) — 그 달 새 금액처럼 순액에 다시 넣음(v4.0.76)
-    nc = sum((ln["after_tax_amount"] for ln in p.lines if ln["origin"] == "CARRY_PRE_TAX" and ln.get("netting_carry")
+    # 세전 청구 이월(−) 행도 그 달 새 금액처럼 순액에 넣음 — 받을 돈은 그 달 지급액과 먼저 상계(v4.0.85)
+    nc = sum((ln["after_tax_amount"] for ln in p.lines if ln["origin"] == "CARRY_PRE_TAX" and (ln.get("netting_carry") or ln.get("claim_carry_row"))
               and ln.get("after_tax_amount") is not None), D(0))
     o["netting_carry_in"] = nc
     # 세무 판정 보류(PENDING_REVIEW) 라인은 그 금액만 '세무 판정 보류'로 이월하고 마감은 진행 — 그 달 순액에서 뺌
@@ -231,11 +241,18 @@ def claim_payee(ctx, c, p, end, closed, limit):
                  provisional=pp["type"] == "EARNED", note="Q-18" if pp["type"] == "EARNED" else "")
     o["unoffset_prepay_claim"] = unoffset
     returns = sum((r["post_tax_amount"] for r in c.return_claims if r["payee_id"] == pid), D(0))
+    # 지난달까지 세후 청구 이월로 넘어온 반환채권도 그 달 지급액과 먼저 상계(받을 돈 상계 원칙, v4.0.85)
+    old_post = [r for r in c.carry["post_neg"] if r["payee_id"] == pid and offsettable(r)]
+    returns_old = -sum((D(r["carryover_amount"]) for r in old_post), D(0))
+    o["returns_old"] = returns_old
     # 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
     returns += post_neg  # 세후 전월 정산 조정(−)
     # 같은 달 지급할 금액이 있으면 먼저 상계하고 남은 음수만 청구 판정으로(최소 청구 기준 0인 계약도 같음, V2 §8.3 10단계, v4.0.84)
+    returns_new = returns
+    returns += returns_old
     roff = min(returns, max(D(0), after)) if returns > 0 else D(0)
     o["return_offset"] = roff
+    o["return_offset_new"] = min(roff, returns_new)  # 새 반환채권부터 상계
     if roff:
         after = ctx.emit(STEP, "net_after_return_offset", after - roff, c, **kw,
                          inputs={"반환 반영 후 순액": after, "기지급 반환채권 · 세후 정정(−)": returns, "같은 달 상계": roff},
@@ -299,10 +316,20 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
                      formula="묶음 이월 행이 낀 순액 음수가 청구 기준 이내 — 청구 0, 새 음수 줄까지 묶음으로 이월(11단계)",
                      ref="V2 §8.3 10단계 받는 사람 순액 (v4.0.80)")
         elif neg_new < 0:
-            carry.append(carry_row(ctx, c, pid, "PRE_TAX", neg_new, key_ln, "청구 이월(원거래 지급 · 세무 경로 미확정)"))
+            r = carry_row(ctx, c, pid, "PRE_TAX", neg_new, key_ln, "청구 이월(원거래 지급 · 세무 경로 미확정)")
+            r["negative_origin"] = "ADJUSTMENT" if key_ln and key_ln.get("origin") == "ADJUSTMENT" else "NEW"
+            carry.append(r)
         post = cnn - neg_new
-        if post < 0:
-            carry.append(carry_row(ctx, c, pid, "POST_TAX", post, key_ln, "청구 이월(기지급 반환채권 · 전속계약금 반환)"))
+        post_ret = -(o.get("return_claims_applied") or D(0))  # 상계하고 남은 반환채권 · 세후 정정(−)
+        post_other = post - post_ret
+        if post_ret < 0:
+            r = carry_row(ctx, c, pid, "POST_TAX", post_ret, key_ln, "청구 이월(기지급 반환채권)")
+            r["receivable_offsettable"] = True
+            carry.append(r)
+        if post_other < 0:
+            r = carry_row(ctx, c, pid, "POST_TAX", post_other, key_ln, "청구 이월(상계 미동의 전속계약금 반환 · 미상계 선급금 청구 전환)")
+            r["receivable_offsettable"] = False
+            carry.append(r)
         for r in carry:
             ctx.emit(STEP, "claim_carry", r["carryover_amount"], c, **kw, line=str(r["pipeline_id"]),
                      inputs={"account_type": r["account_type"]},

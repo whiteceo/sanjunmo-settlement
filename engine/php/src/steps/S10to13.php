@@ -63,9 +63,9 @@ final class S10Claim
             $k = tkey($c->holder_id, $st['pid']);
             // 청구 이월 행은 그 달 새 음수가 있을 때만 청구 판정 합에 함께 넣음(새 양수와는 합치지 않음, v4.0.62)
             // 세후(POST_TAX) 반환채권 청구 이월도 같음, 강제 청구(끝난 달 + N · 폐업)이면 새 음수가 없어도 넣음(v4.0.69)
-            $cin = ($st['cnn'] < 0 || $end || $closed) ? array_merge(
-                array_values(array_filter($c->carry['pre_neg'], fn($r) => $r['payee_id'] === $st['pid'] && !truthy(g($r, 'carry_line_origin')))),
-                array_values(array_filter($c->carry['post_neg'], fn($r) => $r['payee_id'] === $st['pid']))) : [];
+            // 세전 청구 이월 행은 8단계에서 순액에, 상계 대상 세후 행은 반환채권 상계에 들어감(v4.0.85) — 상계 대상이 아닌 세후 행만 종전 규칙
+            $cin = ($st['cnn'] < 0 || $end || $closed)
+                ? array_values(array_filter($c->carry['post_neg'], fn($r) => $r['payee_id'] === $st['pid'] && !self::offsettable($r))) : [];
             $sts[$i][5]['claim_carry_in'] = $cin;
             $sts[$i][5]['cnn_carry'] = dsum(array_map(fn($r) => $r['carryover_amount'], $cin));
             $gsum[$k] = add(add($gsum[$k] ?? D(0), dmin(D(0), $st['cnn'])), $sts[$i][5]['cnn_carry']);
@@ -223,7 +223,7 @@ final class S10Claim
         // 지난달 받는 사람 순액 묶음이 최소 지급 미달로 함께 이월한 행(양수 · 음수) — 그 달 새 금액처럼 순액에 다시 넣음(v4.0.76)
         $nc = D(0);
         foreach ($p->lines as $ln) {
-            if ($ln['origin'] === 'CARRY_PRE_TAX' && truthy(g($ln, 'netting_carry')) && g($ln, 'after_tax_amount') !== null) {
+            if ($ln['origin'] === 'CARRY_PRE_TAX' && (truthy(g($ln, 'netting_carry')) || truthy(g($ln, 'claim_carry_row'))) && g($ln, 'after_tax_amount') !== null) {
                 $nc = add($nc, $ln['after_tax_amount']);
             }
         }
@@ -308,11 +308,18 @@ final class S10Claim
         }
         $o['unoffset_prepay_claim'] = $unoffset;
         $returns = dsum(array_map(fn($r) => $r['post_tax_amount'], array_filter($c->return_claims, fn($r) => $r['payee_id'] === $pid)));
+        // 지난달까지 세후 청구 이월로 넘어온 반환채권도 그 달 지급액과 먼저 상계(v4.0.85)
+        $returnsOld = neg(dsum(array_map(fn($r) => D($r['carryover_amount']),
+            array_filter($c->carry['post_neg'], fn($r) => $r['payee_id'] === $pid && self::offsettable($r)))));
+        $o['returns_old'] = $returnsOld;
         // 세후(POST_TAX) 청구 이월 행은 여기서 매달 더하지 않음 — 그달 새 청구 음수가 있거나 강제 청구일 때만 run()에서 합침(v4.0.69)
         $returns = add($returns, $postNeg); // 세후 전월 정산 조정(−)
         // 같은 달 지급할 금액이 있으면 먼저 상계하고 남은 음수만 청구 판정으로(v4.0.84)
+        $returnsNew = $returns;
+        $returns = add($returns, $returnsOld);
         $roff = $returns > 0 ? dmin($returns, dmax(D(0), $after)) : D(0);
         $o['return_offset'] = $roff;
+        $o['return_offset_new'] = dmin($roff, $returnsNew); // 새 반환채권부터 상계
         if (!is_zero($roff)) {
             $after = $ctx->emit(self::STEP, 'net_after_return_offset', sub($after, $roff), $c, ...$kw,
                 inputs: ['반환 반영 후 순액' => $after, '기지급 반환채권 · 세후 정정(−)' => $returns, '같은 달 상계' => $roff],
@@ -381,11 +388,22 @@ final class S10Claim
                     formula: '묶음 이월 행이 낀 순액 음수가 청구 기준 이내 — 청구 0, 새 음수 줄까지 묶음으로 이월(11단계)',
                     ref: 'V2 §8.3 10단계 받는 사람 순액 (v4.0.80)');
             } elseif ($negNew < 0) {
-                $carry[] = self::carryRow($ctx, $c, $pid, 'PRE_TAX', $negNew, $keyLn, '청구 이월(원거래 지급 · 세무 경로 미확정)');
+                $r = self::carryRow($ctx, $c, $pid, 'PRE_TAX', $negNew, $keyLn, '청구 이월(원거래 지급 · 세무 경로 미확정)');
+                $r['negative_origin'] = ($keyLn && g($keyLn, 'origin') === 'ADJUSTMENT') ? 'ADJUSTMENT' : 'NEW';
+                $carry[] = $r;
             }
             $post = sub($cnn, $negNew);
-            if ($post < 0) {
-                $carry[] = self::carryRow($ctx, $c, $pid, 'POST_TAX', $post, $keyLn, '청구 이월(기지급 반환채권 · 전속계약금 반환)');
+            $postRet = neg(either($o['return_claims_applied'] ?? null, D(0)));
+            $postOther = sub($post, $postRet);
+            if ($postRet < 0) {
+                $r = self::carryRow($ctx, $c, $pid, 'POST_TAX', $postRet, $keyLn, '청구 이월(기지급 반환채권)');
+                $r['receivable_offsettable'] = true;
+                $carry[] = $r;
+            }
+            if ($postOther < 0) {
+                $r = self::carryRow($ctx, $c, $pid, 'POST_TAX', $postOther, $keyLn, '청구 이월(상계 미동의 전속계약금 반환 · 미상계 선급금 청구 전환)');
+                $r['receivable_offsettable'] = false;
+                $carry[] = $r;
             }
             foreach ($carry as $r) {
                 $ctx->emit(self::STEP, 'claim_carry', $r['carryover_amount'], $c, payee: $pid, line: pystr($r['pipeline_id']),
@@ -439,6 +457,15 @@ final class S10Claim
                 'status' => $unoffset > 0 ? 'CLAIMED_ON_TERMINATION' : null];
         }
         unset($o);
+    }
+
+    /** 세후 청구 이월 행이 받을 돈 상계 대상인가(기지급 반환채권 · 세후 정정(−)) — 상계 미동의 반환 · 미상계 선급금 전환은 아님(v4.0.85). */
+    public static function offsettable(array $r): bool
+    {
+        if (array_key_exists('receivable_offsettable', $r) && $r['receivable_offsettable'] !== null) {
+            return truthy($r['receivable_offsettable']);
+        }
+        return true;
     }
 
     private static function carryRow(Context $ctx, ContractState $c, $pid, string $account, Number $amount, ?array $ln, string $reason): array
@@ -788,7 +815,7 @@ final class S11Payout
         }
         self::modifiedInvoiceNotice($ctx, $c, $p, $prePos, $kw);
         $roff = either($p->out['CLAIM']['return_offset'] ?? null, D(0));
-        $deferredReturn = (!is_zero($roff) && !$confirmed) ? $roff : D(0);
+        $deferredReturn = (!is_zero($roff) && !$confirmed) ? either($p->out['CLAIM']['return_offset_new'] ?? null, D(0)) : D(0);
         if (!is_zero($deferredReturn)) {
             $ctx->emit(self::STEP, 'return_offset_deferred', $deferredReturn, $c, ...$kw,
                 formula: '그 달 지급하지 않으면(미달 · 보류) 반환채권 상계를 미루고 세후 청구 이월로 남김(이월 행은 상계 전 세전 금액)',
@@ -927,14 +954,26 @@ final class S11Payout
         // 그 달 새 음수와 함께 청구한 청구 이월 행은 소멸(청구로 넘어감, v4.0.62)
         $merged = $p->out['CLAIM']['claim_carry_settled'] ?? [];
         // 세후(POST_TAX) 반환채권 청구 이월도 같은 규칙 — ID · 발생월 · 최초 발생월을 그대로 둠(v4.0.69)
+        // 받을 돈 상계 원칙(v4.0.85): 순액에 들어간 청구 이월 행은 양수 줄을 이월하는 달에만 유지, 그 밖에는 소멸
+        $carriedPos = false;
+        foreach ($rows as $x) {
+            if ($x['action'] === 'NEW' && $x['carryover_amount'] > 0) {
+                $carriedPos = true;
+            }
+        }
+        $issuedC = truthy($p->out['CLAIM']['claim_issued_yn'] ?? false);
         foreach (array_merge($c->carry['pre_neg'], $c->carry['post_neg']) as $r) {
-            if ($r['payee_id'] === $pid && !truthy(g($r, 'carry_line_origin'))) {
-                if (in_array(g($r, 'ledger_id'), $merged, true)) {
-                    $rows[] = array_merge($r, ['action' => 'SETTLE', 'payout_reservation_status' => 'SETTLED', 'extinguished_yn' => true,
-                        'extinguished_month' => $ctx->month, 'carryover_reason_note' => '그 달 새 음수와 함께 청구']);
-                } else {
-                    $rows[] = array_merge($r, ['action' => 'KEEP']);
-                }
+            if ($r['payee_id'] !== $pid || truthy(g($r, 'carry_line_origin'))) {
+                continue;
+            }
+            $inNet = $r['account_type'] === 'PRE_TAX' || S10Claim::offsettable($r);
+            $isMerged = in_array(g($r, 'ledger_id'), $merged, true);
+            if ($isMerged || ($inNet && ($issuedC || !$carriedPos))) {
+                $note = $isMerged ? '그 달 새 음수와 함께 청구' : ($issuedC ? '받을 돈 상계 — 그 달 청구로 확정' : '받을 돈 상계 — 그 달 지급액과 상계 · 남은 금액은 새 청구 이월');
+                $rows[] = array_merge($r, ['action' => 'SETTLE', 'payout_reservation_status' => 'SETTLED', 'extinguished_yn' => true,
+                    'extinguished_month' => $ctx->month, 'carryover_reason_note' => $note]);
+            } else {
+                $rows[] = array_merge($r, ['action' => 'KEEP']);
             }
         }
         $load = dsum(array_map(fn($r) => $r['carryover_amount'], array_filter($rows, fn($r) => $r['action'] === 'NEW')));

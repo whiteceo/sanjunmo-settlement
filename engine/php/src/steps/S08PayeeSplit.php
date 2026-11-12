@@ -287,8 +287,11 @@ final class S08PayeeSplit
             $off = ($co && !$neg) ? $co->offset : D(0);
             $earned = $c->prepay && g($c->prepay, 'type') === 'EARNED';
             $prot = D(either(g(either(g($r, 'components'), []), 'protected_amount'), 0));
-            $withPos = $neg && truthy(g($r, 'carry_line_origin'));
-            $openNeg = $withPos && g($r, 'carry_line_origin') === 'NEW';
+            // 받을 돈(음수)은 생긴 시점 · 이월 여부와 관계없이 그 달 지급액과 먼저 상계(v4.0.85): 청구 이월(세전 −) 행도 순액에 넣음
+            $claimRow = $neg && !truthy(g($r, 'carry_line_origin'));
+            $lineOrigin = truthy(g($r, 'carry_line_origin')) ? g($r, 'carry_line_origin') : ($claimRow ? either(g($r, 'negative_origin'), 'ADJUSTMENT') : null);
+            $withPos = $neg;
+            $openNeg = $withPos && $lineOrigin === 'NEW';
             $plStr = pystr(g($r, 'pipeline_id'));
             $row = ['line_id' => 'CARRY:' . pystr(g($r, 'ledger_id')), 'ledger_id' => g($r, 'ledger_id'),
                 'line_key' => ['contract_id' => $c->id, 'pipeline_id' => g($r, 'pipeline_id'),
@@ -296,10 +299,12 @@ final class S08PayeeSplit
                     'tax_threshold_unit_key' => g($r, 'tax_threshold_unit_key')],
                 'origin' => 'CARRY_PRE_TAX', 'pipeline_id' => $plStr,
                 'supply_nature' => ['1.1' => 'LECTURE_RS', '2.1' => 'ROYALTY', '5.1' => 'SUPPORT_RS'][$plStr] ?? 'NONRECURRING',
-                'income_category' => g($r, 'income_category'), 'income_clause' => g($r, 'income_clause'),
+                // 소득 구분이 비어 있는 예전 청구 이월 행은 권리자 소득 구분으로 채움(v4.0.85)
+                'income_category' => either(g($r, 'income_category'), $claimRow ? g($ctx->holder($r['payee_id']), 'income_category') : null),
+                'income_clause' => g($r, 'income_clause'),
                 'tax_threshold_unit_key' => g($r, 'tax_threshold_unit_key'), 'split_amount' => $amt, 'offset_amount' => $off,
                 'pre_tax_payable' => sub($amt, $off), 'taxable_base' => $neg ? ($openNeg ? D(0) : null) : ($earned ? sub($amt, $off) : $amt),
-                'carry_line_origin' => g($r, 'carry_line_origin'), 'carry_with_positive' => $withPos,
+                'carry_line_origin' => $lineOrigin, 'carry_with_positive' => $withPos, 'claim_carry_row' => $claimRow,
                 'netting_carry' => truthy(g($r, 'netting_carry')), // 받는 사람 순액 묶음으로 함께 이월된 행 — 다음 달 순액에 다시 넣음(v4.0.76)
                 'pending_negative_base' => $neg ? $amt : null, 'protected_yn' => $prot > 0, 'protected_amount' => $prot,
                 'first_payable_confirmed_month' => g($r, 'first_payable_confirmed_month'),
