@@ -1,0 +1,105 @@
+{
+ "case": "DEC-V471-EARNVAT-REOFF-12",
+ "title": "소득 선지급 + 부가세 별도 — 세전 0원 · 이월 부가세 행을 지급하는 달",
+ "canon_ref": "정산 02권 8.3절 11단계 '선급금을 상계한 달의 최소 지급 판정'(318줄) · 04권 Case 1-M",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2027-12",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "matrix_case_id_hint": "TX-06",
+    "tax_type_cd": "01"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "CRS-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "adjustments": [],
+  "book_authors": [],
+  "prepayments": [
+   {
+    "prepayment_id": "PP-A",
+    "contract_id": "C-A",
+    "offset_payee_id": "H-A",
+    "prepayment_tax_type": "EARNED",
+    "prepay_unoffset_balance": 350000,
+    "earned_unoffset_post_tax_amount": 0,
+    "remaining_balance": null
+   }
+  ],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-EV0",
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-11",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 0,
+    "components": {
+     "split_amount": 0,
+     "offset_amount": 0,
+     "vat_amount": 45000,
+     "protected_amount": 0,
+     "carry_vat": 45000
+    },
+    "first_occurred_month": "2026-11",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW",
+    "action": null
+   }
+  ]
+ },
+ "notes": "세전 0원 + 이월 부가세 45,000 행, 12월 연말 강제 정산 → 45,000 지급(부가세 다시 매기지 않음). 고치기 전에는 0원 행이 청구 이월(음수) 쪽으로 분류돼 지급 0",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 45000
+  }
+ }
+}

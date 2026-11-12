@@ -214,7 +214,9 @@ def payout_payee(ctx, c, p, end, closed, limit):
                     offset_ids.add(r0.get("ledger_id"))
                     rows.append(dict(r0, action="SETTLE", payout_reservation_status="SETTLED", extinguished_yn=True,
                                      extinguished_month=ctx.month, carryover_reason_note="선급금 상계 후 남은 금액 새로 이월"))
-                    if rest > 0:
+                    cvat = D((dict(r0.get("components") or {}, **extra.get("components", {}))).get("carry_vat") or 0)
+                    # 세전 잔액이 0이어도 이월 부가세가 남으면 행을 새로 적어 지급하는 달에 함께 지급(V2 §8.3 11단계, v4.0.71 보완)
+                    if rest > 0 or cvat > 0:
                         comp = dict(r0.get("components") or {})
                         comp.update(split_amount=rest, offset_amount=D(0),
                                     protected_amount=min(D(comp.get("protected_amount") or 0), rest), **extra.get("components", {}))

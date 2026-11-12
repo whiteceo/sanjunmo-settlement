@@ -761,7 +761,9 @@ final class S11Payout
                         $offsetIds[] = g($r0, 'ledger_id');
                         $rows[] = array_merge($r0, ['action' => 'SETTLE', 'payout_reservation_status' => 'SETTLED', 'extinguished_yn' => true,
                             'extinguished_month' => $ctx->month, 'carryover_reason_note' => '선급금 상계 후 남은 금액 새로 이월']);
-                        if ($rest > 0) {
+                        $cvat = D(either(g(array_merge(either(g($r0, 'components'), []), $extra['components'] ?? []), 'carry_vat'), 0));
+                        // 세전 잔액이 0이어도 이월 부가세가 남으면 행을 새로 적어 지급하는 달에 함께 지급(v4.0.71 보완)
+                        if ($rest > 0 || $cvat > 0) {
                             $extraComp = $extra['components'] ?? [];
                             unset($extra['components']);
                             $comp0 = either(g($r0, 'components'), []);

@@ -23,8 +23,10 @@ def run(ctx):
             c.carry["cons_rows"].append(row)
             kind = "consignment_balance"
         elif r.get("account_type") == "PRE_TAX":
-            kind = "carry_pre_tax_pos" if amt > 0 else "carry_pre_tax_neg"
-            c.carry["pre_pos" if amt > 0 else "pre_neg"].append(row)
+            # 세전 0원 + 이월 부가세 행은 지급 대기(양수) 쪽 — 지급하는 달에 부가세를 함께 지급(v4.0.71 보완)
+            pos = amt > 0 or (amt == 0 and D((r.get("components") or {}).get("carry_vat") or 0) > 0)
+            kind = "carry_pre_tax_pos" if pos else "carry_pre_tax_neg"
+            c.carry["pre_pos" if pos else "pre_neg"].append(row)
         elif r.get("account_type") == "POST_TAX":
             kind = "carry_post_tax_pos" if amt > 0 else "carry_post_tax_neg"
             c.carry["post_pos" if amt > 0 else "post_neg"].append(row)

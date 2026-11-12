@@ -35,8 +35,10 @@ final class S01CarryIn
                 $c->carry['cons_rows'][] = $row;
                 $kind = 'consignment_balance';
             } elseif (g($r, 'account_type') === 'PRE_TAX') {
-                $kind = $amt > 0 ? 'carry_pre_tax_pos' : 'carry_pre_tax_neg';
-                $c->carry[$amt > 0 ? 'pre_pos' : 'pre_neg'][] = $row;
+                // 세전 0원 + 이월 부가세 행은 지급 대기(양수) 쪽 — 지급하는 달에 부가세를 함께 지급(v4.0.71 보완)
+                $pos = $amt > 0 || (is_zero($amt) && D(either(g(either(g($r, 'components'), []), 'carry_vat'), 0)) > 0);
+                $kind = $pos ? 'carry_pre_tax_pos' : 'carry_pre_tax_neg';
+                $c->carry[$pos ? 'pre_pos' : 'pre_neg'][] = $row;
             } elseif (g($r, 'account_type') === 'POST_TAX') {
                 $kind = $amt > 0 ? 'carry_post_tax_pos' : 'carry_post_tax_neg';
                 $c->carry[$amt > 0 ? 'post_pos' : 'post_neg'][] = $row;
