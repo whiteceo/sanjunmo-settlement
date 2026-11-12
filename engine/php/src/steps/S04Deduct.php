@@ -546,6 +546,7 @@ final class S04Deduct
             'paid_return_post_tax_amount' => g($snap, 'paid_return_post_tax_amount'),
             'paid_portion_amount' => g($snap, 'paid_portion_amount'),
             'unpaid_portion_amount' => g($snap, 'unpaid_portion_amount'),
+            'offset_portion_amount' => g($snap, 'offset_portion_amount'),
             'matrix_case_id' => g($snap, 'matrix_case_id'), 'payee_id' => either(g($snap, 'rights_holder_id'), $c->holder_id)];
     }
 
@@ -560,7 +561,15 @@ final class S04Deduct
             $amt = $allocs[$i];
             $st = $comp['payment_state'];
             if ($st === 'OFFSET' && self::earnedPrepay($ctx, $c)) {
-                $parts = [['PREPAY_RESTORE', $amt]]; // 소득 선지급 상계분 — 선급금 잔액을 되살림(v4.0.84)
+                // 환불은 원래 달의 처리를 되돌림 — 상계분과 현금분이 섞인 달은 그 달 상계 비율로 나눔(되살림 몫 내림, 나머지 반환채권, v4.0.93)
+                $op = g($comp, 'offset_portion_amount');
+                $pp = g($comp, 'paid_portion_amount');
+                if ($op !== null && $pp !== null && add(D($op), D($pp)) > 0 && D($pp) > 0) {
+                    $rest = floor_won(div(mul($amt, D($op)), add(D($op), D($pp))));
+                    $parts = [['PREPAY_RESTORE', $rest], ['PAID_RETURN', sub($amt, $rest)]];
+                } else {
+                    $parts = [['PREPAY_RESTORE', $amt]]; // 소득 선지급 상계분 — 선급금 잔액을 되살림(v4.0.84)
+                }
             } elseif ($st === 'PAID' || $st === 'OFFSET') {
                 $parts = [['PAID_RETURN', $amt]];
             } elseif ($st === 'PARTIAL') {

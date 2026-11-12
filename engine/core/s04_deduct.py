@@ -392,6 +392,7 @@ def component(ref, cat, amt, snap, c):
             "paid_return_post_tax_amount": snap.get("paid_return_post_tax_amount"),
             "paid_portion_amount": snap.get("paid_portion_amount"),
             "unpaid_portion_amount": snap.get("unpaid_portion_amount"),
+            "offset_portion_amount": snap.get("offset_portion_amount"),
             "matrix_case_id": snap.get("matrix_case_id"), "payee_id": snap.get("rights_holder_id") or c.holder_id}
 
 
@@ -404,7 +405,15 @@ def split_paths(ctx, c, comps_line, total):
     for comp, amt in zip(comps_line, allocs):
         st = comp["payment_state"]
         if st == "OFFSET" and earned_prepay(ctx, c):
-            parts = [("PREPAY_RESTORE", amt)]  # 소득 선지급 상계분 — 현금이 나간 적 없음, 선급금 잔액을 되살림(v4.0.84)
+            # 환불은 원래 달의 처리를 되돌림: 상계분은 선급금 잔액을 되살리고(원장이 종결됐어도 다시 엶) 현금분은 반환채권(v4.0.84 · v4.0.93).
+            # 상계분과 현금분이 섞인 달(offset_portion_amount · paid_portion_amount)은 그 달 상계 비율로 나눔 — 되살림 몫 원 단위 내림,
+            # 나머지는 반환채권(13.2절 총액 역산)
+            op, pp = comp.get("offset_portion_amount"), comp.get("paid_portion_amount")
+            if op is not None and pp is not None and D(op) + D(pp) > 0 and D(pp) > 0:
+                rest = floor_won(amt * D(op) / (D(op) + D(pp)))
+                parts = [("PREPAY_RESTORE", rest), ("PAID_RETURN", amt - rest)]
+            else:
+                parts = [("PREPAY_RESTORE", amt)]  # 소득 선지급 상계분 — 현금이 나간 적 없음, 선급금 잔액을 되살림(v4.0.84)
         elif st in ("PAID", "OFFSET"):
             parts = [("PAID_RETURN", amt)]
         elif st == "PARTIAL":
