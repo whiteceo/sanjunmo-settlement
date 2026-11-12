@@ -140,7 +140,7 @@ final class S09Tax
                     ref: 'V2 §8.3 9단계 · 소득세법 제127조 제1항 · 시행령 제51조 제3항 제1호의2 · 제1호의4 · 제213조 제1항 (v4.0.48)');
                 if ($net < 0) {
                     $ctx->emit(self::STEP, 'business_negative_carry', $net, $c0, payee: $pid, inputs: ['합계' => $net],
-                        formula: '합계 0 이하 — 남은 음수를 보류 음수 과세표준으로 이월(다음 지급의 합산에)', ref: 'V2 §8.3 9단계 (v4.0.48)');
+                        formula: '합계 0 이하 — 원천세 0, 남은 음수는 10단계 청구 판정으로(기준 이내면 세전 청구 이월, 새 양수와 합치지 않음, v4.0.72)', ref: 'V2 §8.3 9단계 (v4.0.48)');
                 }
             }
             $bases = array_map(fn($it) => $it[1]->lines[$it[2]]['taxable_base'], $pos);
