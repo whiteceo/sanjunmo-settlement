@@ -131,13 +131,23 @@ final class S10Claim
             }
             sort($ended);
             $bundle = $total >= 0 && (bool)$ended;
+            $negBundle = false;
+            if ($total < 0) {
+                foreach ($idx as $i) {
+                    if (!is_zero(either($sts[$i][1]->out['CLAIM']['netting_carry_in'] ?? null, D(0)))) {
+                        $negBundle = true;
+                    }
+                }
+            }
             foreach ($idx as $i) {
                 $c = $sts[$i][0];
                 $old = $sts[$i][5]['after'];
                 $nv = $new[$i] ?? $old;
-                if ($total >= 0) {
+                if ($total >= 0 || $negBundle) {
                     // 음수를 지운 묶음 — 11단계에서 묶음 단위로 지급 · 이월을 정함(이월하면 음수 줄도 함께, v4.0.76)
+                    // 합 < 0이어도 지난달 묶음 이월 행이 있으면 묶음(v4.0.80)
                     $sts[$i][1]->out['CLAIM']['netting_group'] = tkey($sts[$i][0]->holder_id, $sts[$i][5]['pid']);
+                    $sts[$i][1]->out['CLAIM']['netting_group_neg'] = $total < 0;
                 }
                 if ($bundle) {
                     $sts[$i][1]->out['CLAIM']['netting_force'] = true;
@@ -332,7 +342,12 @@ final class S10Claim
             $negNew = dmin(D(0), $after);
             $lines = array_values(array_filter($p->lines, fn($l) => in_array($l['origin'], ['NEW', 'ADJUSTMENT'], true)));
             $keyLn = $lines ? min_by($lines, fn($x) => $x['pre_tax_payable']) : null;
-            if ($negNew < 0) {
+            if ($negNew < 0 && truthy($o['netting_group_neg'] ?? false)) {
+                // 묶음 이월 행이 낀 순액 음수가 청구 기준 이내 — 순액 청구 이월 행을 만들지 않고 11단계에서 묶음으로 이월(v4.0.80)
+                $ctx->emit(self::STEP, 'netting_claim_deferred', $negNew, $c, ...$kw,
+                    formula: '묶음 이월 행이 낀 순액 음수가 청구 기준 이내 — 청구 0, 새 음수 줄까지 묶음으로 이월(11단계)',
+                    ref: 'V2 §8.3 10단계 받는 사람 순액 (v4.0.80)');
+            } elseif ($negNew < 0) {
                 $carry[] = self::carryRow($ctx, $c, $pid, 'PRE_TAX', $negNew, $keyLn, '청구 이월(원거래 지급 · 세무 경로 미확정)');
             }
             $post = sub($cnn, $negNew);
@@ -345,6 +360,8 @@ final class S10Claim
                     formula: '정상 유지 계약의 소액 음수: 청구서 미발행, 이월 원장에 청구 이월(계정은 세무 상태로)',
                     ref: 'V2 L294~295 · V1 L572');
             }
+        }
+        if ($carry && $cnn < 0 && !$issued) {
             $r0 = $carry[0];
             $ctx->emit(self::STEP, 'claim_carry_type', '청구 이월', $c, ...$kw, formula: '이월 사유', ref: 'V1 L572');
             $ctx->emit(self::STEP, 'claim_carry_account_type', $r0['account_type'], $c, ...$kw, formula: '이월 계정(세무 상태)', ref: 'V2 L295');
@@ -409,6 +426,46 @@ final class S11Payout
 
     private static array $groups = [];
 
+    /** 이월 부가세 행의 원거래가 미지급 환불로 줄면 부가세도 같은 비율로 줄이고 수정세금계산서 알림(v4.0.80). */
+    private static function modifiedInvoiceNotice(Context $ctx, ContractState $c, PayeeState $p, array $prePos, array $kw): void
+    {
+        $notes = [];
+        foreach ($prePos as $r) {
+            $comp = either(g($r, 'components'), []);
+            $cv = D(either(g($comp, 'carry_vat'), 0));
+            if (!($cv > 0)) {
+                continue;
+            }
+            $supply0 = D(either(g($comp, 'split_amount'), 0));
+            $vat0 = D(either(g($comp, 'vat_amount'), 0));
+            $red = D(0);
+            foreach ($ctx->input['refund_lines'] as $rf) {
+                if (substr(pystr(g($rf, 'origin_month') ?? ''), 0, 7) !== substr(pystr(g($r, 'origin_month') ?? ''), 0, 7)) {
+                    continue;
+                }
+                foreach (either(g($rf, 'snapshot'), []) as $s) {
+                    if (g($s, 'contract_id') === $c->id && (g($s, 'payment_state') ?? 'UNPAID') === 'UNPAID') {
+                        $red = add($red, floor_won(div(mul(div(mul(D(either(g($s, 'base_amount'), 0)), D(either(g($s, 'rate_value'), 0))), D(100)),
+                            D(either(g($s, 'share_ratio'), 100))), D(100))));
+                    }
+                }
+            }
+            if (!($red > 0) || !($supply0 > 0)) {
+                continue;
+            }
+            $rs = dmin($red, $supply0);
+            $redVat = dmin($cv, floor_won(div(mul($vat0, $rs), $supply0)));
+            $notes[] = ['ledger_id' => g($r, 'ledger_id'), 'origin_month' => g($r, 'origin_month'), 'original_supply' => $supply0,
+                'original_vat' => $vat0, 'reduced_supply' => $rs, 'reduced_vat' => $redVat, 'carry_vat_after' => sub($cv, $redVat)];
+        }
+        $p->out['PAYOUT']['modified_invoice_notices'] = $notes;
+        if ($notes) {
+            $ctx->emit(self::STEP, 'modified_invoice_required', true, $c, ...$kw, inputs: ['알림' => $notes],
+                formula: '이월 부가세 행의 원거래가 환불로 줄어 부가세도 같은 비율로 줄임 — 수정세금계산서는 사람이 발행, 정산서 · 정산 내역에 알림(원거래 세금계산서 공급한 달 · 공급가액 · 부가세와 줄어든 공급가액 · 부가세)',
+                ref: 'V2 §8.3 11단계 · 부가가치세법 제32조 제7항 · 시행령 제70조 제1항 제3호 (v4.0.80)');
+        }
+    }
+
     private static function limitOf(Context $ctx, ContractState $c): Number
     {
         return D(g($c->row, 'min_payout_limit') !== null ? g($c->row, 'min_payout_limit') : $ctx->p('default_min_payout_limit'));
@@ -452,8 +509,14 @@ final class S11Payout
             $hold = truthy(g($ctx->holder($pid0), 'payout_hold_yn')) || truthy(g($ctx->holder($pid0), 'carry_designated_yn'));
             $ids = array_values(array_unique($ids));
             sort($ids);
+            $neg = false;
+            $settle = false;
+            foreach ($mem as [$c, $p]) {
+                $neg = $neg || truthy($p->out['CLAIM']['netting_group_neg'] ?? false);
+                $settle = $settle || truthy($p->out['CLAIM']['claim_issued_yn'] ?? false);
+            }
             $out[$k] = ['total' => $total, 'limit' => $limit, 'force' => $force, 'hold' => $hold, 'contracts' => $ids,
-                'confirmed' => ($total >= $limit || $force) && !$hold];
+                'confirmed' => !$neg && ($total >= $limit || $force) && !$hold, 'claim_settle' => $neg && $settle];
         }
         return $out;
     }
@@ -706,12 +769,23 @@ final class S11Payout
                 formula: '미룬 전속계약금 반환 = 반환액 − 그 달 회수액 — 반환채권 잔액에 그대로 남아 다음 지급하는 달에 뺌',
                 ref: 'V2 §8.3 10단계 1) · 11단계 (v4.0.77)');
         }
+        self::modifiedInvoiceNotice($ctx, $c, $p, $prePos, $kw);
         $o['payout_amount'] = $ctx->emit(self::STEP, 'payout_amount', $confirmed ? $judge : D(0), $c, ...$kw,
             formula: '지급 확정액(대량이체 리스트, 부가세 · 원천세 · 상계 재가감 금지)', ref: 'V2 L303');
         $ctx->emit(self::STEP, 'excluded_from_bulk_transfer', $internal, $c, ...$kw,
             formula: '자사 권리자(TX-01)는 증빙 · 대량이체 제외', ref: 'V2 L280 · TAX.md TX-01');
         $rows = [];
-        if ($confirmed) {
+        if ($grp !== null && $grp['claim_settle']) {
+            // 묶음 순액 음수를 청구로 확정 — 묶음 이월 행은 청구에 들어갔으므로 소멸, 그 달 줄은 이월하지 않음(v4.0.80)
+            foreach (array_merge($prePos, $preNegWith, $postPos) as $r) {
+                if (truthy(g($r, 'netting_carry'))) {
+                    $rows[] = array_merge($r, ['action' => 'SETTLE', 'payout_reservation_status' => 'SETTLED', 'extinguished_yn' => true,
+                        'extinguished_month' => $ctx->month, 'carryover_reason_note' => '받는 사람 순액 청구로 소멸']);
+                } else {
+                    $rows[] = array_merge($r, ['action' => 'KEEP']);
+                }
+            }
+        } elseif ($confirmed) {
             foreach (array_merge($prePos, $preNegWith, $postPos) as $r) {
                 $rows[] = array_merge($r, ['action' => 'RESERVE', 'payout_reservation_status' => 'RESERVED']);
             }

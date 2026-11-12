@@ -51,6 +51,39 @@ def cash_paid(ctx, c):
                 led["cash_paid_total"] = total
 
 
+def modified_invoice_notice(ctx, c, p, pid, pre_pos, kw):
+    """이월 부가세가 붙은 이월 행의 원거래(같은 계약 · 원 결제월)가 미지급 환불로 줄면 부가세도 공급가액과 같은 비율로 줄이고,
+    수정세금계산서는 사람이 발행하므로 정산서 · 정산 내역에 '수정세금계산서 발행 필요' 알림을 남긴다
+    (V2 §8.3 11단계, 부가가치세법 제32조 제7항 · 시행령 제70조 제1항 제3호, v4.0.80)."""
+    notes = []
+    for r in pre_pos:
+        comp = r.get("components") or {}
+        cv = D(comp.get("carry_vat") or 0)
+        if cv <= 0:
+            continue
+        supply0, vat0 = D(comp.get("split_amount") or 0), D(comp.get("vat_amount") or 0)
+        red = D(0)
+        for rf in ctx.input["refund_lines"]:
+            if str(rf.get("origin_month") or "")[:7] != str(r.get("origin_month") or "")[:7]:
+                continue
+            for s in rf.get("snapshot") or []:
+                if s.get("contract_id") == c.id and (s.get("payment_state") or "UNPAID") == "UNPAID":
+                    red += floor_won(D(s.get("base_amount") or 0) * D(s.get("rate_value") or 0) / 100
+                                     * D(s.get("share_ratio") or 100) / 100)
+        if red <= 0 or supply0 <= 0:
+            continue
+        red_vat = min(cv, floor_won(vat0 * min(red, supply0) / supply0))
+        notes.append({"ledger_id": r.get("ledger_id"), "origin_month": r.get("origin_month"), "original_supply": supply0,
+                      "original_vat": vat0, "reduced_supply": min(red, supply0), "reduced_vat": red_vat,
+                      "carry_vat_after": cv - red_vat})
+    p.out["PAYOUT"]["modified_invoice_notices"] = notes
+    if notes:
+        ctx.emit(STEP, "modified_invoice_required", True, c, **kw, inputs={"알림": notes},
+                 formula="이월 부가세 행의 원거래가 환불로 줄어 부가세도 같은 비율로 줄임 — 수정세금계산서는 사람이 발행, 정산서 · 정산 내역에 알림"
+                         "(원거래 세금계산서 공급한 달 · 공급가액 · 부가세와 줄어든 공급가액 · 부가세)",
+                 ref="V2 §8.3 11단계 · 부가가치세법 제32조 제7항 · 시행령 제70조 제1항 제3호 (v4.0.80)")
+
+
 def limit_of(ctx, c):
     return D(c.row.get("min_payout_limit") if c.row.get("min_payout_limit") is not None else ctx.p("default_min_payout_limit"))
 
@@ -81,8 +114,10 @@ def group_decisions(ctx):
                 lim = (s, limit_of(ctx, c))
         limit = lim[1] if lim else limit_of(ctx, mem[0][0])
         hold = bool(ctx.holder(k[1]).get("payout_hold_yn")) or bool(ctx.holder(k[1]).get("carry_designated_yn"))
+        neg = any(p.out["CLAIM"].get("netting_group_neg") for _, p in mem)
+        settle = neg and any(p.out["CLAIM"].get("claim_issued_yn") for _, p in mem)
         out[k] = dict(total=total, limit=limit, force=force, hold=hold, contracts=sorted({c.id for c, _ in mem}),
-                      confirmed=(total >= limit or force) and not hold)
+                      confirmed=(not neg) and (total >= limit or force) and not hold, claim_settle=settle)
     return out
 
 
@@ -163,12 +198,21 @@ def payout_payee(ctx, c, p, end, closed, limit):
         o["clawback_deferred"] = ctx.emit(STEP, "clawback_deferred", cbc - rec, c, **kw,
                                           formula="미룬 전속계약금 반환 = 반환액 − 그 달 회수액 — 반환채권 잔액에 그대로 남아 다음 지급하는 달에 뺌",
                                           ref="V2 §8.3 10단계 1) · 11단계 (v4.0.77)")
+    modified_invoice_notice(ctx, c, p, pid, pre_pos, kw)
     o["payout_amount"] = ctx.emit(STEP, "payout_amount", judge if confirmed else D(0), c, **kw,
                                   formula="지급 확정액(대량이체 리스트, 부가세 · 원천세 · 상계 재가감 금지)", ref="V2 L303")
     ctx.emit(STEP, "excluded_from_bulk_transfer", internal, c, **kw,
              formula="자사 권리자(TX-01)는 증빙 · 대량이체 제외", ref="V2 L280 · TAX.md TX-01")
     rows = []
-    if confirmed:
+    if grp and grp.get("claim_settle"):
+        # 묶음 순액 음수를 청구로 확정 — 묶음 이월 행은 청구에 들어갔으므로 소멸, 그 달 줄은 이월하지 않음(v4.0.80)
+        for r in pre_pos + pre_neg_with + post_pos:
+            if r.get("netting_carry"):
+                rows.append(dict(r, action="SETTLE", payout_reservation_status="SETTLED", extinguished_yn=True,
+                                 extinguished_month=ctx.month, carryover_reason_note="받는 사람 순액 청구로 소멸"))
+            else:
+                rows.append(dict(r, action="KEEP"))
+    elif confirmed:
         for r in pre_pos + pre_neg_with + post_pos:
             rows.append(dict(r, action="RESERVE", payout_reservation_status="RESERVED"))
     elif evaluated:

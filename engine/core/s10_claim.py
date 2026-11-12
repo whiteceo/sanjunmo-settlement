@@ -92,13 +92,17 @@ def payee_netting(ctx, sts):
         # 끝난 계약(끝난 달 + N · 폐업) 몫이 다른 계약의 음수를 지운 달에는 그 받는 사람의 계약 묶음을 함께 처리:
         # 순액을 그달 지급(묶음 전체 강제 지급), 지운 음수는 계약 간 상계 기록으로 남김(v4.0.74, white 임시안)
         bundle = total >= 0 and any(r[2] or r[3] for r in rows)
+        neg_bundle = total < 0 and any(r[1].out["CLAIM"].get("netting_carry_in") for r in rows)
         for r in rows:
             c, st = r[0], r[5]
             old = st["after"]
             nv = new.get(id(r), old)
-            if total >= 0:
+            if total >= 0 or neg_bundle:
                 # 음수를 지운 묶음 — 11단계에서 묶음 단위로 지급 · 이월을 정함(이월하면 음수 줄도 함께, v4.0.76)
+                # 합 < 0이어도 지난달 묶음 이월 행이 있으면 묶음 — 청구 확정이면 묶음 이월 행 소멸 · 순액 전체 청구,
+                # 기준 이내면 새 음수 줄까지 묶음으로 이월 · 청구 0(v4.0.80)
                 r[1].out["CLAIM"]["netting_group"] = json.dumps([hid, pid], ensure_ascii=False, separators=(",", ":"))
+                r[1].out["CLAIM"]["netting_group_neg"] = total < 0
             if bundle:
                 r[1].out["CLAIM"]["netting_force"] = True
                 if old < 0:
@@ -262,7 +266,13 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
         neg_new = min(D(0), after)
         lines = [ln for ln in p.lines if ln["origin"] in ("NEW", "ADJUSTMENT")]
         key_ln = min(lines, key=lambda x: x["pre_tax_payable"]) if lines else None
-        if neg_new < 0:
+        if neg_new < 0 and o.get("netting_group_neg"):
+            # 묶음 이월 행이 낀 받는 사람 순액 음수가 청구 기준 이내 — 순액 청구 이월 행을 따로 만들지 않고 11단계에서
+            # 새 음수 줄까지 묶음으로 이월(묶음 이월 행과 순액 청구 이월이 같은 돈을 두 번 세지 않게, v4.0.80)
+            ctx.emit(STEP, "netting_claim_deferred", neg_new, c, **kw,
+                     formula="묶음 이월 행이 낀 순액 음수가 청구 기준 이내 — 청구 0, 새 음수 줄까지 묶음으로 이월(11단계)",
+                     ref="V2 §8.3 10단계 받는 사람 순액 (v4.0.80)")
+        elif neg_new < 0:
             carry.append(carry_row(ctx, c, pid, "PRE_TAX", neg_new, key_ln, "청구 이월(원거래 지급 · 세무 경로 미확정)"))
         post = cnn - neg_new
         if post < 0:
@@ -272,6 +282,7 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
                      inputs={"account_type": r["account_type"]},
                      formula="정상 유지 계약의 소액 음수: 청구서 미발행, 이월 원장에 청구 이월(계정은 세무 상태로)",
                      ref="V2 L294~295 · V1 L572")
+    if carry and cnn < 0 and not issued:
         r0 = carry[0]
         ctx.emit(STEP, "claim_carry_type", "청구 이월", c, **kw, formula="이월 사유", ref="V1 L572")
         ctx.emit(STEP, "claim_carry_account_type", r0["account_type"], c, **kw, formula="이월 계정(세무 상태)", ref="V2 L295")

@@ -1,0 +1,222 @@
+{
+ "case": "DEC-V480-NETNEG-11C",
+ "title": "묶음 이월 다음 달 새 음수 — 합이 음수, 청구 확정이면 이월 행 소멸 · 전체 청구",
+ "canon_ref": "정산 02권 8.3절 10단계 받는 사람 순액 · 04권 Case 2-K(v4.0.80)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   },
+   {
+    "contract_id": "C-B",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   },
+   {
+    "contract_id": "C-E",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [
+   {
+    "adj_id": "ADJ-B11",
+    "contract_id": "C-B",
+    "origin_month": "2026-10",
+    "applied_month": "2026-11",
+    "adj_reason_code": "RATE_ERR",
+    "adj_explanation": "9월 과다 지급 정정",
+    "adj_amount": -250000,
+    "adj_tax_type": "TAXABLE",
+    "payee_id": "H-A",
+    "account_type": "PRE_TAX",
+    "approver_id": "재무담당자",
+    "origin_settlement_id": "STMT-202609-001"
+   }
+  ],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-1",
+    "action": null,
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 50000,
+    "components": {
+     "split_amount": 50000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 0
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW",
+    "netting_carry": true
+   },
+   {
+    "ledger_id": "CL-2",
+    "action": null,
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-B",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "MIXED",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": -30000,
+    "components": {
+     "split_amount": -30000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 0
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "ADJUSTMENT",
+    "netting_carry": true
+   },
+   {
+    "ledger_id": "CL-3",
+    "action": null,
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-E",
+    "origin_month": "2026-10",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 70000,
+    "components": {
+     "split_amount": 70000,
+     "offset_amount": 0,
+     "vat_amount": 0,
+     "protected_amount": 0
+    },
+    "first_occurred_month": "2026-10",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW",
+    "netting_carry": true
+   }
+  ]
+ },
+ "notes": "10월 묶음 이월 행 + 11월 B 정정 −250,000 → 순액 −163,960, 기준 초과 → 163,960 청구, 묶음 이월 행 모두 소멸",
+ "expected": {
+  "CLAIM": {
+   "claim_amount": 163960
+  },
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}
