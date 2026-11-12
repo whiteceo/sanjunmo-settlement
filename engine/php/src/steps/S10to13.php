@@ -209,12 +209,32 @@ final class S10Claim
             }
         }
         $o['netting_carry_in'] = $nc;
+        $o['clawback_consent_amount'] = $cbConsent;
+        // 지급 보류 · 운영자 이월 지정 달에는 전속계약금 반환 차감을 실제 지급하는 달로 미룸(v4.0.77)
+        $hdc = $ctx->holder($pid);
+        $o['clawback_hold_deferred'] = $cbConsent > 0 && (truthy(g($hdc, 'payout_hold_yn')) || truthy(g($hdc, 'carry_designated_yn')));
+        if ($o['clawback_hold_deferred']) {
+            $ctx->emit(self::STEP, 'clawback_deferred_on_hold', $cbConsent, $c, ...$kw,
+                formula: '지급 보류 · 운영자 이월 지정 — 동의 연결 전속계약금 반환 차감을 실제 지급하는 달로 미룸(반환채권 잔액 유지)',
+                ref: 'V2 §8.3 10단계 1) (v4.0.77)');
+            $cbConsent = D(0);
+        }
         $after = $ctx->emit(self::STEP, 'net_after_return', add(add(sub($net, $cbConsent), $postPos), $nc), $c, ...$kw,
             inputs: ['9단계 실정산액(위탁 음수 제외)' => $net, '동의 연결 전속계약금 반환' => $cbConsent,
                 '세후 조정(+)' => $postPos, '순액 묶음 이월 행(세후)' => $nc],
             formula: '동일 계약 · 동일 수취인 + 반환 상계 동의가 연결된 경우만 1회 차감, 세후 전월 정산 조정(+) 가산',
             code: 'net_after_return = net_settle_amount − (clawback if consent else 0) + post_tax_adj(+)',
             ref: 'V2 §8.3 10단계 1) L286 · §10.2');
+        // 반환은 실제로 지급하는 금액에서 뺌 — 새 금액이 반환보다 작으면 함께 지급하는 이월 행(세후)에서 마저 뺌(v4.0.77)
+        $carryAt0 = sub(either($t['carry_pre_tax_after_tax_total'] ?? null, D(0)), $nc);
+        $cfc = ($after < 0 && $cbConsent > 0 && $carryAt0 > 0) ? dmin(dmin(neg($after), $cbConsent), $carryAt0) : D(0);
+        $o['clawback_from_carry'] = $cfc;
+        if (!is_zero($cfc)) {
+            $after = $ctx->emit(self::STEP, 'net_after_return_with_carry', add($after, $cfc), $c, ...$kw,
+                inputs: ['반환 반영 후 순액(새 금액)' => $after, '함께 지급하는 이월 행(세후)' => $carryAt0, '이월 행에서 뺀 반환' => $cfc],
+                formula: '전속계약금 반환이 그 달 새 금액보다 크면 함께 지급하는 이월 행에서 마저 뺌(지급하는 금액에서 1회 차감)',
+                ref: 'V2 §8.3 10단계 1) (v4.0.77)');
+        }
         $unoffset = D(0);
         $pp = $c->prepay;
         // 보류 · 운영자 이월 지정으로 상계를 미룬 달은 청구 전환도 풀린 달로 미룸(상계 후 남은 잔액만 청구, V1 §5.3 · V2 §8.3 10단계, v4.0.46)
@@ -346,7 +366,8 @@ final class S10Claim
                 ref: 'V2 L290 · §10.4');
         }
         $carryAt = either($t['carry_pre_tax_after_tax_total'] ?? null, D(0));
-        $payable = sub(add(dmax(D(0), $after), $carryAt), either($o['netting_carry_in'] ?? null, D(0)));
+        $payable = sub(sub(add(dmax(D(0), $after), $carryAt), either($o['netting_carry_in'] ?? null, D(0))),
+            either($o['clawback_from_carry'] ?? null, D(0)));
         $o['payable_net_for_payout'] = $ctx->emit(self::STEP, 'payable_net_for_payout', $payable, $c, ...$kw,
             inputs: ['max(0, 반환 반영 후 순액)' => dmax(D(0), $after), '원귀속 PRE_TAX 세후 환산액' => $t['carry_pre_tax_after_tax_total'] ?? null],
             formula: '지급 판정 전달 당월 지급채무 순액 = max(0, 반환 반영 후 순액) + 원귀속 PRE_TAX 세후 환산액',
@@ -672,6 +693,19 @@ final class S11Payout
             formula: '판정 금액 ≥ min_payout_limit 또는 강제 정산 트리거 → 지급 확정(같으면 지급)',
             code: 'payout_confirmed = judgement >= min_payout_limit or force_settle',
             ref: 'V2 §8.3 표 11단계 L178 · V1 §7.3');
+        $cbc = either($p->out['CLAIM']['clawback_consent_amount'] ?? null, D(0));
+        if (!is_zero($cbc)) {
+            // 전속계약금 반환은 실제 지급하는 달에만 빼고 그 달 반환채권 잔액을 줄임 — 보류 · 미달 이월 달은 미룸(v4.0.77)
+            $held = truthy($p->out['CLAIM']['clawback_hold_deferred'] ?? false);
+            $rec = (!$held && ($confirmed || either($p->out['CLAIM']['net_after_return'] ?? null, D(0)) < 0)) ? $cbc : D(0);
+            $o['clawback_recovered'] = $ctx->emit(self::STEP, 'clawback_recovered', $rec, $c, ...$kw,
+                inputs: ['동의 연결 전속계약금 반환' => $cbc, '지급 확정' => $confirmed, '보류로 미룸' => $held],
+                formula: '그 달 회수한 전속계약금 반환 = 지급 확정(또는 청구 판정으로 넘어감)이면 반환액, 보류 · 미달 이월이면 0',
+                ref: 'V2 §8.3 10단계 1) (v4.0.77)');
+            $o['clawback_deferred'] = $ctx->emit(self::STEP, 'clawback_deferred', sub($cbc, $rec), $c, ...$kw,
+                formula: '미룬 전속계약금 반환 = 반환액 − 그 달 회수액 — 반환채권 잔액에 그대로 남아 다음 지급하는 달에 뺌',
+                ref: 'V2 §8.3 10단계 1) · 11단계 (v4.0.77)');
+        }
         $o['payout_amount'] = $ctx->emit(self::STEP, 'payout_amount', $confirmed ? $judge : D(0), $c, ...$kw,
             formula: '지급 확정액(대량이체 리스트, 부가세 · 원천세 · 상계 재가감 금지)', ref: 'V2 L303');
         $ctx->emit(self::STEP, 'excluded_from_bulk_transfer', $internal, $c, ...$kw,

@@ -1,0 +1,121 @@
+{
+ "case": "DEC-V477-CBHOLD-09",
+ "title": "전속계약금 반환 — 지급 보류 달은 차감을 미룸",
+ "canon_ref": "정산 02권 8.3절 10단계 1) · 04권 Case 3-D(v4.0.77)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-09",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "payout_hold_yn": true
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-E",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OE",
+    "item_type": "LECTURE",
+    "product_id": "L-E",
+    "paid_amount": 400000,
+    "allocation_applied": true,
+    "approved_at": "2026-09-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "L-E",
+      "lecture_base_amount": 400000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [],
+  "clawbacks": [
+   {
+    "clawback_id": "CB-E",
+    "contract_id": "C-E",
+    "payee_id": "H-A",
+    "clawback_amount": 10000,
+    "clawback_offset_consent_yn": true
+   }
+  ]
+ },
+ "notes": "E R/S 200,000, 동의 연결 반환 10,000, 지급 보류 → 차감 없음(순액 193,400), 지급 0, 세전 200,000 이월, 회수 0 · 미룬 반환 10,000",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0,
+   "clawback_recovered": 0,
+   "clawback_deferred": 10000
+  }
+ }
+}

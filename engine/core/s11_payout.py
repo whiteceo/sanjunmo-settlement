@@ -150,6 +150,19 @@ def payout_payee(ctx, c, p, end, closed, limit):
                                         formula="판정 금액 ≥ min_payout_limit 또는 강제 정산 트리거 → 지급 확정(같으면 지급)",
                                         code="payout_confirmed = judgement >= min_payout_limit or force_settle",
                                         ref="V2 §8.3 표 11단계 L178 · V1 §7.3")
+    cbc = p.out["CLAIM"].get("clawback_consent_amount") or D(0)
+    if cbc:
+        # 전속계약금 반환은 실제 지급하는 달에만 빼고 그 달 반환채권 잔액을 줄임 — 보류 · 미달 이월 달은 미룸(이월 행은
+        # 반환을 빼기 전 세전 금액). 순액이 음수로 넘어간 달은 청구 판정으로 넘어갔으므로 회수로 봄(V2 §8.3 10단계 1), v4.0.77)
+        held = bool(p.out["CLAIM"].get("clawback_hold_deferred"))
+        rec = cbc if not held and (confirmed or (p.out["CLAIM"].get("net_after_return") or D(0)) < 0) else D(0)
+        o["clawback_recovered"] = ctx.emit(STEP, "clawback_recovered", rec, c, **kw,
+                                           inputs={"동의 연결 전속계약금 반환": cbc, "지급 확정": confirmed, "보류로 미룸": held},
+                                           formula="그 달 회수한 전속계약금 반환 = 지급 확정(또는 청구 판정으로 넘어감)이면 반환액, 보류 · 미달 이월이면 0",
+                                           ref="V2 §8.3 10단계 1) (v4.0.77)")
+        o["clawback_deferred"] = ctx.emit(STEP, "clawback_deferred", cbc - rec, c, **kw,
+                                          formula="미룬 전속계약금 반환 = 반환액 − 그 달 회수액 — 반환채권 잔액에 그대로 남아 다음 지급하는 달에 뺌",
+                                          ref="V2 §8.3 10단계 1) · 11단계 (v4.0.77)")
     o["payout_amount"] = ctx.emit(STEP, "payout_amount", judge if confirmed else D(0), c, **kw,
                                   formula="지급 확정액(대량이체 리스트, 부가세 · 원천세 · 상계 재가감 금지)", ref="V2 L303")
     ctx.emit(STEP, "excluded_from_bulk_transfer", internal, c, **kw,

@@ -143,6 +143,16 @@ def claim_payee(ctx, c, p, end, closed, limit):
             cb_other += amt
     o["clawback_amount"] = cb_consent + cb_other
     o["clawback_offset_consent_yn"] = bool(cb_consent)
+    o["clawback_consent_amount"] = cb_consent
+    # 지급 보류 · 운영자 이월 지정 달에는 전속계약금 반환 차감을 미룸 — 실제 지급하는 달에 빼고 그 달 반환채권 잔액을 줄임
+    # (선급금 청구 전환을 보류가 풀린 달로 미루는 규칙과 같음, V2 §8.3 10단계 1) · 2), v4.0.77)
+    hd = ctx.holder(pid)
+    o["clawback_hold_deferred"] = bool(cb_consent) and (bool(hd.get("payout_hold_yn")) or bool(hd.get("carry_designated_yn")))
+    if o["clawback_hold_deferred"]:
+        ctx.emit(STEP, "clawback_deferred_on_hold", cb_consent, c, **kw,
+                 formula="지급 보류 · 운영자 이월 지정 — 동의 연결 전속계약금 반환 차감을 실제 지급하는 달로 미룸(반환채권 잔액 유지)",
+                 ref="V2 §8.3 10단계 1) (v4.0.77)")
+        cb_consent = D(0)
     post = [a for a in adjust.month_adjustments(ctx) if adjust.mode(ctx) == "apply" and a.get("contract_id") == c.id
             and (a.get("payee_id") or c.holder_id) == pid and adjust.account(a) == "POST_TAX"]
     post_pos = sum((D(a["adj_amount"]) for a in post if D(a["adj_amount"]) > 0), D(0))
@@ -162,6 +172,15 @@ def claim_payee(ctx, c, p, end, closed, limit):
                      formula="동일 계약 · 동일 수취인 + 반환 상계 동의가 연결된 경우만 1회 차감, 세후 전월 정산 조정(+) 가산",
                      code="net_after_return = net_settle_amount − (clawback if consent else 0) + post_tax_adj(+)",
                      ref="V2 §8.3 10단계 1) L286 · §10.2")
+    # 반환은 실제로 지급하는 금액에서 뺌 — 그 달 새 금액이 반환보다 작으면 함께 지급하는 세전 이월 행(세후 환산액)에서 마저 뺌(v4.0.77)
+    carry_at = (t.get("carry_pre_tax_after_tax_total") or D(0)) - nc
+    cfc = min(-after, cb_consent, carry_at) if after < 0 and cb_consent > 0 and carry_at > 0 else D(0)
+    o["clawback_from_carry"] = cfc
+    if cfc:
+        after = ctx.emit(STEP, "net_after_return_with_carry", after + cfc, c, **kw,
+                         inputs={"반환 반영 후 순액(새 금액)": after, "함께 지급하는 이월 행(세후)": carry_at, "이월 행에서 뺀 반환": cfc},
+                         formula="전속계약금 반환이 그 달 새 금액보다 크면 함께 지급하는 이월 행에서 마저 뺌(지급하는 금액에서 1회 차감)",
+                         ref="V2 §8.3 10단계 1) (v4.0.77)")
     unoffset = D(0)
     pp = c.prepay
     # 보류 · 운영자 이월 지정으로 상계를 미룬 달은 청구 전환도 풀린 달로 미룸(상계 후 남은 잔액만 청구, V1 §5.3 · V2 §8.3 10단계, v4.0.46)
@@ -266,7 +285,8 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
     if issued and ch:
         ctx.emit(STEP, "correction_channel", ch[0], c, **kw, formula="반환 · 정정 채널(matrix_case_id → 10.4 채널)",
                  ref="V2 L290 · §10.4")
-    payable = max(D(0), after) + (t.get("carry_pre_tax_after_tax_total") or D(0)) - (o.get("netting_carry_in") or D(0))
+    payable = (max(D(0), after) + (t.get("carry_pre_tax_after_tax_total") or D(0)) - (o.get("netting_carry_in") or D(0))
+               - (o.get("clawback_from_carry") or D(0)))
     o["payable_net_for_payout"] = ctx.emit(
         STEP, "payable_net_for_payout", payable, c, **kw,
         inputs={"max(0, 반환 반영 후 순액)": max(D(0), after), "원귀속 PRE_TAX 세후 환산액": t.get("carry_pre_tax_after_tax_total")},
