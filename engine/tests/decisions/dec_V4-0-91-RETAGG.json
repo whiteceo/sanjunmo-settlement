@@ -1,0 +1,135 @@
+{
+ "case": "DEC-V491-RETAGG",
+ "title": "지급 뒤 환불 반환채권 — 받는 사람별로 합쳐 한 번 환산(몫마다 절사하지 않음)",
+ "canon_ref": "정산 02권 13.1절 원천징수 세액 끝수(지급 1건 단위) · 8.3절 10단계(v4.0.91)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-11",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 0,
+    "min_claim_limit": 0,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [
+   {
+    "refund_id": "RF-P1",
+    "order_item_id": "O-RF-P1",
+    "refund_approved_date": "2026-11-12",
+    "refund_amount": 66670,
+    "origin_month": "2026-10",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-RF-P1",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 66670,
+      "payment_state": "PAID"
+     }
+    ]
+   },
+   {
+    "refund_id": "RF-P2",
+    "order_item_id": "O-RF-P2",
+    "refund_approved_date": "2026-11-12",
+    "refund_amount": 33330,
+    "origin_month": "2026-10",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-RF-P2",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 33330,
+      "payment_state": "PAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": []
+ },
+ "notes": "같은 달 기지급 환불 두 건 R/S 33,335 + 16,665 = 50,000(사업소득 3.3%) → 합쳐 원천세 1,650(1,500 + 150) → 반환채권 48,350 청구(최소 청구 0). 몫마다 환산하면 1,100 + 530 = 1,630 → 48,370(20원 차이)",
+ "expected": {
+  "CLAIM": {
+   "claim_amount": 48350
+  }
+ }
+}

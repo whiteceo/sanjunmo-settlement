@@ -426,8 +426,9 @@ def split_paths(ctx, c, comps_line, total):
                          formula="소득 선지급으로 상계한 몫의 환불 — 현금 청구 없이 선급금 잔액을 되살림(상계만 되고 현금은 나간 적 없음)",
                          ref="V1 5.3절 · V2 §8.3 4단계 (v4.0.84)", output=False)
             else:
-                post = paid_return_post_tax(ctx, c, comp, a)
-                c.return_claims.append({"ref_id": comp["ref_id"], "payee_id": comp["payee_id"],
+                # 실제 지급 기록 값이 있으면 그 값, 없으면 10단계에서 받는 사람별로 세전 환불액을 합쳐 한 번 환산(지급 1건 단위, 13.1절, v4.0.91)
+                post = D(comp["paid_return_post_tax_amount"]) if comp.get("paid_return_post_tax_amount") is not None else None
+                c.return_claims.append({"ref_id": comp["ref_id"], "payee_id": comp["payee_id"], "pipeline_id": comp.get("pipeline_id"),
                                         "post_tax_amount": post, "pre_tax_amount": a, "matrix_case_id": comp["matrix_case_id"]})
     return out, unpaid_total
 

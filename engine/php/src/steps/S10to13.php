@@ -307,7 +307,15 @@ final class S10Claim
                 provisional: $pp['type'] === 'EARNED', note: $pp['type'] === 'EARNED' ? 'Q-18' : '');
         }
         $o['unoffset_prepay_claim'] = $unoffset;
-        $returns = dsum(array_map(fn($r) => $r['post_tax_amount'], array_filter($c->return_claims, fn($r) => $r['payee_id'] === $pid)));
+        $mine = array_values(array_filter($c->return_claims, fn($r) => $r['payee_id'] === $pid));
+        $returns = dsum(array_map(fn($r) => $r['post_tax_amount'], array_filter($mine, fn($r) => $r['post_tax_amount'] !== null)));
+        $agg = array_values(array_filter($mine, fn($r) => $r['post_tax_amount'] === null));
+        if ($agg) {
+            // 받는 사람의 세전 환불액을 합쳐 한 번 환산(지급 1건 단위, 몫마다 절사하지 않음, v4.0.91)
+            $pre = dsum(array_map(fn($r) => $r['pre_tax_amount'], $agg));
+            $returns = add($returns, S04Deduct::paidReturnPostTax($ctx, $c, ['payee_id' => $pid, 'pipeline_id' => $agg[0]['pipeline_id'] ?? null,
+                'ref_id' => $agg[0]['ref_id'] ?? null], $pre));
+        }
         // 지난달까지 세후 청구 이월로 넘어온 반환채권도 그 달 지급액과 먼저 상계(v4.0.85)
         $returnsOld = neg(dsum(array_map(fn($r) => D($r['carryover_amount']),
             array_filter($c->carry['post_neg'], fn($r) => $r['payee_id'] === $pid && self::offsettable($r)))));

@@ -137,7 +137,7 @@ final class S04Deduct
     }
 
     /** 기지급 소득 환불의 세후 반환채권 = 상대가 받은 금액(세전 − 원천세 + 부가세 별도분, v4.0.84). */
-    private static function paidReturnPostTax(Context $ctx, ContractState $c, array $comp, Number $a): Number
+    public static function paidReturnPostTax(Context $ctx, ContractState $c, array $comp, Number $a): Number
     {
         if (g($comp, 'paid_return_post_tax_amount') !== null) {
             return D($comp['paid_return_post_tax_amount']);
@@ -585,8 +585,9 @@ final class S04Deduct
                         formula: '소득 선지급으로 상계한 몫의 환불 — 현금 청구 없이 선급금 잔액을 되살림(상계만 되고 현금은 나간 적 없음)',
                         ref: 'V1 5.3절 · V2 §8.3 4단계 (v4.0.84)', output: false);
                 } else {
-                    $post = self::paidReturnPostTax($ctx, $c, $comp, $a);
-                    $c->return_claims[] = ['ref_id' => $comp['ref_id'], 'payee_id' => $comp['payee_id'],
+                    // 실제 지급 기록 값이 없으면 10단계에서 받는 사람별로 합쳐 한 번 환산(v4.0.91)
+                    $post = g($comp, 'paid_return_post_tax_amount') !== null ? D($comp['paid_return_post_tax_amount']) : null;
+                    $c->return_claims[] = ['ref_id' => $comp['ref_id'], 'payee_id' => $comp['payee_id'], 'pipeline_id' => g($comp, 'pipeline_id'),
                         'post_tax_amount' => $post, 'pre_tax_amount' => $a, 'matrix_case_id' => $comp['matrix_case_id']];
                 }
             }

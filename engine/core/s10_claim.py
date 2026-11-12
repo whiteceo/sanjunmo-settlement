@@ -240,7 +240,16 @@ def claim_payee(ctx, c, p, end, closed, limit):
                  formula=f + " — 비상계 보호 지급액과 자동 교차 상계 금지", ref="V2 §8.3 10단계 2) L287 · V1 L328",
                  provisional=pp["type"] == "EARNED", note="Q-18" if pp["type"] == "EARNED" else "")
     o["unoffset_prepay_claim"] = unoffset
-    returns = sum((r["post_tax_amount"] for r in c.return_claims if r["payee_id"] == pid), D(0))
+    mine = [r for r in c.return_claims if r["payee_id"] == pid]
+    returns = sum((r["post_tax_amount"] for r in mine if r["post_tax_amount"] is not None), D(0))
+    agg = [r for r in mine if r["post_tax_amount"] is None]
+    if agg:
+        # 기지급 반환채권 = 받은 금액: 받는 사람의 세전 환불액을 합쳐 한 번 환산(원천징수는 지급 1건 단위로 합산 뒤 1회 · 10원 미만 내림,
+        # 몫마다 절사하지 않음, V2 §13.1 · §8.3 10단계, v4.0.91)
+        from .s04_deduct import paid_return_post_tax
+        pre = sum((r["pre_tax_amount"] for r in agg), D(0))
+        post = paid_return_post_tax(ctx, c, {"payee_id": pid, "pipeline_id": agg[0].get("pipeline_id"), "ref_id": agg[0].get("ref_id")}, pre)
+        returns += post
     # 지난달까지 세후 청구 이월로 넘어온 반환채권도 그 달 지급액과 먼저 상계(받을 돈 상계 원칙, v4.0.85)
     old_post = [r for r in c.carry["post_neg"] if r["payee_id"] == pid and offsettable(r)]
     returns_old = -sum((D(r["carryover_amount"]) for r in old_post), D(0))
