@@ -294,6 +294,9 @@ def carry_direct_reduction(ctx, c, rf, snap, pl, amt, ref):
     if (snap.get("payment_state") or "UNPAID") != "UNPAID" or amt <= 0:
         return amt
     origin = str(rf.get("origin_month") or month_of(rf.get("approved_at") or rf.get("refund_approved_date")))[:7]
+    # 이월 행의 origin_month는 원거래를 정산한 달 = 원 결제월 + 지급 시차 N(v4.0.94)
+    lag = int((c.row.get("payout_lag_months") if c else 0) or 0)
+    origin = add_months(origin, lag) if lag else origin
     rows = [r for r in c.carry["pre_pos"] if str(r.get("origin_month") or "")[:7] == origin
             and str(r.get("pipeline_id")) == pl and not r.get("consignment_balance_yn")]
     if not rows:
@@ -443,7 +446,10 @@ def split_paths(ctx, c, comps_line, total):
 
 
 def earned_prepay(ctx, c):
-    return any(p["contract_id"] == c.id and p.get("prepayment_tax_type") == "EARNED" for p in ctx.input["prepayments"])
+    """되살릴 수 있는 소득 선지급 원장이 있는가. 해지 · 만료로 청구로 넘어간 원장(CLAIMED_ON_TERMINATION)은 되살리지 않고,
+    이후 상계분 환불은 청구액을 늘림(반환채권 경로, V1 5.3절 · v4.0.94)."""
+    return any(p["contract_id"] == c.id and p.get("prepayment_tax_type") == "EARNED"
+               and p.get("prepay_ledger_status") != "CLAIMED_ON_TERMINATION" for p in ctx.input["prepayments"])
 
 
 def paid_return_post_tax(ctx, c, comp, a):

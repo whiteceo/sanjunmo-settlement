@@ -1,0 +1,153 @@
+{
+ "case": "DEC-V494-C2-LAGDIRECT",
+ "title": "지급 시차 계약의 이월 행 직접 감액 — 원 결제월 + 시차로 대조",
+ "canon_ref": "정산 01권 7.4절 · 04권 Case 1-Q(v4.0.94)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2027-04",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS",
+    "matrix_case_id_hint": "TX-06",
+    "tax_type_cd": "01"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-12-01",
+    "current_end_date": "2028-11-30",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 3
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [],
+  "refund_lines": [
+   {
+    "refund_id": "RF-9",
+    "order_item_id": "O-12",
+    "refund_approved_date": "2027-04-05",
+    "refund_amount": 40000,
+    "origin_month": "2026-12",
+    "snapshot": [
+     {
+      "settlement_line_id": "SL-9",
+      "contract_id": "C-A",
+      "rights_holder_id": "H-A",
+      "pipeline_id": "1.1",
+      "rate_type": "BASIC",
+      "rate_value": 50,
+      "share_ratio": 100,
+      "base_amount": 40000,
+      "payment_state": "UNPAID"
+     }
+    ]
+   }
+  ],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [],
+  "carryover_ledger": [
+   {
+    "ledger_id": "CL-3",
+    "action": null,
+    "rights_holder_id": "H-A",
+    "payee_id": "H-A",
+    "contract_id": "C-A",
+    "origin_month": "2027-03",
+    "account_type": "PRE_TAX",
+    "pipeline_id": "1.1",
+    "consignment_balance_yn": false,
+    "income_category": "BUSINESS",
+    "income_clause": null,
+    "tax_threshold_unit_key": null,
+    "carryover_reason": "지급 하한 미달",
+    "carryover_amount": 50000,
+    "components": {
+     "split_amount": 50000,
+     "offset_amount": 0,
+     "vat_amount": 5000,
+     "protected_amount": 0,
+     "carry_vat": 5000,
+     "invoice_supply": 50000,
+     "invoice_vat": 5000
+    },
+    "first_occurred_month": "2027-03",
+    "first_payable_confirmed_month": null,
+    "payout_reservation_status": "NONE",
+    "extinguished_yn": false,
+    "carry_line_origin": "NEW"
+   }
+  ]
+ },
+ "notes": "계약 2 조건(TX-06, 시차 3). 3월 미달 이월 행(발생월 2027-03, R/S 50,000 + 이월 부가세 5,000), 4월 12월 결제 40,000 환불(R/S 20,000) → 이월 행 30,000 · 이월 부가세 3,000, 수정세금계산서 알림, 청구 0. 종전: 감액 없음 + 청구 이월 −22,000",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0,
+   "modified_invoice_required": true
+  },
+  "CLAIM": {
+   "claim_amount": 0
+  }
+ }
+}

@@ -129,7 +129,8 @@ final class S04Deduct
     private static function earnedPrepay(Context $ctx, ContractState $c): bool
     {
         foreach ($ctx->input['prepayments'] as $p) {
-            if ($p['contract_id'] === $c->id && g($p, 'prepayment_tax_type') === 'EARNED') {
+            // 청구로 넘어간 원장(CLAIMED_ON_TERMINATION)은 되살리지 않음 — 이후 상계분 환불은 청구액을 늘림(v4.0.94)
+            if ($p['contract_id'] === $c->id && g($p, 'prepayment_tax_type') === 'EARNED' && g($p, 'prepay_ledger_status') !== 'CLAIMED_ON_TERMINATION') {
                 return true;
             }
         }
@@ -427,6 +428,11 @@ final class S04Deduct
         }
         $origin = head(pystr(either(g($rf, 'origin_month'),
             month_of(either(g($rf, 'approved_at'), g($rf, 'refund_approved_date'))))), 7);
+        // 이월 행의 origin_month는 원 결제월 + 지급 시차 N(v4.0.94)
+        $lagN = (int)(either(g($c->row, 'payout_lag_months'), 0));
+        if ($lagN) {
+            $origin = self::addMonths($origin, $lagN);
+        }
         $idx = [];
         foreach ($c->carry['pre_pos'] as $i => $r) {
             if (head(pystr(g($r, 'origin_month') ?? ''), 7) === $origin && pystr(g($r, 'pipeline_id')) === $pl
