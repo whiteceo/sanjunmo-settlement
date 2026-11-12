@@ -122,10 +122,28 @@ final class S10Claim
             }
             $cids = array_values(array_unique(array_map(fn($i) => $sts[$i][0]->id, $idx)));
             sort($cids);
+            // 끝난 계약(끝난 달 + N · 폐업) 몫이 다른 계약의 음수를 지운 달에는 계약 묶음을 함께 처리(v4.0.74, white 임시안)
+            $ended = [];
+            foreach ($idx as $i) {
+                if ($sts[$i][2] || $sts[$i][3]) {
+                    $ended[] = $sts[$i][0]->id;
+                }
+            }
+            sort($ended);
+            $bundle = $total >= 0 && (bool)$ended;
             foreach ($idx as $i) {
                 $c = $sts[$i][0];
                 $old = $sts[$i][5]['after'];
                 $nv = $new[$i] ?? $old;
+                if ($bundle) {
+                    $sts[$i][1]->out['CLAIM']['netting_force'] = true;
+                    if ($old < 0) {
+                        $ctx->emit(self::STEP, 'cross_contract_offset', $old, $c, ...$sts[$i][5]['kw'],
+                            inputs: ['지운 음수' => $old, '받는 사람 순액 합' => $total, '끝난 계약' => $ended],
+                            formula: '끝난 계약 몫이 이 계약의 음수를 지운 달 — 지운 음수는 계약 간 상계로 기록(그달 순액 지급과 함께 소멸)',
+                            ref: 'V2 §8.3 10단계 받는 사람 순액 (v4.0.74)');
+                    }
+                }
                 $sts[$i][5]['cnn'] = add(sub($sts[$i][5]['cnn'], dmin(D(0), $old)), dmin(D(0), $nv));
                 $sts[$i][5]['after'] = $nv;
                 $ctx->emit(self::STEP, 'payee_netting_after', $nv, $c, ...$sts[$i][5]['kw'],
@@ -541,6 +559,9 @@ final class S11Payout
         }
         if ($closed) {
             $reasons[] = 'BUSINESS_CLOSED';
+        }
+        if (truthy($p->out['CLAIM']['netting_force'] ?? false) && !$end && !$closed) {
+            $reasons[] = 'NETTED_WITH_ENDED'; // 끝난 계약과 순액을 낸 묶음 — 그달 함께 지급(v4.0.74)
         }
         $designated = truthy(g($ctx->holder($pid), 'carry_designated_yn')); // 운영자 이월 지정 후 재배치(v4.0.43)
         $hold = truthy(g($ctx->holder($pid), 'payout_hold_yn')) || $designated;

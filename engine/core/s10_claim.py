@@ -88,10 +88,20 @@ def payee_netting(ctx, sts):
             shares = alloc_last_remainder(total, [r[5]["after"] for r in neg])
             new = {id(r): s for r, s in zip(neg, shares)}
             new.update({id(r): D(0) for r in pos})
+        # 끝난 계약(끝난 달 + N · 폐업) 몫이 다른 계약의 음수를 지운 달에는 그 받는 사람의 계약 묶음을 함께 처리:
+        # 순액을 그달 지급(묶음 전체 강제 지급), 지운 음수는 계약 간 상계 기록으로 남김(v4.0.74, white 임시안)
+        bundle = total >= 0 and any(r[2] or r[3] for r in rows)
         for r in rows:
             c, st = r[0], r[5]
             old = st["after"]
             nv = new.get(id(r), old)
+            if bundle:
+                r[1].out["CLAIM"]["netting_force"] = True
+                if old < 0:
+                    ctx.emit(STEP, "cross_contract_offset", old, c, **st["kw"],
+                             inputs={"지운 음수": old, "받는 사람 순액 합": total, "끝난 계약": sorted(x[0].id for x in rows if x[2] or x[3])},
+                             formula="끝난 계약 몫이 이 계약의 음수를 지운 달 — 지운 음수는 계약 간 상계로 기록(그달 순액 지급과 함께 소멸)",
+                             ref="V2 §8.3 10단계 받는 사람 순액 (v4.0.74)")
             st["cnn"] = st["cnn"] - min(D(0), old) + min(D(0), nv)
             st["after"] = nv
             ctx.emit(STEP, "payee_netting_after", nv, c, **st["kw"],

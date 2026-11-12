@@ -71,6 +71,8 @@ def payout_payee(ctx, c, p, end, closed, limit):
         reasons.append("CONTRACT_END")
     if closed:
         reasons.append("BUSINESS_CLOSED")
+    if p.out["CLAIM"].get("netting_force") and not end and not closed:
+        reasons.append("NETTED_WITH_ENDED")  # 끝난 계약과 순액을 낸 묶음 — 그달 함께 지급(v4.0.74)
     designated = bool(ctx.holder(pid).get("carry_designated_yn"))  # 운영자 이월 지정 후 재배치(v4.0.43)
     hold = bool(ctx.holder(pid).get("payout_hold_yn")) or designated
     if hold:
