@@ -242,6 +242,7 @@ def carry_lines(ctx, c):
                "tax_threshold_unit_key": r.get("tax_threshold_unit_key"), "split_amount": amt, "offset_amount": off,
                "pre_tax_payable": amt - off, "taxable_base": (D(0) if open_neg else None) if neg else (amt - off if earned else amt),
                "carry_line_origin": r.get("carry_line_origin"), "carry_with_positive": with_pos,
+               "netting_carry": bool(r.get("netting_carry")),  # 받는 사람 순액 묶음으로 함께 이월된 행 — 다음 달 순액에 다시 넣음(v4.0.76)
                "pending_negative_base": amt if neg else None, "protected_yn": prot > 0, "protected_amount": prot,
                "first_payable_confirmed_month": r.get("first_payable_confirmed_month"),
                "first_occurred_month": r.get("first_occurred_month"),

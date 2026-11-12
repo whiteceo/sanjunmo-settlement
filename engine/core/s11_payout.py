@@ -13,6 +13,7 @@ STEP = "PAYOUT"
 
 
 def run(ctx):
+    ctx.payout_groups = group_decisions(ctx)
     for c in ctx.contracts.values():
         end = c.closing_due(ctx.month)  # 계약 만료 · 해지 강제 지급도 끝난 달 + 지급 시차 N부터(v4.0.51)
         closed = bool(ctx.holder(c.holder_id).get("business_closed_yn"))
@@ -50,6 +51,62 @@ def cash_paid(ctx, c):
                 led["cash_paid_total"] = total
 
 
+def limit_of(ctx, c):
+    return D(c.row.get("min_payout_limit") if c.row.get("min_payout_limit") is not None else ctx.p("default_min_payout_limit"))
+
+
+def group_decisions(ctx):
+    """받는 사람 순액 묶음(10단계에서 음수를 지운 묶음)의 지급 판정: 묶음 합 ≥ 최소 지급액(그 달 유효한 계약 가운데 늦게 시작한
+    계약의 값) 또는 묶음 안 강제 정산 트리거면 묶음 전체 지급, 아니면 묶음 전체 이월(음수 줄 포함, V2 §8.3 10 · 11단계, v4.0.76)."""
+    groups = {}
+    for c in ctx.contracts.values():
+        for p in c.payees.values():
+            k = p.out["CLAIM"].get("netting_group")
+            if k:
+                groups.setdefault(k, []).append((c, p))
+    out = {}
+    for k, mem in groups.items():
+        total, force, lim = D(0), False, None
+        for c, p in mem:
+            pid = p.payee_id
+            post_total = sum((r["carryover_amount"] for r in c.carry["post_pos"] if r["payee_id"] == pid), D(0))
+            total += (p.out["CLAIM"].get("payable_net_for_payout") or D(0)) + post_total
+            pre_pos = [r for r in c.carry["pre_pos"] if r["payee_id"] == pid]
+            post_pos = [r for r in c.carry["post_pos"] if r["payee_id"] == pid]
+            end = c.closing_due(ctx.month)
+            closed = bool(ctx.holder(c.holder_id).get("business_closed_yn"))
+            force = force or bool(force_reasons(ctx, c, p, end, closed, pre_pos, post_pos, quiet=True))
+            s = str(c.row.get("start_date") or "")[:10]
+            if s[:7] <= ctx.month and (lim is None or s > lim[0]):
+                lim = (s, limit_of(ctx, c))
+        limit = lim[1] if lim else limit_of(ctx, mem[0][0])
+        hold = bool(ctx.holder(k[1]).get("payout_hold_yn")) or bool(ctx.holder(k[1]).get("carry_designated_yn"))
+        out[k] = dict(total=total, limit=limit, force=force, hold=hold, contracts=sorted({c.id for c, _ in mem}),
+                      confirmed=(total >= limit or force) and not hold)
+    return out
+
+
+def force_reasons(ctx, c, p, end, closed, pre_pos, post_pos, quiet=False):
+    reasons = []
+    firsts = [r.get("first_payable_confirmed_month") for r in pre_pos + post_pos if r.get("first_payable_confirmed_month")]
+    if firsts and months_between(str(min(firsts))[:7], ctx.month) >= int(ctx.p("carryover_max_months")):
+        reasons.append("SIX_MONTHS")
+        if not quiet:
+            ctx.issue("CANON_GAP", "6개월 경과 산정 — 월 차이 ≥ 6으로 판정(잠정)", STEP, c.holder_id, "V1 L562", "Q-20")
+    if int(ctx.month[5:7]) == int(ctx.p("carryover_force_settle_month")):
+        reasons.append("DECEMBER")
+    if end:
+        reasons.append("CONTRACT_END")
+    if closed:
+        reasons.append("BUSINESS_CLOSED")
+    if p.out["CLAIM"].get("netting_force") and not end and not closed:
+        reasons.append("NETTED_WITH_ENDED")  # 끝난 계약과 순액을 낸 묶음 — 그달 함께 지급(v4.0.74)
+    pid = p.payee_id
+    if bool(ctx.holder(pid).get("payout_hold_yn")) or bool(ctx.holder(pid).get("carry_designated_yn")):
+        reasons = []
+    return reasons
+
+
 def payout_payee(ctx, c, p, end, closed, limit):
     pid = p.payee_id
     kw = dict(payee=pid)
@@ -60,31 +117,26 @@ def payout_payee(ctx, c, p, end, closed, limit):
     pre_neg_with = [r for r in c.carry["pre_neg"] if r["payee_id"] == pid and r.get("carry_line_origin")]
     post_pos = [r for r in c.carry["post_pos"] if r["payee_id"] == pid]
     post_total = sum((r["carryover_amount"] for r in post_pos), D(0))
-    reasons = []
-    firsts = [r.get("first_payable_confirmed_month") for r in pre_pos + post_pos if r.get("first_payable_confirmed_month")]
-    if firsts and months_between(str(min(firsts))[:7], ctx.month) >= int(ctx.p("carryover_max_months")):
-        reasons.append("SIX_MONTHS")
-        ctx.issue("CANON_GAP", "6개월 경과 산정 — 월 차이 ≥ 6으로 판정(잠정)", STEP, c.holder_id, "V1 L562", "Q-20")
-    if int(ctx.month[5:7]) == int(ctx.p("carryover_force_settle_month")):
-        reasons.append("DECEMBER")
-    if end:
-        reasons.append("CONTRACT_END")
-    if closed:
-        reasons.append("BUSINESS_CLOSED")
-    if p.out["CLAIM"].get("netting_force") and not end and not closed:
-        reasons.append("NETTED_WITH_ENDED")  # 끝난 계약과 순액을 낸 묶음 — 그달 함께 지급(v4.0.74)
+    reasons = force_reasons(ctx, c, p, end, closed, pre_pos, post_pos)
+    grp = (getattr(ctx, "payout_groups", None) or {}).get(p.out["CLAIM"].get("netting_group"))
     designated = bool(ctx.holder(pid).get("carry_designated_yn"))  # 운영자 이월 지정 후 재배치(v4.0.43)
     hold = bool(ctx.holder(pid).get("payout_hold_yn")) or designated
-    if hold:
-        reasons = []  # 지급 보류 · 운영자 이월 지정 수취인은 강제 정산 없이 세전 이월(v4.0.39 · v4.0.43)
+    # 지급 보류 · 운영자 이월 지정 수취인은 강제 정산 없이 세전 이월(v4.0.39 · v4.0.43) — force_reasons에서 비움
     force = bool(reasons)
-    evaluated = payable > 0 or bool(pre_pos) or bool(post_pos) or force
+    evaluated = payable > 0 or bool(pre_pos) or bool(post_pos) or force or bool(grp)
     judge = ctx.emit(STEP, "payout_judgement_amount", payable + post_total, c, **kw,
                      inputs={"당월 지급채무 순액": payable, "POST_TAX 지급대기액": post_total},
                      formula="판정 금액 = 당월 지급채무 순액(원귀속 PRE_TAX 세후액 포함) + POST_TAX 지급대기액(VAT 포함 총액 기준)",
                      code="judgement = payable_net_for_payout + Σcarry_post_tax_pos", ref="V2 §8.3 11단계 L302 · L304")
     internal = bool(ctx.holder(pid).get("is_internal"))
     confirmed = evaluated and (judge >= limit or force) and not hold
+    if grp:
+        confirmed = grp["confirmed"]
+        ctx.emit(STEP, "payout_group_judgement", grp["confirmed"], c, **kw,
+                 inputs={"묶음 계약": grp["contracts"], "묶음 판정 금액 합": grp["total"], "최소 지급액(늦게 시작한 계약)": grp["limit"],
+                         "묶음 안 강제 정산": grp["force"], "보류": grp["hold"]},
+                 formula="받는 사람 순액 묶음은 묶음 합으로 지급 판정 — 지급이면 묶음 전체 지급, 미달이면 음수 줄까지 묶음 전체 이월",
+                 ref="V2 §8.3 10 · 11단계 받는 사람 순액 (v4.0.76)")
     o.update(evaluated=evaluated, carry_post_tax_pos_total=post_total, payout_judgement_amount=judge,
              min_payout_limit=limit, force_settle=force, force_settle_reasons=reasons,
              payout_threshold_basis=ctx.p("payout_threshold_basis"), excluded_from_bulk_transfer=internal)
@@ -109,7 +161,7 @@ def payout_payee(ctx, c, p, end, closed, limit):
     elif evaluated:
         # 그 달 순액이 양수면 줄을 고르지 않고 음수 줄까지 모두 이월(음수만 빠져 다음 달 더 지급되는 일 방지,
         # V1 §7.3 · V2 §8.3 11단계, v4.0.60 정본 공백 보완). 순액이 0 이하면 음수는 10단계 청구 경로로 감.
-        net_pos = (p.out["CLAIM"].get("net_after_return") or D(0)) > 0
+        net_pos = (p.out["CLAIM"].get("net_after_return") or D(0)) > 0 or bool(grp)  # 순액 묶음이면 음수 계약 줄도(v4.0.76)
         for ln in p.lines:
             if ln["origin"] in ("NEW", "ADJUSTMENT") and (ln["pre_tax_payable"] > 0 or (net_pos and ln["pre_tax_payable"] < 0)):
                 key = ln["line_key"]
@@ -135,6 +187,7 @@ def payout_payee(ctx, c, p, end, closed, limit):
                              "first_occurred_month": ctx.month, "first_payable_confirmed_month": None,
                              "payout_reservation_status": "NONE", "extinguished_yn": False,
                              "carry_line_origin": ln["origin"],
+                             **({"netting_carry": True} if grp else {}),
                              **{k: v for k, v in extra.items() if k != "components"}})
         # 이번 달 6단계에서 상계한 세전 이월 행이 다시 최소 지급 미달이면: 상계분은 그 달 확정, 원래 행은 소멸 · 남은 금액만 새로 이월
         offset_ids = set()

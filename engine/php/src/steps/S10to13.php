@@ -135,6 +135,10 @@ final class S10Claim
                 $c = $sts[$i][0];
                 $old = $sts[$i][5]['after'];
                 $nv = $new[$i] ?? $old;
+                if ($total >= 0) {
+                    // 음수를 지운 묶음 — 11단계에서 묶음 단위로 지급 · 이월을 정함(이월하면 음수 줄도 함께, v4.0.76)
+                    $sts[$i][1]->out['CLAIM']['netting_group'] = tkey($sts[$i][0]->holder_id, $sts[$i][5]['pid']);
+                }
                 if ($bundle) {
                     $sts[$i][1]->out['CLAIM']['netting_force'] = true;
                     if ($old < 0) {
@@ -197,9 +201,17 @@ final class S10Claim
                 formula: '전월 정산 조정(세후) — 양수는 당월 지급채무에 가산, 음수는 세후 반환채권(청구 음수 항, 자동 상계 없음)',
                 ref: 'V2 §10.1 L353 · §10.2 · 2026-10-27 white 결정(SPEC Q-23 해소) · Q-19');
         }
-        $after = $ctx->emit(self::STEP, 'net_after_return', add(sub($net, $cbConsent), $postPos), $c, ...$kw,
+        // 지난달 받는 사람 순액 묶음이 최소 지급 미달로 함께 이월한 행(양수 · 음수) — 그 달 새 금액처럼 순액에 다시 넣음(v4.0.76)
+        $nc = D(0);
+        foreach ($p->lines as $ln) {
+            if ($ln['origin'] === 'CARRY_PRE_TAX' && truthy(g($ln, 'netting_carry')) && g($ln, 'after_tax_amount') !== null) {
+                $nc = add($nc, $ln['after_tax_amount']);
+            }
+        }
+        $o['netting_carry_in'] = $nc;
+        $after = $ctx->emit(self::STEP, 'net_after_return', add(add(sub($net, $cbConsent), $postPos), $nc), $c, ...$kw,
             inputs: ['9단계 실정산액(위탁 음수 제외)' => $net, '동의 연결 전속계약금 반환' => $cbConsent,
-                '세후 조정(+)' => $postPos],
+                '세후 조정(+)' => $postPos, '순액 묶음 이월 행(세후)' => $nc],
             formula: '동일 계약 · 동일 수취인 + 반환 상계 동의가 연결된 경우만 1회 차감, 세후 전월 정산 조정(+) 가산',
             code: 'net_after_return = net_settle_amount − (clawback if consent else 0) + post_tax_adj(+)',
             ref: 'V2 §8.3 10단계 1) L286 · §10.2');
@@ -334,7 +346,7 @@ final class S10Claim
                 ref: 'V2 L290 · §10.4');
         }
         $carryAt = either($t['carry_pre_tax_after_tax_total'] ?? null, D(0));
-        $payable = add(dmax(D(0), $after), $carryAt);
+        $payable = sub(add(dmax(D(0), $after), $carryAt), either($o['netting_carry_in'] ?? null, D(0)));
         $o['payable_net_for_payout'] = $ctx->emit(self::STEP, 'payable_net_for_payout', $payable, $c, ...$kw,
             inputs: ['max(0, 반환 반영 후 순액)' => dmax(D(0), $after), '원귀속 PRE_TAX 세후 환산액' => $t['carry_pre_tax_after_tax_total'] ?? null],
             formula: '지급 판정 전달 당월 지급채무 순액 = max(0, 반환 반영 후 순액) + 원귀속 PRE_TAX 세후 환산액',
@@ -374,12 +386,106 @@ final class S11Payout
 {
     const STEP = 'PAYOUT';
 
+    private static array $groups = [];
+
+    private static function limitOf(Context $ctx, ContractState $c): Number
+    {
+        return D(g($c->row, 'min_payout_limit') !== null ? g($c->row, 'min_payout_limit') : $ctx->p('default_min_payout_limit'));
+    }
+
+    /** 받는 사람 순액 묶음의 지급 판정: 묶음 합 ≥ 최소 지급액(늦게 시작한 계약의 값) 또는 묶음 안 강제 정산이면 묶음 전체 지급(v4.0.76). */
+    private static function groupDecisions(Context $ctx): array
+    {
+        $groups = [];
+        foreach ($ctx->contracts as $c) {
+            foreach ($c->payees as $p) {
+                $k = $p->out['CLAIM']['netting_group'] ?? null;
+                if ($k !== null) {
+                    $groups[$k][] = [$c, $p];
+                }
+            }
+        }
+        $out = [];
+        foreach ($groups as $k => $mem) {
+            $total = D(0);
+            $force = false;
+            $lim = null;
+            $ids = [];
+            foreach ($mem as [$c, $p]) {
+                $pid = $p->payee_id;
+                $ids[] = $c->id;
+                $prePos = array_values(array_filter($c->carry['pre_pos'], fn($r) => $r['payee_id'] === $pid));
+                $postPos = array_values(array_filter($c->carry['post_pos'], fn($r) => $r['payee_id'] === $pid));
+                $total = add(add($total, either($p->out['CLAIM']['payable_net_for_payout'] ?? null, D(0))),
+                    dsum(array_map(fn($r) => $r['carryover_amount'], $postPos)));
+                $end = $c->closingDue($ctx->month);
+                $closed = truthy(g($ctx->holder($c->holder_id), 'business_closed_yn'));
+                $force = $force || (bool)self::forceReasons($ctx, $c, $p, $end, $closed, $prePos, $postPos, true);
+                $s = substr(pystr(g($c->row, 'start_date') ?? ''), 0, 10);
+                if (substr($s, 0, 7) <= $ctx->month && ($lim === null || $s > $lim[0])) {
+                    $lim = [$s, self::limitOf($ctx, $c)];
+                }
+            }
+            $limit = $lim !== null ? $lim[1] : self::limitOf($ctx, $mem[0][0]);
+            $pid0 = $mem[0][1]->payee_id;
+            $hold = truthy(g($ctx->holder($pid0), 'payout_hold_yn')) || truthy(g($ctx->holder($pid0), 'carry_designated_yn'));
+            $ids = array_values(array_unique($ids));
+            sort($ids);
+            $out[$k] = ['total' => $total, 'limit' => $limit, 'force' => $force, 'hold' => $hold, 'contracts' => $ids,
+                'confirmed' => ($total >= $limit || $force) && !$hold];
+        }
+        return $out;
+    }
+
+    private static function forceReasons(Context $ctx, ContractState $c, PayeeState $p, bool $end, bool $closed, array $prePos, array $postPos, bool $quiet = false): array
+    {
+        $reasons = [];
+        $firsts = [];
+        foreach (array_merge($prePos, $postPos) as $r) {
+            if (truthy(g($r, 'first_payable_confirmed_month'))) {
+                $firsts[] = $r['first_payable_confirmed_month'];
+            }
+        }
+        if ($firsts) {
+            $mn = $firsts[0];
+            foreach ($firsts as $f) {
+                if (pycmp($f, $mn) < 0) {
+                    $mn = $f;
+                }
+            }
+        }
+        if ($firsts && months_between(head(pystr($mn), 7), $ctx->month) >= (int)$ctx->p('carryover_max_months')) {
+            $reasons[] = 'SIX_MONTHS';
+            if (!$quiet) {
+                $ctx->issue('CANON_GAP', '6개월 경과 산정 — 월 차이 ≥ 6으로 판정(잠정)', self::STEP, $c->holder_id, 'V1 L562', 'Q-20');
+            }
+        }
+        if ((int)substr($ctx->month, 5, 2) === (int)$ctx->p('carryover_force_settle_month')) {
+            $reasons[] = 'DECEMBER';
+        }
+        if ($end) {
+            $reasons[] = 'CONTRACT_END';
+        }
+        if ($closed) {
+            $reasons[] = 'BUSINESS_CLOSED';
+        }
+        if (truthy($p->out['CLAIM']['netting_force'] ?? false) && !$end && !$closed) {
+            $reasons[] = 'NETTED_WITH_ENDED'; // 끝난 계약과 순액을 낸 묶음 — 그달 함께 지급(v4.0.74)
+        }
+        $pid = $p->payee_id;
+        if (truthy(g($ctx->holder($pid), 'payout_hold_yn')) || truthy(g($ctx->holder($pid), 'carry_designated_yn'))) {
+            $reasons = []; // 지급 보류 · 운영자 이월 지정 수취인은 강제 정산 없이 세전 이월(v4.0.39 · v4.0.43)
+        }
+        return $reasons;
+    }
+
     public static function run(Context $ctx): void
     {
+        self::$groups = self::groupDecisions($ctx);
         foreach ($ctx->contracts as $c) {
             $end = $c->closingDue($ctx->month); // 끝난 달 + 지급 시차 N 이후(v4.0.51)
             $closed = truthy(g($ctx->holder($c->holder_id), 'business_closed_yn'));
-            $limit = D(g($c->row, 'min_payout_limit') !== null ? g($c->row, 'min_payout_limit') : $ctx->p('default_min_payout_limit'));
+            $limit = self::limitOf($ctx, $c);
             foreach ($c->payees as $p) {
                 self::payoutPayee($ctx, $c, $p, $end, $closed, $limit);
             }
@@ -532,50 +638,27 @@ final class S11Payout
         $preNegWith = array_values(array_filter($c->carry['pre_neg'], fn($r) => $r['payee_id'] === $pid && truthy(g($r, 'carry_line_origin'))));
         $postPos = array_values(array_filter($c->carry['post_pos'], fn($r) => $r['payee_id'] === $pid));
         $postTotal = dsum(array_map(fn($r) => $r['carryover_amount'], $postPos));
-        $reasons = [];
-        $firsts = [];
-        foreach (array_merge($prePos, $postPos) as $r) {
-            if (truthy(g($r, 'first_payable_confirmed_month'))) {
-                $firsts[] = $r['first_payable_confirmed_month'];
-            }
-        }
-        if ($firsts) {
-            $mn = $firsts[0];
-            foreach ($firsts as $f) {
-                if (pycmp($f, $mn) < 0) {
-                    $mn = $f;
-                }
-            }
-        }
-        if ($firsts && months_between(head(pystr($mn), 7), $ctx->month) >= (int)$ctx->p('carryover_max_months')) {
-            $reasons[] = 'SIX_MONTHS';
-            $ctx->issue('CANON_GAP', '6개월 경과 산정 — 월 차이 ≥ 6으로 판정(잠정)', self::STEP, $c->holder_id, 'V1 L562', 'Q-20');
-        }
-        if ((int)substr($ctx->month, 5, 2) === (int)$ctx->p('carryover_force_settle_month')) {
-            $reasons[] = 'DECEMBER';
-        }
-        if ($end) {
-            $reasons[] = 'CONTRACT_END';
-        }
-        if ($closed) {
-            $reasons[] = 'BUSINESS_CLOSED';
-        }
-        if (truthy($p->out['CLAIM']['netting_force'] ?? false) && !$end && !$closed) {
-            $reasons[] = 'NETTED_WITH_ENDED'; // 끝난 계약과 순액을 낸 묶음 — 그달 함께 지급(v4.0.74)
-        }
+        $reasons = self::forceReasons($ctx, $c, $p, $end, $closed, $prePos, $postPos);
+        $gk = $p->out['CLAIM']['netting_group'] ?? null;
+        $grp = $gk !== null ? (self::$groups[$gk] ?? null) : null;
         $designated = truthy(g($ctx->holder($pid), 'carry_designated_yn')); // 운영자 이월 지정 후 재배치(v4.0.43)
         $hold = truthy(g($ctx->holder($pid), 'payout_hold_yn')) || $designated;
-        if ($hold) {
-            $reasons = []; // 지급 보류 · 운영자 이월 지정 수취인은 강제 정산 없이 세전 이월(v4.0.39 · v4.0.43)
-        }
         $force = (bool)$reasons;
-        $evaluated = $payable > 0 || (bool)$prePos || (bool)$postPos || $force;
+        $evaluated = $payable > 0 || (bool)$prePos || (bool)$postPos || $force || $grp !== null;
         $judge = $ctx->emit(self::STEP, 'payout_judgement_amount', add($payable, $postTotal), $c, ...$kw,
             inputs: ['당월 지급채무 순액' => $payable, 'POST_TAX 지급대기액' => $postTotal],
             formula: '판정 금액 = 당월 지급채무 순액(원귀속 PRE_TAX 세후액 포함) + POST_TAX 지급대기액(VAT 포함 총액 기준)',
             code: 'judgement = payable_net_for_payout + Σcarry_post_tax_pos', ref: 'V2 §8.3 11단계 L302 · L304');
         $internal = truthy(g($ctx->holder($pid), 'is_internal'));
         $confirmed = $evaluated && ($judge >= $limit || $force) && !$hold;
+        if ($grp !== null) {
+            $confirmed = $grp['confirmed'];
+            $ctx->emit(self::STEP, 'payout_group_judgement', $grp['confirmed'], $c, ...$kw,
+                inputs: ['묶음 계약' => $grp['contracts'], '묶음 판정 금액 합' => $grp['total'], '최소 지급액(늦게 시작한 계약)' => $grp['limit'],
+                    '묶음 안 강제 정산' => $grp['force'], '보류' => $grp['hold']],
+                formula: '받는 사람 순액 묶음은 묶음 합으로 지급 판정 — 지급이면 묶음 전체 지급, 미달이면 음수 줄까지 묶음 전체 이월',
+                ref: 'V2 §8.3 10 · 11단계 받는 사람 순액 (v4.0.76)');
+        }
         $o = array_merge($o, ['evaluated' => $evaluated, 'carry_post_tax_pos_total' => $postTotal, 'payout_judgement_amount' => $judge,
             'min_payout_limit' => $limit, 'force_settle' => $force, 'force_settle_reasons' => $reasons,
             'payout_threshold_basis' => $ctx->p('payout_threshold_basis'), 'excluded_from_bulk_transfer' => $internal]);
@@ -600,7 +683,7 @@ final class S11Payout
             }
         } elseif ($evaluated) {
             // 그 달 순액이 양수면 줄을 고르지 않고 음수 줄까지 모두 이월(v4.0.60 정본 공백 보완), 0 이하면 음수는 10단계 청구 경로
-            $netPos = either($p->out['CLAIM']['net_after_return'] ?? null, D(0)) > 0;
+            $netPos = either($p->out['CLAIM']['net_after_return'] ?? null, D(0)) > 0 || $grp !== null; // 순액 묶음이면 음수 계약 줄도(v4.0.76)
             foreach ($p->lines as &$ln) {
                 if (in_array($ln['origin'], ['NEW', 'ADJUSTMENT'], true) && ($ln['pre_tax_payable'] > 0 || ($netPos && $ln['pre_tax_payable'] < 0))) {
                     [$carryAmt, $extra] = (either(g($ln, 'offset_amount'), D(0)) > 0 && !$hold) ? self::offsetCarry($ctx, $c, $p, $pid, $ln) : [$ln['pre_tax_payable'], []];
@@ -621,7 +704,7 @@ final class S11Payout
                             'protected_amount' => dmin(dmax(D(0), either(g($ln, 'protected_amount'), D(0))), dmax(D(0), $carryAmt))], $extraComp),
                         'first_occurred_month' => $ctx->month, 'first_payable_confirmed_month' => null,
                         'payout_reservation_status' => 'NONE', 'extinguished_yn' => false,
-                        'carry_line_origin' => $ln['origin']], $extra);
+                        'carry_line_origin' => $ln['origin']], $grp !== null ? ['netting_carry' => true] : [], $extra);
                 }
             }
             unset($ln);

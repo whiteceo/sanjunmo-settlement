@@ -1,0 +1,162 @@
+{
+ "case": "DEC-V476-NETCARRY-10",
+ "title": "음수를 지운 묶음이 최소 지급 미달 — 음수 줄까지 함께 이월(10월)",
+ "canon_ref": "정산 02권 8.3절 10단계 받는 사람 순액 · 04권 Case 2-J(v4.0.76)",
+ "expected_status": "DECISION",
+ "engine_input": {
+  "settlement_month": "2026-10",
+  "params": {},
+  "rights_holders": [
+   {
+    "rights_holder_id": "H-A",
+    "is_resident": true,
+    "income_category": "BUSINESS"
+   }
+  ],
+  "contracts": [
+   {
+    "contract_id": "C-A",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   },
+   {
+    "contract_id": "C-B",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   },
+   {
+    "contract_id": "C-E",
+    "rights_holder_id": "H-A",
+    "contract_status": "ACTIVE",
+    "start_date": "2026-01-01",
+    "current_end_date": "2027-12-31",
+    "min_payout_limit": 100000,
+    "min_claim_limit": -100000,
+    "vat_treatment": "VAT_EXCLUDED",
+    "refund_promo_burden_type": "A",
+    "payout_lag_months": 0
+   }
+  ],
+  "rate_lines": [
+   {
+    "contract_id": "C-A",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-B",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "contract_id": "C-E",
+    "rate_type": "BASIC",
+    "rate_value": 50,
+    "mmg_amount": 0,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "lecture_instructors": [
+   {
+    "lecture_id": "L-A",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-A",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-B",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-B",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   },
+   {
+    "lecture_id": "L-E",
+    "rights_holder_id": "H-A",
+    "contract_id": "C-E",
+    "share_ratio": 100,
+    "start_date": "2026-01-01",
+    "end_basis": "CONTRACT_LINKED"
+   }
+  ],
+  "order_items": [
+   {
+    "order_item_id": "OA",
+    "item_type": "LECTURE",
+    "product_id": "L-A",
+    "paid_amount": 100000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "L-A",
+      "lecture_base_amount": 100000
+     }
+    ]
+   },
+   {
+    "order_item_id": "OE",
+    "item_type": "LECTURE",
+    "product_id": "L-E",
+    "paid_amount": 140000,
+    "allocation_applied": true,
+    "approved_at": "2026-10-10T10:00:00",
+    "lectures": [
+     {
+      "lecture_id": "L-E",
+      "lecture_base_amount": 140000
+     }
+    ]
+   }
+  ],
+  "refund_lines": [],
+  "payee_splits": [],
+  "prepayments": [],
+  "adjustments": [
+   {
+    "adj_id": "ADJ-B",
+    "contract_id": "C-B",
+    "origin_month": "2026-09",
+    "applied_month": "2026-10",
+    "adj_reason_code": "RATE_ERR",
+    "adj_explanation": "9월 과다 지급 정정",
+    "adj_amount": -30000,
+    "adj_tax_type": "TAXABLE",
+    "payee_id": "H-A",
+    "account_type": "PRE_TAX",
+    "approver_id": "재무담당자",
+    "origin_settlement_id": "STMT-202609-001"
+   }
+  ]
+ },
+ "notes": "A 48,350 + B −30,000 + E 67,690 = 86,040 < 100,000 → 묶음 전체 이월(A 50,000 · B −30,000 · E 70,000, 세전, netting_carry), 지급 0",
+ "expected": {
+  "PAYOUT": {
+   "payout_amount": 0
+  }
+ }
+}

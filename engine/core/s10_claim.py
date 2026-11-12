@@ -8,6 +8,7 @@
 """
 from collections import OrderedDict
 
+import json
 from datetime import date
 
 from . import adjust
@@ -95,6 +96,9 @@ def payee_netting(ctx, sts):
             c, st = r[0], r[5]
             old = st["after"]
             nv = new.get(id(r), old)
+            if total >= 0:
+                # 음수를 지운 묶음 — 11단계에서 묶음 단위로 지급 · 이월을 정함(이월하면 음수 줄도 함께, v4.0.76)
+                r[1].out["CLAIM"]["netting_group"] = json.dumps([hid, pid], ensure_ascii=False, separators=(",", ":"))
             if bundle:
                 r[1].out["CLAIM"]["netting_force"] = True
                 if old < 0:
@@ -148,9 +152,13 @@ def claim_payee(ctx, c, p, end, closed, limit):
                  ref_id=a.get("adj_id"), inputs={"origin_month": a.get("origin_month"), "adj_reason_code": a.get("adj_reason_code")},
                  formula="전월 정산 조정(세후) — 양수는 당월 지급채무에 가산, 음수는 세후 반환채권(청구 음수 항, 자동 상계 없음)",
                  ref="V2 §10.1 L353 · §10.2 · 2026-10-27 white 결정(SPEC Q-23 해소) · Q-19")
-    after = ctx.emit(STEP, "net_after_return", net - cb_consent + post_pos, c, **kw,
+    # 지난달 받는 사람 순액 묶음이 최소 지급 미달로 함께 이월한 행(양수 · 음수) — 그 달 새 금액처럼 순액에 다시 넣음(v4.0.76)
+    nc = sum((ln["after_tax_amount"] for ln in p.lines if ln["origin"] == "CARRY_PRE_TAX" and ln.get("netting_carry")
+              and ln.get("after_tax_amount") is not None), D(0))
+    o["netting_carry_in"] = nc
+    after = ctx.emit(STEP, "net_after_return", net - cb_consent + post_pos + nc, c, **kw,
                      inputs={"9단계 실정산액(위탁 음수 제외)": net, "동의 연결 전속계약금 반환": cb_consent,
-                             "세후 조정(+)": post_pos},
+                             "세후 조정(+)": post_pos, "순액 묶음 이월 행(세후)": nc},
                      formula="동일 계약 · 동일 수취인 + 반환 상계 동의가 연결된 경우만 1회 차감, 세후 전월 정산 조정(+) 가산",
                      code="net_after_return = net_settle_amount − (clawback if consent else 0) + post_tax_adj(+)",
                      ref="V2 §8.3 10단계 1) L286 · §10.2")
@@ -258,7 +266,7 @@ def claim_decide(ctx, c, p, end, closed, limit, st, gsum):
     if issued and ch:
         ctx.emit(STEP, "correction_channel", ch[0], c, **kw, formula="반환 · 정정 채널(matrix_case_id → 10.4 채널)",
                  ref="V2 L290 · §10.4")
-    payable = max(D(0), after) + (t.get("carry_pre_tax_after_tax_total") or D(0))
+    payable = max(D(0), after) + (t.get("carry_pre_tax_after_tax_total") or D(0)) - (o.get("netting_carry_in") or D(0))
     o["payable_net_for_payout"] = ctx.emit(
         STEP, "payable_net_for_payout", payable, c, **kw,
         inputs={"max(0, 반환 반영 후 순액)": max(D(0), after), "원귀속 PRE_TAX 세후 환산액": t.get("carry_pre_tax_after_tax_total")},

@@ -300,6 +300,7 @@ final class S08PayeeSplit
                 'tax_threshold_unit_key' => g($r, 'tax_threshold_unit_key'), 'split_amount' => $amt, 'offset_amount' => $off,
                 'pre_tax_payable' => sub($amt, $off), 'taxable_base' => $neg ? ($openNeg ? D(0) : null) : ($earned ? sub($amt, $off) : $amt),
                 'carry_line_origin' => g($r, 'carry_line_origin'), 'carry_with_positive' => $withPos,
+                'netting_carry' => truthy(g($r, 'netting_carry')), // 받는 사람 순액 묶음으로 함께 이월된 행 — 다음 달 순액에 다시 넣음(v4.0.76)
                 'pending_negative_base' => $neg ? $amt : null, 'protected_yn' => $prot > 0, 'protected_amount' => $prot,
                 'first_payable_confirmed_month' => g($r, 'first_payable_confirmed_month'),
                 'first_occurred_month' => g($r, 'first_occurred_month'),
