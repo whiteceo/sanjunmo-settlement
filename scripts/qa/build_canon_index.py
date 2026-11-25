@@ -1,4 +1,4 @@
-"""정본 위치 색인 생성 — 화면 코드별로 정본 · screen_spec 문서 › 절 › 줄을 모은다.
+"""정본 위치 색인 생성 — 화면 코드별로 정본 문서 › 절 › 줄을 모은다(screen_spec은 2026-11-26 삭제).
 
 출력: scripts/qa/reports/review/canon_index.md (작업 로그 · 개정 이력 제외)
 사용: python scripts/qa/build_canon_index.py
@@ -27,10 +27,6 @@ def sources():
     for f in sorted(os.listdir(docs)):
         if f.endswith(".md"):
             yield os.path.join(docs, f)
-    spec = os.path.join(docs, "screen_spec")
-    for f in sorted(os.listdir(spec)):
-        if f.endswith(".md") and f[:2].isdigit():
-            yield os.path.join(spec, f)
 
 
 def clean_head(t):
@@ -62,7 +58,7 @@ def main():
                     if no not in idx[code][key]:
                         idx[code][key].append(no)
     L = ["# 화면 코드별 정본 위치 색인 (자동 생성 · 작업 로그·개정 이력 제외)",
-         "문서 › 절 : 줄. 이 줄 근처만 읽는다. 우선순위 README·PROJECT_STATE 1절 > 통합설계서·정산 00~04 > screen_spec(참고). 생성: `python scripts/qa/build_canon_index.py`", ""]
+         "문서 › 절 : 줄. 이 줄 근처만 읽는다. 우선순위 README·PROJECT_STATE 1절 > 통합설계서·정산 00~04. 생성: `python scripts/qa/build_canon_index.py`", ""]
     for code in sorted(idx):
         L.append(f"## {code}")
         for key in order[code]:

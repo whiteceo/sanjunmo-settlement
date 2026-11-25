@@ -73,8 +73,8 @@
 - 화면 문구 검사는 HTML grep이 아니라 Playwright 렌더링 기준으로 한다(`prototype_clean/common-snb.js`가 로드 후 문구를 런타임 치환).
 
 ## 읽기 · 수정 효율 (2026-10-26, 문서 · HTML이 크고 두 폴더라서)
-- `docs/screen_spec/`(화면설계서)는 프로토타입을 따라가는 문서로, 별도 에이전트가 프로토타입 기준으로 고친다. 여기서는 수정하지 않고, 프로토타입을 바꾸면 화면별 변경 요지를 `scripts/qa/reports/review/SPEC_SYNC.md`에 남긴다(2026-10-26 white). 화면설계서와 프로토타입이 다르면 프로토타입(정본 기준)이 맞다.
-- 정본 · screen_spec은 통째로 읽지 않는다. 화면 코드별 위치 색인(`scripts/qa/reports/review/canon_index.md`)에서 문서 · 절 · 줄을 찾아 그 근처만 읽는다. 색인이 낡았으면 다시 만든다(생성 방법은 `PROJECT_STATE.md` 2절).
+- 화면설계 참고본(`docs/screen_spec/`)은 2026-11-26 지웠다(PO 결정, git 이력에만 있음). 근거 · 참고로 쓰지 않고 `SPEC_SYNC.md`에도 더 적지 않는다.
+- 정본은 통째로 읽지 않는다. 화면 코드별 위치 색인(`scripts/qa/reports/review/canon_index.md`)에서 문서 · 절 · 줄을 찾아 그 근처만 읽는다. 색인이 낡았으면 다시 만든다(생성 방법은 `PROJECT_STATE.md` 2절).
 - HTML도 통째로 읽지 않는다. `python scripts/qa/build_screen_digest.py`로 만든 화면 요약본(`scripts/qa/reports/digest/<파일>.md`, 원본의 약 6%, 원본 줄 번호 포함)을 먼저 보고 필요한 줄만 연다.
 - 두 폴더 수정은 `prototype_clean`을 한 번 고치고 `python scripts/qa/mirror_patch.py --from prototype_clean --to prototype`로 같은 변경을 옮긴다. 건너뛴 hunk(문구가 다른 줄)만 손으로 옮긴다. 마지막에 `python scripts/qa/skill_pair_diff.py`로 두 폴더 로직 · 구조 차이 0을 확인한다.
 - 에이전트 분업: 조사 결과는 파일(`scripts/qa/reports/review/findings/`), 최종 응답은 한 줄. 총괄이 건수는 파일에서 세고 근거는 원문과 대조한 뒤 판정(`decisions.md`). 수정은 파일이 겹치지 않게 나눠 맡기고, E2E · QA는 마지막에 한 번. 진행은 `STATUS.md` 한 줄씩.
@@ -82,7 +82,7 @@
 - UI 요소 · 디자인은 프로토타입 기준이며 개발 화면의 UI를 따르지 않는다(2026-10-27 white). 모달 / 별도 페이지 판단은 `PROJECT_STATE.md` 1절 · `findings/PAGE_PATTERN.md`.
 - 정책(정본에 없는 업무 규칙 · 값의 의미)이 아닌 화면 구성 · 표시 방식 · UX 선택은 목적에 맞게 스스로 정해 구현하고 결과만 보고한다. 묻는 것은 정책 판단뿐(2026-10-26 white).
 - 멀티 세션 · 에이전트는 작업마다 효율(파일 겹침 없음, 맥락을 가진 세션에 배정, 대기 시간)을 따져 필요한 만큼 늘려 처리한다(2026-10-26 white).
-- 같은 폴더를 다른 세션과 함께 쓴다(화면설계서 살펴보기 세션 등): 작업 전 `git pull`, 수정 전 `STATUS.md`에 담당 파일 기록, 공용 파일(`common-*.js` · `common-v84.css` · `PROJECT_STATE.md` · `README.md`)은 작은 단위로 고치고 커밋 직전 다시 pull, 버전 번호는 커밋 직전 `git log`로 확인 후 +1, `stash` · `reset` · 브랜치 전환 금지. 분담은 `scripts/qa/reports/review/HANDOFF.md`.
+- 같은 폴더를 다른 세션과 함께 쓴다(다른 세션): 작업 전 `git pull`, 수정 전 `STATUS.md`에 담당 파일 기록, 공용 파일(`common-*.js` · `common-v84.css` · `PROJECT_STATE.md` · `README.md`)은 작은 단위로 고치고 커밋 직전 다시 pull, 버전 번호는 커밋 직전 `git log`로 확인 후 +1, `stash` · `reset` · 브랜치 전환 금지. 분담은 `scripts/qa/reports/review/HANDOFF.md`.
 
 ## 검증
 - E2E(폴더별 2회, UTF-8 출력):
@@ -98,6 +98,8 @@
 - `main`에 직접 커밋한다. 메시지 형식: `v<버전> <화면 코드> <요약>`.
 - 정본(설계서 · 정산 00~04권 · README)을 커밋하기 직전에 `git fetch origin`으로 원격이 앞섰는지 보고, 앞섰으면 그 위로 올린 뒤 버전 번호를 다시 정한다. 정본 커밋은 오래 묵히지 않고 push 지시를 바로 받는다(2026-11-10 정본 두 갈래 사고).
 - 작업이 끝나면 `PROJECT_STATE.md` 5절 작업 로그에 1줄, 상태가 바뀌면 4절도 갱신한다.
+- 정본 개정 이력은 본문에 두지 않는다(2026-11-26 PO 결정). 정본을 고치면 `docs/개정이력/` 해당 파일(통합설계서 · 정산) 표 맨 위에 한 행을 넣고, 본문 머리의 버전을 같이 올린다.
+- 정본 줄 번호를 인용할 때는 정본 커밋(짧은 해시)을 함께 적는다. 정본이 바뀌면 줄 번호가 밀린다.
 
 ## 알려진 함정
 - 공통 모달 닫기 핫픽스(`UNIVERSAL-MODAL-CLOSER-HOTFIX`, 각 HTML 두 번째 `<script>`)는 로드 시 모든 모달 백드롭에 인라인 `display:none !important`를 건다. `hidden` 클래스만 떼서 여는 모달은 열리지 않는다. 열 때 `open` 클래스를 붙이고 인라인 `display`를 지우고, 닫을 때 `open`을 뗀다(SETT-005 v6.0·v6.1 참고).
